@@ -48,11 +48,11 @@ TASK_CODE_MAPPING = {
     MULTI_EURLEX_LEVEL_1: TaskType.MLTC,
     MULTI_EURLEX_LEVEL_2: TaskType.MLTC,
     MULTI_EURLEX_LEVEL_3: TaskType.MLTC,
-    GREEK_LEGAL_NER: "NER",
-    LEGALNERO: "NER",
-    LENER_BR: "NER",
-    MAPA_COARSE: "NER",
-    MAPA_FINE: "NER",
+    GREEK_LEGAL_NER: TaskType.NER,
+    LEGALNERO: TaskType.NER,
+    LENER_BR: TaskType.NER,
+    MAPA_COARSE: TaskType.NER,
+    MAPA_FINE: TaskType.NER,
 }
 
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
@@ -363,7 +363,7 @@ class LEXTREMEScenario(Scenario):
                 for example in dataset[split]:
                     label_classes |= set(example["label"])  # add all new labels to the set
             label_classes = sorted(list(map(str, label_classes)))  # convert everything to a string
-        elif task_code == "NER":
+        elif task_code == TaskType.NER:
             label_classes = self.ner_class_mapping[config]
 
         def generate_instance(example, split: str):
@@ -373,7 +373,7 @@ class LEXTREMEScenario(Scenario):
                 correct_labels = correct_label if isinstance(correct_label, list) else [correct_label]
             elif task_code == TaskType.MLTC:
                 correct_labels = list(map(str, example["label"]))  # here we don't have any mapping to label names
-            elif task_code == "NER":
+            elif task_code == TaskType.NER:
                 correct_labels = [label_classes[label] for label in example["label"]]
 
             # construct wrong references
@@ -383,7 +383,7 @@ class LEXTREMEScenario(Scenario):
                     if label_name not in correct_labels:
                         wrong_reference = Reference(output=Output(label_name), tags=[])  # Wrong output
                         wrong_references.append(wrong_reference)
-            elif task_code == "NER":
+            elif task_code == TaskType.NER:
                 if len(set(correct_labels)) > 1:  # make sure that the correct labels are not only 'O's
                     for label_name in label_classes:
                         if label_name not in correct_labels and label_name != "O":
@@ -416,7 +416,7 @@ class LEXTREMEScenario(Scenario):
                 correct_references = [
                     Reference(output=Output(correct_label), tags=[CORRECT_TAG]) for correct_label in correct_labels
                 ]  # for MLTC we have multiple correct ones
-            elif task_code == "NER":
+            elif task_code == TaskType.NER:
                 input_text = '"' + self.delimiter.join(example["input"]) + '"'
                 correct_references = [Reference(output=Output(" ".join(correct_labels)), tags=[CORRECT_TAG])]
             return Instance(input=Input(input_text), references=wrong_references + correct_references, split=split)
