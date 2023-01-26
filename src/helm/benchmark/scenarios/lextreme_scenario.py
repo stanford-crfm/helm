@@ -390,7 +390,7 @@ class LEXTREMEScenario(Scenario):
                             # just replace the non-'O' labels with the new label_name for a fake example
                             new_labels = [label_name if label != "O" else label for label in correct_labels]
                             wrong_reference = Reference(
-                                output=Output('"' + self.delimiter.join(new_labels) + '"'), tags=[]
+                                output=Output(construct_ner_sequence(new_labels)), tags=[]
                             )  # Wrong output
                             wrong_references.append(wrong_reference)
 
@@ -417,9 +417,14 @@ class LEXTREMEScenario(Scenario):
                     Reference(output=Output(correct_label), tags=[CORRECT_TAG]) for correct_label in correct_labels
                 ]  # for MLTC we have multiple correct ones
             elif task_code == TaskType.NER:
-                input_text = '"' + self.delimiter.join(example["input"]) + '"'
-                correct_references = [Reference(output=Output(" ".join(correct_labels)), tags=[CORRECT_TAG])]
+                input_text = construct_ner_sequence(example["input"])
+                correct_references = [
+                    Reference(output=Output(construct_ner_sequence(correct_labels)), tags=[CORRECT_TAG])
+                ]
             return Instance(input=Input(input_text), references=wrong_references + correct_references, split=split)
+
+        def construct_ner_sequence(ner_list):
+            return '"' + self.delimiter.join(ner_list) + '"'
 
         def reduce_wrong_reference_count(wrong_references):
             self.random.shuffle(wrong_references)  # shuffle wrong references
