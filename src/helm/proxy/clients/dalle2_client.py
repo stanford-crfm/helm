@@ -27,9 +27,14 @@ class DALLE2Client(OpenAIClient):
         "See https://labs.openai.com/policies/content-policy for more information."
     )
 
+    # DALL-E 2 will respond with the following error messages (or even a substring of the message)
+    # if it has any issues generating images for a particular prompt
     PROMPT_FLAGGED_ERROR: str = (
         "Your request was rejected as a result of our safety system. "
         "Your prompt may contain text that is not allowed by our safety system."
+    )
+    PROMPT_FLAGGED_ERROR2: str = (
+        "Something went wrong with your generation. You may try again or ask for a different prompt"
     )
 
     def __init__(
@@ -99,7 +104,7 @@ class DALLE2Client(OpenAIClient):
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
-            if str(e) == self.PROMPT_FLAGGED_ERROR:
+            if str(e) in self.PROMPT_FLAGGED_ERROR or str(e) in self.PROMPT_FLAGGED_ERROR2:
                 # Some requests fail even if we check the prompt against the moderation API.
                 # For example, "black" in Spanish (negro) causes requests to DALL-E to fail even
                 # though the prompt does not get flagged by the Moderation API.
