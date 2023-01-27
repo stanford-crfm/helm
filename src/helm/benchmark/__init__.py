@@ -71,6 +71,7 @@ from .metrics import ranking_metrics  # noqa
 from .metrics import summarization_metrics  # noqa
 from .metrics import toxicity_metrics  # noqa
 from .metrics import tokens_metric  # noqa
+from .metrics.images import aesthetics_metrics  # noqa
 from .metrics.images import clip_score_metrics  # noqa
 from .metrics.images import efficiency_metrics  # noqa
 from .metrics.images import fid_metric  # noqa

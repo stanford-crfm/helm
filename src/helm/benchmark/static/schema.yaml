@@ -960,6 +960,13 @@ metrics:
     description: TODO
     lower_is_better: false
 
+  # Aesthetics
+  - name: expected_aesthetics_score
+    display_name: Expected aesthetics score
+    short_display_name: Expected aesthetics score
+    description: TODO
+    lower_is_better: false
+
   # NSFW
   - name: perspective_api_prompt_toxic
     display_name: Perspective API toxic
@@ -1333,6 +1340,9 @@ metric_groups:
     - name: expected_clip_score
       split: ${main_split}
     - name: max_clip_score
+      split: ${main_split}
+    # Aesthetics
+    - name: expected_aesthetics_score
       split: ${main_split}
     # NSFW
     - name: perspective_api_prompt_toxic

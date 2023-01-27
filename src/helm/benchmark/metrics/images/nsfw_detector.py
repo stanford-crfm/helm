@@ -15,7 +15,7 @@ from helm.common.images_utils import open_image
 
 class NSFWDetector:
     """
-    We use the LAION's CLIP-based NSFW detector for images (https://github.com/LAION-AI/CLIP-based-NSFW-Detector).
+    LAION's CLIP-based NSFW detector for images (https://github.com/LAION-AI/CLIP-based-NSFW-Detector).
     """
 
     # TODO: determine the right threshold and update comments below
