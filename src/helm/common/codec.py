@@ -121,3 +121,11 @@ def from_json(data: Union[bytes, str], cls: Type[T]) -> T:
 
 def to_json(data: Any) -> str:
     return json.dumps(_converter.unstructure(data), indent=2)
+
+
+def from_dict(cls: Type[T], data: Dict) -> T:
+    return _converter.structure(data, cls)
+
+
+def to_dict(data: Any) -> str:
+    return _converter.unstructure(data)

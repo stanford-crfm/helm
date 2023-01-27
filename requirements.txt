@@ -23,7 +23,6 @@ flake8~=5.0.4
 zstandard~=0.18.0
 tqdm~=4.64.1
 pyhocon~=0.3.59
-dacite~=1.6.0
 
 # Proxy
 bottle~=0.12.23

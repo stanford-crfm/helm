@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, List
-import dacite
 
+from helm.common.codec import from_dict
 from helm.common.general import parse_hocon
 from helm.common.hierarchical_logger import hlog
 
@@ -35,6 +35,6 @@ def read_run_entries(paths: List[str]) -> RunEntries:
     for path in paths:
         with open(path) as f:
             raw = parse_hocon(f.read())
-        run_entries = merge_run_entries(run_entries, dacite.from_dict(RunEntries, raw))
+        run_entries = merge_run_entries(run_entries, from_dict(RunEntries, raw))
     hlog(f"Read {len(run_entries.entries)} run entries from {path}")
     return run_entries

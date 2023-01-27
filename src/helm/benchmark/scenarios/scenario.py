@@ -162,8 +162,6 @@ class Instance:
         return info
 
 
-# TODO(#1212): Scenario should not be a dataclass.
-@dataclass  # type: ignore
 class Scenario(ABC):
     """
     A scenario represents a (task, data distribution).

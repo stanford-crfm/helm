@@ -2,7 +2,6 @@ import argparse
 import os
 import datetime
 import urllib.parse
-import dacite
 import json
 from collections import defaultdict
 from dataclasses import dataclass, replace
@@ -11,6 +10,7 @@ from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
 
+from helm.common.codec import from_dict
 from helm.common.general import (
     write,
     ensure_directory_exists,
@@ -243,10 +243,10 @@ class Summarizer:
         """Load the `Run` object from `run_path`."""
 
         with open(os.path.join(run_path, "run_spec.json")) as f:
-            run_spec = dacite.from_dict(RunSpec, json.load(f))
+            run_spec = from_dict(RunSpec, json.load(f))
 
         with open(os.path.join(run_path, "stats.json")) as f:
-            stats = [dacite.from_dict(Stat, raw) for raw in json.load(f)]
+            stats = [from_dict(Stat, raw) for raw in json.load(f)]
 
         return Run(
             run_path=run_path,

@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
 )
 from helm.common.request import Request, RequestResult
-from dacite import from_dict
+from helm.common.codec import from_dict
 from helm.proxy.accounts import Account
 from helm.proxy.query import Query, QueryResult
 from .service import Service, GeneralInfo

@@ -4,10 +4,10 @@ import random
 import string
 from typing import Dict, Optional, Callable, List
 
-from dacite import from_dict
 from dataclasses import asdict, dataclass, field
 from sqlitedict import SqliteDict
 
+from helm.common.codec import from_dict
 from helm.common.authentication import Authentication
 from helm.common.general import hlog
 

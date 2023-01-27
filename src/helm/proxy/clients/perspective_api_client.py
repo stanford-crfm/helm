@@ -2,13 +2,13 @@ import threading
 from dataclasses import asdict
 from typing import List, Dict, Optional
 
-from dacite import from_dict
 from googleapiclient import discovery
 from googleapiclient.errors import BatchError, HttpError
 from googleapiclient.http import BatchHttpRequest
 from httplib2 import HttpLib2Error
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.codec import from_dict
 from helm.common.perspective_api_request import ToxicityAttributes, PerspectiveAPIRequest, PerspectiveAPIRequestResult
 
 
@@ -49,7 +49,7 @@ class PerspectiveAPIClient:
             f"{attribute.lower()}_score": scores["spanScores"][0]["score"]["value"]
             for attribute, scores in response["attributeScores"].items()
         }
-        return from_dict(data_class=ToxicityAttributes, data=all_scores)
+        return from_dict(ToxicityAttributes, data=all_scores)
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
         # API key obtained from GCP that works with PerspectiveAPI

@@ -1,10 +1,13 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Dict, Optional
 
 # Perturbation-relevant metrics, see computed_on below
 PERTURBATION_ORIGINAL: str = "original"
 PERTURBATION_PERTURBED: str = "perturbed"
 PERTURBATION_WORST: str = "worst"
+
+
+_perturbation_description_registry: Dict[str, "PerturbationDescription"]
 
 
 @dataclass(frozen=True)
@@ -28,3 +31,7 @@ class PerturbationDescription:
 
     seed: Optional[int] = None
     """Seed added to instance_id when generating perturbation"""
+
+    def __init__subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        print(f"[debug:yifanmai] PerturbationDescription: {cls}")

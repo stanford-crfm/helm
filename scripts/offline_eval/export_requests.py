@@ -3,8 +3,8 @@ import json
 import os
 import typing
 from collections import Counter
-from dacite import from_dict
 
+from helm.common.codec import from_dict
 from helm.common.request import Request
 from helm.common.cache import (
     KeyValueStoreCacheConfig,

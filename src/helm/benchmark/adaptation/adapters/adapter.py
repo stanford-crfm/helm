@@ -40,37 +40,38 @@ class Adapter(ABC):
         """
         pass
 
-    def get_run_instances(self, instances: List[Instance]) -> List[Instance]:
-        """
-        Get the instances necessary for this run:
-        Train instances (split=train): keep all (if any) for in-context learning
-        Eval instances (split=valid or test): keep at most `max_eval_instances` specified in `AdapterSpec` by sampling
-        Return the resulting train and eval instances.
-        """
-        all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
 
-        all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
-        if (
-            self.adapter_spec.max_eval_instances is not None
-            and len(all_eval_instances) > self.adapter_spec.max_eval_instances
-        ):
-            # Pick the first `self.adapter_spec.max_eval_instances`.
-            # The random sampling includes instances monotonically.
-            np.random.seed(0)
-            selected_eval_instances = list(
-                np.random.choice(
-                    all_eval_instances,  # type: ignore
-                    self.adapter_spec.max_eval_instances,
-                    replace=False,
-                )
+def get_run_instances(instances: List[Instance], max_eval_instances: int) -> List[Instance]:
+    """
+    Get the instances necessary for this run:
+    Train instances (split=train): keep all (if any) for in-context learning
+    Eval instances (split=valid or test): keep at most `max_eval_instances` specified in `AdapterSpec` by sampling
+    Return the resulting train and eval instances.
+    """
+    all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
+
+    all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
+    if (
+        max_eval_instances is not None
+        and len(all_eval_instances) > max_eval_instances
+    ):
+        # Pick the first `self.adapter_spec.max_eval_instances`.
+        # The random sampling includes instances monotonically.
+        np.random.seed(0)
+        selected_eval_instances = list(
+            np.random.choice(
+                all_eval_instances,  # type: ignore
+                max_eval_instances,
+                replace=False,
             )
-        else:
-            selected_eval_instances = all_eval_instances
-
-        hlog(
-            f"{len(instances)} instances, "
-            f"{len(all_train_instances)} train instances, "
-            f"{len(selected_eval_instances)}/{len(all_eval_instances)} eval instances"
         )
+    else:
+        selected_eval_instances = all_eval_instances
 
-        return all_train_instances + selected_eval_instances
+    hlog(
+        f"{len(instances)} instances, "
+        f"{len(all_train_instances)} train instances, "
+        f"{len(selected_eval_instances)}/{len(all_eval_instances)} eval instances"
+    )
+
+    return all_train_instances + selected_eval_instances

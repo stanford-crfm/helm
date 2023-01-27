@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import List, Optional
-import dacite
 import importlib_resources as resources
 import yaml  # type: ignore
 
+from helm.common.codec import from_dict
 from helm.common.hierarchical_logger import htrack, hlog
 from helm.proxy.models import MODEL_NAME_TO_MODEL
 from helm.benchmark.presentation.schema import Schema
@@ -82,4 +82,4 @@ def read_contamination():
     contamination_path = resources.files(CONTAMINATION_YAML_PACKAGE).joinpath(CONTAMINATION_YAML_FILENAME)
     with contamination_path.open("r") as f:
         raw = yaml.safe_load(f)
-    return dacite.from_dict(Contamination, raw)
+    return from_dict(Contamination, raw)

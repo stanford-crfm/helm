@@ -1,8 +1,7 @@
 from typing import Dict, List
 import requests
 
-from dacite import from_dict
-
+from helm.common.codec import from_dict
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (

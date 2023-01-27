@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-import dacite
 import gzip
 import json
 import os
@@ -7,6 +6,7 @@ import re
 import html
 import random
 from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.codec import from_dict
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists, asdict_without_nones
@@ -294,7 +294,7 @@ class NaturalQAScenario(Scenario):
         else:
             with htrack_block(f"Reading {raw_instances_path}"):
                 for raw_line in open(raw_instances_path):
-                    raw_instance = dacite.from_dict(RawInstance, json.loads(raw_line))
+                    raw_instance = from_dict(RawInstance, json.loads(raw_line))
                     raw_instances.append(raw_instance)
 
         # Convert raw instances to instances.

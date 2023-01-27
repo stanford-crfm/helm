@@ -13,10 +13,10 @@ import os
 import sys
 import time
 
-from dacite import from_dict
 import bottle
 
 from helm.common.authentication import Authentication
+from helm.common.codec import from_dict
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request
 from helm.common.perspective_api_request import PerspectiveAPIRequest

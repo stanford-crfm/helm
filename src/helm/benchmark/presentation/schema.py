@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Optional, Dict
-import dacite
 import mako.template
 import yaml  # type: ignore
 import importlib_resources as resources
 
+from helm.common.codec import from_dict
 from helm.common.general import hlog
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
@@ -240,4 +240,4 @@ def read_schema() -> Schema:
     schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_YAML_FILENAME)
     with schema_path.open("r") as f:
         raw = yaml.safe_load(f)
-    return dacite.from_dict(Schema, raw)
+    return from_dict(Schema, raw)
