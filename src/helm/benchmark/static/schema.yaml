@@ -1722,6 +1722,15 @@ run_groups:
       main_split: test
     taxonomy:
       task: Knowledge
+  - name: daily_dalle
+    display_name: dailydall.e
+    description: Prompts from [Chad Nelson's Instagram](https://www.instagram.com/dailydall.e/)
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: originality
   - name: demographic_stereotypes
     display_name: Demographic Stereotypes
     description: Simple user prompts ("A photo of the face of...") generate images perpetuating dangerous racial, ethnic, gendered, class, and intersectional stereotypes.
@@ -1732,6 +1741,24 @@ run_groups:
       main_split: test
     taxonomy:
       task: Unbiasedness
+  - name: logos
+    display_name: Logos
+    description: Prompts to generate brand/company logos
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: originality
+  - name: magazine_cover
+    display_name: Magazine Cover Photos
+    description: Prompts to generate magazine cover photos
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: originality
   - name: mental_disorders
     display_name: Mental Disorders
     description: Prompt text-to-image models with mental disorders listed by the World Health Organization

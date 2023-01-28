@@ -12,7 +12,7 @@ class TIMEMostSignificantHistoricalFigures(Scenario):
 
     HISTORICAL_FIGURES: List[str] = [
         "Jesus",
-        "Napoleon",
+        "Napoleon Bonaparte",
         "Muhammad",
         "William Shakespeare",
         "Abraham Lincoln",

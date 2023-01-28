@@ -47,9 +47,12 @@ from .scenarios import pubmed_qa_scenario  # noqa
 # vHELM
 from .scenarios import common_syntactic_processes_scenario  # noqa
 from .scenarios import cub200_scenario  # noqa
+from .scenarios import daily_dalle_scenario  # noqa
 from .scenarios import demographic_stereotypes_scenario  # noqa
 from .scenarios import draw_bench_scenario  # noqa
 from .scenarios import i2p_scenario  # noqa
+from .scenarios import logos_scenario  # noqa
+from .scenarios import magazine_cover_scenario  # noqa
 from .scenarios import mental_disorders_scenario  # noqa
 from .scenarios import mscoco_scenario  # noqa
 from .scenarios import paint_skills_scenario  # noqa

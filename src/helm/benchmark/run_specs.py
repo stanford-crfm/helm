@@ -1666,6 +1666,20 @@ def get_cub200_spec() -> RunSpec:
     )
 
 
+def get_daily_dalle_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.daily_dalle_scenario.DailyDallEScenario", args={})
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    return RunSpec(
+        name="daily_dalle",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_core_vhelm_metric_specs(),
+        groups=["daily_dalle"],
+    )
+
+
 def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.demographic_stereotypes_scenario.DemographicStereotypesScenario",
@@ -1716,6 +1730,36 @@ def get_i2p_spec(category: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_core_vhelm_metric_specs(),
         groups=["i2p"],
+    )
+
+
+def get_logos_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.logos_scenario.LogosScenario", args={})
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    return RunSpec(
+        name="logos",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_core_vhelm_metric_specs(),
+        groups=["logos"],
+    )
+
+
+def get_magazine_cover_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.magazine_cover_scenario.MagazineCoverScenario", args={}
+    )
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    return RunSpec(
+        name="magazine_cover",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_core_vhelm_metric_specs(),
+        groups=["magazine_cover"],
     )
 
 
@@ -1894,9 +1938,12 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     # vHELM
     "common_syntactic_processes": get_common_syntactic_processes_spec,
     "cub200": get_cub200_spec,
+    "daily_dalle": get_daily_dalle_spec,
     "demographic_stereotypes": get_demographic_stereotypes_spec,
     "draw_bench": get_draw_bench_spec,
     "i2p": get_i2p_spec,
+    "logos": get_logos_spec,
+    "magazine_cover": get_magazine_cover_spec,
     "mental_disorders": get_mental_disorders_spec,
     "mscoco": get_mscoco_spec,
     "paint_skills": get_paint_skills_spec,
