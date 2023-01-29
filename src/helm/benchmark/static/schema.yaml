@@ -1752,7 +1752,7 @@ run_groups:
       task: originality
   - name: logos
     display_name: Logos
-    description: Prompts to generate brand/company logos
+    description: Prompts to generate logos for brands and companies
     metric_groups:
       - vhelm_core
     environment:

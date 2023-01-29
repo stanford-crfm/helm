@@ -6,6 +6,8 @@ from .scenario import Scenario, Instance, Input, TEST_SPLIT
 class LandingPageScenario(Scenario):
     """
     Prompts to generate landing pages for mobile or web applications.
+    Set `medium` to "landing page" in the `AdapterSpec`, which will produce prompts
+    in the following format: "a landing page of a <app_type> <platform> application".
     """
 
     APPLICATION_TYPES: List[str] = [
