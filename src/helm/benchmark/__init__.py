@@ -51,6 +51,7 @@ from .scenarios import daily_dalle_scenario  # noqa
 from .scenarios import demographic_stereotypes_scenario  # noqa
 from .scenarios import draw_bench_scenario  # noqa
 from .scenarios import i2p_scenario  # noqa
+from .scenarios import landing_page_scenario  # noqa
 from .scenarios import logos_scenario  # noqa
 from .scenarios import magazine_cover_scenario  # noqa
 from .scenarios import mental_disorders_scenario  # noqa

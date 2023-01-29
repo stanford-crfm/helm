@@ -1733,10 +1733,28 @@ def get_i2p_spec(category: str) -> RunSpec:
     )
 
 
+def get_landing_page_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.landing_page_scenario.LandingPageScenario", args={}
+    )
+
+    adapter_spec = get_image_generation_adapter_spec(medium="landing page", num_outputs=4)
+
+    return RunSpec(
+        name="landing_page",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_core_vhelm_metric_specs(),
+        groups=["landing_page"],
+    )
+
+
 def get_logos_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.logos_scenario.LogosScenario", args={})
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+    adapter_spec = get_image_generation_adapter_spec(
+        medium="logo", modifications=["simple", "memorable", "timeless"], num_outputs=4
+    )
 
     return RunSpec(
         name="logos",
@@ -1942,6 +1960,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "demographic_stereotypes": get_demographic_stereotypes_spec,
     "draw_bench": get_draw_bench_spec,
     "i2p": get_i2p_spec,
+    "landing_page": get_landing_page_spec,
     "logos": get_logos_spec,
     "magazine_cover": get_magazine_cover_spec,
     "mental_disorders": get_mental_disorders_spec,

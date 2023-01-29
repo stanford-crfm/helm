@@ -1741,6 +1741,15 @@ run_groups:
       main_split: test
     taxonomy:
       task: Unbiasedness
+  - name: landing_page
+    display_name: Landing Page
+    description: Prompts to generate landing pages for mobile or web applications.
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: originality
   - name: logos
     display_name: Logos
     description: Prompts to generate brand/company logos
