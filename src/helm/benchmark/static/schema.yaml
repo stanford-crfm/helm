@@ -1724,7 +1724,7 @@ run_groups:
       task: Knowledge
   - name: daily_dalle
     display_name: dailydall.e
-    description: Prompts from [Chad Nelson's Instagram](https://www.instagram.com/dailydall.e/)
+    description: DALL-E 2 prompts from [Chad Nelson's Instagram](https://www.instagram.com/dailydall.e/)
     metric_groups:
       - vhelm_core
     environment:
