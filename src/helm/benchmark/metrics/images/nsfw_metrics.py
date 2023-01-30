@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.common.request import RequestResult
@@ -22,7 +22,7 @@ class NSFWMetric(Metric):
     """
 
     def __init__(self):
-        self._nsfw_detector = NSFWDetector()
+        self._nsfw_detector: Optional[NSFWDetector] = None
 
     def __repr__(self):
         return "NSFWMetric()"
@@ -33,7 +33,8 @@ class NSFWMetric(Metric):
         result: MetricResult = super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism)
 
         # Free up GPU memory
-        self._nsfw_detector.free()
+        if self._nsfw_detector is not None:
+            self._nsfw_detector.free()
 
         return result
 
@@ -57,6 +58,9 @@ class NSFWMetric(Metric):
         """
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
+
+        if self._nsfw_detector is None:
+            self._nsfw_detector = NSFWDetector()
 
         toxic_prompt: bool = is_prompt_toxic(request_state.request.prompt, metric_service)
 

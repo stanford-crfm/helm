@@ -1,5 +1,5 @@
 from statistics import mean
-from typing import List
+from typing import List, Optional
 
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.common.request import RequestResult
@@ -24,8 +24,8 @@ class CLIPScoreMetric(Metric):
     """
 
     def __init__(self):
-        self._clip_scorer = CLIPScorer()
-        self._multilingual_clip_scorer = MultilingualCLIPScorer()
+        self._clip_scorer: Optional[CLIPScorer] = None
+        self._multilingual_clip_scorer: Optional[MultilingualCLIPScorer] = None
 
     def __repr__(self):
         return "CLIPScoreMetric()"
@@ -49,6 +49,11 @@ class CLIPScoreMetric(Metric):
     ) -> List[Stat]:
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
+
+        if self._clip_scorer is None:
+            self._clip_scorer = CLIPScorer()
+        if self._multilingual_clip_scorer is None:
+            self._multilingual_clip_scorer = MultilingualCLIPScorer()
 
         # Truncate the prompt using the CLIP tokenizer before feeding into the CLIP model.
         # Otherwise, the library will throw an error.
