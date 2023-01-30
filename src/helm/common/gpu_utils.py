@@ -2,7 +2,7 @@ import torch
 
 
 def get_torch_device_name() -> str:
-    """Return the device name based on whether CUDA is avialable."""
+    """Return the device name based on whether CUDA is available."""
     return "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -11,3 +11,9 @@ def get_torch_device() -> torch.device:
     Checks if CUDA is available on the machine and returns PyTorch device.
     """
     return torch.device(get_torch_device_name())
+
+
+def empty_cuda_cache() -> None:
+    """Empty CUDA cache."""
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()

@@ -1,5 +1,6 @@
 from typing import Optional
 from urllib.request import urlretrieve
+import gc
 import os
 import zipfile
 
@@ -12,6 +13,7 @@ import numpy as np
 from helm.common.general import ensure_directory_exists, get_helm_cache_path
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
+from helm.common.gpu_utils import empty_cuda_cache
 
 
 class NSFWDetector:
@@ -89,3 +91,12 @@ class NSFWDetector:
         emb = np.asarray(normalized(image_features.detach().cpu()))
         score: float = float(self._nsfw_detector.predict(emb)[0][0])
         return score
+
+    def free(self) -> None:
+        """Free up GPU memory"""
+        if self._nsfw_detector:
+            del self._nsfw_detector
+        del self._clip_model
+        del self._preprocess
+        gc.collect()
+        empty_cuda_cache()

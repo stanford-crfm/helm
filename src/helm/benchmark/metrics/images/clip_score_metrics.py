@@ -1,15 +1,17 @@
 from statistics import mean
 from typing import List
 
+from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.window_services.clip_window_service import CLIPWindowService
 from helm.common.images_utils import is_blacked_out_image
+from helm.common.gpu_utils import empty_cuda_cache
 from .clip_scorers.clip_scorer import CLIPScorer
 from .clip_scorers.multilingual_clip_scorer import MultilingualCLIPScorer
 
@@ -27,6 +29,16 @@ class CLIPScoreMetric(Metric):
 
     def __repr__(self):
         return "CLIPScoreMetric()"
+
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        result: MetricResult = super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism)
+
+        # Free up GPU memory
+        empty_cuda_cache()
+
+        return result
 
     def evaluate_generation(
         self,
