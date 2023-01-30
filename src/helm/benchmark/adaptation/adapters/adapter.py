@@ -51,10 +51,7 @@ def get_run_instances(instances: List[Instance], max_eval_instances: int) -> Lis
     all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
 
     all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
-    if (
-        max_eval_instances is not None
-        and len(all_eval_instances) > max_eval_instances
-    ):
+    if max_eval_instances is not None and len(all_eval_instances) > max_eval_instances:
         # Pick the first `self.adapter_spec.max_eval_instances`.
         # The random sampling includes instances monotonically.
         np.random.seed(0)

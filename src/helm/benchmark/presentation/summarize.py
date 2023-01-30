@@ -361,21 +361,15 @@ class Summarizer:
         for costs in models_to_costs.values():
             costs["total_tokens"] = costs["num_prompt_tokens"] + costs["num_completion_tokens"]
 
-        write(
-            os.path.join(self.run_suite_path, "costs.json"),
-            json.dumps(models_to_costs, indent=2),
-        )
+        write(os.path.join(self.run_suite_path, "costs.json"), to_json(models_to_costs, indent=2))
 
     def write_runs(self):
-        write(
-            os.path.join(self.run_suite_path, "runs.json"),
-            json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
-        )
+        write(os.path.join(self.run_suite_path, "runs.json"), to_json(self.runs, List[Run]))
 
     def write_run_specs(self):
         write(
             os.path.join(self.run_suite_path, "run_specs.json"),
-            json.dumps(list(map(asdict_without_nones, [run.run_spec for run in self.runs])), indent=2),
+            to_json([run.run_spec for run in self.runs], List[RunSpec]),
         )
 
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
@@ -476,7 +470,7 @@ class Summarizer:
             metadata[group.name] = {
                 "display_name": group.display_name,
                 "description": group.description,
-                "taxonomy": group.taxonomy and asdict_without_nones(group.taxonomy),
+                "taxonomy": group.taxonomy,
             }
         return metadata
 
@@ -893,15 +887,12 @@ class Summarizer:
         """
 
         # Write out index file with all the groups and basic stats
-        write(
-            os.path.join(self.run_suite_path, "groups.json"),
-            json.dumps(list(map(asdict_without_nones, self.create_index_tables())), indent=2),
-        )
+        write(os.path.join(self.run_suite_path, "groups.json"), to_json(self.create_index_tables(), List[Table]))
 
         # Write out metadata file for all groups
         write(
             os.path.join(self.run_suite_path, "groups_metadata.json"),
-            json.dumps(self.create_groups_metadata(), indent=2),
+            to_json(self.create_groups_metadata(), Dict),
         )
 
         # Write out a separate JSON for each group
@@ -929,13 +920,10 @@ class Summarizer:
 
                 json_path = os.path.join(groups_path, "json", f"{group.name}_{table.name}.json")
                 table.links.append(Hyperlink(text="JSON", href=json_path))
-                write(json_path, json.dumps(asdict_without_nones(table), indent=2))
+                write(json_path, to_json(table, Table))
 
             # Write master JSON file
-            write(
-                os.path.join(groups_path, group.name + ".json"),
-                json.dumps(list(map(asdict_without_nones, tables)), indent=2),
-            )
+            write(os.path.join(groups_path, group.name + ".json"), to_json(tables, List(Table)))
 
     def write_run_display_json(self) -> None:
         def process(run: Run) -> None:

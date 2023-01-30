@@ -125,12 +125,6 @@ def format_split(split: str) -> str:
     return f"|{split}|"
 
 
-def asdict_without_nones(obj: Any) -> Dict[str, Any]:
-    if not is_dataclass(obj):
-        raise ValueError(f"Expected dataclass, got '{obj}'")
-    return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
-
-
 def binarize_dict(d: Dict[str, int]) -> Dict[str, int]:
     """Binarize the dict by setting the values that are 1 to 0.
 

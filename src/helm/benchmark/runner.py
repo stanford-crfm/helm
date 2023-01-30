@@ -7,7 +7,7 @@ from typing import List
 
 from tqdm import tqdm
 
-from helm.common.general import ensure_directory_exists, write, asdict_without_nones
+from helm.common.general import ensure_directory_exists, write
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
 from helm.common.codec import to_json
@@ -178,12 +178,7 @@ class Runner:
         # Write scenario state
         write(os.path.join(run_path, "scenario_state.json"), to_json(scenario_state, ScenarioState))
 
-        write(
-            os.path.join(run_path, "stats.json"), to_json(stats, List[Stat])
-        )
-        write(
-            os.path.join(run_path, "per_instance_stats.json"),
-            to_json(stats, List[PerInstanceStats])
-        )
+        write(os.path.join(run_path, "stats.json"), to_json(stats, List[Stat]))
+        write(os.path.join(run_path, "per_instance_stats.json"), to_json(stats, List[PerInstanceStats]))
 
         cache_stats.print_status()

@@ -6,10 +6,10 @@ import re
 import html
 import random
 from helm.common.hierarchical_logger import htrack_block, hlog
-from helm.common.codec import from_dict
+from helm.common.codec import from_dict, to_json
 from typing import List, Dict
 
-from helm.common.general import ensure_file_downloaded, ensure_directory_exists, asdict_without_nones
+from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import (
     Scenario,
     Instance,
@@ -290,7 +290,7 @@ class NaturalQAScenario(Scenario):
             with htrack_block(f"Writing {raw_instances_path}"):
                 with open(raw_instances_path, "w") as fp:
                     for raw_instance in raw_instances:
-                        print(json.dumps(asdict_without_nones(raw_instance)), file=fp)
+                        print(to_json(raw_instance, Instance), file=fp)
         else:
             with htrack_block(f"Reading {raw_instances_path}"):
                 for raw_line in open(raw_instances_path):
