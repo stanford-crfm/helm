@@ -56,10 +56,11 @@ class NSFWDetector:
         model.compile()
         return model
 
-    def __init__(self):
+    def __init__(self, model_name: str = "ViT-L/14"):
         # Load the CLIP and NSFW detector models
-        self._clip_model, self._preprocess = clip.load("ViT-L/14", device=get_torch_device())
-        self._nsfw_detector = self.load_safety_model()
+        self._device: torch.device = get_torch_device()
+        self._clip_model, self._preprocess = clip.load(model_name, device=self._device)
+        self._nsfw_detector = self.load_safety_model(model_name)
 
     def is_nsfw(self, image_location: str) -> bool:
         """Returns True if the image at `image_path` is NSFW. False otherwise."""
@@ -79,7 +80,7 @@ class NSFWDetector:
             l2[l2 == 0] = 1
             return a / np.expand_dims(l2, axis)
 
-        image = self._preprocess(open_image(image_location)).unsqueeze(0).to(get_torch_device())
+        image = self._preprocess(open_image(image_location)).unsqueeze(0).to(self._device)
         with torch.no_grad():
             image_features = self._clip_model.encode_image(image)
         emb = np.asarray(normalized(image_features.detach().cpu()))
