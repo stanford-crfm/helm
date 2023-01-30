@@ -45,14 +45,15 @@ class AestheticsScorer:
 
     def __init__(self):
         # Load the CLIP and aesthetics model
-        self._model, self._preprocess = clip.load("ViT-L/14", device=get_torch_device())
-        self._aesthetics_model = self.load_model()
+        self._device: torch.device = get_torch_device()
+        self._model, self._preprocess = clip.load("ViT-L/14", device=self._device)
+        self._aesthetics_model = self.load_model().to(self._device)
 
     def compute_aesthetics_score(self, image_location: str) -> float:
         """
         Compute the aesthetics score. Returns a value between 1 and 10.
         """
-        image = self._preprocess(open_image(image_location)).unsqueeze(0)
+        image = self._preprocess(open_image(image_location)).unsqueeze(0).to(self._device)
         with torch.no_grad():
             image_features = self._model.encode_image(image)
             image_features /= image_features.norm(dim=-1, keepdim=True)
