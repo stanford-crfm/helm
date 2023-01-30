@@ -22,7 +22,7 @@ class MultilingualCLIPScorer(BaseCLIPScorer):
     def __init__(self):
         super().__init__()
         self._device: torch.device = get_torch_device()
-        self._text_model = pt_multilingual_clip.MultilingualCLIP.from_pretrained(self.TEXT_MODEL_NAME).to(self._device)
+        self._text_model = pt_multilingual_clip.MultilingualCLIP.from_pretrained(self.TEXT_MODEL_NAME)
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(self.TEXT_MODEL_NAME)
         self._model, self._preprocess = clip.load(self.IMAGE_MODEL_NAME, device=get_torch_device_name())
 
@@ -30,6 +30,7 @@ class MultilingualCLIPScorer(BaseCLIPScorer):
         # Get text features
         text_features = self._text_model.forward(caption, self._tokenizer)
         text_features = text_features / text_features.norm(p=2, dim=-1, keepdim=True)
+        text_features = text_features.to(self._device)
 
         image = open_image(image_location)
         image = self._preprocess(image).unsqueeze(0).to(self._device)
