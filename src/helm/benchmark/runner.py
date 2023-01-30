@@ -10,6 +10,7 @@ from tqdm import tqdm
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
+from helm.common.codec import to_json
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
 from .adaptation.adapters.adapter import Adapter
@@ -169,20 +170,20 @@ class Runner:
             return
 
         # Output benchmarking information and results to files
-        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
+        write(os.path.join(run_path, "run_spec.json"), to_json(run_spec, RunSpec))
 
         # Write out scenario
-        write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
+        write(os.path.join(run_path, "scenario.json"), to_json(scenario, Scenario))
 
         # Write scenario state
-        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
+        write(os.path.join(run_path, "scenario_state.json"), to_json(scenario_state, ScenarioState))
 
         write(
-            os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
+            os.path.join(run_path, "stats.json"), to_json(stats, List[Stat])
         )
         write(
             os.path.join(run_path, "per_instance_stats.json"),
-            json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
+            to_json(stats, List[PerInstanceStats])
         )
 
         cache_stats.print_status()

@@ -10,7 +10,7 @@ from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
 
-from helm.common.codec import from_dict
+from helm.common.codec import from_dict, to_json
 from helm.common.general import (
     write,
     ensure_directory_exists,
@@ -341,7 +341,7 @@ class Summarizer:
         )
         write(
             os.path.join(self.run_suite_path, "summary.json"),
-            json.dumps(asdict_without_nones(summary), indent=2),
+            to_json(summary, ExecutiveSummary),
         )
 
     @htrack(None)
