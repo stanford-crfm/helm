@@ -57,4 +57,4 @@ class AestheticsScorer:
         with torch.no_grad():
             image_features = self._model.encode_image(image)
             image_features /= image_features.norm(dim=-1, keepdim=True)
-            return self._aesthetics_model(image_features).detach().item()
+            return self._aesthetics_model(image_features.float()).detach().item()
