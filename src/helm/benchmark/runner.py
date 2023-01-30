@@ -1,15 +1,15 @@
-import json
 import os
 import typing
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Tuple
 
 from tqdm import tqdm
 
-from helm.common.general import ensure_directory_exists, write, asdict_without_nones
+from helm.common.general import ensure_directory_exists, write
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
+from helm.common.codec import from_json, to_json
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
 from .adaptation.adapters.adapter import Adapter
@@ -71,12 +71,14 @@ class Runner:
         output_path: str,
         suite: str,
         skip_instances: bool,
+        cache_step_results: bool = True,
     ):
         self.executor = Executor(execution_spec)
         self.dry_run: bool = execution_spec.dry_run
         self.tokenizer_service = TokenizerService(self.executor.service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.service, execution_spec.auth)
         self.skip_instances: bool = skip_instances
+        self.cache_step_results: bool = cache_step_results
 
         ensure_directory_exists(output_path)
         # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
@@ -95,22 +97,26 @@ class Runner:
             with htrack_block(f"Running {run_spec.name}"):
                 self.run_one(run_spec)
 
-    def run_one(self, run_spec: RunSpec):
-        # Load the scenario
+    def _json_file_name(self, run_spec: RunSpec, file_name: str) -> str:
+        return os.path.join(self.runs_path, run_spec.name, file_name)
+
+    def _scenario_step(self, run_spec: RunSpec) -> Scenario:
         scenario: Scenario = create_scenario(run_spec.scenario_spec)
+        write(self._json_file_name(run_spec, "scenario.json"), to_json(scenario))
+        return scenario
 
-        # This `output_path` will be used when `Adapter` calls `Scenario.get_instances`.
-        scenario.output_path = os.path.join(self.scenarios_path, scenario.name)
-        ensure_directory_exists(scenario.output_path)
-
-        run_path: str = os.path.join(self.runs_path, run_spec.name)
-        ensure_directory_exists(run_path)
-
-        # Fetch and initialize the Adapter based on the `AdapterSpec`.
-        adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
-
+    def _instances_step(self, run_spec: RunSpec, scenario: Scenario) -> List[Instance]:
+        instances_path: str = self._json_file_name(run_spec, "instances.json")
+        if self.cache_step_results and os.path.exists(instances_path):
+            with open(instances_path, "r") as f:
+                hlog(f"Using cached results from {instances_path} and skipping step")
+                return from_json(f.read(), List[Instance])
         instances: List[Instance]
         if not self.skip_instances:
+            # This `output_path` will be used when `Adapter` calls `Scenario.get_instances`.
+            scenario.output_path = os.path.join(self.scenarios_path, scenario.name)
+            ensure_directory_exists(scenario.output_path)
+
             # Create the instances of the scenario
             with htrack_block("scenario.get_instances"):
                 instances = scenario.get_instances()
@@ -119,6 +125,7 @@ class Runner:
             instances = with_instance_ids(instances)
 
             # Get the instances necessary for this run.
+            adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
             instances = adapter.get_run_instances(instances)
 
             # Data preprocessing
@@ -127,13 +134,28 @@ class Runner:
             )
         else:
             instances = []
+        write(instances_path, to_json(instances))
+        return instances
+
+    def _scenario_state_step(self, run_spec: RunSpec, instances: List[Instance]) -> ScenarioState:
+        scenario_state_path: str = self._json_file_name(run_spec, "scenario_state.json")
+        if self.cache_step_results and os.path.exists(scenario_state_path):
+            with open(scenario_state_path, "r") as f:
+                hlog(f"Using cached results from {scenario_state_path} and skipping step")
+                return from_json(f.read(), ScenarioState)
 
         # Adapt (convert to requests)
+        adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
         scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
 
         # Execute (fill up results)
         scenario_state = self.executor.execute(scenario_state)
+        write(scenario_state_path, to_json(scenario_state))
+        return scenario_state
 
+    def _metrics_step(
+        self, run_spec: RunSpec, scenario_state: ScenarioState
+    ) -> Tuple[List[Stat], List[PerInstanceStats]]:
         # Apply the metrics
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
@@ -160,29 +182,17 @@ class Runner:
         for metric_name, count in metric_counts.items():
             if count > 1:
                 hlog(f"WARNING: duplicate metric name {metric_name}")
+        write(self._json_file_name(run_spec, "stats.json"), to_json(stats))
+        write(self._json_file_name(run_spec, "per_instance_stats.json"), to_json(per_instance_stats))
+        return (stats, per_instance_stats)
 
-        # Print out the number of stats
-        hlog(f"Generated {len(stats)} stats.")
+    def run_one(self, run_spec: RunSpec):
+        run_path: str = os.path.join(self.runs_path, run_spec.name)
+        ensure_directory_exists(run_path)
 
-        if self.skip_instances:
-            hlog("skip_instances was True. Skipping writing results out.")
-            return
-
-        # Output benchmarking information and results to files
-        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
-
-        # Write out scenario
-        write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
-
-        # Write scenario state
-        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
-
-        write(
-            os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
-        )
-        write(
-            os.path.join(run_path, "per_instance_stats.json"),
-            json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
-        )
+        scenario: Scenario = self._scenario_step(run_spec)
+        instances: List[Instance] = self._instances_step(run_spec, scenario)
+        scenario_state: ScenarioState = self._scenario_state_step(run_spec, instances)
+        self._metrics_step(run_spec, scenario_state)
 
         cache_stats.print_status()
