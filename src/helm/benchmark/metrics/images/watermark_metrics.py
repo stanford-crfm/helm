@@ -1,11 +1,13 @@
 from statistics import mean
 from typing import List
 
+from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.common.request import RequestResult
+from helm.common.gpu_utils import empty_cuda_cache
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from .watermark.watermark_detector import WatermarkDetector
@@ -21,6 +23,17 @@ class WatermarkMetric(Metric):
 
     def __repr__(self):
         return "WatermarkMetric()"
+
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        result: MetricResult = super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism)
+
+        # Free up GPU memory
+        del self._watermark_detector
+        empty_cuda_cache()
+
+        return result
 
     def evaluate_generation(
         self,

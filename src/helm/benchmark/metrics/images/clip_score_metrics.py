@@ -1,6 +1,5 @@
 from statistics import mean
 from typing import List, Optional
-import gc
 
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.common.request import RequestResult
@@ -39,7 +38,6 @@ class CLIPScoreMetric(Metric):
         # Free up GPU memory
         del self._clip_scorer
         del self._multilingual_clip_scorer
-        gc.collect()
         empty_cuda_cache()
 
         return result
