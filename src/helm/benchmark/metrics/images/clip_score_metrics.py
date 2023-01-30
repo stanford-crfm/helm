@@ -29,7 +29,7 @@ class CLIPScoreMetric(Metric):
         self._clip_scorer: Optional[BaseCLIPScorer] = None
 
     def __repr__(self):
-        return "CLIPScoreMetric()"
+        return f"CLIPScoreMetric(multilingual={self._multilingual})"
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
