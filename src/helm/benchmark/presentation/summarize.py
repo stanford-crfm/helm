@@ -10,11 +10,10 @@ from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
 
-from helm.common.codec import from_dict, to_json
+from helm.common.codec import from_dict, to_dict, to_json
 from helm.common.general import (
     write,
     ensure_directory_exists,
-    asdict_without_nones,
     parallel_map,
     singleton,
     unique_simplification,
@@ -648,7 +647,7 @@ class Summarizer:
 
         # Pull out only the keys of the method adapter_spec that is needed to
         # uniquely identify the method.
-        infos = unique_simplification(list(map(asdict_without_nones, adapter_specs)), ["model"])
+        infos = unique_simplification(list(map(to_dict, adapter_specs)), ["model"])
 
         assert len(adapter_specs) == len(infos), [adapter_specs, infos]
 

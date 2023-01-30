@@ -1,4 +1,3 @@
-import json
 import os
 import typing
 from collections import Counter

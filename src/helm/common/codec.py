@@ -119,21 +119,13 @@ def from_json(data: Union[bytes, str], cls: Type[T]) -> T:
     return _converter.structure(json.loads(data), cls)
 
 
-def to_json(data: Any, cls: Type[T]) -> str:
-    result = json.dumps(_converter.unstructure(data))
-    round_trip = from_json(result, cls)
-    if round_trip != data:
-        raise ValueError(f"Could not round trip data - " f"original: {data} round trip: {result}")
-    return result
+def to_json(data: Any) -> str:
+    return json.dumps(_converter.unstructure(data))
 
 
 def from_dict(cls: Type[T], data: Dict) -> T:
     return _converter.structure(data, cls)
 
 
-def to_dict(cls: Type[T], data: Dict) -> T:
-    result = _converter.unstructure(data)
-    round_trip = from_dict(cls, result)
-    if round_trip != data:
-        raise ValueError(f"Could not round trip data - original: {data} round trip: {result}")
-    return result
+def to_dict(data: Any) -> Dict:
+    return _converter.unstructure(data)
