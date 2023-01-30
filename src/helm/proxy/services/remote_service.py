@@ -1,11 +1,11 @@
 import argparse
+import json
 import requests
 import urllib.parse
 from dataclasses import asdict
 from typing import Any, List, Optional
 
 from helm.common.authentication import Authentication
-from helm.common.codec import to_json
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
 )
 from helm.common.request import Request, RequestResult
-from helm.common.codec import from_dict
+from dacite import from_dict
 from helm.proxy.accounts import Account
 from helm.proxy.query import Query, QueryResult
 from .service import Service, GeneralInfo
@@ -48,9 +48,9 @@ class RemoteService(Service):
         return from_dict(QueryResult, response)
 
     def make_request(self, auth: Authentication, request: Request) -> RequestResult:
-        request_json: str = to_json(request, Request)
+        request_json: str = json.dumps(asdict(request))
         params = {
-            "auth": to_json(auth, Authentication),
+            "auth": json.dumps(asdict(auth)),
             "request": request_json,
         }
         response = requests.get(f"{self.base_url}/api/request?{urllib.parse.urlencode(params)}").json()
@@ -58,9 +58,9 @@ class RemoteService(Service):
         return from_dict(RequestResult, response)
 
     def tokenize(self, auth: Authentication, request: TokenizationRequest) -> TokenizationRequestResult:
-        request_json: str = to_json(request, TokenizationRequest)
+        request_json: str = json.dumps(asdict(request))
         params = {
-            "auth": to_json(auth, Authentication),
+            "auth": json.dumps(asdict(auth)),
             "request": request_json,
         }
         response = requests.get(f"{self.base_url}/api/tokenize?{urllib.parse.urlencode(params)}").json()
@@ -68,9 +68,9 @@ class RemoteService(Service):
         return from_dict(TokenizationRequestResult, response)
 
     def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
-        request_json: str = to_json(request, DecodeRequest)
+        request_json: str = json.dumps(asdict(request))
         params = {
-            "auth": to_json(auth, Authentication),
+            "auth": json.dumps(asdict(auth)),
             "request": request_json,
         }
         response = requests.get(f"{self.base_url}/api/decode?{urllib.parse.urlencode(params)}").json()
@@ -78,9 +78,9 @@ class RemoteService(Service):
         return from_dict(DecodeRequestResult, response)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
-        request_json: str = to_json(request, PerspectiveAPIRequest)
+        request_json: str = json.dumps(asdict(request))
         params = {
-            "auth": to_json(auth, Authentication),
+            "auth": json.dumps(asdict(auth)),
             "request": request_json,
         }
         response = requests.get(f"{self.base_url}/api/toxicity?{urllib.parse.urlencode(params)}").json()
@@ -88,14 +88,14 @@ class RemoteService(Service):
         return from_dict(PerspectiveAPIRequestResult, response)
 
     def create_account(self, auth: Authentication) -> Account:
-        data = {"auth": to_json(auth, Authentication)}
+        data = {"auth": json.dumps(asdict(auth))}
         response = requests.post(f"{self.base_url}/api/account", data=data).json()
         RemoteService._check_response(response)
         return from_dict(Account, response)
 
     def delete_account(self, auth: Authentication, api_key: str) -> Account:
         data = {
-            "auth": to_json(auth, Authentication),
+            "auth": json.dumps(asdict(auth)),
             "api_key": api_key,
         }
         response = requests.delete(f"{self.base_url}/api/account", data=data).json()
@@ -103,21 +103,21 @@ class RemoteService(Service):
         return from_dict(Account, response)
 
     def get_accounts(self, auth: Authentication) -> List[Account]:
-        params = {"auth": to_json(auth, Authentication), "all": "true"}
+        params = {"auth": json.dumps(asdict(auth)), "all": "true"}
         response = requests.get(f"{self.base_url}/api/account?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response)
         return [from_dict(Account, account_response) for account_response in response]
 
     def get_account(self, auth: Authentication) -> Account:
-        params = {"auth": to_json(auth, Authentication)}
+        params = {"auth": json.dumps(asdict(auth))}
         response = requests.get(f"{self.base_url}/api/account?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response)
         return from_dict(Account, response[0])
 
     def update_account(self, auth: Authentication, account: Account) -> Account:
         data = {
-            "auth": to_json(auth, Authentication),
-            "account": to_json(account, Account),
+            "auth": json.dumps(asdict(auth)),
+            "account": json.dumps(asdict(account)),
         }
         response = requests.put(f"{self.base_url}/api/account", data=data).json()
         RemoteService._check_response(response)
@@ -126,8 +126,8 @@ class RemoteService(Service):
     def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """Generate a new API key for this account."""
         data = {
-            "auth": to_json(auth, Authentication),
-            "account": to_json(account, Account),
+            "auth": json.dumps(asdict(auth)),
+            "account": json.dumps(asdict(account)),
         }
         response = requests.put(f"{self.base_url}/api/account/api_key", data=data).json()
         RemoteService._check_response(response)
@@ -135,7 +135,7 @@ class RemoteService(Service):
 
     def shutdown(self, auth: Authentication):
         """Shutdown server (admin-only)."""
-        params = {"auth": to_json(auth, Authentication)}
+        params = {"auth": json.dumps(asdict(auth))}
         try:
             response = requests.get(f"{self.base_url}/api/shutdown?{urllib.parse.urlencode(params)}").json()
             RemoteService._check_response(response)

@@ -248,10 +248,10 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
 
     write(
         os.path.join(run_path, "instances.json"),
-        to_json(list(instance_id_to_instance.values()), List[Instance]),
+        to_json(list(instance_id_to_instance.values())),
     )
-    write(os.path.join(run_path, "display_predictions.json"), to_json(predictions, List[DisplayPrediction]))
+    write(os.path.join(run_path, "display_predictions.json"), to_json(predictions))
     write(
         os.path.join(run_path, "display_requests.json"),
-        to_json(requests, List[DisplayRequest]),
+        to_json(requests),
     )
