@@ -178,7 +178,7 @@ class Runner:
         # Write scenario state
         write(os.path.join(run_path, "scenario_state.json"), to_json(scenario_state))
 
-        write(os.path.join(run_path, "stats.json"), to_json(stats, List[Stat]))
+        write(os.path.join(run_path, "stats.json"), to_json(stats))
         write(os.path.join(run_path, "per_instance_stats.json"), to_json(stats))
 
         cache_stats.print_status()
