@@ -2,11 +2,9 @@ from urllib.request import urlretrieve
 import os
 import zipfile
 
-import autokeras as ak
 import torch
 import clip
 import numpy as np
-from tensorflow.keras.models import load_model
 
 from helm.common.general import ensure_directory_exists, get_helm_cache_path
 from helm.common.gpu_utils import get_torch_device
@@ -27,6 +25,9 @@ class NSFWDetector:
         """
         Load the safety model. Adapted from https://github.com/LAION-AI/CLIP-based-NSFW-Detector.
         """
+        import autokeras as ak
+        from tensorflow.keras.models import load_model
+
         cache_folder: str = get_helm_cache_path()
         model_path: str
         if clip_model == "ViT-L/14":
