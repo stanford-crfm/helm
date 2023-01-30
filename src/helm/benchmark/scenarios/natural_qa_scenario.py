@@ -290,7 +290,7 @@ class NaturalQAScenario(Scenario):
             with htrack_block(f"Writing {raw_instances_path}"):
                 with open(raw_instances_path, "w") as fp:
                     for raw_instance in raw_instances:
-                        print(to_json(raw_instance, Instance), file=fp)
+                        print(to_json(raw_instance), file=fp)
         else:
             with htrack_block(f"Reading {raw_instances_path}"):
                 for raw_line in open(raw_instances_path):

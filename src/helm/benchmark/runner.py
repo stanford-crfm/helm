@@ -170,15 +170,15 @@ class Runner:
             return
 
         # Output benchmarking information and results to files
-        write(os.path.join(run_path, "run_spec.json"), to_json(run_spec, RunSpec))
+        write(os.path.join(run_path, "run_spec.json"), to_json(run_spec))
 
         # Write out scenario
-        write(os.path.join(run_path, "scenario.json"), to_json(scenario, Scenario))
+        write(os.path.join(run_path, "scenario.json"), to_json(scenario))
 
         # Write scenario state
-        write(os.path.join(run_path, "scenario_state.json"), to_json(scenario_state, ScenarioState))
+        write(os.path.join(run_path, "scenario_state.json"), to_json(scenario_state))
 
         write(os.path.join(run_path, "stats.json"), to_json(stats, List[Stat]))
-        write(os.path.join(run_path, "per_instance_stats.json"), to_json(stats, List[PerInstanceStats]))
+        write(os.path.join(run_path, "per_instance_stats.json"), to_json(stats))
 
         cache_stats.print_status()

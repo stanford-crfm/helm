@@ -341,7 +341,7 @@ class Summarizer:
         )
         write(
             os.path.join(self.run_suite_path, "summary.json"),
-            to_json(summary, ExecutiveSummary),
+            to_json(summary),
         )
 
     @htrack(None)
@@ -361,15 +361,15 @@ class Summarizer:
         for costs in models_to_costs.values():
             costs["total_tokens"] = costs["num_prompt_tokens"] + costs["num_completion_tokens"]
 
-        write(os.path.join(self.run_suite_path, "costs.json"), to_json(models_to_costs, indent=2))
+        write(os.path.join(self.run_suite_path, "costs.json"), to_json(models_to_costs))
 
     def write_runs(self):
-        write(os.path.join(self.run_suite_path, "runs.json"), to_json(self.runs, List[Run]))
+        write(os.path.join(self.run_suite_path, "runs.json"), to_json(self.runs))
 
     def write_run_specs(self):
         write(
             os.path.join(self.run_suite_path, "run_specs.json"),
-            to_json([run.run_spec for run in self.runs], List[RunSpec]),
+            to_json([run.run_spec for run in self.runs]),
         )
 
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
@@ -887,12 +887,12 @@ class Summarizer:
         """
 
         # Write out index file with all the groups and basic stats
-        write(os.path.join(self.run_suite_path, "groups.json"), to_json(self.create_index_tables(), List[Table]))
+        write(os.path.join(self.run_suite_path, "groups.json"), to_json(self.create_index_tables()))
 
         # Write out metadata file for all groups
         write(
             os.path.join(self.run_suite_path, "groups_metadata.json"),
-            to_json(self.create_groups_metadata(), Dict),
+            to_json(self.create_groups_metadata()),
         )
 
         # Write out a separate JSON for each group
@@ -920,10 +920,10 @@ class Summarizer:
 
                 json_path = os.path.join(groups_path, "json", f"{group.name}_{table.name}.json")
                 table.links.append(Hyperlink(text="JSON", href=json_path))
-                write(json_path, to_json(table, Table))
+                write(json_path, to_json(table))
 
             # Write master JSON file
-            write(os.path.join(groups_path, group.name + ".json"), to_json(tables, List(Table)))
+            write(os.path.join(groups_path, group.name + ".json"), to_json(tables))
 
     def write_run_display_json(self) -> None:
         def process(run: Run) -> None:
