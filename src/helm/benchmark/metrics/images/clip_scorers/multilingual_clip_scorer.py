@@ -3,7 +3,7 @@ import clip
 import torch
 import transformers
 
-from helm.common.gpu_utils import get_torch_device
+from helm.common.gpu_utils import get_torch_device, get_torch_device_name
 from helm.common.images_utils import open_image
 from .base_clip_scorer import BaseCLIPScorer
 
@@ -22,9 +22,9 @@ class MultilingualCLIPScorer(BaseCLIPScorer):
     def __init__(self):
         super().__init__()
         self._device: torch.device = get_torch_device()
-        self._text_model = pt_multilingual_clip.MultilingualCLIP.from_pretrained(self.TEXT_MODEL_NAME)
+        self._text_model = pt_multilingual_clip.MultilingualCLIP.from_pretrained(self.TEXT_MODEL_NAME).to(self._device)
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(self.TEXT_MODEL_NAME)
-        self._model, self._preprocess = clip.load(self.IMAGE_MODEL_NAME)
+        self._model, self._preprocess = clip.load(self.IMAGE_MODEL_NAME, device=get_torch_device_name())
 
     def compute_score(self, caption: str, image_location: str) -> float:
         # Get text features
