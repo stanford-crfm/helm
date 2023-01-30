@@ -12,6 +12,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.window_services.clip_window_service import CLIPWindowService
 from helm.common.images_utils import is_blacked_out_image
 from helm.common.gpu_utils import empty_cuda_cache
+from .clip_scorers.base_clip_scorer import BaseCLIPScorer
 from .clip_scorers.clip_scorer import CLIPScorer
 from .clip_scorers.multilingual_clip_scorer import MultilingualCLIPScorer
 
@@ -23,9 +24,9 @@ class CLIPScoreMetric(Metric):
     caption and the content of the image. It has been found to be highly correlated with human judgement.
     """
 
-    def __init__(self):
-        self._clip_scorer: Optional[CLIPScorer] = None
-        self._multilingual_clip_scorer: Optional[MultilingualCLIPScorer] = None
+    def __init__(self, multilingual: bool = False):
+        self._multilingual: bool = multilingual
+        self._clip_scorer: Optional[BaseCLIPScorer] = None
 
     def __repr__(self):
         return "CLIPScoreMetric()"
@@ -37,7 +38,6 @@ class CLIPScoreMetric(Metric):
 
         # Free up GPU memory
         del self._clip_scorer
-        del self._multilingual_clip_scorer
         empty_cuda_cache()
 
         return result
@@ -49,37 +49,29 @@ class CLIPScoreMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
+        def get_metric_name(base_name: str) -> str:
+            if self._multilingual:
+                base_name = f"{base_name}_multilingual"
+            return base_name
+
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
 
         if self._clip_scorer is None:
-            self._clip_scorer = CLIPScorer()
-        if self._multilingual_clip_scorer is None:
-            self._multilingual_clip_scorer = MultilingualCLIPScorer()
+            self._clip_scorer = CLIPScorer() if not self._multilingual else MultilingualCLIPScorer()
 
         # Truncate the prompt using the CLIP tokenizer before feeding into the CLIP model.
         # Otherwise, the library will throw an error.
         prompt: str = CLIPWindowService(metric_service).truncate_from_right(request_state.request.prompt)
 
         scores: List[float] = []
-        multilingual_clip_scores: List[float] = []
-
         for image in request_result.completions:
             if image.file_location is not None and not is_blacked_out_image(image.file_location):
                 clip_score: float = self._clip_scorer.compute_score(prompt, image.file_location)
                 scores.append(clip_score)
 
-                clip_score = self._multilingual_clip_scorer.compute_score(prompt, image.file_location)
-                multilingual_clip_scores.append(clip_score)
-
         stats: List[Stat] = [
-            Stat(MetricName("expected_clip_score")).add(mean(scores) if len(scores) > 0 else 0),
-            Stat(MetricName("max_clip_score")).add(max(scores) if len(scores) > 0 else 0),
-            Stat(MetricName("expected_clip_score_multilingual")).add(
-                mean(multilingual_clip_scores) if len(multilingual_clip_scores) > 0 else 0
-            ),
-            Stat(MetricName("max_clip_score_multilingual")).add(
-                max(multilingual_clip_scores) if len(multilingual_clip_scores) > 0 else 0
-            ),
+            Stat(MetricName(get_metric_name("expected_clip_score"))).add(mean(scores) if len(scores) > 0 else 0),
+            Stat(MetricName(get_metric_name("max_clip_score"))).add(max(scores) if len(scores) > 0 else 0),
         ]
         return stats

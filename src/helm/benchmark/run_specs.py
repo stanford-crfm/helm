@@ -514,6 +514,7 @@ def get_core_vhelm_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="helm.benchmark.aesthetics_metrics.AestheticsMetric", args={}),
         MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={"multilingual": True}),
         MetricSpec(class_name="helm.benchmark.efficiency_metrics.EfficiencyMetric", args={}),
         MetricSpec(class_name="helm.benchmark.nsfw_metrics.NSFWMetric", args={}),
         MetricSpec(class_name="helm.benchmark.watermark_metrics.WatermarkMetric", args={}),
