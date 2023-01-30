@@ -38,9 +38,9 @@ class GenderMetric(Metric):
         request_result: RequestResult = request_state.result
 
         is_female_results: List[bool] = [
-            self._is_photo_of_female(image.file_path)
+            self._is_photo_of_female(image.file_location)
             for image in request_result.completions
-            if image.file_path is not None and not is_blacked_out_image(image.file_path)
+            if image.file_location is not None and not is_blacked_out_image(image.file_location)
         ]
 
         stats: List[Stat] = [

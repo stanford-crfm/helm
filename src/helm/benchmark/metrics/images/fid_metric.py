@@ -62,9 +62,10 @@ class FIDMetric(Metric):
             # Gather the model-generated images
             # TODO: use CLIP to pick the best generated image when `num_completions` > 1
             for image in request_result.completions:
-                assert image.file_path is not None
+                assert image.file_location is not None
                 safe_symlink(
-                    src=image.file_path, dest=os.path.join(generated_images_path, get_file_name(image.file_path))
+                    src=image.file_location,
+                    dest=os.path.join(generated_images_path, get_file_name(image.file_location)),
                 )
 
             # Gather the gold images

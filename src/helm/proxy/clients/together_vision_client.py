@@ -73,7 +73,7 @@ class TogetherVisionClient(TogetherClient):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_path=choice["file_path"]) for choice in response["choices"]
+            Sequence(text="", logprob=0, tokens=[], file_location=choice["file_path"]) for choice in response["choices"]
         ]
         return RequestResult(
             success=True,

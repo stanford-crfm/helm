@@ -14,7 +14,7 @@ request = TextToImageRequest(
     model=model, prompt="A sheep flying over the moon", guidance_scale=7.5, num_completions=3
 )
 request_result: RequestResult = service.make_request(auth, request)
-print(f"Image saved at {request_result.completions[0].file_path} for prompt: {request.prompt}")
+print(f"Image saved at {request_result.completions[0].file_location} for prompt: {request.prompt}")
 
 request = ModerationAPIRequest(text="A man repeatedly stabs his victim causing him to bleed out.")
 request_result: ModerationAPIRequestResult = service.get_moderation_results(auth, request)

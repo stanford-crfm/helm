@@ -1,4 +1,5 @@
 import base64
+import io
 import requests
 import shutil
 from urllib.request import urlopen
@@ -31,10 +32,12 @@ def open_image(image_location: str) -> Image:
         return Image.open(image_location)
 
 
-def encode_base64(image_path) -> str:
+def encode_base64(image_location: str) -> str:
     """Returns the base64 representation of an image file."""
-    with open(image_path, "rb") as f:
-        return base64.b64encode(f.read()).decode("ascii")
+    image_file = io.BytesIO()
+    image: Image = open_image(image_location)
+    image.save(image_file, format="JPEG")
+    return base64.b64encode(image_file.getvalue()).decode("ascii")
 
 
 def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optional[int] = None):

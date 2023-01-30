@@ -135,10 +135,10 @@ class SkinToneMetric(Metric):
         mst_counts: Dict[str, int] = {get_mst_key(i): 0 for i in range(1, 11)}
         mst_counts[self.MST_UNKNOWN_KEY] = 0
         for image in request_result.completions:
-            if image.file_path is None or is_blacked_out_image(image.file_path):
+            if image.file_location is None or is_blacked_out_image(image.file_location):
                 continue
 
-            mst_key: str = get_mst_key(skin_tone=self.get_monk_skin_tone(image.file_path))
+            mst_key: str = get_mst_key(skin_tone=self.get_monk_skin_tone(image.file_location))
             mst_counts[mst_key] += 1
             num_images += 1
 

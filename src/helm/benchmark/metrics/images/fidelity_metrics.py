@@ -89,9 +89,9 @@ class FidelityMetric(Metric):
 
                 # Gather the model-generated images
                 for image in request_result.completions:
-                    if image.file_path is not None and not is_blacked_out_image(image.file_path):
-                        dest_path = os.path.join(generated_images_path, get_file_name(image.file_path))
-                        copy_image(image.file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
+                    if image.file_location is not None and not is_blacked_out_image(image.file_location):
+                        dest_path = os.path.join(generated_images_path, get_file_name(image.file_location))
+                        copy_image(image.file_location, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
 
             # The torch_fidelity library fails when there are too few images (i.e., `max_eval_instances` is small).
             try:

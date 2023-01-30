@@ -65,11 +65,11 @@ class CLIPScoreMetric(Metric):
         multilingual_clip_scores: List[float] = []
 
         for image in request_result.completions:
-            if image.file_path is not None and not is_blacked_out_image(image.file_path):
-                clip_score: float = self._clip_scorer.compute_score(prompt, image.file_path)
+            if image.file_location is not None and not is_blacked_out_image(image.file_location):
+                clip_score: float = self._clip_scorer.compute_score(prompt, image.file_location)
                 scores.append(clip_score)
 
-                clip_score = self._multilingual_clip_scorer.compute_score(prompt, image.file_path)
+                clip_score = self._multilingual_clip_scorer.compute_score(prompt, image.file_location)
                 multilingual_clip_scores.append(clip_score)
 
         stats: List[Stat] = [

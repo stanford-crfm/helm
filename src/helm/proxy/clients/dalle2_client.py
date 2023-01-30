@@ -115,7 +115,7 @@ class DALLE2Client(OpenAIClient):
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_path=generated_image["file_path"])
+            Sequence(text="", logprob=0, tokens=[], file_location=generated_image["file_path"])
             for generated_image in response["data"]
         ]
         return RequestResult(

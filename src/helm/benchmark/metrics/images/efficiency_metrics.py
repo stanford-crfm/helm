@@ -30,7 +30,7 @@ class EfficiencyMetric(Metric):
         request_result: RequestResult = request_state.result
 
         # Models like DALL-E 2 can skip generating images for prompts that violate their content policy
-        if not request_result.completions[0].file_path:
+        if not request_result.completions[0].file_location:
             return []
 
         stats: List[Stat] = [
