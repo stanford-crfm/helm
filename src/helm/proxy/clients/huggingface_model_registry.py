@@ -13,26 +13,39 @@ from helm.proxy.models import (
 @dataclass(frozen=True)
 class HuggingFaceModelConfig:
     namespace: Optional[str]
-    """Name of the group or user that owns the model. e.g. 'stanford-crfm'"""
+    """Name of the group or user that owns the model. e.g. 'stanford-crfm'
+
+    May be None if the model (e.g. gpt2) does not have a namespace."""
 
     model_name: str
-    """Name of the model. Does not include the namespace. e.g. 'pubmed-gpt2'"""
+    """Name of the model. e.g. 'alias-gpt2-small-x21'
+
+    Does not include the namespace. ."""
 
     revision: Optional[str]
-    """Revision of the model to use e.g. 'main'"""
+    """Revision of the model to use e.g. 'main'.
+
+    If None, use the defaul revision."""
 
     @property
     def model_id(self) -> str:
-        # Get the model ID.
-        #
-        # Examples: "gpt2", "stanford-crfm/pubmedgpt"
+        """Return the model ID.
+
+        Examples:
+        - 'gpt2'
+        - 'stanford-crfm/alias-gpt2-small-x21'"""
         if self.namespace:
             return f"{self.namespace}/{self.model_name}"
         return self.model_name
 
     @staticmethod
     def from_string(raw: str) -> "HuggingFaceModelConfig":
-        # Parses a string in the format "[namespace/]model_name[#revision]".
+        """Parses a string in the format "[namespace/]model_name[#revision]" to a HuggingFaceModelConfig.
+
+        Examples:
+        - 'gpt2'
+        - 'stanford-crfm/alias-gpt2-small-x21'
+        - 'stanford-crfm/alias-gpt2-small-x21#checkpoint-400000'"""
         pattern = r"((?P<namespace>[^/#]+)/)?(?P<model_name>[^/#]+)(#(?P<revision>[^/#]+))?"
         match = re.fullmatch(pattern, raw)
         if not match:
