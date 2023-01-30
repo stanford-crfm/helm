@@ -5,7 +5,7 @@ from .scenario import Scenario, Instance, Input, TEST_SPLIT
 
 class MagazineCoverScenario(Scenario):
     """
-    Prompts to generate magazine cover photos. There are 50 prompts total.
+    Prompts to generate magazine cover photos. There are 50 prompts in total.
     Each prompt contains a real headline from one of following magazines:
 
     - Better Homes & Gardens
