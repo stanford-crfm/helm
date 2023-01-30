@@ -49,6 +49,7 @@ jsonlines~=3.1.0  # Not really needed
 sympy~=1.11.1  # For math scenarios
 sentencepiece~=0.1.97
 numba~=0.56.4
+cattrs~=22.2.0
 
 # Metrics
 importlib-resources~=5.10.0
