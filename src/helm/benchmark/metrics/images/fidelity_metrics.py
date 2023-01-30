@@ -16,6 +16,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
+from helm.common.gpu_utils import empty_cuda_cache
 from helm.common.images_utils import is_blacked_out_image, copy_image
 
 
@@ -122,5 +123,8 @@ class FidelityMetric(Metric):
 
         # Delete the gold images directory
         shutil.rmtree(gold_images_path)
+
+        # Free up GPU memory
+        empty_cuda_cache()
 
         return MetricResult(aggregated_stats=stats, per_instance_stats=[])
