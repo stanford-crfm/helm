@@ -1551,36 +1551,136 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     )
 
 
-def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
+def get_covid_dialog_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.covid_dialog_scenario.COVIDDialogScenario", args={}
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Generate a response given a patient's questions and concerns.",
+        input_noun="Patient",
+        output_noun="Doctor",
+        max_tokens=128,
+    )
+
+    return RunSpec(
+        name="covid_dialog",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_basic_metric_specs([]),
+        groups=["COVIDDialog"],
+    )
+
+
+def get_me_q_sum_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.me_q_sum_scenario.MeQSumScenario", args={})
+
+    adapter_spec = get_summarization_adapter_spec(
+        num_sents=1,
+        max_tokens=128,
+        temperature=0.3,
+    )
+
+    return RunSpec(
+        name="me_q_sum",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_basic_metric_specs([]),
+        groups=["MeQSum"],
+    )
+
+
+def get_med_dialog_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
+    )
+
+    adapter_spec = get_summarization_adapter_spec(
+        num_sents=1,
+        max_tokens=128,
+        temperature=0.3,
+    )
+
+    return RunSpec(
+        name=f"med_dialog,subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_basic_metric_specs([]),
+        groups=["MedDialog"],
+    )
+
+
+def get_med_mcqa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_mcqa_scenario.MedMCQAScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Give a letter answer among A, B, C or D.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name="med_mcqa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["MedMCQA"],
+    )
+
+
+def get_med_paragraph_simplification_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.med_paragraph_simplification_scenario.MedParagraphSimplificationScenario",
+        args={},
+    )
+
+    adapter_spec = get_summarization_adapter_spec(
+        num_sents=10,
+        max_tokens=512,
+        temperature=0.3,
+    )
+
+    return RunSpec(
+        name="med_paragraph_simplification",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_basic_metric_specs([]),
+        groups=["MedParagraphSimplification"],
+    )
+
+
+def get_med_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_qa_scenario.MedQAScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Give a letter answer among A, B, C or D.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name="med_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["MedQA"],
+    )
+
+
+def get_pubmed_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
-    # We are trying to reproduce the Instruct-GPT3's zero-shot performance of 73.2% from
-    # "Can large language models reason about medical questions?" (Liévin et al.).
-    # Therefore, specify the values of the fields of `AdapterSpec` based on experiment details of the paper.
-    # Set `output_prefix` based on Table 1 (titled "Prompt templates") of the paper.
-    output_prefix: str = "Answer: "
-    if prompt_answer_choices.lower() == "true":
-        output_prefix += "among A through C, the answer is "
-
-    # Liévin et al. followed what Kojima et al. did in "Large Language Models are Zero-Shot Reasoners."
-    # to extract answers from completions: set the max completion length to a large number and
-    # "...pick up the first large letter encountered in the text." Then they set "'Q:'...as a customized stop
-    # sequence for all the models except for Instruct-GPT3 to stop the models from repeating questions and
-    # answers by themselves." We don't need to do this since our framework has a "multiple_choice_joint"
-    # adaptation method that handles the prompt construction for multiple-choice QA for us.
-    adapter_spec = AdapterSpec(
+    adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        max_train_instances=0,  # We want to reproduce the zero-shot performance.
-        # "We sampled one completion per prompt with a temperature of zero..."
-        num_outputs=1,
-        temperature=0,
-        input_prefix="",
-        output_prefix=output_prefix,
-        # Following the examples in https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html
-        reference_prefix="A) ",
+        instructions="Answer A for yes, B for no or C for maybe.",
+        input_noun="Question",
+        output_noun="Answer",
     )
+
     return RunSpec(
-        name=f"pubmed_qa:prompt_answer_choices={prompt_answer_choices}",
+        name="pubmed_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -1680,9 +1780,16 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
     "big_bench": get_big_bench_spec,
-    "pubmed_qa": get_pubmed_qa_spec,
     "lextreme": get_lextreme_spec,
     "lex_glue": get_lex_glue_spec,
+    # Biomedical
+    "covid_dialog": get_covid_dialog_spec,
+    "me_q_sum": get_me_q_sum_spec,
+    "med_dialog": get_med_dialog_spec,
+    "med_mcqa": get_med_mcqa_spec,
+    "med_paragraph_simplification": get_med_paragraph_simplification_spec,
+    "med_qa": get_med_qa_spec,
+    "pubmed_qa": get_pubmed_qa_spec,
 }
 
 

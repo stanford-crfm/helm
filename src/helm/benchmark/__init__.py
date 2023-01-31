@@ -42,6 +42,14 @@ from .scenarios import legal_support_scenario  # noqa
 from .scenarios import entity_matching_scenario  # noqa
 from .scenarios import entity_data_imputation_scenario  # noqa
 from .scenarios import big_bench_scenario  # noqa
+
+# Biomedical
+from .scenarios import covid_dialog_scenario  # noqa
+from .scenarios import me_q_sum_scenario  # noqa
+from .scenarios import med_dialog_scenario  # noqa
+from .scenarios import med_mcqa_scenario  # noqa
+from .scenarios import med_paragraph_simplification_scenario  # noqa
+from .scenarios import med_qa_scenario  # noqa
 from .scenarios import pubmed_qa_scenario  # noqa
 
 # Metrics
