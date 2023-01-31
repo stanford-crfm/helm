@@ -36,6 +36,10 @@ class DALLE2Client(OpenAIClient):
     PROMPT_FLAGGED_ERROR2: str = (
         "Something went wrong with your generation. You may try again or ask for a different prompt"
     )
+    PROMPT_FLAGGED_ERROR3: str = (
+        "The server had an error while processing your request. Sorry about that! You can retry your request, "
+        "or contact us through our help center at help.openai.com if the error persists."
+    )
 
     def __init__(
         self,
@@ -108,7 +112,11 @@ class DALLE2Client(OpenAIClient):
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
-            if str(e) in self.PROMPT_FLAGGED_ERROR or self.PROMPT_FLAGGED_ERROR2 in str(e):
+            if (
+                str(e) in self.PROMPT_FLAGGED_ERROR
+                or self.PROMPT_FLAGGED_ERROR2 in str(e)
+                or self.PROMPT_FLAGGED_ERROR3 in str(e)
+            ):
                 # Some requests fail even if we check the prompt against the moderation API.
                 # For example, "black" in Spanish (negro) causes requests to DALL-E to fail even
                 # though the prompt does not get flagged by the Moderation API.
