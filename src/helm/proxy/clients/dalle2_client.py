@@ -52,7 +52,11 @@ class DALLE2Client(OpenAIClient):
     def make_request(self, request: Request) -> RequestResult:
         def get_content_policy_violated_result():
             no_image = Sequence(
-                text="", logprob=0, tokens=[], file_path=None, finish_reason={"reason": self.CONTENT_POLICY_VIOLATED}
+                text="",
+                logprob=0,
+                tokens=[],
+                file_location=None,
+                finish_reason={"reason": self.CONTENT_POLICY_VIOLATED},
             )
             return RequestResult(
                 success=True,
