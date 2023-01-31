@@ -1519,7 +1519,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=get_adaptation_method(big_bench_task["metrics"]),
         model="openai/text-curie-001",  # Can override with the `ModelRunExpander`.
-        max_train_instances=0,  # Can override with the `MaxTrainInstancesRunExpander`.
+        max_train_instances=5,  # Can override with the `MaxTrainInstancesRunExpander`.
         num_outputs=1,  # Can override with the `NumOutputsRunExpander`.
         # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",
         # for the BIG-G models tested on BIG-bench, "we use an input context length of 1,024 tokens

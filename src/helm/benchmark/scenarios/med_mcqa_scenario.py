@@ -8,8 +8,8 @@ from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, V
 
 class MedMCQAScenario(Scenario):
     """
-    From "MedMCQA : A Large-scale Multi-Subject Multi-Choice Dataset for Medical domain Question Answering"
-    (Pal et al.), MedMCQA is a "Multiple-Choice Question Answering (MCQA) dataset designed to address
+    From "MedMCQA: A Large-scale Multi-Subject Multi-Choice Dataset for Medical domain Question Answering"
+    (Pal et al.), MedMCQA is a "multiple-choice question answering (MCQA) dataset designed to address
     real-world medical entrance exam questions." The dataset "...has more than 194k high-quality AIIMS & NEET PG
     entrance exam MCQs covering 2.4k healthcare topics and 21 medical subjects are collected with an average
     token length of 12.77 and high topical diversity."
@@ -58,7 +58,7 @@ class MedMCQAScenario(Scenario):
 
     name = "med_mcqa"
     description = (
-        "MedMCQA is a Multiple-Choice Question Answering (MCQA) dataset designed to address "
+        "MedMCQA is a multiple-choice question answering (MCQA) dataset designed to address "
         "real-world medical entrance exam questions."
     )
     tags = ["question_answering", "biomedical"]
