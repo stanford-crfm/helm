@@ -256,6 +256,15 @@ models:
     release_date: 2022-11-15
     todo: true
 
+  - name: together/galactica-30b
+    display_name: Galactica (30B)
+    description: Galactica (30B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 30000000000
+    release_date: 2022-11-15
+    todo: true
+
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
     display_name: TNLG v2 (530B)
@@ -376,6 +385,16 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2022-11-29
+    todo: true
+
+  # Salesforce
+  - name: together/codegen
+    display_name: CodeGen (16B)
+    description: CodeGen (16B parameters) is an open dense code model trained for multi-turn program synthesis ([blog](https://arxiv.org/pdf/2203.13474.pdf)).
+    creator_organization: Tsinghua
+    access: open
+    num_parameters: 16000000000
+    release_date: 2022-03-25
     todo: true
 
   # Tsinghua
