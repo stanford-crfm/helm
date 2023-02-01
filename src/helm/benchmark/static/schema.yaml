@@ -142,6 +142,14 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
+  - name: cohere/command-xlarge-nightly
+    display_name: Cohere command nightly (52.4B)
+    description: Cohere command nightly (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+    creator_organization: Cohere
+    access: limited
+    num_parameters: 52400000000
+    release_date: 2022-11-08
+    todo: true
 
   # DeepMind
   - name: deepmind/gopher
@@ -205,6 +213,24 @@ models:
     todo: true
 
   # Meta
+  - name: together/opt-iml-175b
+    display_name: OPT-IML (175B)
+    description: OPT-IML (175B parameters) is a suite of decoder-only transformer LMs that are multi-task fine-tuned on 2000 datasets ([paper](https://arxiv.org/pdf/2212.12017.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 175000000000
+    release_date: 2022-12-22
+    todo: true
+
+  - name: together/opt-iml-30b
+    display_name: OPT-IML (30B)
+    description: OPT-IML (30B parameters) is a suite of decoder-only transformer LMs that are multi-task fine-tuned on 2000 datasets ([paper](https://arxiv.org/pdf/2212.12017.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 30000000000
+    release_date: 2022-12-22
+    todo: true
+
   - name: together/opt-175b
     display_name: OPT (175B)
     description: Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
@@ -227,6 +253,15 @@ models:
     creator_organization: Meta
     access: open
     num_parameters: 120000000000
+    release_date: 2022-11-15
+    todo: true
+
+  - name: together/galactica-30b
+    display_name: Galactica (30B)
+    description: Galactica (30B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 30000000000
     release_date: 2022-11-15
     todo: true
 
@@ -352,6 +387,16 @@ models:
     release_date: 2022-11-29
     todo: true
 
+  # Salesforce
+  - name: together/codegen
+    display_name: CodeGen (16B)
+    description: CodeGen (16B parameters) is an open dense code model trained for multi-turn program synthesis ([blog](https://arxiv.org/pdf/2203.13474.pdf)).
+    creator_organization: Tsinghua
+    access: open
+    num_parameters: 16000000000
+    release_date: 2022-03-25
+    todo: true
+
   # Tsinghua
   - name: together/glm
     display_name: GLM (130B)
@@ -361,6 +406,15 @@ models:
     num_parameters: 130000000000
     release_date: 2022-08-04
 
+  - name: together/codegeex
+    display_name: CodeGeeX (13B)
+    description: CodeGeeX (13B parameters) is an open dense code model trained on more than 20 programming languages on a corpus of more than 850B tokens ([blog](http://keg.cs.tsinghua.edu.cn/codegeex/)).
+    creator_organization: Tsinghua
+    access: open
+    num_parameters: 13000000000
+    release_date: 2022-09-19
+    todo: true
+    
   # Yandex
   - name: together/yalm
     display_name: YaLM (100B)
