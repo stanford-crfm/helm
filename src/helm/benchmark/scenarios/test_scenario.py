@@ -1,5 +1,5 @@
 from helm.benchmark.run_specs import get_scenario_spec_tiny
-from .scenario import create_scenario, Scenario
+from .scenario import create_scenario, Scenario, Input, PassageQuestionInput
 
 
 class TestScenario:
@@ -34,3 +34,16 @@ class TestScenario:
             '  reference []: "-1"',
             "}",
         ]
+
+
+def test_input_equality():
+    input1 = Input(text="input1")
+    assert input1 == input1
+    assert input1 == Input(text="input1")
+    assert input1 != Input(text="input2")
+
+
+def test_passage_question_input():
+    assert (
+        PassageQuestionInput(passage="Short passage", question="question?").text == "Short passage\nQuestion: question?"
+    )

@@ -3,26 +3,35 @@ from typing import Any, Callable, List, Dict, Optional, Set
 
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.object_spec import ObjectSpec
-from .adapter import (
-    AdapterSpec,
+from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
     ADAPT_RANKING_BINARY,
-    RANKING_CORRECT_LABEL,
-    RANKING_WRONG_LABEL,
 )
+from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander
 from .runner import RunSpec
+from .scenarios.lex_glue_scenario import (
+    get_lex_glue_max_train_instances,
+    get_lex_glue_instructions,
+    get_lex_glue_max_tokens,
+)
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
+from .scenarios.lextreme_scenario import (
+    get_lextreme_instructions,
+    get_lextreme_max_train_instances,
+    get_lextreme_max_tokens,
+)
 from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG
 from helm.common.general import singleton
 
@@ -370,8 +379,8 @@ def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[Met
             args={
                 "method": ADAPT_RANKING_BINARY,
                 "measure_names": measure_names,
-                "correct_output": RANKING_CORRECT_LABEL,
-                "wrong_output": RANKING_WRONG_LABEL,
+                "correct_output": BinaryRankingAdapter.RANKING_CORRECT_LABEL,
+                "wrong_output": BinaryRankingAdapter.RANKING_WRONG_LABEL,
                 "rank": rank,
                 "multiple_relevance_values": multiple_relevance_values,
             },
@@ -1579,6 +1588,52 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     )
 
 
+def get_lextreme_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.lextreme_scenario.LEXTREMEScenario",
+        args={"subset": subset},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=get_lextreme_instructions(subset),
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=get_lextreme_max_tokens(subset),
+        max_train_instances=get_lextreme_max_train_instances(subset),  # in some subsets the input is very long
+    )
+
+    return RunSpec(
+        name=f"lextreme:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_f1_metric_specs(),
+        groups=["lextreme"],
+    )
+
+
+def get_lex_glue_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.lex_glue_scenario.LexGLUEScenario",
+        args={"subset": subset},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=get_lex_glue_instructions(subset),
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=get_lex_glue_max_tokens(subset),
+        max_train_instances=get_lex_glue_max_train_instances(subset),  # in some subsets the input is very long
+    )
+
+    return RunSpec(
+        name=f"lex_glue:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_f1_metric_specs(),
+        groups=["lex_glue"],
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -1626,6 +1681,8 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "ice": get_ice_spec,
     "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
+    "lextreme": get_lextreme_spec,
+    "lex_glue": get_lex_glue_spec,
 }
 
 

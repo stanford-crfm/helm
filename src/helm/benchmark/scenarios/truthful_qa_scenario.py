@@ -3,7 +3,7 @@ import os
 from typing import List, Dict, Any
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, VALID_SPLIT, TRAIN_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, VALID_SPLIT, TRAIN_SPLIT, CORRECT_TAG, Input, Output
 
 
 class TruthfulQAScenario(Scenario):
@@ -107,9 +107,9 @@ class TruthfulQAScenario(Scenario):
 
         def get_references(best_answer: str, incorrect_answers: List[str]) -> List[Reference]:
             # Prepare the references list
-            references = [Reference(output=ans, tags=[]) for ans in incorrect_answers]
-            correct_reference = Reference(output=best_answer, tags=[CORRECT_TAG])
-            references.append(correct_reference)
+            references = [Reference(Output(text=ans), tags=[]) for ans in incorrect_answers]
+            references.append(Reference(Output(text=best_answer), tags=[CORRECT_TAG]))
+
             # To ensure that we have some variety at where the option with the correct answer
             # appears (A, B, C etc.) we use ascii value of the first character of the best_answer
             # string (ord) and use ord mod the list length to rotate the references list.
@@ -122,14 +122,14 @@ class TruthfulQAScenario(Scenario):
             for dt in data:
                 if self.task == self.MULTIPLE_CHOICE_SINGLE_ANSWER:
                     # Format the fields of the question
-                    question = dt["question"].strip()
-                    best_answer = format_str(dt["best_answer"])
-                    incorrect_answers = split_multiple_answer_string(dt["incorrect_answers"])
+                    question: str = dt["question"].strip()
+                    best_answer: str = format_str(dt["best_answer"])
+                    incorrect_answers: List[str] = split_multiple_answer_string(dt["incorrect_answers"])
 
                     # Prepare the instance
                     references = get_references(best_answer, incorrect_answers)
                     instance = Instance(
-                        input=question,
+                        input=Input(text=question),
                         references=references,
                         split=split,
                     )

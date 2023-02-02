@@ -10,7 +10,17 @@ from helm.common.hierarchical_logger import htrack_block, hlog
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists, asdict_without_nones
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    CORRECT_TAG,
+    PassageQuestionInput,
+    Input,
+    Output,
+)
 
 
 @dataclass(frozen=True)
@@ -219,26 +229,28 @@ class NaturalQAScenario(Scenario):
         )
 
     def create_instance(self, instance: RawInstance, split: str) -> Instance:
-        question = instance.question.capitalize()
+        question: str = instance.question.capitalize()
         if question[-1] != "?":
             question += "?"
 
-        prompt = ""
-        ans_idx = random.randint(0, len(instance.short_answers) - 1)
+        input: Input
+        ans_idx: int = random.randint(0, len(instance.short_answers) - 1)
+
         if self.context_mode == "closedbook":
-            prompt = question
-        else:
-            if self.context_mode == "openbook_wiki":
-                context = instance.document
-            elif self.context_mode == "openbook_longans":
-                context = instance.long_answers[ans_idx]
-            else:
-                raise Exception(f"Invalid context mode: {self.context_mode}")
-            prompt = PassageQuestionInput(passage=context, question=question).to_text(
-                passage_prefix="Passage: ", separator="\n\n"
+            input = Input(text=question)
+        elif self.context_mode == "openbook_wiki":
+            input = PassageQuestionInput(
+                passage=instance.document,
+                question=question,
+                passage_prefix=f"Title: {instance.title}\n\nPassage: ",
+                separator="\n\n",
             )
-            if self.context_mode == "openbook_wiki":
-                prompt = f"Title: {instance.title}\n\n" + prompt
+        elif self.context_mode == "openbook_longans":
+            input = PassageQuestionInput(
+                passage=instance.long_answers[ans_idx], question=question, passage_prefix="Passage: ", separator="\n\n"
+            )
+        else:
+            raise Exception(f"Invalid context mode: {self.context_mode}")
 
         if split == "train":
             answers = instance.short_answers[ans_idx : ans_idx + 1]
@@ -247,8 +259,8 @@ class NaturalQAScenario(Scenario):
             answers = list(dict.fromkeys(instance.short_answers))
 
         return Instance(
-            input=prompt,
-            references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers],
+            input=input,
+            references=[Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in answers],
             split=SPLITS[split],
         )
 
@@ -257,7 +269,6 @@ class NaturalQAScenario(Scenario):
         Helper for generating instances for the given splits.
         Args:
             target_file (str): Data file.
-            split (dict): Which splits to partition the data into.
 
         Returns:
             List[Instance]: Instances from file partitioned uniformly across splits.

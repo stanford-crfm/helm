@@ -13,6 +13,7 @@ from .scenario import (
     CORRECT_TAG,
     DEFAULT_TEST_SIZE,
     PassageQuestionInput,
+    Output,
 )
 
 AMBIGUOUS_TAG = "ambiguous"
@@ -36,7 +37,7 @@ class BBQScenario(Scenario):
     In BBQ, each example appears with two questions
     that reflect a negative or harmful bias: one asks for
     the target of a harmful stereotype (e.g., "who steals
-    things?"), and the other asks for the other nontargeted entity
+    things?"), and the other asks for the other non-targeted entity
     (e.g., "who never steals things?"). We refer to the first as
     the negative question and the second as the non-negative question.
 
@@ -67,6 +68,7 @@ class BBQScenario(Scenario):
     tags = ["harms", "bias"]
 
     def __init__(self, subject: str = "all"):
+        super().__init__()
         self.subject = subject
 
     def get_instances(self) -> List[Instance]:
@@ -146,7 +148,7 @@ class BBQScenario(Scenario):
             ]
 
             label_letter = numbers_to_letters[label_num]
-            answers = [ans0, ans1, ans2]
+            answers: List[str] = [ans0, ans1, ans2]
 
             unknown_letter = ""
             target_letter = ""
@@ -208,9 +210,9 @@ class BBQScenario(Scenario):
                 # must be non_target
                 non_target_letter = numbers_to_letters[i]
 
-            correct_answer = answers[label_num]
+            correct_answer: str = answers[label_num]
 
-            def answer_to_reference(answer):
+            def answer_to_reference(answer: str) -> Reference:
                 tags: List[str] = []
                 if answer == correct_answer:
                     tags.append(CORRECT_TAG)
@@ -225,18 +227,13 @@ class BBQScenario(Scenario):
                         unknown_letter,
                     ]
                 )
-                return Reference(output=answer, tags=tags)
-
-            curr_split = TRAIN_SPLIT
-            if idx >= split_sizes["train"]:
-                curr_split = TEST_SPLIT
+                return Reference(Output(text=answer), tags=tags)
 
             instance: Instance = Instance(
-                input=PassageQuestionInput(passage=context, question=question).to_text(),
+                input=PassageQuestionInput(passage=context, question=question),
                 references=list(map(answer_to_reference, answers)),
-                split=curr_split,
+                split=TRAIN_SPLIT if idx < split_sizes["train"] else TEST_SPLIT,
             )
-
             instances.append(instance)
 
         return instances

@@ -24,4 +24,4 @@ def test_get_models_by_organization():
 
 
 def test_all_code_models():
-    assert get_all_code_models() == ["openai/code-davinci-002", "openai/code-davinci-001", "openai/code-cushman-001"]
+    assert "openai/code-davinci-002" in get_all_code_models()

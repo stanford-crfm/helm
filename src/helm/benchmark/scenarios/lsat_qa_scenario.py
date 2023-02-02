@@ -12,6 +12,7 @@ from .scenario import (
     TEST_SPLIT,
     CORRECT_TAG,
     PassageQuestionInput,
+    Output,
 )
 
 
@@ -94,13 +95,13 @@ class LSATScenario(Scenario):
         self.task = task
 
         self.subtype2type = {}
-        for qtype, subtypes in question_types.items():
+        for question_type, subtypes in question_types.items():
             for subtype in subtypes:
-                self.subtype2type[subtype] = qtype
+                self.subtype2type[subtype] = question_type
 
-    def get_question_types(self, tags):
-        qtype: str = tags[2].replace("grouping (distribution)", "distribution grouping") or "miscellaneous"
-        return [qtype.replace(" ", "_").replace("/", "_"), self.subtype2type.get(qtype)]
+    def get_question_types(self, tags: List[str]) -> List[str]:
+        question_type: str = tags[2].replace("grouping (distribution)", "distribution grouping") or "miscellaneous"
+        return [question_type.replace(" ", "_").replace("/", "_"), self.subtype2type.get(question_type)]
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
@@ -119,19 +120,22 @@ class LSATScenario(Scenario):
                 for p in data:
                     passage = p["passage"]
                     for q in p["questions"]:
-                        qtypes = self.get_question_types(q["tags"])
-                        if self.task == "all" or self.task in qtypes:
+                        question_types: List[str] = self.get_question_types(q["tags"])
+                        if self.task == "all" or self.task in question_types:
                             question = q["question"]
                             options = q["options"]
                             answer = ord(q["answer"]) - ord("A")
-                            context = PassageQuestionInput(passage=passage, question=question).to_text()
 
                             references: List[Reference] = []
                             for index, option in enumerate(options):
                                 tags = [CORRECT_TAG] if index == answer else []
-                                references.append(Reference(output=option, tags=tags))
+                                references.append(Reference(Output(text=option), tags=tags))
 
-                            instance: Instance = Instance(input=context, references=references, split=splits[split])
+                            instance: Instance = Instance(
+                                input=PassageQuestionInput(passage=passage, question=question),
+                                references=references,
+                                split=splits[split],
+                            )
                             instances.append(instance)
 
         return instances

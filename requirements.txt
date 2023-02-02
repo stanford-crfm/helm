@@ -35,12 +35,12 @@ sqlitedict~=1.7.0
 pymongo~=4.2.0
 retrying~=1.3.3
 websocket-client~=1.3.2 # For Anthropic
-openai~=0.23.1
+openai~=0.25.0
 transformers~=4.22.2  # For HuggingFace tokenizer
 icetk~=0.0.4
 protobuf~=3.20.2  # Can't use 4.21.0 due to backward incompatibility
 google-api-python-client~=2.64.0
-revChatGPT~=0.0.33.4
+revChatGPT~=0.1.1
 
 # Scenarios
 datasets~=2.5.2  # For math scenarios
@@ -49,6 +49,7 @@ jsonlines~=3.1.0  # Not really needed
 sympy~=1.11.1  # For math scenarios
 sentencepiece~=0.1.97
 numba~=0.56.4
+cattrs~=22.2.0
 
 # Metrics
 importlib-resources~=5.10.0

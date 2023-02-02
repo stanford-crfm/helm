@@ -1,9 +1,10 @@
+import time
 from typing import Any, Dict, List, Optional
 
 from filelock import FileLock
-from revChatGPT.revChatGPT import Chatbot
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -18,19 +19,29 @@ class ChatGPTClient(Client):
     """
     Client for OpenAI's ChatGPT (https://openai.com/blog/chatgpt).
     We use the unofficial ChatGPT Python client: https://github.com/acheong08/ChatGPT.
+    See https://github.com/acheong08/ChatGPT/wiki/Setup for the setup. The client requires Chrome or Chromium installed.
     """
 
     REQUEST_TIMEOUT_SECONDS: int = 10 * 60  # 10 minutes
+    SECONDS_BETWEEN_REQUESTS: int = 1 * 60  # 1 minute
 
-    def __init__(
-        self, email: str, password: str, lock_file_path: str, cache_config: CacheConfig, tokenizer_client: Client
-    ):
-        self.chat_bot = Chatbot({"email": email, "password": password}, debug=True)
+    def __init__(self, session_token: str, lock_file_path: str, cache_config: CacheConfig, tokenizer_client: Client):
+        self.session_token: str = session_token
+        # Initialize `Chatbot` when we're ready to make the request
+        self.chat_bot = None
         self.tokenizer_client: Client = tokenizer_client
         self.cache = Cache(cache_config)
 
         # Since we want a brand new chat session per request, only allow a single request at a time.
         self._lock = FileLock(lock_file_path, timeout=ChatGPTClient.REQUEST_TIMEOUT_SECONDS)
+
+    def _get_chat_bot_client(self):
+        # Import when needed. This library breaks GHA pipeline.
+        from revChatGPT.ChatGPT import Chatbot
+
+        if self.chat_bot is None:
+            self.chat_bot = Chatbot({"session_token": self.session_token})
+        return self.chat_bot
 
     def make_request(self, request: Request) -> RequestResult:
         def fix_token_text(text: str):
@@ -47,10 +58,12 @@ class ChatGPTClient(Client):
 
                 def do_it():
                     with self._lock:
-                        self.chat_bot.refresh_session()
-                        result: Dict[str, Any] = self.chat_bot.get_chat_response(request.prompt, output="text")
+                        chat_bot = self._get_chat_bot_client()
+                        chat_bot.refresh_session()
+                        result: Dict[str, Any] = chat_bot.ask(request.prompt)
                         assert "message" in result, f"Invalid response: {result}"
-                        self.chat_bot.reset_chat()
+                        hlog(f"Response: {result['message']}")
+                        chat_bot.reset_chat()
                         return result
 
                 raw_request: Dict[str, Any] = {
@@ -60,6 +73,11 @@ class ChatGPTClient(Client):
                 }
                 cache_key = Client.make_cache_key(raw_request, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                if not cached:
+                    # Add some sleep between requests to attempt to hit the rate limit.
+                    # The rate limit seems to be ~60 requests/hour
+                    hlog("Made a request. Sleeping...")
+                    time.sleep(ChatGPTClient.SECONDS_BETWEEN_REQUESTS)
             except Exception as e:
                 error: str = f"ChatGPT error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])

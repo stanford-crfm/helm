@@ -84,14 +84,15 @@ class Model:
 # For the list of available models, see the following docs:
 # Note that schema.yaml has much of this information now.
 # Over time, we should add more information there.
+
 ALL_MODELS = [
     # AI21: https://studio.ai21.com/pricing
     Model(
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-jumbo",
-        display_name="Jurassic Jumbo (178B)",
-        description="Jurassic J1-Jumbo (178B parameters)",
+        display_name="Jurassic-1 Jumbo (178B)",
+        description="Jurassic-1 Jumbo (178B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
@@ -101,24 +102,24 @@ ALL_MODELS = [
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-grande",
-        display_name="Jurassic Grande (17B)",
-        description="Jurassic J1-Grande (17B parameters with a few tweaks to its training process)",
+        display_name="Jurassic-1 Grande (17B)",
+        description="Jurassic-1 Grande (17B parameters) with a few tweaks to the training process.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-grande-v2-beta",
-        display_name="Jurassic Grande v2 beta (17B)",
-        description="Jurassic J1-Grande v2 beta (17B parameters)",
+        display_name="Jurassic-1 Grande v2 beta (17B)",
+        description="Jurassic-1 Grande v2 beta (17B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-large",
-        display_name="Jurassic Large (7.5B)",
-        description="Jurassic J1-Large (7.5B parameters)",
+        display_name="Jurassic-1 Large (7.5B)",
+        description="Jurassic-1 Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
@@ -286,11 +287,28 @@ ALL_MODELS = [
     # HuggingFace
     Model(
         group="huggingface",
+        creator_organization="OpenAI",
+        name="huggingface/gpt2",
+        display_name="GPT-2 (1.5B)",
+        description="GPT-2 (1.5B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface",
         creator_organization="EleutherAI",
         name="huggingface/gpt-j-6b",
         display_name="GPT-J (6B, HuggingFace)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface",
+        creator_organization="BigCode",
+        name="huggingface/santacoder",
+        display_name="SantaCoder (1.1B)",
+        description="SantaCoder (1.1B parameters) model trained on the Python, Java, and "
+        "JavaScript subset of The Stack (v1.1).",
+        tags=[CODE_MODEL_TAG],
     ),
     # Google
     Model(
@@ -321,14 +339,6 @@ ALL_MODELS = [
             NO_NEWLINES_TAG,
             NLG_PREFIX_TAG,
         ],
-    ),
-    Model(
-        group="huggingface",
-        creator_organization="OpenAI",
-        name="huggingface/gpt2",
-        display_name="GPT-2 (1.5B)",
-        description="GPT-2 (1.5B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OPT
     Model(
@@ -375,32 +385,32 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/davinci",
-        display_name="GPT-3 davinci (175B)",
-        description="GPT-3 (175B parameters) autoregressive language model.",
+        display_name="davinci (175B)",
+        description="Original GPT-3 (175B parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/curie",
-        display_name="GPT-3 curie (6.7B)",
-        description="GPT-3 (6.7B parameters) autoregressive language model.",
+        display_name="curie (6.7B)",
+        description="Original GPT-3 (6.7B parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/babbage",
-        display_name="GPT-3 babbage (1.3B)",
-        description="GPT-3 (1.3B parameters) autoregressive language model.",
+        display_name="babbage (1.3B)",
+        description="Original GPT-3 (1.3B parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/ada",
-        display_name="GPT-3 ada (350M)",
-        description="GPT-3 (350M parameters) autoregressive language model.",
+        display_name="ada (350M)",
+        description="Original GPT-3 (350M parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
@@ -475,8 +485,8 @@ ALL_MODELS = [
         group="codex",
         creator_organization="OpenAI",
         name="openai/code-cushman-001",
-        display_name="Codex code-cushman-001 (12B)",
-        description="Codex model that is a stronger, multilingual version of the Codex (12B) model in the paper.",
+        display_name="code-cushman-001 (12B)",
+        description="Code model that is a stronger, multilingual version of the Codex (12B) model in the paper.",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # ChatGPT - https://openai.com/blog/chatgpt
@@ -522,7 +532,16 @@ ALL_MODELS = [
         description="GPT-3 (1024-dimension embeddings)",
         tags=[EMBEDDING_MODEL_TAG],
     ),
-    # Offline models
+    # Together
+    Model(
+        group="together",
+        creator_organization="Together",
+        name="together/gpt-jt-6b-v1",
+        display_name="GPT-JT (6B)",
+        description="GPT-JT (6B parameters) is a fork of GPT-J",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+    ),
+    # Tsinghua
     Model(
         group="together",
         creator_organization="Tsinghua KEG",
@@ -535,6 +554,7 @@ ALL_MODELS = [
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
+    # Yandex
     Model(
         group="together",
         creator_organization="Yandex",
@@ -565,7 +585,6 @@ ALL_MODELS = [
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
 ]
-
 
 MODEL_NAME_TO_MODEL: Dict[str, Model] = {model.name: model for model in ALL_MODELS}
 

@@ -11,10 +11,10 @@ def get_requirements(path: str):
 
 setup(
     name="crfm-helm",
-    version="0.1.0",
+    version="0.2.0",
     description="Benchmark for language models",
     long_description="Benchmark for language models",
-    url="https://github.com/stanford-crfm/benchmarking",
+    url="https://github.com/stanford-crfm/helm",
     author="Stanford CRFM",
     author_email="contact-crfm@stanford.edu",
     license="Apache License 2.0",
@@ -31,7 +31,7 @@ setup(
     install_requires=get_requirements("requirements.txt"),
     entry_points={
         "console_scripts": [
-            "helm-run=helm.benchmark.presentation.present:main",
+            "helm-run=helm.benchmark.run:main",
             "helm-summarize=helm.benchmark.presentation.summarize:main",
             "helm-server=helm.benchmark.server:main",
             "crfm-proxy-server=helm.proxy.server:main",

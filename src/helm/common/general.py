@@ -2,6 +2,7 @@ import json
 import os
 import shlex
 import subprocess
+import uuid
 import zstandard
 from typing import Any, Callable, Dict, List, Optional, TypeVar
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
@@ -260,3 +261,28 @@ def unique_simplification(items: List[Dict[str, Any]], priority_keys: List[str])
         new_items.append(item)
 
     return new_items
+
+
+def generate_unique_id() -> str:
+    """
+    Generate a unique ID (e.g., 77437ea482144bf7b9275a0acee997db).
+    """
+    return uuid.uuid4().hex
+
+
+def get_file_name(path: str) -> str:
+    """
+    Get the file name from a path (e.g., /path/to/image.png => image.png).
+    """
+    return os.path.split(path)[-1]
+
+
+def safe_symlink(src: str, dest: str) -> None:
+    """
+    Creates a symlink at `dest`. `src` and `dest` can be relative paths.
+    """
+    src = os.path.abspath(src)
+    dest = os.path.abspath(dest)
+
+    if not os.path.exists(dest):
+        os.symlink(src, dest)

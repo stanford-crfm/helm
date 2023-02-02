@@ -5,7 +5,7 @@ from typing import List, Dict
 from urllib.parse import urljoin
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
+from .scenario import Scenario, Instance, Reference, Input, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, Output
 
 
 class BIGBenchScenario(Scenario):
@@ -138,14 +138,14 @@ class BIGBenchScenario(Scenario):
                 # So, for now, `Reference`s with the highest target score are correct.
                 highest_score = max(example["target_scores"].values())
                 references = [
-                    Reference(output, tags=[CORRECT_TAG] if score == highest_score else [])
-                    for output, score in example["target_scores"].items()
+                    Reference(Output(text=target), tags=[CORRECT_TAG] if score == highest_score else [])
+                    for target, score in example["target_scores"].items()
                 ]
             elif "target" in example:
                 # All the outputs in "target" are correct e.g., {"input": "1 + 1 = ", "target": ["two","2"]}.
                 # "target" can either be a list of correct values or a single correct value.
-                targets: List = example["target"] if type(example["target"]) == list else [example["target"]]
-                references = [Reference(output, tags=[CORRECT_TAG]) for output in targets]
+                targets: List[str] = example["target"] if type(example["target"]) == list else [example["target"]]
+                references = [Reference(Output(text=target), tags=[CORRECT_TAG]) for target in targets]
             else:
                 raise ValueError(f"Invalid example that doesn't have `target` or `target_scores` field: {example}")
 
@@ -158,6 +158,6 @@ class BIGBenchScenario(Scenario):
             else:
                 split = VALID_SPLIT
 
-            instances.append(Instance(example["input"], references, split=split))
+            instances.append(Instance(Input(text=example["input"]), references, split=split))
 
         return instances

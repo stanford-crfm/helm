@@ -18,9 +18,9 @@ from helm.proxy.models import (
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
+from helm.benchmark.adaptation.adapter_spec import Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
-from helm.benchmark.adapter import Substitution
 
 
 class RunExpander(ABC):
@@ -306,8 +306,9 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
-        "openai/chat-gpt": ["openai/chat-gpt"],
+        "chat_run": ["openai/chat-gpt", "openai/text-davinci-003"],  # Compare ChatGPT to text-davinci-003
         "all": get_all_models(),
+        "text_code": get_all_text_models() + get_all_code_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
         "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
@@ -738,6 +739,7 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
         "AlephAlpha/luminous-extended": ["AlephAlpha/luminous-extended"],
         "AlephAlpha/luminous-supreme": ["AlephAlpha/luminous-supreme"],
         "AlephAlpha/luminous-world": ["AlephAlpha/luminous-world"],
+        "huggingface/santacoder": ["bigcode/santacoder"],
     }
     model_tags_and_tokenizers = [
         (GPT2_TOKENIZER_TAG, "huggingface/gpt2"),
@@ -767,7 +769,8 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         # Find right tokenizer given model.
         if isinstance(self.all_values, dict):
-            self.values = self.all_values[run_spec.adapter_spec.model]
+            model: str = run_spec.adapter_spec.model
+            self.values = self.all_values[model] if model in self.all_values else []
         else:
             self.values = self.all_values
         return super().expand(run_spec)

@@ -1,9 +1,19 @@
 import json
 import os
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    CORRECT_TAG,
+    PassageQuestionInput,
+    Input,
+    Output,
+)
 
 
 class BoolQScenario(Scenario):
@@ -68,8 +78,19 @@ class BoolQScenario(Scenario):
     """
 
     name = "boolq"
-    description = "Question answering dataset with naturally occuring Yes/No questions."
+    description = "Question answering dataset with naturally occurring Yes/No questions."
     tags = ["question_answering"]
+
+    @staticmethod
+    def get_context(passage: str, question: str) -> Input:
+        """
+        We follow the format from https://arxiv.org/abs/2005.14165.
+        For more details, see Figure G.29: Formatted dataset example for BoolQ.
+        """
+        question = question.strip().capitalize()
+        assert question[-1] != "?"
+        question += "?"
+        return PassageQuestionInput(passage=passage, question=question)
 
     def __init__(self, only_contrast=False):
         """
@@ -78,16 +99,6 @@ class BoolQScenario(Scenario):
         """
         super().__init__()
         self.only_contrast = only_contrast
-
-    def get_context(self, passage: str, question: str) -> str:
-        """
-        We follow the format from https://arxiv.org/abs/2005.14165.
-        For more details, see Figure G.29: Formatted dataset example for BoolQ.
-        """
-        question = question.strip().capitalize()
-        assert question[-1] != "?"
-        question += "?"
-        return PassageQuestionInput(passage=passage, question=question).to_text()
 
     def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:
         split_instances: List[Instance] = []
@@ -100,24 +111,25 @@ class BoolQScenario(Scenario):
                 answer: bool = triplet["answer"]
 
                 correct_answer: str = "Yes" if answer else "No"
-                context: str = self.get_context(passage, question)
+                input: Input = self.get_context(passage, question)
 
-                contrast_inputs, contrast_references = None, None
+                contrast_inputs: Optional[List[Input]] = None
+                contrast_references: Optional[List[List[Reference]]] = None
                 if question in contrast_map:
                     assert correct_answer == contrast_map[question]["original_answer"]
                     contrast_inputs = [
                         self.get_context(passage, q) for q in contrast_map[question]["perturbed_questions"]
                     ]
                     contrast_references = [
-                        [Reference(output=perturbed_answer, tags=[CORRECT_TAG])]
+                        [Reference(Output(text=perturbed_answer), tags=[CORRECT_TAG])]
                         for perturbed_answer in contrast_map[question]["perturbed_answers"]
                     ]
                 elif self.only_contrast and split == VALID_SPLIT:
                     continue
 
                 instance: Instance = Instance(
-                    input=context,
-                    references=[Reference(output=correct_answer, tags=[CORRECT_TAG])],
+                    input=input,
+                    references=[Reference(Output(text=correct_answer), tags=[CORRECT_TAG])],
                     split=split,
                     contrast_inputs=contrast_inputs,
                     contrast_references=contrast_references,

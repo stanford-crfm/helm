@@ -5,18 +5,12 @@ import os
 import pickle
 
 import spacy
-import subprocess
-import sys
 from typing import List, Dict, Optional
 from collections import defaultdict
 
-# Need to check spacy module is downloaded before importing DataStatsMetric
-if not spacy.util.is_package("en_core_web_sm"):
-    subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-
-from summ_eval.data_stats_metric import DataStatsMetric
-
-from helm.benchmark.adapter import AdapterSpec, RequestState, ScenarioState
+from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from .metric import Metric, MetricResult
@@ -54,6 +48,13 @@ class SummarizationMetric(Metric):
             "rouge_2": get_rouge_function("rouge2"),
             "rouge_l": get_rouge_function("rougeL"),
         }
+        # Download en_core_web_sm before importing DataStatsMetric to
+        # avoid triggering a bug in DataStatsMetric that raises
+        # `NameError: name 'stderr' is not defined`
+        if not spacy.util.is_package("en_core_web_sm"):
+            spacy.cli.download("en_core_web_sm")  # type: ignore
+        from summ_eval.data_stats_metric import DataStatsMetric
+
         self.data_stats_metric = DataStatsMetric()
         self.task: str = task
         self.qa_fact_eval: Optional[Dict] = None
@@ -149,7 +150,7 @@ class SummarizationMetric(Metric):
         p, r, f = self.bert_scorer.score([pred], [refs])
         return {"BERTScore-P": p[0].item(), "BERTScore-R": r[0].item(), "BERTScore-F": f[0].item()}
 
-    def _remove_braces(self, text):
+    def _remove_braces(self, text: str) -> str:
         if text.startswith("{"):
             text = text[1:]
         if text.endswith("}"):
@@ -164,8 +165,8 @@ class SummarizationMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
 
-        refs: List[str] = [self._remove_braces(x.output) for x in request_state.instance.references]
-        inp: str = self._remove_braces(request_state.instance.input)
+        refs: List[str] = [self._remove_braces(ref.output.text) for ref in request_state.instance.references]
+        inp: str = self._remove_braces(request_state.instance.input.text)
 
         assert request_state.result is not None
         pred: str = self._remove_braces(request_state.result.completions[0].text.strip())

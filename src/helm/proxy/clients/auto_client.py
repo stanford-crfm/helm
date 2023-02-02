@@ -39,6 +39,7 @@ class AutoClient(Client):
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
+        self.tokenizer_clients: Dict[str, Client] = {}
         huggingface_cache_config = self._build_cache_config("huggingface")
         self.huggingface_client = HuggingFaceClient(huggingface_cache_config)
         hlog(f"AutoClient: cache_path = {cache_path}")
@@ -47,12 +48,14 @@ class AutoClient(Client):
     def _build_cache_config(self, organization: str) -> CacheConfig:
         if self.mongo_uri:
             return MongoCacheConfig(self.mongo_uri, collection_name=organization)
+
         client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def get_client(self, organization: str) -> Client:
+    def get_client(self, request: Request) -> Client:
         """Return a client based on `organization`, creating it if necessary."""
+        organization: str = request.model_organization
         client: Optional[Client] = self.clients.get(organization)
 
         if client is None:
@@ -61,11 +64,9 @@ class AutoClient(Client):
             if organization == "openai":
                 # TODO: add ChatGPT to the OpenAIClient when it's supported.
                 #       We're using a separate client for now since we're using an unofficial Python library.
-                # Must pass in email and password to use the full functionality of the API
-                # See https://github.com/acheong08/ChatGPT/wiki/Setup for more information.
+                # See https://github.com/acheong08/ChatGPT/wiki/Setup on how to get a valid session token.
                 chat_gpt_client: ChatGPTClient = ChatGPTClient(
-                    email=self.credentials.get("openaiEmail", ""),
-                    password=self.credentials.get("openaiPassword", ""),
+                    session_token=self.credentials.get("chatGPTSessionToken", ""),
                     lock_file_path=os.path.join(self.cache_path, "ChatGPT.lock"),
                     # TODO: use `cache_config` above. Since this feature is still experimental,
                     #       save queries and responses in a separate collection.
@@ -125,7 +126,7 @@ class AutoClient(Client):
             return client.make_request(request)
 
         organization: str = request.model_organization
-        client: Client = self.get_client(organization)
+        client: Client = self.get_client(request)
 
         try:
             return make_request_with_retry(client=client, request=request)
@@ -141,13 +142,14 @@ class AutoClient(Client):
 
     def get_tokenizer_client(self, organization: str) -> Client:
         """Return a client based on `organization`, creating it if necessary."""
-        client: Optional[Client] = self.clients.get(organization)
+        client: Optional[Client] = self.tokenizer_clients.get(organization)
 
         if client is None:
             cache_config: CacheConfig = self._build_cache_config(organization)
             if organization in [
                 "anthropic",
                 "bigscience",
+                "bigcode",
                 "EleutherAI",
                 "facebook",
                 "google",
@@ -171,7 +173,7 @@ class AutoClient(Client):
                 client = SimpleClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Unknown organization: {organization}")
-            self.clients[organization] = client
+            self.tokenizer_clients[organization] = client
         return client
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

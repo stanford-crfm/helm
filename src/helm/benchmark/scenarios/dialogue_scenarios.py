@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 @dataclass(frozen=True)
@@ -97,20 +97,15 @@ class EmpatheticDialoguesScenario(Scenario):
                         for idx, row in grouped_df.iterrows()
                     ]
 
-                    output = "".join([str(utt) for utt in utterances])
+                    output: str = "".join([str(utt) for utt in utterances])
                     # Create a reference out of utterances
-                    references.append(
-                        Reference(
-                            output=output,
-                            tags=[CORRECT_TAG],
-                        )
-                    )
+                    references.append(Reference(Output(text=output), tags=[CORRECT_TAG]))
 
                 # Create an instance from multiple references
 
                 instances.append(
                     Instance(
-                        input=prompt_cols[0],
+                        input=Input(text=prompt_cols[0]),
                         references=references,
                         split=splits[split],
                         sub_split=prompt_cols[1],

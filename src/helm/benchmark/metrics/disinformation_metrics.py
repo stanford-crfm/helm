@@ -9,7 +9,8 @@ from sacrebleu.metrics import BLEU
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.request import RequestResult, Sequence
-from helm.benchmark.adapter import AdapterSpec, RequestState
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -78,7 +79,7 @@ def _compute_wedging_human_eval(
     for the instance currently being evaluated, and outputs the human evaluation metrics for that instance.
     """
     results: List[Stat] = []
-    instance_first_line = request_state.instance.input.splitlines()[0]
+    instance_first_line = request_state.instance.input.text.splitlines()[0]
     human_evaluations = _fetch_human_evaluation_results(eval_cache_path, WEDGING_HUMAN_EVAL_FILE)
     model_results = human_evaluations.get(adapter_spec.model)
 
@@ -123,7 +124,8 @@ def _compute_reiteration_human_eval(
     if not model_results:
         # Trying to evaluate a model we don't have annotations for
         return results
-    thesis_results = model_results.get(request_state.instance.input)
+
+    thesis_results = model_results.get(request_state.instance.input.text)
     if not thesis_results:
         # Trying to evaluate a thesis we don't have annotations for
         return results

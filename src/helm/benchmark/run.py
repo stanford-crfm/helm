@@ -1,13 +1,15 @@
 import argparse
 from dataclasses import replace
+import os
 from typing import List, Optional
 
+from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
-from .adapter import AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
 from .run_specs import construct_run_specs
@@ -16,8 +18,52 @@ from .run_specs import construct_run_specs
 LATEST_SYMLINK: str = "latest"
 
 
+def run_entries_to_run_specs(
+    run_entries: List[RunEntry],
+    max_eval_instances: Optional[int] = None,
+    num_train_trials: Optional[int] = None,
+    models_to_run: Optional[List[str]] = None,
+    groups_to_run: Optional[List[str]] = None,
+    priority: Optional[int] = None,
+) -> List[RunSpec]:
+    """Runs RunSpecs given a list of RunSpec descriptions."""
+    run_specs: List[RunSpec] = []
+    for entry in run_entries:
+        # Filter by priority
+        if priority is not None and entry.priority > priority:
+            continue
+
+        for run_spec in construct_run_specs(parse_object_spec(entry.description)):
+            # Filter by models
+            if models_to_run and run_spec.adapter_spec.model not in models_to_run:
+                continue
+
+            # Filter by groups
+            if groups_to_run and not any(group in groups_to_run for group in run_spec.groups):
+                continue
+
+            # Modify AdapterSpec
+            adapter_spec: AdapterSpec = run_spec.adapter_spec
+            if max_eval_instances is not None:
+                adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
+            if num_train_trials is not None or adapter_spec.max_train_instances == 0:
+                adapter_spec = replace(
+                    adapter_spec, num_train_trials=1 if adapter_spec.max_train_instances == 0 else num_train_trials
+                )
+            run_spec = replace(run_spec, adapter_spec=adapter_spec)
+
+            # Append groups
+            if entry.groups is not None:
+                groups_name: str = "" if len(entry.groups) == 0 else f",groups={'-'.join(sorted(entry.groups))}"
+                run_spec = replace(run_spec, name=run_spec.name + groups_name, groups=run_spec.groups + entry.groups)
+
+            run_specs.append(run_spec)
+
+    return run_specs
+
+
 def run_benchmarking(
-    run_spec_descriptions: List[str],
+    run_specs: List[RunSpec],
     auth: Authentication,
     url: str,
     local: bool,
@@ -27,15 +73,9 @@ def run_benchmarking(
     suite: str,
     dry_run: bool,
     skip_instances: bool,
-    max_eval_instances: Optional[int] = None,
-    num_train_trials: Optional[int] = None,
-    groups: Optional[List[str]] = None,
-    models_to_run: Optional[List[str]] = None,
-    groups_to_run: Optional[List[str]] = None,
     mongo_uri: str = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
-
     execution_spec = ExecutionSpec(
         auth=auth,
         url=url,
@@ -45,44 +85,26 @@ def run_benchmarking(
         dry_run=dry_run,
         mongo_uri=mongo_uri,
     )
-
-    def override(run_spec: RunSpec) -> RunSpec:
-        """Override parts of `run_spec`."""
-        # Modify AdapterSpec
-        adapter_spec: AdapterSpec = run_spec.adapter_spec
-        if max_eval_instances is not None:
-            adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
-        if num_train_trials is not None or adapter_spec.max_train_instances == 0:
-            adapter_spec = replace(
-                adapter_spec, num_train_trials=1 if adapter_spec.max_train_instances == 0 else num_train_trials
-            )
-
-        run_spec = replace(run_spec, adapter_spec=adapter_spec)
-
-        # Append groups
-        if groups is not None:
-            run_spec = replace(run_spec, groups=run_spec.groups + groups)
-
-        return run_spec
-
-    run_specs = [
-        override(run_spec)
-        for description in run_spec_descriptions
-        for run_spec in construct_run_specs(parse_object_spec(description))
-        if (not models_to_run or run_spec.adapter_spec.model in models_to_run)
-        and (not groups_to_run or any(group in groups_to_run for group in run_spec.groups))
-    ]
-
-    if len(run_specs) == 0:
-        return run_specs
-
     with htrack_block("run_specs"):
         for run_spec in run_specs:
-            hlog(run_spec.name)
+            hlog(run_spec)
 
-    runner = Runner(execution_spec, output_path, suite, run_specs, skip_instances)
-    runner.run_all()
+    runner = Runner(execution_spec, output_path, suite, skip_instances)
+    runner.run_all(run_specs)
     return run_specs
+
+
+def symlink_latest(output_path: str, suite: str) -> None:
+    # Create a symlink runs/latest -> runs/<name_of_suite>,
+    # so runs/latest always points to the latest run suite.
+    runs_dir: str = os.path.join(output_path, "runs")
+    suite_dir: str = os.path.join(runs_dir, suite)
+    symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
+    hlog(f"Symlinking {suite_dir} to {LATEST_SYMLINK}.")
+    if os.path.islink(symlink_path):
+        # Remove the previous symlink if it exists.
+        os.unlink(symlink_path)
+    os.symlink(os.path.abspath(suite_dir), symlink_path)
 
 
 def add_run_args(parser: argparse.ArgumentParser):
@@ -148,19 +170,69 @@ def validate_args(args):
 
 @htrack(None)
 def main():
-    """
-    Main entry point for running the benchmark.
-    """
     parser = argparse.ArgumentParser()
     add_service_args(parser)
-    parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=["simple1"])
+    parser.add_argument(
+        "-c",
+        "--conf-paths",
+        nargs="+",
+        help="Where to read RunSpecs to run from",
+        default=[],
+    )
+    parser.add_argument(
+        "--models-to-run",
+        nargs="+",
+        help="Only RunSpecs with these models specified. If no model is specified, runs with all models.",
+        default=None,
+    )
+    parser.add_argument(
+        "--groups-to-run",
+        nargs="+",
+        help="Only RunSpecs with these (scenario) groups specified. " "If no group is specified, runs with all groups.",
+        default=None,
+    )
+    parser.add_argument(
+        "--exit-on-error",
+        action="store_true",
+        default=None,
+        help="Fail and exit immediately if a particular RunSpec fails.",
+    )
+    parser.add_argument(
+        "--priority",
+        type=int,
+        default=None,
+        help="Run RunSpecs with priority less than or equal to this number. "
+        "If a value for --priority is not specified, run on everything",
+    )
+    parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=[])
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
+    run_entries: List[RunEntry] = []
+    if args.conf_paths:
+        run_entries.extend(read_run_entries(args.conf_paths).entries)
+    if args.run_specs:
+        run_entries.extend(
+            [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
+        )
+
+    run_specs = run_entries_to_run_specs(
+        run_entries=run_entries,
+        max_eval_instances=args.max_eval_instances,
+        num_train_trials=args.num_train_trials,
+        models_to_run=args.models_to_run,
+        groups_to_run=args.groups_to_run,
+        priority=args.priority,
+    )
+    hlog(f"{len(run_entries)} entries produced {len(run_specs)} run specs")
+
+    if len(run_specs) == 0:
+        hlog("There were no RunSpecs or they got filtered out.")
+        return
 
     auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
     run_benchmarking(
-        args.run_specs,
+        run_specs=run_specs,
         auth=auth,
         url=args.server_url,
         local=args.local,
@@ -170,9 +242,12 @@ def main():
         suite=args.suite,
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
-        max_eval_instances=args.max_eval_instances,
         mongo_uri=args.mongo_uri,
     )
+
+    symlink_latest(output_path=args.output_path, suite=args.suite)
+
+    hlog("Done.")
 
 
 if __name__ == "__main__":
