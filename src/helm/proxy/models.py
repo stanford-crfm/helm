@@ -582,7 +582,7 @@ ALL_MODELS = [
         display_name="PaLM",
         # From https://arxiv.org/abs/2204.02311
         description="PaLM",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
 ]
 
