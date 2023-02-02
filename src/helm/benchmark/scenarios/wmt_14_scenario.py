@@ -3,6 +3,7 @@ from datasets import load_dataset
 from helm.common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
+
 MAX_TRAIN_INSTANCES = 20_000  # This is arbitrary, but 20,000 training examples should be enough.
 
 
@@ -37,12 +38,12 @@ class WMT14Scenario(Scenario):
         valid_languages = set(["cs", "de", "fr", "hi", "ru", "en"])
         self.source_language = source_language
         self.target_language = target_language
-        # The source/target langauges must be included in WMT14
-        assert self.source_language in valid_languages and self.target_language in valid_languages
-        # The source language and the target language should be different
-        assert self.source_language != self.target_language
-        # One of the languages should be English
-        assert self.source_language == "en" or self.target_language == "en"
+        if self.source_language not in valid_languages or self.target_language not in valid_languages:
+            raise ValueError("WMT14 only includes the following languages: cs, de, fr, hi, ru, en.")
+        if self.source_language == self.target_language:
+            raise ValueError("The source language and the target language should be different.")
+        if self.source_language != "en" and self.target_language != "en":
+            raise ValueError("One of the languages should be English.")
 
     def _deduplicate(self, dataset: List):
         """

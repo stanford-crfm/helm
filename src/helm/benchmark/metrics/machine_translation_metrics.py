@@ -19,12 +19,17 @@ class MachineTranslationMetric(Metric):
 
         bleu = BLEU()
 
-        # Assume there is one referece for each instance. TODO: Support multiple references after adding more scenarios.
         refs: List[List[str]] = [[]]
         sys: List = []
         for request_state in request_states:
+            # Assume there is one referece per instance. TODO: Support multiple references after adding more scenarios.
+            num_references: int = len(request_state.instance.references)
+            if num_references != 1:
+                raise ValueError(f"This instance has {num_references} references, but we currently only support one.")
             # Usually there is only one completion for each instance.
             assert request_state.result is not None
+            if len(request_state.result.completions) != 1:
+                raise ValueError("Each request result should have only exactly one completion.")
             sys.append(request_state.result.completions[0].text)
             refs[0].append(request_state.instance.references[0].output.text)
         bleu_score = bleu.corpus_score(sys, refs).score
