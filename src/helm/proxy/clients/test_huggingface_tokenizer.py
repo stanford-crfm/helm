@@ -39,6 +39,9 @@ class TestHuggingFaceTokenizers:
     def test_get_tokenizer_ul2(self):
         TestHuggingFaceTokenizers.verify_get_tokenizer("google/ul2", 58)
 
+    def test_get_santacoder(self):
+        TestHuggingFaceTokenizers.verify_get_tokenizer("bigcode/santacoder", 62)
+
     def test_gpt2_tokenize_eos(self):
         eos_token: str = "<|endoftext|>"
         tokenizer = HuggingFaceTokenizers.get_tokenizer("huggingface/gpt2")

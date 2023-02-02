@@ -31,7 +31,7 @@ setup(
     install_requires=get_requirements("requirements.txt"),
     entry_points={
         "console_scripts": [
-            "helm-run=helm.benchmark.presentation.present:main",
+            "helm-run=helm.benchmark.run:main",
             "helm-summarize=helm.benchmark.presentation.summarize:main",
             "helm-server=helm.benchmark.server:main",
             "crfm-proxy-server=helm.proxy.server:main",

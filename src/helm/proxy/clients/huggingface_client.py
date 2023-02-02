@@ -26,7 +26,7 @@ class HuggingFaceServer:
             self.device = "cpu"
 
         with htrack_block("Loading model"):
-            self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
+            self.model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True).to(self.device)
         with htrack_block("Loading tokenizer"):
             self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -118,6 +118,8 @@ class HuggingFaceClient(Client):
                 self.model_server_instances[model_engine] = HuggingFaceServer("EleutherAI/gpt-j-6B")
             elif model_engine == "gpt2":
                 self.model_server_instances[model_engine] = HuggingFaceServer("gpt2")
+            elif model_engine == "santacoder":
+                self.model_server_instances[model_engine] = HuggingFaceServer("bigcode/santacoder")
             else:
                 raise Exception("Unknown model!")
         return self.model_server_instances[model_engine]

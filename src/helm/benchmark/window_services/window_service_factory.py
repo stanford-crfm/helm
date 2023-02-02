@@ -13,6 +13,7 @@ from .wider_openai_window_service import WiderOpenAIWindowService
 from .mt_nlg_window_service import MTNLGWindowService
 from .bloom_window_service import BloomWindowService
 from .ice_window_service import ICEWindowService
+from .santacoder_window_service import SantaCoderWindowService
 from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
@@ -61,6 +62,8 @@ class WindowServiceFactory:
             window_service = MTNLGWindowService(service)
         elif organization == "anthropic":
             window_service = AnthropicWindowService(service)
+        elif engine == "santacoder":
+            window_service = SantaCoderWindowService(service)
         elif model_name == "huggingface/gpt2":
             window_service = GPT2WindowService(service)
         elif model_name == "together/bloom":

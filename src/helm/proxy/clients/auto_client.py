@@ -178,6 +178,7 @@ class AutoClient(Client):
             if organization in [
                 "anthropic",
                 "bigscience",
+                "bigcode",
                 "EleutherAI",
                 "facebook",
                 "google",
