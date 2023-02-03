@@ -19,7 +19,7 @@ Script to update cache with responses/request results.
 
 Usage:
 
-    python3 scripts/offline_eval/import_results.py <Org - one of 'microsoft' or 'together'> <Path to results jsonl file>
+    python3 scripts/offline_eval/import_results.py <Organization> <Path to results jsonl file>
 
     Examples:
 
@@ -51,15 +51,19 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                 request: Dict = request_and_result["request"]
                 result: Dict = request_and_result["result"]
 
-                if organization == "together":
-                    store.put(request, result)
-                elif organization == "microsoft":
+                if organization == "microsoft":
                     # Get the value of `completion_index` which is the current count
                     key: str = request_to_key(request)
                     completion_index: int = request_counts[key]
                     request_counts[key] += 1
                     cache_key: dict = {"completion_index": completion_index, **request}
                     store.put(cache_key, result)
+                else:
+                    # Temporary hack. Remove later
+                    if organization == "google":
+                        if request["temperature"] == 0:
+                            request["temperature"] = 0
+                    store.put(request, result)
 
                 count += 1
                 if count > 0 and count % 10_000 == 0:
@@ -85,7 +89,7 @@ if __name__ == "__main__":
         ),
     )
     parser.add_argument(
-        "organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"]
+        "organization", type=str, help="Organization to export requests for"
     )
     parser.add_argument("request_results_path", type=str, help="Path to jsonl file with requests and results.")
     parser.add_argument(

@@ -14,8 +14,10 @@ from helm.common.cache import (
     request_to_key,
 )
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.proxy.clients.google_client import GoogleClient
 from helm.proxy.clients.together_client import TogetherClient
 from helm.proxy.clients.microsoft_client import MicrosoftClient
+from helm.proxy.clients.client import Client
 
 
 """
@@ -38,10 +40,17 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
     Given a run suite folder, generates a jsonl file at `output_path` with raw queries
     where each line represents a single request.
     """
+    def fetch_client():
+        if organization == "together":
+            return TogetherClient
+        elif organization == "google":
+            return GoogleClient
+        else:
+            raise ValueError(f"Invalid organization: {organization}")
 
-    def process_together_request(request: Request):
-        raw_request: typing.Dict = TogetherClient.convert_to_raw_request(request)
-        # Only export requests that we are not in the cache
+    def process_request(request: Request):
+        raw_request: typing.Dict = fetch_client().convert_to_raw_request(request)
+        # Only export requests that are not in the cache
         if not store.contains(raw_request):
             request_json: str = request_to_key(raw_request)
             out_file.write(request_json + "\n")
@@ -99,15 +108,13 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
 
                         for request_state in scenario_state["request_states"]:
                             request: Request = from_dict(Request, request_state["request"])
-                            if current_organization == "together":
-                                process_together_request(request)
-                            elif current_organization == "microsoft":
+                            if current_organization == "microsoft":
                                 try:
                                     process_microsoft_request(request)
                                 except ValueError as e:
                                     hlog(f"Error while processing Microsoft request: {e}\nRequest: {request}")
                             else:
-                                raise ValueError(f"Unhandled organization: {current_organization}.")
+                                process_request(request)
 
                     hlog(f"Wrote {counts['pending_count']} requests so far.")
 

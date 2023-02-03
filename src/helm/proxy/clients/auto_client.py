@@ -21,6 +21,7 @@ from .anthropic_client import AnthropicClient
 from .chat_gpt_client import ChatGPTClient
 from .cohere_client import CohereClient
 from .together_client import TogetherClient
+from .google_client import GoogleClient
 from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
 from .ice_tokenizer_client import ICETokenizerClient
@@ -105,6 +106,8 @@ class AutoClient(Client):
                     cache_config=cache_config,
                     org_id=org_id,
                 )
+            elif organization == "google":
+                client = GoogleClient(cache_config=cache_config)
             elif organization == "together":
                 client = TogetherClient(api_key=self.credentials.get("togetherApiKey", None), cache_config=cache_config)
             elif organization == "simple":
