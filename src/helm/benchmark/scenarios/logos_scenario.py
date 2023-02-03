@@ -6,8 +6,7 @@ from .scenario import Scenario, Instance, Input, TEST_SPLIT
 class LogosScenario(Scenario):
     """
     Prompts to generate logos for brands and companies. The prompts were inspired by Wikipedia descriptions
-    of Fortune 100 companies for 2022. Set `medium` to "logo" in the `AdapterSpec`, which will produce prompts
-    in the following format: "a logo of <company description>".
+    of Fortune 100 companies for 2022. Prompts are in the following format: "a logo of <company description>".
     """
 
     COMPANY_DESCRIPTIONS: List[str] = [
@@ -219,6 +218,6 @@ class LogosScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         return [
-            Instance(Input(text=description), references=[], split=TEST_SPLIT)
+            Instance(Input(text=f"a logo of {description}"), references=[], split=TEST_SPLIT)
             for description in self.COMPANY_DESCRIPTIONS
         ]

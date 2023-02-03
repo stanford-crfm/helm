@@ -47,8 +47,7 @@ class ImageGenerationAdapter(GenerationAdapter):
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Returns a single example of the text-to-image prompt"""
         assert isinstance(self.adapter_spec, TextToImageAdapterSpec)
-        medium: str = f"a {self.adapter_spec.medium} of " if self.adapter_spec.medium is not None else ""
         modifications: str = (
             "" if len(self.adapter_spec.modifications) == 0 else f", {', '.join(self.adapter_spec.modifications)}"
         )
-        return medium + instance.input.text + modifications
+        return instance.input.text + modifications

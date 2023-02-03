@@ -94,9 +94,6 @@ class TextToImageAdapterSpec(AdapterSpec):
     contains additional fields for evaluating text-to-image models
     """
 
-    # Medium (e.g., portrait, painting, photo, etc.)
-    medium: Optional[str] = None
-
     # Modifications that describe the desired image (e.g., 8K, high-resolution, etc.)
     modifications: List[str] = field(default_factory=list, hash=False)
 

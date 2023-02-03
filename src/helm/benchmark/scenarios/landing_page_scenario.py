@@ -38,7 +38,9 @@ class LandingPageScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         return [
-            Instance(Input(text=f"a {app_type} {platform} application"), references=[], split=TEST_SPLIT)
+            Instance(
+                Input(text=f"a landing page of a {app_type} {platform} application"), references=[], split=TEST_SPLIT
+            )
             for app_type in self.APPLICATION_TYPES
             for platform in self.PLATFORMS
         ]

@@ -316,7 +316,6 @@ def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
 
 def get_image_generation_adapter_spec(
     num_outputs: int = 1,
-    medium: Optional[str] = None,
     modifications: Optional[List[str]] = None,
     image_width: Optional[int] = None,
     image_height: Optional[int] = None,
@@ -332,7 +331,6 @@ def get_image_generation_adapter_spec(
         max_train_instances=0,
         num_outputs=num_outputs,
         max_tokens=0,
-        medium=medium,
         modifications=[] if modifications is None else modifications,
         width=image_width,
         height=image_height,
@@ -1748,7 +1746,7 @@ def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     # this occupation as tied to a particular gender or race category." So, for each occupation, they
     # compared to "reported percent of the occupation that self-identified as female and non-White."
     # Also, using "a photo of the face of X" generally generates clearer, more visible faces.
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=8, medium="photo")
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=8)
 
     return RunSpec(
         name=f"demographic_stereotypes:category={category}",
@@ -1796,7 +1794,7 @@ def get_landing_page_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.landing_page_scenario.LandingPageScenario", args={}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(medium="landing page", num_outputs=4)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name="landing_page",
@@ -1810,9 +1808,7 @@ def get_landing_page_spec() -> RunSpec:
 def get_logos_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.logos_scenario.LogosScenario", args={})
 
-    adapter_spec = get_image_generation_adapter_spec(
-        medium="logo", modifications=["simple", "memorable", "timeless"], num_outputs=4
-    )
+    adapter_spec = get_image_generation_adapter_spec(modifications=["simple", "memorable", "timeless"], num_outputs=4)
 
     return RunSpec(
         name="logos",
