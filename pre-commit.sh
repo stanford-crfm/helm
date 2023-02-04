@@ -22,7 +22,7 @@ if [[ $OSTYPE != 'darwin'* ]]; then
   pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_stable.html torch==1.12.1+cu113 torchvision==0.13.1+cu113
 fi
 # Manually install protobuf to workaround issue: https://github.com/protocolbuffers/protobuf/issues/6550
-pip install --no-binary=protobuf protobuf==3.19.6
+pip install --no-binary=protobuf protobuf==3.20.1
 # Install all pinned dependencies
 pip install -r requirements-freeze.txt
 pip install -e .
