@@ -314,6 +314,27 @@ def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
     )
 
 
+def get_machine_translation_adapter_spec(
+    source_language, target_language, max_train_instances, **kwargs
+) -> AdapterSpec:
+    """
+    Used for machine translation.
+    """
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions=f"Translate {source_language} to {target_language}:",
+        input_prefix="",
+        input_suffix=" = ",
+        output_prefix="",
+        output_suffix="\n",
+        max_train_instances=max_train_instances,
+        num_outputs=1,
+        stop_sequences=["\n\n"],
+        temperature=0.0,
+        **kwargs,
+    )
+
+
 ############################################################
 # Examples of scenario and adapter specs
 
@@ -487,6 +508,12 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
     else:  # APPS.
         args: Dict[str, Any] = {"names": ["test_avg", "strict_acc"], "timeout": timeout}
         return [MetricSpec(class_name="helm.benchmark.code_metrics.APPSMetric", args=args)]
+
+
+def get_machine_translation_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="helm.benchmark.machine_translation_metrics.MachineTranslationMetric", args={})
+    ] + get_basic_metric_specs([])
 
 
 ############################################################
@@ -1634,6 +1661,37 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
     )
 
 
+def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec:
+    FULL_LANGUAGE_NAMES = {
+        "cs": "Czech",
+        "de": "German",
+        "fr": "French",
+        "hi": "Hindi",
+        "ru": "Russian",
+        "en": "English",
+    }
+    source_language, target_language = language_pair.split("-")
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.wmt_14_scenario.WMT14Scenario",
+        args={"source_language": source_language, "target_language": target_language},
+    )
+
+    adapter_spec = get_machine_translation_adapter_spec(
+        source_language=FULL_LANGUAGE_NAMES[source_language],
+        target_language=FULL_LANGUAGE_NAMES[target_language],
+        max_train_instances=max_train_instances,
+    )
+
+    return RunSpec(
+        name=f"wmt_14:language_pair={language_pair}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_machine_translation_metric_specs(),
+        groups=["wmt_14"],
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -1683,6 +1741,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "pubmed_qa": get_pubmed_qa_spec,
     "lextreme": get_lextreme_spec,
     "lex_glue": get_lex_glue_spec,
+    "wmt_14": get_wmt_14_spec,
 }
 
 
