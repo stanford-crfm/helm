@@ -9,10 +9,9 @@ from helm.common.hierarchical_logger import hlog, htrack
 from helm.proxy.models import get_models_with_tag, TEXT_TO_IMAGE_MODEL_TAG, Model
 
 
-DEFAULT_NLP_RUN_ARGS: str = (
-    "-a crfm_benchmarking -c 4 -g 1 --memory 32g "
-    "-w /u/scr/nlp/crfm/benchmarking/benchmarking --exclude jagupard[10-20]"
-)
+DEFAULT_NLP_RUN: str = "-a crfm_benchmarking -c 4 --memory 32g -w /u/scr/nlp/crfm/benchmarking/benchmarking"
+DEFAULT_NLP_RUN_CPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 0 --exclude john17"
+DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-20]"
 DEFAULT_HELM_ARGS: str = (
     "--num-train-trials 1 --local -n 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers@john13/crfm-models'"
 )
@@ -84,8 +83,9 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
             job_name: str = f"{model.engine}_{description}"
             log_path: str = os.path.join(logs_path, f"{job_name}.log")
             command: str = (
-                f"nlprun {DEFAULT_NLP_RUN_ARGS} --job-name {job_name} 'helm-run {DEFAULT_HELM_ARGS} --suite {suite} "
-                f"--conf-paths {conf_path} --models-to-run {model.name} --priority {priority} > {log_path} 2>&1'"
+                f"nlprun {DEFAULT_NLP_RUN_GPU_ARGS} --job-name {job_name} 'helm-run {DEFAULT_HELM_ARGS} "
+                f"--suite {suite} --conf-paths {conf_path} --models-to-run {model.name} --priority {priority} "
+                f"> {log_path} 2>&1'"
             )
             hlog(command)
             if not dry_run:
@@ -97,9 +97,12 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
         f"scp -r tonyhlee@scdt.stanford.edu:/nlp/scr2/nlp/crfm/benchmarking/benchmarking/"
         f"benchmark_output/runs/{suite}/logs ."
     )
-    hlog("\n\nRun the following commands sequentially once all the runs complete:\n")
-    hlog(f"helm-summarize --suite {suite}")
-    hlog(f"sh scripts/create-www-vhelm.sh {suite}")
+    hlog("\n\nRun the following command once all the runs complete:\n")
+    command: str = (
+        f"helm-summarize --suite {suite} > {os.path.join(logs_path, 'summarize.log')} 2>&1 && "
+        f"sh scripts/create-www-vhelm.sh {suite} > {os.path.join(logs_path, 'upload.log')} 2>&1"
+    )
+    hlog(f"nlprun {DEFAULT_NLP_RUN_CPU_ARGS} --job-name {suite}-summarize-upload '{command}'\n")
 
 
 if __name__ == "__main__":
