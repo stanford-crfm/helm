@@ -92,6 +92,11 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
                 os.system(command)
 
     # Inform what to run next: summarize + copy
+    hlog("\n\nTo check the logs locally:\n")
+    hlog(
+        f"scp -r tonyhlee@scdt.stanford.edu:/nlp/scr2/nlp/crfm/benchmarking/benchmarking/"
+        f"benchmark_output/runs/{suite}/logs ."
+    )
     hlog("\n\nRun the following commands sequentially once all the runs complete:\n\n")
     hlog(f"helm-summarize --suite {suite}")
     hlog(f"sh scripts/create-www-vhelm.sh {suite}")
