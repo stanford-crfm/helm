@@ -84,7 +84,7 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
             job_name: str = f"{model.engine}_{description}"
             log_path: str = os.path.join(logs_path, f"{job_name}.log")
             command: str = (
-                f"nlprun {DEFAULT_NLP_RUN_ARGS} --job-name {job_name} 'helm-run {DEFAULT_HELM_ARGS} "
+                f"nlprun {DEFAULT_NLP_RUN_ARGS} --job-name {job_name} 'helm-run {DEFAULT_HELM_ARGS} --suite {suite} "
                 f"--conf-paths {conf_path} --models-to-run {model.name} --priority {priority} > {log_path} 2>&1'"
             )
             hlog(command)

@@ -1,11 +1,10 @@
 from typing import List, Optional
 
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric, MetricResult
+from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.toxicity_utils import is_prompt_toxic
@@ -26,17 +25,6 @@ class NSFWMetric(Metric):
 
     def __repr__(self):
         return "NSFWMetric()"
-
-    def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
-    ) -> MetricResult:
-        result: MetricResult = super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism)
-
-        # Free up GPU memory
-        if self._nsfw_detector is not None:
-            self._nsfw_detector.free()
-
-        return result
 
     def evaluate_generation(
         self,
