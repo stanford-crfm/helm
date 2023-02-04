@@ -162,14 +162,10 @@ class PromptRunExpander(RunExpander):
             adapter_spec = replace(adapter_spec, input_prefix="Input: ", output_prefix="Output: ")
         elif self.value == "i_o":
             adapter_spec = replace(adapter_spec, input_prefix="I: ", output_prefix="O: ")
-        elif self.value == "monet":
-            assert isinstance(adapter_spec, TextToImageAdapterSpec)
-            adapter_spec = replace(adapter_spec, medium="painting", modifications=["Monet style"])
         elif self.value == "lexica":
             assert isinstance(adapter_spec, TextToImageAdapterSpec)
             adapter_spec = replace(
                 adapter_spec,
-                medium="photo",
                 modifications=[
                     "hyperrealistic",
                     "intricate",
