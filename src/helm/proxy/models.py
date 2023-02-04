@@ -250,6 +250,22 @@ ALL_MODELS = [
         description="Cohere small v20220720 (410M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/command-medium-nightly",
+        display_name="Cohere Command nightly (6.1B)",
+        description="Cohere Command nightly (6.1B parameters)",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/command-xlarge-nightly",
+        display_name="Cohere Command nightly (52.4B)",
+        description="Cohere Command nightly (52.4B parameters)",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
     # EleutherAI
     Model(
         group="together",
