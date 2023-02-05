@@ -97,7 +97,7 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
         f"scp -r tonyhlee@scdt.stanford.edu:/nlp/scr2/nlp/crfm/benchmarking/benchmarking/"
         f"benchmark_output/runs/{suite}/logs ."
     )
-    hlog(f"python3 scripts/vhelm_run.py --check")
+    hlog(f"\npython3 scripts/vhelm_run.py --check")
     hlog("\n\nRun the following command once all the runs complete:\n")
     command: str = (
         f"helm-summarize --suite {suite} > {os.path.join(logs_path, 'summarize.log')} 2>&1 && "
