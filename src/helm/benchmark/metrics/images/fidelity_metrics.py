@@ -104,6 +104,7 @@ class FidelityMetric(Metric):
                     save_cpu_ram=not torch.cuda.is_available(),
                 )
 
+                hlog(f"Computing metrics for perturbation: {perturbation_name if perturbation_name else 'none'}")
                 metric_suffix: str = f"_{perturbation_name}" if perturbation_name else ""
                 fid: float = metrics_dict["frechet_inception_distance"]
                 inception_score: float = metrics_dict["inception_score_mean"]
@@ -111,7 +112,7 @@ class FidelityMetric(Metric):
                     inception_score = 0
                 stats.extend(
                     [
-                        Stat(MetricName("FID" + metric_suffix)).add(fid),
+                        Stat(MetricName("fid" + metric_suffix)).add(fid),
                         Stat(MetricName("inception_score" + metric_suffix)).add(inception_score),
                     ]
                 )

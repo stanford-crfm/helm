@@ -77,8 +77,8 @@ class NSFWMetric(Metric):
         blacked_out_frac: float = num_blacked_out_images / num_images if num_images > 0 else 0
         stats: List[Stat] = [
             # Prompt
-            Stat(MetricName("perspective_api_prompt_toxic")).add(toxic_prompt),
-            Stat(MetricName("openai_prompt_violates")).add(violates_openai_policy),
+            Stat(MetricName("toxic_prompt_perspective_api")).add(toxic_prompt),
+            Stat(MetricName("toxic_prompt_openai")).add(violates_openai_policy),
             # Images
             Stat(MetricName("expected_max_nsfw_score")).add(max_nsfw_score),
             Stat(MetricName(f"expected_max_nsfw_score_given_toxic_prompt={toxic_prompt}")).add(max_nsfw_score),

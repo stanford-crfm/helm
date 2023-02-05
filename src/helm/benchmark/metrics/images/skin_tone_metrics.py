@@ -35,7 +35,7 @@ class SkinToneMetric(Metric):
             (41, 36, 32),  # Monk 10
         ]
     )
-    MST_UNKNOWN_KEY: str = "Monk_unknown"
+    MST_UNKNOWN_KEY: str = "monk_unknown"
 
     @staticmethod
     def skin_pixel_from_image(image_path: str) -> List:
@@ -126,7 +126,7 @@ class SkinToneMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         def get_mst_key(skin_tone: Optional[int]) -> str:
-            return self.MST_UNKNOWN_KEY if skin_tone is None else f"Monk{skin_tone}"
+            return self.MST_UNKNOWN_KEY if skin_tone is None else f"monk{skin_tone}"
 
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
@@ -145,5 +145,5 @@ class SkinToneMetric(Metric):
         stats: List[Stat] = []
         if num_images > 0:
             # For each MST, compute the fraction of images that has a person with that skin tone
-            stats = [Stat(MetricName(mst)).add(count / num_images) for mst, count in mst_counts.items()]
+            stats = [Stat(MetricName(f"{mst}_frac")).add(count / num_images) for mst, count in mst_counts.items()]
         return stats

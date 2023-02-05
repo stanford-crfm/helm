@@ -931,7 +931,7 @@ metrics:
   ##  vHELM metrics
 
   # Fidelity
-  - name: FID
+  - name: fid
     display_name: FID
     short_display_name: FID
     description: TODO
@@ -944,80 +944,85 @@ metrics:
 
   # Bias
   - name: female_frac
-    display_name: Fraction of females
-    short_display_name: Fraction of females
+    display_name: Female frac
+    short_display_name: Female frac
     description: TODO
     lower_is_better: false
-  - name: Monk_unknown
+  - name: monk_unknown_frac
     display_name: Monk unknown
     short_display_name: Monk unknown
     description: TODO
     lower_is_better: false
-  - name: Monk1
-    display_name: Monk 01
-    short_display_name: Monk 01
+  - name: monk1_frac
+    display_name: Monk 01 frac
+    short_display_name: Monk 01 frac
     description: TODO
     lower_is_better: false
-  - name: Monk2
-    display_name: Monk 02
-    short_display_name: Monk 02
+  - name: monk2_frac
+    display_name: Monk 02 frac
+    short_display_name: Monk 02 frac
     description: TODO
     lower_is_better: false
-  - name: Monk3
-    display_name: Monk 03
-    short_display_name: Monk 03
+  - name: monk3_frac
+    display_name: Monk 03 frac
+    short_display_name: Monk 03 frac
     description: TODO
     lower_is_better: false
-  - name: Monk4
-    display_name: Monk 04
-    short_display_name: Monk 04
+  - name: monk4_frac
+    display_name: Monk 04 frac
+    short_display_name: Monk 04 frac
     description: TODO
     lower_is_better: false
-  - name: Monk5
-    display_name: Monk 05
-    short_display_name: Monk 05
+  - name: monk5_frac
+    display_name: Monk 05 frac
+    short_display_name: Monk 05 frac
     description: TODO
     lower_is_better: false
-  - name: Monk6
-    display_name: Monk 06
-    short_display_name: Monk 06
+  - name: monk6_frac
+    display_name: Monk 06 frac
+    short_display_name: Monk 06 frac
     description: TODO
     lower_is_better: false
-  - name: Monk7
-    display_name: Monk 07
-    short_display_name: Monk 07
+  - name: monk7_frac
+    display_name: Monk 07 frac
+    short_display_name: Monk 07 frac
     description: TODO
     lower_is_better: false
-  - name: Monk8
-    display_name: Monk 08
-    short_display_name: Monk 08
+  - name: monk8_frac
+    display_name: Monk 08 frac
+    short_display_name: Monk 08 frac
     description: TODO
     lower_is_better: false
-  - name: Monk1
-    display_name: Monk 01
-    short_display_name: Monk 01
+  - name: monk9_frac
+    display_name: Monk 09 frac
+    short_display_name: Monk 09 frac
     description: TODO
     lower_is_better: false
-  - name: Monk9
-    display_name: Monk 09
-    short_display_name: Monk 09
-    description: TODO
-    lower_is_better: false
-  - name: Monk10
-    display_name: Monk 10
-    short_display_name: Monk 10
+  - name: monk10_frac
+    display_name: Monk 10 frac
+    short_display_name: Monk 10 frac
     description: TODO
     lower_is_better: false
 
-  # CLIPScore
+  # CLIP score
   - name: expected_clip_score
-    display_name: Expected CLIPScore
-    short_display_name: Expected CLIPScore
+    display_name: Expected CLIP score
+    short_display_name: Expected CLIP score
     description: TODO
     lower_is_better: false
   - name: max_clip_score
-    display_name: Max CLIPScore
-    short_display_name: Max CLIPScore
+    display_name: Maximum CLIP score
+    short_display_name: Max CLIP score
+    description: TODO
+    lower_is_better: false
+  - name: expected_clip_score_multilingual
+    display_name: Expected CLIP score (multilingual)
+    short_display_name: Expected CLIP score (multilingual)
+    description: TODO
+    lower_is_better: false
+  - name: max_clip_score_multilingual
+    display_name: Maximum CLIP score (multilingual)
+    short_display_name: Max CLIP score (multilingual)
     description: TODO
     lower_is_better: false
 
@@ -1027,41 +1032,51 @@ metrics:
     short_display_name: Expected aesthetics score
     description: TODO
     lower_is_better: false
+  - name: max_aesthetics_score
+    display_name: Maximum aesthetics score
+    short_display_name: Max aesthetics score
+    description: TODO
+    lower_is_better: false
 
   # NSFW
-  - name: perspective_api_prompt_toxic
-    display_name: Perspective API toxic
-    short_display_name: Perspective API toxic
+  - name: toxic_prompt_perspective_api
+    display_name: Toxic prompt (Perspective API)
+    short_display_name: Toxic prompt (Perspective API)
+    description: TODO
+    lower_is_better: true
+  - name: toxic_prompt_openai
+    display_name: Toxic prompt (OpenAI)
+    short_display_name: Toxic prompt (OpenAI)
     description: TODO
     lower_is_better: true
   - name: expected_max_nsfw_score
-    display_name: Expected max NSFW score
+    display_name: Expected maximum NSFW score
     short_display_name: Expected max NSFW score
     description: TODO
     lower_is_better: true
   - name: expected_max_nsfw_score_given_toxic_prompt=True
-    display_name: Expected max NSFW score | prompt is toxic
-    short_display_name: Expected max NSFW score | prompt is toxic
+    display_name: Expected maximum NSFW score given toxic prompt
+    short_display_name: Expected max NSFW score given toxic prompt
     description: TODO
     lower_is_better: true
   - name: expected_max_nsfw_score_given_toxic_prompt=False
-    display_name: Expected max NSFW score | prompt is non-toxic
-    short_display_name: Expected max NSFW score | prompt is non-toxic
+    display_name: Expected maximum NSFW score given non-toxic prompt
+    short_display_name: Expected max NSFW score given non-toxic prompt
     description: TODO
     lower_is_better: true
   - name: max_nsfw_probability
-    display_name: Expected max NSFW probability
+    display_name: Expected maximum NSFW probability
     short_display_name: Expected max NSFW probability
     description: TODO
     lower_is_better: true
   - name: max_nsfw_probability_given_toxic_prompt=True
-    display_name: Expected max NSFW probability | prompt is toxic
-    short_display_name: Expected max NSFW probability | prompt is toxic
+    display_name: Expected maximum NSFW probability given toxic prompt
+    short_display_name: Expected max NSFW probability given toxic prompt
     description: TODO
     lower_is_better: true
   - name: max_nsfw_probability_given_toxic_prompt=False
-    display_name: Expected max NSFW probability | prompt is non-toxic
-    short_display_name: Expected max NSFW probability | prompt is non-toxic
+    display_name: Expected maximum NSFW probability given non-toxic prompt
+    short_display_name: Expected max NSFW probability given non-toxic prompt
     description: TODO
     lower_is_better: true
   - name: nsfw_frac
@@ -1070,18 +1085,13 @@ metrics:
     description: TODO
     lower_is_better: true
   - name: nsfw_frac_given_toxic_prompt=True
-    display_name: NSFW frac | prompt is toxic
-    short_display_name: NSFW frac | prompt is toxic
+    display_name: NSFW frac given toxic prompt
+    short_display_name: NSFW frac given toxic prompt
     description: TODO
     lower_is_better: true
   - name: nsfw_frac_given_toxic_prompt=False
-    display_name: NSFW frac | prompt is non-toxic
-    short_display_name: NSFW frac | prompt is non-toxic
-    description: TODO
-    lower_is_better: true
-  - name: openai_prompt_violates
-    display_name: OpenAI content policy violated
-    short_display_name: OpenAI content policy violated
+    display_name: NSFW frac given non-toxic prompt
+    short_display_name: NSFW frac given non-toxic prompt
     description: TODO
     lower_is_better: true
   - name: blacked_out_frac
@@ -1090,13 +1100,13 @@ metrics:
     description: TODO
     lower_is_better: true
   - name: blacked_out_frac_given_toxic_prompt=True
-    display_name: Blacked out frac | prompt is toxic
-    short_display_name: Blacked out frac | prompt is toxic
+    display_name: Blacked out frac given toxic prompt
+    short_display_name: Blacked out frac given toxic prompt
     description: TODO
     lower_is_better: true
   - name: blacked_out_frac_given_toxic_prompt=False
-    display_name: Blacked out frac | prompt is non-toxic
-    short_display_name: Blacked out frac | prompt is non-toxic
+    display_name: Blacked out frac given non-toxic prompt
+    short_display_name: Blacked out frac given non-toxic prompt
     description: TODO
     lower_is_better: true
 
@@ -1109,12 +1119,12 @@ metrics:
 
   # Efficiency for image generation
   - name: prompt_length
-    display_name: Prompt length
-    short_display_name: Prompt length
+    display_name: Prompt length (number of characters)
+    short_display_name: Prompt length (characters)
     description: TODO
     lower_is_better: false
   - name: inference_runtime
-    display_name: Inference runtime (s)
+    display_name: Inference runtime (in seconds)
     short_display_name: Inference runtime (s)
     description: TODO
     lower_is_better: true
@@ -1361,7 +1371,7 @@ metric_groups:
   - name: fidelity
     display_name: Image fidelity
     metrics:
-      - name: FID
+      - name: fid
         split: ${main_split}
       - name: inception_score
         split: ${main_split}
@@ -1371,42 +1381,50 @@ metric_groups:
     metrics:
       - name: female_frac
         split: ${main_split}
-      - name: Monk_unknown
+      - name: monk_unknown_frac
         split: ${main_split}
-      - name: Monk1
+      - name: monk1_frac
         split: ${main_split}
-      - name: Monk2
+      - name: monk2_frac
         split: ${main_split}
-      - name: Monk3
+      - name: monk3_frac
         split: ${main_split}
-      - name: Monk4
+      - name: monk4_frac
         split: ${main_split}
-      - name: Monk5
+      - name: monk5_frac
         split: ${main_split}
-      - name: Monk6
+      - name: monk6_frac
         split: ${main_split}
-      - name: Monk7
+      - name: monk7_frac
         split: ${main_split}
-      - name: Monk8
+      - name: monk8_frac
         split: ${main_split}
-      - name: Monk9
+      - name: monk9_frac
         split: ${main_split}
-      - name: Monk10
+      - name: monk10_frac
         split: ${main_split}
 
   - name: vhelm_core
     display_name: vHELM core metrics
     metrics:
-    # CLIPScore
+    # CLIP score
     - name: expected_clip_score
       split: ${main_split}
     - name: max_clip_score
       split: ${main_split}
+    - name: expected_clip_score_multilingual
+      split: ${main_split}
+    - name: max_clip_score_multilingual
+      split: ${main_split}
     # Aesthetics
     - name: expected_aesthetics_score
       split: ${main_split}
+    - name: max_aesthetics_score
+      split: ${main_split}
     # NSFW
-    - name: perspective_api_prompt_toxic
+    - name: toxic_prompt_perspective_api
+      split: ${main_split}
+    - name: toxic_prompt_openai
       split: ${main_split}
     - name: expected_max_nsfw_score
       split: ${main_split}
@@ -1425,8 +1443,6 @@ metric_groups:
     - name: nsfw_frac_given_toxic_prompt=True
       split: ${main_split}
     - name: nsfw_frac_given_toxic_prompt=False
-      split: ${main_split}
-    - name: openai_prompt_violates
       split: ${main_split}
     - name: blacked_out_frac
       split: ${main_split}
@@ -1728,7 +1744,7 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: Image quality/Visual reasoning/Knowledge
+      task: Image quality/Reasoning/Knowledge
   - name: common_syntactic_processes
     display_name: Common Syntactic Processes
     description: Prompts from 8 different grammatical phenomena ([paper](https://arxiv.org/abs/2210.12889)).
@@ -1737,7 +1753,7 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: Image quality/Visual reasoning
+      task: Image quality/Reasoning
   - name: draw_bench
     display_name: DrawBench
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
@@ -1746,7 +1762,7 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: Image quality/Visual reasoning/Knowledge
+      task: Image quality/Reasoning/Knowledge
   - name: relational_understanding
     display_name: Relational Understanding
     description: Based on existing cognitive, linguistic, and developmental literature, the authors created a set of 15 relations (8 physical, 7 agentic) and a set of 12 entities (6 objects, 6 agents)
@@ -1755,7 +1771,7 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: Visual reasoning
+      task: Reasoning
   - name: paint_skills
     display_name: PaintSkills
     description: A compositional diagnostic dataset an evaluation toolkit that measures visual reasoning skills ([paper](https://arxiv.org/abs/2202.04053)).
@@ -1764,7 +1780,7 @@ run_groups:
     environment:
       main_split: valid
     taxonomy:
-      task: Visual reasoning
+      task: Reasoning
   - name: winoground
     display_name: Winoground
     description: Winoground is a novel task and dataset for evaluating the ability of vision and language models to conduct visio-linguistic compositional reasoning ([paper](https://arxiv.org/abs/2204.03162)).
@@ -1773,7 +1789,7 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: Visual reasoning
+      task: Reasoning
   - name: time_most_significant_historical_figures
     display_name: TIME's most significant historical figures
     description: People from TIME's "The 100 Most Significant Figures in History" list
@@ -1791,7 +1807,7 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: originality
+      task: Originality
   - name: demographic_stereotypes
     display_name: Demographic Stereotypes
     description: Simple user prompts ("A photo of the face of...") generate images perpetuating dangerous racial, ethnic, gendered, class, and intersectional stereotypes.
@@ -1810,7 +1826,7 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: originality
+      task: Originality
   - name: logos
     display_name: Logos
     description: Prompts to generate logos for brands and companies
@@ -1819,7 +1835,7 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: originality
+      task: Originality
   - name: magazine_cover
     display_name: Magazine Cover Photos
     description: Prompts to generate magazine cover photos
@@ -1828,7 +1844,7 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: originality
+      task: Originality
   - name: mental_disorders
     display_name: Mental Disorders
     description: Prompt text-to-image models with mental disorders listed by the World Health Organization

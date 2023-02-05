@@ -40,5 +40,8 @@ class AestheticsMetric(Metric):
 
             scores.append(self._aesthetics_scorer.compute_aesthetics_score(image.file_location))
 
-        stats: List[Stat] = [Stat(MetricName("expected_aesthetics_score")).add(mean(scores) if len(scores) > 0 else 0)]
+        stats: List[Stat] = [
+            Stat(MetricName("expected_aesthetics_score")).add(mean(scores) if len(scores) > 0 else 0),
+            Stat(MetricName("max_aesthetics_score")).add(max(scores) if len(scores) > 0 else 0),
+        ]
         return stats

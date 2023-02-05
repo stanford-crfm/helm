@@ -90,4 +90,4 @@ class FIDMetric(Metric):
         shutil.rmtree(generated_images_path)
         shutil.rmtree(gold_images_path)
 
-        return MetricResult(aggregated_stats=[Stat(MetricName("FID_alternate")).add(fid_score)], per_instance_stats=[])
+        return MetricResult(aggregated_stats=[Stat(MetricName("fid_alternate")).add(fid_score)], per_instance_stats=[])
