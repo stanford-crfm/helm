@@ -22,9 +22,6 @@ class LexicaClient(Client):
     Client for Lexica API. Does not support image generation.
     """
 
-    DEFAULT_IMAGE_HEIGHT: int = 512
-    DEFAULT_IMAGE_WIDTH: int = 512
-
     def __init__(self, cache_config: CacheConfig, file_cache: FileCache):
         self.cache = Cache(cache_config)
         self.file_cache: FileCache = file_cache
@@ -43,13 +40,6 @@ class LexicaClient(Client):
             "prompt": request.prompt,
             "n": request.num_completions,
         }
-        if request.width is None or request.height is None:
-            raw_request["width"] = self.DEFAULT_IMAGE_WIDTH
-            raw_request["height"] = self.DEFAULT_IMAGE_HEIGHT
-        else:
-            raw_request["width"] = request.width
-            raw_request["height"] = request.height
-
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
         try:
@@ -59,19 +49,14 @@ class LexicaClient(Client):
                     f"https://lexica.art/api/v1/search?{urllib.parse.urlencode({'q': request.prompt})}"
                 ).json()
                 assert "images" in result, f"Invalid response: {result} from prompt: {request.prompt}"
+                assert len(result["images"]) >= raw_request["n"], f"Did not retrieve enough images"
 
                 image_locations: List[str] = []
                 # Most relevant images are at the top of the list
-                for image in result["images"]:
-                    if image["width"] == raw_request["width"] and image["height"] == raw_request["height"]:
-                        # Write out the image to a file and save the location
-                        image_base64: str = encode_base64(image["src"])
-                        image_locations.append(self.file_cache.store(lambda: base64.b64decode(image_base64)))
-
-                    # Once we have n images that match the desired dimensions, stop checking the images
-                    if len(image_locations) == raw_request["n"]:
-                        break
-
+                for image in result["images"][: raw_request["n"]]:
+                    # Write out the image to a file and save the location
+                    image_base64: str = encode_base64(image["src"])
+                    image_locations.append(self.file_cache.store(lambda: base64.b64decode(image_base64)))
                 return {"image_locations": image_locations}
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
