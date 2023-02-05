@@ -97,12 +97,31 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
         f"scp -r tonyhlee@scdt.stanford.edu:/nlp/scr2/nlp/crfm/benchmarking/benchmarking/"
         f"benchmark_output/runs/{suite}/logs ."
     )
+    hlog(f"python3 scripts/vhelm_run.py --check")
     hlog("\n\nRun the following command once all the runs complete:\n")
     command: str = (
         f"helm-summarize --suite {suite} > {os.path.join(logs_path, 'summarize.log')} 2>&1 && "
         f"sh scripts/create-www-vhelm.sh {suite} > {os.path.join(logs_path, 'upload.log')} 2>&1"
     )
     hlog(f"nlprun {DEFAULT_NLP_RUN_CPU_ARGS} --job-name {suite}-summarize-upload '{command}'\n")
+
+
+@htrack(None)
+def check(suite: str):
+    suite_path: str = os.path.join("benchmark_output", "runs", suite)
+    logs_path: str = os.path.join(suite_path, "logs")
+
+    for log_file in os.listdir(logs_path):
+        if not log_file.endswith("log"):
+            continue
+
+        run_spec: str = log_file.replace(".log", "")
+        log_path: str = os.path.join(logs_path, log_file)
+        with open(log_path, "r") as f:
+            log_content: str = f.read()
+            if "Done.\n" not in log_content:
+                hlog(f"Check on {run_spec}")
+    hlog("\nDone.")
 
 
 if __name__ == "__main__":
@@ -122,5 +141,15 @@ if __name__ == "__main__":
         default=None,
         help="Skips execution.",
     )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        default=None,
+        help="Checks logs",
+    )
     args = parser.parse_args()
-    queue_jobs(args.conf_path, args.suite, args.priority, args.dry_run)
+
+    if args.check:
+        check(args.suite)
+    else:
+        queue_jobs(args.conf_path, args.suite, args.priority, args.dry_run)
