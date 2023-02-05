@@ -92,7 +92,7 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
                 os.system(command)
 
     # Inform what to run next: summarize + copy
-    hlog("\n\nTo check the logs locally:\n")
+    hlog("\n\nTo check on the runs:\n")
     hlog(
         f"scp -r tonyhlee@scdt.stanford.edu:/nlp/scr2/nlp/crfm/benchmarking/benchmarking/"
         f"benchmark_output/runs/{suite}/logs ."
