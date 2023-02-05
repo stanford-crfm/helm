@@ -18,7 +18,7 @@ class NSFWDetector:
     LAION's CLIP-based NSFW detector for images (https://github.com/LAION-AI/CLIP-based-NSFW-Detector).
     """
 
-    NSFW_THRESHOLD: float = 0.5
+    NSFW_THRESHOLD: float = 0.75
     MODEL_URL_TEMPLATE: str = "https://raw.githubusercontent.com/LAION-AI/CLIP-based-NSFW-Detector/main/{model_zip}"
 
     @staticmethod
