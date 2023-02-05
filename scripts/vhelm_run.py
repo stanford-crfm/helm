@@ -120,7 +120,7 @@ def check(suite: str):
         with open(log_path, "r") as f:
             log_content: str = f.read()
             if "Done.\n" not in log_content:
-                hlog(f"Check on {run_spec}")
+                hlog(f"Check on {run_spec}: vi {log_path}")
     hlog("\nDone.")
 
 
