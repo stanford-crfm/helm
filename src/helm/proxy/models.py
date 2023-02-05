@@ -586,6 +586,14 @@ ALL_MODELS = [
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
+        group="lexica",
+        creator_organization="Lexica",
+        name="lexica/search-stable-diffusion-1.5",
+        display_name="Lexica Search with Stable Diffusion 1.5",
+        description="Lexica Search with Stable Diffusion 1.5",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG],
+    ),
+    Model(
         group="together_vision",
         creator_organization="Stability AI",
         name="together/StableDiffusion",

@@ -24,6 +24,7 @@ from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
 from .clip_window_service import CLIPWindowService
 from .dalle2_window_service import DALLE2WindowService
+from .lexica_search_window_service import LexicaSearchWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 
@@ -92,6 +93,8 @@ class WindowServiceFactory:
             window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         elif model_name == "together/StableDiffusion":
             window_service = CLIPWindowService(service)
+        elif model_name == "lexica/search-stable-diffusion-1.5":
+            window_service = LexicaSearchWindowService(service)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 

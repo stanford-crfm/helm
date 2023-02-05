@@ -34,6 +34,7 @@ from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
 from .dalle2_client import DALLE2Client
 from .together_vision_client import TogetherVisionClient
+from .lexica_client import LexicaClient
 
 
 class AutoClient(Client):
@@ -134,6 +135,8 @@ class AutoClient(Client):
                     client = TogetherVisionClient(cache_config, file_cache, api_key=together_api_key)
                 else:
                     client = TogetherClient(cache_config, api_key=together_api_key)
+            elif organization == "lexica":
+                client = LexicaClient(cache_config, file_cache)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
             else:
