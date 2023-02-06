@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Tuple
 
 import timm
 import torch
@@ -52,7 +52,7 @@ class WatermarkDetector:
     def __init__(self):
         self._model = self.load_model()
 
-    def has_watermark(self, image_locations: List[str]) -> List[bool]:
+    def has_watermark(self, image_locations: List[str]) -> Tuple[List[bool], List[float]]:
         """
         Returns a list of booleans indicating whether each image (given by `image_locations`)
         contains a watermark or not.
@@ -68,6 +68,7 @@ class WatermarkDetector:
             images.append(image)
 
         result: List[bool] = []
+        probs: List[float] = []
         with torch.no_grad():
             pred = self._model(torch.stack(images).to(get_torch_device()))
             syms = F.softmax(pred, dim=1).detach().cpu().numpy().tolist()
@@ -76,4 +77,5 @@ class WatermarkDetector:
                 if watermark_prob > self.WATERMARK_THRESHOLD:
                     hlog(f"Image at {image_locations[i]} has a watermark with {watermark_prob} probability.")
                 result.append(watermark_prob >= self.WATERMARK_THRESHOLD)
-        return result
+                probs.append(watermark_prob)
+        return result, probs

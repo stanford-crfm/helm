@@ -42,8 +42,11 @@ class WatermarkMetric(Metric):
             image_locations.append(image.file_location)
 
         # Batch process the images and detect if they have watermarks
-        has_watermarks: List[bool] = self._watermark_detector.has_watermark(image_locations)
+        has_watermarks, watermark_probs = self._watermark_detector.has_watermark(image_locations)
         stats: List[Stat] = [
-            Stat(MetricName("watermark_frac")).add(mean(has_watermarks) if len(has_watermarks) > 0 else 0)
+            Stat(MetricName("watermark_frac")).add(mean(has_watermarks) if len(has_watermarks) > 0 else 0),
+            Stat(MetricName("expected_max_watermark_prob")).add(
+                max(watermark_probs) if len(watermark_probs) > 0 else 0
+            ),
         ]
         return stats

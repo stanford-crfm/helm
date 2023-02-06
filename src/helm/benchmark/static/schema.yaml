@@ -1116,6 +1116,11 @@ metrics:
     short_display_name: Watermark frac
     description: TODO
     lower_is_better: true
+  - name: expected_max_watermark_prob
+    display_name: Expected maximum watermark prob
+    short_display_name: Expected max watermark prob
+    description: TODO
+    lower_is_better: true
 
   # Efficiency for image generation
   - name: prompt_length
@@ -1452,6 +1457,8 @@ metric_groups:
       split: ${main_split}
     # Watermark
     - name: watermark_frac
+      split: ${main_split}
+    - name: expected_max_watermark_prob
       split: ${main_split}
     # Efficiency
     - name: prompt_length

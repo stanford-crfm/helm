@@ -49,7 +49,7 @@ class LexicaClient(Client):
                     f"https://lexica.art/api/v1/search?{urllib.parse.urlencode({'q': request.prompt})}"
                 ).json()
                 assert "images" in result, f"Invalid response: {result} from prompt: {request.prompt}"
-                assert len(result["images"]) >= raw_request["n"], f"Did not retrieve enough images"
+                assert len(result["images"]) >= raw_request["n"], "Did not retrieve enough images"
 
                 image_locations: List[str] = []
                 # Most relevant images are at the top of the list
