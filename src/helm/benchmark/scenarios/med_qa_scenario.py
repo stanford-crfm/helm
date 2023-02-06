@@ -12,7 +12,7 @@ class MedQAScenario(Scenario):
     (Jin et al.), MedQA is an open domain question answering dataset composed of questions from professional medical
     board exams.
 
-    From Jin et al., "to comply with fair use of law2 ,we shuffle the order of answer options and randomly delete
+    From Jin et al., "to comply with fair use of law ,we shuffle the order of answer options and randomly delete
     one of the wrong options for each question for USMLE and MCMLE datasets, which results in four options with one
     right option and three wrong options".
     We use the 4-options, English subset ("US") of the dataset, which contains 12,723 questions.
