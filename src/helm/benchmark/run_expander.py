@@ -317,6 +317,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
         "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
         "summarization_zs": ["openai/davinci", "openai/curie", "openai/text-davinci-002", "openai/text-curie-001"],
+        "biomedical": ["openai/text-davinci-003"],  # TODO: add https://huggingface.co/stanford-crfm/BioMedLM
         "interactive_qa": ["openai/text-davinci-001", "openai/davinci", "ai21/j1-jumbo", "openai/text-babbage-001"],
     }
 
