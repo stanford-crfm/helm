@@ -51,6 +51,7 @@ from .scenarios import med_mcqa_scenario  # noqa
 from .scenarios import med_paragraph_simplification_scenario  # noqa
 from .scenarios import med_qa_scenario  # noqa
 from .scenarios import pubmed_qa_scenario  # noqa
+from .scenarios import wmt_14_scenario  # noqa
 
 # Metrics
 from .metrics import basic_metrics  # noqa
@@ -64,6 +65,7 @@ from .metrics import ranking_metrics  # noqa
 from .metrics import summarization_metrics  # noqa
 from .metrics import toxicity_metrics  # noqa
 from .metrics import tokens_metric  # noqa
+from .metrics import machine_translation_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
