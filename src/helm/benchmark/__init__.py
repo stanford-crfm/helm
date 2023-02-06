@@ -42,9 +42,18 @@ from .scenarios import legal_support_scenario  # noqa
 from .scenarios import entity_matching_scenario  # noqa
 from .scenarios import entity_data_imputation_scenario  # noqa
 from .scenarios import big_bench_scenario  # noqa
-from .scenarios import pubmed_qa_scenario  # noqa
 
-# vHELM
+# Biomedical
+from .scenarios import covid_dialog_scenario  # noqa
+from .scenarios import me_q_sum_scenario  # noqa
+from .scenarios import med_dialog_scenario  # noqa
+from .scenarios import med_mcqa_scenario  # noqa
+from .scenarios import med_paragraph_simplification_scenario  # noqa
+from .scenarios import med_qa_scenario  # noqa
+from .scenarios import pubmed_qa_scenario  # noqa
+from .scenarios import wmt_14_scenario  # noqa
+
+# VHELM
 from .scenarios import common_syntactic_processes_scenario  # noqa
 from .scenarios import cub200_scenario  # noqa
 from .scenarios import daily_dalle_scenario  # noqa
@@ -75,6 +84,9 @@ from .metrics import ranking_metrics  # noqa
 from .metrics import summarization_metrics  # noqa
 from .metrics import toxicity_metrics  # noqa
 from .metrics import tokens_metric  # noqa
+from .metrics import machine_translation_metrics  # noqa
+
+# VHELM
 from .metrics.images import aesthetics_metrics  # noqa
 from .metrics.images import clip_score_metrics  # noqa
 from .metrics.images import efficiency_metrics  # noqa
@@ -84,6 +96,7 @@ from .metrics.images import gender_metrics  # noqa
 from .metrics.images import nsfw_metrics  # noqa
 from .metrics.images import skin_tone_metrics  # noqa
 from .metrics.images import watermark_metrics  # noqa
+
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
