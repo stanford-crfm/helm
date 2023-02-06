@@ -510,6 +510,10 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
         return [MetricSpec(class_name="helm.benchmark.code_metrics.APPSMetric", args=args)]
 
 
+def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
+    return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"])
+
+
 def get_machine_translation_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="helm.benchmark.machine_translation_metrics.MachineTranslationMetric", args={})
@@ -1219,10 +1223,7 @@ def get_narrativeqa_spec() -> RunSpec:
         name="narrative_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(
-            ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"]
-        )
-        + get_generative_harms_metric_specs(),
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
         groups=["narrative_qa"],
     )
 
@@ -1594,7 +1595,7 @@ def get_covid_dialog_spec() -> RunSpec:
         name="covid_dialog",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
         groups=["COVIDDialog"],
     )
 
@@ -1612,7 +1613,7 @@ def get_me_q_sum_spec() -> RunSpec:
         name="me_q_sum",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
         groups=["MeQSum"],
     )
 
@@ -1632,7 +1633,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         name=f"med_dialog,subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
         groups=["MedDialog"],
     )
 
@@ -1672,7 +1673,7 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
         name="med_paragraph_simplification",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
         groups=["MedParagraphSimplification"],
     )
 
