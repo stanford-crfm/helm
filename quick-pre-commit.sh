@@ -7,6 +7,7 @@ set -e
 # Python style checks and linting
 black src scripts
 flake8 src scripts
+echo "flake8 check completed."
 mypy --install-types --non-interactive src scripts
 
 echo "Done."
