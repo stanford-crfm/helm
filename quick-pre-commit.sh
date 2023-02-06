@@ -6,7 +6,7 @@ set -e
 
 # Python style checks and linting
 black src scripts
-mypy src scripts
 flake8 src scripts
+mypy --install-types --non-interactive src scripts
 
 echo "Done."
