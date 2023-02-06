@@ -22,9 +22,9 @@ class WatermarkDetector:
     MODEL_URL: str = "https://github.com/LAION-AI/LAION-5B-WatermarkDetection/raw/main/models/watermark_model_v1.pt"
 
     # The example code from LAION used 0.5, but we observed that the watermark detector model could
-    # confuse text in an image as a watermark, so we set the threshold to a higher value of 0.92.
+    # confuse text in an image as a watermark, so we set the threshold to a higher value of 0.9.
     # The detector believes that the test example has a watermark with a 93.563% probability.
-    WATERMARK_THRESHOLD: float = 0.92
+    WATERMARK_THRESHOLD: float = 0.9
 
     @staticmethod
     def load_model():
