@@ -4,6 +4,24 @@
 
 - Add changes for the upcoming release here
 
+## [v0.2.1]
+
+### Models
+
+- Added BigCode SantaCoder (#1312)
+- Added OPT-IML, Cohere Command, CodeGeeX (#1331)
+
+### Scenarios
+
+- Added LEXTREME and LexGLUE legal scenarios (#1216)
+- Added WMT14 machine translation scenario (#1329)
+- Added biomedical scenarios: COVID Dialogue, MeQSum, MedDialog, MedMCQA, MedParagraphSimplification, MedQA, PubMedQA (#1332)
+
+### Framework
+
+- Added `--run-specs` flag to `helm-run` (#1302)
+- Reduced running time of `helm-summarize` (#1269)
+
 ## [v0.2.0]
 
 ### Models
@@ -43,6 +61,7 @@
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.0...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.1...HEAD
+[v0.2.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.1
 [v0.2.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.1.0
