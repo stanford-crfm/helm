@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple, Any
 
 from helm.common.general import parse_hocon
+from helm.common.human_task_request import HumanTaskRequest, HumanTaskRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -100,6 +101,10 @@ class Service(ABC):
     @abstractmethod
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """Get toxicity scores for a batch of text."""
+        pass
+
+    def get_human_task(self, auth: Authentication, request: HumanTaskRequest) -> HumanTaskRequestResult:
+        """Create a human task with a number of questions and fetch the results"""
         pass
 
     @abstractmethod

@@ -449,7 +449,7 @@ def get_generative_harms_metric_specs(include_basic_metrics: bool = False) -> Li
 
 def get_summarization_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.summarization_metrics.SummarizationMetric", args=args)
+        MetricSpec(class_name="helm.benchmark.human_eval_summarization_metrics.HumanEvalSummarizationMetric", args=args)
     ] + get_basic_metric_specs([])
 
 
@@ -1336,8 +1336,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "summarization_xsum", "device": device})
-        + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs({}),
         groups=["summarization_xsum"],
     )
 
@@ -1363,8 +1362,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
         name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "summarization_xsum_sampled", "device": device})
-        + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs({}),
         groups=["summarization_xsum"],
     )
 
@@ -1385,8 +1383,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
         name=f"summarization_cnndm:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"task": "summarization_cnndm", "device": device})
-        + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs({}),
         groups=["summarization_cnndm"],
     )
 

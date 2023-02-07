@@ -14,6 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.retry import retry_request
+from .human_task_client import HumanTaskClient, RandomHumanTaskClient, SurgeAIHumanTaskClient
 from .client import Client
 from .ai21_client import AI21Client
 from .aleph_alpha_client import AlephAlphaClient
@@ -219,3 +220,10 @@ class AutoClient(Client):
         """Get the toxicity classifier client. We currently only support Perspective API."""
         cache_config: CacheConfig = self._build_cache_config("perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
+
+    def get_human_task_client(self) -> HumanTaskClient:
+        """Get the human task client."""
+        surgeai_credentials = self.credentials.get("surgeaiApiKey", None)
+        if surgeai_credentials:
+            return SurgeAIHumanTaskClient(surgeai_credentials, self._build_cache_config("surgeai"))
+        return RandomHumanTaskClient()
