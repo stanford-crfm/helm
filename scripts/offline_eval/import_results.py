@@ -59,10 +59,6 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                     cache_key: dict = {"completion_index": completion_index, **request}
                     store.put(cache_key, result)
                 else:
-                    # Temporary hack. Remove later
-                    if organization == "google":
-                        if request["temperature"] == 0:
-                            request["temperature"] = 0
                     store.put(request, result)
 
                 count += 1
