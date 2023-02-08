@@ -13,13 +13,12 @@ from .client import Client, truncate_sequence
 
 class GoogleClient(Client):
     """
-    Client for Google models. There isn't an API for their language models.
+    Client for the Google models. There isn't an API for their language models.
     We receive and process completions offline.
     """
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
-        # Following the examples from https://github.com/togethercomputer/open-models-api
         return {
             "best_of": request.top_k_per_token,
             "echo": request.echo_prompt,
