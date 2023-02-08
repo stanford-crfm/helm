@@ -40,6 +40,7 @@ class WindowServiceFactory:
         window_service: WindowService
         if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)
+        # For the Google models, we approximate with the OpenAIWindowService
         elif organization == "openai" or organization == "simple" or organization == "google":
             window_service = OpenAIWindowService(service)
         elif organization == "AlephAlpha":

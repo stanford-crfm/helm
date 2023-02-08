@@ -566,6 +566,16 @@ ALL_MODELS = [
         #       https://github.com/stanford-crfm/benchmarking/issues/738
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
+    # PaLM
+    Model(
+        group="google",
+        creator_organization="Google",
+        name="google/palm",
+        display_name="PaLM (540B)",
+        description="Pathways Language Model (540B parameters) is trained using 6144 TPU v4 chips "
+        "([paper](https://arxiv.org/pdf/2204.02311.pdf)).",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # For debugging
     Model(
         group="simple",
@@ -573,16 +583,6 @@ ALL_MODELS = [
         name="simple/model1",
         display_name="Simple Model 1",
         description="Copy last tokens (for debugging)",
-    ),
-    # TODO: add the different sizes of PaLM
-    Model(
-        group="google",
-        creator_organization="Google",
-        name="google/palm",
-        display_name="PaLM",
-        # From https://arxiv.org/abs/2204.02311
-        description="PaLM",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
 ]
 
