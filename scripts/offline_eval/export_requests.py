@@ -17,7 +17,6 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.proxy.clients.google_client import GoogleClient
 from helm.proxy.clients.together_client import TogetherClient
 from helm.proxy.clients.microsoft_client import MicrosoftClient
-from helm.proxy.clients.client import Client
 
 
 """
@@ -40,6 +39,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
     Given a run suite folder, generates a jsonl file at `output_path` with raw queries
     where each line represents a single request.
     """
+
     def fetch_client():
         if organization == "together":
             return TogetherClient
