@@ -43,7 +43,8 @@ class WindowServiceFactory:
         window_service: WindowService
         if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)
-        elif organization == "openai" or organization == "simple":
+        # For the Google models, we approximate with the OpenAIWindowService
+        elif organization == "openai" or organization == "simple" or organization == "google":
             if engine == "dalle-2":
                 window_service = DALLE2WindowService(service)
             else:
