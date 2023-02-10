@@ -175,6 +175,9 @@ class PromptRunExpander(RunExpander):
                     "trending on artstation",
                 ],
             )
+        elif self.value in ["oil_painting", "watercolor", "pencil_sketch", "animation", "vector_graphics", "pixel_art"]:
+            assert isinstance(adapter_spec, TextToImageAdapterSpec)
+            adapter_spec = replace(adapter_spec, modifications=[self.value.replace("_", " ")])
         else:
             raise Exception(f"Unknown value: {self.value}")
         return [
