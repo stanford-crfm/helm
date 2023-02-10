@@ -611,6 +611,14 @@ ALL_MODELS = [
         description="Stable Diffusion (890M parameters) is a latent text-to-image diffusion model.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
+    Model(
+        group="together_vision",
+        creator_organization="Microsoft/Stability AI",
+        name="together/PromptistStableDiffusion",
+        display_name="Promptist + Stable Diffusion",
+        description="Promptist + Stable Diffusion",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG],
+    ),
 ]
 
 MODEL_NAME_TO_MODEL: Dict[str, Model] = {model.name: model for model in ALL_MODELS}

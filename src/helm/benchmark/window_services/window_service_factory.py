@@ -92,7 +92,7 @@ class WindowServiceFactory:
             window_service = CohereWindowService(service)
         elif organization == "ai21":
             window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
-        elif model_name == "together/StableDiffusion":
+        elif model_name in ["together/StableDiffusion", "together/PromptistStableDiffusion"]:
             window_service = CLIPWindowService(service)
         elif model_name == "lexica/search-stable-diffusion-1.5":
             window_service = LexicaSearchWindowService(service)
