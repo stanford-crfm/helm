@@ -130,8 +130,16 @@ class TogetherVisionClient(TogetherClient):
                 length_penalty=-1.0,
             )
             output_texts: List[str] = self._promptist_tokenizer.batch_decode(outputs, skip_special_tokens=True)
-            res: str = output_texts[0].replace(f"{plain_text} Rephrase:", "").strip()
-            return res
+
+            for output_text in output_texts:
+                res: str = output_text.replace(f"{plain_text} Rephrase:", "").strip()
+                # The Promptist model sometimes generates empty string results.
+                # Return the first non-empty string result.
+                if len(res) > 0:
+                    return res
+
+            # If all fails, just return the original text.
+            return plain_text
 
         return generate(prompt)
 
