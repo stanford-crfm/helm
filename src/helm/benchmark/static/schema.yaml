@@ -961,6 +961,11 @@ metrics:
     short_display_name: Expected PSNR
     description: TODO
     lower_is_better: false
+  - name: expected_uiqi_score
+    display_name: Expected Universal Image Quality Index (UIQI)
+    short_display_name: Expected UIQI
+    description: TODO
+    lower_is_better: false
 
   # Bias
   - name: female_frac
@@ -1407,6 +1412,8 @@ metric_groups:
       - name: expected_multi_scale_ssim_score
         split: ${main_split}
       - name: expected_psnr_score
+        split: ${main_split}
+      - name: expected_uiqi_score
         split: ${main_split}
 
   - name: vhelm_bias

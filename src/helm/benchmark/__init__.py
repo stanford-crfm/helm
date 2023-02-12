@@ -98,6 +98,7 @@ from .metrics.images import multi_scale_ssim_metrics  # noqa
 from .metrics.images import nsfw_metrics  # noqa
 from .metrics.images import psnr_metrics  # noqa
 from .metrics.images import skin_tone_metrics  # noqa
+from .metrics.images import uiqi_metrics  # noqa
 from .metrics.images import watermark_metrics  # noqa
 
 

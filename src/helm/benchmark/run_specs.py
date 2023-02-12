@@ -578,6 +578,7 @@ def get_vhelm_reference_required_metric_specs(include_fidelity: bool = False) ->
         MetricSpec(class_name="helm.benchmark.lpips_metrics.LPIPSMetric", args={}),
         MetricSpec(class_name="helm.benchmark.multi_scale_ssim_metrics.MultiScaleSSIMMetric", args={}),
         MetricSpec(class_name="helm.benchmark.psnr_metrics.PSNRMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.uiqi_metrics.UIQIMetric", args={}),
     ]
     if include_fidelity:
         metrics.extend(get_fid_metric_specs())
