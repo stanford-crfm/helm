@@ -16,7 +16,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from .image_metrics_util import gather_generated_image_locations, get_gold_image_location
 
 
-class UIQIMetric(Metric):
+class UniversalImageQualityIndexMetric(Metric):
     """
     Universal Image Quality Index (UIQI) from https://ieeexplore.ieee.org/document/995823.
 
@@ -29,7 +29,7 @@ class UIQIMetric(Metric):
         self._device = get_torch_device()
 
     def __repr__(self):
-        return "UIQIMetric()"
+        return "UniversalImageQualityIndexMetric()"
 
     def evaluate_generation(
         self,

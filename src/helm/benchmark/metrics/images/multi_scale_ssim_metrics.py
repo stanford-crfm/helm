@@ -16,7 +16,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from .image_metrics_util import gather_generated_image_locations, get_gold_image_location
 
 
-class MultiScaleSSIMMetric(Metric):
+class MultiScaleStructuralSimilarityIndexMeasureMetric(Metric):
     """
     Multi-scale Structural Similarity Index Measure, which is a generalization of
     Structural Similarity Index Measure by incorporating image details at different
@@ -31,7 +31,7 @@ class MultiScaleSSIMMetric(Metric):
         self._device = get_torch_device()
 
     def __repr__(self):
-        return "MultiScaleSSIMMetric()"
+        return "MultiScaleStructuralSimilarityIndexMeasureMetric()"
 
     def evaluate_generation(
         self,

@@ -16,7 +16,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from .image_metrics_util import gather_generated_image_locations, get_gold_image_location
 
 
-class LPIPSMetric(Metric):
+class LearnedPerceptualImagePatchSimilarityMetric(Metric):
     """
     The Learned Perceptual Image Patch Similarity (LPIPS) is used to judge the perceptual similarity between
     two images. LPIPS essentially computes the similarity between the activations of two image patches for
@@ -32,7 +32,7 @@ class LPIPSMetric(Metric):
         self._device = get_torch_device()
 
     def __repr__(self):
-        return "LPIPSMetric()"
+        return "LearnedPerceptualImagePatchSimilarityMetric()"
 
     def evaluate_generation(
         self,

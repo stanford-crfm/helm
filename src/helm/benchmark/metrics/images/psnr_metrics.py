@@ -16,7 +16,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from .image_metrics_util import gather_generated_image_locations, get_gold_image_location
 
 
-class PSNRMetric(Metric):
+class PeakSignalToNoiseRatioMetric(Metric):
     """
     Peak signal-to-noise ratio (PSNR) is the ratio between the maximum possible power of
     a signal and the power of corrupting noise that affects the fidelity of its representation.
@@ -30,7 +30,7 @@ class PSNRMetric(Metric):
         self._device = get_torch_device()
 
     def __repr__(self):
-        return "PSNRMetric()"
+        return "PeakSignalToNoiseRatioMetric()"
 
     def evaluate_generation(
         self,
