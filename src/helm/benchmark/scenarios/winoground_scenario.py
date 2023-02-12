@@ -35,7 +35,7 @@ class WinogroundScenario(Scenario):
     tags = ["text-to-image", "image-to-text", "visual_reasoning"]
 
     def get_instances(self) -> List[Instance]:
-        auth_token: str = os.environ["HUGGING_FACE_ACCESS_TOKEN"]
+        auth_token: str = os.environ.get("HUGGING_FACE_ACCESS_TOKEN", "")
 
         instances: List[Instance] = []
         for row in load_dataset("facebook/winoground", split="test", use_auth_token=auth_token):
