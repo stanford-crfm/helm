@@ -3,7 +3,7 @@ from typing import List
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
-from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
+from torchmetrics import MultiScaleStructuralSimilarityIndexMeasure
 from torchvision import transforms
 import torch
 
@@ -16,15 +16,14 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 
 
-class LPIPSMetric(Metric):
+class MultiScaleSSIMMetric(Metric):
     """
-    The Learned Perceptual Image Patch Similarity (LPIPS) is used to judge the perceptual similarity between
-    two images. LPIPS essentially computes the similarity between the activations of two image patches for
-    some pre-defined network. This measure has been shown to match human perception well. A low LPIPS score
-    means that image patches are perceptual similar.
+    Multi-scale Structural Similarity Index Measure, which is a generalization of
+    Structural Similarity Index Measure by incorporating image details at different
+    resolution scores.
 
     We use the TorchMetrics implementation:
-    https://torchmetrics.readthedocs.io/en/stable/image/learned_perceptual_image_patch_similarity.html.
+    https://torchmetrics.readthedocs.io/en/stable/image/multi_scale_structural_similarity.html
     """
 
     def __init__(self):
@@ -32,7 +31,7 @@ class LPIPSMetric(Metric):
         self._device = get_torch_device()
 
     def __repr__(self):
-        return "LPIPSMetric()"
+        return "MultiScaleSSIMMetric()"
 
     def evaluate_generation(
         self,
@@ -58,19 +57,17 @@ class LPIPSMetric(Metric):
         assert len(references) > 0 and references[0].output.file_path is not None, "Need a gold image to compute"
         gold_image_path: str = references[0].output.file_path
 
-        # Batch process the images and compute the average LPIPS score.
-        score: float = self._compute_lpips_scores(image_locations, gold_image_path)
-        return [Stat(MetricName("expected_lpips_score")).add(score)]
+        score: float = self._compute_scores(image_locations, gold_image_path)
+        return [Stat(MetricName("expected_multi_scale_ssim_score")).add(score)]
 
-    def _compute_lpips_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
+    def _compute_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
         if self._metric is None:
-            self._metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg").to(self._device)
+            self._metric = MultiScaleStructuralSimilarityIndexMeasure().to(self._device)
 
         preprocessing = transforms.Compose(
             [
                 transforms.Resize((256, 256)),
                 transforms.ToTensor(),
-                transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
             ]
         )
         generated_images: List[torch.Tensor] = []

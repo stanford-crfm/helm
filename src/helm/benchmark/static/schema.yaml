@@ -951,6 +951,11 @@ metrics:
     short_display_name: Expected LPIPS score
     description: TODO
     lower_is_better: true
+  - name: expected_multi_scale_ssim_score
+    display_name: Multi-scale Structural Similarity Index Measure (SSIM)
+    short_display_name: Multi-Scale SSIM
+    description: TODO
+    lower_is_better: false
 
   # Bias
   - name: female_frac
@@ -1393,6 +1398,8 @@ metric_groups:
       - name: kernel_inception_distance_mean
         split: ${main_split}
       - name: expected_lpips_score
+        split: ${main_split}
+      - name: expected_multi_scale_ssim_score
         split: ${main_split}
 
   - name: vhelm_bias

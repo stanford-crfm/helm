@@ -576,6 +576,7 @@ def get_fid_metric_specs() -> List[MetricSpec]:
 def get_vhelm_reference_required_metric_specs(include_fidelity: bool = False) -> List[MetricSpec]:
     metrics: List[MetricSpec] = [
         MetricSpec(class_name="helm.benchmark.lpips_metrics.LPIPSMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.multi_scale_ssim_metrics.MultiScaleSSIMMetric", args={}),
     ]
     if include_fidelity:
         metrics.extend(get_fid_metric_specs())
