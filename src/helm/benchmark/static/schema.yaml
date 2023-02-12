@@ -941,6 +941,16 @@ metrics:
     short_display_name: Inception Score
     description: TODO
     lower_is_better: false
+  - name: kernel_inception_distance
+    display_name: Kernel Inception Distance (KID)
+    short_display_name: Kernel Inception Distance
+    description: TODO
+    lower_is_better: true
+  - name: expected_lpips_score
+    display_name: Expected Learned Perceptual Image Patch Similarity (LPIPS) score
+    short_display_name: Expected LPIPS score
+    description: TODO
+    lower_is_better: true
 
   # Bias
   - name: female_frac
@@ -1379,6 +1389,10 @@ metric_groups:
       - name: fid
         split: ${main_split}
       - name: inception_score
+        split: ${main_split}
+      - name: kernel_inception_distance_mean
+        split: ${main_split}
+      - name: expected_lpips_score
         split: ${main_split}
 
   - name: vhelm_bias
