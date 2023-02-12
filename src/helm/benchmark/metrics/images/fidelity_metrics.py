@@ -80,6 +80,7 @@ class FidelityMetric(Metric):
             generated_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
             ensure_directory_exists(generated_images_path)
 
+            num_generated_images: int = 0
             for request_state in tqdm(scenario_state.request_states):
                 if request_state.instance.perturbation != perturbation:
                     continue
@@ -92,6 +93,9 @@ class FidelityMetric(Metric):
                     if image.file_location is not None and not is_blacked_out_image(image.file_location):
                         dest_path = os.path.join(generated_images_path, get_file_name(image.file_location))
                         copy_image(image.file_location, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
+                        num_generated_images += 1
+
+            compute_kid: bool = num_generated_images >= 1000
 
             # The torch_fidelity library fails when there are too few images (i.e., `max_eval_instances` is small).
             try:
@@ -100,6 +104,8 @@ class FidelityMetric(Metric):
                     input2=gold_images_path,
                     isc=True,
                     fid=True,
+                    kid=compute_kid,
+                    ppl=False,  # Requires `GenerativeModel`
                     cuda=torch.cuda.is_available(),
                     save_cpu_ram=not torch.cuda.is_available(),
                 )
@@ -110,12 +116,16 @@ class FidelityMetric(Metric):
                 inception_score: float = metrics_dict["inception_score_mean"]
                 if math.isnan(inception_score):
                     inception_score = 0
+
                 stats.extend(
                     [
                         Stat(MetricName("fid" + metric_suffix)).add(fid),
                         Stat(MetricName("inception_score" + metric_suffix)).add(inception_score),
                     ]
                 )
+                if compute_kid:
+                    kid: float = metrics_dict["kernel_inception_distance_mean"]
+                    stats.append(Stat(MetricName("kernel_inception_distance" + metric_suffix)).add(kid))
             except AssertionError as e:
                 hlog(f"Error occurred when computing fidelity metrics for perturbation: {perturbation_name} Error: {e}")
 

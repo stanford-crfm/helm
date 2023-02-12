@@ -569,9 +569,17 @@ def get_vhelm_bias_metric_specs() -> List[MetricSpec]:
 
 def get_fid_metric_specs() -> List[MetricSpec]:
     return [
-        # MetricSpec(class_name="helm.benchmark.fid_metric.FIDMetric", args={}),
         MetricSpec(class_name="helm.benchmark.fidelity_metrics.FidelityMetric", args={}),
     ]
+
+
+def get_vhelm_reference_required_metric_specs(include_fidelity: bool = False) -> List[MetricSpec]:
+    metrics: List[MetricSpec] = [
+        MetricSpec(class_name="helm.benchmark.lpips_metrics.LPIPSMetric", args={}),
+    ]
+    if include_fidelity:
+        metrics.extend(get_fid_metric_specs())
+    return metrics
 
 
 ############################################################
@@ -1876,7 +1884,7 @@ def get_cub200_spec() -> RunSpec:
         name="cub200",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_fid_metric_specs() + get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs(),
         groups=["cub200"],
     )
 
@@ -2019,7 +2027,7 @@ def get_mscoco_spec() -> RunSpec:
         name="mscoco",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_fid_metric_specs() + get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs(),
         groups=["mscoco"],
     )
 
@@ -2035,7 +2043,7 @@ def get_paint_skills_spec(skill: str) -> RunSpec:
         name=f"paint_skills:skill={skill}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs(),
         groups=["paint_skills"],
     )
 
@@ -2113,7 +2121,7 @@ def get_winoground_spec() -> RunSpec:
         name="winoground",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs(),
         groups=["winoground"],
     )
 

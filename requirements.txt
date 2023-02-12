@@ -57,6 +57,7 @@ autokeras~=1.0.20
 clean-fid~=0.1.35
 clip-anytorch~=2.5.0
 importlib-resources~=5.10.0
+lpips~=0.1.4
 multilingual-clip~=1.0.10
 nltk~=3.7
 scipy~=1.9.1
@@ -75,5 +76,6 @@ timm~=0.6.12
 # End users should install a CUDA version of PyTorch manually if needed
 torch~=1.12.1  # Summarization metrics
 torchmetrics~=0.11.0
+torchmetrics[image]
 torchvision~=0.13.1
 torch-fidelity~=0.3.0

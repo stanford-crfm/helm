@@ -88,6 +88,7 @@ langcodes==3.3.0
 libclang==15.0.6.1
 libcst==0.4.9
 llvmlite==0.39.1
+lpips==0.1.4
 lxml==4.9.2
 Mako==1.2.4
 Markdown==3.4.1
