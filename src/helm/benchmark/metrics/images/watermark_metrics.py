@@ -8,6 +8,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
+from .image_metrics_util import gather_generated_image_locations
 from .watermark.watermark_detector import WatermarkDetector
 
 
@@ -31,15 +32,9 @@ class WatermarkMetric(Metric):
     ) -> List[Stat]:
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
-
-        # Gather the images
-        image_locations: List[str] = []
-        for image in request_result.completions:
-            # Models like DALL-E 2 can skip generating images for prompts that violate their content policy
-            if image.file_location is None:
-                return []
-
-            image_locations.append(image.file_location)
+        image_locations: List[str] = gather_generated_image_locations(request_result)
+        if len(image_locations) == 0:
+            return []
 
         # Batch process the images and detect if they have watermarks
         has_watermarks, watermark_probs = self._watermark_detector.has_watermark(image_locations)

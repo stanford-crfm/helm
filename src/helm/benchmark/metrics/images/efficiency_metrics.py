@@ -7,6 +7,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
+from .image_metrics_util import gather_generated_image_locations
 
 
 class EfficiencyMetric(Metric):
@@ -28,9 +29,8 @@ class EfficiencyMetric(Metric):
 
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
-
-        # Models like DALL-E 2 can skip generating images for prompts that violate their content policy
-        if not request_result.completions[0].file_location:
+        image_locations: List[str] = gather_generated_image_locations(request_result)
+        if len(image_locations) == 0:
             return []
 
         stats: List[Stat] = [

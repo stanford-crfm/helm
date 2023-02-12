@@ -1,6 +1,6 @@
 from typing import List
 
-from torchmetrics import MultiScaleStructuralSimilarityIndexMeasure
+from torchmetrics import PeakSignalNoiseRatio
 from torchvision import transforms
 import torch
 
@@ -16,14 +16,13 @@ from helm.benchmark.metrics.metric_service import MetricService
 from .image_metrics_util import gather_generated_image_locations, get_gold_image_location
 
 
-class MultiScaleSSIMMetric(Metric):
+class PSNRMetric(Metric):
     """
-    Multi-scale Structural Similarity Index Measure, which is a generalization of
-    Structural Similarity Index Measure by incorporating image details at different
-    resolution scores.
+    Peak signal-to-noise ratio (PSNR) is the ratio between the maximum possible power of
+    a signal and the power of corrupting noise that affects the fidelity of its representation.
 
     We use the TorchMetrics implementation:
-    https://torchmetrics.readthedocs.io/en/stable/image/multi_scale_structural_similarity.html
+    https://torchmetrics.readthedocs.io/en/stable/image/peak_signal_noise_ratio.html
     """
 
     def __init__(self):
@@ -31,7 +30,7 @@ class MultiScaleSSIMMetric(Metric):
         self._device = get_torch_device()
 
     def __repr__(self):
-        return "MultiScaleSSIMMetric()"
+        return "PSNRMetric()"
 
     def evaluate_generation(
         self,
@@ -42,18 +41,17 @@ class MultiScaleSSIMMetric(Metric):
     ) -> List[Stat]:
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
-
         image_locations: List[str] = gather_generated_image_locations(request_result)
         if len(image_locations) == 0:
             return []
 
         gold_image_path: str = get_gold_image_location(request_state)
-        score: float = self._compute_ssim_scores(image_locations, gold_image_path)
-        return [Stat(MetricName("expected_multi_scale_ssim_score")).add(score)]
+        score: float = self._compute_psnr_scores(image_locations, gold_image_path)
+        return [Stat(MetricName("expected_psnr_score")).add(score)]
 
-    def _compute_ssim_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
+    def _compute_psnr_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
         if self._metric is None:
-            self._metric = MultiScaleStructuralSimilarityIndexMeasure().to(self._device)
+            self._metric = PeakSignalNoiseRatio().to(self._device)
 
         preprocessing = transforms.Compose(
             [

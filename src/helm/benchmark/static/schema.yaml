@@ -952,8 +952,13 @@ metrics:
     description: TODO
     lower_is_better: true
   - name: expected_multi_scale_ssim_score
-    display_name: Multi-scale Structural Similarity Index Measure (SSIM)
-    short_display_name: Multi-Scale SSIM
+    display_name: Expected Multi-scale Structural Similarity Index Measure (SSIM)
+    short_display_name: Expected Multi-Scale SSIM
+    description: TODO
+    lower_is_better: false
+  - name: expected_psnr_score
+    display_name: Expected Peak Siganl-to-Noise Ratio (PSNR)
+    short_display_name: Expected PSNR
     description: TODO
     lower_is_better: false
 
@@ -1400,6 +1405,8 @@ metric_groups:
       - name: expected_lpips_score
         split: ${main_split}
       - name: expected_multi_scale_ssim_score
+        split: ${main_split}
+      - name: expected_psnr_score
         split: ${main_split}
 
   - name: vhelm_bias

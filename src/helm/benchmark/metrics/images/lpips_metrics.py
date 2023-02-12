@@ -1,12 +1,11 @@
 from typing import List
 
-from helm.benchmark.scenarios.scenario import Reference
-from helm.common.gpu_utils import get_torch_device
-from helm.common.images_utils import open_image
 from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 from torchvision import transforms
 import torch
 
+from helm.common.gpu_utils import get_torch_device
+from helm.common.images_utils import open_image
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -14,6 +13,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
+from .image_metrics_util import gather_generated_image_locations, get_gold_image_location
 
 
 class LPIPSMetric(Metric):
@@ -43,22 +43,12 @@ class LPIPSMetric(Metric):
     ) -> List[Stat]:
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
-
-        # Gather the image locations
-        image_locations: List[str] = []
-        for image in request_result.completions:
-            # Models like DALL-E 2 can skip generating images for prompts that violate their content policy
-            if image.file_location is None:
-                return []
-
-            image_locations.append(image.file_location)
-
-        # Get the gold image
-        references: List[Reference] = request_state.instance.references
-        assert len(references) > 0 and references[0].output.file_path is not None, "Need a gold image to compute"
-        gold_image_path: str = references[0].output.file_path
+        image_locations: List[str] = gather_generated_image_locations(request_result)
+        if len(image_locations) == 0:
+            return []
 
         # Batch process the images and compute the average LPIPS score.
+        gold_image_path: str = get_gold_image_location(request_state)
         score: float = self._compute_lpips_scores(image_locations, gold_image_path)
         return [Stat(MetricName("expected_lpips_score")).add(score)]
 
