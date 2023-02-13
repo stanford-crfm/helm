@@ -48,6 +48,8 @@ class UniversalImageQualityIndexMetric(Metric):
 
         gold_image_path: str = get_gold_image_location(request_state)
         score: float = self._compute_uiqi_scores(image_locations, gold_image_path)
+        if math.isnan(score) or score == -math.inf or score == math.inf:
+            return []
         return [Stat(MetricName("expected_uiqi_score")).add(score)]
 
     def _compute_uiqi_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
@@ -71,6 +73,4 @@ class UniversalImageQualityIndexMetric(Metric):
         img1: torch.Tensor = torch.stack(generated_images).to(self._device)
         img2: torch.Tensor = torch.stack(reference_images).to(self._device)
         score: float = self._metric(img1, img2).detach().item()
-        if math.isnan(score) or score == -math.inf:
-            score = -1
         return score
