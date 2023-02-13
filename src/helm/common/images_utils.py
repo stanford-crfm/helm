@@ -26,10 +26,12 @@ def open_image(image_location: str) -> Image:
     """
     Opens image with the Python Imaging Library.
     """
+    image: Image
     if is_url(image_location):
-        return Image.open(requests.get(image_location, stream=True).raw)
+        image = Image.open(requests.get(image_location, stream=True).raw)
     else:
-        return Image.open(image_location)
+        image = Image.open(image_location)
+    return image.convert("RGB")
 
 
 def encode_base64(image_location: str) -> str:
