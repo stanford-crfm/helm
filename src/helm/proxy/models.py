@@ -346,7 +346,6 @@ ALL_MODELS = [
         creator_organization="HazyResearch",
         name="together/H3-2.7B",
         display_name="H3 (2.7B)",
-        # From https://bigscience.huggingface.co/blog/bloom
         description="H3 (2.7B parameters) is a decoder-only language model based on state space models.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
