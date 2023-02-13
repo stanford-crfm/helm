@@ -1,4 +1,5 @@
 from typing import List
+import math
 
 from torchmetrics import UniversalImageQualityIndex
 from torchvision import transforms
@@ -19,6 +20,7 @@ from .image_metrics_util import gather_generated_image_locations, get_gold_image
 class UniversalImageQualityIndexMetric(Metric):
     """
     Universal Image Quality Index (UIQI) from https://ieeexplore.ieee.org/document/995823.
+    The range of UIQI is [-1, 1].
 
     We use the TorchMetrics implementation:
     https://torchmetrics.readthedocs.io/en/stable/image/universal_image_quality_index.html
@@ -69,4 +71,6 @@ class UniversalImageQualityIndexMetric(Metric):
         img1: torch.Tensor = torch.stack(generated_images).to(self._device)
         img2: torch.Tensor = torch.stack(reference_images).to(self._device)
         score: float = self._metric(img1, img2).detach().item()
+        if math.isnan(score) or score == -math.inf:
+            score = -1
         return score
