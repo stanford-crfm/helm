@@ -639,13 +639,16 @@ def get_survey_spec(
     method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.survey_scenario.SurveyScenario", args={"survey_type": survey_type, "train_type": train_type}
+        class_name="helm.benchmark.scenarios.survey_scenario.SurveyScenario",
+        args={"survey_type": survey_type, "train_type": train_type},
     )
 
     if instruction_type == "None":
         instruction = f""
     elif instruction_type == "Options":
-        instruction = f"Please read the following multiple-choice question carefully and select ONE of the listed options."
+        instruction = (
+            f"Please read the following multiple-choice question carefully and select ONE of the listed options."
+        )
     elif instruction_type == "Template":
         instruction = f"Please read the multiple-choice question below carefully and select ONE of the listed options. Here is an examples of the format:\n\n"
         instruction += "Question: Question_1\nA. Option_1\nB. Option_2\nC. Option_3\nAnswer: C\n\n"
@@ -658,13 +661,59 @@ def get_survey_spec(
         max_train_instances=0 if train_type == "None" else 1,
         num_outputs=int(k),
         num_train_trials=1 if train_type == "None" else int(num_train_trials),
-        sample_train=(train_type == "None"), 
+        sample_train=(train_type == "None"),
         list_options_suffix=(list_options == "True"),
-        list_options_prefix=(list_options == "Prefix")
+        list_options_prefix=(list_options == "Prefix"),
     )
 
     return RunSpec(
-        name=f"surveys:survey_type={survey_type},k={k},train_type={train_type},list_options={list_options},instruction_type={instruction_type}",
+        name=f"surveys:survey_type={survey_type},k={k},train_type={train_type},num_train_trials={num_train_trials},list_options={list_options},instruction_type={instruction_type}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["subjective"],
+    )
+
+
+def get_survey_with_bios_spec(
+    survey_type: str,
+    list_options: str,
+    train_type: str = "None",
+    instruction_type: str = "None",
+    num_train: str = "1",
+    k: str = "100",
+    method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
+) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.survey_scenario.SurveyScenarioWithBios",
+        args={"survey_type": survey_type, "train_type": train_type, "num_train": num_train},
+    )
+
+    if instruction_type == "None":
+        instruction = f""
+    elif instruction_type == "Options":
+        instruction = (
+            f"Please read the following multiple-choice question carefully and select ONE of the listed options."
+        )
+    elif instruction_type == "Template":
+        instruction = f"Please read the multiple-choice question below carefully and select ONE of the listed options. Here is an examples of the format:\n\n"
+        instruction += "Question: Question_1\nA. Option_1\nB. Option_2\nC. Option_3\nAnswer: C\n\n"
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions=instruction,
+        input_noun=None,
+        output_noun="Answer",
+        max_train_instances=0,
+        num_outputs=int(k),
+        num_train_trials=1,
+        sample_train=(train_type == "None"),
+        list_options_suffix=(list_options == "True"),
+        list_options_prefix=(list_options == "Prefix"),
+    )
+
+    return RunSpec(
+        name=f"surveys_with_bios:survey_type={survey_type},k={k},num_train={num_train},train_type={train_type},list_options={list_options},instruction_type={instruction_type}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -1647,6 +1696,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "imdb": get_imdb_spec,
     "copyright": get_copyright_spec,
     "surveys": get_survey_spec,
+    "surveys_with_bios": get_survey_with_bios_spec,
     "mmlu": get_mmlu_spec,
     "interactive_qa_mmlu": get_interactive_qa_mmlu_spec,
     "msmarco": get_msmarco_spec,

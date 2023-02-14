@@ -74,3 +74,4 @@ from .augmentations.dialect_perturbation import DialectPerturbation  # noqa
 from .augmentations.person_name_perturbation import PersonNamePerturbation  # noqa
 from .augmentations.gender_perturbation import GenderPerturbation  # noqa
 from .augmentations.option_permutations_perturbation import OptionPermutationsPerturbation  # noqa
+from .augmentations.option_inversion_perturbation import OptionInversionPerturbation  # noqa
