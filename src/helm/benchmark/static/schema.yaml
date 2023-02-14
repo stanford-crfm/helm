@@ -212,6 +212,15 @@ models:
     access: closed
     todo: true
 
+  # HazyResearch
+  - name: together/h3-2.7b
+    display_name: H3 (2.7B)
+    description: H3 (2.7B parameters) is a decoder-only language model based on state space models ([paper](https://arxiv.org/abs/2212.14052)).
+    creator_organization: HazyResearch
+    access: open
+    num_parameters: 2700000000
+    release_date: 2023-01-23
+
   # Meta
   - name: together/opt-iml-175b
     display_name: OPT-IML (175B)

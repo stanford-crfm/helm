@@ -340,6 +340,15 @@ ALL_MODELS = [
             NLG_PREFIX_TAG,
         ],
     ),
+    # H3 model
+    Model(
+        group="together",
+        creator_organization="HazyResearch",
+        name="together/h3-2.7b",
+        display_name="H3 (2.7B)",
+        description="H3 (2.7B parameters) is a decoder-only language model based on state space models.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     # OPT
     Model(
         group="together",
