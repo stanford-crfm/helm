@@ -608,6 +608,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
 
+<<<<<<< HEAD:src/helm/benchmark/run_specs.py
 def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.interactive_qa_mmlu_scenario.InteractiveQAMMLUScenario",
@@ -629,6 +630,7 @@ def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
+=======
 def get_survey_spec(
     k: str,
     survey_type: str,
@@ -646,9 +648,7 @@ def get_survey_spec(
     if instruction_type == "None":
         instruction = f""
     elif instruction_type == "Options":
-        instruction = (
-            f"Please read the following multiple-choice question carefully and select ONE of the listed options."
-        )
+        instruction = f"Please read the following multiple-choice question carefully and select ONE of the listed options."
     elif instruction_type == "Template":
         instruction = f"Please read the multiple-choice question below carefully and select ONE of the listed options. Here is an examples of the format:\n\n"
         instruction += "Question: Question_1\nA. Option_1\nB. Option_2\nC. Option_3\nAnswer: C\n\n"

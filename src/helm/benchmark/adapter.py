@@ -102,6 +102,9 @@ class AdapterSpec:
     # Number of trials, where in each trial we choose an independent, random
     # set of training instances.  Used to compute error bars.
     num_train_trials: int = 1
+        
+    # Sample train examples or use deterministic
+    sample_train: bool = True
 
     # Sample train examples or use deterministic
     sample_train: bool = True
@@ -513,6 +516,7 @@ class Processor:
 
         # Instruction text
         instructions_block = self.adapter_spec.instructions
+        
 
         # Text for in-context training instances
         train_instance_blocks = [
@@ -523,6 +527,11 @@ class Processor:
         eval_instance_block, prefix_keys = example_prompt_constructor(
             eval_instance, include_output=include_output, reference_index=reference_index
         )
+        
+        if self.adapter_spec.list_options_prefix:
+            assert 'select ONE of the listed options.' in instructions_block
+            instructions_block = instructions_block.replace('select ONE of the listed options.',
+                                                                         f'select ONE of the options {"/".join(prefix_keys)}.')
 
         if self.adapter_spec.list_options_prefix:
             assert "select ONE of the listed options." in instructions_block
@@ -621,7 +630,11 @@ class Processor:
         if self.adapter_spec.list_options_suffix:
             suffix = "/".join(prefix_key)
             result += f" (choose one of {suffix}):"
+<<<<<<< HEAD:src/helm/benchmark/adapter.py
             # result += f" (choose one of the options {prefix_key[0]} through {prefix_key[-1]}):"
+=======
+            #result += f" (choose one of the options {prefix_key[0]} through {prefix_key[-1]}):"
+>>>>>>> ddc14d7a88236e23bfa800802e6d316e7b71a9c9:src/benchmark/adapter.py
 
         return result, prefix_key
 
@@ -833,9 +846,16 @@ class Adapter:
         eval_instances: List[Instance],
         parallelism: int,
     ) -> List[RequestState]:
+<<<<<<< HEAD:src/helm/benchmark/adapter.py
         train_instances: List[Instance] = self.sample_examples(
             all_train_instances, seed=train_trial_index, sample_train=self.adapter_spec.sample_train
         )
+=======
+        train_instances: List[Instance] = self.sample_examples(all_train_instances, 
+                                                               seed=train_trial_index, 
+                                                               sample_train=self.adapter_spec.sample_train)
+            
+>>>>>>> ddc14d7a88236e23bfa800802e6d316e7b71a9c9:src/benchmark/adapter.py
 
         # Create request_states
         processor = Processor(
@@ -867,9 +887,13 @@ class Adapter:
             all_request_states.extend(result)
         return [request_state for result in results for request_state in result]
 
+<<<<<<< HEAD:src/helm/benchmark/adapter.py
     def sample_examples(
         self, all_train_instances: List[Instance], seed: int, sample_train: bool = True
     ) -> List[Instance]:
+=======
+    def sample_examples(self, all_train_instances: List[Instance], seed: int, sample_train: bool=True) -> List[Instance]:
+>>>>>>> ddc14d7a88236e23bfa800802e6d316e7b71a9c9:src/benchmark/adapter.py
         """
         Sample a random set of train instances to use as examples by following the steps below:
         1. Sort the class labels (i.e., correct References) by the number of Instances that belong to the
@@ -893,7 +917,11 @@ class Adapter:
 
         Returns a new list of randomly sampled train instances.
         """
+<<<<<<< HEAD:src/helm/benchmark/adapter.py
 
+=======
+                
+>>>>>>> ddc14d7a88236e23bfa800802e6d316e7b71a9c9:src/benchmark/adapter.py
         # Fix the random seed for reproducibility
         random.seed(seed)
         num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
@@ -902,7 +930,11 @@ class Adapter:
         label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
 
         if not sample_train:
+<<<<<<< HEAD:src/helm/benchmark/adapter.py
             examples = all_train_instances[seed : seed + num_instances_to_sample]
+=======
+            examples = all_train_instances[seed:seed+num_instances_to_sample]
+>>>>>>> ddc14d7a88236e23bfa800802e6d316e7b71a9c9:src/benchmark/adapter.py
         else:
             for instance in all_train_instances:
                 if instance.first_correct_reference:

@@ -390,8 +390,6 @@ def option_inversion() -> PerturbationSpec:
         args={},
     )
 
-
-
 def typo(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
         class_name="helm.benchmark.augmentations.typos_perturbation.TyposPerturbation",
@@ -647,7 +645,10 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "option_permutations5": {"option_permutations5": [option_permutations()]},
     "option_permutations10": {"option_permutations10": [option_permutations()]},
     "option_permutations20": {"option_permutations20": [option_permutations()]},
+<<<<<<< HEAD:src/helm/benchmark/run_expander.py
     "option_inversion": {"option_inversion": [option_inversion()]},
+=======
+>>>>>>> ddc14d7a88236e23bfa800802e6d316e7b71a9c9:src/benchmark/run_expander.py
 }
 
 
@@ -668,6 +669,7 @@ PERTURBATION_ARGS_DICT["option_permutations2"]["seeds_per_instance"] = 2
 PERTURBATION_ARGS_DICT["option_permutations5"]["seeds_per_instance"] = 5
 PERTURBATION_ARGS_DICT["option_permutations10"]["seeds_per_instance"] = 10
 PERTURBATION_ARGS_DICT["option_permutations20"]["seeds_per_instance"] = 20
+<<<<<<< HEAD:src/helm/benchmark/run_expander.py
 
 
 def get_default_args():
@@ -682,6 +684,8 @@ def get_default_args():
         "should_skip_unchanged_eval": True,
         "seeds_per_instance": 1,
     }
+=======
+>>>>>>> ddc14d7a88236e23bfa800802e6d316e7b71a9c9:src/benchmark/run_expander.py
 
 
 class DataAugmentationRunExpander(RunExpander):
@@ -718,7 +722,10 @@ class DataAugmentationRunExpander(RunExpander):
             aug_name: str, perturbation_specs: List[PerturbationSpec], perturbation_args: dict
         ) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
-                perturbation_specs=perturbation_specs, **perturbation_args
+                perturbation_specs=perturbation_specs,
+                # Always include original and perturbed instances together so that
+                # we can compute the normal and robustness metrics in the same run.
+                **perturbation_args,
             )
             return replace(
                 run_spec,
