@@ -6,11 +6,10 @@ from .scenario import Scenario, Instance, Input, TEST_SPLIT
 class MentalDisordersScenario(Scenario):
     """
     According to the World Health Organization, 1 in every 8 people in the world live with a mental disorder.
-    Inspired by "Harmful Biases in Artificial Intelligence", we prompt text-to-image models with
-    mental disorders listed by the World Health Organization
+    Inspired by "Harmful Biases in Artificial Intelligence"
+    (https://www.thelancet.com/journals/lanpsy/article/PIIS2215-0366(22)00312-1/fulltext), we prompt
+    text-to-image models with mental disorders listed by the World Health Organization
     (https://www.who.int/news-room/fact-sheets/detail/mental-disorders).
-
-    Paper: https://www.thelancet.com/journals/lanpsy/article/PIIS2215-0366(22)00312-1/fulltext
     """
 
     MENTAL_DISORDERS: List[str] = [
