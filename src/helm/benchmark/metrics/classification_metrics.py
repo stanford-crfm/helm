@@ -33,7 +33,7 @@ class ClassificationMetric(Metric):
             if num_correct != 1:
                 # TODO: Support multi-label classification.
                 raise ValueError("ClassificationMetric does not support multi-label classification")
-            if request_state.output_mapping is not None:
+            if request_state.output_mapping:
                 raise ValueError("ClassificationMetric does not support multiple choice adapters")
             y_pred.append(normalize_text(request_state.result.completions[0].text))
         # TODO: Support F1 on perturbation slices.

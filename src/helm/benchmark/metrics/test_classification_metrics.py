@@ -25,7 +25,7 @@ def _request_state(prediction: str, options: List[_Option]):
         reference_index=None,
         request_mode=None,
         train_trial_index=0,
-        output_mapping={},
+        output_mapping=None,
         request=Request(),
         result=RequestResult(
             success=True, embedding=[], completions=[Sequence(text=prediction, logprob=0.0, tokens=[])], cached=False
