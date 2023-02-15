@@ -1,3 +1,4 @@
+from copy import deepcopy
 import torch
 from dataclasses import asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -32,7 +33,7 @@ class HuggingFaceServer:
 
     def serve_request(self, raw_request: Dict[str, Any]):
         encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt").to(self.device)
-
+        raw_request = deepcopy(raw_request)
         raw_request["do_sample"] = True
         raw_request["return_dict_in_generate"] = True
         raw_request["output_scores"] = True
