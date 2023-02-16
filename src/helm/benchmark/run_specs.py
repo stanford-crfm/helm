@@ -1812,8 +1812,8 @@ def get_billsum_legal_summarization_spec(temperature: float = 0.3, device: str =
         args={
             "dataset_name": "BillSum",
             "sampling_min_length": 200,
-            "sampling_max_length": 2000,
-            "doc_max_length": 4096,
+            "sampling_max_length": 800,  # 2000 would be ideal, but for economic reasons set it lower
+            "doc_max_length": 2048,  # 4096 would be ideal, but for economic reasons set it lower
         },
     )
 
@@ -1839,8 +1839,8 @@ def get_multilexsum_legal_summarization_spec(temperature: float = 0.3, device: s
         args={
             "dataset_name": "MultiLexSum",
             "sampling_min_length": 100,
-            "sampling_max_length": 1000,
-            "doc_max_length": 2048,
+            "sampling_max_length": 400,  # 1000 would be ideal, but for economic reasons set it lower
+            "doc_max_length": 1024,  # 2048 would be ideal, but for economic reasons set it lower
         },
     )
 
@@ -1866,8 +1866,8 @@ def get_eurlexsum_legal_summarization_spec(temperature: float = 0.3, device: str
         args={
             "dataset_name": "EurLexSum",
             "sampling_min_length": 400,
-            "sampling_max_length": 4000,
-            "doc_max_length": 8192,
+            "sampling_max_length": 1600,  # 4000 would be ideal, but for economic reasons set it lower
+            "doc_max_length": 2048,  # 8192 would be ideal, but for economic reasons set it lower
         },
     )
 

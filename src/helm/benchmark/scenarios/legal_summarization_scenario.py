@@ -95,11 +95,11 @@ class LegalSummarizationScenario(Scenario):
     }
 
     def __init__(
-            self,
-            dataset_name: str,
-            sampling_min_length: Optional[int] = None,
-            sampling_max_length: Optional[int] = None,
-            doc_max_length: Optional[int] = None,
+        self,
+        dataset_name: str,
+        sampling_min_length: Optional[int] = None,
+        sampling_max_length: Optional[int] = None,
+        doc_max_length: Optional[int] = None,
     ):
         """
         Initializes summarization scenario.
