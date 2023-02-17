@@ -175,6 +175,19 @@ class PromptRunExpander(RunExpander):
                     "trending on artstation",
                 ],
             )
+        elif self.value == "better_image_quality":
+            assert isinstance(adapter_spec, TextToImageAdapterSpec)
+            # Use the top descriptors from "Underlying Elements of Image Quality Assessment: Preference andTerminology
+            # for Communicating Image Quality Characteristics" (https://psycnet.apa.org/fulltext/2020-24398-001.pdf)
+            adapter_spec = replace(
+                adapter_spec,
+                modifications=[
+                    "sharp",
+                    "natural",
+                    "bright",
+                    "good colors",
+                ],
+            )
         elif self.value in ["oil_painting", "watercolor", "pencil_sketch", "animation", "vector_graphics", "pixel_art"]:
             assert isinstance(adapter_spec, TextToImageAdapterSpec)
             adapter_spec = replace(adapter_spec, modifications=[self.value.replace("_", " ")])
