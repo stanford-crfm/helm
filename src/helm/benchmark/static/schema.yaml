@@ -1685,6 +1685,28 @@ run_groups:
       main_name: none
       main_split: none
 
+  - name: vhelm
+    display_name: VHELM
+    description: Text-to-image models
+    category: Core scenarios
+    subgroups:
+      - mscoco
+      - cub200
+      - parti_prompts
+      - common_syntactic_processes
+      - draw_bench
+      - relational_understanding
+      - paint_skills
+      - winoground
+      - time_most_significant_historical_figures
+      - daily_dalle
+      - demographic_stereotypes
+      - logos
+      - landing_page
+      - magazine_cover
+      - mental_disorders
+      - i2p
+
 ### Ablations
   - name: ablation_in_context
     display_name: Vary number of in-context examples
