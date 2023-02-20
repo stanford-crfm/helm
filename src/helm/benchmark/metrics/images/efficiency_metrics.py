@@ -33,9 +33,9 @@ class EfficiencyMetric(Metric):
         if len(image_locations) == 0:
             return []
 
+        # inference_runtime is computed in BasicMetric
         stats: List[Stat] = [
             Stat(MetricName("prompt_length")).add(len(prompt)),
-            Stat(MetricName("inference_runtime")).add(request_result.request_time),
             Stat(MetricName("num_generated_images")).add(len(request_result.completions)),
         ]
         return stats
