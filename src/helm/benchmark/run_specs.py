@@ -48,7 +48,7 @@ def format_instructions(instructions: str) -> str:
 
 def get_multiple_choice_joint_adapter_spec(
     instructions: str, input_noun: Optional[str], output_noun: str, num_outputs: int = 5,
-    max_train_instances: int = 5, sample_train=True, **kwargs) -> AdapterSpec:
+    max_train_instances: int = 5, max_tokens: int=5, sample_train=True, **kwargs) -> AdapterSpec:
     """
     [instructions]
 
@@ -73,8 +73,8 @@ def get_multiple_choice_joint_adapter_spec(
         output_prefix=f"{output_noun}: ",
         output_suffix="\n",
         max_train_instances=max_train_instances,
-        num_outputs=1,
-        max_tokens=5,
+        num_outputs=num_outputs,
+        max_tokens=max_tokens,
         temperature=0.0,
         stop_sequences=["\n"],
         sample_train=sample_train,
@@ -112,6 +112,7 @@ def get_multiple_choice_adapter_spec(
     output_noun: str,
     max_train_instances: int = 5,
     num_outputs: int = 5,
+    max_tokens: int = 5,
     empty_input: bool = False,
     sample_train: bool = True,
     **kwargs,
@@ -123,6 +124,7 @@ def get_multiple_choice_adapter_spec(
     if method == ADAPT_MULTIPLE_CHOICE_JOINT:
         return get_multiple_choice_joint_adapter_spec(
             instructions, input_noun, output_noun, max_train_instances=max_train_instances, 
+            num_outputs=num_outputs, max_tokens=max_tokens,
             sample_train=sample_train, **kwargs
         )
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
@@ -1815,6 +1817,7 @@ def get_lm_opinions_spec(
         input_noun="Question",
         output_noun="Answer",
         max_train_instances=1,
+        max_tokens=1,
         num_outputs=int(num_logprobs),
         num_train_trials=1 if  context != "steer-qa" else int(num_train_trials),
         sample_train=False
