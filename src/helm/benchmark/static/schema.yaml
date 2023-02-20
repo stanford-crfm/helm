@@ -1843,46 +1843,6 @@ run_groups:
       main_split: test
     taxonomy:
       task: Image quality
-  - name: parti_prompts_reasoning
-    display_name: PartiPrompts (reasoning categories)
-    description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
-    metric_groups:
-      - vhelm_core
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: Reasoning
-  - name: parti_prompts_knowledge
-    display_name: PartiPrompts (knowledge categories)
-    description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
-    metric_groups:
-      - vhelm_core
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: Knowledge
-  - name: parti_prompts_image_quality
-    display_name: PartiPrompts (image quality categories)
-    description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
-    metric_groups:
-      - vhelm_core
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: Image quality
-  - name: common_syntactic_processes
-    display_name: Common Syntactic Processes
-    description: Prompts from 8 different grammatical phenomena ([paper](https://arxiv.org/abs/2210.12889)).
-    metric_groups:
-      - vhelm_core
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: Reasoning
   - name: draw_bench_image_quality
     display_name: DrawBench (image quality categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
@@ -1893,8 +1853,68 @@ run_groups:
       main_split: test
     taxonomy:
       task: Image quality
-  - name: draw_bench_knowledge
-    display_name: DrawBench (knowledge categories)
+  - name: parti_prompts_image_quality
+    display_name: PartiPrompts (image quality categories)
+    description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
+    metric_groups:
+      - vhelm_core
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: Image quality
+  - name: daily_dalle
+    display_name: dailydall.e
+    description: DALL-E 2 prompts from [Chad Nelson's Instagram](https://www.instagram.com/dailydall.e/)
+    metric_groups:
+      - vhelm_core
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: Originality
+  - name: landing_page
+    display_name: Landing Page
+    description: Prompts to generate landing pages for mobile or web applications.
+    metric_groups:
+      - vhelm_core
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: Originality
+  - name: logos
+    display_name: Logos
+    description: Prompts to generate logos for brands and companies
+    metric_groups:
+      - vhelm_core
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: Originality
+  - name: magazine_cover
+    display_name: Magazine Cover Photos
+    description: Prompts to generate magazine cover photos
+    metric_groups:
+      - vhelm_core
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: Originality
+  - name: common_syntactic_processes
+    display_name: Common Syntactic Processes
+    description: Prompts from 8 different grammatical phenomena ([paper](https://arxiv.org/abs/2210.12889)).
+    metric_groups:
+      - vhelm_core
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: Reasoning
+  - name: draw_bench_reasoning
+    display_name: DrawBench (reasoning categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
       - vhelm_core
@@ -1902,10 +1922,10 @@ run_groups:
     environment:
       main_split: test
     taxonomy:
-      task: Knowledge
-  - name: draw_bench_reasoning
-    display_name: DrawBench (reasoning categories)
-    description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
+      task: Reasoning
+  - name: parti_prompts_reasoning
+    display_name: PartiPrompts (reasoning categories)
+    description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
       - vhelm_core
       - general_information
@@ -1943,6 +1963,26 @@ run_groups:
       main_split: test
     taxonomy:
       task: Reasoning
+  - name: parti_prompts_knowledge
+    display_name: PartiPrompts (knowledge categories)
+    description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
+    metric_groups:
+      - vhelm_core
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: Knowledge
+  - name: draw_bench_knowledge
+    display_name: DrawBench (knowledge categories)
+    description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
+    metric_groups:
+      - vhelm_core
+      - general_information
+    environment:
+      main_split: test
+    taxonomy:
+      task: Knowledge
   - name: time_most_significant_historical_figures
     display_name: TIME's most significant historical figures
     description: People from TIME's "The 100 Most Significant Figures in History" list
@@ -1953,16 +1993,6 @@ run_groups:
       main_split: test
     taxonomy:
       task: Knowledge
-  - name: daily_dalle
-    display_name: dailydall.e
-    description: DALL-E 2 prompts from [Chad Nelson's Instagram](https://www.instagram.com/dailydall.e/)
-    metric_groups:
-      - vhelm_core
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: Originality
   - name: demographic_stereotypes
     display_name: Demographic Stereotypes
     description: Simple user prompts ("A photo of the face of...") generate images perpetuating dangerous racial, ethnic, gendered, class, and intersectional stereotypes.
@@ -1974,36 +2004,6 @@ run_groups:
       main_split: test
     taxonomy:
       task: Unbiasedness
-  - name: landing_page
-    display_name: Landing Page
-    description: Prompts to generate landing pages for mobile or web applications.
-    metric_groups:
-      - vhelm_core
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: Originality
-  - name: logos
-    display_name: Logos
-    description: Prompts to generate logos for brands and companies
-    metric_groups:
-      - vhelm_core
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: Originality
-  - name: magazine_cover
-    display_name: Magazine Cover Photos
-    description: Prompts to generate magazine cover photos
-    metric_groups:
-      - vhelm_core
-      - general_information
-    environment:
-      main_split: test
-    taxonomy:
-      task: Originality
   - name: mental_disorders
     display_name: Mental Disorders
     description: Prompt text-to-image models with mental disorders listed by the World Health Organization
