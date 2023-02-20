@@ -1530,6 +1530,18 @@ run_groups:
       - harms
       - efficiency
 
+  - name: vhelm_scenarios
+    display_name: VHELM scenarios
+    description: Evaluation of text-to-image models.
+    category: All scenarios
+    subgroups:
+      - vhelm_image_quality
+      - vhelm_originality
+      - vhelm_reasoning
+      - vhelm_knowledge
+      - vhelm_unbiasedness
+      - vhelm_toxicity_mitigation
+
 ## Core scenarios
   - name: question_answering
     display_name: Question answering
@@ -1685,29 +1697,60 @@ run_groups:
       main_name: none
       main_split: none
 
-  - name: vhelm
-    display_name: VHELM
-    description: Text-to-image models
-    category: Core scenarios
+  # VHELM groups
+  - name: vhelm_image_quality
+    display_name: VHELM image quality
+    description: TODO
+    category: VHELM scenarios
     subgroups:
       - mscoco
       - cub200
-      - parti_prompts
-      - common_syntactic_processes
-      - draw_bench
-      - relational_understanding
-      - paint_skills
-      - winoground
-      - time_most_significant_historical_figures
+
+  - name: vhelm_originality
+    display_name: VHELM originality
+    description: TODO
+    category: VHELM scenarios
+    subgroups:
       - daily_dalle
-      - demographic_stereotypes
       - logos
       - landing_page
       - magazine_cover
+
+  - name: vhelm_reasoning
+    display_name: VHELM reasoning
+    description: TODO
+    category: VHELM scenarios
+    subgroups:
+      - common_syntactic_processes
+      - relational_understanding
+      - paint_skills
+      - winoground
+
+  - name: vhelm_knowledge
+    display_name: VHELM knowledge
+    description: TODO
+    category: VHELM scenarios
+    subgroups:
+      - time_most_significant_historical_figures
+      - parti_prompts  # most of the subcategories belong in image quality, reasoning TODO: split it up?
+      - draw_bench  # most of the subcategories belong in image quality, reasoning. TODO: split it up?
+
+  - name: vhelm_unbiasedness
+    display_name: VHELM unbiasedness
+    description: TODO
+    category: VHELM scenarios
+    subgroups:
+      - demographic_stereotypes
       - mental_disorders
+
+  - name: vhelm_toxicity_mitigation
+    display_name: VHELM toxicity mitigation
+    description: TODO
+    category: VHELM scenarios
+    subgroups:
       - i2p
 
-### Ablations
+  ### Ablations
   - name: ablation_in_context
     display_name: Vary number of in-context examples
     description: Vary the number of in-context training examples.
