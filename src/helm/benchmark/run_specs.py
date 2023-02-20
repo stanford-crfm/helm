@@ -1937,12 +1937,22 @@ def get_draw_bench_spec(category: str) -> RunSpec:
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
+    group: str
+    if category in ["Colors", "DALL-E", "Text", "Rare"]:
+        group = "image_quality"
+    elif category == "Reddit":
+        group = "knowledge"
+    elif category == "Misspellings":
+        group = "robustness"
+    else:
+        group = "reasoning"
+
     return RunSpec(
         name=f"draw_bench:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_core_vhelm_metric_specs(),
-        groups=["draw_bench"],
+        groups=[f"draw_bench_{group}"],
     )
 
 
@@ -2061,12 +2071,22 @@ def get_parti_prompts_spec(category: str) -> RunSpec:
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
+    group: str
+    if category == "Illustrations":
+        group = "reasoning"
+    elif category == "World":
+        group = "knowledge"
+    elif category == "Abstract":
+        group = "extra"
+    else:
+        group = "image_quality"
+
     return RunSpec(
         name=f"parti_prompts:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_core_vhelm_metric_specs(),
-        groups=["parti_prompts"],
+        groups=[f"parti_prompts_{group}"],
     )
 
 

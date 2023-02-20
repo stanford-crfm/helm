@@ -1518,6 +1518,12 @@ run_groups:
       - sentiment_analysis
       - toxicity_detection
       - miscellaneous_text_classification
+      - vhelm_image_quality
+      - vhelm_originality
+      - vhelm_reasoning
+      - vhelm_knowledge
+      - vhelm_unbiasedness
+      - vhelm_toxicity_mitigation
 
   - name: targeted_evaluations
     display_name: Targeted evaluations
@@ -1529,18 +1535,6 @@ run_groups:
       - reasoning
       - harms
       - efficiency
-
-  - name: vhelm_scenarios
-    display_name: VHELM scenarios
-    description: Evaluation of text-to-image models.
-    category: All scenarios
-    subgroups:
-      - vhelm_image_quality
-      - vhelm_originality
-      - vhelm_reasoning
-      - vhelm_knowledge
-      - vhelm_unbiasedness
-      - vhelm_toxicity_mitigation
 
 ## Core scenarios
   - name: question_answering
@@ -1701,15 +1695,17 @@ run_groups:
   - name: vhelm_image_quality
     display_name: VHELM image quality
     description: TODO
-    category: VHELM scenarios
+    category: Core scenarios
     subgroups:
       - mscoco
       - cub200
+      - draw_bench_image_quality
+      - parti_prompts_image_quality
 
   - name: vhelm_originality
     display_name: VHELM originality
     description: TODO
-    category: VHELM scenarios
+    category: Core scenarios
     subgroups:
       - daily_dalle
       - logos
@@ -1719,26 +1715,28 @@ run_groups:
   - name: vhelm_reasoning
     display_name: VHELM reasoning
     description: TODO
-    category: VHELM scenarios
+    category: Core scenarios
     subgroups:
       - common_syntactic_processes
       - relational_understanding
       - paint_skills
       - winoground
+      - draw_bench_reasoning
+      - parti_prompts_reasoning
 
   - name: vhelm_knowledge
     display_name: VHELM knowledge
     description: TODO
-    category: VHELM scenarios
+    category: Core scenarios
     subgroups:
       - time_most_significant_historical_figures
-      - parti_prompts  # most of the subcategories belong in image quality, reasoning TODO: split it up?
-      - draw_bench  # most of the subcategories belong in image quality, reasoning. TODO: split it up?
+      - draw_bench_knowledge
+      - parti_prompts_knowledge
 
   - name: vhelm_unbiasedness
     display_name: VHELM unbiasedness
     description: TODO
-    category: VHELM scenarios
+    category: Core scenarios
     subgroups:
       - demographic_stereotypes
       - mental_disorders
@@ -1746,7 +1744,7 @@ run_groups:
   - name: vhelm_toxicity_mitigation
     display_name: VHELM toxicity mitigation
     description: TODO
-    category: VHELM scenarios
+    category: Core scenarios
     subgroups:
       - i2p
 
@@ -1843,15 +1841,33 @@ run_groups:
       main_split: test
     taxonomy:
       task: Image quality
-  - name: parti_prompts
-    display_name: PartiPrompts (P2)
+  - name: parti_prompts_reasoning
+    display_name: PartiPrompts (reasoning categories)
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
       - vhelm_core
     environment:
       main_split: test
     taxonomy:
-      task: Image quality/Reasoning/Knowledge
+      task: Reasoning
+  - name: parti_prompts_knowledge
+    display_name: PartiPrompts (knowledge categories)
+    description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Knowledge
+  - name: parti_prompts_image_quality
+    display_name: PartiPrompts (image quality categories)
+    description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Image quality
   - name: common_syntactic_processes
     display_name: Common Syntactic Processes
     description: Prompts from 8 different grammatical phenomena ([paper](https://arxiv.org/abs/2210.12889)).
@@ -1861,15 +1877,33 @@ run_groups:
       main_split: test
     taxonomy:
       task: Image quality/Reasoning
-  - name: draw_bench
-    display_name: DrawBench
+  - name: draw_bench_image_quality
+    display_name: DrawBench (image quality categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
       - vhelm_core
     environment:
       main_split: test
     taxonomy:
-      task: Image quality/Reasoning/Knowledge
+      task: Image quality
+  - name: draw_bench_knowledge
+    display_name: DrawBench (knowledge categories)
+    description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Knowledge
+  - name: draw_bench_reasoning
+    display_name: DrawBench (reasoning categories)
+    description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Reasoning
   - name: relational_understanding
     display_name: Relational Understanding
     description: Based on existing cognitive, linguistic, and developmental literature, the authors created a set of 15 relations (8 physical, 7 agentic) and a set of 12 entities (6 objects, 6 agents)
