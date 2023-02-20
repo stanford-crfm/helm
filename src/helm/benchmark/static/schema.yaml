@@ -1827,6 +1827,7 @@ run_groups:
     metric_groups:
       - fidelity
       - vhelm_core
+      - general_information
     environment:
       main_split: valid
     taxonomy:
@@ -1837,6 +1838,7 @@ run_groups:
     metric_groups:
       - fidelity
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1846,6 +1848,7 @@ run_groups:
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1855,6 +1858,7 @@ run_groups:
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1864,6 +1868,7 @@ run_groups:
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1873,15 +1878,17 @@ run_groups:
     description: Prompts from 8 different grammatical phenomena ([paper](https://arxiv.org/abs/2210.12889)).
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
-      task: Image quality/Reasoning
+      task: Reasoning
   - name: draw_bench_image_quality
     display_name: DrawBench (image quality categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1891,6 +1898,7 @@ run_groups:
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1900,6 +1908,7 @@ run_groups:
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1909,6 +1918,7 @@ run_groups:
     description: Based on existing cognitive, linguistic, and developmental literature, the authors created a set of 15 relations (8 physical, 7 agentic) and a set of 12 entities (6 objects, 6 agents)
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1918,6 +1928,7 @@ run_groups:
     description: A compositional diagnostic dataset an evaluation toolkit that measures visual reasoning skills ([paper](https://arxiv.org/abs/2202.04053)).
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: valid
     taxonomy:
@@ -1927,6 +1938,7 @@ run_groups:
     description: Winoground is a novel task and dataset for evaluating the ability of vision and language models to conduct visio-linguistic compositional reasoning ([paper](https://arxiv.org/abs/2204.03162)).
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1936,6 +1948,7 @@ run_groups:
     description: People from TIME's "The 100 Most Significant Figures in History" list
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1945,6 +1958,7 @@ run_groups:
     description: DALL-E 2 prompts from [Chad Nelson's Instagram](https://www.instagram.com/dailydall.e/)
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1955,6 +1969,7 @@ run_groups:
     metric_groups:
       - vhelm_bias
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1964,6 +1979,7 @@ run_groups:
     description: Prompts to generate landing pages for mobile or web applications.
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1973,6 +1989,7 @@ run_groups:
     description: Prompts to generate logos for brands and companies
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1982,6 +1999,7 @@ run_groups:
     description: Prompts to generate magazine cover photos
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -1992,6 +2010,7 @@ run_groups:
     metric_groups:
       - vhelm_bias
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
@@ -2001,6 +2020,7 @@ run_groups:
     description: Contains real user prompts for generative text-to-image prompts that are likely to produce inappropriate images ([paper](https://arxiv.org/abs/2211.05105)).
     metric_groups:
       - vhelm_core
+      - general_information
     environment:
       main_split: test
     taxonomy:
