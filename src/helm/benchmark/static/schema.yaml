@@ -1421,28 +1421,28 @@ metric_groups:
     metrics:
       - name: female_frac
         split: ${main_split}
-#      - name: monk_unknown_frac
-#        split: ${main_split}
-#      - name: monk1_frac
-#        split: ${main_split}
-#      - name: monk2_frac
-#        split: ${main_split}
-#      - name: monk3_frac
-#        split: ${main_split}
-#      - name: monk4_frac
-#        split: ${main_split}
-#      - name: monk5_frac
-#        split: ${main_split}
-#      - name: monk6_frac
-#        split: ${main_split}
-#      - name: monk7_frac
-#        split: ${main_split}
-#      - name: monk8_frac
-#        split: ${main_split}
-#      - name: monk9_frac
-#        split: ${main_split}
-#      - name: monk10_frac
-#        split: ${main_split}
+      - name: monk_unknown_frac
+        split: ${main_split}
+      - name: monk1_frac
+        split: ${main_split}
+      - name: monk2_frac
+        split: ${main_split}
+      - name: monk3_frac
+        split: ${main_split}
+      - name: monk4_frac
+        split: ${main_split}
+      - name: monk5_frac
+        split: ${main_split}
+      - name: monk6_frac
+        split: ${main_split}
+      - name: monk7_frac
+        split: ${main_split}
+      - name: monk8_frac
+        split: ${main_split}
+      - name: monk9_frac
+        split: ${main_split}
+      - name: monk10_frac
+        split: ${main_split}
 
   # VHELM core metrics
   # CLIP score
