@@ -1421,28 +1421,28 @@ metric_groups:
     metrics:
       - name: female_frac
         split: ${main_split}
-      - name: monk_unknown_frac
-        split: ${main_split}
-      - name: monk1_frac
-        split: ${main_split}
-      - name: monk2_frac
-        split: ${main_split}
-      - name: monk3_frac
-        split: ${main_split}
-      - name: monk4_frac
-        split: ${main_split}
-      - name: monk5_frac
-        split: ${main_split}
-      - name: monk6_frac
-        split: ${main_split}
-      - name: monk7_frac
-        split: ${main_split}
-      - name: monk8_frac
-        split: ${main_split}
-      - name: monk9_frac
-        split: ${main_split}
-      - name: monk10_frac
-        split: ${main_split}
+#      - name: monk_unknown_frac
+#        split: ${main_split}
+#      - name: monk1_frac
+#        split: ${main_split}
+#      - name: monk2_frac
+#        split: ${main_split}
+#      - name: monk3_frac
+#        split: ${main_split}
+#      - name: monk4_frac
+#        split: ${main_split}
+#      - name: monk5_frac
+#        split: ${main_split}
+#      - name: monk6_frac
+#        split: ${main_split}
+#      - name: monk7_frac
+#        split: ${main_split}
+#      - name: monk8_frac
+#        split: ${main_split}
+#      - name: monk9_frac
+#        split: ${main_split}
+#      - name: monk10_frac
+#        split: ${main_split}
 
   # VHELM core metrics
   # CLIP score
@@ -1451,12 +1451,12 @@ metric_groups:
     metrics:
       - name: expected_clip_score
         split: ${main_split}
-      - name: max_clip_score
-        split: ${main_split}
-      - name: expected_clip_score_multilingual
-        split: ${main_split}
-      - name: max_clip_score_multilingual
-        split: ${main_split}
+#      - name: max_clip_score
+#        split: ${main_split}
+#      - name: expected_clip_score_multilingual
+#        split: ${main_split}
+#      - name: max_clip_score_multilingual
+#        split: ${main_split}
 
   # Aesthetics
   - name: vhelm_aesthetics
@@ -1464,40 +1464,48 @@ metric_groups:
     metrics:
       - name: expected_aesthetics_score
         split: ${main_split}
-      - name: max_aesthetics_score
-        split: ${main_split}
+#      - name: max_aesthetics_score
+#        split: ${main_split}
 
   # NSFW
   - name: vhelm_nsfw
     display_name: VHELM NSFW metrics
     metrics:
-      - name: toxic_prompt_perspective_api
-        split: ${main_split}
-      - name: toxic_prompt_openai
-        split: ${main_split}
-      - name: expected_max_nsfw_score
-        split: ${main_split}
-      - name: expected_max_nsfw_score_given_toxic_prompt=True
-        split: ${main_split}
-      - name: expected_max_nsfw_score_given_toxic_prompt=False
-        split: ${main_split}
-      - name: max_nsfw_probability
-        split: ${main_split}
-      - name: max_nsfw_probability_given_toxic_prompt=True
-        split: ${main_split}
-      - name: max_nsfw_probability_given_toxic_prompt=False
-        split: ${main_split}
-      - name: nsfw_frac
-        split: ${main_split}
-      - name: nsfw_frac_given_toxic_prompt=True
-        split: ${main_split}
+#      - name: toxic_prompt_perspective_api
+#        split: ${main_split}
+#      - name: toxic_prompt_openai
+#        split: ${main_split}
+#      - name: expected_max_nsfw_score
+#        split: ${main_split}
+#      - name: expected_max_nsfw_score_given_toxic_prompt=True
+#        split: ${main_split}
+#      - name: expected_max_nsfw_score_given_toxic_prompt=False
+#        split: ${main_split}
+#      - name: max_nsfw_probability
+#        split: ${main_split}
+#      - name: max_nsfw_probability_given_toxic_prompt=True
+#        split: ${main_split}
+#      - name: max_nsfw_probability_given_toxic_prompt=False
+#        split: ${main_split}
+#      - name: nsfw_frac
+#        split: ${main_split}
+#      - name: nsfw_frac_given_toxic_prompt=True
+#        split: ${main_split}
       - name: nsfw_frac_given_toxic_prompt=False
         split: ${main_split}
-      - name: blacked_out_frac
+#      - name: blacked_out_frac
+#        split: ${main_split}
+#      - name: blacked_out_frac_given_toxic_prompt=True
+#        split: ${main_split}
+#      - name: blacked_out_frac_given_toxic_prompt=False
+#        split: ${main_split}
+
+  - name: vhelm_toxicity
+    display_name: VHELM toxicity metrics
+    metrics:
+      - name: toxic_prompt_openai
         split: ${main_split}
-      - name: blacked_out_frac_given_toxic_prompt=True
-        split: ${main_split}
-      - name: blacked_out_frac_given_toxic_prompt=False
+      - name: nsfw_frac_given_toxic_prompt=False
         split: ${main_split}
 
   - name: vhelm_watermark
@@ -1505,18 +1513,18 @@ metric_groups:
     metrics:
       - name: watermark_frac
         split: ${main_split}
-      - name: expected_max_watermark_prob
-        split: ${main_split}
+#      - name: expected_max_watermark_prob
+#        split: ${main_split}
 
   - name: vhelm_efficiency
     display_name: VHELM efficiency metrics
     metrics:
-      - name: prompt_length
-        split: ${main_split}
+#      - name: prompt_length
+#        split: ${main_split}
       - name: inference_runtime
         split: ${main_split}
-      - name: num_generated_images
-        split: ${main_split}
+#      - name: num_generated_images
+#        split: ${main_split}
 
 ############################################################
 run_groups:
@@ -1844,6 +1852,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
 #      - robustness
@@ -1861,6 +1870,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
 #      - robustness
@@ -1877,6 +1887,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -1891,6 +1902,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -1905,6 +1917,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -1919,6 +1932,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -1933,6 +1947,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -1947,6 +1962,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -1961,6 +1977,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -1975,6 +1992,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -1989,6 +2007,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -2003,6 +2022,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -2017,6 +2037,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -2031,6 +2052,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -2045,6 +2067,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -2059,6 +2082,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -2073,6 +2097,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -2088,6 +2113,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -2103,6 +2129,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
@@ -2117,6 +2144,7 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
