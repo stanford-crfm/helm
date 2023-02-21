@@ -928,7 +928,7 @@ metrics:
     description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
     lower_is_better: false
 
-  ##  vHELM metrics
+  ##  VHELM metrics
 
   # Fidelity
   - name: fid
@@ -1396,10 +1396,10 @@ metric_groups:
       - name: monte_carlo_entropy
         split: ${main_split}
 
-## vHELM metric groups
+## VHELM metric groups
 
-  - name: fidelity
-    display_name: Image fidelity
+  - name: vhelm_fidelity
+    display_name: VHELM Image fidelity metrics
     metrics:
       - name: fid
         split: ${main_split}
@@ -1417,7 +1417,7 @@ metric_groups:
         split: ${main_split}
 
   - name: vhelm_bias
-    display_name: vHELM bias
+    display_name: VHELM bias metrics
     metrics:
       - name: female_frac
         split: ${main_split}
@@ -1444,64 +1444,79 @@ metric_groups:
       - name: monk10_frac
         split: ${main_split}
 
-  - name: vhelm_core
-    display_name: vHELM core metrics
+  # VHELM core metrics
+  # CLIP score
+  - name: vhelm_image_text_alignment
+    display_name: VHELM image-text alignment metrics
     metrics:
-    # CLIP score
-    - name: expected_clip_score
-      split: ${main_split}
-    - name: max_clip_score
-      split: ${main_split}
-    - name: expected_clip_score_multilingual
-      split: ${main_split}
-    - name: max_clip_score_multilingual
-      split: ${main_split}
-    # Aesthetics
-    - name: expected_aesthetics_score
-      split: ${main_split}
-    - name: max_aesthetics_score
-      split: ${main_split}
-    # NSFW
-    - name: toxic_prompt_perspective_api
-      split: ${main_split}
-    - name: toxic_prompt_openai
-      split: ${main_split}
-    - name: expected_max_nsfw_score
-      split: ${main_split}
-    - name: expected_max_nsfw_score_given_toxic_prompt=True
-      split: ${main_split}
-    - name: expected_max_nsfw_score_given_toxic_prompt=False
-      split: ${main_split}
-    - name: max_nsfw_probability
-      split: ${main_split}
-    - name: max_nsfw_probability_given_toxic_prompt=True
-      split: ${main_split}
-    - name: max_nsfw_probability_given_toxic_prompt=False
-      split: ${main_split}
-    - name: nsfw_frac
-      split: ${main_split}
-    - name: nsfw_frac_given_toxic_prompt=True
-      split: ${main_split}
-    - name: nsfw_frac_given_toxic_prompt=False
-      split: ${main_split}
-    - name: blacked_out_frac
-      split: ${main_split}
-    - name: blacked_out_frac_given_toxic_prompt=True
-      split: ${main_split}
-    - name: blacked_out_frac_given_toxic_prompt=False
-      split: ${main_split}
-    # Watermark
-    - name: watermark_frac
-      split: ${main_split}
-    - name: expected_max_watermark_prob
-      split: ${main_split}
-    # Efficiency
-    - name: prompt_length
-      split: ${main_split}
-    - name: inference_runtime
-      split: ${main_split}
-    - name: num_generated_images
-      split: ${main_split}
+      - name: expected_clip_score
+        split: ${main_split}
+      - name: max_clip_score
+        split: ${main_split}
+      - name: expected_clip_score_multilingual
+        split: ${main_split}
+      - name: max_clip_score_multilingual
+        split: ${main_split}
+
+  # Aesthetics
+  - name: vhelm_aesthetics
+    display_name: VHELM aesthetics metrics
+    metrics:
+      - name: expected_aesthetics_score
+        split: ${main_split}
+      - name: max_aesthetics_score
+        split: ${main_split}
+
+  # NSFW
+  - name: vhelm_nsfw
+    display_name: VHELM NSFW metrics
+    metrics:
+      - name: toxic_prompt_perspective_api
+        split: ${main_split}
+      - name: toxic_prompt_openai
+        split: ${main_split}
+      - name: expected_max_nsfw_score
+        split: ${main_split}
+      - name: expected_max_nsfw_score_given_toxic_prompt=True
+        split: ${main_split}
+      - name: expected_max_nsfw_score_given_toxic_prompt=False
+        split: ${main_split}
+      - name: max_nsfw_probability
+        split: ${main_split}
+      - name: max_nsfw_probability_given_toxic_prompt=True
+        split: ${main_split}
+      - name: max_nsfw_probability_given_toxic_prompt=False
+        split: ${main_split}
+      - name: nsfw_frac
+        split: ${main_split}
+      - name: nsfw_frac_given_toxic_prompt=True
+        split: ${main_split}
+      - name: nsfw_frac_given_toxic_prompt=False
+        split: ${main_split}
+      - name: blacked_out_frac
+        split: ${main_split}
+      - name: blacked_out_frac_given_toxic_prompt=True
+        split: ${main_split}
+      - name: blacked_out_frac_given_toxic_prompt=False
+        split: ${main_split}
+
+  - name: vhelm_watermark
+    display_name: VHELM watermark metrics
+    metrics:
+      - name: watermark_frac
+        split: ${main_split}
+      - name: expected_max_watermark_prob
+        split: ${main_split}
+
+  - name: vhelm_efficiency
+    display_name: VHELM efficiency metrics
+    metrics:
+      - name: prompt_length
+        split: ${main_split}
+      - name: inference_runtime
+        split: ${main_split}
+      - name: num_generated_images
+        split: ${main_split}
 
 ############################################################
 run_groups:
@@ -1820,13 +1835,19 @@ run_groups:
 
 ### Scenarios (the actual scenarios)
 
-## vHELM scenarios
+  ## VHELM scenarios
   - name: mscoco
     display_name: MS COCO
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
     metric_groups:
-      - fidelity
-      - vhelm_core
+      - vhelm_fidelity
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
+#      - robustness
+#      - fairness
       - general_information
     environment:
       main_split: valid
@@ -1836,8 +1857,14 @@ run_groups:
     display_name: Caltech-UCSD Birds-200-2011
     description: Caltech-UCSD Birds-200-2011 is a challenging dataset of 200 bird species with 10 captions for each bird ([paper](https://authors.library.caltech.edu/27452/1/CUB_200_2011.pdf), [paper](https://arxiv.org/abs/1711.10485)).
     metric_groups:
-      - fidelity
-      - vhelm_core
+      - vhelm_fidelity
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
+#      - robustness
+#      - fairness
       - general_information
     environment:
       main_split: test
@@ -1847,7 +1874,11 @@ run_groups:
     display_name: DrawBench (image quality categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1857,7 +1888,11 @@ run_groups:
     display_name: PartiPrompts (image quality categories)
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1867,7 +1902,11 @@ run_groups:
     display_name: dailydall.e
     description: DALL-E 2 prompts from [Chad Nelson's Instagram](https://www.instagram.com/dailydall.e/)
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1877,7 +1916,11 @@ run_groups:
     display_name: Landing Page
     description: Prompts to generate landing pages for mobile or web applications.
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1887,7 +1930,11 @@ run_groups:
     display_name: Logos
     description: Prompts to generate logos for brands and companies
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1897,7 +1944,11 @@ run_groups:
     display_name: Magazine Cover Photos
     description: Prompts to generate magazine cover photos
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1907,7 +1958,11 @@ run_groups:
     display_name: Common Syntactic Processes
     description: Prompts from 8 different grammatical phenomena ([paper](https://arxiv.org/abs/2210.12889)).
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1917,7 +1972,11 @@ run_groups:
     display_name: DrawBench (reasoning categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1927,7 +1986,11 @@ run_groups:
     display_name: PartiPrompts (reasoning categories)
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1937,7 +2000,11 @@ run_groups:
     display_name: Relational Understanding
     description: Based on existing cognitive, linguistic, and developmental literature, the authors created a set of 15 relations (8 physical, 7 agentic) and a set of 12 entities (6 objects, 6 agents)
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1947,7 +2014,11 @@ run_groups:
     display_name: PaintSkills
     description: A compositional diagnostic dataset an evaluation toolkit that measures visual reasoning skills ([paper](https://arxiv.org/abs/2202.04053)).
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: valid
@@ -1957,7 +2028,11 @@ run_groups:
     display_name: Winoground
     description: Winoground is a novel task and dataset for evaluating the ability of vision and language models to conduct visio-linguistic compositional reasoning ([paper](https://arxiv.org/abs/2204.03162)).
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1967,7 +2042,11 @@ run_groups:
     display_name: PartiPrompts (knowledge categories)
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1977,7 +2056,11 @@ run_groups:
     display_name: DrawBench (knowledge categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1987,7 +2070,11 @@ run_groups:
     display_name: TIME's most significant historical figures
     description: People from TIME's "The 100 Most Significant Figures in History" list
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -1998,7 +2085,11 @@ run_groups:
     description: Simple user prompts ("A photo of the face of...") generate images perpetuating dangerous racial, ethnic, gendered, class, and intersectional stereotypes.
     metric_groups:
       - vhelm_bias
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -2009,7 +2100,11 @@ run_groups:
     description: Prompt text-to-image models with mental disorders listed by the World Health Organization
     metric_groups:
       - vhelm_bias
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test
@@ -2019,7 +2114,11 @@ run_groups:
     display_name: Inappropriate Image Prompts (I2P)
     description: Contains real user prompts for generative text-to-image prompts that are likely to produce inappropriate images ([paper](https://arxiv.org/abs/2211.05105)).
     metric_groups:
-      - vhelm_core
+      - vhelm_image_text_alignment
+      - vhelm_aesthetics
+      - vhelm_nsfw
+      - vhelm_watermark
+      - vhelm_efficiency
       - general_information
     environment:
       main_split: test

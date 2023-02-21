@@ -109,9 +109,7 @@ class FidelityMetric(Metric):
                     cuda=torch.cuda.is_available(),
                     save_cpu_ram=not torch.cuda.is_available(),
                 )
-
                 hlog(f"Computing metrics for perturbation: {perturbation_name if perturbation_name else 'none'}")
-                metric_suffix: str = f"_{perturbation_name}" if perturbation_name else ""
                 fid: float = metrics_dict["frechet_inception_distance"]
                 inception_score: float = metrics_dict["inception_score_mean"]
                 if math.isnan(inception_score):
@@ -119,13 +117,13 @@ class FidelityMetric(Metric):
 
                 stats.extend(
                     [
-                        Stat(MetricName("fid" + metric_suffix)).add(fid),
-                        Stat(MetricName("inception_score" + metric_suffix)).add(inception_score),
+                        Stat(MetricName("fid", perturbation=perturbation)).add(fid),
+                        Stat(MetricName("inception_score", perturbation=perturbation)).add(inception_score),
                     ]
                 )
                 if compute_kid:
                     kid: float = metrics_dict["kernel_inception_distance_mean"]
-                    stats.append(Stat(MetricName("kernel_inception_distance" + metric_suffix)).add(kid))
+                    stats.append(Stat(MetricName("kernel_inception_distance", perturbation=perturbation)).add(kid))
             except AssertionError as e:
                 hlog(f"Error occurred when computing fidelity metrics for perturbation: {perturbation_name} Error: {e}")
 
