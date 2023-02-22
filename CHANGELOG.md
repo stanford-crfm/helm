@@ -21,6 +21,7 @@
 
 - Added `--run-specs` flag to `helm-run` (#1302)
 - Reduced running time of `helm-summarize` (#1269)
+- Added classification metrics (#1368)
 
 ## [v0.2.0]
 
