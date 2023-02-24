@@ -36,7 +36,10 @@ class AlephAlphaClient(Client):
         self._tokenizer_name_to_tokenizer: Dict[str, Tokenizer] = {}
 
     def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
-        assert tokenizer_name in self.VALID_TOKENIZERS, f"Invalid tokenizer: {tokenizer_name}"
+        if tokenizer_name not in self.VALID_TOKENIZERS:
+            raise ValueError(f"Invalid tokenizer: {tokenizer_name}")
+
+        # Check if the tokenizer is cached
         if tokenizer_name not in self._tokenizer_name_to_tokenizer:
             self._tokenizer_name_to_tokenizer[tokenizer_name] = self._aleph_alpha_client.tokenizer(tokenizer_name)
             hlog(f"Initialized tokenizer: {tokenizer_name}")
@@ -134,7 +137,7 @@ class AlephAlphaClient(Client):
                 result: Encoding = tokenizer.encode(request.text, add_special_tokens=False)
                 return {"token_ids": result.ids, "tokens": result.tokens}
 
-            cache_key = {"model": request.tokenizer_name, "prompt": request.text}
+            cache_key = {"model": request.tokenizer_name, "prompt": request.text, "tokens": True, "token_ids": True}
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:
             error: str = f"AlephAlphaClient tokenize error: {e}"
