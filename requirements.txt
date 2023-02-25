@@ -44,6 +44,7 @@ protobuf~=3.20.1  # Can't use 4.21.0 due to backward incompatibility
 google-api-python-client~=2.64.0
 google-cloud-translate~=3.0.1
 revChatGPT~=0.1.1
+diffusers[torch]~=0.13.1
 
 # Scenarios
 datasets~=2.5.2  # For math scenarios
