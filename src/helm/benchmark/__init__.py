@@ -76,6 +76,7 @@ from .scenarios import winoground_scenario  # noqa
 from .metrics import basic_metrics  # noqa
 from .metrics import bbq_metrics  # noqa
 from .metrics import bias_metrics  # noqa
+from .metrics import classification_metrics  # noqa
 from .metrics import code_metrics  # noqa
 from .metrics import copyright_metrics  # noqa
 from .metrics import disinformation_metrics  # noqa

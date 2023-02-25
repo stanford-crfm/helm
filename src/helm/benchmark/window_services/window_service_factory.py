@@ -78,6 +78,8 @@ class WindowServiceFactory:
             window_service = GPTJWindowService(service)
         elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b"]:
             window_service = GPTNeoXWindowService(service)
+        elif model_name == "together/h3-2.7b":
+            window_service = GPT2WindowService(service)
         elif model_name in ["together/opt-66b", "together/opt-175b"]:
             window_service = OPTWindowService(service)
         elif model_name == "together/t0pp":

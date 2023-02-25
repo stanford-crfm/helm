@@ -2,7 +2,11 @@ import json
 import requests
 from typing import Any, Dict, List
 
+from aleph_alpha_client import Client as AlephAlphaPythonClient
+from tokenizers import Tokenizer, Encoding
+
 from helm.common.cache import Cache, CacheConfig
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -19,9 +23,27 @@ class AlephAlphaClient(Client):
     TOKENIZE_ENDPOINT: str = "tokenize"
     DETOKENIZE_ENDPOINT: str = "detokenize"
 
+    VALID_TOKENIZERS: List[str] = [
+        "luminous-base",
+        "luminous-extended",
+        "luminous-supreme",
+    ]
+
     def __init__(self, api_key: str, cache_config: CacheConfig):
         self.api_key: str = api_key
         self.cache = Cache(cache_config)
+        self._aleph_alpha_client = AlephAlphaPythonClient(token=api_key)
+        self._tokenizer_name_to_tokenizer: Dict[str, Tokenizer] = {}
+
+    def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
+        if tokenizer_name not in self.VALID_TOKENIZERS:
+            raise ValueError(f"Invalid tokenizer: {tokenizer_name}")
+
+        # Check if the tokenizer is cached
+        if tokenizer_name not in self._tokenizer_name_to_tokenizer:
+            self._tokenizer_name_to_tokenizer[tokenizer_name] = self._aleph_alpha_client.tokenizer(tokenizer_name)
+            hlog(f"Initialized tokenizer: {tokenizer_name}")
+        return self._tokenizer_name_to_tokenizer[tokenizer_name]
 
     def _send_request(self, endpoint: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -33,6 +55,8 @@ class AlephAlphaClient(Client):
                 "Authorization": f"Bearer {self.api_key}",
             },
             data=json.dumps(raw_request),
+            # Setting the nice flag prevents intensive benchmarking runs from saturating Aleph Alpha's API queues
+            params=json.dumps({"nice": True}),
         )
         result = json.loads(response.text)
         assert "error" not in result, f"Request failed with error: {result['error']}"
@@ -40,7 +64,6 @@ class AlephAlphaClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request following https://docs.aleph-alpha.com/api/complete."""
-        # TODO: echo is not supported. Follow up on this.
         raw_request = {
             "model": request.model_engine,
             "prompt": request.prompt,
@@ -53,6 +76,7 @@ class AlephAlphaClient(Client):
             "n": request.num_completions,
             "stop_sequences": request.stop_sequences,
             "log_probs": request.top_k_per_token,
+            "echo": request.echo_prompt,
             "tokens": True,  # Setting to True returns individual tokens of the completion
         }
 
@@ -102,24 +126,21 @@ class AlephAlphaClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Make a request following https://docs.aleph-alpha.com/api/tokenize."""
-        raw_request = {
-            "model": request.tokenizer_name,
-            "prompt": request.text,
-            "tokens": True,
-            "token_ids": True,
-        }
-
+        """
+        Encode the text using Aleph Alpha's tokenizer library:
+        https://aleph-alpha-client.readthedocs.io/en/latest/aleph_alpha_client.html#aleph_alpha_client.Client.tokenizer
+        """
         try:
 
             def do_it():
-                result = self._send_request(AlephAlphaClient.TOKENIZE_ENDPOINT, raw_request)
-                assert "tokens" in result and "token_ids" in result, f"Invalid response: {result}"
-                return result
+                tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer_name)
+                result: Encoding = tokenizer.encode(request.text, add_special_tokens=False)
+                return {"token_ids": result.ids, "tokens": result.tokens}
 
-            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
-        except (requests.exceptions.RequestException, AssertionError) as e:
-            error: str = f"AlephAlphaClient error: {e}"
+            cache_key = {"model": request.tokenizer_name, "prompt": request.text, "tokens": True, "token_ids": True}
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except RuntimeError as e:
+            error: str = f"AlephAlphaClient tokenize error: {e}"
             return TokenizationRequestResult(error=error, success=False, cached=False, text="", tokens=[])
 
         tokens = response["token_ids" if request.encode else "tokens"]
@@ -135,22 +156,20 @@ class AlephAlphaClient(Client):
         )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Make a request following https://docs.aleph-alpha.com/api/detokenize."""
-        raw_request = {
-            "model": request.tokenizer_name,
-            "token_ids": request.tokens,
-        }
-
+        """
+        Decode the tokens using Aleph Alpha's tokenizer library:
+        https://aleph-alpha-client.readthedocs.io/en/latest/aleph_alpha_client.html#aleph_alpha_client.Client.tokenizer
+        """
         try:
 
             def do_it():
-                result = self._send_request(AlephAlphaClient.DETOKENIZE_ENDPOINT, raw_request)
-                assert "result" in result, f"Invalid response: {result}"
-                return result
+                tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer_name)
+                return {"result": tokenizer.decode(request.tokens)}
 
-            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
-        except (requests.exceptions.RequestException, AssertionError) as e:
-            error: str = f"AlephAlphaClient error: {e}"
+            cache_key = {"model": request.tokenizer_name, "token_ids": request.tokens}
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except RuntimeError as e:
+            error: str = f"AlephAlphaClient decode error: {e}"
             return DecodeRequestResult(error=error, success=False, cached=False, text="")
 
         return DecodeRequestResult(
