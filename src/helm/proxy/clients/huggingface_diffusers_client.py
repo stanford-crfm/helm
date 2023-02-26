@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 from diffusers import DiffusionPipeline
 from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
 
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
@@ -60,7 +61,9 @@ class HuggingFaceDiffusersClient(Client):
             else:
                 raise ValueError(f"Unhandled model: {model_engine}")
 
-            pipeline = DiffusionPipeline.from_pretrained(huggingface_model_name, use_auth_token=self._hf_auth_token)
+            pipeline = DiffusionPipeline.from_pretrained(
+                huggingface_model_name, torch_dtype=torch.float16, use_auth_token=self._hf_auth_token
+            )
             self._model_engine_to_diffuser[model_engine] = pipeline.to(get_torch_device_name())
         return self._model_engine_to_diffuser[model_engine]
 
