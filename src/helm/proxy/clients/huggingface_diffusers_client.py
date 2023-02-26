@@ -2,6 +2,7 @@ from typing import Dict, List, Optional
 
 from diffusers import DiffusionPipeline
 from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
+from PIL import Image
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
@@ -111,7 +112,7 @@ class HuggingFaceDiffusersClient(Client):
                     diffuser: DiffusionPipeline = self._get_diffuser(request.model_engine)
                     promptist_prompt: Optional[str] = None
 
-                    images: List = []
+                    images: List[Image] = []
                     for _ in range(request.num_completions):
                         if request.model_engine == "promptist-stable-diffusion-v1-4":
                             promptist_prompt = self._generate_promptist_version(prompt)
