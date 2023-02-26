@@ -73,7 +73,9 @@ class HuggingFaceDiffusersClient(Client):
 
         raw_request = {
             "prompt": request.prompt,
-            "num_images_per_prompt": request.num_completions,
+            # Setting this to a higher value can cause CUDA OOM
+            # Fix it to 1 and generate an image `request.num_completions` times
+            "num_images_per_prompt": 1,
         }
         if request.guidance_scale is not None:
             raw_request["guidance_scale"] = request.guidance_scale
@@ -109,18 +111,21 @@ class HuggingFaceDiffusersClient(Client):
                     diffuser: DiffusionPipeline = self._get_diffuser(request.model_engine)
                     promptist_prompt: Optional[str] = None
 
-                    if request.model_engine == "promptist-stable-diffusion-v1-4":
-                        promptist_prompt = self._generate_promptist_version(prompt)
-                        hlog(f"Promptist: {prompt} -> {promptist_prompt}")
-                        images = diffuser(**replace_prompt(raw_request, promptist_prompt)).images
-                    elif request.model_engine == "openjourney-v1-0":
-                        # It is required to include "mdjrny-v4 style" in prompt for Openjourney v1
-                        images = diffuser(**replace_prompt(raw_request, f"mdjrny-v4 style {prompt}")).images
-                    elif request.model_engine == "redshift-diffusion":
-                        # It is required to include "redshift style" to generate 3D images
-                        images = diffuser(**replace_prompt(raw_request, f"redshift style {prompt}")).images
-                    else:
-                        images = diffuser(**raw_request).images
+                    images: List = []
+                    for _ in range(request.num_completions):
+                        if request.model_engine == "promptist-stable-diffusion-v1-4":
+                            promptist_prompt = self._generate_promptist_version(prompt)
+                            hlog(f"Promptist: {prompt} -> {promptist_prompt}")
+                            image = diffuser(**replace_prompt(raw_request, promptist_prompt)).images[0]
+                        elif request.model_engine == "openjourney-v1-0":
+                            # It is required to include "mdjrny-v4 style" in prompt for Openjourney v1
+                            image = diffuser(**replace_prompt(raw_request, f"mdjrny-v4 style {prompt}")).images[0]
+                        elif request.model_engine == "redshift-diffusion":
+                            # It is required to include "redshift style" to generate 3D images
+                            image = diffuser(**replace_prompt(raw_request, f"redshift style {prompt}")).images[0]
+                        else:
+                            image = diffuser(**raw_request).images[0]
+                        images.append(image)
 
                     assert (
                         len(images) == request.num_completions
@@ -139,8 +144,10 @@ class HuggingFaceDiffusersClient(Client):
                         result["file_locations"].append(file_location)
                     return result
 
-            # Include the model name in the cache key
-            cache_key: Dict = Client.make_cache_key({"model": request.model_engine, **raw_request}, request)
+            # Include the model name and number of completions in the cache key
+            cache_key: Dict = Client.make_cache_key(
+                {"model": request.model_engine, "n": request.num_completions, **raw_request}, request
+            )
             results, cached = self._cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:
             error: str = f"HuggingFaceDiffusersClient error: {e}"
