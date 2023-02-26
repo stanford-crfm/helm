@@ -31,9 +31,11 @@ class LexicaClient(Client):
         Retrieves images through Lexica's search API (https://lexica.art/docs).
         The search API is powered by CLIP to fetch the most relevant images for a given query.
         """
-        assert isinstance(request, TextToImageRequest)
-        # Only Stable Diffusion 1.5 is supported at the moment
-        assert request.model_engine == "search-stable-diffusion-1.5", f"Invalid model: {request.model_engine}"
+        if not isinstance(request, TextToImageRequest):
+            raise ValueError(f"Wrong type of request: {request}")
+        if request.model_engine != "search-stable-diffusion-1.5":
+            # Only Stable Diffusion 1.5 is supported at the moment
+            raise ValueError(f"Invalid model: {request.model_engine}")
 
         raw_request = {
             "model": request.model_engine,

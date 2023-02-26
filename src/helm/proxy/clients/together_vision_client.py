@@ -1,9 +1,6 @@
 from typing import List, Dict, Optional
 import base64
 import requests
-from helm.common.hierarchical_logger import hlog
-
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from helm.common.cache import CacheConfig
 from helm.common.file_caches.file_cache import FileCache
@@ -38,9 +35,10 @@ class TogetherVisionClient(TogetherClient):
         self._promptist_tokenizer = None
 
     def make_request(self, request: Request) -> RequestResult:
-        assert isinstance(request, TextToImageRequest)
+        if not isinstance(request, TextToImageRequest):
+            raise ValueError(f"Wrong type of request: {request}")
+
         # Following https://docs.together.xyz/en/api
-        # TODO: support the four different SafeStableDiffusion configurations
         raw_request = {
             "request_type": "image-model-inference",
             "model": request.model_engine,
@@ -64,15 +62,7 @@ class TogetherVisionClient(TogetherClient):
         try:
 
             def do_it():
-                if request.model_engine == "PromptistStableDiffusion":
-                    promptist_request = dict(raw_request)
-                    promptist_request["model"] = "StableDiffusion"
-                    promptist_prompt: str = self._generate_promptist_version(promptist_request["prompt"])
-                    hlog(f"{promptist_request['prompt']} -> {promptist_prompt}")
-                    promptist_request["prompt"] = promptist_prompt
-                    result = requests.post(self.INFERENCE_ENDPOINT, json=promptist_request).json()
-                else:
-                    result = requests.post(self.INFERENCE_ENDPOINT, json=raw_request).json()
+                result = requests.post(self.INFERENCE_ENDPOINT, json=raw_request).json()
                 assert "output" in result, f"Invalid response: {result} from prompt: {request.prompt}"
 
                 for choice in result["output"]["choices"]:
@@ -96,52 +86,6 @@ class TogetherVisionClient(TogetherClient):
             completions=completions,
             embedding=[],
         )
-
-    def _generate_promptist_version(self, prompt: str) -> str:
-        """
-        Generate a better version of the prompt with Promptist.
-        Adapted from https://huggingface.co/spaces/microsoft/Promptist/blob/main/app.py.
-        """
-
-        def load_promptist():
-            prompter_model = AutoModelForCausalLM.from_pretrained("microsoft/Promptist")
-            tokenizer = AutoTokenizer.from_pretrained("gpt2")
-            tokenizer.pad_token = tokenizer.eos_token
-            tokenizer.padding_side = "left"
-            return prompter_model, tokenizer
-
-        def generate(plain_text: str) -> str:
-            if self._promptist_model is None or self._promptist_tokenizer is None:
-                self._promptist_model, self._promptist_tokenizer = load_promptist()
-            assert self._promptist_model is not None
-            assert self._promptist_tokenizer is not None
-
-            input_ids = self._promptist_tokenizer(f"{plain_text.strip()} Rephrase:", return_tensors="pt").input_ids
-            eos_id = self._promptist_tokenizer.eos_token_id
-            # Used the same hyperparameters from the example
-            outputs = self._promptist_model.generate(
-                input_ids,
-                do_sample=False,
-                max_new_tokens=75,
-                num_beams=8,
-                num_return_sequences=8,
-                eos_token_id=eos_id,
-                pad_token_id=eos_id,
-                length_penalty=-1.0,
-            )
-            output_texts: List[str] = self._promptist_tokenizer.batch_decode(outputs, skip_special_tokens=True)
-
-            for output_text in output_texts:
-                res: str = output_text.replace(f"{plain_text} Rephrase:", "").strip()
-                # The Promptist model sometimes generates empty string results.
-                # Return the first non-empty string result.
-                if len(res) > 0:
-                    return res
-
-            # If all fails, just return the original text.
-            return plain_text
-
-        return generate(prompt)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("This client does not support tokenizing.")

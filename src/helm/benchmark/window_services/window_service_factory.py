@@ -1,4 +1,4 @@
-from helm.proxy.models import get_model, get_model_names_with_tag, Model, WIDER_CONTEXT_WINDOW_TAG
+from helm.proxy.models import get_model, get_model_names_with_tag, Model, WIDER_CONTEXT_WINDOW_TAG, CLIP_TOKENIZER_TAG
 from .ai21_window_service import AI21WindowService
 from .anthropic_window_service import AnthropicWindowService
 from .cohere_window_service import CohereWindowService
@@ -94,7 +94,7 @@ class WindowServiceFactory:
             window_service = CohereWindowService(service)
         elif organization == "ai21":
             window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
-        elif model_name in ["together/StableDiffusion", "together/PromptistStableDiffusion"]:
+        elif model_name in get_model_names_with_tag(CLIP_TOKENIZER_TAG):
             window_service = CLIPWindowService(service)
         elif model_name == "lexica/search-stable-diffusion-1.5":
             window_service = LexicaSearchWindowService(service)

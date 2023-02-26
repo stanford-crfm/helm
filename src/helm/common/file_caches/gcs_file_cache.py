@@ -14,3 +14,6 @@ class GCSFileCache(FileCache):
 
     def store(self, compute: Callable) -> str:
         raise NotImplementedError
+
+    def get_unique_file_location(self) -> str:
+        raise NotImplementedError

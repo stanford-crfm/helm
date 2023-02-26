@@ -15,13 +15,13 @@ class LocalFileCache(FileCache):
         Stores the output of `compute` as a file at a unique path.
         Returns the file path.
         """
-        file_path: str = self._generate_unique_file_path()
+        file_path: str = self.get_unique_file_location()
         with open(file_path, "wb" if self.binary_mode else "w") as f:
             f.write(compute())
 
         return file_path
 
-    def _generate_unique_file_path(self) -> str:
+    def get_unique_file_location(self) -> str:
         """Generate an unique file name at `base_path`"""
 
         def generate_one() -> str:

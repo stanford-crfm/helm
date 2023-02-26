@@ -78,9 +78,12 @@ class DALLE2Client(OpenAIClient):
             assert w in self.VALID_IMAGE_DIMENSIONS, "Valid dimensions are 256x256, 512x512, or 1024x1024 pixels."
             return f"{w}x{h}"
 
-        assert isinstance(request, TextToImageRequest)
-        assert len(request.prompt) <= self.MAX_PROMPT_LENGTH, "The maximum length of the prompt is 1000 characters."
-        assert 1 <= request.num_completions <= 10, "`num_completions` must be between 1 and 10."
+        if not isinstance(request, TextToImageRequest):
+            raise ValueError(f"Wrong type of request: {request}")
+        if len(request.prompt) > self.MAX_PROMPT_LENGTH:
+            raise ValueError("The maximum length of the prompt is 1000 characters.")
+        if request.num_completions < 1 or request.num_completions > 10:
+            raise ValueError("`num_completions` must be between 1 and 10.")
 
         # Use the Moderation API to check if the prompt violates OpenAI's content policy before generating images
         if self.moderation_api_client.will_be_flagged(request.prompt):

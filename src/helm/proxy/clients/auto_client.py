@@ -34,6 +34,7 @@ from .perspective_api_client import PerspectiveAPIClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
 from .dalle2_client import DALLE2Client
+from .huggingface_diffusers_client import HuggingFaceDiffusersClient
 from .together_vision_client import TogetherVisionClient
 from .lexica_client import LexicaClient
 
@@ -118,7 +119,15 @@ class AutoClient(Client):
                     api_key=self.credentials["gooseaiApiKey"], cache_config=cache_config, org_id=org_id
                 )
             elif organization == "huggingface":
-                client = self.huggingface_client
+                if is_text_to_image_request:
+                    cache_config = self._build_cache_config("diffusers")
+                    client = HuggingFaceDiffusersClient(
+                        hf_auth_token=self.credentials["huggingfaceAuthToken"],
+                        cache_config=cache_config,
+                        file_cache=file_cache,
+                    )
+                else:
+                    client = self.huggingface_client
             elif organization == "anthropic":
                 client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_config=cache_config)
             elif organization == "microsoft":

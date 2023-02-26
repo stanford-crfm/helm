@@ -28,3 +28,8 @@ class FileCache(ABC):
         Returns the location of the file.
         """
         pass
+
+    @abstractmethod
+    def get_unique_file_location(self) -> str:
+        """Returns a unique file location."""
+        pass
