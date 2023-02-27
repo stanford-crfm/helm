@@ -234,7 +234,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         images: List[str] = [
             encode_base64(completion.file_location)
             for completion in request_state.result.completions
-            if completion.file_location is not None
+            if completion.file_location is not None and os.path.exists(completion.file_location)
         ]
 
         predictions.append(
