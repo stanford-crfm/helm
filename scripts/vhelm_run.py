@@ -11,7 +11,7 @@ from helm.proxy.models import get_models_with_tag, TEXT_TO_IMAGE_MODEL_TAG, Mode
 
 DEFAULT_NLP_RUN: str = "-a crfm_benchmarking -c 4 --memory 32g -w /u/scr/nlp/crfm/benchmarking/benchmarking"
 DEFAULT_NLP_RUN_CPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 0 --exclude john17"
-DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-25]"
+DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-25,27]"
 DEFAULT_HELM_ARGS: str = (
     "--num-train-trials 1 --local -n 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers@john13/crfm-models'"
 )
