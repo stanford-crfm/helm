@@ -78,7 +78,7 @@ class ThePileScenario(Scenario):
         # Download the raw data
         data_path = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
-            source_url="https://mystic.the-eye.eu/public/AI/pile/test.jsonl.zst",
+            source_url="https://the-eye.eu/public/AI/pile/test.jsonl.zst",
             target_path=data_path,
             unpack=True,
         )
