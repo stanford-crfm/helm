@@ -11,7 +11,8 @@ from helm.proxy.models import get_models_with_tag, TEXT_TO_IMAGE_MODEL_TAG, Mode
 
 DEFAULT_NLP_RUN: str = "-a crfm_benchmarking -c 4 --memory 32g -w /u/scr/nlp/crfm/benchmarking/benchmarking"
 DEFAULT_NLP_RUN_CPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 0 --exclude john17"
-DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-25,27]"
+# jag 27 and 34 started the run, but did nothing. Saw CUDA OOM with 28.
+DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-25,27,28,34]"
 DEFAULT_HELM_ARGS: str = (
     "--num-train-trials 1 --local -n 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers@john13/crfm-models'"
 )
@@ -126,9 +127,10 @@ def check(suite: str):
             elif "Done.\n" not in log_content:
                 hlog(f"Check logs: tail -f {log_path}")
 
-    with htrack_block(f"Log files with {CUDA_OOM_ERROR}:"):
-        for i, log_path in enumerate(cuda_oom_logs):
-            hlog(f"{i+1}. {log_path}")
+    if len(cuda_oom_logs) > 0:
+        with htrack_block(f"\nLog files with {CUDA_OOM_ERROR}:"):
+            for i, log_path in enumerate(cuda_oom_logs):
+                hlog(f"{i+1}. {log_path}")
     hlog("\nDone.")
 
 
