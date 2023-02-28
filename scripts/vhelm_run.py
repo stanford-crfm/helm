@@ -5,7 +5,7 @@ import dacite
 import os
 
 from helm.common.general import parse_hocon, ensure_directory_exists
-from helm.common.hierarchical_logger import hlog, htrack
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.proxy.models import get_models_with_tag, TEXT_TO_IMAGE_MODEL_TAG, Model
 
 
@@ -15,6 +15,8 @@ DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-2
 DEFAULT_HELM_ARGS: str = (
     "--num-train-trials 1 --local -n 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers@john13/crfm-models'"
 )
+
+CUDA_OOM_ERROR: str = "CUDA out of memory"
 
 
 # Copied from run_entry.py. Using the method directly results in an error.
@@ -110,17 +112,23 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
 def check(suite: str):
     suite_path: str = os.path.join("benchmark_output", "runs", suite)
     logs_path: str = os.path.join(suite_path, "logs")
+    cuda_oom_logs: List[str] = []
 
     for log_file in os.listdir(logs_path):
         if not log_file.endswith("log"):
             continue
 
-        run_spec: str = log_file.replace(".log", "")
         log_path: str = os.path.join(logs_path, log_file)
         with open(log_path, "r") as f:
             log_content: str = f.read()
-            if "Done.\n" not in log_content:
-                hlog(f"Check on {run_spec}: vi {log_path}")
+            if CUDA_OOM_ERROR in log_content:
+                cuda_oom_logs.append(log_path)
+            elif "Done.\n" not in log_content:
+                hlog(f"Check logs: tail -f {log_path}")
+
+    with htrack_block(f"Log files with {CUDA_OOM_ERROR}:"):
+        for i, log_path in enumerate(cuda_oom_logs):
+            hlog(f"{i+1}. {log_path}")
     hlog("\nDone.")
 
 
