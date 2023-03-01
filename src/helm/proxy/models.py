@@ -180,6 +180,16 @@ ALL_MODELS = [
         "on 46 natural languages and 13 programming languages.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
+    # TODO: Currently Together's BLOOMZ contains the end-of-string token </s> at the end of completions
+    # Model(
+    #     group="together",
+    #     creator_organization="BigScience",
+    #     name="together/bloomz",
+    #     display_name="BLOOMZ (176B)",
+    #     # From https://huggingface.co/bigscience/bloomz
+    #     description="BLOOMZ (176B parameters) is BLOOM that has been fine-tuned on natural language instructions.",
+    #     tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+    # ),
     Model(
         group="together",
         creator_organization="BigScience",
@@ -338,6 +348,15 @@ ALL_MODELS = [
         description="T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of "
         "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
         "format.",
+        # Does not support echo=True
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Google",
+        name="together/flan-t5-xxl",
+        display_name="Flan-T5 (11B)",
+        description="Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks.",
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),

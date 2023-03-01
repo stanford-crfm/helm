@@ -50,6 +50,8 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name = "EleutherAI/gpt-neox-20b"
                 elif tokenizer_name == "bigscience/bloom":
                     hf_tokenizer_name = "bigscience/bloom"
+                elif tokenizer_name == "bigscience/bloomz":
+                    hf_tokenizer_name = "bigscience/bloomz"
                 elif tokenizer_name == "bigscience/T0pp":
                     hf_tokenizer_name = "bigscience/T0pp"
                 elif tokenizer_name == "facebook/opt-66b":
@@ -58,6 +60,8 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name = "t5-11b"
                 elif tokenizer_name == "google/ul2":
                     hf_tokenizer_name = "google/ul2"
+                elif tokenizer_name == "google/flan-t5-xxl":
+                    hf_tokenizer_name = "google/flan-t5-xxl"
                 elif tokenizer_name == "bigcode/santacoder":
                     hf_tokenizer_name = "bigcode/santacoder"
                 else:

@@ -12,7 +12,11 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 
 
-MODEL_ALIASES = {"h3-2.7b": "h3-2.7b-h3"}
+MODEL_ALIASES = {
+    "bloomz": "bloomz-176b-alpa",
+    "flan-t5-xxl": "flan-t5-xxl-hf",
+    "h3-2.7b": "h3-2.7b-h3",
+}
 """Together model name aliases.
 
 HELM users use a shorter model name (e.g. together/bloomz)
