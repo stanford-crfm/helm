@@ -255,7 +255,8 @@ ALL_MODELS = [
         creator_organization="Cohere",
         name="cohere/command-medium-nightly",
         display_name="Cohere Command nightly (6.1B)",
-        description="Cohere Command nightly (6.1B parameters)",
+        description="Cohere command nightly (6.1B parameters) is fine-tuned from the medium model "
+        "to respond well with instruction-like prompts",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -263,7 +264,8 @@ ALL_MODELS = [
         creator_organization="Cohere",
         name="cohere/command-xlarge-nightly",
         display_name="Cohere Command nightly (52.4B)",
-        description="Cohere Command nightly (52.4B parameters)",
+        description="Cohere command nightly (52.4B parameters) is fine-tuned from the XL model "
+        "to respond well with instruction-like prompts",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     # EleutherAI
