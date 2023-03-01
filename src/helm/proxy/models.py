@@ -15,7 +15,7 @@ LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 CHATML_MODEL_TAG: str = "chatml"
 
 # For OpenAI models with wider context windows
-WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"
+WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"  # 4000 tokens
 
 # To fetch models that use these tokenizers
 GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
@@ -553,7 +553,21 @@ ALL_MODELS = [
         description="Code model that is a stronger, multilingual version of the Codex (12B) model in the paper.",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
-    # ChatGPT - https://openai.com/blog/chatgpt
+    # ChatGPT: https://openai.com/blog/chatgpt
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/gpt-3.5-turbo-0301",
+        display_name="gpt-3.5-turbo-0301",
+        # https://platform.openai.com/docs/models/gpt-3-5
+        description="Sibling model of text-davinci-003 is optimized for chat but works well "
+        "for traditional completions tasks as well. Snapshot from 2023-03-01.",
+        # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
+        # sequence length is smaller at 4087 with one user input message and one assistant
+        # output message because ChatGPT uses special tokens for message roles and boundaries.
+        # We use a rounded-down sequence length of 4000 to account for these special tokens.
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
