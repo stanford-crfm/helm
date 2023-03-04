@@ -34,7 +34,7 @@ def get_light_scenarios_from_helm(
 
     scenario_name = scenario.name
     if len(run_spec.scenario_spec.args) > 0:
-        scenario_name += f",{','.join([key+'='+value for key, value in run_spec.scenario_spec.args.items()])}"
+        scenario_name += f",{','.join([str(key)+'='+str(value) for key, value in run_spec.scenario_spec.args.items()])}"
 
     # Load instances
     helm_instances: List[Instance]
