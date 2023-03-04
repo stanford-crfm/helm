@@ -12,6 +12,9 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 
 
+MODEL_ALIASES = {"h3-2.7b": "h3-2.7b-h3"}
+
+
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
     x = x.replace("▁", " ")
@@ -31,8 +34,7 @@ class TogetherClient(Client):
         # Following the examples from https://github.com/togethercomputer/open-models-api
         return {
             "request_type": "language-model-inference",
-            # TODO: the Together API expects "together/" in the model name
-            "model": request.model,
+            "model": MODEL_ALIASES.get(request.model_engine, request.model_engine),
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
