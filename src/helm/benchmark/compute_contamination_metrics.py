@@ -34,52 +34,22 @@ class LightScenario:
     """Instances of this scenario"""
 
 
+@dataclass(frozen=True, eq=False)
 class ScenarioNgrams:
     """
     A data class that stores the ngram features of a scenario.
     """
 
-    def __init__(self, scenario: LightScenario, n_values: List[int]):
-        # TODO: explain the structure
-        # TODO: make a data class with input_ngrams and reference_ngrams as the only attributes.
-        # Make compute_ngrams() a seperate function.
-        self.scenario = scenario
-        self.n_values = n_values
-        self.input_ngrams: List[Dict[int, Set[str]]] = []
-        self.reference_ngrams: List[Dict[int, Set[str]]] = []
-
-    def compute_ngrams(self):
-        """For each n value and each instance, compute the ngram features"""
-        # TODO: add an example in the docstring
-        for instance in self.scenario.light_instances:
-            # compute input ngrams
-            input_unigrams = instance.input.split()
-            input_ngram_dict: Dict[int, Set[str]] = {}
-            for n in self.n_values:
-                input_ngram_set = set()
-                for ngram in ngrams(input_unigrams, n):
-                    input_ngram_set.add(ngram)
-                input_ngram_dict[n] = input_ngram_set
-
-            # compute reference ngrams
-            reference_ngram_dict: Dict[int, Set[str]] = {}
-            for n in self.n_values:
-                reference_ngram_set = set()
-                for reference in instance.references:
-                    reference_unigrams = reference.split()
-                    for ngram in ngrams(reference_unigrams, n):
-                        reference_ngram_set.add(ngram)
-                reference_ngram_dict[n] = reference_ngram_set
-
-            self.input_ngrams.append(input_ngram_dict)
-            self.reference_ngrams.append(reference_ngram_dict)
+    # TODO: explain the structure
+    input_ngrams: List[Dict[int, Set[str]]]
+    reference_ngrams: List[Dict[int, Set[str]]]
 
 
 @dataclass(frozen=True, eq=False)
 class DocumentReadingProcessor:
     """
     TODO: This is probably a bad class name.
-    TODO: Allow custom methods.
+    TODO: make file_format an commandline argument.
     """
 
     file_path: str
@@ -90,17 +60,29 @@ class DocumentReadingProcessor:
 
     def get_document_generator(self) -> Generator:
         if self.file_format == "the_pile":
-            # TODO: add an example
-            with open(self.file_path, "r") as f:
-                for line in f:
-                    yield json.loads(line)["text"]
+            return self.get_the_pile_document_generator()
         elif self.file_format == "raw":
-            # TODO: add an example
-            with open(self.file_path, "r") as f:
-                for line in f:
-                    yield line.rstrip("\n")
+            return self.get_raw_document_generator()
+        elif self.file_format == "custom":
+            return self.get_custom_document_generator()
         else:
             raise NotImplementedError()
+
+    def get_the_pile_document_generator(self) -> Generator:
+        # TODO: add an example
+        with open(self.file_path, "r") as f:
+            for line in f:
+                yield json.loads(line)["text"]
+
+    def get_raw_document_generator(self) -> Generator:
+        # TODO: add an example
+        with open(self.file_path, "r") as f:
+            for line in f:
+                yield line.rstrip("\n")
+
+    def get_custom_document_generator(self) -> Generator:
+        """Define your own document reading method"""
+        pass
 
 
 class BinaryScenarioMetric:
@@ -229,6 +211,37 @@ def load_scenarios_from_jsonl(filename: str) -> List[LightScenario]:
     return light_scenarios
 
 
+def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]):
+    """For each n value and each instance, compute the ngram features"""
+    # TODO: add an example in the docstring
+    # TODO: variable naming
+    input_ngrams: List[Dict[int, Set[str]]] = []
+    reference_ngrams: List[Dict[int, Set[str]]] = []
+    for instance in scenario.light_instances:
+        # compute input ngrams
+        input_unigrams = instance.input.split()
+        input_ngram_dict: Dict[int, Set[str]] = {}
+        for n in n_values:
+            input_ngram_set = set()
+            for ngram in ngrams(input_unigrams, n):
+                input_ngram_set.add(ngram)
+            input_ngram_dict[n] = input_ngram_set
+
+        # compute reference ngrams
+        reference_ngram_dict: Dict[int, Set[str]] = {}
+        for n in n_values:
+            reference_ngram_set = set()
+            for reference in instance.references:
+                reference_unigrams = reference.split()
+                for ngram in ngrams(reference_unigrams, n):
+                    reference_ngram_set.add(ngram)
+            reference_ngram_dict[n] = reference_ngram_set
+
+        input_ngrams.append(input_ngram_dict)
+        reference_ngrams.append(reference_ngram_dict)
+    return ScenarioNgrams(input_ngrams=input_ngrams, reference_ngrams=reference_ngrams)
+
+
 def compute_instance_contamination(
     scenarios: List[LightScenario], training_file_path: str, n_values: List[int]
 ) -> List[BinaryScenarioMetric]:
@@ -246,10 +259,9 @@ def compute_instance_contamination(
 
     # Compute ngrams for each scenario
     all_scenario_ngrams = {
-        scenario.name: ScenarioNgrams(scenario=scenario, n_values=n_values) for scenario in scenarios
+        scenario.name: compute_scenario_ngrams(scenario=scenario, n_values=n_values) for scenario in scenarios
     }
-    for scenario_ngrams in all_scenario_ngrams.values():
-        scenario_ngrams.compute_ngrams()  # TODO: Take it out: not once per file.
+    # TODO: Take it out: not once per file.
 
     document_generator = DocumentReadingProcessor(
         file_path=training_file_path, file_format="the_pile"
