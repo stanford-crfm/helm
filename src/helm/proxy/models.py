@@ -571,9 +571,9 @@ ALL_MODELS = [
     Model(
         group="together",
         creator_organization="Together",
-        name="together/openchatkit",
-        display_name="OpenChatKit (20B)",
-        description="OpenChatKit (20B parameters) is a fork of GPT-NeoX",
+        name="together/gpt-neo-xt-chat-base-20b",
+        display_name="GPT-Neo-XT-Chat-Base (20B)",
+        description="GPT-Neo-XT-Chat-Base (20B parameters) is a fork of GPT-NeoX",
         tags=[GPTNEO_TOKENIZER_TAG],
     ),
     # Tsinghua
