@@ -70,7 +70,7 @@ class WindowServiceFactory:
             window_service = ICEWindowService(service)
         elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "gooseai/gpt-j-6b"]:
             window_service = GPTJWindowService(service)
-        elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b"]:
+        elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b", "together/openchat"]:
             window_service = GPTNeoXWindowService(service)
         elif model_name == "together/h3-2.7b":
             window_service = GPT2WindowService(service)
