@@ -48,8 +48,12 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
         else:
             raise ValueError(f"Invalid organization: {organization}")
 
-    def process_request(request: Request):
+    def process_request(request: Request, include_scenario_name: bool = False):
         raw_request: typing.Dict = fetch_client().convert_to_raw_request(request)
+        if include_scenario_name:
+            # When `include_scenario_name` is True, include the scenario name in the request
+            raw_request["scenario"] = scenario_name
+
         # Only export requests that are not in the cache
         if not store.contains(raw_request):
             request_json: str = request_to_key(raw_request)
@@ -97,6 +101,12 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
                         )
                         continue
 
+                    # Extract the name of the scenario from scenario.json
+                    scenario_name: str
+                    with open(os.path.join(run_path, "scenario.json")) as scenario_file:
+                        scenario = json.load(scenario_file)
+                        scenario_name = scenario["name"]
+
                     with open(scenario_state_path) as scenario_state_file:
                         scenario_state = json.load(scenario_state_file)
                         model_name: str = scenario_state["adapter_spec"]["model"]
@@ -114,7 +124,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
                                 except ValueError as e:
                                     hlog(f"Error while processing Microsoft request: {e}\nRequest: {request}")
                             else:
-                                process_request(request)
+                                process_request(request, include_scenario_name=current_organization == "google")
 
                     hlog(f"Wrote {counts['pending_count']} requests so far.")
 
