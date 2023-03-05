@@ -35,8 +35,6 @@ from .scenarios.lextreme_scenario import (
 from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG
 from helm.common.general import singleton
 
-from .run_specs_openchat import CANONICAL_RUN_OPENCHAT_SPEC_FUNCS
-
 
 ############################################################
 # Prototypical adapter specs
@@ -44,7 +42,7 @@ from .run_specs_openchat import CANONICAL_RUN_OPENCHAT_SPEC_FUNCS
 
 def format_instructions(instructions: str) -> str:
     if len(instructions) > 0:
-        instructions += "\n"
+        instructions = "<human>: " + instructions + "\n" + "<bot>: Sure, I understand."
     return instructions
 
 
@@ -69,10 +67,10 @@ def get_multiple_choice_joint_adapter_spec(
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=format_instructions(instructions),
-        input_prefix=f"{input_noun}: " if input_noun is not None else "",
-        input_suffix="\n" if input_noun is not None else "",
-        output_prefix=f"{output_noun}: ",
-        output_suffix="\n",
+        input_prefix=f"<human>: {input_noun}: " if input_noun is not None else f"<human>: ",
+        input_suffix="\n",
+        output_prefix=f"<bot>: {output_noun}: " if output_noun is not None else f"<bot>: ",
+        output_suffix="",
         max_train_instances=max_train_instances,
         num_outputs=1,
         max_tokens=5,
@@ -93,9 +91,9 @@ def get_multiple_choice_separate_adapter_spec(method: str, empty_input: bool = F
     return AdapterSpec(
         method=method,
         instructions="",
-        input_prefix="",
-        input_suffix="",
-        output_prefix=" " if not empty_input else "",
+        input_prefix="<human>: ",
+        input_suffix="...\n",
+        output_prefix="<bot>: Rest of text: ",
         output_suffix="",
         # Separate is basically language modeling, so can't easily use in-context examples
         max_train_instances=0,
@@ -160,6 +158,7 @@ def get_ranking_binary_adapter_spec(
     [prompt_noun]: [prompt_content]
     [output_noun]: [output]
     """
+    # assert False, 'ranking is not implemented yet.'
     msg = (
         "There must be an even number of in-context examples to ensure that"
         "an equal number of positive and negative examples are included."
@@ -172,9 +171,10 @@ def get_ranking_binary_adapter_spec(
         instructions=format_instructions(instructions),
         input_prefix=f"{query_noun}: ",
         input_suffix="\n",
-        reference_prefix=f"{document_noun}: ",
+        reference_prefix=f"<human>: {document_noun}: ",
         reference_suffix="\n",
-        output_prefix=f"{output_prefix}\n{output_noun}: ",
+        output_prefix=f"{output_prefix}\n<bot>: ",
+        output_suffix='',
         max_train_instances=max_train_instances,
         num_outputs=num_outputs,
         num_train_trials=num_train_trials,
@@ -262,10 +262,10 @@ def get_generation_adapter_spec(
     return AdapterSpec(
         method=ADAPT_GENERATION,
         instructions=format_instructions(instructions),
-        input_prefix=format_prefix(input_noun, append_new_line=newline_after_input_noun),
+        input_prefix=format_prefix(f'<human>: {input_noun}' if input_noun is not None else '<human>', append_new_line=newline_after_input_noun),
         input_suffix="\n",
-        output_prefix=format_prefix(output_noun, append_new_line=newline_after_output_noun),
-        output_suffix="\n",
+        output_prefix=format_prefix(f'<bot>: {output_noun}' if output_noun is not None else '<human>', append_new_line=newline_after_output_noun),
+        output_suffix="",
         max_train_instances=max_train_instances,
         num_outputs=num_outputs,
         max_tokens=max_tokens,
@@ -298,41 +298,20 @@ def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
     """
 
     if num_sents == 1:
-        out_pref = "Summarize the above article in 1 sentence.\n"
+        out_pref = "Summarize the above article in 1 sentence.\n<bot>: "
     else:
-        out_pref = f"Summarize the above article in {num_sents} sentences.\n"
+        out_pref = f"Summarize the above article in {num_sents} sentences.\n<bot>: "
 
     return AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="",
-        input_prefix="###\nArticle: ",
+        input_prefix="<human>: ",
         input_suffix="\n\n",
         output_prefix=out_pref,
-        output_suffix="\n",
+        output_suffix="",
         max_train_instances=5,
         num_outputs=1,
-        stop_sequences=["###"],  # Separator between few-shot instances.
-        **kwargs,
-    )
-
-
-def get_machine_translation_adapter_spec(
-    source_language, target_language, max_train_instances, **kwargs
-) -> AdapterSpec:
-    """
-    Used for machine translation.
-    """
-    return AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions=f"Translate {source_language} to {target_language}:",
-        input_prefix="",
-        input_suffix=" = ",
-        output_prefix="",
-        output_suffix="\n",
-        max_train_instances=max_train_instances,
-        num_outputs=1,
-        stop_sequences=["\n\n"],
-        temperature=0.0,
+        stop_sequences=["\n"],  # Separator between few-shot instances.
         **kwargs,
     )
 
@@ -385,10 +364,6 @@ def get_exact_match_metric_specs() -> List[MetricSpec]:
 
 def get_f1_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score"])
-
-
-def get_classification_metric_specs() -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.classification_metrics.ClassificationMetric", args={})]
 
 
 def get_bbq_metric_specs() -> List[MetricSpec]:
@@ -516,21 +491,11 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
         return [MetricSpec(class_name="helm.benchmark.code_metrics.APPSMetric", args=args)]
 
 
-def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"])
-
-
-def get_machine_translation_metric_specs() -> List[MetricSpec]:
-    return [
-        MetricSpec(class_name="helm.benchmark.machine_translation_metrics.MachineTranslationMetric", args={})
-    ] + get_basic_metric_specs([])
-
-
 ############################################################
 # Run specs
 
 
-def get_simple1_spec() -> RunSpec:
+def get_openchat_simple1_spec() -> RunSpec:
     """A run spec for debugging."""
     return RunSpec(
         name="simple1",
@@ -541,7 +506,7 @@ def get_simple1_spec() -> RunSpec:
     )
 
 
-def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchat_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.bbq_scenario.BBQScenario", args={"subject": subject}
     )
@@ -562,7 +527,7 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
     )
 
 
-def get_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
+def get_openchat_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
     valid_topk = None if valid_topk is None else int(valid_topk)
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.msmarco_scenario.MSMARCOScenario",
@@ -580,7 +545,7 @@ def get_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
     )
 
 
-def get_bold_spec(subject: str) -> RunSpec:
+def get_openchat_bold_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.bold_scenario.BOLDScenario", args={"subject": subject}
     )
@@ -599,7 +564,7 @@ def get_bold_spec(subject: str) -> RunSpec:
     )
 
 
-def get_civil_comments_spec(demographic: str) -> RunSpec:
+def get_openchat_civil_comments_spec(demographic: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.civil_comments_scenario.CivilCommentsScenario",
         args={"demographic": demographic},
@@ -611,14 +576,12 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
         name=f"civil_comments:demographic={demographic}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-        + get_generative_harms_metric_specs()
-        + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["civil_comments"],
     )
 
 
-def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchat_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject}
     )
@@ -639,7 +602,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
 
-def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
+def get_openchat_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.interactive_qa_mmlu_scenario.InteractiveQAMMLUScenario",
         args={"subject": subject},
@@ -660,7 +623,7 @@ def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
-def get_wikifact_spec(k: str, subject: str) -> RunSpec:
+def get_openchat_wikifact_spec(k: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.wikifact_scenario.WIKIFactScenario",
         args={"subject": subject},
@@ -668,7 +631,7 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
     adapter_spec = get_completion_adapter_spec(
         output_prefix=" ",  # Separate subject and predicate by a space
-        output_suffix="\n",
+        output_suffix="",
         max_train_instances=5,
         num_outputs=int(k),  # We will measure accuracy@k
         temperature=1.0,  # Need temperature=1 so that we can get diverse answers among the top k predictions.
@@ -685,7 +648,7 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     )
 
 
-def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
+def get_openchat_commonsense_spec(dataset: str, method: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
         args={"dataset": dataset},
@@ -707,7 +670,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
     )
 
 
-def get_quac_spec() -> RunSpec:
+def get_openchat_quac_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.quac_scenario.QuACScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(input_noun=None, output_noun="Answer", max_tokens=100)
@@ -721,7 +684,7 @@ def get_quac_spec() -> RunSpec:
     )
 
 
-def get_news_qa_spec() -> RunSpec:
+def get_openchat_news_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.newsqa_scenario.NewsQAScenario", args={})
 
     # max_tokens=50 because answers are at most 13 words
@@ -736,7 +699,7 @@ def get_news_qa_spec() -> RunSpec:
     )
 
 
-def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchat_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario",
         args={"task": task},
@@ -755,7 +718,7 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
     )
 
 
-def get_twitter_aae_spec(demographic: str) -> RunSpec:
+def get_openchat_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario",
         args={"demographic": demographic},
@@ -770,7 +733,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
     )
 
 
-def get_real_toxicity_prompts_spec() -> RunSpec:
+def get_openchat_real_toxicity_prompts_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={}
     )
@@ -797,7 +760,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
     )
 
 
-def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
+def get_openchat_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.synthetic_reasoning_natural_scenario.SRNScenario",
         args={"difficulty": difficulty},
@@ -821,7 +784,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     )
 
 
-def get_gsm_spec() -> RunSpec:
+def get_openchat_gsm_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.gsm_scenario.GSM8KScenario", args={})
 
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
@@ -842,7 +805,7 @@ def get_gsm_spec() -> RunSpec:
     )
 
 
-def get_raft_spec(subset: str) -> RunSpec:
+def get_openchat_raft_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.raft_scenario.RAFTScenario", args={"subset": subset}
     )
@@ -858,14 +821,12 @@ def get_raft_spec(subset: str) -> RunSpec:
         name=f"raft:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-        + get_generative_harms_metric_specs()
-        + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["raft"],
     )
 
 
-def get_numeracy_spec(
+def get_openchat_numeracy_spec(
     relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
     run_solver: bool = True if run_solver == "True" else False  # type: ignore
@@ -913,7 +874,7 @@ def get_numeracy_spec(
     )
 
 
-def get_math_spec(
+def get_openchat_math_spec(
     subject: str,
     level: str,
     use_official_examples: str = "False",
@@ -973,7 +934,7 @@ def get_math_spec(
     )
 
 
-def get_boolq_spec(only_contrast=False) -> RunSpec:
+def get_openchat_boolq_spec(only_contrast=False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast}
     )
@@ -989,7 +950,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
     )
 
 
-def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchat_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task}
     )
@@ -1011,7 +972,7 @@ def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
 
-def get_imdb_spec(only_contrast=False) -> RunSpec:
+def get_openchat_imdb_spec(only_contrast=False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast}
     )
@@ -1022,12 +983,12 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
         name="imdb" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs(),
         groups=["imdb"],
     )
 
 
-def get_babi_qa_spec(task: str = "all") -> RunSpec:
+def get_openchat_babi_qa_spec(task: str = "all") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.babi_qa_scenario.BabiQAScenario", args={"task": task}
     )
@@ -1044,7 +1005,7 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
     )
 
 
-def get_copyright_spec(
+def get_openchat_copyright_spec(
     datatag="pilot",
     temperature=0.2,
     max_tokens=1024,
@@ -1073,7 +1034,7 @@ def get_copyright_spec(
     )
 
 
-def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str] = "covid") -> RunSpec:
+def get_openchat_disinformation_spec(capability: str = "reiteration", topic: Optional[str] = "covid") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.disinformation_scenario.DisinformationScenario",
         args={"capability": capability, "topic": topic},
@@ -1135,7 +1096,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
     )
 
 
-def get_code_spec(dataset: str, timeout=3) -> RunSpec:
+def get_openchat_code_spec(dataset: str, timeout=3) -> RunSpec:
     # `timeout` trades accuracy for time. Used exclusively for APPS. Default from original APPS codebase.
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.code_scenario.CodeScenario", args={"dataset": dataset}
@@ -1171,7 +1132,7 @@ def get_code_spec(dataset: str, timeout=3) -> RunSpec:
     )
 
 
-def get_natural_qa_spec(mode: str) -> RunSpec:
+def get_openchat_natural_qa_spec(mode: str) -> RunSpec:
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={"mode": mode}
@@ -1192,7 +1153,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
     )
 
 
-def get_the_pile_spec(subset: str) -> RunSpec:
+def get_openchat_the_pile_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.the_pile_scenario.ThePileScenario", args={"subset": subset}
     )
@@ -1206,7 +1167,7 @@ def get_the_pile_spec(subset: str) -> RunSpec:
     )
 
 
-def get_ice_spec(**kwargs) -> RunSpec:
+def get_openchat_ice_spec(**kwargs) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ice_scenario.ICEScenario", args=kwargs)
 
     return RunSpec(
@@ -1218,7 +1179,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
     )
 
 
-def get_narrativeqa_spec() -> RunSpec:
+def get_openchat_narrativeqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args={}
     )
@@ -1233,12 +1194,15 @@ def get_narrativeqa_spec() -> RunSpec:
         name="narrative_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs(
+            ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"]
+        )
+        + get_generative_harms_metric_specs(),
         groups=["narrative_qa"],
     )
 
 
-def get_synthetic_efficiency_spec(
+def get_openchat_synthetic_efficiency_spec(
     num_prompt_tokens: Optional[int] = None,
     num_output_tokens: Optional[int] = None,
     tokenizer: Optional[str] = None,
@@ -1263,7 +1227,7 @@ def get_synthetic_efficiency_spec(
     )
 
 
-def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
+def get_openchat_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario",
         args={"mode": mode},
@@ -1286,7 +1250,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     )
 
 
-def get_wikitext_103_spec() -> RunSpec:
+def get_openchat_wikitext_103_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.wikitext_103_scenario.Wikitext103Scenario", args={}
     )
@@ -1300,7 +1264,7 @@ def get_wikitext_103_spec() -> RunSpec:
     )
 
 
-def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL) -> RunSpec:
+def get_openchat_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon}
     )
@@ -1322,7 +1286,7 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
     )
 
 
-def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+def get_openchat_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512},
@@ -1344,7 +1308,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
     )
 
 
-def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+def get_openchat_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
@@ -1371,7 +1335,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
     )
 
 
-def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+def get_openchat_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512},
@@ -1393,7 +1357,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
     )
 
 
-def get_empatheticdialogues_spec() -> RunSpec:
+def get_openchat_empatheticdialogues_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.dialogue_scenarios.EmpatheticDialoguesScenario", args={}
     )
@@ -1418,7 +1382,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
     )
 
 
-def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
+def get_openchat_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.dyck_language_scenario.DyckLanguageScenario",
         args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
@@ -1442,7 +1406,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     )
 
 
-def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchat_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={}
     )
@@ -1465,7 +1429,7 @@ def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
     )
 
 
-def get_entity_matching_spec(dataset: str) -> RunSpec:
+def get_openchat_entity_matching_spec(dataset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.entity_matching_scenario.EntityMatchingScenario", args={"dataset": dataset}
     )
@@ -1484,7 +1448,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
     )
 
 
-def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
+def get_openchat_entity_data_imputation_spec(dataset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.entity_data_imputation_scenario.EntityDataImputationScenario",
         args={"dataset": dataset},
@@ -1502,7 +1466,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
 
 
 @htrack("Extracting adaptation parameters from the BIG-bench task definition and building the RunSpec")
-def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
+def get_openchat_big_bench_spec(task: str, subtask: str) -> RunSpec:
     def get_adaptation_method(big_bench_metrics: List[str]) -> str:
         """
         From BIG-bench, "there are three types of BIG-bench JSON tasks - generative and scoring
@@ -1557,7 +1521,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=get_adaptation_method(big_bench_task["metrics"]),
         model="openai/text-curie-001",  # Can override with the `ModelRunExpander`.
-        max_train_instances=5,  # Can override with the `MaxTrainInstancesRunExpander`.
+        max_train_instances=0,  # Can override with the `MaxTrainInstancesRunExpander`.
         num_outputs=1,  # Can override with the `NumOutputsRunExpander`.
         # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",
         # for the BIG-G models tested on BIG-bench, "we use an input context length of 1,024 tokens
@@ -1589,136 +1553,36 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     )
 
 
-def get_covid_dialog_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.covid_dialog_scenario.COVIDDialogScenario", args={}
-    )
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions="Generate a response given a patient's questions and concerns.",
-        input_noun="Patient",
-        output_noun="Doctor",
-        max_tokens=128,
-    )
-
-    return RunSpec(
-        name="covid_dialog",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["COVIDDialog"],
-    )
-
-
-def get_me_q_sum_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.me_q_sum_scenario.MeQSumScenario", args={})
-
-    adapter_spec = get_summarization_adapter_spec(
-        num_sents=1,
-        max_tokens=128,
-        temperature=0.3,
-    )
-
-    return RunSpec(
-        name="me_q_sum",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["MeQSum"],
-    )
-
-
-def get_med_dialog_spec(subset: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
-    )
-
-    adapter_spec = get_summarization_adapter_spec(
-        num_sents=1,
-        max_tokens=128,
-        temperature=0.3,
-    )
-
-    return RunSpec(
-        name=f"med_dialog,subset={subset}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["MedDialog"],
-    )
-
-
-def get_med_mcqa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_mcqa_scenario.MedMCQAScenario", args={})
-
-    adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Give a letter answer among A, B, C or D.",
-        input_noun="Question",
-        output_noun="Answer",
-    )
-
-    return RunSpec(
-        name="med_mcqa",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
-        groups=["MedMCQA"],
-    )
-
-
-def get_med_paragraph_simplification_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.med_paragraph_simplification_scenario.MedParagraphSimplificationScenario",
-        args={},
-    )
-
-    adapter_spec = get_summarization_adapter_spec(
-        num_sents=10,
-        max_tokens=512,
-        temperature=0.3,
-    )
-
-    return RunSpec(
-        name="med_paragraph_simplification",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["MedParagraphSimplification"],
-    )
-
-
-def get_med_qa_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_qa_scenario.MedQAScenario", args={})
-
-    adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Give a letter answer among A, B, C or D.",
-        input_noun="Question",
-        output_noun="Answer",
-    )
-
-    return RunSpec(
-        name="med_qa",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
-        groups=["MedQA"],
-    )
-
-
-def get_pubmed_qa_spec() -> RunSpec:
+def get_openchat_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
-    adapter_spec = get_multiple_choice_adapter_spec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Answer A for yes, B for no or C for maybe.",
-        input_noun="Question",
-        output_noun="Answer",
-    )
+    # We are trying to reproduce the Instruct-GPT3's zero-shot performance of 73.2% from
+    # "Can large language models reason about medical questions?" (Liévin et al.).
+    # Therefore, specify the values of the fields of `AdapterSpec` based on experiment details of the paper.
+    # Set `output_prefix` based on Table 1 (titled "Prompt templates") of the paper.
+    output_prefix: str = "Answer: "
+    if prompt_answer_choices.lower() == "true":
+        output_prefix += "among A through C, the answer is "
 
+    # Liévin et al. followed what Kojima et al. did in "Large Language Models are Zero-Shot Reasoners."
+    # to extract answers from completions: set the max completion length to a large number and
+    # "...pick up the first large letter encountered in the text." Then they set "'Q:'...as a customized stop
+    # sequence for all the models except for Instruct-GPT3 to stop the models from repeating questions and
+    # answers by themselves." We don't need to do this since our framework has a "multiple_choice_joint"
+    # adaptation method that handles the prompt construction for multiple-choice QA for us.
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        max_train_instances=0,  # We want to reproduce the zero-shot performance.
+        # "We sampled one completion per prompt with a temperature of zero..."
+        num_outputs=1,
+        temperature=0,
+        input_prefix="",
+        output_prefix=output_prefix,
+        # Following the examples in https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html
+        reference_prefix="A) ",
+    )
     return RunSpec(
-        name="pubmed_qa",
+        name=f"pubmed_qa:prompt_answer_choices={prompt_answer_choices}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -1726,185 +1590,51 @@ def get_pubmed_qa_spec() -> RunSpec:
     )
 
 
-def get_lextreme_spec(subset: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.lextreme_scenario.LEXTREMEScenario",
-        args={"subset": subset},
-    )
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions=get_lextreme_instructions(subset),
-        input_noun="Passage",
-        output_noun="Answer",
-        max_tokens=get_lextreme_max_tokens(subset),
-        max_train_instances=get_lextreme_max_train_instances(subset),  # in some subsets the input is very long
-    )
-
-    return RunSpec(
-        name=f"lextreme:subset={subset}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
-        groups=["lextreme"],
-    )
-
-
-def get_lex_glue_spec(subset: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.lex_glue_scenario.LexGLUEScenario",
-        args={"subset": subset},
-    )
-
-    adapter_spec = get_generation_adapter_spec(
-        instructions=get_lex_glue_instructions(subset),
-        input_noun="Passage",
-        output_noun="Answer",
-        max_tokens=get_lex_glue_max_tokens(subset),
-        max_train_instances=get_lex_glue_max_train_instances(subset),  # in some subsets the input is very long
-    )
-
-    return RunSpec(
-        name=f"lex_glue:subset={subset}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
-        groups=["lex_glue"],
-    )
-
-
-def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec:
-    FULL_LANGUAGE_NAMES = {
-        "cs": "Czech",
-        "de": "German",
-        "fr": "French",
-        "hi": "Hindi",
-        "ru": "Russian",
-        "en": "English",
-    }
-    source_language, target_language = language_pair.split("-")
-
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.wmt_14_scenario.WMT14Scenario",
-        args={"source_language": source_language, "target_language": target_language},
-    )
-
-    adapter_spec = get_machine_translation_adapter_spec(
-        source_language=FULL_LANGUAGE_NAMES[source_language],
-        target_language=FULL_LANGUAGE_NAMES[target_language],
-        max_train_instances=max_train_instances,
-    )
-
-    return RunSpec(
-        name=f"wmt_14:language_pair={language_pair}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_machine_translation_metric_specs(),
-        groups=["wmt_14"],
-    )
-
-
 ############################################################
 
-CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
-    "simple1": get_simple1_spec,
-    "boolq": get_boolq_spec,
-    "imdb": get_imdb_spec,
-    "copyright": get_copyright_spec,
-    "mmlu": get_mmlu_spec,
-    "interactive_qa_mmlu": get_interactive_qa_mmlu_spec,
-    "msmarco": get_msmarco_spec,
-    "narrative_qa": get_narrativeqa_spec,
-    "commonsense": get_commonsense_spec,
-    "lsat_qa": get_lsat_qa_spec,
-    "quac": get_quac_spec,
-    "wikifact": get_wikifact_spec,
-    "babi_qa": get_babi_qa_spec,
-    "real_toxicity_prompts": get_real_toxicity_prompts_spec,
-    "summarization_xsum": get_xsum_summarization_spec,
-    "summarization_xsum_sampled": get_xsum_sampled_summarization_spec,
-    "summarization_cnndm": get_cnndm_summarization_spec,
-    "truthful_qa": get_truthful_qa_spec,
-    "twitter_aae": get_twitter_aae_spec,
-    "disinformation": get_disinformation_spec,
-    "gsm": get_gsm_spec,
-    "math": get_math_spec,
-    "natural_qa": get_natural_qa_spec,
-    "numeracy": get_numeracy_spec,
-    "the_pile": get_the_pile_spec,
-    "raft": get_raft_spec,
-    "synthetic_efficiency": get_synthetic_efficiency_spec,
-    "synthetic_reasoning": get_synthetic_reasoning_spec,
-    "synthetic_reasoning_natural": get_synthetic_reasoning_natural_spec,
-    "news_qa": get_news_qa_spec,
-    "wikitext_103": get_wikitext_103_spec,
-    "blimp": get_blimp_spec,
-    "code": get_code_spec,
-    "empatheticdialogues": get_empatheticdialogues_spec,
-    "bold": get_bold_spec,
-    "bbq": get_bbq_spec,
-    "civil_comments": get_civil_comments_spec,
-    "dyck_language": get_dyck_language_spec,
-    "legal_support": get_legal_support_spec,
-    "entity_matching": get_entity_matching_spec,
-    "entity_data_imputation": get_entity_data_imputation_spec,
-    "ice": get_ice_spec,
-    "big_bench": get_big_bench_spec,
-    "lextreme": get_lextreme_spec,
-    "lex_glue": get_lex_glue_spec,
-    "wmt_14": get_wmt_14_spec,
-    # Biomedical
-    "covid_dialog": get_covid_dialog_spec,
-    "me_q_sum": get_me_q_sum_spec,
-    "med_dialog": get_med_dialog_spec,
-    "med_mcqa": get_med_mcqa_spec,
-    "med_paragraph_simplification": get_med_paragraph_simplification_spec,
-    "med_qa": get_med_qa_spec,
-    "pubmed_qa": get_pubmed_qa_spec,
-    **CANONICAL_RUN_OPENCHAT_SPEC_FUNCS,
+CANONICAL_RUN_OPENCHAT_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
+    "openchat_simple1": get_openchat_simple1_spec,
+    "openchat_boolq": get_openchat_boolq_spec,
+    "openchat_imdb": get_openchat_imdb_spec,
+    "openchat_copyright": get_openchat_copyright_spec,
+    "openchat_mmlu": get_openchat_mmlu_spec,
+    "openchat_interactive_qa_mmlu": get_openchat_interactive_qa_mmlu_spec,
+    "openchat_msmarco": get_openchat_msmarco_spec,
+    "openchat_narrative_qa": get_openchat_narrativeqa_spec,
+    "openchat_commonsense": get_openchat_commonsense_spec,
+    "openchat_lsat_qa": get_openchat_lsat_qa_spec,
+    "openchat_quac": get_openchat_quac_spec,
+    "openchat_wikifact": get_openchat_wikifact_spec,
+    "openchat_babi_qa": get_openchat_babi_qa_spec,
+    "openchat_real_toxicity_prompts": get_openchat_real_toxicity_prompts_spec,
+    "openchat_summarization_xsum": get_openchat_xsum_summarization_spec,
+    "openchat_summarization_xsum_sampled": get_openchat_xsum_sampled_summarization_spec,
+    "openchat_summarization_cnndm": get_openchat_cnndm_summarization_spec,
+    "openchat_truthful_qa": get_openchat_truthful_qa_spec,
+    "openchat_twitter_aae": get_openchat_twitter_aae_spec,
+    "openchat_disinformation": get_openchat_disinformation_spec,
+    "openchat_gsm": get_openchat_gsm_spec,
+    "openchat_math": get_openchat_math_spec,
+    "openchat_natural_qa": get_openchat_natural_qa_spec,
+    "openchat_numeracy": get_openchat_numeracy_spec,
+    "openchat_the_pile": get_openchat_the_pile_spec,
+    "openchat_raft": get_openchat_raft_spec,
+    "openchat_synthetic_efficiency": get_openchat_synthetic_efficiency_spec,
+    "openchat_synthetic_reasoning": get_openchat_synthetic_reasoning_spec,
+    "openchat_synthetic_reasoning_natural": get_openchat_synthetic_reasoning_natural_spec,
+    "openchat_news_qa": get_openchat_news_qa_spec,
+    "openchat_wikitext_103": get_openchat_wikitext_103_spec,
+    "openchat_blimp": get_openchat_blimp_spec,
+    "openchat_code": get_openchat_code_spec,
+    "openchat_empatheticdialogues": get_openchat_empatheticdialogues_spec,
+    "openchat_bold": get_openchat_bold_spec,
+    "openchat_bbq": get_openchat_bbq_spec,
+    "openchat_civil_comments": get_openchat_civil_comments_spec,
+    "openchat_dyck_language": get_openchat_dyck_language_spec,
+    "openchat_legal_support": get_openchat_legal_support_spec,
+    "openchat_entity_matching": get_openchat_entity_matching_spec,
+    "openchat_entity_data_imputation": get_openchat_entity_data_imputation_spec,
+    "openchat_ice": get_openchat_ice_spec,
+    "openchat_big_bench": get_openchat_big_bench_spec,
+    "openchat_pubmed_qa": get_openchat_pubmed_qa_spec,
 }
-
-
-def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
-    """
-    Takes a specification (name, args) and returns a list of `RunSpec`s.
-    """
-    # Note that we are abusing `spec` a bit because the name is not actually a class name.
-    name = spec.class_name
-    args = spec.args
-
-    if name not in CANONICAL_RUN_SPEC_FUNCS:
-        raise ValueError(f"Unknown run spec name: {name}")
-
-    # Peel off the run expanders (e.g., model)
-    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
-    args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
-
-    # Get the canonical run specs
-    run_specs = [CANONICAL_RUN_SPEC_FUNCS[name](**args)]
-
-    # Apply expanders
-    for expander in expanders:
-        run_specs = [
-            child_run_spec for parent_run_spec in run_specs for child_run_spec in expander.expand(parent_run_spec)
-        ]
-
-    def alter_run_spec(run_spec: RunSpec) -> RunSpec:
-        model = get_model(run_spec.adapter_spec.model)
-        # For models that strip newlines, when we're generating, we need to set
-        # the delimiter to be '###' so we stop properly.
-        if NO_NEWLINES_TAG in model.tags and run_spec.adapter_spec.method in (
-            ADAPT_GENERATION,
-            ADAPT_MULTIPLE_CHOICE_JOINT,
-        ):
-            stop_expander = StopRunExpander(value="hash")
-            run_spec = singleton(stop_expander.expand(run_spec))
-
-        if NLG_PREFIX_TAG in model.tags:
-            global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
-            run_spec = singleton(global_prefix_expander.expand(run_spec))
-
-        return run_spec
-
-    run_specs = [alter_run_spec(run_spec) for run_spec in run_specs]
-
-    return run_specs
