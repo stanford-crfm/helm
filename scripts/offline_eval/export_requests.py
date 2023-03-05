@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import typing
+from typing import List
 from collections import Counter
 from dacite import from_dict
 
@@ -24,13 +25,16 @@ Exports raw requests from a run suite to a jsonl file.
 
 Usage:
 
-    python3 scripts/offline_eval/export_requests.py <Org - one of 'microsoft' or 'together'> <Path to run suite>
+    python3 scripts/offline_eval/export_requests.py <organization> <Path to run suite>
 
     Example:
 
       python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v4-dryrun
 
 """
+
+# List of organizations currently supported for offline batch evaluation
+SUPPORTED_ORGS: List[str] = ["together", "google", "microsoft"]
 
 
 @htrack("Generating jsonl file with list of raw requests")
@@ -147,9 +151,7 @@ if __name__ == "__main__":
             "Example format: mongodb://[username:password@]host1[:port1]/dbname"
         ),
     )
-    parser.add_argument(
-        "organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"]
-    )
+    parser.add_argument("organization", type=str, help="Organization to export requests for", choices=SUPPORTED_ORGS)
     parser.add_argument("run_suite_path", type=str, help="Path to run path.")
     parser.add_argument("--output-path", type=str, default="requests.jsonl", help="Path to jsonl file.")
     args = parser.parse_args()
