@@ -54,12 +54,13 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
 
     def process_request(request: Request, include_scenario_name: bool = False):
         raw_request: typing.Dict = fetch_client().convert_to_raw_request(request)
-        if include_scenario_name:
-            # When `include_scenario_name` is True, include the scenario name in the request
-            raw_request["scenario"] = scenario_name
 
         # Only export requests that are not in the cache
         if not store.contains(raw_request):
+            if include_scenario_name:
+                # When `include_scenario_name` is True, include the scenario name in the request
+                raw_request["scenario"] = scenario_name
+
             request_json: str = request_to_key(raw_request)
             out_file.write(request_json + "\n")
             counts["pending_count"] += 1
