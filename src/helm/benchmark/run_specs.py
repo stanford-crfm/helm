@@ -35,7 +35,7 @@ from .scenarios.lextreme_scenario import (
 from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG
 from helm.common.general import singleton
 
-from .run_specs_openchat import CANONICAL_RUN_OPENCHAT_SPEC_FUNCS
+from .run_specs_openchatkit import CANONICAL_RUN_OPENCHATKIT_SPEC_FUNCS
 
 
 ############################################################
@@ -1860,7 +1860,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "med_paragraph_simplification": get_med_paragraph_simplification_spec,
     "med_qa": get_med_qa_spec,
     "pubmed_qa": get_pubmed_qa_spec,
-    **CANONICAL_RUN_OPENCHAT_SPEC_FUNCS,
+    **CANONICAL_RUN_OPENCHATKIT_SPEC_FUNCS,
 }
 
 

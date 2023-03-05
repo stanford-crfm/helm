@@ -495,7 +495,7 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
 # Run specs
 
 
-def get_openchat_simple1_spec() -> RunSpec:
+def get_openchatkit_simple1_spec() -> RunSpec:
     """A run spec for debugging."""
     return RunSpec(
         name="simple1",
@@ -506,7 +506,7 @@ def get_openchat_simple1_spec() -> RunSpec:
     )
 
 
-def get_openchat_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchatkit_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.bbq_scenario.BBQScenario", args={"subject": subject}
     )
@@ -527,7 +527,7 @@ def get_openchat_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOIN
     )
 
 
-def get_openchat_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
+def get_openchatkit_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
     valid_topk = None if valid_topk is None else int(valid_topk)
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.msmarco_scenario.MSMARCOScenario",
@@ -545,7 +545,7 @@ def get_openchat_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> R
     )
 
 
-def get_openchat_bold_spec(subject: str) -> RunSpec:
+def get_openchatkit_bold_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.bold_scenario.BOLDScenario", args={"subject": subject}
     )
@@ -564,7 +564,7 @@ def get_openchat_bold_spec(subject: str) -> RunSpec:
     )
 
 
-def get_openchat_civil_comments_spec(demographic: str) -> RunSpec:
+def get_openchatkit_civil_comments_spec(demographic: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.civil_comments_scenario.CivilCommentsScenario",
         args={"demographic": demographic},
@@ -581,7 +581,7 @@ def get_openchat_civil_comments_spec(demographic: str) -> RunSpec:
     )
 
 
-def get_openchat_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchatkit_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject}
     )
@@ -602,7 +602,7 @@ def get_openchat_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOI
     )
 
 
-def get_openchat_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
+def get_openchatkit_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.interactive_qa_mmlu_scenario.InteractiveQAMMLUScenario",
         args={"subject": subject},
@@ -623,7 +623,7 @@ def get_openchat_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
-def get_openchat_wikifact_spec(k: str, subject: str) -> RunSpec:
+def get_openchatkit_wikifact_spec(k: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.wikifact_scenario.WIKIFactScenario",
         args={"subject": subject},
@@ -648,7 +648,7 @@ def get_openchat_wikifact_spec(k: str, subject: str) -> RunSpec:
     )
 
 
-def get_openchat_commonsense_spec(dataset: str, method: str) -> RunSpec:
+def get_openchatkit_commonsense_spec(dataset: str, method: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
         args={"dataset": dataset},
@@ -670,7 +670,7 @@ def get_openchat_commonsense_spec(dataset: str, method: str) -> RunSpec:
     )
 
 
-def get_openchat_quac_spec() -> RunSpec:
+def get_openchatkit_quac_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.quac_scenario.QuACScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(input_noun=None, output_noun="Answer", max_tokens=100)
@@ -684,7 +684,7 @@ def get_openchat_quac_spec() -> RunSpec:
     )
 
 
-def get_openchat_news_qa_spec() -> RunSpec:
+def get_openchatkit_news_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.newsqa_scenario.NewsQAScenario", args={})
 
     # max_tokens=50 because answers are at most 13 words
@@ -699,7 +699,7 @@ def get_openchat_news_qa_spec() -> RunSpec:
     )
 
 
-def get_openchat_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchatkit_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario",
         args={"task": task},
@@ -718,7 +718,7 @@ def get_openchat_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE
     )
 
 
-def get_openchat_twitter_aae_spec(demographic: str) -> RunSpec:
+def get_openchatkit_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario",
         args={"demographic": demographic},
@@ -733,7 +733,7 @@ def get_openchat_twitter_aae_spec(demographic: str) -> RunSpec:
     )
 
 
-def get_openchat_real_toxicity_prompts_spec() -> RunSpec:
+def get_openchatkit_real_toxicity_prompts_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={}
     )
@@ -760,7 +760,7 @@ def get_openchat_real_toxicity_prompts_spec() -> RunSpec:
     )
 
 
-def get_openchat_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
+def get_openchatkit_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.synthetic_reasoning_natural_scenario.SRNScenario",
         args={"difficulty": difficulty},
@@ -784,7 +784,7 @@ def get_openchat_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     )
 
 
-def get_openchat_gsm_spec() -> RunSpec:
+def get_openchatkit_gsm_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.gsm_scenario.GSM8KScenario", args={})
 
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
@@ -805,7 +805,7 @@ def get_openchat_gsm_spec() -> RunSpec:
     )
 
 
-def get_openchat_raft_spec(subset: str) -> RunSpec:
+def get_openchatkit_raft_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.raft_scenario.RAFTScenario", args={"subset": subset}
     )
@@ -826,7 +826,7 @@ def get_openchat_raft_spec(subset: str) -> RunSpec:
     )
 
 
-def get_openchat_numeracy_spec(
+def get_openchatkit_numeracy_spec(
     relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
     run_solver: bool = True if run_solver == "True" else False  # type: ignore
@@ -874,7 +874,7 @@ def get_openchat_numeracy_spec(
     )
 
 
-def get_openchat_math_spec(
+def get_openchatkit_math_spec(
     subject: str,
     level: str,
     use_official_examples: str = "False",
@@ -934,7 +934,7 @@ def get_openchat_math_spec(
     )
 
 
-def get_openchat_boolq_spec(only_contrast=False) -> RunSpec:
+def get_openchatkit_boolq_spec(only_contrast=False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast}
     )
@@ -950,7 +950,7 @@ def get_openchat_boolq_spec(only_contrast=False) -> RunSpec:
     )
 
 
-def get_openchat_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchatkit_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task}
     )
@@ -972,7 +972,7 @@ def get_openchat_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOI
     )
 
 
-def get_openchat_imdb_spec(only_contrast=False) -> RunSpec:
+def get_openchatkit_imdb_spec(only_contrast=False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast}
     )
@@ -988,7 +988,7 @@ def get_openchat_imdb_spec(only_contrast=False) -> RunSpec:
     )
 
 
-def get_openchat_babi_qa_spec(task: str = "all") -> RunSpec:
+def get_openchatkit_babi_qa_spec(task: str = "all") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.babi_qa_scenario.BabiQAScenario", args={"task": task}
     )
@@ -1005,7 +1005,7 @@ def get_openchat_babi_qa_spec(task: str = "all") -> RunSpec:
     )
 
 
-def get_openchat_copyright_spec(
+def get_openchatkit_copyright_spec(
     datatag="pilot",
     temperature=0.2,
     max_tokens=1024,
@@ -1034,7 +1034,7 @@ def get_openchat_copyright_spec(
     )
 
 
-def get_openchat_disinformation_spec(capability: str = "reiteration", topic: Optional[str] = "covid") -> RunSpec:
+def get_openchatkit_disinformation_spec(capability: str = "reiteration", topic: Optional[str] = "covid") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.disinformation_scenario.DisinformationScenario",
         args={"capability": capability, "topic": topic},
@@ -1096,7 +1096,7 @@ def get_openchat_disinformation_spec(capability: str = "reiteration", topic: Opt
     )
 
 
-def get_openchat_code_spec(dataset: str, timeout=3) -> RunSpec:
+def get_openchatkit_code_spec(dataset: str, timeout=3) -> RunSpec:
     # `timeout` trades accuracy for time. Used exclusively for APPS. Default from original APPS codebase.
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.code_scenario.CodeScenario", args={"dataset": dataset}
@@ -1132,7 +1132,7 @@ def get_openchat_code_spec(dataset: str, timeout=3) -> RunSpec:
     )
 
 
-def get_openchat_natural_qa_spec(mode: str) -> RunSpec:
+def get_openchatkit_natural_qa_spec(mode: str) -> RunSpec:
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={"mode": mode}
@@ -1153,7 +1153,7 @@ def get_openchat_natural_qa_spec(mode: str) -> RunSpec:
     )
 
 
-def get_openchat_the_pile_spec(subset: str) -> RunSpec:
+def get_openchatkit_the_pile_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.the_pile_scenario.ThePileScenario", args={"subset": subset}
     )
@@ -1167,7 +1167,7 @@ def get_openchat_the_pile_spec(subset: str) -> RunSpec:
     )
 
 
-def get_openchat_ice_spec(**kwargs) -> RunSpec:
+def get_openchatkit_ice_spec(**kwargs) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ice_scenario.ICEScenario", args=kwargs)
 
     return RunSpec(
@@ -1179,7 +1179,7 @@ def get_openchat_ice_spec(**kwargs) -> RunSpec:
     )
 
 
-def get_openchat_narrativeqa_spec() -> RunSpec:
+def get_openchatkit_narrativeqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args={}
     )
@@ -1202,7 +1202,7 @@ def get_openchat_narrativeqa_spec() -> RunSpec:
     )
 
 
-def get_openchat_synthetic_efficiency_spec(
+def get_openchatkit_synthetic_efficiency_spec(
     num_prompt_tokens: Optional[int] = None,
     num_output_tokens: Optional[int] = None,
     tokenizer: Optional[str] = None,
@@ -1227,7 +1227,7 @@ def get_openchat_synthetic_efficiency_spec(
     )
 
 
-def get_openchat_synthetic_reasoning_spec(mode: str) -> RunSpec:
+def get_openchatkit_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario",
         args={"mode": mode},
@@ -1250,7 +1250,7 @@ def get_openchat_synthetic_reasoning_spec(mode: str) -> RunSpec:
     )
 
 
-def get_openchat_wikitext_103_spec() -> RunSpec:
+def get_openchatkit_wikitext_103_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.wikitext_103_scenario.Wikitext103Scenario", args={}
     )
@@ -1264,7 +1264,7 @@ def get_openchat_wikitext_103_spec() -> RunSpec:
     )
 
 
-def get_openchat_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL) -> RunSpec:
+def get_openchatkit_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon}
     )
@@ -1286,7 +1286,7 @@ def get_openchat_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE
     )
 
 
-def get_openchat_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+def get_openchatkit_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512},
@@ -1308,7 +1308,7 @@ def get_openchat_xsum_summarization_spec(temperature: float = 0.3, device: str =
     )
 
 
-def get_openchat_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+def get_openchatkit_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
@@ -1335,7 +1335,7 @@ def get_openchat_xsum_sampled_summarization_spec(temperature: float = 0.3, devic
     )
 
 
-def get_openchat_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+def get_openchatkit_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512},
@@ -1357,7 +1357,7 @@ def get_openchat_cnndm_summarization_spec(temperature: float = 0.3, device: str 
     )
 
 
-def get_openchat_empatheticdialogues_spec() -> RunSpec:
+def get_openchatkit_empatheticdialogues_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.dialogue_scenarios.EmpatheticDialoguesScenario", args={}
     )
@@ -1382,7 +1382,7 @@ def get_openchat_empatheticdialogues_spec() -> RunSpec:
     )
 
 
-def get_openchat_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
+def get_openchatkit_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.dyck_language_scenario.DyckLanguageScenario",
         args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
@@ -1406,7 +1406,7 @@ def get_openchat_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     )
 
 
-def get_openchat_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_openchatkit_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={}
     )
@@ -1429,7 +1429,7 @@ def get_openchat_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
     )
 
 
-def get_openchat_entity_matching_spec(dataset: str) -> RunSpec:
+def get_openchatkit_entity_matching_spec(dataset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.entity_matching_scenario.EntityMatchingScenario", args={"dataset": dataset}
     )
@@ -1448,7 +1448,7 @@ def get_openchat_entity_matching_spec(dataset: str) -> RunSpec:
     )
 
 
-def get_openchat_entity_data_imputation_spec(dataset: str) -> RunSpec:
+def get_openchatkit_entity_data_imputation_spec(dataset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.entity_data_imputation_scenario.EntityDataImputationScenario",
         args={"dataset": dataset},
@@ -1466,7 +1466,7 @@ def get_openchat_entity_data_imputation_spec(dataset: str) -> RunSpec:
 
 
 @htrack("Extracting adaptation parameters from the BIG-bench task definition and building the RunSpec")
-def get_openchat_big_bench_spec(task: str, subtask: str) -> RunSpec:
+def get_openchatkit_big_bench_spec(task: str, subtask: str) -> RunSpec:
     def get_adaptation_method(big_bench_metrics: List[str]) -> str:
         """
         From BIG-bench, "there are three types of BIG-bench JSON tasks - generative and scoring
@@ -1553,7 +1553,7 @@ def get_openchat_big_bench_spec(task: str, subtask: str) -> RunSpec:
     )
 
 
-def get_openchat_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
+def get_openchatkit_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
     # We are trying to reproduce the Instruct-GPT3's zero-shot performance of 73.2% from
@@ -1592,49 +1592,49 @@ def get_openchat_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
 
 ############################################################
 
-CANONICAL_RUN_OPENCHAT_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
-    "openchat_simple1": get_openchat_simple1_spec,
-    "openchat_boolq": get_openchat_boolq_spec,
-    "openchat_imdb": get_openchat_imdb_spec,
-    "openchat_copyright": get_openchat_copyright_spec,
-    "openchat_mmlu": get_openchat_mmlu_spec,
-    "openchat_interactive_qa_mmlu": get_openchat_interactive_qa_mmlu_spec,
-    "openchat_msmarco": get_openchat_msmarco_spec,
-    "openchat_narrative_qa": get_openchat_narrativeqa_spec,
-    "openchat_commonsense": get_openchat_commonsense_spec,
-    "openchat_lsat_qa": get_openchat_lsat_qa_spec,
-    "openchat_quac": get_openchat_quac_spec,
-    "openchat_wikifact": get_openchat_wikifact_spec,
-    "openchat_babi_qa": get_openchat_babi_qa_spec,
-    "openchat_real_toxicity_prompts": get_openchat_real_toxicity_prompts_spec,
-    "openchat_summarization_xsum": get_openchat_xsum_summarization_spec,
-    "openchat_summarization_xsum_sampled": get_openchat_xsum_sampled_summarization_spec,
-    "openchat_summarization_cnndm": get_openchat_cnndm_summarization_spec,
-    "openchat_truthful_qa": get_openchat_truthful_qa_spec,
-    "openchat_twitter_aae": get_openchat_twitter_aae_spec,
-    "openchat_disinformation": get_openchat_disinformation_spec,
-    "openchat_gsm": get_openchat_gsm_spec,
-    "openchat_math": get_openchat_math_spec,
-    "openchat_natural_qa": get_openchat_natural_qa_spec,
-    "openchat_numeracy": get_openchat_numeracy_spec,
-    "openchat_the_pile": get_openchat_the_pile_spec,
-    "openchat_raft": get_openchat_raft_spec,
-    "openchat_synthetic_efficiency": get_openchat_synthetic_efficiency_spec,
-    "openchat_synthetic_reasoning": get_openchat_synthetic_reasoning_spec,
-    "openchat_synthetic_reasoning_natural": get_openchat_synthetic_reasoning_natural_spec,
-    "openchat_news_qa": get_openchat_news_qa_spec,
-    "openchat_wikitext_103": get_openchat_wikitext_103_spec,
-    "openchat_blimp": get_openchat_blimp_spec,
-    "openchat_code": get_openchat_code_spec,
-    "openchat_empatheticdialogues": get_openchat_empatheticdialogues_spec,
-    "openchat_bold": get_openchat_bold_spec,
-    "openchat_bbq": get_openchat_bbq_spec,
-    "openchat_civil_comments": get_openchat_civil_comments_spec,
-    "openchat_dyck_language": get_openchat_dyck_language_spec,
-    "openchat_legal_support": get_openchat_legal_support_spec,
-    "openchat_entity_matching": get_openchat_entity_matching_spec,
-    "openchat_entity_data_imputation": get_openchat_entity_data_imputation_spec,
-    "openchat_ice": get_openchat_ice_spec,
-    "openchat_big_bench": get_openchat_big_bench_spec,
-    "openchat_pubmed_qa": get_openchat_pubmed_qa_spec,
+CANONICAL_RUN_OPENCHATKIT_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
+    "openchatkit_simple1": get_openchatkit_simple1_spec,
+    "openchatkit_boolq": get_openchatkit_boolq_spec,
+    "openchatkit_imdb": get_openchatkit_imdb_spec,
+    "openchatkit_copyright": get_openchatkit_copyright_spec,
+    "openchatkit_mmlu": get_openchatkit_mmlu_spec,
+    "openchatkit_interactive_qa_mmlu": get_openchatkit_interactive_qa_mmlu_spec,
+    "openchatkit_msmarco": get_openchatkit_msmarco_spec,
+    "openchatkit_narrative_qa": get_openchatkit_narrativeqa_spec,
+    "openchatkit_commonsense": get_openchatkit_commonsense_spec,
+    "openchatkit_lsat_qa": get_openchatkit_lsat_qa_spec,
+    "openchatkit_quac": get_openchatkit_quac_spec,
+    "openchatkit_wikifact": get_openchatkit_wikifact_spec,
+    "openchatkit_babi_qa": get_openchatkit_babi_qa_spec,
+    "openchatkit_real_toxicity_prompts": get_openchatkit_real_toxicity_prompts_spec,
+    "openchatkit_summarization_xsum": get_openchatkit_xsum_summarization_spec,
+    "openchatkit_summarization_xsum_sampled": get_openchatkit_xsum_sampled_summarization_spec,
+    "openchatkit_summarization_cnndm": get_openchatkit_cnndm_summarization_spec,
+    "openchatkit_truthful_qa": get_openchatkit_truthful_qa_spec,
+    "openchatkit_twitter_aae": get_openchatkit_twitter_aae_spec,
+    "openchatkit_disinformation": get_openchatkit_disinformation_spec,
+    "openchatkit_gsm": get_openchatkit_gsm_spec,
+    "openchatkit_math": get_openchatkit_math_spec,
+    "openchatkit_natural_qa": get_openchatkit_natural_qa_spec,
+    "openchatkit_numeracy": get_openchatkit_numeracy_spec,
+    "openchatkit_the_pile": get_openchatkit_the_pile_spec,
+    "openchatkit_raft": get_openchatkit_raft_spec,
+    "openchatkit_synthetic_efficiency": get_openchatkit_synthetic_efficiency_spec,
+    "openchatkit_synthetic_reasoning": get_openchatkit_synthetic_reasoning_spec,
+    "openchatkit_synthetic_reasoning_natural": get_openchatkit_synthetic_reasoning_natural_spec,
+    "openchatkit_news_qa": get_openchatkit_news_qa_spec,
+    "openchatkit_wikitext_103": get_openchatkit_wikitext_103_spec,
+    "openchatkit_blimp": get_openchatkit_blimp_spec,
+    "openchatkit_code": get_openchatkit_code_spec,
+    "openchatkit_empatheticdialogues": get_openchatkit_empatheticdialogues_spec,
+    "openchatkit_bold": get_openchatkit_bold_spec,
+    "openchatkit_bbq": get_openchatkit_bbq_spec,
+    "openchatkit_civil_comments": get_openchatkit_civil_comments_spec,
+    "openchatkit_dyck_language": get_openchatkit_dyck_language_spec,
+    "openchatkit_legal_support": get_openchatkit_legal_support_spec,
+    "openchatkit_entity_matching": get_openchatkit_entity_matching_spec,
+    "openchatkit_entity_data_imputation": get_openchatkit_entity_data_imputation_spec,
+    "openchatkit_ice": get_openchatkit_ice_spec,
+    "openchatkit_big_bench": get_openchatkit_big_bench_spec,
+    "openchatkit_pubmed_qa": get_openchatkit_pubmed_qa_spec,
 }
