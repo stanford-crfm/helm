@@ -117,7 +117,7 @@ class Runner:
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
 
-        if os.path.exists(os.path.join(run_path, "scenario_state.json")):
+        if self.skip_completed_runs and os.path.exists(os.path.join(run_path, "scenario_state.json")):
             # If scenario_state.json exists, assume that all other output files exist
             # because scenario_state.json is the last output file to be written.
             hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
