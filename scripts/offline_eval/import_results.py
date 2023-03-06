@@ -60,10 +60,6 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                     cache_key: dict = {"completion_index": completion_index, **request}
                     store.put(cache_key, result)
                 else:
-                    if organization == "google":
-                        # Remove "scenario" from the request because the field is not part of the original request
-                        request.pop("scenario", None)
-
                     store.put(request, result)
 
                 count += 1

@@ -52,16 +52,12 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
         else:
             raise ValueError(f"Invalid organization: {organization}")
 
-    def process_request(request: Request, include_scenario_name: bool = False):
+    def process_request(request: Request):
         raw_request: typing.Dict = fetch_client().convert_to_raw_request(request)
 
         # Only export requests that are not in the cache
         if not store.contains(raw_request):
-            if include_scenario_name:
-                # When `include_scenario_name` is True, include the scenario name in the request
-                raw_request["scenario"] = scenario_name
-
-            request_json: str = request_to_key(raw_request)
+            request_json: str = request_to_key({"scenario": scenario_name, "request": raw_request})
             out_file.write(request_json + "\n")
             counts["pending_count"] += 1
         else:
@@ -129,7 +125,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
                                 except ValueError as e:
                                     hlog(f"Error while processing Microsoft request: {e}\nRequest: {request}")
                             else:
-                                process_request(request, include_scenario_name=current_organization == "google")
+                                process_request(request)
 
                     hlog(f"Wrote {counts['pending_count']} requests so far.")
 
