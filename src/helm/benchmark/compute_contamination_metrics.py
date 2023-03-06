@@ -38,9 +38,25 @@ class LightScenario:
 class ScenarioNgrams:
     """
     A data class that stores the ngram features of a scenario.
+
+    The main data structures, `input_ngrams` and `reference_ngrams`, store the ngrams of the input/reference
+    part of instances in the scenario. For each instance, there is a corresponding dictionary in `input_ngrams`
+    where the keys are n values and values are ngram sets. The order of the dictionaries is the same with the
+    order of the instances.
+
+    For example, `input_ngrams` of a scenario consisting of two instances may look like:
+    [
+        {
+           1: {"Hello", "World!"},
+           2: {"Hello World!"},
+        },
+        {
+           1: {"foo", "bar"},
+           2: {"foo bar"},
+        },
+    ]
     """
 
-    # TODO: explain the structure
     scenario_name: str
     num_instances: int
     input_ngrams: List[Dict[int, Set[str]]]
@@ -71,13 +87,30 @@ class DocumentReadingProcessor:
             raise NotImplementedError()
 
     def get_the_pile_document_generator(self) -> Generator:
-        # TODO: add an example
+        """
+        This method reads input files with similar file formats with The Pile's jsonl format.
+        Each line of the input file should be a json string, where the document is stored in a field named "text".
+        There are no empty lines between json lines.
+
+        Example:
+        {"text": "Hello World!", "meta": {"pile_set_name": "Pile-CC"}}
+        {"text": "Foo bar", "meta": {"pile_set_name": "Pile-CC"}}
+        """
         with open(self.file_path, "r") as f:
             for line in f:
                 yield json.loads(line)["text"]
 
     def get_raw_document_generator(self) -> Generator:
-        # TODO: add an example
+        """
+        This method reads input files where each line is a document. The file should not be organized
+        in any specific file structures such as json, jsonl, or tsv, as this may affect ngram computation.
+        Any characters other than the actual text content should be removed.
+
+        Example:
+        Hello World!
+        Foo bar
+        This is the 3rd document.
+        """
         with open(self.file_path, "r") as f:
             for line in f:
                 yield line.rstrip("\n")
@@ -213,10 +246,8 @@ def load_scenarios_from_jsonl(filename: str) -> List[LightScenario]:
     return light_scenarios
 
 
-def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]):
+def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]) -> ScenarioNgrams:
     """For each n value and each instance, compute the ngram features"""
-    # TODO: add an example in the docstring
-    # TODO: variable naming
     input_ngrams: List[Dict[int, Set[str]]] = []
     reference_ngrams: List[Dict[int, Set[str]]] = []
     for instance in scenario.light_instances:
@@ -252,9 +283,7 @@ def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]):
 def compute_scenario_file_contamination(
     scenarios: List[LightScenario], training_file_path: str, n_values: List[int]
 ) -> List[BinaryScenarioMetric]:
-
-    """For each n, for each scenario, compute a contamination metric"""
-
+    """Given an input file, compute a contamination metric for each n and each scenario"""
     # Initizlize a metric instance for every pair of <scenario, n>
     all_scenario_metrics: DefaultDict[int, dict] = defaultdict(dict)
     for n in n_values:
@@ -297,6 +326,7 @@ def compute_scenario_document_contamination(
     document: str,
     n_values: List[int],
 ):
+    """Given a document, compute a contamination metric for each n and each scenario"""
     document_unigrams = document.split()
     for n in n_values:
         document_ngrams = set(ngrams(document_unigrams, n))
@@ -330,6 +360,7 @@ if __name__ == "__main__":
 
     N_VALUES = [5, 9, 13]  # TODO: Pick the N values
 
+    # commpute the metrics
     stats: List[str] = []
     contamination_metrics = compute_scenario_file_contamination(
         scenarios=scenarios, training_file_path=args.input_data, n_values=N_VALUES
