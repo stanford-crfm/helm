@@ -7,7 +7,9 @@ from nltk import ngrams
 from typing import Dict, Set, Optional, Generator, DefaultDict
 from collections import defaultdict
 
+# The n values of the ngrams to be computed
 N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
+
 PART_INPUT: str = "input"
 PART_REF: str = "reference"
 
@@ -203,7 +205,7 @@ class ContaminationStats:
         return json.dumps(summary)
 
 
-def load_scenarios_from_jsonl(filepath: str) -> List[LightScenario]:
+def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     """
     Create a list of light scenarios from a jsonl file, where each json represents a LightScenario object.
 
@@ -240,7 +242,7 @@ def load_scenarios_from_jsonl(filepath: str) -> List[LightScenario]:
         return LightInstance(input=instance_dict["input"], references=instance_dict["references"])
 
     light_scenarios: List[LightScenario] = []
-    scenario_jsons = open(filepath, "r").readlines()
+    scenario_jsons = open(path, "r").readlines()
     for scenario_json in scenario_jsons:
         scenario_dict: dict = json.loads(scenario_json)
         scenario_spec: str = scenario_dict["scenario_spec"]
