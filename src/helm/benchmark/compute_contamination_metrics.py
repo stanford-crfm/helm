@@ -7,6 +7,10 @@ from nltk import ngrams
 from typing import Dict, Set, Optional, Generator, DefaultDict
 from collections import defaultdict
 
+N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
+PART_INPUT: str = "input"
+PART_REF: str = "reference"
+
 
 @dataclass(frozen=True, eq=False)
 class LightInstance:
@@ -27,8 +31,8 @@ class LightScenario:
     A lighter `Scenario`.
     """
 
-    name: str
-    """The scenario name"""
+    scenario_spec: str
+    """The scenario spec"""
 
     light_instances: List[LightInstance]
     """Instances of this scenario"""
@@ -57,7 +61,7 @@ class ScenarioNgrams:
     ]
     """
 
-    scenario_name: str
+    scenario_spec: str
     num_instances: int
     input_ngrams: List[Dict[int, Set[str]]]
     reference_ngrams: List[Dict[int, Set[str]]]
@@ -119,20 +123,20 @@ class DocumentReadingProcessor:
         pass
 
 
-class BinaryScenarioMetric:
+class ContaminationStats:
     """
-    A memory-efficient class for contamination metrics. The core data structures are bit arrays where
+    A memory-efficient class for contamination stats. The core data structures are bit arrays where
     every bit records whether an instance is dirty (contaminated) or not.
     """
 
-    def __init__(self, scenario_name: str, num_instances: int, metric_tags: Optional[List[str]] = None):
-        self.scenario_name = scenario_name
+    def __init__(self, scenario_spec: str, num_instances: int, stats_tags: Optional[List[str]] = None):
+        self.scenario_spec = scenario_spec
         self.num_instances = num_instances
-        self.metric_tags: List[str]
-        if isinstance(metric_tags, list):
-            self.metric_tags = metric_tags
+        self.stats_tags: List[str]
+        if isinstance(stats_tags, list):
+            self.stats_tags = stats_tags
         else:
-            self.metric_tags = []
+            self.stats_tags = []
 
         self._input_bits = bitarray(num_instances)
         self._reference_bits = bitarray(num_instances)
@@ -140,33 +144,35 @@ class BinaryScenarioMetric:
         self._reference_bits.setall(0)
 
     @classmethod
-    def from_scenario(cls, scenario: LightScenario, metric_tags: Optional[List[str]] = None):
-        return cls(scenario_name=scenario.name, num_instances=len(scenario.light_instances), metric_tags=metric_tags)
+    def from_scenario(cls, scenario: LightScenario, stats_tags: Optional[List[str]] = None):
+        return cls(
+            scenario_spec=scenario.scenario_spec, num_instances=len(scenario.light_instances), stats_tags=stats_tags
+        )
 
     def write_dirty(self, instance_id: int, part: str):
-        if part == "input":
+        if part == PART_INPUT:
             self._input_bits[instance_id] = 1
-        elif part == "ref":
+        elif part == PART_REF:
             self._reference_bits[instance_id] = 1
         else:
             raise ValueError(f"There is no valid part of instance named {part}")
 
     def get_bit(self, instance_id: int, part: str) -> int:
-        if part == "input":
+        if part == PART_INPUT:
             return self._input_bits[instance_id]
-        elif part == "ref":
+        elif part == PART_REF:
             return self._reference_bits[instance_id]
         else:
             raise ValueError(f"There is no valid part of instance named {part}")
 
-    def merge(self, metric):
-        """Merge two metric instance of the same scenario"""
-        if self.scenario_name != metric.scenario_name:
-            raise ValueError("Only metrics for the same scenario can be merged.")
-        if self.num_instances != metric.num_instances:
+    def merge(self, stats):
+        """Merge two stats instance of the same scenario"""
+        if self.scenario_spec != stats.scenario_spec:
+            raise ValueError("Only stats for the same scenario can be merged.")
+        if self.num_instances != stats.num_instances:
             raise ValueError("The sizes of the two scenarios need to equal.")
-        self._input_bits |= metric._input_bits
-        self._reference_bits |= metric._reference_bits
+        self._input_bits |= stats._input_bits
+        self._reference_bits |= stats._reference_bits
 
     @property
     def num_input_positive_instances(self):
@@ -184,10 +190,10 @@ class BinaryScenarioMetric:
     def reference_positive_rate(self):
         return self._reference_bits.count() / self.num_instances
 
-    def generate_summary(self, tags) -> str:
-        """Output a summary of the metric"""
+    def generate_summary(self, tags: List[str]) -> str:
+        """Output a summary of the stats"""
         summary = {
-            "Setting": f"{self.scenario_name},{','.join(tags+self.metric_tags)}",
+            "setting": f"{self.scenario_spec},{','.join(tags+self.stats_tags)}",
             "total_instances": self.num_instances,
             "num_input_positive_instances": self.num_input_positive_instances,
             "num_reference_positive_instances": self.num_reference_positive_instances,
@@ -197,11 +203,11 @@ class BinaryScenarioMetric:
         return json.dumps(summary)
 
 
-def load_scenarios_from_jsonl(filename: str) -> List[LightScenario]:
+def load_scenarios_from_jsonl(filepath: str) -> List[LightScenario]:
     """
-    Create a list of light scenarios from a jsonl file.
+    Create a list of light scenarios from a jsonl file, where each json represents a LightScenario object.
 
-    Input File Format:
+    Input file format:
 
     Instance JSON 1
     Instance JSON 2
@@ -210,21 +216,21 @@ def load_scenarios_from_jsonl(filename: str) -> List[LightScenario]:
 
     Each line is a json and each json looks like:
     {
-        "name": "SCENARIO_NAME",
+        "scenario_spec": "SCENARIO_SPEC",
         "light_instances": [
             {
-            "input": "INPUT_TEXT1",
-            "references": [
-                "REFERENCE_TEXT_1",
-                "REFERENCE_TEXT_2"
-            ]
+                "input": "INPUT_TEXT1",
+                "references": [
+                    "REFERENCE_TEXT_1",
+                    "REFERENCE_TEXT_2"
+                ]
             },
             {
-            "input": "INPUT_TEXT2",
-            "references": [
-                "REFERENCE_TEXT_3",
-                "REFERENCE_TEXT_4"
-            ]
+                "input": "INPUT_TEXT2",
+                "references": [
+                    "REFERENCE_TEXT_3",
+                    "REFERENCE_TEXT_4"
+                ]
             }
         ]
     }
@@ -234,14 +240,14 @@ def load_scenarios_from_jsonl(filename: str) -> List[LightScenario]:
         return LightInstance(input=instance_dict["input"], references=instance_dict["references"])
 
     light_scenarios: List[LightScenario] = []
-    scenario_jsons = open(filename, "r").readlines()
+    scenario_jsons = open(filepath, "r").readlines()
     for scenario_json in scenario_jsons:
         scenario_dict: dict = json.loads(scenario_json)
-        scenario_name: str = scenario_dict["name"]
+        scenario_spec: str = scenario_dict["scenario_spec"]
         light_instances: List[LightInstance] = [
             create_light_instance_from_dict(instance_dict) for instance_dict in scenario_dict["light_instances"]
         ]
-        light_scenarios.append(LightScenario(name=scenario_name, light_instances=light_instances))
+        light_scenarios.append(LightScenario(scenario_spec=scenario_spec, light_instances=light_instances))
     return light_scenarios
 
 
@@ -272,7 +278,7 @@ def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]) -> Sce
         input_ngrams.append(input_ngram_dict)
         reference_ngrams.append(reference_ngram_dict)
     return ScenarioNgrams(
-        scenario_name=scenario.name,
+        scenario_spec=scenario.scenario_spec,
         num_instances=len(scenario.light_instances),
         input_ngrams=input_ngrams,
         reference_ngrams=reference_ngrams,
@@ -281,19 +287,19 @@ def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]) -> Sce
 
 def compute_scenario_file_contamination(
     scenarios: List[LightScenario], training_file_path: str, n_values: List[int], file_format: str
-) -> List[BinaryScenarioMetric]:
-    """Given an input file, compute a contamination metric for each n and each scenario"""
-    # Initizlize a metric instance for every pair of <scenario, n>
-    all_scenario_metrics: DefaultDict[int, dict] = defaultdict(dict)
+) -> List[ContaminationStats]:
+    """Given an input file, compute a contamination stats for each n and each scenario"""
+    # Initizlize a stats instance for every pair of <scenario, n>
+    all_scenario_stats: DefaultDict[int, dict] = defaultdict(dict)
     for n in n_values:
         for scenario in scenarios:
-            all_scenario_metrics[n][scenario.name] = BinaryScenarioMetric.from_scenario(
-                scenario, metric_tags=[f"N={n}"]
+            all_scenario_stats[n][scenario.scenario_spec] = ContaminationStats.from_scenario(
+                scenario, stats_tags=[f"N={n}"]
             )
 
     # Compute ngrams for each scenario
     all_scenario_ngrams = {
-        scenario.name: compute_scenario_ngrams(scenario=scenario, n_values=n_values) for scenario in scenarios
+        scenario.scenario_spec: compute_scenario_ngrams(scenario=scenario, n_values=n_values) for scenario in scenarios
     }
 
     document_generator = DocumentReadingProcessor(
@@ -305,37 +311,37 @@ def compute_scenario_file_contamination(
         print(f"Processing the {document_index}th document...", end="\r")
         compute_scenario_document_contamination(
             all_scenario_ngrams=all_scenario_ngrams,
-            all_scenario_metrics=all_scenario_metrics,
+            all_scenario_stats=all_scenario_stats,
             document=document,
             n_values=n_values,
         )
 
     # Flatten the dict
-    output_metrics: List[BinaryScenarioMetric] = []
+    output_stats: List[ContaminationStats] = []
     for n in n_values:
         for scenario in scenarios:
-            output_metrics.append(all_scenario_metrics[n][scenario.name])
-    return output_metrics
+            output_stats.append(all_scenario_stats[n][scenario.scenario_spec])
+    return output_stats
 
 
 def compute_scenario_document_contamination(
     all_scenario_ngrams: Dict[str, ScenarioNgrams],
-    all_scenario_metrics: Dict[int, dict],
+    all_scenario_stats: Dict[int, dict],
     document: str,
     n_values: List[int],
 ):
-    """Given a document, compute a contamination metric for each n and each scenario"""
+    """Given a document, compute a contamination stats for each n and each scenario"""
     document_unigrams = document.split()
     for n in n_values:
         document_ngrams = set(ngrams(document_unigrams, n))
-        for scenario_name, scenario_ngrams in all_scenario_ngrams.items():
-            scenario_metric = all_scenario_metrics[n][scenario_name]
-            assert scenario_ngrams.num_instances == scenario_metric.num_instances
+        for scenario_spec, scenario_ngrams in all_scenario_ngrams.items():
+            scenario_stats = all_scenario_stats[n][scenario_spec]
+            assert scenario_ngrams.num_instances == scenario_stats.num_instances
             for i in range(scenario_ngrams.num_instances):
                 if len(document_ngrams.intersection(scenario_ngrams.input_ngrams[i][n])) > 0:
-                    scenario_metric.write_dirty(i, "input")
+                    scenario_stats.write_dirty(i, PART_INPUT)
                 if len(document_ngrams.intersection(scenario_ngrams.reference_ngrams[i][n])) > 0:
-                    scenario_metric.write_dirty(i, "ref")
+                    scenario_stats.write_dirty(i, PART_REF)
 
 
 if __name__ == "__main__":
@@ -362,15 +368,13 @@ if __name__ == "__main__":
     print(f"Loading scenario data from {args.scenario_data}")
     scenarios = load_scenarios_from_jsonl(args.scenario_data)
 
-    N_VALUES = [5, 9, 13]  # TODO: Pick the N values
-
-    # commpute the metrics
+    # commpute the stats
     stats: List[str] = []
-    contamination_metrics = compute_scenario_file_contamination(
+    all_contamination_stats = compute_scenario_file_contamination(
         scenarios=scenarios, training_file_path=args.input_data, n_values=N_VALUES, file_format=args.input_format
     )
-    for contamination_metric in contamination_metrics:
-        stats.append(contamination_metric.generate_summary(args.tags))
+    for contamination_stats in all_contamination_stats:
+        stats.append(contamination_stats.generate_summary(args.tags))
 
     with open(args.output_stats, "w") as f:
         f.write("\n".join(stats))

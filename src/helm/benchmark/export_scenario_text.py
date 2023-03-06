@@ -32,9 +32,9 @@ def get_light_scenarios_from_helm(
     scenario.output_path = os.path.join(scenario_download_path, scenario.name)
     ensure_directory_exists(scenario.output_path)
 
-    scenario_name = scenario.name
+    scenario_spec = scenario.name
     if len(run_spec.scenario_spec.args) > 0:
-        scenario_name += f",{','.join([str(key)+'='+str(value) for key, value in run_spec.scenario_spec.args.items()])}"
+        scenario_spec += f",{','.join([str(key)+'='+str(value) for key, value in run_spec.scenario_spec.args.items()])}"
 
     # Load instances
     helm_instances: List[Instance]
@@ -51,42 +51,14 @@ def get_light_scenarios_from_helm(
         light_instances: List[LightInstance] = [
             create_light_instance_from_helm_instance(instance) for instance in instances
         ]
-        light_scenario = LightScenario(name=scenario_name + f",split={split}", light_instances=light_instances)
+        light_scenario = LightScenario(scenario_spec=scenario_spec + f",split={split}", light_instances=light_instances)
         light_scenarios.append(light_scenario)
     return light_scenarios
 
 
 def save_scenarios_to_jsonl(light_scenarios: List[LightScenario], filename: str):
     """
-    Save a list of LightInstance to the jsonl format described below.
-
-    Input File Format:
-
-    Instance JSON 1
-    Instance JSON 2
-    Instance JSON 3
-    ...
-
-    Each line is a json and each json looks like:
-    {
-        "name": "SCENARIO_NAME",
-        "light_instances": [
-            {
-            "input": "INPUT_TEXT1",
-            "references": [
-                "REFERENCE_TEXT_1",
-                "REFERENCE_TEXT_2"
-            ]
-            },
-            {
-            "input": "INPUT_TEXT2",
-            "references": [
-                "REFERENCE_TEXT_3",
-                "REFERENCE_TEXT_4"
-            ]
-            }
-        ]
-    }
+    Save a list of LightInstance to a jsonl file where each line represents a LightScenario object.
     """
     with open(filename, "w") as f:
         for light_scenario in light_scenarios:
