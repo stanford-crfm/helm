@@ -41,6 +41,8 @@ class ScenarioNgrams:
     """
 
     # TODO: explain the structure
+    scenario_name: str
+    num_instances: int
     input_ngrams: List[Dict[int, Set[str]]]
     reference_ngrams: List[Dict[int, Set[str]]]
 
@@ -223,8 +225,8 @@ def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]):
         input_ngram_dict: Dict[int, Set[str]] = {}
         for n in n_values:
             input_ngram_set = set()
-            for ngram in ngrams(input_unigrams, n):
-                input_ngram_set.add(ngram)
+            for input_ngram in ngrams(input_unigrams, n):
+                input_ngram_set.add(input_ngram)
             input_ngram_dict[n] = input_ngram_set
 
         # compute reference ngrams
@@ -233,19 +235,23 @@ def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]):
             reference_ngram_set = set()
             for reference in instance.references:
                 reference_unigrams = reference.split()
-                for ngram in ngrams(reference_unigrams, n):
-                    reference_ngram_set.add(ngram)
+                for reference_ngram in ngrams(reference_unigrams, n):
+                    reference_ngram_set.add(reference_ngram)
             reference_ngram_dict[n] = reference_ngram_set
 
         input_ngrams.append(input_ngram_dict)
         reference_ngrams.append(reference_ngram_dict)
-    return ScenarioNgrams(input_ngrams=input_ngrams, reference_ngrams=reference_ngrams)
+    return ScenarioNgrams(
+        scenario_name=scenario.name,
+        num_instances=len(scenario.light_instances),
+        input_ngrams=input_ngrams,
+        reference_ngrams=reference_ngrams,
+    )
 
 
-def compute_instance_contamination(
+def compute_scenario_file_contamination(
     scenarios: List[LightScenario], training_file_path: str, n_values: List[int]
 ) -> List[BinaryScenarioMetric]:
-    # TODO: multiple documents
 
     """For each n, for each scenario, compute a contamination metric"""
 
@@ -257,32 +263,25 @@ def compute_instance_contamination(
                 scenario, metric_tags=[f"N={n}"]
             )
 
+    # TODO: Take it out after supporting multiple documents: not once per file.
     # Compute ngrams for each scenario
     all_scenario_ngrams = {
         scenario.name: compute_scenario_ngrams(scenario=scenario, n_values=n_values) for scenario in scenarios
     }
-    # TODO: Take it out: not once per file.
 
     document_generator = DocumentReadingProcessor(
         file_path=training_file_path, file_format="the_pile"
     ).get_document_generator()
-
-    t: int = 0
-    # TODO: take the computation part out.
+    document_index: int = 0
     for document in document_generator:
-        t += 1
-        print(f"Processing the {t}th document...", end="\r")
-        document_unigrams = document.split()
-        for scenario in scenarios:
-            scenario_ngrams = all_scenario_ngrams[scenario.name]
-            for n in n_values:
-                scenario_metric = all_scenario_metrics[n][scenario.name]
-                document_ngrams = set(ngrams(document_unigrams, n))
-                for i in range(len(scenario.light_instances)):
-                    if len(document_ngrams.intersection(scenario_ngrams.input_ngrams[i][n])) > 0:
-                        scenario_metric.write_dirty(i, "input")
-                    if len(document_ngrams.intersection(scenario_ngrams.reference_ngrams[i][n])) > 0:
-                        scenario_metric.write_dirty(i, "ref")
+        document_index += 1
+        print(f"Processing the {document_index}th document...", end="\r")
+        compute_scenario_document_contamination(
+            all_scenario_ngrams=all_scenario_ngrams,
+            all_scenario_metrics=all_scenario_metrics,
+            document=document,
+            n_values=n_values,
+        )
 
     # Flatten the dict
     output_metrics: List[BinaryScenarioMetric] = []
@@ -290,6 +289,25 @@ def compute_instance_contamination(
         for scenario in scenarios:
             output_metrics.append(all_scenario_metrics[n][scenario.name])
     return output_metrics
+
+
+def compute_scenario_document_contamination(
+    all_scenario_ngrams: Dict[str, ScenarioNgrams],
+    all_scenario_metrics: Dict[int, dict],
+    document: str,
+    n_values: List[int],
+):
+    document_unigrams = document.split()
+    for n in n_values:
+        document_ngrams = set(ngrams(document_unigrams, n))
+        for scenario_name, scenario_ngrams in all_scenario_ngrams.items():
+            scenario_metric = all_scenario_metrics[n][scenario_name]
+            assert scenario_ngrams.num_instances == scenario_metric.num_instances
+            for i in range(scenario_ngrams.num_instances):
+                if len(document_ngrams.intersection(scenario_ngrams.input_ngrams[i][n])) > 0:
+                    scenario_metric.write_dirty(i, "input")
+                if len(document_ngrams.intersection(scenario_ngrams.reference_ngrams[i][n])) > 0:
+                    scenario_metric.write_dirty(i, "ref")
 
 
 if __name__ == "__main__":
@@ -313,7 +331,9 @@ if __name__ == "__main__":
     N_VALUES = [5, 9, 13]  # TODO: Pick the N values
 
     stats: List[str] = []
-    contamination_metrics = compute_instance_contamination(scenarios, args.input_data, n_values=N_VALUES)
+    contamination_metrics = compute_scenario_file_contamination(
+        scenarios=scenarios, training_file_path=args.input_data, n_values=N_VALUES
+    )
     for contamination_metric in contamination_metrics:
         stats.append(contamination_metric.generate_summary(args.tags))
 
