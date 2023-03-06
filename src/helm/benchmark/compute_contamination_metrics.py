@@ -67,7 +67,6 @@ class ScenarioNgrams:
 class DocumentReadingProcessor:
     """
     TODO: This is probably a bad class name.
-    TODO: make file_format an commandline argument.
     """
 
     file_path: str
@@ -281,7 +280,7 @@ def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]) -> Sce
 
 
 def compute_scenario_file_contamination(
-    scenarios: List[LightScenario], training_file_path: str, n_values: List[int]
+    scenarios: List[LightScenario], training_file_path: str, n_values: List[int], file_format: str
 ) -> List[BinaryScenarioMetric]:
     """Given an input file, compute a contamination metric for each n and each scenario"""
     # Initizlize a metric instance for every pair of <scenario, n>
@@ -292,14 +291,13 @@ def compute_scenario_file_contamination(
                 scenario, metric_tags=[f"N={n}"]
             )
 
-    # TODO: Take it out after supporting multiple documents: not once per file.
     # Compute ngrams for each scenario
     all_scenario_ngrams = {
         scenario.name: compute_scenario_ngrams(scenario=scenario, n_values=n_values) for scenario in scenarios
     }
 
     document_generator = DocumentReadingProcessor(
-        file_path=training_file_path, file_format="the_pile"
+        file_path=training_file_path, file_format=file_format
     ).get_document_generator()
     document_index: int = 0
     for document in document_generator:
@@ -346,6 +344,12 @@ if __name__ == "__main__":
     parser.add_argument("--scenario-data", type=str, required=True, help="Path to scenario data (benchmarking data)")
     parser.add_argument("--output-stats", type=str, required=True, help="Path to the output file")
     parser.add_argument(
+        "--input-format",
+        type=str,
+        required=True,
+        help="The format of your input file for your training data, e.g. raw, custom, the_pile",
+    )
+    parser.add_argument(
         "--tags",
         type=str,
         nargs="+",
@@ -363,7 +367,7 @@ if __name__ == "__main__":
     # commpute the metrics
     stats: List[str] = []
     contamination_metrics = compute_scenario_file_contamination(
-        scenarios=scenarios, training_file_path=args.input_data, n_values=N_VALUES
+        scenarios=scenarios, training_file_path=args.input_data, n_values=N_VALUES, file_format=args.input_format
     )
     for contamination_metric in contamination_metrics:
         stats.append(contamination_metric.generate_summary(args.tags))
