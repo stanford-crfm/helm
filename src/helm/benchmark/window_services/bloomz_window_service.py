@@ -10,7 +10,6 @@ class BloomzWindowService(LocalWindowService):
     def max_sequence_length(self) -> int:
         """
         The model was trained with a sequence length of 2,048.
-        Source: https://huggingface.co/bigscience/bloomz
         """
         return 2048
 
