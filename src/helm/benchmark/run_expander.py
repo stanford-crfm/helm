@@ -819,6 +819,57 @@ class NumOutputTokensRunExpander(RunExpander):
             )
             for value in self.values
         ]
+    
+    
+class ChatMLRunExpander(RunExpander):
+    
+    name = "chatml"
+    
+    def __init__(self):
+        self.name = type(self).name
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = run_spec.adapter_spec
+        # according to https://github.com/openai/openai-python/blob/main/chatml.md#few-shot-prompting
+        # few-shot examples should do `<|im_start|>system name=example_user` or `<|im_start|>system name=example_assistant`
+        # but it is also possible to put examples into a user message.
+        if run_spec.name.split(':')[0] in ('msmarco',):
+            adapter_spec = replace(
+                adapter_spec,
+                # This is a hack to make sure <|im_start|>user goes before the reference.
+                instructions=(f"<|im_start|>system\n{adapter_spec.instructions}<|im_end|>\n<|im_start|>user\n" if adapter_spec.instructions != "" else "<|im_start|>user\n"),
+                instance_prefix='',
+                output_prefix=adapter_spec.output_prefix.split('\n')[0] + '<|im_end|>\n<|im_start|>assistant\n' + adapter_spec.output_prefix.split('\n')[1],
+                output_suffix='<|im_end|>\n<|im_start|>user\n',
+                stop_sequences=adapter_spec.stop_sequences + ['<|im_end|>'],
+            )
+        elif run_spec.name.split(':')[0] in ('summarization_cnndm', 'summarization_xsum'):
+            adapter_spec = replace(
+                adapter_spec,
+                # This is a hack to make sure <|im_start|>user goes before the reference.
+                instructions=(f"<|im_start|>system\n{adapter_spec.instructions}<|im_end|>\n<|im_start|>user\n" if adapter_spec.instructions != "" else "<|im_start|>user\n"),
+                instance_prefix='',
+                output_prefix=adapter_spec.output_prefix + '<|im_end|>\n<|im_start|>assistant\n',
+                output_suffix='<|im_end|>\n<|im_start|>user\n',
+                stop_sequences=adapter_spec.stop_sequences + ['<|im_end|>'],
+            )
+        else:
+            adapter_spec = replace(
+                adapter_spec,
+                # This is a hack to make sure <|im_start|>user goes before the reference.
+                instructions=(f"<|im_start|>system\n{adapter_spec.instructions}<|im_end|>\n<|im_start|>user\n" if adapter_spec.instructions != "" else "<|im_start|>user\n"),
+                instance_prefix='',
+                output_prefix='<|im_end|>\n<|im_start|>assistant\n' + adapter_spec.output_prefix,
+                output_suffix='<|im_end|>\n<|im_start|>user\n',
+                stop_sequences=adapter_spec.stop_sequences + ['<|im_end|>'],
+            )
+            
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
+            ),
+        ]
 
 
 RUN_EXPANDERS = dict(
@@ -837,5 +888,6 @@ RUN_EXPANDERS = dict(
         TokenizerRunExpander,
         NumPromptTokensRunExpander,
         NumOutputTokensRunExpander,
+        ChatMLRunExpander,
     ]
 )

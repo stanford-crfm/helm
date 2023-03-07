@@ -404,6 +404,14 @@ models:
     num_parameters: 6700000000
     release_date: 2022-11-29
     todo: true
+  - name: together/gpt-neoxt-chat-base-20b
+    display_name: GPT-NeoXT-Chat-Base (20B)
+    description: GPT-NeoXT-Chat-Base (20B) is a fork of GPT-NeoX.
+    creator_organization: Together
+    access: open
+    num_parameters: 20000000000
+    release_date: 2023-3-8
+    todo: true
 
   # Salesforce
   - name: together/codegen
