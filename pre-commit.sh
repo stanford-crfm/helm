@@ -11,7 +11,6 @@ if [ "$valid_version" == "False" ]; then
   exit 1
 fi
 
-# If this package is already installed under the deprecated name, uninstall it.
 # On Mac OS, skip installing pytorch with CUDA because CUDA is not supported
 if [[ $OSTYPE != 'darwin'* ]]; then
   # Manually install pytorch to avoid pip getting killed: https://stackoverflow.com/a/54329850
