@@ -852,40 +852,36 @@ class ChatMLRunExpander(RunExpander):
         scenario_name = run_spec.name.split(':')[0]
         
         if scenario_name in ('msmarco',):
-            """
-            output_prefix:
-                Does the passage answer the query?
-                Answer:
+            # output_prefix:
+            #     Does the passage answer the query?
+            #     Answer:
+            # 
+            # new_output_prefix:
+            #     Does the passage answer the query?<|im_end|>
+            #     <|im_start|>assistant
+            #     Answer:
             
-            new_output_prefix:
-                Does the passage answer the query?<|im_end|>
-                <|im_start|>assistant
-                Answer:
-            """
             new_output_prefix = adapter_spec.output_prefix.split('\n')[0] + '<|im_end|>\n<|im_start|>assistant\n' + adapter_spec.output_prefix.split('\n')[1]
             
         elif scenario_name in ('summarization_cnndm', 'summarization_xsum'):
-            """
-            output_prefix:
-                Summarize the above article in 1 sentence.
+            # output_prefix:
+            #     Summarize the above article in 1 sentence.
+            # 
+            # new_output_prefix:
+            #     Summarize the above article in 1 sentence.<|im_end|>
+            #     <|im_start|>assistant
+            #   
             
-            new_output_prefix:
-                Summarize the above article in 1 sentence.<|im_end|>
-                <|im_start|>assistant
-                
-            """
             new_output_prefix = adapter_spec.output_prefix + '<|im_end|>\n<|im_start|>assistant\n'
             
         else:
-            """
-            output_prefix:
-                {output_prefix}
-            
-            new_output_prefix:
-                <|im_end|>
-                <|im_start|>assistant
-                {output_prefix}
-            """
+            # output_prefix:
+            #     {output_prefix}
+            # 
+            # new_output_prefix:
+            #     <|im_end|>
+            #     <|im_start|>assistant
+            #     {output_prefix}
             
             new_output_prefix = '<|im_end|>\n<|im_start|>assistant\n' + adapter_spec.output_prefix
             
