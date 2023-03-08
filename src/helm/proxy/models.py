@@ -577,7 +577,7 @@ ALL_MODELS = [
         name="together/gpt-neoxt-chat-base-20b",
         display_name="GPT-NeoXT-Chat-Base (20B)",
         description="GPT-NeoXT-Chat-Base (20B parameters) is a fork of GPT-NeoX",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
     # Tsinghua
     Model(
