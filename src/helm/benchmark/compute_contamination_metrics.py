@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import List
 from bitarray import bitarray
 from nltk import ngrams
-from typing import Dict, Set, Optional, Generator, DefaultDict
+from typing import Dict, Optional, Generator, DefaultDict
 from collections import defaultdict
 
 # The n values of the ngrams to be computed
@@ -38,35 +38,6 @@ class LightScenario:
 
     light_instances: List[LightInstance]
     """Instances of this scenario"""
-
-
-@dataclass(frozen=True, eq=False)
-class ScenarioNgrams:
-    """
-    A data class that stores the ngram features of a scenario.
-
-    The main data structures, `input_ngrams` and `reference_ngrams`, store the ngrams of the input/reference
-    part of instances in the scenario. For each instance, there is a corresponding dictionary in `input_ngrams`
-    where the keys are n values and values are ngram sets. The order of the dictionaries is the same with the
-    order of the instances.
-
-    For example, `input_ngrams` of a scenario consisting of two instances may look like:
-    [
-        {
-           1: {"Hello", "World!"},
-           2: {"Hello World!"},
-        },
-        {
-           1: {"foo", "bar"},
-           2: {"foo bar"},
-        },
-    ]
-    """
-
-    scenario_spec: str
-    num_instances: int
-    input_ngrams: List[Dict[int, Set[str]]]
-    reference_ngrams: List[Dict[int, Set[str]]]
 
 
 @dataclass(frozen=True, eq=False)
@@ -253,56 +224,34 @@ def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     return light_scenarios
 
 
-def compute_scenario_ngrams(scenario: LightScenario, n_values: List[int]) -> ScenarioNgrams:
-    """For each n value and each instance, compute the ngram features"""
-    input_ngrams: List[Dict[int, Set[str]]] = []
-    reference_ngrams: List[Dict[int, Set[str]]] = []
-    for instance in scenario.light_instances:
-        # compute input ngrams
-        input_unigrams = instance.input.split()
-        input_ngram_dict: Dict[int, Set[str]] = {}
-        for n in n_values:
-            input_ngram_set = set()
-            for input_ngram in ngrams(input_unigrams, n):
-                input_ngram_set.add(input_ngram)
-            input_ngram_dict[n] = input_ngram_set
-
-        # compute reference ngrams
-        reference_ngram_dict: Dict[int, Set[str]] = {}
-        for n in n_values:
-            reference_ngram_set = set()
-            for reference in instance.references:
-                reference_unigrams = reference.split()
-                for reference_ngram in ngrams(reference_unigrams, n):
-                    reference_ngram_set.add(reference_ngram)
-            reference_ngram_dict[n] = reference_ngram_set
-
-        input_ngrams.append(input_ngram_dict)
-        reference_ngrams.append(reference_ngram_dict)
-    return ScenarioNgrams(
-        scenario_spec=scenario.scenario_spec,
-        num_instances=len(scenario.light_instances),
-        input_ngrams=input_ngrams,
-        reference_ngrams=reference_ngrams,
-    )
-
-
 def compute_scenario_file_contamination(
     scenarios: List[LightScenario], training_file_path: str, n_values: List[int], file_format: str
 ) -> List[ContaminationStats]:
     """Given an input file, compute a contamination stats for each n and each scenario"""
-    # Initizlize a stats instance for every pair of <scenario, n>
-    all_scenario_stats: DefaultDict[int, dict] = defaultdict(dict)
-    for n in n_values:
-        for scenario in scenarios:
-            all_scenario_stats[n][scenario.scenario_spec] = ContaminationStats.from_scenario(
-                scenario, stats_tags=[f"N={n}"]
-            )
 
-    # Compute ngrams for each scenario
-    all_scenario_ngrams = {
-        scenario.scenario_spec: compute_scenario_ngrams(scenario=scenario, n_values=n_values) for scenario in scenarios
-    }
+    all_scenario_stats: List[ContaminationStats] = []
+    # TODO: explain structure
+    ngram_index: DefaultDict[int, DefaultDict[str, List[tuple]]] = defaultdict(lambda: defaultdict(list))
+    for scenario in scenarios:
+        for n in n_values:
+            # Initizlize a stats instance for every pair of <scenario, n>
+            stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags=[f"N={n}"])
+            all_scenario_stats.append(stats)
+
+            # Build the ngram index
+            for i in range(len(scenario.light_instances)):
+                instance = scenario.light_instances[i]
+                # compute input ngrams
+                # TODO: The unigram computation can be taken out to further optimize efficiency if necessary.
+                input_unigrams = instance.input.split()
+                for input_ngram in ngrams(input_unigrams, n):
+                    ngram_index[n][input_ngram].append((stats, i, PART_INPUT))
+
+                # compute reference ngrams
+                for reference in instance.references:
+                    reference_unigrams = reference.split()
+                    for reference_ngram in ngrams(reference_unigrams, n):
+                        ngram_index[n][reference_ngram].append((stats, i, PART_REF))
 
     document_generator = DocumentReadingProcessor(
         file_path=training_file_path, file_format=file_format
@@ -312,38 +261,25 @@ def compute_scenario_file_contamination(
         document_index += 1
         print(f"Processing the {document_index}th document...", end="\r")
         compute_scenario_document_contamination(
-            all_scenario_ngrams=all_scenario_ngrams,
-            all_scenario_stats=all_scenario_stats,
+            ngram_index=ngram_index,
             document=document,
             n_values=n_values,
         )
 
-    # Flatten the dict
-    output_stats: List[ContaminationStats] = []
-    for n in n_values:
-        for scenario in scenarios:
-            output_stats.append(all_scenario_stats[n][scenario.scenario_spec])
-    return output_stats
+    return all_scenario_stats
 
 
 def compute_scenario_document_contamination(
-    all_scenario_ngrams: Dict[str, ScenarioNgrams],
-    all_scenario_stats: Dict[int, dict],
+    ngram_index: Dict[int, DefaultDict[str, list]],
     document: str,
     n_values: List[int],
 ):
     """Given a document, compute a contamination stats for each n and each scenario"""
     document_unigrams = document.split()
     for n in n_values:
-        document_ngrams = set(ngrams(document_unigrams, n))
-        for scenario_spec, scenario_ngrams in all_scenario_ngrams.items():
-            scenario_stats = all_scenario_stats[n][scenario_spec]
-            assert scenario_ngrams.num_instances == scenario_stats.num_instances
-            for i in range(scenario_ngrams.num_instances):
-                if len(document_ngrams.intersection(scenario_ngrams.input_ngrams[i][n])) > 0:
-                    scenario_stats.write_dirty(i, PART_INPUT)
-                if len(document_ngrams.intersection(scenario_ngrams.reference_ngrams[i][n])) > 0:
-                    scenario_stats.write_dirty(i, PART_REF)
+        for document_ngram in ngrams(document_unigrams, n):
+            for contamination_stats, instance_id, part in ngram_index[n][document_ngram]:
+                contamination_stats.write_dirty(instance_id, part)
 
 
 if __name__ == "__main__":
