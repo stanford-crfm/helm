@@ -50,8 +50,6 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name = "EleutherAI/gpt-neox-20b"
                 elif tokenizer_name == "bigscience/bloom":
                     hf_tokenizer_name = "bigscience/bloom"
-                elif tokenizer_name == "bigscience/bloomz":
-                    hf_tokenizer_name = "bigscience/bloomz"
                 elif tokenizer_name == "bigscience/T0pp":
                     hf_tokenizer_name = "bigscience/T0pp"
                 elif tokenizer_name == "facebook/opt-66b":

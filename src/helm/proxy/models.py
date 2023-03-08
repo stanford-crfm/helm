@@ -180,16 +180,6 @@ ALL_MODELS = [
         "on 46 natural languages and 13 programming languages.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
-    # TODO: Currently Together's BLOOMZ contains the end-of-string token </s> at the end of completions
-    # Model(
-    #     group="together",
-    #     creator_organization="BigScience",
-    #     name="together/bloomz",
-    #     display_name="BLOOMZ (176B)",
-    #     # From https://huggingface.co/bigscience/bloomz
-    #     description="BLOOMZ (176B parameters) is BLOOM that has been fine-tuned on natural language instructions.",
-    #     tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
-    # ),
     Model(
         group="together",
         creator_organization="BigScience",
