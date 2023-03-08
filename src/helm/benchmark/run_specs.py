@@ -1899,7 +1899,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if NLG_PREFIX_TAG in model.tags:
             global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
             run_spec = singleton(global_prefix_expander.expand(run_spec))
-            
+
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
