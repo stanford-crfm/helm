@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Type
 
 from helm.proxy.models import (
     get_all_code_models,
@@ -911,22 +911,22 @@ class ChatMLRunExpander(RunExpander):
         ]
 
 
-RUN_EXPANDERS = dict(
-    (expander.name, expander)
-    for expander in [
-        InstructionsRunExpander,
-        PromptRunExpander,
-        NewlineRunExpander,
-        StopRunExpander,
-        GlobalPrefixRunExpander,
-        NumTrainTrialsRunExpander,
-        MaxTrainInstancesRunExpander,
-        NumOutputsRunExpander,
-        ModelRunExpander,
-        DataAugmentationRunExpander,
-        TokenizerRunExpander,
-        NumPromptTokensRunExpander,
-        NumOutputTokensRunExpander,
-        ChatMLRunExpander,
-    ]
-)
+RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
+    InstructionsRunExpander,
+    PromptRunExpander,
+    NewlineRunExpander,
+    StopRunExpander,
+    GlobalPrefixRunExpander,
+    NumTrainTrialsRunExpander,
+    MaxTrainInstancesRunExpander,
+    NumOutputsRunExpander,
+    ModelRunExpander,
+    DataAugmentationRunExpander,
+    TokenizerRunExpander,
+    NumPromptTokensRunExpander,
+    NumOutputTokensRunExpander,
+    ChatMLRunExpander,
+]
+
+
+RUN_EXPANDERS = dict((expander.name, expander) for expander in RUN_EXPANDER_SUBCLASSES)
