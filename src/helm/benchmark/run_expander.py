@@ -846,7 +846,8 @@ class ChatMLRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         adapter_spec = run_spec.adapter_spec
         # according to https://github.com/openai/openai-python/blob/main/chatml.md#few-shot-prompting
-        # few-shot examples should do `<|im_start|>system name=example_user` or `<|im_start|>system name=example_assistant`
+        # few-shot examples should do `<|im_start|>system name=example_user`
+        # or `<|im_start|>system name=example_assistant`
         # but it is also possible to put examples into a user message.
 
         scenario_name = run_spec.name.split(":")[0]
