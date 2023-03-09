@@ -2199,9 +2199,8 @@ run_groups:
       main_split: test
     taxonomy:
       task: summarization
-      what: "?"
-      who: "?"
-      when: "?"
+      what: legal text from US bills
+      who: lawyers
       language: English
 
   - name: multilexsum_legal_summarization
@@ -2219,9 +2218,8 @@ run_groups:
       main_split: test
     taxonomy:
       task: summarization
-      what: "?"
-      who: "?"
-      when: "?"
+      what: legal text from US civil rights lawsuits
+      who: lawyers
       language: English
 
   - name: eurlexsum_legal_summarization
@@ -2239,9 +2237,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: summarization
-      what: "?"
-      who: "?"
-      when: "?"
+      what: legal text from EU legislation
+      who: lawyers
+      when: 1960 - 2020
       language: English
 
   - name: entity_data_imputation
