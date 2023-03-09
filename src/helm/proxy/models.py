@@ -11,6 +11,9 @@ EMBEDDING_MODEL_TAG: str = "embedding"
 FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
 LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 
+# ChatML format
+CHATML_MODEL_TAG: str = "chatml"
+
 # For OpenAI models with wider context windows
 WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"
 
@@ -567,6 +570,14 @@ ALL_MODELS = [
         display_name="GPT-JT (6B)",
         description="GPT-JT (6B parameters) is a fork of GPT-J",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Together",
+        name="together/gpt-neoxt-chat-base-20b",
+        display_name="GPT-NeoXT-Chat-Base (20B)",
+        description="GPT-NeoXT-Chat-Base (20B parameters) is a fork of GPT-NeoX",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
     # Tsinghua
     Model(
