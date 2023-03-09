@@ -277,9 +277,11 @@ def compute_scenario_document_contamination(
     """Given a document, compute a contamination stats for each n and each scenario"""
     document_unigrams = document.split()
     for n in n_values:
+        assert n in ngram_index
         for document_ngram in ngrams(document_unigrams, n):
-            for contamination_stats, instance_id, part in ngram_index[n][document_ngram]:
-                contamination_stats.write_dirty(instance_id, part)
+            if document_ngram in ngram_index[n]:
+                for contamination_stats, instance_id, part in ngram_index[n][document_ngram]:
+                    contamination_stats.write_dirty(instance_id, part)
 
 
 if __name__ == "__main__":
