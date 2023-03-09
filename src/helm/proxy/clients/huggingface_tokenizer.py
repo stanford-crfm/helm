@@ -58,6 +58,8 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name = "t5-11b"
                 elif tokenizer_name == "google/ul2":
                     hf_tokenizer_name = "google/ul2"
+                elif tokenizer_name == "google/flan-t5-xxl":
+                    hf_tokenizer_name = "google/flan-t5-xxl"
                 elif tokenizer_name == "bigcode/santacoder":
                     hf_tokenizer_name = "bigcode/santacoder"
                 else:

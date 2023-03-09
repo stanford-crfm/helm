@@ -347,6 +347,15 @@ ALL_MODELS = [
     Model(
         group="together",
         creator_organization="Google",
+        name="together/flan-t5-xxl",
+        display_name="Flan-T5 (11B)",
+        description="Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks.",
+        # Does not support echo=True
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Google",
         name="together/ul2",
         display_name="UL2 (20B)",
         # From https://huggingface.co/google/ul2

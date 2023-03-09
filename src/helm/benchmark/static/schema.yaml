@@ -211,7 +211,6 @@ models:
     description: Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks ([paper](https://arxiv.org/pdf/2210.11416.pdf)).
     creator_organization: Google
     access: open
-    todo: true
 
   - name: google/palm
     display_name: PaLM (540B)
