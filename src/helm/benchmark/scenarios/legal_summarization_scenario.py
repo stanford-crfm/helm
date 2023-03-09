@@ -42,13 +42,16 @@ _SUPPORTED_LANGUAGES = {
 
 def _clean_and_truncate(text: str, max_length: Optional[int] = None) -> str:
     text = text.replace("\n", " ")
-    return " ".join(text.split()[:max_length])
+    whitespace_tokens = text.split()
+    if max_length:
+        whitespace_tokens = whitespace_tokens[:max_length]
+    return " ".join(whitespace_tokens)
 
 
 class LegalSummarizationScenario(Scenario):
     """
     Scenario for single document text summarization.
-    Currently supports the following datasets:
+    Currently, supports the following datasets:
     1. BillSum (https://aclanthology.org/D19-5406/)
     2. MultiLexSum (https://arxiv.org/abs/2206.10883)
     3. EurLexSum (https://arxiv.org/abs/2210.13448)
