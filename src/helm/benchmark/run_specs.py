@@ -320,7 +320,7 @@ def get_summarization_adapter_spec(num_sents: int, max_train_instances: int = 5,
 
     if num_sents == 1:
         out_pref = "Summarize the above article in 1 sentence.\n"
-    elif num_sents == -1:
+    elif num_sents is None:
         out_pref = "Summarize the above article.\n"
     else:
         out_pref = f"Summarize the above article in {num_sents} sentences.\n"
@@ -1818,7 +1818,7 @@ def get_billsum_legal_summarization_spec(temperature: float = 0.3, device: str =
     )
 
     adapter_spec = get_summarization_adapter_spec(
-        num_sents=-1,
+        num_sents=None,
         max_tokens=1024,  # From Kornilova & Eidelmann, 2020 (https://arxiv.org/pdf/1910.00523.pdf)
         temperature=temperature,  # similar to other summarization tasks
     )
@@ -1872,7 +1872,7 @@ def get_eurlexsum_legal_summarization_spec(temperature: float = 0.3, device: str
     )
 
     adapter_spec = get_summarization_adapter_spec(
-        num_sents=-1,
+        num_sents=None,
         max_tokens=2048,  # From Aumiller et al., 2022 (https://arxiv.org/pdf/2210.13448.pdf)
         temperature=temperature,  # similar to other summarization tasks
     )
