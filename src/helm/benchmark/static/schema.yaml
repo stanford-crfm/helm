@@ -211,7 +211,6 @@ models:
     description: Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks ([paper](https://arxiv.org/pdf/2210.11416.pdf)).
     creator_organization: Google
     access: open
-    todo: true
 
   - name: google/palm
     display_name: PaLM (540B)
@@ -403,6 +402,14 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2022-11-29
+    todo: true
+  - name: together/gpt-neoxt-chat-base-20b
+    display_name: GPT-NeoXT-Chat-Base (20B)
+    description: GPT-NeoXT-Chat-Base (20B) is fine-tuned from GPT-NeoX, serving as a base model for developing open-source chatbots.
+    creator_organization: Together
+    access: open
+    num_parameters: 20000000000
+    release_date: 2023-03-08
     todo: true
 
   # Salesforce

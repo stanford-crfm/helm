@@ -73,6 +73,8 @@ def run_benchmarking(
     suite: str,
     dry_run: bool,
     skip_instances: bool,
+    skip_completed_runs: bool,
+    exit_on_error: bool,
     mongo_uri: str = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
@@ -89,7 +91,7 @@ def run_benchmarking(
         for run_spec in run_specs:
             hlog(run_spec)
 
-    runner = Runner(execution_spec, output_path, suite, skip_instances)
+    runner = Runner(execution_spec, output_path, suite, skip_instances, skip_completed_runs, exit_on_error)
     runner.run_all(run_specs)
     return run_specs
 
@@ -198,6 +200,12 @@ def main():
         help="Fail and exit immediately if a particular RunSpec fails.",
     )
     parser.add_argument(
+        "--skip-completed-runs",
+        action="store_true",
+        default=None,
+        help="Skip RunSpecs that have completed i.e. output files exists.",
+    )
+    parser.add_argument(
         "--priority",
         type=int,
         default=None,
@@ -242,6 +250,8 @@ def main():
         suite=args.suite,
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
+        skip_completed_runs=args.skip_completed_runs,
+        exit_on_error=args.exit_on_error,
         mongo_uri=args.mongo_uri,
     )
 

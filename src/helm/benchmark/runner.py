@@ -1,5 +1,6 @@
 import json
 import os
+import traceback
 import typing
 from collections import Counter
 from dataclasses import dataclass, field
@@ -71,12 +72,16 @@ class Runner:
         output_path: str,
         suite: str,
         skip_instances: bool,
+        skip_completed_runs: bool,
+        exit_on_error: bool,
     ):
         self.executor = Executor(execution_spec)
         self.dry_run: bool = execution_spec.dry_run
         self.tokenizer_service = TokenizerService(self.executor.service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.service, execution_spec.auth)
         self.skip_instances: bool = skip_instances
+        self.skip_completed_runs: bool = skip_completed_runs
+        self.exit_on_error: bool = exit_on_error
 
         ensure_directory_exists(output_path)
         # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
@@ -92,8 +97,14 @@ class Runner:
 
     def run_all(self, run_specs: List[RunSpec]):
         for run_spec in tqdm(run_specs):
-            with htrack_block(f"Running {run_spec.name}"):
-                self.run_one(run_spec)
+            try:
+                with htrack_block(f"Running {run_spec.name}"):
+                    self.run_one(run_spec)
+            except Exception as e:
+                if self.exit_on_error:
+                    raise e
+                else:
+                    hlog(f"Error when running {run_spec.name}:\n{traceback.format_exc()}")
 
     def run_one(self, run_spec: RunSpec):
         # Load the scenario
@@ -105,6 +116,12 @@ class Runner:
 
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
+
+        if self.skip_completed_runs and os.path.exists(os.path.join(run_path, "scenario_state.json")):
+            # If scenario_state.json exists, assume that all other output files exist
+            # because scenario_state.json is the last output file to be written.
+            hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
+            return
 
         # Fetch and initialize the Adapter based on the `AdapterSpec`.
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)

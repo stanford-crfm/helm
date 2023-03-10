@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Type
 
 from helm.proxy.models import (
     get_all_code_models,
@@ -821,21 +821,113 @@ class NumOutputTokensRunExpander(RunExpander):
         ]
 
 
-RUN_EXPANDERS = dict(
-    (expander.name, expander)
-    for expander in [
-        InstructionsRunExpander,
-        PromptRunExpander,
-        NewlineRunExpander,
-        StopRunExpander,
-        GlobalPrefixRunExpander,
-        NumTrainTrialsRunExpander,
-        MaxTrainInstancesRunExpander,
-        NumOutputsRunExpander,
-        ModelRunExpander,
-        DataAugmentationRunExpander,
-        TokenizerRunExpander,
-        NumPromptTokensRunExpander,
-        NumOutputTokensRunExpander,
-    ]
-)
+class ChatMLRunExpander(RunExpander):
+    """
+    Adapt to ChatML: https://github.com/openai/openai-python/blob/main/chatml.md
+    A 1-shot example:
+    <|im_start|>system
+    Translate from English to French
+    <|im_end|>
+    <|im_start|>user
+    How are you?
+    <|im_end|>
+    <|im_start|>user
+    Comment allez-vous?
+    <|im_end|>
+    <|im_start|>user
+    {{user input here}}<|im_end|>
+    """
+
+    name = "chatml"
+
+    def __init__(self):
+        self.name = type(self).name
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = run_spec.adapter_spec
+        # according to https://github.com/openai/openai-python/blob/main/chatml.md#few-shot-prompting
+        # few-shot examples should do `<|im_start|>system name=example_user`
+        # or `<|im_start|>system name=example_assistant`
+        # but it is also possible to put examples into a user message.
+
+        scenario_name = run_spec.name.split(":")[0]
+
+        if scenario_name in ("msmarco",):
+            # output_prefix:
+            #     Does the passage answer the query?
+            #     Answer:
+            #
+            # new_output_prefix:
+            #     Does the passage answer the query?<|im_end|>
+            #     <|im_start|>assistant
+            #     Answer:
+
+            new_output_prefix = (
+                adapter_spec.output_prefix.split("\n")[0]
+                + "<|im_end|>\n<|im_start|>assistant\n"
+                + adapter_spec.output_prefix.split("\n")[1]
+            )
+
+        elif scenario_name in ("summarization_cnndm", "summarization_xsum"):
+            # output_prefix:
+            #     Summarize the above article in 1 sentence.
+            #
+            # new_output_prefix:
+            #     Summarize the above article in 1 sentence.<|im_end|>
+            #     <|im_start|>assistant
+            #
+
+            new_output_prefix = adapter_spec.output_prefix + "<|im_end|>\n<|im_start|>assistant\n"
+
+        else:
+            # output_prefix:
+            #     {output_prefix}
+            #
+            # new_output_prefix:
+            #     <|im_end|>
+            #     <|im_start|>assistant
+            #     {output_prefix}
+
+            new_output_prefix = "<|im_end|>\n<|im_start|>assistant\n" + adapter_spec.output_prefix
+
+        adapter_spec = replace(
+            adapter_spec,
+            # This is a hack to make sure <|im_start|>user goes before the reference.
+            instructions=(
+                f"<|im_start|>system\n{adapter_spec.instructions}<|im_end|>\n<|im_start|>user\n"
+                if adapter_spec.instructions != ""
+                else "<|im_start|>user\n"
+            ),
+            instance_prefix="",
+            output_prefix=new_output_prefix,
+            output_suffix="<|im_end|>\n<|im_start|>user\n",
+            stop_sequences=adapter_spec.stop_sequences + ["<|im_end|>"],
+        )
+
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
+RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
+    InstructionsRunExpander,
+    PromptRunExpander,
+    NewlineRunExpander,
+    StopRunExpander,
+    GlobalPrefixRunExpander,
+    NumTrainTrialsRunExpander,
+    MaxTrainInstancesRunExpander,
+    NumOutputsRunExpander,
+    ModelRunExpander,
+    DataAugmentationRunExpander,
+    TokenizerRunExpander,
+    NumPromptTokensRunExpander,
+    NumOutputTokensRunExpander,
+    ChatMLRunExpander,
+]
+
+
+RUN_EXPANDERS = dict((expander.name, expander) for expander in RUN_EXPANDER_SUBCLASSES)

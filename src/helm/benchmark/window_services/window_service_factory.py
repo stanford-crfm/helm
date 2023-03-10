@@ -20,6 +20,7 @@ from .gptneox_window_service import GPTNeoXWindowService
 from .opt_window_service import OPTWindowService
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
+from .flan_t5_window_service import FlanT5WindowService
 from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
 from .window_service import WindowService
@@ -70,7 +71,7 @@ class WindowServiceFactory:
             window_service = ICEWindowService(service)
         elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "gooseai/gpt-j-6b"]:
             window_service = GPTJWindowService(service)
-        elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b"]:
+        elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b", "together/gpt-neoxt-chat-base-20b"]:
             window_service = GPTNeoXWindowService(service)
         elif model_name == "together/h3-2.7b":
             window_service = GPT2WindowService(service)
@@ -80,6 +81,8 @@ class WindowServiceFactory:
             window_service = T0ppWindowService(service)
         elif model_name == "together/t5-11b":
             window_service = T511bWindowService(service)
+        elif model_name == "together/flan-t5-xxl":
+            window_service = FlanT5WindowService(service)
         elif model_name == "together/ul2":
             window_service = UL2WindowService(service)
         elif model_name == "together/yalm":
