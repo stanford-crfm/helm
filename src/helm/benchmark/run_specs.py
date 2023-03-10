@@ -313,7 +313,7 @@ def get_language_modeling_adapter_spec() -> AdapterSpec:
     )
 
 
-def get_summarization_adapter_spec(num_sents: int, max_train_instances: int = 5, **kwargs) -> AdapterSpec:
+def get_summarization_adapter_spec(num_sents: Optional[int], max_train_instances: int = 5, **kwargs) -> AdapterSpec:
     """
     Used for summarization.
     """
