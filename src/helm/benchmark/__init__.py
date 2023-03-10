@@ -42,7 +42,7 @@ from .scenarios import legal_support_scenario  # noqa
 from .scenarios import entity_matching_scenario  # noqa
 from .scenarios import entity_data_imputation_scenario  # noqa
 from .scenarios import big_bench_scenario  # noqa
-from .scenarios import lm_opinions_scenario  # noqa
+from .scenarios import opinions_qa_scenario  # noqa
 
 
 # Biomedical

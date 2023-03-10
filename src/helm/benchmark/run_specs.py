@@ -1799,7 +1799,7 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         groups=["wmt_14"],
     )
 
-def get_lm_opinions_spec(
+def get_opinions_qa_spec(
         survey_type: str,
         num_logprobs: str,
         context: str = "None",
@@ -1807,7 +1807,7 @@ def get_lm_opinions_spec(
         method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
     ) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.lm_opinions_scenario.LMOpinionsScenario",
+        class_name="helm.benchmark.scenarios.opinions_qa_scenario.OpinionsQAScenario",
         args={"survey_type": survey_type, "context": context},
     )
 
@@ -1816,19 +1816,19 @@ def get_lm_opinions_spec(
         instructions="",
         input_noun="Question",
         output_noun="Answer",
-        max_train_instances=1,
+        max_train_instances=1 if 'steer' in context else 0,
         max_tokens=1,
         num_outputs=int(num_logprobs),
-        num_train_trials=1 if  context != "steer-qa" else int(num_train_trials),
+        num_train_trials=1 if context != "steer-qa" else int(num_train_trials),
         sample_train=False
     )
 
     return RunSpec(
-        name=f"lm_opinions:survey={survey_type},num_logprobs={num_logprobs},context={context},num_train_trials={num_train_trials}",
+        name=f"opinions_qa:survey={survey_type},num_logprobs={num_logprobs},context={context},num_train_trials={num_train_trials}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["lm-opinions"],
+        groups=["opinions-qa"],
     )
 
 
@@ -1889,7 +1889,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "med_paragraph_simplification": get_med_paragraph_simplification_spec,
     "med_qa": get_med_qa_spec,
     "pubmed_qa": get_pubmed_qa_spec,
-    "lm_opinions": get_lm_opinions_spec,
+    "opinions_qa": get_opinions_qa_spec,
 }
 
 
