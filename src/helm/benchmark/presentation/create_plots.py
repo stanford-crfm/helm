@@ -13,7 +13,9 @@ import numpy as np
 from scipy.stats import pearsonr
 import seaborn as sns
 
+from helm.common.hierarchical_logger import hlog
 from helm.benchmark.presentation.schema import read_schema
+from helm.benchmark.presentation.summarize import AGGREGATE_WIN_RATE_COLUMN
 
 sns.set_style("whitegrid")
 
@@ -28,6 +30,7 @@ metric_group_to_label = {
     "Toxicity": f"Toxicity {DOWN_ARROW}",
     "Efficiency": f"Inference time (s) {DOWN_ARROW}",
 }
+all_metric_groups = list(metric_group_to_label.keys())
 
 
 @dataclass
@@ -65,11 +68,11 @@ def parse_table(raw_table: dict) -> Table:
     adapters: Optional[List[str]] = None
     columns: List[Column] = []
     mean_win_rates: Optional[np.ndarray] = None
-    for header_cell, *column_cells in zip(raw_table["header"], *raw_table["rows"]):
+    for column_index, (header_cell, *column_cells) in enumerate(zip(raw_table["header"], *raw_table["rows"])):
         cell_values = get_cell_values(column_cells)
-        if header_cell["value"] == "Model/adapter":
+        if column_index == 0:
             adapters = cell_values
-        elif header_cell["value"] == "Mean win rate":
+        elif column_index == AGGREGATE_WIN_RATE_COLUMN and "win rate" in header_cell["value"]:
             mean_win_rates = np.array(cell_values)
         else:
             assert "metadata" in header_cell
@@ -93,7 +96,9 @@ def get_color_palette(n_colors: int) -> sns.palettes._ColorPalette:
 def draw_box_plot(
     x_to_ys: Mapping[str, Union[List[float], np.ndarray]], ax: matplotlib.axis.Axis, rotate_xticklabels: bool = True
 ):
-    """Given a mapping from string to floats, draw a box plit on the given axis ax."""
+    """Given a mapping from string to floats, draw a box plot on the given axis ax. For instance, this might be a
+    mapping from scenario_name to a list of model accuracies in which case the box plot captures aggregate model
+    performance and highlights outliers."""
     xs = []
     all_ys = []
     for x, ys in x_to_ys.items():
@@ -149,7 +154,7 @@ class Plotter:
         Each point corresponds to a model-scenario pair, colored by the scenario.
         """
         tables = self.get_group_tables("core_scenarios")
-        metric_groups_shown = ["Calibration", "Robustness", "Fairness", "Bias", "Toxicity", "Efficiency"]
+        metric_groups_shown = [metric_group for metric_group in all_metric_groups if metric_group != "Accuracy"]
 
         num_columns = 3
         num_rows = (len(metric_groups_shown) - 1) // num_columns + 1
@@ -196,7 +201,7 @@ class Plotter:
         single scenario.
         """
         tables = self.get_group_tables("core_scenarios")
-        metric_groups_shown = list(metric_group_to_label.keys())
+        metric_groups_shown = all_metric_groups
 
         num_columns = 3
         num_rows = (len(metric_groups_shown) - 2) // num_columns + 1
@@ -236,7 +241,7 @@ class Plotter:
         """Display the model mean win rates for each group as a bar chart."""
         tables = self.get_group_tables("core_scenarios")
 
-        metric_groups_shown = ["Accuracy", "Calibration", "Robustness", "Fairness", "Bias", "Toxicity"]
+        metric_groups_shown = [metric_group for metric_group in all_metric_groups if metric_group != "Efficiency"]
         num_columns = 3
         num_rows = (len(metric_groups_shown) - 1) // num_columns + 1
         fig, axarr = plt.subplots(num_rows, num_columns, figsize=(4 * num_columns, 6.7 * num_rows))
@@ -338,14 +343,14 @@ class Plotter:
             grain = 10 ** (len(str(size)) - 1)
             return round(size / grain) * grain  # only look at first digit
 
-        # Read the perplexity of ThePile according to each model
+        # Read the perplexity of The Pile according to each model
         bpb_table = self.get_group_tables("the_pile")["The Pile"]
         model_to_bpb: Dict[str, float] = {
             model: bpb for model, bpb in zip(bpb_table.adapters, bpb_table.columns[0].values)
         }
 
         def get_model_perplexity(model_name: str) -> Optional[float]:
-            """Maps a model name to the perplexity of ThePile of parameters, rounding based on some granularity."""
+            """Maps a model name to the perplexity of The Pile of parameters, rounding based on some granularity."""
             if model_name not in model_to_bpb or np.isnan(model_to_bpb[model_name]):
                 return None
             bpb = model_to_bpb[model_name]
@@ -354,7 +359,7 @@ class Plotter:
 
         self.create_accuracy_v_model_property_plot("Release date", get_model_release_date, cumulative=True)
         self.create_accuracy_v_model_property_plot("Num parameters", get_model_size, cumulative=True, logscale=True)
-        self.create_accuracy_v_model_property_plot("ThePile perplexity", get_model_perplexity, logscale=True)
+        self.create_accuracy_v_model_property_plot("The Pile perplexity", get_model_perplexity, logscale=True)
 
     def create_accuracy_v_access_bar_plot(self):
         """
@@ -530,7 +535,7 @@ class Plotter:
                 xs = np.arange(len(models))
                 ax.bar(xs + (j - 1) * width, ys, width, color=palette[j], label=method_to_label[method])
                 ax.set_xticks(xs, models, rotation=-20, ha="left")
-                ax.set_title(f"column.group ({column.metric})")
+                ax.set_title(f"{column.group} ({column.metric})")
                 if i == 0:
                     ax.legend(ncol=3, loc="upper left", bbox_to_anchor=(0, 1.4))
         fig.subplots_adjust(wspace=0.25, hspace=0.65)
@@ -569,11 +574,19 @@ class Plotter:
 
 
 def main():
+    """
+    This script creates the plots used in the HELM paper (https://arxiv.org/abs/2211.09110).
+    It should be run _after_ running `summarize.py` with the same `benchmark_output` and `suite` arguments and through
+    the top-level command `helm-create-plots`.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output-path", type=str, help="Path to benchmarking output", default="benchmark_output")
     parser.add_argument("--suite", type=str, help="Name of the suite that we are plotting", required=True)
     args = parser.parse_args()
     base_path = os.path.join(args.output_path, "runs", args.suite)
+    if not os.path.exists(os.path.join(base_path, "groups")):
+        hlog(f"ERROR: Could not find `groups` directory under {base_path}. Did you run `summarize.py` first?")
+        return
     save_path = os.path.join(base_path, "plots")
     plotter = Plotter(base_path=base_path, save_path=save_path)
     plotter.create_all_plots()
