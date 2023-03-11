@@ -20,8 +20,7 @@ class ClassificationMetric(Metric):
 
     Note:
     - The set of classes is derived from the correct references from all the instances.
-      This means that classes may be omitted if they never are never used as a correct
-      reference.
+      This means that classes may be omitted if they are never used as a correct reference.
     - Generations that are not in any of the known classes are counted as a
       negative prediction for every class.
     - Perturbed classes are considered different classes from unperturbed
