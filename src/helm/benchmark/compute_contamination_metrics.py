@@ -1,5 +1,7 @@
 import json
 import argparse
+import os
+import glob
 from dataclasses import dataclass
 from typing import List
 from bitarray import bitarray
@@ -163,10 +165,14 @@ class ContaminationStats:
     def reference_positive_rate(self):
         return self._reference_bits.count() / self.num_instances
 
+    @property
+    def stats_repr(self) -> str:
+        return f"{self.scenario_spec},{','.join(self.stats_tags)}"
+
     def generate_summary(self, tags: List[str]) -> str:
         """Output a summary of the stats"""
         summary = {
-            "setting": f"{self.scenario_spec},{','.join(tags+self.stats_tags)}",
+            "setting": f"{self.stats_repr}{'' if len(tags) == 0 else ','+','.join(tags)}",
             "total_instances": self.num_instances,
             "num_input_positive_instances": self.num_input_positive_instances,
             "num_reference_positive_instances": self.num_reference_positive_instances,
@@ -225,33 +231,20 @@ def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
 
 
 def compute_scenario_file_contamination(
-    scenarios: List[LightScenario], training_file_path: str, n_values: List[int], file_format: str
-) -> List[ContaminationStats]:
+    scenarios: List[LightScenario],
+    training_file_path: str,
+    n_values: List[int],
+    file_format: str,
+    ngram_index: DefaultDict[int, DefaultDict[str, List]],
+) -> Dict[str, ContaminationStats]:
     """Given an input file, compute a contamination stats for each n and each scenario"""
 
-    all_scenario_stats: List[ContaminationStats] = []
-    # TODO: explain structure
-    ngram_index: DefaultDict[int, DefaultDict[str, List[tuple]]] = defaultdict(lambda: defaultdict(list))
+    all_scenario_stats: Dict[str, ContaminationStats] = {}
     for scenario in scenarios:
         for n in n_values:
             # Initizlize a stats instance for every pair of <scenario, n>
             stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags=[f"N={n}"])
-            all_scenario_stats.append(stats)
-
-            # Build the ngram index
-            for i in range(len(scenario.light_instances)):
-                instance = scenario.light_instances[i]
-                # compute input ngrams
-                # TODO: The unigram computation can be taken out to further optimize efficiency if necessary.
-                input_unigrams = instance.input.split()
-                for input_ngram in ngrams(input_unigrams, n):
-                    ngram_index[n][input_ngram].append((stats, i, PART_INPUT))
-
-                # compute reference ngrams
-                for reference in instance.references:
-                    reference_unigrams = reference.split()
-                    for reference_ngram in ngrams(reference_unigrams, n):
-                        ngram_index[n][reference_ngram].append((stats, i, PART_REF))
+            all_scenario_stats[stats.stats_repr] = stats
 
     document_generator = DocumentReadingProcessor(
         file_path=training_file_path, file_format=file_format
@@ -305,17 +298,63 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    input_file_paths: List[str]
+    if os.path.isdir(args.input_data):
+        input_file_paths = []
+        for file_path in glob.iglob(os.path.join(args.input_data, "**/*"), recursive=True):
+            if os.path.isfile(file_path):
+                input_file_paths.append(file_path)
+    else:
+        input_file_paths = [args.input_data]
+    print(f"The input data will be loaded from {input_file_paths}")
+
     print(f"Loading scenario data from {args.scenario_data}")
     scenarios = load_scenarios_from_jsonl(args.scenario_data)
 
+    # initialize the stats and ngram_index
+    all_contamination_stats: Dict[str, ContaminationStats] = {}
+    ngram_index: DefaultDict[int, DefaultDict[str, List[tuple]]] = defaultdict(lambda: defaultdict(list))
+    for scenario in scenarios:
+        for n in N_VALUES:
+            # Initizlize a stats instance for every pair of <scenario, n>
+            stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags=[f"N={n}"])
+            if stats.stats_repr in all_contamination_stats:
+                raise ValueError("Duplicated settings detected.")
+            else:
+                all_contamination_stats[stats.stats_repr] = stats
+
+            # Build the ngram index
+            for i in range(len(scenario.light_instances)):
+                instance = scenario.light_instances[i]
+                # compute input ngrams
+                # TODO: The unigram computation can be taken out to further optimize efficiency if necessary.
+                input_unigrams = instance.input.split()
+                for input_ngram in ngrams(input_unigrams, n):
+                    ngram_index[n][input_ngram].append((stats, i, PART_INPUT))
+
+                # compute reference ngrams
+                for reference in instance.references:
+                    reference_unigrams = reference.split()
+                    for reference_ngram in ngrams(reference_unigrams, n):
+                        ngram_index[n][reference_ngram].append((stats, i, PART_REF))
+
     # commpute the stats
-    stats: List[str] = []
-    all_contamination_stats = compute_scenario_file_contamination(
-        scenarios=scenarios, training_file_path=args.input_data, n_values=N_VALUES, file_format=args.input_format
-    )
-    for contamination_stats in all_contamination_stats:
-        stats.append(contamination_stats.generate_summary(args.tags))
+    for input_file_path in input_file_paths:
+        print(f"Computing contamination stats for {input_file_path}")
+        file_contamination_stats = compute_scenario_file_contamination(
+            scenarios=scenarios,
+            training_file_path=input_file_path,
+            n_values=N_VALUES,
+            file_format=args.input_format,
+            ngram_index=ngram_index,
+        )
+        for stats_repr in all_contamination_stats:
+            all_contamination_stats[stats_repr].merge(file_contamination_stats[stats_repr])
+
+    stats_summaries: List[str] = []
+    for contamination_stats in all_contamination_stats.values():
+        stats_summaries.append(contamination_stats.generate_summary(args.tags))
 
     with open(args.output_stats, "w") as f:
-        f.write("\n".join(stats))
-    print(f"Written {len(stats)} results to {args.output_stats}")
+        f.write("\n".join(stats_summaries))
+    print(f"Written {len(stats_summaries)} results to {args.output_stats}")
