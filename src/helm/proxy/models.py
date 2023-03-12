@@ -606,6 +606,14 @@ ALL_MODELS = [
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
+        group="dall_e",
+        creator_organization="kakaobrain",
+        name="kakaobrain/mindall-e",
+        display_name="minDALL-E (1.3B)",
+        description="minDALL-E, named after minGPT, is a 1.3B text-to-image generation model trained on 14 million image-text pairs for non-commercial purposes.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
         group="lexica",
         creator_organization="Lexica",
         name="lexica/search-stable-diffusion-1.5",

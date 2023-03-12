@@ -45,6 +45,10 @@ google-api-python-client~=2.64.0
 google-cloud-translate~=3.0.1
 revChatGPT~=0.1.1
 diffusers[torch]~=0.13.1
+#minDALLE
+pytorch-lightning~=1.6.5
+omegaconf~=2.3.0
+einops~=0.6.0
 
 # Scenarios
 datasets~=2.5.2  # For math scenarios
