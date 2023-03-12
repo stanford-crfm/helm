@@ -21,10 +21,12 @@ from .client import Client, wrap_request_time
 
 import numpy as np
 from .mindalle.models import Dalle
-# from .mindalle.utils.utils import set_seed
 
 
 class MinDALLEClient(Client):
+    """
+    Source: https://github.com/kakaobrain/mindall-e
+    """
     def __init__(self, cache_config: CacheConfig, file_cache: FileCache):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache

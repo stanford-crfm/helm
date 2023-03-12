@@ -37,6 +37,9 @@ VQGAN_COMMIT_ID = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
 
 
 class DALLEMiniClient(Client):
+    """
+    Source: https://github.com/borisdayma/dalle-mini, https://github.com/patil-suraj/vqgan-jax
+    """
     def __init__(self, cache_config: CacheConfig, file_cache: FileCache):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
