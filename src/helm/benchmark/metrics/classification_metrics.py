@@ -28,10 +28,12 @@ class ClassificationMetric(Metric):
     - Currently, multi-label classification is not supported.
     """
 
+    delimiter = ','
+
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         y_pred: List[str] = []
         y_true: List[str] = []
-        for request_state in request_states:
+        for request_state in request_states: # TODO: Question: does it ever have more than 1 request_state?
             # Only the generation adapter is supported.
             # TODO: Support multiple_choice_* adapters.
             if request_state.reference_index is not None:
@@ -47,12 +49,10 @@ class ClassificationMetric(Metric):
                 if reference.is_correct:
                     num_correct += 1
                     y_true.append(normalize_text(reference.output.text))
-            if num_correct != 1:
-                # TODO: Support multi-label classification.
-                raise ValueError("ClassificationMetric does not support multi-label classification")
             if request_state.output_mapping:
                 raise ValueError("ClassificationMetric does not support multiple choice adapters")
-            y_pred.append(normalize_text(request_state.result.completions[0].text))
+            predictions = normalize_text(request_state.result.completions[0].text)
+            y_pred.extend(predictions.split(self.delimiter))
         labels = list(set(y_true))
         return [
             Stat(MetricName("classification_macro_f1")).add(
