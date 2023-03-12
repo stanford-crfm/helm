@@ -614,6 +614,22 @@ ALL_MODELS = [
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
+        group="dall_e",
+        creator_organization="craiyon",
+        name="craiyon/dalle-mini",
+        display_name="DALL-E mini (0.4B)",
+        description="DALL-E mini (0.4B parameters) is an open-source text-to-image model that attempt to reproduce OpenAI DALL-E 1.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="dall_e",
+        creator_organization="craiyon",
+        name="craiyon/dalle-mega",
+        display_name="DALL-E mega (2.6B)",
+        description="DALL-E mega (2.6B parameters) is an open-source text-to-image model that attempt to reproduce OpenAI DALL-E 1.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
         group="lexica",
         creator_organization="Lexica",
         name="lexica/search-stable-diffusion-1.5",

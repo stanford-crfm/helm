@@ -19,23 +19,59 @@ from helm.common.tokenization_request import (
 )
 from .client import Client, wrap_request_time
 
+#For DALLE mini
+import jax
+import jax.numpy as jnp
 import numpy as np
-from .mindalle.models import Dalle
-# from .mindalle.utils.utils import set_seed
+from PIL import Image
+from tqdm import tqdm
+from functools import partial
+from transformers import CLIPProcessor, FlaxCLIPModel
+from flax.jax_utils import replicate
+from flax.training.common_utils import shard_prng_key
+from .dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
+from .dalle_mini import DalleBart, DalleBartProcessor
+
+VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
+VQGAN_COMMIT_ID = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
 
 
-class MinDALLEClient(Client):
+class DALLEMiniClient(Client):
     def __init__(self, cache_config: CacheConfig, file_cache: FileCache):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
 
+        self._model_engine_to_model = {}
         self._promptist_model = None
         self._promptist_tokenizer = None
 
-    def _get_model(self) -> Dalle:
-        model = Dalle.from_pretrained('minDALL-E/1.3B')
-        model = model.to(get_torch_device_name())
-        return model
+    def _get_model(self, model_engine: str):
+        """
+        Initialize the model based on the model name.
+        Cache the model, so it doesn't get reinitialize for a new request.
+        """
+        if model_engine not in self._model_engine_to_model:
+            model_name: str
+            if model_engine == "dalle-mini":
+                model_name = "dalle-mini/dalle-mini/mini-1:v0"
+            elif model_engine == "dalle-mega":
+                model_name = "dalle-mini/dalle-mini/mega-1-fp16:latest"
+            else:
+                raise ValueError(f"Unhandled model: {model_engine}")
+
+            model, params = DalleBart.from_pretrained(
+                model_name, revision=None, dtype=jnp.float16, _do_init=False
+            )
+            processor = DalleBartProcessor.from_pretrained(
+                model_name, revision=None
+            )
+            vqgan, vqgan_params = VQModel.from_pretrained(
+                VQGAN_REPO, revision=VQGAN_COMMIT_ID, _do_init=False
+            )
+            params = replicate(params)
+            vqgan_params = replicate(vqgan_params)
+            self._model_engine_to_model[model_engine] = [model, params, processor, vqgan, vqgan_params]
+        return self._model_engine_to_model[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
         if not isinstance(request, TextToImageRequest):
@@ -43,13 +79,10 @@ class MinDALLEClient(Client):
 
         raw_request = {
             "prompt": request.prompt,
-            # Setting this to a higher value can cause CUDA OOM
-            # Fix it to 1 and generate an image `request.num_completions` times
-            "num_candidates": 1,
-            "softmax_temperature": 1.0,
-            "top_k": 256, # It is recommended that top_k is set lower than 256.
+            "top_k": None,
             "top_p": None,
-            "device": get_torch_device_name(),
+            "temperature": None,
+            "condition_scale": 10.0,
         }
 
         try:
@@ -60,18 +93,67 @@ class MinDALLEClient(Client):
                 new_request["prompt"] = new_prompt
                 return new_request
 
+            def _inference(
+                model, params, vqgan, vqgan_params,
+                tokenized_prompt, subkey,
+                top_k, top_p, temperature, condition_scale
+            ):
+                @partial(jax.pmap, axis_name="batch", static_broadcasted_argnums=(3, 4, 5, 6))
+                def p_generate(
+                    tokenized_prompt, key, params, top_k, top_p, temperature, condition_scale
+                ):
+                    return model.generate(
+                        **tokenized_prompt,
+                        prng_key=key,
+                        params=params,
+                        top_k=top_k,
+                        top_p=top_p,
+                        temperature=temperature,
+                        condition_scale=condition_scale,
+                    )
+                @partial(jax.pmap, axis_name="batch")
+                def p_decode(indices, params):
+                    return vqgan.decode_code(indices, params=params)
+                # generate images
+                encoded_images = p_generate(
+                    tokenized_prompt,
+                    shard_prng_key(subkey),
+                    params,
+                    top_k,
+                    top_p,
+                    temperature,
+                    condition_scale,
+                )
+                # remove BOS
+                encoded_images = encoded_images.sequences[..., 1:]
+                # decode images
+                decoded_images = p_decode(encoded_images, vqgan_params)
+                decoded_images = decoded_images.clip(0.0, 1.0).reshape((-1, 256, 256, 3))
+                return decoded_images
+
             def do_it():
                 prompt: str = request.prompt
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):
-                    model: Dalle = self._get_model()
+                    model, params, processor, vqgan, vqgan_params = self._get_model(request.model_engine)
+                    tokenized_prompts = processor([prompt])
+                    tokenized_prompt = replicate(tokenized_prompts)
+
                     promptist_prompt: Optional[str] = None
 
                     images: List[Image] = []
+                    key = jax.random.PRNGKey(0)
                     for _ in range(request.num_completions):
-                        output = model.sampling(**raw_request).cpu().numpy()
-                        output = np.transpose(output, (0, 2, 3, 1))
-                        image = Image.fromarray(np.asarray(output[0] * 255, dtype=np.uint8))
+                        key, subkey = jax.random.split(key)
+                        image = _inference(
+                            model, params, vqgan, vqgan_params,
+                            tokenized_prompt, subkey,
+                            raw_request["top_k"],
+                            raw_request["top_p"],
+                            raw_request["temperature"],
+                            raw_request["condition_scale"],
+                        )[0]
+                        image = Image.fromarray(np.asarray(image * 255, dtype=np.uint8))
                         images.append(image)
 
                     assert (
@@ -97,7 +179,7 @@ class MinDALLEClient(Client):
             )
             results, cached = self._cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:
-            error: str = f"MinDALLEClient error: {e}"
+            error: str = f"DALLEMiniClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
