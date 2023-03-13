@@ -205,6 +205,9 @@ def compute_aggregate_row_win_rates(table: Table, aggregation: str = "mean") -> 
     return aggregate_win_rates
 
 
+AGGREGATE_WIN_RATE_COLUMN = 1
+
+
 class Summarizer:
     """Summarize the benchmark results in JSON files to be displayed in the UI."""
 
@@ -747,7 +750,6 @@ class Summarizer:
             # add overall win rate as the second column
             WIN_RATE_AGGREGATION = "mean"
             win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
-            AGGREGATE_WIN_RATE_COLUMN = 1
             description = "How many models this model outperform on average (over columns)."
             table.header.insert(
                 AGGREGATE_WIN_RATE_COLUMN,
