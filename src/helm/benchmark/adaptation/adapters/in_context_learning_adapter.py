@@ -219,7 +219,7 @@ class InContextLearningAdapter(Adapter, ABC):
         # References (optionally) and output
         output: str
 
-        delimiter = ','
+        delimiter = ","
         if reference_index is None:
             # Put only the correct reference as the output
             correct_references: List[Reference] = instance.all_correct_references

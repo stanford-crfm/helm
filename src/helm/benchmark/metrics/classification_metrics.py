@@ -28,7 +28,7 @@ class ClassificationMetric(Metric):
     - Currently, multi-label classification is not supported.
     """
 
-    delimiter = ','
+    delimiter = ","
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         y_pred: List[str] = []
@@ -47,7 +47,7 @@ class ClassificationMetric(Metric):
             num_correct = 0
             for reference in request_state.instance.references:
                 if reference.is_correct:
-                    if reference.output.text == 'No Label':
+                    if reference.output.text == "No Label":
                         break  # if there is no label, the y_true list should be empty
                     num_correct += 1
                     y_true.append(normalize_text(reference.output.text))
