@@ -27,6 +27,7 @@ class MinDALLEClient(Client):
     """
     Source: https://github.com/kakaobrain/mindall-e
     """
+
     def __init__(self, cache_config: CacheConfig, file_cache: FileCache):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
@@ -35,7 +36,7 @@ class MinDALLEClient(Client):
         self._promptist_tokenizer = None
 
     def _get_model(self) -> Dalle:
-        model = Dalle.from_pretrained('minDALL-E/1.3B')
+        model = Dalle.from_pretrained("minDALL-E/1.3B")
         model = model.to(get_torch_device_name())
         return model
 
@@ -49,7 +50,7 @@ class MinDALLEClient(Client):
             # Fix it to 1 and generate an image `request.num_completions` times
             "num_candidates": 1,
             "softmax_temperature": 1.0,
-            "top_k": 256, # It is recommended that top_k is set lower than 256.
+            "top_k": 256,  # It is recommended that top_k is set lower than 256.
             "top_p": None,
             "device": get_torch_device_name(),
         }

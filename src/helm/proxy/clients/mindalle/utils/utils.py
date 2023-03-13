@@ -25,12 +25,10 @@ def set_seed(seed: int):
 
 
 @torch.no_grad()
-def clip_score(prompt: str,
-               images: np.ndarray,
-               model_clip: torch.nn.Module,
-               preprocess_clip,
-               device: str) -> np.ndarray:
-    images = [preprocess_clip(Image.fromarray((image*255).astype(np.uint8))) for image in images]
+def clip_score(
+    prompt: str, images: np.ndarray, model_clip: torch.nn.Module, preprocess_clip, device: str
+) -> np.ndarray:
+    images = [preprocess_clip(Image.fromarray((image * 255).astype(np.uint8))) for image in images]
     images = torch.stack(images, dim=0).to(device=device)
     texts = clip.tokenize(prompt).to(device=device)
     texts = torch.repeat_interleave(texts, images.shape[0], dim=0)
@@ -46,7 +44,7 @@ def clip_score(prompt: str,
 def download(url: str, root: str) -> str:
     os.makedirs(root, exist_ok=True)
     filename = os.path.basename(url)
-    pathname = filename[:-len('.tar.gz')]
+    pathname = filename[: -len(".tar.gz")]
 
     expected_md5 = url.split("/")[-2]
     download_target = os.path.join(root, filename)
@@ -55,9 +53,10 @@ def download(url: str, root: str) -> str:
     if os.path.isfile(download_target) and (os.path.exists(result_path) and not os.path.isfile(result_path)):
         return result_path
 
-    with urllib.request.urlopen(url) as source, open(download_target, 'wb') as output:
-        with tqdm(total=int(source.info().get('Content-Length')), ncols=80, unit='iB', unit_scale=True,
-                  unit_divisor=1024) as loop:
+    with urllib.request.urlopen(url) as source, open(download_target, "wb") as output:
+        with tqdm(
+            total=int(source.info().get("Content-Length")), ncols=80, unit="iB", unit_scale=True, unit_divisor=1024
+        ) as loop:
             while True:
                 buffer = source.read(8192)
                 if not buffer:
@@ -66,19 +65,19 @@ def download(url: str, root: str) -> str:
                 output.write(buffer)
                 loop.update(len(buffer))
 
-    if hashlib.md5(open(download_target, 'rb').read()).hexdigest() != expected_md5:
-        raise RuntimeError(f'Model has been downloaded but the md5 checksum does not not match')
+    if hashlib.md5(open(download_target, "rb").read()).hexdigest() != expected_md5:
+        raise RuntimeError(f"Model has been downloaded but the md5 checksum does not not match")
 
-    with tarfile.open(download_target, 'r:gz') as f:
+    with tarfile.open(download_target, "r:gz") as f:
         pbar = tqdm(f.getmembers(), total=len(f.getmembers()))
         for member in pbar:
-            pbar.set_description(f'extracting: {member.name} (size:{member.size // (1024 * 1024)}MB)')
+            pbar.set_description(f"extracting: {member.name} (size:{member.size // (1024 * 1024)}MB)")
             f.extract(member=member, path=root)
 
     return result_path
 
 
 def realpath_url_or_path(url_or_path: str, root: str = None) -> str:
-    if urllib.parse.urlparse(url_or_path).scheme in ('http', 'https'):
+    if urllib.parse.urlparse(url_or_path).scheme in ("http", "https"):
         return download(url_or_path, root)
     return url_or_path

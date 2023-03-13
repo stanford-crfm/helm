@@ -11,9 +11,7 @@ from .utils import PretrainedFromWandbMixin
 
 
 class DalleBartProcessorBase:
-    def __init__(
-        self, tokenizer: DalleBartTokenizer, normalize_text: bool, max_text_length: int
-    ):
+    def __init__(self, tokenizer: DalleBartTokenizer, normalize_text: bool, max_text_length: int):
         self.tokenizer = tokenizer
         self.normalize_text = normalize_text
         self.max_text_length = max_text_length

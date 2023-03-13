@@ -52,9 +52,7 @@ class Dataset:
         # feed blank captions only in streaming mode for now
         # otherwise dataset could be cached with same blanked captions
         if self.blank_caption_prob:
-            assert (
-                self.streaming is True
-            ), "blank_caption_prob can only be used in streaming mode"
+            assert self.streaming is True, "blank_caption_prob can only be used in streaming mode"
         # define data_files
         if self.train_file is not None or self.validation_file is not None:
             # accept braceexpand notation
@@ -63,14 +61,8 @@ class Dataset:
                 if isinstance(f, str):
                     setattr(self, k, list(braceexpand(f)))
             # for list of files, split training data shards by host
-            if (
-                isinstance(self.train_file, list)
-                and self.multi_hosts
-                and self.shard_by_host
-            ):
-                self.train_file = self.train_file[
-                    jax.process_index() :: jax.process_count()
-                ]
+            if isinstance(self.train_file, list) and self.multi_hosts and self.shard_by_host:
+                self.train_file = self.train_file[jax.process_index() :: jax.process_count()]
             data_files = {
                 "train": self.train_file,
                 "validation": self.validation_file,
@@ -122,9 +114,7 @@ class Dataset:
                 )
             # other eval datasets
             other_eval_splits = dataset.keys() - {"train", "validation"}
-            self.other_eval_datasets = {
-                split: dataset[split] for split in other_eval_splits
-            }
+            self.other_eval_datasets = {split: dataset[split] for split in other_eval_splits}
 
     def preprocess(self, tokenizer, config):
         # get required config variables
@@ -135,9 +125,7 @@ class Dataset:
         if self.streaming:
             # we need to shuffle early in streaming mode
             if hasattr(self, "train_dataset"):
-                self.train_dataset = self.train_dataset.shuffle(
-                    buffer_size=5000, seed=self.seed_dataset
-                )
+                self.train_dataset = self.train_dataset.shuffle(buffer_size=5000, seed=self.seed_dataset)
         else:
             self.rng_dataset = jax.random.PRNGKey(self.seed_dataset)
 
@@ -234,9 +222,7 @@ class Dataset:
                     if self.streaming
                     else self.train_dataset.map(
                         partial_blank_caption_function,
-                        num_proc=None
-                        if self.seed_dataset
-                        else self.preprocessing_num_workers,
+                        num_proc=None if self.seed_dataset else self.preprocessing_num_workers,
                         load_from_cache_file=False,
                         desc="Blanking some captions",
                     )
@@ -316,9 +302,7 @@ class Dataset:
             else:
                 batch_idx = jnp.arange(len(dataset))
 
-            batch_idx = batch_idx[
-                : steps_per_epoch * batch_size
-            ]  # Skip incomplete batch.
+            batch_idx = batch_idx[: steps_per_epoch * batch_size]  # Skip incomplete batch.
             batch_idx = batch_idx.reshape((steps_per_epoch, batch_size))
 
             for idx in batch_idx:
@@ -376,12 +360,8 @@ class Dataset:
             if self.max_eval_samples is not None:
                 len_eval_dataset = self.max_eval_samples
         else:
-            len_train_dataset = (
-                len(self.train_dataset) if hasattr(self, "train_dataset") else None
-            )
-            len_eval_dataset = (
-                len(self.eval_dataset) if hasattr(self, "eval_dataset") else None
-            )
+            len_train_dataset = len(self.train_dataset) if hasattr(self, "train_dataset") else None
+            len_eval_dataset = len(self.eval_dataset) if hasattr(self, "eval_dataset") else None
         return len_train_dataset, len_eval_dataset
 
 
@@ -396,11 +376,7 @@ def shift_tokens_right(input_ids: np.array, decoder_start_token_id: int):
 
 
 def blank_caption_function(example, text_column, blank_caption_prob, rng=None):
-    if (
-        blank_caption_prob
-        and (rng.random() if rng is not None else np.random.random())
-        < blank_caption_prob
-    ):
+    if blank_caption_prob and (rng.random() if rng is not None else np.random.random()) < blank_caption_prob:
         example[text_column] = ""
     return example
 

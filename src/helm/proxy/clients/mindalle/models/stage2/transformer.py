@@ -16,11 +16,7 @@ from .layers import Block
 
 
 class Transformer1d(nn.Module):
-
-    def __init__(self,
-                 vocab_size_txt: int,
-                 vocab_size_img: int,
-                 hparams: OmegaConf) -> None:
+    def __init__(self, vocab_size_txt: int, vocab_size_img: int, hparams: OmegaConf) -> None:
         super().__init__()
         assert hparams.n_layers == hparams.n_dense_layers
 
@@ -34,14 +30,19 @@ class Transformer1d(nn.Module):
         self.drop = nn.Dropout(hparams.embd_pdrop)
 
         # transformer blocks
-        self.blocks = [Block(ctx_len=hparams.ctx_len_img + hparams.ctx_len_txt,
-                             embed_dim=hparams.embed_dim,
-                             n_heads=hparams.n_heads,
-                             mlp_bias=hparams.mlp_bias,
-                             attn_bias=hparams.attn_bias,
-                             resid_pdrop=hparams.resid_pdrop,
-                             attn_pdrop=hparams.attn_pdrop,
-                             gelu_use_approx=hparams.gelu_use_approx) for i in range(1, hparams.n_layers+1)]
+        self.blocks = [
+            Block(
+                ctx_len=hparams.ctx_len_img + hparams.ctx_len_txt,
+                embed_dim=hparams.embed_dim,
+                n_heads=hparams.n_heads,
+                mlp_bias=hparams.mlp_bias,
+                attn_bias=hparams.attn_bias,
+                resid_pdrop=hparams.resid_pdrop,
+                attn_pdrop=hparams.attn_pdrop,
+                gelu_use_approx=hparams.gelu_use_approx,
+            )
+            for i in range(1, hparams.n_layers + 1)
+        ]
         self.blocks = nn.Sequential(*self.blocks)
 
         # heads for image and text
@@ -64,11 +65,13 @@ class Transformer1d(nn.Module):
             module.bias.data.zero_()
             module.weight.data.fill_(1.0)
 
-    def forward(self,
-                images: torch.LongTensor,
-                texts: torch.LongTensor,
-                pos_images: torch.LongTensor,
-                pos_texts: torch.LongTensor) -> Tuple[torch.FloatTensor, torch.FloatTensor]:
+    def forward(
+        self,
+        images: torch.LongTensor,
+        texts: torch.LongTensor,
+        pos_images: torch.LongTensor,
+        pos_texts: torch.LongTensor,
+    ) -> Tuple[torch.FloatTensor, torch.FloatTensor]:
         B, T = images.shape
         _, N = texts.shape
 
@@ -86,21 +89,23 @@ class Transformer1d(nn.Module):
         x = self.blocks(x)
         x = self.ln_f(x)
 
-        texts = x[:, :N-1].contiguous()
-        images = x[:, N-1:-1].contiguous()
+        texts = x[:, : N - 1].contiguous()
+        images = x[:, N - 1 : -1].contiguous()
 
         logits_txt = self.head_txt(texts)
         logits_img = self.head_img(images)
         return logits_img, logits_txt
 
     @torch.no_grad()
-    def sampling(self,
-                 images: torch.LongTensor,
-                 texts: torch.LongTensor,
-                 pos_images: torch.LongTensor,
-                 pos_texts: torch.LongTensor,
-                 use_fp16: bool = True,
-                 past: Optional[List[torch.Tensor]] = None) -> Tuple[torch.FloatTensor, List[torch.FloatTensor]]:
+    def sampling(
+        self,
+        images: torch.LongTensor,
+        texts: torch.LongTensor,
+        pos_images: torch.LongTensor,
+        pos_texts: torch.LongTensor,
+        use_fp16: bool = True,
+        past: Optional[List[torch.Tensor]] = None,
+    ) -> Tuple[torch.FloatTensor, List[torch.FloatTensor]]:
         _, N = texts.shape
         assert N == self.ctx_len_txt, "Already reached the maximum context length (text)."
 
@@ -117,7 +122,7 @@ class Transformer1d(nn.Module):
                     x, present = block.sample(x, layer_past=None)
                     presents.append(present)
                 x = self.ln_f(x)
-                x = x[:, N-1].contiguous()
+                x = x[:, N - 1].contiguous()
                 logits = self.head_img(x)
             else:
                 if past is None:
@@ -143,16 +148,13 @@ class Transformer1d(nn.Module):
             return logits, presents
 
     def from_ckpt(self, path: str) -> None:
-        ckpt = torch.load(path, map_location='cpu')['state_dict']
+        ckpt = torch.load(path, map_location="cpu")["state_dict"]
         self.load_state_dict(ckpt, strict=True)
-        print(f'{path} succesfully restored..')
+        print(f"{path} succesfully restored..")
 
 
 class iGPT(nn.Module):
-    def __init__(self,
-                 vocab_size_img: int,
-                 use_cls_cond: bool,
-                 hparams: OmegaConf) -> None:
+    def __init__(self, vocab_size_img: int, use_cls_cond: bool, hparams: OmegaConf) -> None:
         super().__init__()
         self.use_cls_cond = use_cls_cond
 
@@ -169,14 +171,19 @@ class iGPT(nn.Module):
         self.drop = nn.Dropout(hparams.embd_pdrop)
 
         # transformer blocks
-        self.blocks = [Block(ctx_len=hparams.ctx_len_img + 1,
-                             embed_dim=hparams.embed_dim,
-                             n_heads=hparams.n_heads,
-                             mlp_bias=hparams.mlp_bias,
-                             attn_bias=hparams.attn_bias,
-                             resid_pdrop=hparams.resid_pdrop,
-                             attn_pdrop=hparams.attn_pdrop,
-                             gelu_use_approx=hparams.gelu_use_approx) for i in range(1, hparams.n_layers+1)]
+        self.blocks = [
+            Block(
+                ctx_len=hparams.ctx_len_img + 1,
+                embed_dim=hparams.embed_dim,
+                n_heads=hparams.n_heads,
+                mlp_bias=hparams.mlp_bias,
+                attn_bias=hparams.attn_bias,
+                resid_pdrop=hparams.resid_pdrop,
+                attn_pdrop=hparams.attn_pdrop,
+                gelu_use_approx=hparams.gelu_use_approx,
+            )
+            for i in range(1, hparams.n_layers + 1)
+        ]
         self.blocks = nn.Sequential(*self.blocks)
 
         # head
@@ -198,13 +205,15 @@ class iGPT(nn.Module):
             module.weight.data.fill_(1.0)
 
     @torch.no_grad()
-    def sampling(self,
-                 sos: torch.FloatTensor,
-                 codes: torch.LongTensor,
-                 pos_codes: torch.LongTensor,
-                 n_samples: int = 16,
-                 use_fp16: bool = True,
-                 past: Optional[torch.Tensor] = None) -> Tuple[torch.FloatTensor, List[torch.FloatTensor]]:
+    def sampling(
+        self,
+        sos: torch.FloatTensor,
+        codes: torch.LongTensor,
+        pos_codes: torch.LongTensor,
+        n_samples: int = 16,
+        use_fp16: bool = True,
+        past: Optional[torch.Tensor] = None,
+    ) -> Tuple[torch.FloatTensor, List[torch.FloatTensor]]:
         with autocast(enabled=use_fp16):
             if codes is None:
                 assert past is None
@@ -233,9 +242,7 @@ class iGPT(nn.Module):
                 logits = self.head(xs)[:, -1]
             return logits, presents
 
-    def forward(self,
-                codes: torch.LongTensor,
-                labels: Optional[torch.LongTensor] = None) -> torch.FloatTensor:
+    def forward(self, codes: torch.LongTensor, labels: Optional[torch.LongTensor] = None) -> torch.FloatTensor:
         B, T = codes.shape
         xps = torch.arange(T, device=codes.device).repeat((B, 1))
         sos = self.sos.repeat((B, 1, 1)) if labels is None else self.sos(labels).unsqueeze(1)
@@ -250,6 +257,6 @@ class iGPT(nn.Module):
         return logits
 
     def from_ckpt(self, path: str, strict: bool = True) -> None:
-        ckpt = torch.load(path, map_location='cpu')['state_dict']
+        ckpt = torch.load(path, map_location="cpu")["state_dict"]
         self.load_state_dict(ckpt, strict=strict)
-        print(f'{path} successfully restored..')
+        print(f"{path} successfully restored..")

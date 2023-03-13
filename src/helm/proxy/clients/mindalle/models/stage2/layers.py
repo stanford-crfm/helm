@@ -26,15 +26,16 @@ class GELU(nn.Module):
 
 
 class MultiHeadSelfAttention(nn.Module):
-
-    def __init__(self,
-                 ctx_len: int,
-                 embed_dim: int,
-                 n_heads: int,
-                 resid_pdrop: float,
-                 attn_pdrop: float,
-                 attn_bias: bool,
-                 use_mask: bool = True):
+    def __init__(
+        self,
+        ctx_len: int,
+        embed_dim: int,
+        n_heads: int,
+        resid_pdrop: float,
+        attn_pdrop: float,
+        attn_bias: bool,
+        use_mask: bool = True,
+    ):
         super().__init__()
         assert embed_dim % n_heads == 0
 
@@ -62,9 +63,9 @@ class MultiHeadSelfAttention(nn.Module):
         x = x.transpose(0, 1).contiguous()  # (B, T, C) -> (T, B, C)
 
         # calculate query, key, values for all heads in batch and move head forward to be the batch dim
-        k = self.key(x).view(T, B*self.n_heads, C//self.n_heads).transpose(0, 1)  # (B*nh, T, hs)
-        q = self.query(x).view(T, B*self.n_heads, C//self.n_heads).transpose(0, 1)  # (B*nh, T, hs)
-        v = self.value(x).view(T, B*self.n_heads, C//self.n_heads).transpose(0, 1)  # (B*nh, T, hs)
+        k = self.key(x).view(T, B * self.n_heads, C // self.n_heads).transpose(0, 1)  # (B*nh, T, hs)
+        q = self.query(x).view(T, B * self.n_heads, C // self.n_heads).transpose(0, 1)  # (B*nh, T, hs)
+        v = self.value(x).view(T, B * self.n_heads, C // self.n_heads).transpose(0, 1)  # (B*nh, T, hs)
 
         if use_cache:
             present = torch.stack([k, v])
@@ -85,7 +86,7 @@ class MultiHeadSelfAttention(nn.Module):
             att = torch.bmm(q, (k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1))))
             if self.use_mask:
                 mask = self.mask if T == self.ctx_len else self.mask[:, :T, :T]
-                att = att.masked_fill(mask == 0, float('-inf'))
+                att = att.masked_fill(mask == 0, float("-inf"))
             att = F.softmax(att, dim=-1)
             att = self.attn_drop(att)
             y = torch.bmm(att, v)  # (B*nh, T, T) X (B*nh, T, hs) -> (B*nh, T, hs)
@@ -100,27 +101,30 @@ class MultiHeadSelfAttention(nn.Module):
 
 
 class Block(nn.Module):
-
-    def __init__(self,
-                 ctx_len: int,
-                 embed_dim: int,
-                 n_heads: int,
-                 mlp_bias: bool,
-                 attn_bias: bool,
-                 resid_pdrop: bool,
-                 attn_pdrop: bool,
-                 gelu_use_approx: bool):
+    def __init__(
+        self,
+        ctx_len: int,
+        embed_dim: int,
+        n_heads: int,
+        mlp_bias: bool,
+        attn_bias: bool,
+        resid_pdrop: bool,
+        attn_pdrop: bool,
+        gelu_use_approx: bool,
+    ):
         super().__init__()
         self.ln1 = nn.LayerNorm(embed_dim)
         self.ln2 = nn.LayerNorm(embed_dim)
 
-        self.attn = MultiHeadSelfAttention(ctx_len=ctx_len,
-                                           embed_dim=embed_dim,
-                                           n_heads=n_heads,
-                                           attn_pdrop=attn_pdrop,
-                                           resid_pdrop=resid_pdrop,
-                                           attn_bias=attn_bias,
-                                           use_mask=True)
+        self.attn = MultiHeadSelfAttention(
+            ctx_len=ctx_len,
+            embed_dim=embed_dim,
+            n_heads=n_heads,
+            attn_pdrop=attn_pdrop,
+            resid_pdrop=resid_pdrop,
+            attn_bias=attn_bias,
+            use_mask=True,
+        )
         self.mlp = nn.Sequential(
             nn.Linear(embed_dim, 4 * embed_dim, bias=mlp_bias),
             GELU(gelu_use_approx),

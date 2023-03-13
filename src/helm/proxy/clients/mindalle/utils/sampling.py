@@ -16,7 +16,7 @@ def cutoff_topk_logits(logits: torch.FloatTensor, k: int) -> torch.FloatTensor:
     else:
         v, ix = torch.topk(logits, k)
         out = logits.clone()
-        out[out < v[:, [-1]]] = -float('Inf')
+        out[out < v[:, [-1]]] = -float("Inf")
         return out
 
 
@@ -38,35 +38,37 @@ def cutoff_topp_probs(probs: torch.FloatTensor, p: float) -> torch.FloatTensor:
         return norm_probs
 
 
-def get_positional_encoding(inputs: torch.LongTensor, mode: str = '1d') -> torch.LongTensor:
+def get_positional_encoding(inputs: torch.LongTensor, mode: str = "1d") -> torch.LongTensor:
     device = inputs.device
-    if mode == '1d':
+    if mode == "1d":
         B, N = inputs.shape
         xs_pos = torch.arange(N, device=device).repeat((B, 1))
-    elif mode == '2d':
+    elif mode == "2d":
         B, H, W = inputs.shape
         xs_pos_h = torch.arange(H, device=device).repeat(B, W, 1).transpose(1, 2)
         xs_pos_w = torch.arange(W, device=device).repeat(B, H, 1)
         xs_pos = (xs_pos_h, xs_pos_w)
     else:
-        raise ValueError('%s positional encoding invalid' % mode)
+        raise ValueError("%s positional encoding invalid" % mode)
     return xs_pos
 
 
 @torch.no_grad()
-def sampling(model: torch.nn.Module,
-             tokens: torch.LongTensor,
-             top_k: Optional[float] = None,
-             top_p: Optional[float] = None,
-             softmax_temperature: float = 1.0,
-             is_tqdm: bool = True,
-             use_fp16: bool = True,
-             max_seq_len: int = 256) -> torch.LongTensor:
+def sampling(
+    model: torch.nn.Module,
+    tokens: torch.LongTensor,
+    top_k: Optional[float] = None,
+    top_p: Optional[float] = None,
+    softmax_temperature: float = 1.0,
+    is_tqdm: bool = True,
+    use_fp16: bool = True,
+    max_seq_len: int = 256,
+) -> torch.LongTensor:
     code = None
     past = None
 
     pbar = tqdm(range(max_seq_len), total=max_seq_len) if is_tqdm else range(max_seq_len)
-    pos_enc_tokens = get_positional_encoding(tokens, mode='1d')
+    pos_enc_tokens = get_positional_encoding(tokens, mode="1d")
 
     for cnt, h in enumerate(pbar):
         if code is None:
@@ -74,16 +76,13 @@ def sampling(model: torch.nn.Module,
             pos_enc_code_ = None
         else:
             code_ = code.clone().detach()
-            pos_enc_code_ = get_positional_encoding(code_, mode='1d')
-            code_ = code_[:, cnt-1].unsqueeze(-1)
-            pos_enc_code_ = pos_enc_code_[:, cnt-1].unsqueeze(-1)
+            pos_enc_code_ = get_positional_encoding(code_, mode="1d")
+            code_ = code_[:, cnt - 1].unsqueeze(-1)
+            pos_enc_code_ = pos_enc_code_[:, cnt - 1].unsqueeze(-1)
 
-        logits, present = model.sampling(images=code_,
-                                         texts=tokens,
-                                         pos_images=pos_enc_code_,
-                                         pos_texts=pos_enc_tokens,
-                                         use_fp16=use_fp16,
-                                         past=past)
+        logits, present = model.sampling(
+            images=code_, texts=tokens, pos_images=pos_enc_code_, pos_texts=pos_enc_tokens, use_fp16=use_fp16, past=past
+        )
         logits = logits.to(dtype=torch.float32)
         logits = logits / softmax_temperature
 
@@ -105,14 +104,16 @@ def sampling(model: torch.nn.Module,
 
 
 @torch.no_grad()
-def sampling_igpt(model: torch.nn.Module,
-                  sos: torch.FloatTensor,
-                  top_k: Optional[float] = None,
-                  top_p: Optional[float] = None,
-                  softmax_temperature: float = 1.0,
-                  is_tqdm: bool = True,
-                  use_fp16: bool = True,
-                  max_seq_len: int = 256) -> torch.LongTensor:
+def sampling_igpt(
+    model: torch.nn.Module,
+    sos: torch.FloatTensor,
+    top_k: Optional[float] = None,
+    top_p: Optional[float] = None,
+    softmax_temperature: float = 1.0,
+    is_tqdm: bool = True,
+    use_fp16: bool = True,
+    max_seq_len: int = 256,
+) -> torch.LongTensor:
     code = None
     past = None
     pbar = tqdm(range(max_seq_len), total=max_seq_len) if is_tqdm else range(max_seq_len)
@@ -123,15 +124,11 @@ def sampling_igpt(model: torch.nn.Module,
             pos_enc_code_ = None
         else:
             code_ = code.clone().detach()
-            pos_enc_code_ = get_positional_encoding(code_, mode='1d')
-            code_ = code_[:, cnt-1].unsqueeze(-1)
-            pos_enc_code_ = pos_enc_code_[:, cnt-1].unsqueeze(-1)
+            pos_enc_code_ = get_positional_encoding(code_, mode="1d")
+            code_ = code_[:, cnt - 1].unsqueeze(-1)
+            pos_enc_code_ = pos_enc_code_[:, cnt - 1].unsqueeze(-1)
 
-        logits, present = model.sampling(sos=sos,
-                                         codes=code_,
-                                         pos_codes=pos_enc_code_,
-                                         use_fp16=use_fp16,
-                                         past=past)
+        logits, present = model.sampling(sos=sos, codes=code_, pos_codes=pos_enc_code_, use_fp16=use_fp16, past=past)
         logits = logits.to(dtype=torch.float32)
         logits = logits / softmax_temperature
 

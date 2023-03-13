@@ -111,12 +111,8 @@ class DalleBartConfig(PretrainedFromWandbMixin, PretrainedConfig):
         self.use_alibi = use_alibi
         self.sinkhorn_iters = sinkhorn_iters
         if ln_positions == "postln":
-            assert (
-                use_final_ln_encoder
-            ), "use_final_ln_encoder must be True when ln_positions is 'postln'"
-            assert (
-                use_final_ln_decoder
-            ), "use_final_ln_decoder must be True when ln_positions is 'postln'"
+            assert use_final_ln_encoder, "use_final_ln_encoder must be True when ln_positions is 'postln'"
+            assert use_final_ln_decoder, "use_final_ln_decoder must be True when ln_positions is 'postln'"
         self.use_final_ln_encoder = use_final_ln_encoder
         self.use_final_ln_decoder = use_final_ln_decoder
         self.force_ln_scale = force_ln_scale
@@ -142,12 +138,8 @@ class DalleBartConfig(PretrainedFromWandbMixin, PretrainedConfig):
         self.gradient_checkpointing = gradient_checkpointing
         # all layers are the same in most configurations
         self.use_scan = use_scan if use_scan is not None else ln_positions != "swinv2"
-        assert not (
-            self.use_scan and ln_positions == "swinv2"
-        ), "scan cannot be used with 'swinv2'"
-        self.scale_embedding = (
-            scale_embedding  # scale factor will be sqrt(d_model) if True
-        )
+        assert not (self.use_scan and ln_positions == "swinv2"), "scan cannot be used with 'swinv2'"
+        self.scale_embedding = scale_embedding  # scale factor will be sqrt(d_model) if True
 
         # special token id's are appended to vocab if not provided
         decoder_start_token_id = kwargs.pop("decoder_start_token_id", image_vocab_size)
@@ -175,9 +167,7 @@ class DalleBartConfig(PretrainedFromWandbMixin, PretrainedConfig):
         )
 
         # ensure backward compatibility for BART CNN models
-        if self.forced_bos_token_id is None and kwargs.get(
-            "force_bos_token_to_be_generated", False
-        ):
+        if self.forced_bos_token_id is None and kwargs.get("force_bos_token_to_be_generated", False):
             self.forced_bos_token_id = self.bos_token_id
             warnings.warn(
                 f"Please make sure the config includes `forced_bos_token_id={self.bos_token_id}` in future versions."

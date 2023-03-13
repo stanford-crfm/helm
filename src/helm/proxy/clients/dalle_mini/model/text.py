@@ -22,16 +22,9 @@ class HashtagProcessor:
     # Adapted from wordninja library
     # We use our wikipedia word count + a good heuristic to make it work
     def __init__(self):
-        wiki_word_frequency = hf_hub_download(
-            "dalle-mini/dalle-mini", filename="enwiki-words-frequency.txt"
-        )
-        self._word_cost = (
-            l.split()[0]
-            for l in Path(wiki_word_frequency).read_text(encoding="utf8").splitlines()
-        )
-        self._word_cost = {
-            str(k): math.log(float(i + 1)) for i, k in enumerate(self._word_cost)
-        }
+        wiki_word_frequency = hf_hub_download("dalle-mini/dalle-mini", filename="enwiki-words-frequency.txt")
+        self._word_cost = (l.split()[0] for l in Path(wiki_word_frequency).read_text(encoding="utf8").splitlines())
+        self._word_cost = {str(k): math.log(float(i + 1)) for i, k in enumerate(self._word_cost)}
         self._max_word = max(len(x) for x in self._word_cost.keys())
         self._SPLIT_RE = re.compile("[^a-zA-Z0-9']+")
 
@@ -46,10 +39,7 @@ class HashtagProcessor:
         # Returns a pair (match_cost, match_length).
         def best_match(i):
             candidates = enumerate(reversed(cost[max(0, i - self._max_word) : i]))
-            return min(
-                (c + self._word_cost.get(s[i - k - 1 : i].lower(), 9e999), k + 1)
-                for k, c in candidates
-            )
+            return min((c + self._word_cost.get(s[i - k - 1 : i].lower(), 9e999), k + 1) for k, c in candidates)
 
         # Build the cost array
         cost = [0]
@@ -67,12 +57,8 @@ class HashtagProcessor:
             if not s[i - k : i] == "'":  # ignore a lone apostrophe
                 if len(out) > 0:
                     # re-attach split 's and split digits
-                    if out[-1] == "'s" or (
-                        s[i - 1].isdigit() and out[-1][0].isdigit()
-                    ):  # digit followed by digit
-                        out[-1] = (
-                            s[i - k : i] + out[-1]
-                        )  # combine current token with previous token
+                    if out[-1] == "'s" or (s[i - 1].isdigit() and out[-1][0].isdigit()):  # digit followed by digit
+                        out[-1] = s[i - k : i] + out[-1]  # combine current token with previous token
                         newToken = False
 
             if newToken:
@@ -87,9 +73,7 @@ def replace_person_token(t):
     "Used for CC12M"
     t = re.sub("<person>([,\s]*(and)*[,\s]*<person>)+", " people ", t)
     while "<person>" in t:
-        t = t.replace(
-            "<person>", f" {random.choices(*tuple(zip(*person_token)))[0]} ", 1
-        )
+        t = t.replace("<person>", f" {random.choices(*tuple(zip(*person_token)))[0]} ", 1)
     return t
 
 
@@ -127,9 +111,7 @@ def post_process_dot_numbers(t):
 
 def pre_process_quotes(t):
     # allows quotes only for 's, 't, 'd, 'm, 'll, 're, 've
-    return re.sub(
-        r"'(?=([stdm]|(ll)|(re)|(ve)|(ll))\b)", rf"{temp_token}quote{temp_token}", t
-    )
+    return re.sub(r"'(?=([stdm]|(ll)|(re)|(ve)|(ll))\b)", rf"{temp_token}quote{temp_token}", t)
 
 
 def post_process_quotes(t):

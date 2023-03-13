@@ -12,9 +12,7 @@ class PretrainedFromWandbMixin:
         Initializes from a wandb artifact or delegates loading to the superclass.
         """
         with tempfile.TemporaryDirectory() as tmp_dir:  # avoid multiple artifact copies
-            if ":" in pretrained_model_name_or_path and not os.path.isdir(
-                pretrained_model_name_or_path
-            ):
+            if ":" in pretrained_model_name_or_path and not os.path.isdir(pretrained_model_name_or_path):
                 # wandb artifact
                 if wandb.run is not None:
                     artifact = wandb.run.use_artifact(pretrained_model_name_or_path)

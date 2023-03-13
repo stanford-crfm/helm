@@ -12,10 +12,10 @@ from omegaconf import OmegaConf
 @dataclass
 class DataConfig:
     dataset: Optional[str] = None
-    tokenizer_type: str = 'CharBPE'
+    tokenizer_type: str = "CharBPE"
     context_length: int = 64
     image_resolution: int = 256
-    transforms: str = 'dalle-vqvae'
+    transforms: str = "dalle-vqvae"
     bpe_pdrop: Optional[float] = None
 
 
@@ -53,7 +53,7 @@ class Stage2Hparams:
 
 @dataclass
 class Stage1Config:
-    type: str = 'vqgan'
+    type: str = "vqgan"
     embed_dim: int = 256
     n_embed: int = 16384
     hparams: Stage1Hparams = Stage1Hparams()
@@ -61,7 +61,7 @@ class Stage1Config:
 
 @dataclass
 class Stage2Config:
-    type: str = 'transformer1d'
+    type: str = "transformer1d"
     vocab_size_txt: int = 16384
     vocab_size_img: int = 16384
     use_cls_cond: Optional[bool] = None
@@ -74,20 +74,20 @@ class WarmupConfig:
     multiplier: int = 1
     buffer_epoch: int = 0
     min_lr: float = 0.0
-    mode: str = 'fix'
+    mode: str = "fix"
     peak_lr: float = 1e-4
     start_from_zero: bool = True
 
 
 @dataclass
 class OptConfig:
-    opt_type: str = 'adamW'
+    opt_type: str = "adamW"
     base_lr: float = 1e-4
     weight_decay: float = 1e-4
     betas: List[float] = field(default_factory=lambda: [0.9, 0.99])
     grad_clip_norm: float = 1.0
 
-    sched_type: str = 'cosine'
+    sched_type: str = "cosine"
     max_steps: int = 0
     min_lr: float = 0.0
 

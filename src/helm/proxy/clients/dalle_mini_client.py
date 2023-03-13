@@ -19,7 +19,7 @@ from helm.common.tokenization_request import (
 )
 from .client import Client, wrap_request_time
 
-#For DALLE mini
+# For DALLE mini
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -40,6 +40,7 @@ class DALLEMiniClient(Client):
     """
     Source: https://github.com/borisdayma/dalle-mini, https://github.com/patil-suraj/vqgan-jax
     """
+
     def __init__(self, cache_config: CacheConfig, file_cache: FileCache):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
@@ -62,15 +63,9 @@ class DALLEMiniClient(Client):
             else:
                 raise ValueError(f"Unhandled model: {model_engine}")
 
-            model, params = DalleBart.from_pretrained(
-                model_name, revision=None, dtype=jnp.float16, _do_init=False
-            )
-            processor = DalleBartProcessor.from_pretrained(
-                model_name, revision=None
-            )
-            vqgan, vqgan_params = VQModel.from_pretrained(
-                VQGAN_REPO, revision=VQGAN_COMMIT_ID, _do_init=False
-            )
+            model, params = DalleBart.from_pretrained(model_name, revision=None, dtype=jnp.float16, _do_init=False)
+            processor = DalleBartProcessor.from_pretrained(model_name, revision=None)
+            vqgan, vqgan_params = VQModel.from_pretrained(VQGAN_REPO, revision=VQGAN_COMMIT_ID, _do_init=False)
             params = replicate(params)
             vqgan_params = replicate(vqgan_params)
             self._model_engine_to_model[model_engine] = [model, params, processor, vqgan, vqgan_params]
@@ -97,14 +92,10 @@ class DALLEMiniClient(Client):
                 return new_request
 
             def _inference(
-                model, params, vqgan, vqgan_params,
-                tokenized_prompt, subkey,
-                top_k, top_p, temperature, condition_scale
+                model, params, vqgan, vqgan_params, tokenized_prompt, subkey, top_k, top_p, temperature, condition_scale
             ):
                 @partial(jax.pmap, axis_name="batch", static_broadcasted_argnums=(3, 4, 5, 6))
-                def p_generate(
-                    tokenized_prompt, key, params, top_k, top_p, temperature, condition_scale
-                ):
+                def p_generate(tokenized_prompt, key, params, top_k, top_p, temperature, condition_scale):
                     return model.generate(
                         **tokenized_prompt,
                         prng_key=key,
@@ -114,9 +105,11 @@ class DALLEMiniClient(Client):
                         temperature=temperature,
                         condition_scale=condition_scale,
                     )
+
                 @partial(jax.pmap, axis_name="batch")
                 def p_decode(indices, params):
                     return vqgan.decode_code(indices, params=params)
+
                 # generate images
                 encoded_images = p_generate(
                     tokenized_prompt,
@@ -149,8 +142,12 @@ class DALLEMiniClient(Client):
                     for _ in range(request.num_completions):
                         key, subkey = jax.random.split(key)
                         image = _inference(
-                            model, params, vqgan, vqgan_params,
-                            tokenized_prompt, subkey,
+                            model,
+                            params,
+                            vqgan,
+                            vqgan_params,
+                            tokenized_prompt,
+                            subkey,
                             raw_request["top_k"],
                             raw_request["top_p"],
                             raw_request["temperature"],
