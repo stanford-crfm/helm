@@ -23,7 +23,7 @@ class InContextLearningAdapter(Adapter, ABC):
     @htrack(None)
     def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
         """
-        Takes a a list of `Instance`s and builds a list of corresponding `RequestState`s.
+        Takes a list of `Instance`s and builds a list of corresponding `RequestState`s.
         The reason we don't do this per eval instance is that we create a common set of
         training instances which is shared across all eval instances.
         """
@@ -222,7 +222,6 @@ class InContextLearningAdapter(Adapter, ABC):
         delimiter = ','
         if reference_index is None:
             # Put only the correct reference as the output
-            # TODO look at case with "No Label" in output.text
             correct_references: List[Reference] = instance.all_correct_references
             if not correct_references:
                 output = "n/a"

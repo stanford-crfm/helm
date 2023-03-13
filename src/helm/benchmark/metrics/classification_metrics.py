@@ -33,7 +33,7 @@ class ClassificationMetric(Metric):
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         y_pred: List[str] = []
         y_true: List[str] = []
-        for request_state in request_states: # TODO: Question: does it ever have more than 1 request_state?
+        for request_state in request_states:  # TODO: Question: does it ever have more than 1 request_state?
             # Only the generation adapter is supported.
             # TODO: Support multiple_choice_* adapters.
             if request_state.reference_index is not None:
@@ -47,6 +47,8 @@ class ClassificationMetric(Metric):
             num_correct = 0
             for reference in request_state.instance.references:
                 if reference.is_correct:
+                    if reference.output.text == 'No Label':
+                        break  # if there is no label, the y_true list should be empty
                     num_correct += 1
                     y_true.append(normalize_text(reference.output.text))
             if request_state.output_mapping:
