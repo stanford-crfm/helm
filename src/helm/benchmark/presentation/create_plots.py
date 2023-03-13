@@ -53,7 +53,7 @@ class Table:
     mean_win_rates: Optional[np.ndarray] = None
 
 
-def parse_table(raw_table: dict) -> Table:
+def parse_table(raw_table: Dict[str, Any]) -> Table:
     """Convert raw table dict to a Table. Ignores strongly contaminated table entries."""
 
     def get_cell_values(cells: List[dict]) -> List[Any]:
@@ -99,8 +99,8 @@ def draw_box_plot(
     """Given a mapping from string to floats, draw a box plot on the given axis ax. For instance, this might be a
     mapping from scenario_name to a list of model accuracies in which case the box plot captures aggregate model
     performance and highlights outliers."""
-    xs = []
-    all_ys = []
+    xs: List[str] = []
+    all_ys: List[List[float]] = []
     for x, ys in x_to_ys.items():
         ys = [y for y in ys if not np.isnan(y)]
         if ys:
@@ -120,9 +120,10 @@ class Plotter:
     save_path. create_all_plots() runs all these functions at once.
     """
 
-    def __init__(self, base_path: str, save_path: str):
+    def __init__(self, base_path: str, save_path: str, plot_format: str):
         self.base_path = base_path
         self.save_path = save_path
+        self.plot_format = plot_format
         self._tables_cache: Dict[str, Dict[str, Table]] = {}
 
         schema = read_schema()
@@ -141,11 +142,11 @@ class Plotter:
 
         return name_to_table
 
-    def save_figure(self, fig: plt.Figure, filename: str):
+    def save_figure(self, fig: plt.Figure, name: str):
         """Save and close a figure."""
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
-        fig.savefig(os.path.join(self.save_path, filename), bbox_inches="tight")
+        fig.savefig(os.path.join(self.save_path, f"{name}.{self.plot_format}"), bbox_inches="tight")
         plt.close(fig)
 
     def create_accuracy_v_x_plots(self):
@@ -192,7 +193,7 @@ class Plotter:
         )
 
         fig.subplots_adjust(wspace=0.25, hspace=0.25)
-        self.save_figure(fig, "accuracy_v_x.pdf")
+        self.save_figure(fig, "accuracy_v_x")
 
     def create_correlation_plots(self):
         """
@@ -235,7 +236,7 @@ class Plotter:
                 ax.set_ylabel("Pearson correlation")
 
         fig.subplots_adjust(wspace=0.25, hspace=0.45)
-        self.save_figure(fig, "metric_correlation.pdf")
+        self.save_figure(fig, "metric_correlation")
 
     def create_leaderboard_plots(self):
         """Display the model mean win rates for each group as a bar chart."""
@@ -257,7 +258,7 @@ class Plotter:
             ax.set_xlim(-0.1, 1.1)
             ax.set_title(metric_group)
         fig.subplots_adjust(wspace=1.8, hspace=0.15)
-        self.save_figure(fig, "model_ranking_all.pdf")
+        self.save_figure(fig, "model_ranking_all")
 
     def create_accuracy_v_model_property_plot(
         self,
@@ -320,7 +321,7 @@ class Plotter:
         ax.set_xlabel(property_name)
         ax.set_ylabel("Accuracy")
         ax.set_ylim(0, 1)
-        self.save_figure(fig, f"accuracy_over_{property_save_name}.pdf")
+        self.save_figure(fig, f"accuracy_over_{property_save_name}")
 
     def create_all_accuracy_v_model_property_plots(self):
         """
@@ -392,7 +393,7 @@ class Plotter:
         ax.set_ylabel("Accuracy")
         ax.set_xticks(xs, all_groups, rotation=-20, ha="left")
         ax.legend(loc="upper left", bbox_to_anchor=(0.61, 0.99))
-        self.save_figure(fig, "accuracy_v_access.pdf")
+        self.save_figure(fig, "accuracy_v_access")
 
     def create_task_summary_plots(self):
         """For each metric group, create a box plot with scenario performance across models."""
@@ -413,7 +414,7 @@ class Plotter:
             ax.set_title(metric_group_to_label[metric_group])
 
         fig.subplots_adjust(hspace=0.7)
-        self.save_figure(fig, "generic_summary.pdf")
+        self.save_figure(fig, "generic_summary")
 
     def create_targeted_eval_plot(self, targeted_eval: str):
         """For a targeted evaluation, create a box plot with scenario accuracy across models."""
@@ -430,7 +431,7 @@ class Plotter:
         ax.set_title(targeted_eval.capitalize())
         ax.set_ylim(-0.1, 3.6 if targeted_eval == "language" else 1.1)
 
-        self.save_figure(fig, f"targeted_eval_{targeted_eval}.pdf")
+        self.save_figure(fig, f"targeted_eval_{targeted_eval}")
 
     def create_copyright_plot(self):
         """Plot copyright metrics across models."""
@@ -445,7 +446,7 @@ class Plotter:
             group_to_values[group] = column.values
         draw_box_plot(group_to_values, ax, rotate_xticklabels=False)
         ax.set_title("Copyright")
-        self.save_figure(fig, "copyright.pdf")
+        self.save_figure(fig, "copyright")
 
     def create_bbq_plot(self):
         """Plot BBQ metrics across models."""
@@ -461,7 +462,7 @@ class Plotter:
             ax.barh(models, values)
             ax.set_title(f"{column.metric} {DOWN_ARROW}")
         fig.subplots_adjust(wspace=1.85)
-        self.save_figure(fig, "bbq_bars.pdf")
+        self.save_figure(fig, "bbq_bars")
 
     def create_in_context_examples_plot(self):
         """
@@ -505,7 +506,7 @@ class Plotter:
                 if i == 0:
                     ax.legend(ncol=5, loc="upper left", bbox_to_anchor=(0, 1.45))
         fig.subplots_adjust(wspace=0.32, hspace=0.5)
-        self.save_figure(fig, "in_context_ablations.pdf")
+        self.save_figure(fig, "in_context_ablations")
 
     def create_mc_ablations_plot(self):
         """For each scenario, plot model performance (as a bar plot) for each multiple-choice adaptation method."""
@@ -539,7 +540,7 @@ class Plotter:
                 if i == 0:
                     ax.legend(ncol=3, loc="upper left", bbox_to_anchor=(0, 1.4))
         fig.subplots_adjust(wspace=0.25, hspace=0.65)
-        self.save_figure(fig, "mc_ablations.pdf")
+        self.save_figure(fig, "mc_ablations")
 
     def create_constrast_set_plots(self):
         """For each contrast set scenario, plot the accuracy and robustness of each model on a scatter plot."""
@@ -554,7 +555,7 @@ class Plotter:
             ax.set_xlabel("Accuracy")
             ax.set_ylabel("Robustness")
         fig.subplots_adjust(wspace=0.25)
-        self.save_figure(fig, "contrast_sets.pdf")
+        self.save_figure(fig, "contrast_sets")
 
     def create_all_plots(self):
         """Create all the plots used in the HELM paper."""
@@ -582,13 +583,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output-path", type=str, help="Path to benchmarking output", default="benchmark_output")
     parser.add_argument("--suite", type=str, help="Name of the suite that we are plotting", required=True)
+    parser.add_argument("--plot-format", help="Format for saving plots", default="png", choices=["png", "pdf"])
     args = parser.parse_args()
     base_path = os.path.join(args.output_path, "runs", args.suite)
     if not os.path.exists(os.path.join(base_path, "groups")):
         hlog(f"ERROR: Could not find `groups` directory under {base_path}. Did you run `summarize.py` first?")
         return
     save_path = os.path.join(base_path, "plots")
-    plotter = Plotter(base_path=base_path, save_path=save_path)
+    plotter = Plotter(base_path=base_path, save_path=save_path, plot_format=args.plot_format)
     plotter.create_all_plots()
 
 
