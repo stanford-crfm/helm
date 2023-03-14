@@ -258,7 +258,7 @@ ALL_MODELS = [
         creator_organization="Cohere",
         name="cohere/command-medium-beta",
         display_name="Cohere Command beta (6.1B)",
-        description="Cohere command beta (6.1B parameters) is fine-tuned from the medium model "
+        description="Cohere Command beta (6.1B parameters) is fine-tuned from the medium model "
         "to respond well with instruction-like prompts",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
@@ -267,7 +267,7 @@ ALL_MODELS = [
         creator_organization="Cohere",
         name="cohere/command-xlarge-beta",
         display_name="Cohere Command beta (52.4B)",
-        description="Cohere command beta (52.4B parameters) is fine-tuned from the XL model "
+        description="Cohere Command beta (52.4B parameters) is fine-tuned from the XL model "
         "to respond well with instruction-like prompts",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
