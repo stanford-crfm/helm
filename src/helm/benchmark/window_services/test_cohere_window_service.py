@@ -39,7 +39,7 @@ class TestCohereWindowService:
         shutil.rmtree(cls.path)
 
     def test_max_request_length(self):
-        assert self.window_service.max_request_length == 2048
+        assert self.window_service.max_request_length == 2020
 
     def test_encode(self):
         assert self.window_service.encode(self.prompt).token_values == self.tokenized_prompt
