@@ -35,8 +35,12 @@ class CohereWindowService(LocalWindowService):
 
         Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
         exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+
+        In rare situations, the co.tokenize returns a shorter list of tokens than the co.generate.
+        This causes sequence length errors for rare inputs. Cohere's advice is to reduce the sequence
+        length to 2020 to avoid these issues.
         """
-        return 2048
+        return 2020
 
     @property
     def end_of_text_token(self) -> str:

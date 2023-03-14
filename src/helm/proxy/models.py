@@ -256,20 +256,20 @@ ALL_MODELS = [
     Model(
         group="cohere",
         creator_organization="Cohere",
-        name="cohere/command-medium-nightly",
-        display_name="Cohere Command nightly (6.1B)",
-        description="Cohere command nightly (6.1B parameters) is fine-tuned from the medium model "
+        name="cohere/command-medium-beta",
+        display_name="Cohere Command beta (6.1B)",
+        description="Cohere command beta (6.1B parameters) is fine-tuned from the medium model "
         "to respond well with instruction-like prompts",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
         creator_organization="Cohere",
-        name="cohere/command-xlarge-nightly",
-        display_name="Cohere Command nightly (52.4B)",
-        description="Cohere command nightly (52.4B parameters) is fine-tuned from the XL model "
+        name="cohere/command-xlarge-beta",
+        display_name="Cohere Command beta (52.4B)",
+        description="Cohere command beta (52.4B parameters) is fine-tuned from the XL model "
         "to respond well with instruction-like prompts",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     # EleutherAI
     Model(
