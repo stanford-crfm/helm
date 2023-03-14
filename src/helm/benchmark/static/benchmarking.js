@@ -124,6 +124,55 @@ $(function () {
     return $table;
   }
 
+  function renderPlots() {
+    const container = $('<div>', {class: "container"});
+    const links_div = $('<div>');
+    container.append(links_div);
+    const table_links = [];
+
+    function renderPlot(name, title) {
+        container.append($('<h3>').append($('<a>', {id: title}).append(title)));
+        container.append($('<img>', {src: plotUrl(suite, name), class: "img-fluid"}));
+        table_links.push($('<a>', {href: '#' + title}).append(title));
+    }
+
+    renderPlot("generic_summary", "Scenario summary per metric");
+    renderPlot("model_ranking_all", "Direct model comparisons");
+
+    renderPlot("accuracy_v_x", "Accuracy as a function of other metrics");
+    renderPlot("metric_correlation", "Metric correlation");
+
+    renderPlot("accuracy_v_access", "Model performance by access");
+    renderPlot("accuracy_over_num_parameters", "Model performance across model sizes");
+    renderPlot("accuracy_over_release_date", "Model performance over time");
+    renderPlot("accuracy_over_the_pile_perplexity", "Model performance as a function of The Pile perplexity");
+
+    renderPlot("targeted_eval_reasoning", "Targeted evaluations");
+    knowledge_language_row = $('<div>', {class: "row"});
+    knowledge_language_row.append(
+        $('<div>', {class: "col-sm-7"}).append(
+            $('<img>', {src: plotUrl(suite, "targeted_eval_knowledge"), class: "img-fluid"})
+        )
+    );
+    knowledge_language_row.append(
+        $('<div>', {class: "col-sm-5"}).append(
+            $('<img>', {src: plotUrl(suite, "targeted_eval_language"), class: "img-fluid"})
+        )
+    );
+    container.append(knowledge_language_row);
+
+    // container.append($('<h3>').append("Harms"));
+    // container.append($('<img>', {src: plotUrl(suite, "bbq_bars"), class: "img-fluid"}));
+    // container.append($('<img>', {src: plotUrl(suite, "copyright"), class: "img-fluid"}));
+
+    renderPlot("in_context_ablations", "In-context examples ablation");
+    renderPlot("mc_ablations", "Multiple-choice format ablation");
+
+    links_div.append(renderItems(table_links));
+
+    return container;
+  }
+
   function renderRunsOverview(runSpecs) {
     let query = '';
     const $search = $('<input>', {type: 'text', size: 40, placeholder: 'Enter regex query (enter to open all)'});
@@ -1169,6 +1218,11 @@ $(function () {
       // Models
       $main.empty()
       $main.append(renderHeader('Scenarios', renderScenarios()));
+      refreshHashLocation();
+    } else if (urlParams.plots) {
+      // Plots
+      $main.empty()
+      $main.append(renderHeader('Plots', renderPlots()));
       refreshHashLocation();
     } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
       // Predictions for a set of run specs (matching a regular expression)

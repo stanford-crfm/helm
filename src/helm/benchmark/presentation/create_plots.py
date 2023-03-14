@@ -146,7 +146,7 @@ class Plotter:
         """Save and close a figure."""
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
-        fig.savefig(os.path.join(self.save_path, f"{name}.{self.plot_format}"), bbox_inches="tight")
+        fig.savefig(os.path.join(self.save_path, f"{name}.{self.plot_format}"), bbox_inches="tight", dpi=300)
         plt.close(fig)
 
     def create_accuracy_v_x_plots(self):
@@ -358,9 +358,26 @@ class Plotter:
             grain = 0.016
             return round(bpb / grain) * grain
 
-        self.create_accuracy_v_model_property_plot("Release date", get_model_release_date, cumulative=True)
-        self.create_accuracy_v_model_property_plot("Num parameters", get_model_size, cumulative=True, logscale=True)
-        self.create_accuracy_v_model_property_plot("The Pile perplexity", get_model_perplexity, logscale=True)
+        annotate_models = True if self.plot_format == "pdf" else False
+        self.create_accuracy_v_model_property_plot(
+            "Release date",
+            get_model_release_date,
+            cumulative=True,
+            annotate_models=annotate_models,
+        )
+        self.create_accuracy_v_model_property_plot(
+            "Num parameters",
+            get_model_size,
+            cumulative=True,
+            logscale=True,
+            annotate_models=annotate_models,
+        )
+        self.create_accuracy_v_model_property_plot(
+            "The Pile perplexity",
+            get_model_perplexity,
+            logscale=True,
+            annotate_models=annotate_models,
+        )
 
     def create_accuracy_v_access_bar_plot(self):
         """
