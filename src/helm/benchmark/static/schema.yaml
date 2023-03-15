@@ -142,17 +142,17 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-  - name: cohere/command-medium-nightly
-    display_name: Cohere command nightly (6.1B)
-    description: Cohere command nightly (6.1B parameters) is fine-tuned from the medium model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+  - name: cohere/command-medium-beta
+    display_name: Cohere Command beta (6.1B)
+    description: Cohere Command beta (6.1B parameters) is fine-tuned from the medium model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
     creator_organization: Cohere
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
     todo: true
-  - name: cohere/command-xlarge-nightly
-    display_name: Cohere command nightly (52.4B)
-    description: Cohere command nightly (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+  - name: cohere/command-xlarge-beta
+    display_name: Cohere Command beta (52.4B)
+    description: Cohere Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
     creator_organization: Cohere
     access: limited
     num_parameters: 52400000000
