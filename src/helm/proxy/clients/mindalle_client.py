@@ -1,10 +1,8 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-from diffusers import DiffusionPipeline
-from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
 from PIL import Image
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
+from .mindalle.models import Dalle
+import numpy as np
 
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
@@ -18,9 +16,6 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from .client import Client, wrap_request_time
-
-import numpy as np
-from .mindalle.models import Dalle
 
 
 class MinDALLEClient(Client):
@@ -68,7 +63,6 @@ class MinDALLEClient(Client):
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):
                     model: Dalle = self._get_model()
-                    promptist_prompt: Optional[str] = None
 
                     images: List[Image] = []
                     for _ in range(request.num_completions):
@@ -82,10 +76,6 @@ class MinDALLEClient(Client):
                     ), f"Expected {request.num_completions} images, but got {len(images)}"
 
                     result = {"file_locations": []}
-                    if promptist_prompt is not None:
-                        # Save the Promptist version of the prompts in the cache, just in case we need it later
-                        result["promptist_prompt"] = promptist_prompt
-
                     for image in images:
                         # Write out the image to a file and save the path
                         file_location: str = self._file_cache.get_unique_file_location()
@@ -114,53 +104,6 @@ class MinDALLEClient(Client):
             completions=completions,
             embedding=[],
         )
-
-    def _generate_promptist_version(self, prompt: str) -> str:
-        """
-        Generate a better version of the prompt with Promptist.
-        Promptist was trained specifically with CompVis/stable-diffusion-v1-4.
-        Adapted from https://huggingface.co/spaces/microsoft/Promptist/blob/main/app.py.
-        """
-
-        def load_promptist():
-            prompter_model = AutoModelForCausalLM.from_pretrained("microsoft/Promptist")
-            tokenizer = AutoTokenizer.from_pretrained("gpt2")
-            tokenizer.pad_token = tokenizer.eos_token
-            tokenizer.padding_side = "left"
-            return prompter_model, tokenizer
-
-        def generate(plain_text: str) -> str:
-            if self._promptist_model is None or self._promptist_tokenizer is None:
-                self._promptist_model, self._promptist_tokenizer = load_promptist()
-            assert self._promptist_model is not None
-            assert self._promptist_tokenizer is not None
-
-            input_ids = self._promptist_tokenizer(f"{plain_text.strip()} Rephrase:", return_tensors="pt").input_ids
-            eos_id = self._promptist_tokenizer.eos_token_id
-            # Used the same hyperparameters from the example
-            outputs = self._promptist_model.generate(
-                input_ids,
-                do_sample=False,
-                max_new_tokens=75,
-                num_beams=8,
-                num_return_sequences=8,
-                eos_token_id=eos_id,
-                pad_token_id=eos_id,
-                length_penalty=-1.0,
-            )
-            output_texts: List[str] = self._promptist_tokenizer.batch_decode(outputs, skip_special_tokens=True)
-
-            for output_text in output_texts:
-                res: str = output_text.replace(f"{plain_text} Rephrase:", "").strip()
-                # The Promptist model sometimes generates empty string results.
-                # Return the first non-empty string result.
-                if len(res) > 0:
-                    return res
-
-            # If all fails, just return the original text.
-            return plain_text
-
-        return generate(prompt)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("This client does not support tokenizing.")

@@ -135,7 +135,7 @@ class EntityDataImputationScenario(Scenario):
         for split, example_df in all_splits.items():
             hlog(f"Processing {split} with {example_df.shape[0]} rows")
             for _, row in example_df.iterrows():
-                res: str = self.serialize_row(row, columns_for_serialize)
+                res: str = self.serialize_row(row, columns_for_serialize)  # type: ignore
                 input: str = f"{res}. {col_to_impute}?"
                 label = str(row[col_to_impute])
                 instance = Instance(

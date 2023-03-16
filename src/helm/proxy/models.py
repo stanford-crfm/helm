@@ -610,7 +610,8 @@ ALL_MODELS = [
         creator_organization="kakaobrain",
         name="kakaobrain/mindall-e",
         display_name="minDALL-E (1.3B)",
-        description="minDALL-E, named after minGPT, is a 1.3B text-to-image generation model trained on 14 million image-text pairs for non-commercial purposes.",
+        description="minDALL-E, named after minGPT, is a 1.3B text-to-image generation model trained "
+        "on 14 million image-text pairs for non-commercial purposes.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
@@ -618,7 +619,8 @@ ALL_MODELS = [
         creator_organization="craiyon",
         name="craiyon/dalle-mini",
         display_name="DALL-E mini (0.4B)",
-        description="DALL-E mini (0.4B parameters) is an open-source text-to-image model that attempt to reproduce OpenAI DALL-E 1.",
+        description="DALL-E mini (0.4B parameters) is an open-source text-to-image model that "
+        "attempt to reproduce OpenAI DALL-E 1.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
@@ -626,7 +628,8 @@ ALL_MODELS = [
         creator_organization="craiyon",
         name="craiyon/dalle-mega",
         display_name="DALL-E mega (2.6B)",
-        description="DALL-E mega (2.6B parameters) is an open-source text-to-image model that attempt to reproduce OpenAI DALL-E 1.",
+        description="DALL-E mega (2.6B parameters) is an open-source text-to-image model that "
+        "attempt to reproduce OpenAI DALL-E 1.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(

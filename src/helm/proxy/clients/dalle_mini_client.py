@@ -1,14 +1,17 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-from diffusers import DiffusionPipeline
-from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
+import jax
+import jax.numpy as jnp
+import numpy as np
 from PIL import Image
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
+from functools import partial
+from flax.jax_utils import replicate
+from flax.training.common_utils import shard_prng_key
+from .dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
+from .dalle_mini import DalleBart, DalleBartProcessor
 
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
-from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.request import Request, RequestResult, TextToImageRequest, Sequence
 from helm.common.tokenization_request import (
@@ -19,18 +22,6 @@ from helm.common.tokenization_request import (
 )
 from .client import Client, wrap_request_time
 
-# For DALLE mini
-import jax
-import jax.numpy as jnp
-import numpy as np
-from PIL import Image
-from tqdm import tqdm
-from functools import partial
-from transformers import CLIPProcessor, FlaxCLIPModel
-from flax.jax_utils import replicate
-from flax.training.common_utils import shard_prng_key
-from .dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
-from .dalle_mini import DalleBart, DalleBartProcessor
 
 VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
 VQGAN_COMMIT_ID = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
@@ -135,8 +126,6 @@ class DALLEMiniClient(Client):
                     tokenized_prompts = processor([prompt])
                     tokenized_prompt = replicate(tokenized_prompts)
 
-                    promptist_prompt: Optional[str] = None
-
                     images: List[Image] = []
                     key = jax.random.PRNGKey(0)
                     for _ in range(request.num_completions):
@@ -161,10 +150,6 @@ class DALLEMiniClient(Client):
                     ), f"Expected {request.num_completions} images, but got {len(images)}"
 
                     result = {"file_locations": []}
-                    if promptist_prompt is not None:
-                        # Save the Promptist version of the prompts in the cache, just in case we need it later
-                        result["promptist_prompt"] = promptist_prompt
-
                     for image in images:
                         # Write out the image to a file and save the path
                         file_location: str = self._file_cache.get_unique_file_location()
@@ -193,53 +178,6 @@ class DALLEMiniClient(Client):
             completions=completions,
             embedding=[],
         )
-
-    def _generate_promptist_version(self, prompt: str) -> str:
-        """
-        Generate a better version of the prompt with Promptist.
-        Promptist was trained specifically with CompVis/stable-diffusion-v1-4.
-        Adapted from https://huggingface.co/spaces/microsoft/Promptist/blob/main/app.py.
-        """
-
-        def load_promptist():
-            prompter_model = AutoModelForCausalLM.from_pretrained("microsoft/Promptist")
-            tokenizer = AutoTokenizer.from_pretrained("gpt2")
-            tokenizer.pad_token = tokenizer.eos_token
-            tokenizer.padding_side = "left"
-            return prompter_model, tokenizer
-
-        def generate(plain_text: str) -> str:
-            if self._promptist_model is None or self._promptist_tokenizer is None:
-                self._promptist_model, self._promptist_tokenizer = load_promptist()
-            assert self._promptist_model is not None
-            assert self._promptist_tokenizer is not None
-
-            input_ids = self._promptist_tokenizer(f"{plain_text.strip()} Rephrase:", return_tensors="pt").input_ids
-            eos_id = self._promptist_tokenizer.eos_token_id
-            # Used the same hyperparameters from the example
-            outputs = self._promptist_model.generate(
-                input_ids,
-                do_sample=False,
-                max_new_tokens=75,
-                num_beams=8,
-                num_return_sequences=8,
-                eos_token_id=eos_id,
-                pad_token_id=eos_id,
-                length_penalty=-1.0,
-            )
-            output_texts: List[str] = self._promptist_tokenizer.batch_decode(outputs, skip_special_tokens=True)
-
-            for output_text in output_texts:
-                res: str = output_text.replace(f"{plain_text} Rephrase:", "").strip()
-                # The Promptist model sometimes generates empty string results.
-                # Return the first non-empty string result.
-                if len(res) > 0:
-                    return res
-
-            # If all fails, just return the original text.
-            return plain_text
-
-        return generate(prompt)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("This client does not support tokenizing.")
