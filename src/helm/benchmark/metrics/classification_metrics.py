@@ -31,9 +31,9 @@ class ClassificationMetric(Metric):
     delimiter = ","
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-        y_pred: List[str] = []
-        y_true: List[str] = []
-        for request_state in request_states:  # TODO: Question: does it ever have more than 1 request_state?
+        y_pred: List[List[str]] = []
+        y_true: List[List[str]] = []
+        for request_state in request_states:  # one request state per instance
             # Only the generation adapter is supported.
             # TODO: Support multiple_choice_* adapters.
             if request_state.reference_index is not None:
@@ -44,18 +44,15 @@ class ClassificationMetric(Metric):
             if len(request_state.result.completions) != 1:
                 raise ValueError("Result must contain exactly one completion")
 
-            num_correct = 0
-            for reference in request_state.instance.references:
-                if reference.is_correct:
-                    if reference.output.text == "No Label":
-                        break  # if there is no label, the y_true list should be empty
-                    num_correct += 1
-                    y_true.append(normalize_text(reference.output.text))
+            references = request_state.instance.all_correct_references
+            correct_ref_texts = [normalize_text(ref.output.text) for ref in references]
+            y_true.append(correct_ref_texts)
+
             if request_state.output_mapping:
                 raise ValueError("ClassificationMetric does not support multiple choice adapters")
-            predictions = normalize_text(request_state.result.completions[0].text)
-            y_pred.extend(predictions.split(self.delimiter))
-        labels = list(set(y_true))
+            predictions = request_state.result.completions[0].text.split(self.delimiter)
+            y_pred.append([normalize_text(prediction) for prediction in predictions])
+        labels: List[str] = list(set(y for ys in y_true for y in ys))
         return [
             Stat(MetricName("classification_macro_f1")).add(
                 f1_score(y_pred=y_pred, y_true=y_true, labels=list(labels), average="macro")
