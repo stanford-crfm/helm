@@ -75,7 +75,7 @@ class TextToImageRequest(Request):
     representation for communicating with various text-to-image APIs.
     """
 
-    model: str = "together/StableDiffusion"
+    model: str = "huggingface/stable-diffusion-v1-4"
     """Which model to query"""
 
     width: Optional[int] = None
