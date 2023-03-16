@@ -113,7 +113,7 @@ multidict==6.0.4
 multilingual-clip==1.0.10
 multiprocess==0.70.13
 murmurhash==1.0.9
-mypy==0.991
+mypy==0.982
 mypy-extensions==0.4.3
 networkx==3.0
 nltk==3.8.1
