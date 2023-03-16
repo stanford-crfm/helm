@@ -2,12 +2,14 @@ import json
 import argparse
 import os
 import glob
+import re
 from dataclasses import dataclass
 from typing import List
 from bitarray import bitarray
 from nltk import ngrams
 from typing import Dict, Optional, Generator, DefaultDict
 from collections import defaultdict
+from string import punctuation
 
 # The n values of the ngrams to be computed
 N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
@@ -96,6 +98,29 @@ class DocumentReadingProcessor:
     def get_custom_document_generator(self) -> Generator:
         """Define your own document reading method"""
         pass
+
+
+class LightTokenizer:
+    """
+    Tokenize texts by splitting on whitespaces.
+    """
+
+    def tokenize(self, text: str) -> List[str]:
+        return text.split()
+
+
+class DefaultTokenizer(LightTokenizer):
+    """
+    Normalize and tokenize texts by converting all characters to the lower case and
+    splitting on whitespaces and punctuations.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.r = re.compile(r"[\s{}]+".format(re.escape(punctuation)))
+
+    def tokenize(self, text: str) -> List[str]:
+        return self.r.split(text.lower())
 
 
 class ContaminationStats:
@@ -236,6 +261,7 @@ def compute_scenario_file_contamination(
     n_values: List[int],
     file_format: str,
     ngram_index: DefaultDict[int, DefaultDict[str, List]],
+    tokenizer: LightTokenizer,
 ) -> Dict[str, ContaminationStats]:
     """Given an input file, compute a contamination stats for each n and each scenario"""
 
@@ -257,6 +283,7 @@ def compute_scenario_file_contamination(
             ngram_index=ngram_index,
             document=document,
             n_values=n_values,
+            tokenizer=tokenizer,
         )
 
     return all_scenario_stats
@@ -266,9 +293,10 @@ def compute_scenario_document_contamination(
     ngram_index: Dict[int, DefaultDict[str, list]],
     document: str,
     n_values: List[int],
+    tokenizer: LightTokenizer,
 ):
     """Given a document, compute a contamination stats for each n and each scenario"""
-    document_unigrams = document.split()
+    document_unigrams = tokenizer.tokenize(document)
     for n in n_values:
         assert n in ngram_index
         for document_ngram in ngrams(document_unigrams, n):
@@ -295,8 +323,19 @@ if __name__ == "__main__":
         help="Other tags, such as whether the input data is for pretraining or instruction tuning",
         default=[],
     )
+    parser.add_argument(
+        "--normalization", type=str, default="default", help="What normalization and tokenization strategy to apply"
+    )
 
     args = parser.parse_args()
+
+    tokenizer: LightTokenizer
+    if args.normalization == "none":
+        tokenizer = LightTokenizer()
+    elif args.normalization == "default":
+        tokenizer = DefaultTokenizer()
+    else:
+        raise ValueError(f"Normalization strategy {args.normalization} is not defined.")
 
     input_file_paths: List[str]
     if os.path.isdir(args.input_data):
@@ -328,13 +367,13 @@ if __name__ == "__main__":
                 instance = scenario.light_instances[i]
                 # compute input ngrams
                 # TODO: The unigram computation can be taken out to further optimize efficiency if necessary.
-                input_unigrams = instance.input.split()
+                input_unigrams = tokenizer.tokenize(instance.input)
                 for input_ngram in ngrams(input_unigrams, n):
                     ngram_index[n][input_ngram].append((stats, i, PART_INPUT))
 
                 # compute reference ngrams
                 for reference in instance.references:
-                    reference_unigrams = reference.split()
+                    reference_unigrams = tokenizer.tokenize(reference)
                     for reference_ngram in ngrams(reference_unigrams, n):
                         ngram_index[n][reference_ngram].append((stats, i, PART_REF))
 
@@ -347,6 +386,7 @@ if __name__ == "__main__":
             n_values=N_VALUES,
             file_format=args.input_format,
             ngram_index=ngram_index,
+            tokenizer=tokenizer,
         )
         for stats_repr in all_contamination_stats:
             all_contamination_stats[stats_repr].merge(file_contamination_stats[stats_repr])
