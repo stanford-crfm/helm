@@ -126,7 +126,6 @@ class LexGLUEScenario(Scenario):
 
     dataset_name = "lex_glue"
     max_number_of_wrong_answers = 30
-    mltc_no_label_name = "No Label"
 
     def __init__(self, subset: str):
         super().__init__()
@@ -167,15 +166,6 @@ class LexGLUEScenario(Scenario):
                     wrong_references.append(wrong_reference)
 
             wrong_references = reduce_wrong_reference_count(wrong_references)
-
-            if task_code == TaskType.MLTC:  # special case for multilabel classification tasks
-                if correct_labels:  # if we have a correct label
-                    # add the no_label to the wrong references
-                    # IMPORTANT: add it after reduce_wrong_reference_count, to make sure the no label is always there
-                    wrong_references.append(Reference(output=Output(self.mltc_no_label_name), tags=[]))
-                else:  # if we don't have a correct label
-                    # add the no_label to the correct labels
-                    correct_labels = [self.mltc_no_label_name]
 
             # construct correct references and input
             if task_code in [TaskType.SLTC, TaskType.MLTC]:
