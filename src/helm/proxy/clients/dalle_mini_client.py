@@ -23,22 +23,19 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time
 
 
-VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
-VQGAN_COMMIT_ID = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
-
-
 class DALLEMiniClient(Client):
     """
     Source: https://github.com/borisdayma/dalle-mini, https://github.com/patil-suraj/vqgan-jax
     """
+
+    VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
+    VQGAN_COMMIT_ID = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
 
     def __init__(self, cache_config: CacheConfig, file_cache: FileCache):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
 
         self._model_engine_to_model = {}
-        self._promptist_model = None
-        self._promptist_tokenizer = None
 
     def _get_model(self, model_engine: str):
         """
@@ -56,7 +53,9 @@ class DALLEMiniClient(Client):
 
             model, params = DalleBart.from_pretrained(model_name, revision=None, dtype=jnp.float16, _do_init=False)
             processor = DalleBartProcessor.from_pretrained(model_name, revision=None)
-            vqgan, vqgan_params = VQModel.from_pretrained(VQGAN_REPO, revision=VQGAN_COMMIT_ID, _do_init=False)
+            vqgan, vqgan_params = VQModel.from_pretrained(
+                self.VQGAN_REPO, revision=self.VQGAN_COMMIT_ID, _do_init=False
+            )
             params = replicate(params)
             vqgan_params = replicate(vqgan_params)
             self._model_engine_to_model[model_engine] = [model, params, processor, vqgan, vqgan_params]
@@ -75,12 +74,6 @@ class DALLEMiniClient(Client):
         }
 
         try:
-
-            def replace_prompt(request_to_update: Dict, new_prompt: str) -> Dict:
-                new_request: Dict = dict(request_to_update)
-                assert "prompt" in new_request
-                new_request["prompt"] = new_prompt
-                return new_request
 
             def _inference(
                 model, params, vqgan, vqgan_params, tokenized_prompt, subkey, top_k, top_p, temperature, condition_scale

@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from PIL import Image
 from .mindalle.models import Dalle
@@ -27,13 +27,13 @@ class MinDALLEClient(Client):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
 
-        self._promptist_model = None
-        self._promptist_tokenizer = None
+        self._model: Optional[Dalle] = None
 
     def _get_model(self) -> Dalle:
-        model = Dalle.from_pretrained("minDALL-E/1.3B")
-        model = model.to(get_torch_device_name())
-        return model
+        if self._model is None:
+            self._model = Dalle.from_pretrained("minDALL-E/1.3B")
+            self._model = self._model.to(get_torch_device_name())
+        return self._model
 
     def make_request(self, request: Request) -> RequestResult:
         if not isinstance(request, TextToImageRequest):
@@ -51,12 +51,6 @@ class MinDALLEClient(Client):
         }
 
         try:
-
-            def replace_prompt(request_to_update: Dict, new_prompt: str) -> Dict:
-                new_request: Dict = dict(request_to_update)
-                assert "prompt" in new_request
-                new_request["prompt"] = new_prompt
-                return new_request
 
             def do_it():
                 prompt: str = request.prompt

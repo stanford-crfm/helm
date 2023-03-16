@@ -84,7 +84,7 @@ importlib-resources==5.10.2
 iniconfig==2.0.0
 ipython==8.9.0
 jax==0.3.25
-jaxlib==0.3.25+cuda11.cudnn805
+jaxlib==0.3.25
 jedi==0.18.2
 Jinja2==3.1.2
 jmespath==1.0.1
@@ -215,10 +215,10 @@ tls-client==0.1.8
 tokenizers==0.13.2
 toml==0.10.2
 tomli==2.0.1
-torch==1.12.1+cu113
+torch==1.12.1
 torch-fidelity==0.3.0
 torchmetrics==0.11.1
-torchvision==0.13.1+cu113
+torchvision==0.13.1
 tqdm==4.64.1
 traitlets==5.9.0
 transformers==4.26.1
