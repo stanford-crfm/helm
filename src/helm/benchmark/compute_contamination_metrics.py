@@ -354,6 +354,7 @@ if __name__ == "__main__":
     all_contamination_stats: Dict[str, ContaminationStats] = {}
     ngram_index: DefaultDict[int, DefaultDict[str, List[tuple]]] = defaultdict(lambda: defaultdict(list))
     for scenario in scenarios:
+        print(f"Building ngram indexes for {scenario.scenario_spec}")
         for n in N_VALUES:
             # Initizlize a stats instance for every pair of <scenario, n>
             stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags=[f"N={n}"])
