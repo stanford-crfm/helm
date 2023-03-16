@@ -379,8 +379,9 @@ if __name__ == "__main__":
                         ngram_index[n][reference_ngram].append((stats, i, PART_REF))
 
     # commpute the stats
-    for input_file_path in input_file_paths:
-        print(f"Computing contamination stats for {input_file_path}")
+    for input_file_index in range(len(input_file_paths)):
+        input_file_path: str = input_file_paths[input_file_index]
+        print(f"Computing contamination stats for file {input_file_index+1}/{len(input_file_paths)} {input_file_path}")
         file_contamination_stats = compute_scenario_file_contamination(
             scenarios=scenarios,
             training_file_path=input_file_path,
