@@ -55,6 +55,11 @@ TASK_CODE_MAPPING = {
     MAPA_FINE: TaskType.NER,
 }
 
+
+def get_lextreme_task_type(subset):
+    return TASK_CODE_MAPPING[subset]
+
+
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
     BRAZILIAN_COURT_DECISIONS_JUDGMENT: 4,  # ~ max 1024 tokens
     BRAZILIAN_COURT_DECISIONS_UNANIMITY: 4,  # ~ max 1024 tokens

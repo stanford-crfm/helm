@@ -31,6 +31,8 @@ from .scenarios.lextreme_scenario import (
     get_lextreme_instructions,
     get_lextreme_max_train_instances,
     get_lextreme_max_tokens,
+    TaskType,
+    get_lextreme_task_type,
 )
 from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG
 from helm.common.general import singleton
@@ -1742,7 +1744,9 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         name=f"lextreme:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs() + get_classification_metric_specs(),
+        metric_specs=get_f1_metric_specs() + get_classification_metric_specs()
+        if get_lextreme_task_type(subset) in [TaskType.MLTC, TaskType.SLTC]
+        else [],
         groups=["lextreme"],
     )
 
