@@ -129,8 +129,8 @@ class EntityMatchingScenario(Scenario):
         for split, example_df in labeled_examples.items():
             hlog(f"Processing {split} with {example_df.shape[0]} rows")
             for _, pair in example_df.iterrows():
-                resA: str = self.serialize_row(pair, column_mapA)
-                resB: str = self.serialize_row(pair, column_mapB)
+                resA: str = self.serialize_row(pair, column_mapA)  # type: ignore
+                resB: str = self.serialize_row(pair, column_mapB)  # type: ignore
                 input: str = f"Product A is {resA}. Product B is {resB}. Are A and B the same?"
                 label: str = "Yes" if pair["label"] else "No"
 

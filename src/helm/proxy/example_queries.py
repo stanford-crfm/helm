@@ -175,7 +175,7 @@ example_queries = [
         ),
         environments=dedent(
             """
-            model: [openai/dalle-2, together/StableDiffusion]
+            model: [openai/dalle-2]
             """
         ),
     ),
