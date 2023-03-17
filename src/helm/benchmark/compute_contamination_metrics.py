@@ -262,6 +262,7 @@ def compute_scenario_file_contamination(
     file_format: str,
     ngram_index: DefaultDict[int, DefaultDict[str, List]],
     tokenizer: LightTokenizer,
+    overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]] = None,
 ) -> Dict[str, ContaminationStats]:
     """Given an input file, compute a contamination stats for each n and each scenario"""
 
@@ -284,6 +285,7 @@ def compute_scenario_file_contamination(
             document=document,
             n_values=n_values,
             tokenizer=tokenizer,
+            overlapped_ngrams=overlapped_ngrams,
         )
 
     return all_scenario_stats
@@ -294,6 +296,7 @@ def compute_scenario_document_contamination(
     document: str,
     n_values: List[int],
     tokenizer: LightTokenizer,
+    overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]] = None,
 ):
     """Given a document, compute a contamination stats for each n and each scenario"""
     document_unigrams = tokenizer.tokenize(document)
@@ -301,6 +304,8 @@ def compute_scenario_document_contamination(
         assert n in ngram_index
         for document_ngram in ngrams(document_unigrams, n):
             if document_ngram in ngram_index[n]:
+                if overlapped_ngrams is not None:
+                    overlapped_ngrams[n][str(document_ngram)] += 1
                 for contamination_stats, instance_id, part in ngram_index[n][document_ngram]:
                     contamination_stats.write_dirty(instance_id, part)
 
@@ -325,6 +330,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--normalization", type=str, default="default", help="What normalization and tokenization strategy to apply"
+    )
+    parser.add_argument(
+        "--output-ngrams",
+        type=str,
+        default=None,
+        help="Path to the file of overlapped ngrams. If not given, ngrams will not be output.",
     )
 
     args = parser.parse_args()
@@ -378,6 +389,13 @@ if __name__ == "__main__":
                     for reference_ngram in ngrams(reference_unigrams, n):
                         ngram_index[n][reference_ngram].append((stats, i, PART_REF))
 
+    # Initialize overlapped_ngrams
+    overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]]
+    if args.output_ngrams is None:
+        overlapped_ngrams = None
+    else:
+        overlapped_ngrams = defaultdict(lambda: defaultdict(int))
+
     # commpute the stats
     for input_file_index in range(len(input_file_paths)):
         input_file_path: str = input_file_paths[input_file_index]
@@ -389,6 +407,7 @@ if __name__ == "__main__":
             file_format=args.input_format,
             ngram_index=ngram_index,
             tokenizer=tokenizer,
+            overlapped_ngrams=overlapped_ngrams,
         )
         for stats_repr in all_contamination_stats:
             all_contamination_stats[stats_repr].merge(file_contamination_stats[stats_repr])
@@ -400,3 +419,10 @@ if __name__ == "__main__":
     with open(args.output_stats, "w") as f:
         f.write("\n".join(stats_summaries))
     print(f"Written {len(stats_summaries)} results to {args.output_stats}")
+
+    if args.output_ngrams is not None:
+        with open(args.output_ngrams, "w") as f:
+            json.dump(overlapped_ngrams, f)
+        print(f"Written the overlapped ngrams to {args.output_ngrams}")
+    else:
+        print("Overlapped ngrams are not written to disk. Set --output_ngrams if you want output the data.")
