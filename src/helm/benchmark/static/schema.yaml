@@ -142,9 +142,17 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-  - name: cohere/command-xlarge-nightly
-    display_name: Cohere command nightly (52.4B)
-    description: Cohere command nightly (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+  - name: cohere/command-medium-beta
+    display_name: Cohere Command beta (6.1B)
+    description: Cohere Command beta (6.1B parameters) is fine-tuned from the medium model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+    creator_organization: Cohere
+    access: limited
+    num_parameters: 6100000000
+    release_date: 2022-11-08
+    todo: true
+  - name: cohere/command-xlarge-beta
+    display_name: Cohere Command beta (52.4B)
+    description: Cohere Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
     creator_organization: Cohere
     access: limited
     num_parameters: 52400000000
@@ -203,7 +211,6 @@ models:
     description: Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks ([paper](https://arxiv.org/pdf/2210.11416.pdf)).
     creator_organization: Google
     access: open
-    todo: true
 
   - name: google/palm
     display_name: PaLM (540B)
@@ -395,6 +402,14 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2022-11-29
+    todo: true
+  - name: together/gpt-neoxt-chat-base-20b
+    display_name: GPT-NeoXT-Chat-Base (20B)
+    description: GPT-NeoXT-Chat-Base (20B) is fine-tuned from GPT-NeoX, serving as a base model for developing open-source chatbots.
+    creator_organization: Together
+    access: open
+    num_parameters: 20000000000
+    release_date: 2023-03-08
     todo: true
 
   # Salesforce

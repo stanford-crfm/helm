@@ -34,6 +34,7 @@ setup(
             "helm-run=helm.benchmark.run:main",
             "helm-summarize=helm.benchmark.presentation.summarize:main",
             "helm-server=helm.benchmark.server:main",
+            "helm-create-plots=helm.benchmark.presentation.create_plots:main",
             "crfm-proxy-server=helm.proxy.server:main",
             "crfm-proxy-cli=helm.proxy.cli:main",
         ]

@@ -141,3 +141,23 @@ class CohereWindowService(LocalWindowService):
             result = result[:-1]
 
         return result
+
+
+class CohereCommandWindowService(CohereWindowService):
+    def __init__(self, service: TokenizerService):
+        super().__init__(service)
+
+    @property
+    def max_request_length(self) -> int:
+        """
+        The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
+        If we exceed the `max_sequence_length`, we get the following error:
+
+        Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
+        exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+
+        For the Command model, in rare situations, the co.tokenize returns a shorter list of tokens
+        than the co.generate. This causes sequence length errors for rare inputs. Cohere's advice is
+        to reduce the sequence length to 2020 to avoid these issues.
+        """
+        return 2020

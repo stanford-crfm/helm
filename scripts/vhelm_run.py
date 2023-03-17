@@ -13,8 +13,10 @@ DEFAULT_NLP_RUN: str = "-a crfm_benchmarking -c 4 --memory 32g -w /u/scr/nlp/crf
 DEFAULT_NLP_RUN_CPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 0 --exclude john17"
 # jag 27, 29, 34 started the run, but did nothing. Saw CUDA OOM with 28.
 DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-25,27,28,29,34]"
+MONGODB_MACHINE: str = "jagupard13"
 DEFAULT_HELM_ARGS: str = (
-    "--num-train-trials 1 --local -n 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers@john13/crfm-models'"
+    f"--num-train-trials 1 --local -n 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers"
+    f"@{MONGODB_MACHINE}/crfm-models'"
 )
 
 CUDA_OOM_ERROR: str = "CUDA out of memory"

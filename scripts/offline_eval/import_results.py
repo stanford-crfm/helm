@@ -12,6 +12,7 @@ from helm.common.cache import (
     request_to_key,
 )
 from helm.common.hierarchical_logger import hlog, htrack
+from .export_requests import SUPPORTED_ORGS
 
 
 """
@@ -84,7 +85,7 @@ if __name__ == "__main__":
             "Example format: mongodb://[username:password@]host1[:port1]/dbname"
         ),
     )
-    parser.add_argument("organization", type=str, help="Organization to export requests for")
+    parser.add_argument("organization", type=str, help="Organization to import requests for", choices=SUPPORTED_ORGS)
     parser.add_argument("request_results_path", type=str, help="Path to jsonl file with requests and results.")
     parser.add_argument(
         "-d",

@@ -12,6 +12,9 @@ TEXT_TO_IMAGE_MODEL_TAG: str = "text_to_image"
 FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
 LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 
+# ChatML format
+CHATML_MODEL_TAG: str = "chatml"
+
 # For OpenAI models with wider context windows
 WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"
 
@@ -252,6 +255,24 @@ ALL_MODELS = [
         description="Cohere small v20220720 (410M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/command-medium-beta",
+        display_name="Cohere Command beta (6.1B)",
+        description="Cohere Command beta (6.1B parameters) is fine-tuned from the medium model "
+        "to respond well with instruction-like prompts",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/command-xlarge-beta",
+        display_name="Cohere Command beta (52.4B)",
+        description="Cohere Command beta (52.4B parameters) is fine-tuned from the XL model "
+        "to respond well with instruction-like prompts",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
     # EleutherAI
     Model(
         group="together",
@@ -322,6 +343,15 @@ ALL_MODELS = [
         description="T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of "
         "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
         "format.",
+        # Does not support echo=True
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Google",
+        name="together/flan-t5-xxl",
+        display_name="Flan-T5 (11B)",
+        description="Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks.",
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
@@ -551,6 +581,14 @@ ALL_MODELS = [
         display_name="GPT-JT (6B)",
         description="GPT-JT (6B parameters) is a fork of GPT-J",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Together",
+        name="together/gpt-neoxt-chat-base-20b",
+        display_name="GPT-NeoXT-Chat-Base (20B)",
+        description="GPT-NeoXT-Chat-Base (20B parameters) is a fork of GPT-NeoX",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
     # Tsinghua
     Model(
