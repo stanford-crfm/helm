@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 // Dictionary of plot captions
 
-const plotCaption = {
+const plotCaptions = {
     "generic_summary": "Metrics for every model on every core scenario as a means for indicating the spread on a per-metric basis.",
     "model_ranking_all": "The fraction of head-to-head comparisons between the given model and all other models, across all scenarios, where the given model is higher along the metric (e.g. more accurate in the accuracy subfigure). If a model was the highest for the given metric for every scenario, it would receive a score of 1.0; if a model received a score of 0.5, then if a scenario and second model were chosen at random, the outcome of the comparison would be a coin flip. For calibration error, we measure ECE-10; for bias, we measure bias in gender representation.",
     "accuracy_v_x": "The relationship between accuracy (x-axis) and each of the 6 metrics (calibration, robustness, fairness, social bias, toxicity, efficiency) we study in this work across all core scenarios and for all models. For calibration error, we measure ECE-10; for bias, we measure bias in gender representation; and for efficiency, we measure denoised inference time.",

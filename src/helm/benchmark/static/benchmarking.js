@@ -132,7 +132,7 @@ $(function () {
 
     function renderPlot(name, title) {
         const plot = $('<div>', {class: "plot"});
-        const caption = $('<div>', {class: "plot-caption"}).append(plotCaption[name]);
+        const caption = $('<div>', {class: "plot-caption"}).append(plotCaptions[name]);
 
         plot.append($('<h3>').append($('<a>', {id: title}).append(title)));
         plot.append(caption);
