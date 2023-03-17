@@ -34,6 +34,8 @@ from .perspective_api_client import PerspectiveAPIClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
 from .dalle2_client import DALLE2Client
+from .mindalle_client import MinDALLEClient
+from .dalle_mini_client import DALLEMiniClient
 from .huggingface_diffusers_client import HuggingFaceDiffusersClient
 from .together_vision_client import TogetherVisionClient
 from .lexica_client import LexicaClient
@@ -149,6 +151,10 @@ class AutoClient(Client):
                     client = TogetherClient(cache_config, api_key=together_api_key)
             elif organization == "lexica":
                 client = LexicaClient(cache_config, file_cache)
+            elif organization == "kakaobrain":
+                client = MinDALLEClient(cache_config, file_cache)
+            elif organization == "craiyon":
+                client = DALLEMiniClient(cache_config, file_cache)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
             else:

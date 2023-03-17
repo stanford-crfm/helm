@@ -10,7 +10,7 @@ class TestCLIPWindowService:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
-        self.window_service = WindowServiceFactory.get_window_service("together/StableDiffusion", service)
+        self.window_service = WindowServiceFactory.get_window_service("huggingface/dreamlike-photoreal-v2-0", service)
 
     def teardown_method(self, method):
         shutil.rmtree(self.path)
