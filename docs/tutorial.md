@@ -69,6 +69,17 @@ Additionally, for each group and group-relavent metric, it will output a pair of
 
 **Note**: Because `helm-summarize` reads the `run_specs.json` that was produced by `helm-run` and `run_specs.json` is overwritten by every invocation of `helm-run`, `helm-summarize` will only process runs from the most recent invocation of `helm-run`.
 
+## Using `helm-create-plots`
+
+The `helm-create-plots` reads the `groups` directory created by `helm-summarize` and creates plots, equivalent to those use in the HELM paper. Run the following:
+
+```
+helm-create-plots --suite v1
+```
+
+This reads the pre-existing files in `benchmark_output/runs/v1/groups` that were written by `helm-summarize` previously,
+and creates plots (`.png` or `.pdf`) at `benchmark_output/runs/v1/plots`.
+
 ## Using `helm-server`
 
 Finally, the `helm-server` command launches a web server to visualize the output files of `helm-run` and `helm-benchmark`. Run:

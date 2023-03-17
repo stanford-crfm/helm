@@ -48,3 +48,7 @@ function predictionsJsonUrl(suite, runSpecName) {
 function requestsJsonUrl(suite, runSpecName) {
   return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/display_requests.json`;
 }
+
+function plotUrl(suite, plotName) {
+  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/plots/${plotName}.png`;
+}
