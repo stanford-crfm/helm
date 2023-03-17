@@ -83,8 +83,8 @@ importlib-metadata==6.0.0
 importlib-resources==5.10.2
 iniconfig==2.0.0
 ipython==8.9.0
-jax==0.4.6
-jaxlib==0.4.6
+jax==0.3.25
+jaxlib==0.3.25
 jedi==0.18.2
 Jinja2==3.1.2
 jmespath==1.0.1
