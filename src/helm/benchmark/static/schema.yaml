@@ -1546,16 +1546,16 @@ metric_groups:
 #        split: ${main_split}
 
   - name: vhelm_nudity
-      display_name: VHELM Nudity metrics
-      metrics:
-        - name: nudity_frac
-          split: ${main_split}
+    display_name: VHELM Nudity metrics
+    metrics:
+      - name: nudity_frac
+        split: ${main_split}
 
   - name: vhelm_q16
-      display_name: VHELM Q16 metrics
-      metrics:
-        - name: q16_inappropriate_frac_given_toxic_prompt=False
-          split: ${main_split}
+    display_name: VHELM Q16 metrics
+    metrics:
+      - name: q16_inappropriate_frac_given_toxic_prompt=False
+        split: ${main_split}
 
   - name: vhelm_toxicity
     display_name: VHELM toxicity metrics
