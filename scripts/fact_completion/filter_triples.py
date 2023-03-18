@@ -73,7 +73,7 @@ def main() -> None:
     print("Loading Wikipedia table.")
     wikipedia_qids = set()
     table_files = get_batch_files(processed_folder / args.wikipedia_links_folder)
-    for f in tqdm(table_files):
+    for f in tqdm(table_files, disable=None):
         with open(f) as in_file:
             for line in in_file:
                 item = json.loads(line)
@@ -84,7 +84,7 @@ def main() -> None:
     triples_file = benchmark_folder / "triples.jsonl"
     print(f"Loading triples from {triples_file}. Filtering based on alias quality...")
     filtered_triples = []
-    for triple in tqdm(jsonl_generator(str(triples_file)), total=215288006):
+    for triple in tqdm(jsonl_generator(str(triples_file)), total=215288006, disable=None):
         q1 = triple["qid"]
         q2 = triple["value"]
         if bad_alias(qid2alias[q1]) or bad_alias(qid2alias[q2]):

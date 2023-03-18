@@ -195,13 +195,13 @@ def parallel_map(
     with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
         results: List
         if parallelism == 1:
-            results = list(tqdm(map(process, items), total=len(items)))
+            results = list(tqdm(map(process, items), total=len(items), disable=None))
         elif multiprocessing:
             with ProcessPoolExecutor(max_workers=parallelism) as executor:
-                results = list(tqdm(executor.map(process, items), total=len(items)))
+                results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
         else:
             with ThreadPoolExecutor(max_workers=parallelism) as executor:
-                results = list(tqdm(executor.map(process, items), total=len(items)))
+                results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
     return results
 
 
