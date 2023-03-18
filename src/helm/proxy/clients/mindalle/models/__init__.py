@@ -44,7 +44,7 @@ class Dalle(nn.Module):
     @classmethod
     def from_pretrained(cls, path: str) -> nn.Module:
         path = _MODELS[path] if path in _MODELS else path
-        path = utils.realpath_url_or_path(path, root=os.path.expanduser("~/.cache/minDALL-E"))
+        path = utils.realpath_url_or_path(path, root=os.path.expanduser(".helm_cache/minDALL-E"))
 
         config_base = get_base_config()
         config_new = OmegaConf.load(os.path.join(path, "config.yaml"))
