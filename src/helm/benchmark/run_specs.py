@@ -549,7 +549,7 @@ def get_machine_translation_metric_specs() -> List[MetricSpec]:
     ] + get_basic_metric_specs([])
 
 
-# vHELM metrics
+# VHELM metrics
 
 
 def get_core_vhelm_metric_specs() -> List[MetricSpec]:
@@ -560,6 +560,7 @@ def get_core_vhelm_metric_specs() -> List[MetricSpec]:
         MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={"multilingual": True}),
         MetricSpec(class_name="helm.benchmark.efficiency_metrics.EfficiencyMetric", args={}),
         MetricSpec(class_name="helm.benchmark.nsfw_metrics.NSFWMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.q16_toxicity_metrics.Q16ToxicityMetric", args={}),
         MetricSpec(class_name="helm.benchmark.watermark_metrics.WatermarkMetric", args={}),
     ] + get_basic_metric_specs(names=[])
 
