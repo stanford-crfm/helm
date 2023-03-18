@@ -309,7 +309,9 @@ class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
     name = "max_eval_instances"
     values_dict = {
         "vhelm_default": [100],
-        "vhelm_fid": [30_000],
+        # TODO: Set to 30,000 later -Tony
+        # "vhelm_fid": [30_000],
+        "vhelm_fid": [100],
     }
 
 
