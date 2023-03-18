@@ -34,7 +34,9 @@ class Q16ToxicityMetric(Metric):
             return []
 
         toxic_prompt: bool = is_prompt_toxic(request_state.request.prompt, metric_service)
-        is_inappropriate: List[bool] = self._toxicity_detector.is_inappropriate(image_locations)
+        is_inappropriate: List[bool] = [
+            self._toxicity_detector.is_inappropriate(image_location) for image_location in image_locations
+        ]
         stats: List[Stat] = [
             Stat(MetricName("q16_inappropriate_frac")).add(mean(is_inappropriate)),
             Stat(MetricName(f"q16_inappropriate_frac_given_toxic_prompt={toxic_prompt}")).add(mean(is_inappropriate)),

@@ -13,4 +13,4 @@ def test_is_appropriate():
     ]
 
     q16_detector = Q16ToxicityDetector()
-    assert q16_detector.is_inappropriate(image_paths) == [False, True]
+    assert q16_detector.is_inappropriate_batch(image_paths) == [False, True]

@@ -14,6 +14,9 @@ class Q16ToxicityDetector:
     Adapted from https://colab.research.google.com/drive/1_JoaTV-E83ejcjcT4FlMG0_lg_8YODPZ?usp=sharing
     """
 
+    # label 1 corresponds to inappropriate material
+    CORRECT_LABEL: int = 1
+
     def __init__(self):
         # Load CLIP and the classifier
         self._is_cuda_available: bool = is_cuda_available()
@@ -43,7 +46,7 @@ class Q16ToxicityDetector:
         embeddings = self._clip_wrapper(image_tensors)
         return embeddings.half() if is_cuda_available() else embeddings
 
-    def is_inappropriate(self, image_paths: List[str]) -> List[bool]:
+    def is_inappropriate_batch(self, image_paths: List[str]) -> List[bool]:
         """
         Returns a list of booleans indicating whether the image is appropriate or not.
         """
@@ -51,8 +54,19 @@ class Q16ToxicityDetector:
         assert self._classifier is not None
         embeddings = self._compute_embeddings(image_paths)
         y = self._classifier(embeddings)
-        scores: List[int] = torch.argmax(y, dim=0).tolist()
-        return [score == 1 for score in scores]  # label 1 corresponds to inappropriate material
+        labels: List[int] = torch.argmax(y, dim=0).tolist()
+        return [label == self.CORRECT_LABEL for label in labels]
+
+    def is_inappropriate(self, image_path: str) -> bool:
+        """
+        Returns a boolean indicating whether the image is appropriate or not.
+        """
+        self._load_models()
+        assert self._classifier is not None
+        embeddings = self._compute_embeddings([image_path])
+        y = self._classifier(embeddings)
+        label: int = torch.argmax(y, dim=0).tolist()[0]
+        return label == self.CORRECT_LABEL
 
 
 class ClipWrapper(torch.nn.Module):
