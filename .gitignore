@@ -17,6 +17,8 @@ logs/
 *.out
 *.jsonl
 nltk_data/
+__autograph_generated*.py
+tmp*/
 
 # Where data lives (e.g., newsqa)
 restricted
