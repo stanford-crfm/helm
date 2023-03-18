@@ -69,13 +69,15 @@ class AI21Client(Client):
                 url_template.format(model=request.model_engine),
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 json=raw_request,
-            ).json()
+            )
+            response.raise_for_status()
+            response_json = response.json()
 
             # # If 'completions' is not present in the response, assume request failed.
-            if "completions" not in response:
-                AI21Client.handle_failed_request(api_type="completion", response=response)
+            if "completions" not in response_json:
+                AI21Client.handle_failed_request(api_type="completion", response=response_json)
 
-            return response
+            return response_json
 
         try:
             # We need to include the engine's name to differentiate among requests made for different model engines
@@ -156,13 +158,15 @@ class AI21Client(Client):
                 "https://api.ai21.com/studio/v1/tokenize",
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 json=raw_request,
-            ).json()
+            )
+            response.raise_for_status()
+            response_json = response.json()
 
             # If 'tokens' is not present in the response, assume request failed.
-            if "tokens" not in response:
-                AI21Client.handle_failed_request(api_type="tokenizer", response=response)
+            if "tokens" not in response_json:
+                AI21Client.handle_failed_request(api_type="tokenizer", response=response_json)
 
-            return response
+            return response_json
 
         try:
             response, cached = self.cache.get(raw_request, do_it)

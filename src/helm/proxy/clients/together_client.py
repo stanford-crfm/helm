@@ -72,7 +72,9 @@ class TogetherClient(Client):
         try:
 
             def do_it():
-                result = requests.post(TogetherClient.INFERENCE_ENDPOINT, json=raw_request).json()
+                response = requests.post(TogetherClient.INFERENCE_ENDPOINT, json=raw_request)
+                response.raise_for_status()
+                result = response.json()
                 assert "output" in result, f"Invalid response: {result}"
                 return result["output"]
 
