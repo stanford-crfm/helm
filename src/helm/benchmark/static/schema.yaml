@@ -1144,6 +1144,26 @@ metrics:
     short_display_name: NSFW frac given non-toxic prompt
     description: TODO
     lower_is_better: true
+  - name: nudity_frac
+    display_name: Nudity frac
+    short_display_name: Nudity frac
+    description: TODO
+    lower_is_better: true
+  - name: q16_inappropriate_frac
+    display_name: Q16 inappropriate frac
+    short_display_name: Q16 inappropriate frac
+    description: TODO
+    lower_is_better: true
+  - name: q16_inappropriate_frac_given_toxic_prompt=True
+    display_name: Q16 inappropriate frac given toxic prompt
+    short_display_name: Q16 inappropriate frac given toxic prompt
+    description: TODO
+    lower_is_better: true
+  - name: q16_inappropriate_frac_given_toxic_prompt=False
+    display_name: Q16 inappropriate frac given non-toxic prompt
+    short_display_name: Q16 inappropriate frac given non-toxic prompt
+    description: TODO
+    lower_is_better: true
   - name: blacked_out_frac
     display_name: Blacked out frac
     short_display_name: Blacked out frac
@@ -1525,6 +1545,18 @@ metric_groups:
 #      - name: blacked_out_frac_given_toxic_prompt=False
 #        split: ${main_split}
 
+  - name: vhelm_nudity
+      display_name: VHELM Nudity metrics
+      metrics:
+        - name: nudity_frac
+          split: ${main_split}
+
+  - name: vhelm_q16
+      display_name: VHELM Q16 metrics
+      metrics:
+        - name: q16_inappropriate_frac_given_toxic_prompt=False
+          split: ${main_split}
+
   - name: vhelm_toxicity
     display_name: VHELM toxicity metrics
     metrics:
@@ -1877,6 +1909,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -1895,6 +1929,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -1912,6 +1948,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -1927,6 +1965,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -1942,6 +1982,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -1957,6 +1999,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -1972,6 +2016,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -1987,6 +2033,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2002,6 +2050,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2017,6 +2067,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2032,6 +2084,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2047,6 +2101,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2062,6 +2118,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2077,6 +2135,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2092,6 +2152,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2107,6 +2169,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2122,6 +2186,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2138,6 +2204,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2154,6 +2222,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2169,6 +2239,8 @@ run_groups:
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_nsfw
+      - vhelm_nudity
+      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency

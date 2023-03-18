@@ -118,6 +118,7 @@ mypy-extensions==0.4.3
 networkx==3.0
 nltk==3.8.1
 nodeenv==1.7.0
+NudeNet==2.0.9
 numba==0.56.4
 numpy==1.23.5
 oauthlib==3.2.2
