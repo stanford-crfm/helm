@@ -65,7 +65,7 @@ class Q16ToxicityDetector:
         assert self._classifier is not None
         embeddings = self._compute_embeddings([image_path])
         y = self._classifier(embeddings)
-        label: int = torch.argmax(y, dim=0).item()
+        label: float = torch.argmax(y, dim=0).item()
         return label == self.CORRECT_LABEL
 
 
