@@ -125,6 +125,31 @@ ALL_MODELS = [
         description="Jurassic-1 Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
+    # AI21 Jurassic-2 Models: https://www.ai21.com/blog/introducing-j2
+    Model(
+        group="jurassic",
+        creator_organization="AI21 Labs",
+        name="ai21/j2-jumbo",
+        display_name="Jurassic-2 Jumbo (178B)",
+        description="Jurassic-2 Jumbo (178B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+    ),
+    Model(
+        group="jurassic",
+        creator_organization="AI21 Labs",
+        name="ai21/j2-grande",
+        display_name="Jurassic-2 Grande (17B)",
+        description="Jurassic-2 Grande (17B parameters) with a few tweaks to the training process.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+    ),
+    Model(
+        group="jurassic",
+        creator_organization="AI21 Labs",
+        name="ai21/j2-large",
+        display_name="Jurassic-2 Large (7.5B)",
+        description="Jurassic-2 Large (7.5B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+    ),
     # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
     Model(
         group="luminous",
