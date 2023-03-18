@@ -11,7 +11,7 @@ from helm.benchmark.scenarios.scenario import Scenario, create_scenario, Instanc
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
 from helm.benchmark.runner import RunSpec
-from helm.benchmark.compute_contamination_metrics import LightInstance, LightScenario
+from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario
 
 
 def create_light_instance_from_helm_instance(instance: Instance) -> LightInstance:
