@@ -58,7 +58,7 @@ def read_run_entries(paths: List[str]) -> RunEntries:
 
 
 @htrack(None)
-def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = False):
+def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = False, use_sphinx: bool = False):
     # Create a run directory at benchmark_output/runs/<suite>
     suite_path: str = os.path.join("benchmark_output", "runs", suite)
     ensure_directory_exists(suite_path)
@@ -87,8 +87,13 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
             # Construct command here
             job_name: str = f"{model.engine}_{description}"
             log_path: str = os.path.join(logs_path, f"{job_name}.log")
+
+            nlp_run_gpu_args: str = DEFAULT_NLP_RUN_GPU_ARGS
+            if use_sphinx:
+                nlp_run_gpu_args += " -q sphinx"
+
             command: str = (
-                f"nlprun {DEFAULT_NLP_RUN_GPU_ARGS} --job-name {job_name} 'helm-run {DEFAULT_HELM_ARGS} "
+                f"nlprun {nlp_run_gpu_args} --job-name {job_name} 'helm-run {DEFAULT_HELM_ARGS} "
                 f"--suite {suite} --conf-paths {conf_path} --models-to-run {model.name} --priority {priority} "
                 f"> {log_path} 2>&1'"
             )
@@ -154,6 +159,12 @@ if __name__ == "__main__":
         help="Skips execution.",
     )
     parser.add_argument(
+        "--use-sphinx",
+        action="store_true",
+        default=None,
+        help="Uses Sphinx machines if set.",
+    )
+    parser.add_argument(
         "--check",
         action="store_true",
         default=None,
@@ -164,4 +175,4 @@ if __name__ == "__main__":
     if args.check:
         check(args.suite)
     else:
-        queue_jobs(args.conf_path, args.suite, args.priority, args.dry_run)
+        queue_jobs(args.conf_path, args.suite, args.priority, args.dry_run, args.use_sphinx)
