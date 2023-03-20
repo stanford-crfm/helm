@@ -3,7 +3,7 @@ import argparse
 import os
 import glob
 
-from typing import List
+from typing import List, Tuple
 from nltk import ngrams
 from typing import Dict, Optional, DefaultDict
 from collections import defaultdict
@@ -67,6 +67,40 @@ def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
         ]
         light_scenarios.append(LightScenario(scenario_spec=scenario_spec, light_instances=light_instances))
     return light_scenarios
+
+
+def create_stats_and_ngram_index(
+    scenarios: List[LightScenario], n_values: List[int], tokenizer: LightTokenizer
+) -> Tuple[Dict[str, ContaminationStats], DefaultDict[int, DefaultDict[str, List[tuple]]]]:
+    """Given a list of scenarios and n values, initialize the stats and ngram_index data structures"""
+    all_contamination_stats: Dict[str, ContaminationStats] = {}
+    ngram_index: DefaultDict[int, DefaultDict[str, List[tuple]]] = defaultdict(lambda: defaultdict(list))
+    for scenario in scenarios:
+        print(f"Building ngram indexes for {str(scenario.scenario_spec)}")
+        for n in n_values:
+            # Initizlize a stats instance for every pair of <scenario, n>
+            stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags={"N": n})
+            stats_repr: str = str(stats.stats_spec)
+            if stats_repr in all_contamination_stats:
+                raise ValueError("Duplicated settings detected.")
+            else:
+                all_contamination_stats[stats_repr] = stats
+
+            # Build the ngram index
+            for i in range(len(scenario.light_instances)):
+                instance = scenario.light_instances[i]
+                # compute input ngrams
+                # TODO: The unigram computation can be taken out to further optimize efficiency if necessary.
+                input_unigrams = tokenizer.tokenize(instance.input)
+                for input_ngram in ngrams(input_unigrams, n):
+                    ngram_index[n][input_ngram].append((stats, i, PART_INPUT))
+
+                # compute reference ngrams
+                for reference in instance.references:
+                    reference_unigrams = tokenizer.tokenize(reference)
+                    for reference_ngram in ngrams(reference_unigrams, n):
+                        ngram_index[n][reference_ngram].append((stats, i, PART_REF))
+    return all_contamination_stats, ngram_index
 
 
 def compute_scenario_file_contamination(
@@ -175,33 +209,9 @@ if __name__ == "__main__":
     scenarios = load_scenarios_from_jsonl(args.scenario_data)
 
     # initialize the stats and ngram_index
-    all_contamination_stats: Dict[str, ContaminationStats] = {}
-    ngram_index: DefaultDict[int, DefaultDict[str, List[tuple]]] = defaultdict(lambda: defaultdict(list))
-    for scenario in scenarios:
-        print(f"Building ngram indexes for {str(scenario.scenario_spec)}")
-        for n in N_VALUES:
-            # Initizlize a stats instance for every pair of <scenario, n>
-            stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags={"N": n})
-            stats_repr: str = str(stats.stats_spec)
-            if stats_repr in all_contamination_stats:
-                raise ValueError("Duplicated settings detected.")
-            else:
-                all_contamination_stats[stats_repr] = stats
-
-            # Build the ngram index
-            for i in range(len(scenario.light_instances)):
-                instance = scenario.light_instances[i]
-                # compute input ngrams
-                # TODO: The unigram computation can be taken out to further optimize efficiency if necessary.
-                input_unigrams = tokenizer.tokenize(instance.input)
-                for input_ngram in ngrams(input_unigrams, n):
-                    ngram_index[n][input_ngram].append((stats, i, PART_INPUT))
-
-                # compute reference ngrams
-                for reference in instance.references:
-                    reference_unigrams = tokenizer.tokenize(reference)
-                    for reference_ngram in ngrams(reference_unigrams, n):
-                        ngram_index[n][reference_ngram].append((stats, i, PART_REF))
+    all_contamination_stats: Dict[str, ContaminationStats]
+    ngram_index: DefaultDict[int, DefaultDict[str, List[tuple]]]
+    all_contamination_stats, ngram_index = create_stats_and_ngram_index(scenarios, N_VALUES, tokenizer)
 
     # Initialize overlapped_ngrams
     overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]]
