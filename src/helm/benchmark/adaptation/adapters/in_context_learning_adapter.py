@@ -125,7 +125,7 @@ class InContextLearningAdapter(Adapter, ABC):
 
         unlabeled_instances: List[Instance] = []
         label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
-
+        examples: List[Instance] = []
         if not sample_train:
             # Sample sequentially from the train set
             examples = all_train_instances[num_instances_to_sample * seed : num_instances_to_sample * (seed + 1)]
@@ -152,7 +152,6 @@ class InContextLearningAdapter(Adapter, ABC):
             sorted_labels.extend(labels)
 
         labels_iterable = cycle(sorted_labels)
-        examples: List[Instance] = []
         while num_instances_to_sample > 0:
             next_label: Optional[str] = next(labels_iterable, None)
             if not next_label:
