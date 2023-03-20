@@ -109,6 +109,7 @@ def generate_derivations(grammar: Grammar) -> List[Derivation]:
             new_results: List[Derivation] = []
             for derivation in results:
                 for child in candidates:
+                    assert derivation.children is not None
                     new_derivation = replace(derivation, children=derivation.children + [child])
                     new_results.append(new_derivation)
             results = new_results
@@ -128,8 +129,10 @@ def generate_derivations(grammar: Grammar) -> List[Derivation]:
 def get_values(derivation: Derivation) -> List[str]:
     """Return all the `values` that are collected recursively."""
     if derivation.is_leaf:
+        assert derivation.value is not None
         return [derivation.value]
     values: List[str] = []
+    assert derivation.children is not None
     for child in derivation.children:
         values.extend(get_values(child))
     return values

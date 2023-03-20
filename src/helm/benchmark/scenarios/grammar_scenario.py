@@ -11,7 +11,6 @@ class GrammarScenario(Scenario):
 
     name = "grammar"
     description = "Scenarios based on a grammar"
-    tags = []
 
     def __init__(self, path: str):
         super().__init__()

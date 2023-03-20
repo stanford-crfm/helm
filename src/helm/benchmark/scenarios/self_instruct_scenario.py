@@ -15,7 +15,6 @@ class SelfInstructScenario(Scenario):
 
     name = "self-instruct"
     description = "Self-instruct eval dataset"
-    tags = []
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
