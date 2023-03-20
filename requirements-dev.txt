@@ -1,0 +1,6 @@
+# Development
+pytest~=7.2.0
+black~=22.10.0
+mypy~=0.982
+pre-commit~=2.20.0
+flake8~=5.0.4

@@ -72,7 +72,7 @@ class CopyrightScenario(Scenario):
 
         # Read all the instances
         instances: List[Instance] = []
-        for prefix, prefix_to_end in tqdm.tqdm(data["data"].items(), desc="load instances"):
+        for prefix, prefix_to_end in tqdm.tqdm(data["data"].items(), desc="load instances", disable=None):
             instances.append(
                 Instance(
                     input=Input(text=prefix),

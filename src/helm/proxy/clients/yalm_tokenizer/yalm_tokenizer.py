@@ -1,3 +1,4 @@
+import importlib_resources as resources
 import torch
 import sentencepiece as spm
 
@@ -5,6 +6,10 @@ import sentencepiece as spm
 From the YaLM GitHub repository (https://github.com/yandex/YaLM-100B),
 adapted from https://github.com/yandex/YaLM-100B/blob/main/megatron_lm/megatron/tokenizer/sp_tokenization.py.
 """
+
+
+YALM_TOKENIZER_PACKAGE: str = "helm.proxy.clients.yalm_tokenizer"
+YALM_TOKENIZER_VOCAB_FILENAME: str = "voc_100b.sp"
 
 
 def convert_to_unicode(text):
@@ -28,9 +33,10 @@ class YaLMTokenizer:
     MASK_TOKEN = "[MASK]"
     MAX_SEQUENCE_LENGTH = 2048
 
-    def __init__(self, vocab_file="src/helm/proxy/clients/yalm_tokenizer/voc_100b.sp"):
+    def __init__(self):
         self.name = "sp"
-        self._tokenizer = spm.SentencePieceProcessor(model_file=vocab_file)
+        vocab_file_path = str(resources.files(YALM_TOKENIZER_PACKAGE).joinpath(YALM_TOKENIZER_VOCAB_FILENAME))
+        self._tokenizer = spm.SentencePieceProcessor(model_file=vocab_file_path)
         self._vocab_words = self._get_vocab_words()
         self.encoder = {token: idx for idx, token in enumerate(self._vocab_words)}
         self.decoder = {idx: token for idx, token in enumerate(self._vocab_words)}

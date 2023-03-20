@@ -11,7 +11,7 @@ def get_requirements(path: str):
 
 setup(
     name="crfm-helm",
-    version="0.2.0",
+    version="0.2.1",
     description="Benchmark for language models",
     long_description="Benchmark for language models",
     url="https://github.com/stanford-crfm/helm",
@@ -34,6 +34,7 @@ setup(
             "helm-run=helm.benchmark.run:main",
             "helm-summarize=helm.benchmark.presentation.summarize:main",
             "helm-server=helm.benchmark.server:main",
+            "helm-create-plots=helm.benchmark.presentation.create_plots:main",
             "crfm-proxy-server=helm.proxy.server:main",
             "crfm-proxy-cli=helm.proxy.cli:main",
         ]

@@ -205,6 +205,9 @@ def compute_aggregate_row_win_rates(table: Table, aggregation: str = "mean") -> 
     return aggregate_win_rates
 
 
+AGGREGATE_WIN_RATE_COLUMN = 1
+
+
 class Summarizer:
     """Summarize the benchmark results in JSON files to be displayed in the UI."""
 
@@ -288,7 +291,7 @@ class Summarizer:
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
         # so filter them out.
         run_dir_names = sorted([p for p in os.listdir(self.run_suite_path) if p != "eval_cache" and p != "groups"])
-        for run_dir_name in tqdm(run_dir_names):
+        for run_dir_name in tqdm(run_dir_names, disable=None):
             run_spec_path: str = os.path.join(self.run_suite_path, run_dir_name, "run_spec.json")
             stats_path: str = os.path.join(self.run_suite_path, run_dir_name, "stats.json")
             if not os.path.exists(run_spec_path) or not os.path.exists(stats_path):
@@ -747,7 +750,6 @@ class Summarizer:
             # add overall win rate as the second column
             WIN_RATE_AGGREGATION = "mean"
             win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
-            AGGREGATE_WIN_RATE_COLUMN = 1
             description = "How many models this model outperform on average (over columns)."
             table.header.insert(
                 AGGREGATE_WIN_RATE_COLUMN,

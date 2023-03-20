@@ -12,6 +12,22 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 
 
+MODEL_ALIASES = {
+    "flan-t5-xxl": "flan-t5-xxl-hf",
+    "h3-2.7b": "h3-2.7b-h3",
+}
+"""Together model name aliases.
+
+HELM users use a shorter model name (e.g. together/flan-t5-xxl)
+whereas the Together client sends and caches requests using
+a longer model name that is suffixed with the implementation framework
+(e.g. flan-t5-xxl-hf). This allows trackcing exactly which
+implementation was used in the cached results, since some results may
+be different depending on the implementation (e.g. efficiency metrics).
+This also allows future migration of results in the case of changes of
+available implementations on Together."""
+
+
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
     x = x.replace("▁", " ")
@@ -31,8 +47,7 @@ class TogetherClient(Client):
         # Following the examples from https://github.com/togethercomputer/open-models-api
         return {
             "request_type": "language-model-inference",
-            # TODO: the Together API expects "together/" in the model name
-            "model": request.model,
+            "model": MODEL_ALIASES.get(request.model_engine, request.model_engine),
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
