@@ -74,8 +74,10 @@ class ContaminationStats:
     def reference_positive_rate(self):
         return self._reference_bits.count() / self.num_instances
 
-    def generate_summary(self, summary_tags: Dict[str, Any]) -> str:
+    def generate_summary(self, summary_tags: Optional[Dict[str, Any]] = None) -> str:
         """Output a summary of the stats"""
+        if summary_tags is None:
+            summary_tags = {}
         summary_tags.update(self.stats_spec)
         summary = {
             "setting": f"{summary_tags}",
