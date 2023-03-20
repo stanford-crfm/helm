@@ -71,7 +71,6 @@ def handle_root():
 
 @app.get("/static/<filename:path>")
 def handle_static_filename(filename):
-    print(os.path.join(os.path.dirname(__file__)))
     resp = bottle.static_file(filename, root=os.path.join(os.path.dirname(__file__), "static"))
     resp.add_header("Cache-Control", "no-store, must-revalidate ")
     return resp
