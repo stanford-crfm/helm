@@ -21,12 +21,12 @@ from .scenario import (
 
 class OpinionsQAScenario(Scenario):
     """
-    The OpinionsQAScenario dataset is from Santurkar et al. (2023).
+    The OpinionsQAScenario dataset is from the paper "Whose Opinions Do Language Models Reflect?"
+    [Santurkar et al., 2023].
 
     OpinionsQA is a QA dataset containing 1484 multiple-choice questions. Since the questions are inherently 
     subjective, there isn't a single ground truth response. Instead, the object of interest is how 
-    the distribution of model responses compares to those obtained from human survey participants as 
-    disccused in [TODO GITHUB].
+    the distribution of model responses compares to those obtained from human survey participants.
     
     As discussed in Santurkar et al., we consider prompting an LM:
     1. Without any context (zero-shot) to evaluate the "default" opinions reflected 
