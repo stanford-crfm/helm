@@ -71,10 +71,10 @@ def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
 
 def create_stats_and_ngram_index(
     scenarios: List[LightScenario], n_values: List[int], tokenizer: LightTokenizer
-) -> Tuple[Dict[str, ContaminationStats], DefaultDict[int, DefaultDict[str, Set[tuple]]]]:
+) -> Tuple[Dict[str, ContaminationStats], DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]]:
     """Given a list of scenarios and n values, initialize the stats and ngram_index data structures"""
     all_contamination_stats: Dict[str, ContaminationStats] = {}
-    ngram_index: DefaultDict[int, DefaultDict[str, Set[tuple]]] = defaultdict(lambda: defaultdict(set))
+    ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]] = defaultdict(lambda: defaultdict(set))
     for scenario in scenarios:
         print(f"Building ngram indexes for {str(scenario.scenario_spec)}")
         for n in n_values:
@@ -108,7 +108,7 @@ def compute_scenario_file_contamination(
     training_file_path: str,
     n_values: List[int],
     file_format: str,
-    ngram_index: DefaultDict[int, DefaultDict[str, set]],
+    ngram_index: DefaultDict[int, DefaultDict[Tuple[str], set]],
     tokenizer: LightTokenizer,
     overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]] = None,
 ):
@@ -130,7 +130,7 @@ def compute_scenario_file_contamination(
 
 
 def compute_scenario_document_contamination(
-    ngram_index: Dict[int, DefaultDict[str, set]],
+    ngram_index: Dict[int, DefaultDict[Tuple[str], set]],
     document: str,
     n_values: List[int],
     tokenizer: LightTokenizer,
@@ -210,7 +210,7 @@ if __name__ == "__main__":
 
     # initialize the stats and ngram_index
     all_contamination_stats: Dict[str, ContaminationStats]
-    ngram_index: DefaultDict[int, DefaultDict[str, Set[tuple]]]
+    ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
     all_contamination_stats, ngram_index = create_stats_and_ngram_index(scenarios, N_VALUES, tokenizer)
 
     # Initialize overlapped_ngrams
