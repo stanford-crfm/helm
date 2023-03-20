@@ -139,11 +139,14 @@ def check(suite: str):
 
         log_path: str = os.path.join(logs_path, log_file)
         with open(log_path, "r") as f:
-            log_content: str = f.read()
-            if CUDA_OOM_ERROR in log_content:
-                cuda_oom_logs.append(log_path)
-            elif "Done.\n" not in log_content:
-                hlog(f"tail -f {log_path}")
+            try:
+                log_content: str = f.read()
+                if CUDA_OOM_ERROR in log_content:
+                    cuda_oom_logs.append(log_path)
+                elif "Done.\n" not in log_content:
+                    hlog(f"tail -f {log_path}")
+            except UnicodeDecodeError as e:
+                hlog(f"Error reading {log_path}: {e}")
 
     if len(cuda_oom_logs) > 0:
         with htrack_block(f"\nLog files with {CUDA_OOM_ERROR}:"):
