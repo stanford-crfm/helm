@@ -104,7 +104,6 @@ def create_stats_and_ngram_index(
 
 
 def compute_scenario_file_contamination(
-    scenarios: List[LightScenario],
     training_file_path: str,
     n_values: List[int],
     file_format: str,
@@ -225,7 +224,6 @@ if __name__ == "__main__":
         input_file_path: str = input_file_paths[input_file_index]
         print(f"Computing contamination stats for file {input_file_index+1}/{len(input_file_paths)} {input_file_path}")
         compute_scenario_file_contamination(
-            scenarios=scenarios,
             training_file_path=input_file_path,
             n_values=N_VALUES,
             file_format=args.input_format,
