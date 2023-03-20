@@ -65,8 +65,9 @@ class InContextLearningAdapter(Adapter, ABC):
         parallelism: int,
     ) -> List[RequestState]:
         self.train_trial_index: int = train_trial_index
-        self.train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index,
-                                                                    sample_train=self.adapter_spec.sample_train)
+        self.train_instances: List[Instance] = self.sample_examples(
+            all_train_instances, seed=train_trial_index, sample_train=self.adapter_spec.sample_train
+        )
         hlog(f"Sampled {len(self.train_instances)} examples for trial #{self.train_trial_index}.")
 
         # Generate request_states
@@ -94,8 +95,7 @@ class InContextLearningAdapter(Adapter, ABC):
 
         return [request_state for result in results for request_state in result]
 
-    def sample_examples(self, all_train_instances: List[Instance], seed: int,
-                        sample_train: bool) -> List[Instance]:
+    def sample_examples(self, all_train_instances: List[Instance], seed: int, sample_train: bool) -> List[Instance]:
         """
         Sample a random set of train instances to use as examples by following the steps below:
         1. Sort the class labels (i.e., correct References) by the number of Instances that belong to the
@@ -125,7 +125,7 @@ class InContextLearningAdapter(Adapter, ABC):
 
         unlabeled_instances: List[Instance] = []
         label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
-            
+
         if not sample_train:
             # Sample sequentially from the train set
             examples = all_train_instances[num_instances_to_sample * seed : num_instances_to_sample * (seed + 1)]
