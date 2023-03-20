@@ -272,6 +272,29 @@ def get_generation_adapter_spec(
     )
 
 
+def get_instruct_adapter_spec(
+    num_outputs: int = 1,
+    max_tokens: int = 512,
+    temperature: float = 0.7,
+) -> AdapterSpec:
+    """
+    Zero-shot instruction-following.
+    """
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        input_prefix="",
+        input_suffix="\n",
+        output_prefix="",
+        output_suffix="",
+        max_train_instances=0,
+        num_outputs=num_outputs,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        stop_sequences=[],
+    )
+
+
 def get_language_modeling_adapter_spec() -> AdapterSpec:
     """
     Used for language modeling.
@@ -1793,6 +1816,40 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
     )
 
 
+def get_self_instruct_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.self_instruct_scenario.SelfInstructScenario",
+        args={},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name="self_instruct",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["self_instruct"],
+    )
+
+
+def get_grammar_spec(path: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.grammar_scenario.GrammarScenario",
+        args={"path": path},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"grammar:path={path}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["grammar"],
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -1842,6 +1899,8 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "lextreme": get_lextreme_spec,
     "lex_glue": get_lex_glue_spec,
     "wmt_14": get_wmt_14_spec,
+    "self_instruct": get_self_instruct_spec,
+    "grammar": get_grammar_spec,
     # Biomedical
     "covid_dialog": get_covid_dialog_spec,
     "me_q_sum": get_me_q_sum_spec,

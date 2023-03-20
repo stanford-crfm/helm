@@ -1,0 +1,175 @@
+rules:
+- category: Root
+  expansions:
+    - text: ${CompositionalRoot}
+      #- text: ${GridfitiRoot}
+
+- category: CompositionalRoot
+  expansions:
+    - text: ${Task} ${Style}
+    - text: Tell me a joke about ${Topic}.
+
+- category: Task
+  expansions:
+    - text: Explain ${HowTo}
+    - text: Explain ${Topic}
+
+- category: HowTo
+  expansions:
+    - text: how airplanes fly
+    - text: how maglev trains work
+    - text: how to grow tomatoes in the wintertime
+
+- category: Topic
+  expansions:
+    - text: the quicksort algorithm
+    - text: stochastic gradient descent
+    - text: the Great Vowel Shift
+    - text: northern lights
+    - text: the Romantic period
+
+- category: Style
+  expansions:
+    - text: in the style of a Shakespeare sonnet.
+    - text: so that a ${Age}-year old can understand it.
+    - text: in ${Language}.
+    - text: as a haiku.
+    - text: as a limerick.
+
+- category: Age
+  expansions:
+    - text: "5"
+    - text: "9"
+    - text: "13"
+
+- category: GridfitiRoot
+  expansions:
+    # https://gridfiti.com/best-chatgpt-prompts/#personal
+    - text: Act as a chef. Write recipes for an ${Language} three-course meal I can cook for date night.
+    - text: Write a casual message in ${Language} to my Airbnb host saying I’m going to be a little late to check-in and that I will arrive at 4pm.
+    - text: Write a formal complaint email to United Airlines about my delayed bag from my flight on Tuesday January 17th from New York to Los Angeles.
+    - text: "Summarize this article into bullet points: ${Article}"
+    - text: Act as a European travel agent. Come up with a 14-day itinerary for a trip to Germany. The first suggested attraction should be “Take a tour of the Reichstag Building in Berlin.”
+    - text: Write a letter of resignation to my employer. The reason for my resignation is that I need a more flexible schedule due to family issues.
+    - text: What’s the best way to make new friends when moving to a new city?
+    - text: What’s the quickest way to get across Toronto during rush hour?
+    - text: "Translate the following text into ${Language}: ${Article}"
+    - text: List 5 of the best bars in ${City}.
+    - text: Act as a tailor. Pick an appropriate outfit for a ${Event}.
+    - text: Respond to this text message below from my mom ${Message}
+
+    # https://gridfiti.com/best-chatgpt-prompts/#funny
+    - text: What’s the best prank to play on a friend?
+    - text: Send a pun-filled happy birthday message to my friend Alex.
+    - text: Make a joke about chickens.
+    - text: Write a parody song about the alphabet.
+    - text: What do you get when you cross a snowman and a vampire?
+    - text: Write a short story where a pencil is the main character.
+    - text: What would happen if dogs could talk?
+    - text: Write a fictional news headline about robots taking over the world.
+    - text: Create a silly dialogue between two inanimate objects.
+    - text: What would happen if the moon were made of cheese?
+
+    # https://gridfiti.com/best-chatgpt-prompts/#student
+    - text: Act as a college interviewer for a Business School. Help me come up with questions I should ask the interviewer at the end of the interview.
+    - text: Act as a tutor. I need help understanding how the quadratic formula works. Please describe it in easy-to-understand terms.
+    - text: How can I modify the Pomodoro technique to suit my method of study?
+    - text: "Explain possible meanings of this quote: ${Quote}"
+    - text: Can you devise practical ways to stay focused during long study sessions?
+    - text: Help me find a way to balance my studying and social life.
+    - text: Structure a 1,500-word essay on Max Planck’s quantum theory.
+    - text: Come up with 10 ways to improve memory and recall while studying for exams.
+    - text: List note-taking techniques for a chemistry lecture.
+    - text: Suggest 10 Chrome extensions for students designed to improve productivity while studying.
+
+    # https://gridfiti.com/best-chatgpt-prompts/#marketing
+    - text: Write a personalized blog post promoting my latest WordPress theme bundle.
+    - text: How do I increase my Twitter followers?
+    - text: Generate content ideas for my SaaS company.
+    - text: Produce 50 hashtags
+    - text: Create a TikTok campaign plan for launching an exciting new low carb mac and cheese, aimed at Gen Z and millennial consumers.
+    - text: Suggest inexpensive ways I can promote my plumping business without using social media.
+    - text: Is investing in influencer marketers worth the cost?
+    - text: How can I grow our brand’s TikTok audience?
+    - text: How can I use YouTube to increase brand awareness?
+    - text: Write a product description for my latest set of landscape oil paintings of the Scottish Highlands.
+    - text: Generate high-ticket offerings for my online language course.
+    - text: How can I use TikTok to increase sales conversions?
+    - text: Write a minute-long script for an advertisement about new sneakers.
+
+    # https://gridfiti.com/best-chatgpt-prompts/#midjourney
+    - text: "Write a good prompt for an image generation AI to make an image of this: ${ImageDescription}"
+    - text: Generate a detailed description of an AI-generated cityscape with a futuristic twist.
+    - text: Create an image description that describes a visually stunning setting that takes place in the year 3030.
+    - text: Design with words an abstract composition with a graphic, minimalist style.
+    - text: With distinct adjectives, create a visual with words that would encompass the feeling of being lost in life
+
+    # https://gridfiti.com/best-chatgpt-prompts/#entrepreneur
+    - text: Analyze the current state of ${Industry} and its trends, challenges, and opportunities, including relevant data and statistics. Provide a list of key players and a short and long-term industry forecast, and explain any potential impact of current events or future developments.
+    - text: Provide a step-by-step guide on creating a business plan, including key components, useful resources, and tips for success.
+    - text: Write a comprehensive and easy-to-understand explanation of different marketing strategies and their effectiveness for small businesses.
+    - text: Offer a comprehensive guide to small business financing options, including loans, grants, and equity financing.
+    - text: Provide a guide on managing finances for a small business, including budgeting, cash flow management, and tax considerations.
+    - text: Write an in-depth analysis of the current state of a specific industry and its potential for small business opportunities.
+    - text: Offer a detailed review of a specific software or tool for small business operations, such as accounting, project management, or CRM.
+    - text: Write a detailed explanation of the pros and cons of outsourcing vs in-house for small business operations.
+    - text: Offer an in-depth analysis of the current state of small business legislation and regulations and their impact on entrepreneurship.
+    - text: Provide a guide on networking and building partnerships as a small business owner.
+    - text: Present a list of valuable resources and organizations for small business support and growth.
+
+    # https://gridfiti.com/best-chatgpt-prompts/#blogging
+    - text: Write a brief for a blog post about opening a Gumroad store.
+    - text: Generate 5 social media posts for my blog post on AppSumo.
+    - text: Pick five keywords for a blog post titled “10 ways to improve my photography skills.”
+    - text: Suggest engaging titles for a blog post about 1930s Art Deco architecture.
+    - text: Generate user-friendly URLs for the domain <paste domain here> for these keywords <paste keywords here>
+    - text: Create a content calendar with six blog titles, including the keyword <paste text here>. Pick suitable publishing dates for each guide spread across May 2023.
+    - text: Write a creative outreach email for a guest post pitch for the keyword “Notion” for the domain “gridfiti.com.” Come up with 3 title ideas using the keyword.
+
+- category: Language
+  expansions:
+    - text: Italian
+    - text: Greek
+    - text: Indian
+    - text: Chinese
+    - text: Thai
+
+- category: City
+  expansions:
+    - text: Phoenix
+    - text: London
+
+- category: Message
+  expansions:
+    - text: I tried calling yesterday, but I didn't get a response
+    - text: I love you
+
+- category: Article
+  expansions:
+    - text: "A ship's wheel or boat's wheel is a device used aboard a water vessel to steer that vessel and control its course. Together with the rest of the steering mechanism, it forms part of the helm. It is connected to a mechanical, electric servo, or hydraulic system which alters the horizontal angle of the vessel's rudder relative to its hull. In some modern ships the wheel is replaced with a simple toggle that remotely controls an electro-mechanical or electro-hydraulic drive for the rudder, with a rudder position indicator presenting feedback to the helmsman." 
+
+- category: Topic
+  expansions:
+    - text: chickens
+
+- category: Quote
+  expansions:
+    - text: "Happiness lies in the joy of achievement and the thrill of creative effort. -Franklin D. Roosevelt"
+    - text: "Invincibility lies in the defence; the possibility of victory in the attack. -Sun Tze"
+
+- category: Event
+  expansions:
+    - text: bar mitzvah
+    - text: wedding
+    - text: funeral
+    - text: baby shower
+
+- category: ImageDescription
+  expansions:
+    - text: a cute puppy
+    - text: a beautiful sunset
+
+- category: Industry
+  expansions:
+    - text: machine learning
+    - text: greentech
