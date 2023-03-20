@@ -21,7 +21,7 @@ class SelfInstructScenario(Scenario):
         # Download the raw data
         tasks_path: str = os.path.join(self.output_path, "seed_tasks.jsonl")
         ensure_file_downloaded(
-            source_url="https://raw.githubusercontent.com/yizhongw/self-instruct/main/data/seed_tasks.jsonl",
+            source_url="https://raw.githubusercontent.com/yizhongw/self-instruct/main/human_eval/user_oriented_instructions.jsonl",
             target_path=tasks_path,
         )
 
