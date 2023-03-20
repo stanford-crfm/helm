@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Dict, Any
 
 
 @dataclass(frozen=True, eq=False)
@@ -21,7 +21,7 @@ class LightScenario:
     A lighter `Scenario`.
     """
 
-    scenario_spec: str
+    scenario_spec: Dict[str, Any]
     """The scenario spec"""
 
     light_instances: List[LightInstance]

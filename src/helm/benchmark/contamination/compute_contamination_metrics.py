@@ -31,7 +31,10 @@ def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
 
     Each line is a json and each json looks like:
     {
-        "scenario_spec": "SCENARIO_SPEC",
+        "scenario_spec": {
+            "name": "SCENARIO_NAME",
+            "split": "SPLIT"
+        },
         "light_instances": [
             {
                 "input": "INPUT_TEXT1",
@@ -58,7 +61,7 @@ def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     scenario_jsons = open(path, "r").readlines()
     for scenario_json in scenario_jsons:
         scenario_dict: dict = json.loads(scenario_json)
-        scenario_spec: str = scenario_dict["scenario_spec"]
+        scenario_spec: dict = scenario_dict["scenario_spec"]
         light_instances: List[LightInstance] = [
             create_light_instance_from_dict(instance_dict) for instance_dict in scenario_dict["light_instances"]
         ]
@@ -81,8 +84,8 @@ def compute_scenario_file_contamination(
     for scenario in scenarios:
         for n in n_values:
             # Initizlize a stats instance for every pair of <scenario, n>
-            stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags=[f"N={n}"])
-            all_scenario_stats[stats.stats_repr] = stats
+            stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags={"N": n})
+            all_scenario_stats[str(stats.stats_spec)] = stats
 
     document_generator = DocumentReadingProcessor(
         file_path=training_file_path, file_format=file_format
@@ -135,9 +138,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--tags",
         type=str,
-        nargs="+",
-        help="Other tags, such as whether the input data is for pretraining or instruction tuning",
-        default=[],
+        help="Other tags, such as whether the input data is for pretraining or instruction tuning. \
+            Format: key value pairs seperated by semicolons. E.g. --tags k1=v1;k2=v2",
+        default=None,
     )
     parser.add_argument(
         "--normalization", type=str, default="default", help="What normalization and tokenization strategy to apply"
@@ -150,6 +153,15 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    tags: Dict[str, str] = {}
+    if args.tags is not None:
+        try:
+            for tag_pair in args.tags.split(";"):
+                k, v = tag_pair.split("=")
+                tags[k] = v
+        except ValueError:
+            raise ValueError("Failed to parse the tags.")
 
     tokenizer: LightTokenizer
     if args.normalization == "none":
@@ -176,14 +188,15 @@ if __name__ == "__main__":
     all_contamination_stats: Dict[str, ContaminationStats] = {}
     ngram_index: DefaultDict[int, DefaultDict[str, List[tuple]]] = defaultdict(lambda: defaultdict(list))
     for scenario in scenarios:
-        print(f"Building ngram indexes for {scenario.scenario_spec}")
+        print(f"Building ngram indexes for {str(scenario.scenario_spec)}")
         for n in N_VALUES:
             # Initizlize a stats instance for every pair of <scenario, n>
-            stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags=[f"N={n}"])
-            if stats.stats_repr in all_contamination_stats:
+            stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags={"N": n})
+            stats_repr: str = str(stats.stats_spec)
+            if stats_repr in all_contamination_stats:
                 raise ValueError("Duplicated settings detected.")
             else:
-                all_contamination_stats[stats.stats_repr] = stats
+                all_contamination_stats[stats_repr] = stats
 
             # Build the ngram index
             for i in range(len(scenario.light_instances)):
@@ -225,7 +238,7 @@ if __name__ == "__main__":
 
     stats_summaries: List[str] = []
     for contamination_stats in all_contamination_stats.values():
-        stats_summaries.append(contamination_stats.generate_summary(args.tags))
+        stats_summaries.append(contamination_stats.generate_summary(tags))
 
     with open(args.output_stats, "w") as f:
         f.write("\n".join(stats_summaries))

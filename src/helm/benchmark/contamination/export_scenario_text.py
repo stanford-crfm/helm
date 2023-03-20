@@ -1,8 +1,9 @@
 import json
 import os
 import argparse
-from typing import List
+from typing import List, DefaultDict
 from collections import defaultdict
+from copy import deepcopy
 
 from helm.common.general import asdict_without_nones, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack_block
@@ -24,7 +25,10 @@ def create_light_instance_from_helm_instance(instance: Instance) -> LightInstanc
 def get_light_scenarios_from_helm(
     run_spec: RunSpec, scenario_download_path: str = "exported_scenarios"
 ) -> List[LightScenario]:
-    """Create a list of LightInstances given a helm run_spec. Only keep the text attributes."""
+    """
+    Create a list of LightInstances given a helm run_spec. Only keep the text attributes. Note that one LightScenario
+    object is created for each split of the helm scenario for simplification.
+    """
 
     scenario: Scenario = create_scenario(run_spec.scenario_spec)
 
@@ -32,9 +36,8 @@ def get_light_scenarios_from_helm(
     scenario.output_path = os.path.join(scenario_download_path, scenario.name)
     ensure_directory_exists(scenario.output_path)
 
-    scenario_spec = scenario.name
-    if len(run_spec.scenario_spec.args) > 0:
-        scenario_spec += f",{','.join([str(key)+'='+str(value) for key, value in run_spec.scenario_spec.args.items()])}"
+    helm_scenario_spec = {"name": scenario.name}
+    helm_scenario_spec.update(run_spec.scenario_spec.args)
 
     # Load instances
     helm_instances: List[Instance]
@@ -42,16 +45,19 @@ def get_light_scenarios_from_helm(
         helm_instances = scenario.get_instances()
 
     # Classify instances into splits
-    splits = defaultdict(list)
+    splits: DefaultDict[str, list] = defaultdict(list)
     for instance in helm_instances:
-        splits[instance.split].append(instance)
+        instance_split: str = "None" if instance.split is None else instance.split
+        splits[instance_split].append(instance)
 
     light_scenarios: List[LightScenario] = []
     for split, instances in splits.items():
         light_instances: List[LightInstance] = [
             create_light_instance_from_helm_instance(instance) for instance in instances
         ]
-        light_scenario = LightScenario(scenario_spec=scenario_spec + f",split={split}", light_instances=light_instances)
+        light_scenario_spec = deepcopy(helm_scenario_spec)
+        light_scenario_spec["split"] = split
+        light_scenario = LightScenario(scenario_spec=light_scenario_spec, light_instances=light_instances)
         light_scenarios.append(light_scenario)
     return light_scenarios
 
