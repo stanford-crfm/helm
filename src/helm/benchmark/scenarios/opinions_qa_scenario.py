@@ -73,7 +73,7 @@ class OpinionsQAScenario(Scenario):
     
     """ Information needed to download the dataset """
     CODALAB_URI_TEMPLATE: str = "https://worksheets.codalab.org/rest/bundles/{bundle}/contents/blob/model_input/{filename}"
-    CODALAB_BUNDLE: str = "0xd938ca73ca0a49bf97db4fbf8e706faa"
+    CODALAB_BUNDLE: str = "0xa6f81cc62d7d4ccb93031a72d2043669"
     FILE_NAME: str = "Pew_American_Trends_Panel_W{wave}.csv"
     PEW_SURVEY_WAVES: list = [26, 27, 29, 32, 34, 36, 41, 42, 43, 45, 49, 50, 54, 82, 92]
 
@@ -88,9 +88,11 @@ class OpinionsQAScenario(Scenario):
         
         DOWNLOAD_FILENAMES = [self.FILE_NAME.format(wave=wave) for wave in self.PEW_SURVEY_WAVES]
         DOWNLOAD_FILENAMES += [f"{steer}.csv" for steer in ["steer-qa", "steer-bio", "steer-portray"]]
+        DOWNLOAD_FILENAMES += ['Pew_American_Trends_Panel_disagreement_500.csv']
         
         for filename in DOWNLOAD_FILENAMES:
             data_path: str = os.path.join(self.output_path, filename)
+                
             source_url: str = self.CODALAB_URI_TEMPLATE.format(bundle=self.CODALAB_BUNDLE, 
                                                                filename=filename)
             if not os.path.exists(data_path):
@@ -124,7 +126,7 @@ class OpinionsQAScenario(Scenario):
         
         bios_df = None
         if self.context in ["steer-bio", "steer-portray"]:
-            bios_path = os.path.join(data_path, f"{self.context}.csv")
+            bios_path = os.path.join(self.output_path, f"{self.context}.csv")
             bios_df = pd.read_csv(bios_path, sep="\t")     
                     
         for split in all_splits:
@@ -158,6 +160,7 @@ class OpinionsQAScenario(Scenario):
                         references=list(map(answer_to_reference, answers)),
                         split=splits[split],
                     )
+                    instances.append(instance)
                 else:
                     # context = "steer-bio"/"steer-portray"
                     for bio in bios_df['question'].values:
@@ -167,6 +170,6 @@ class OpinionsQAScenario(Scenario):
                             references=list(map(answer_to_reference, answers)),
                             split=splits[split],
                         )
-                instances.append(instance)
+                        instances.append(instance)
 
         return instances
