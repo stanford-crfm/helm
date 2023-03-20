@@ -77,16 +77,8 @@ def compute_scenario_file_contamination(
     ngram_index: DefaultDict[int, DefaultDict[str, List]],
     tokenizer: LightTokenizer,
     overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]] = None,
-) -> Dict[str, ContaminationStats]:
+):
     """Given an input file, compute a contamination stats for each n and each scenario"""
-
-    all_scenario_stats: Dict[str, ContaminationStats] = {}
-    for scenario in scenarios:
-        for n in n_values:
-            # Initizlize a stats instance for every pair of <scenario, n>
-            stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags={"N": n})
-            all_scenario_stats[str(stats.stats_spec)] = stats
-
     document_generator = DocumentReadingProcessor(
         file_path=training_file_path, file_format=file_format
     ).get_document_generator()
@@ -101,8 +93,6 @@ def compute_scenario_file_contamination(
             tokenizer=tokenizer,
             overlapped_ngrams=overlapped_ngrams,
         )
-
-    return all_scenario_stats
 
 
 def compute_scenario_document_contamination(
@@ -224,7 +214,7 @@ if __name__ == "__main__":
     for input_file_index in range(len(input_file_paths)):
         input_file_path: str = input_file_paths[input_file_index]
         print(f"Computing contamination stats for file {input_file_index+1}/{len(input_file_paths)} {input_file_path}")
-        file_contamination_stats = compute_scenario_file_contamination(
+        compute_scenario_file_contamination(
             scenarios=scenarios,
             training_file_path=input_file_path,
             n_values=N_VALUES,
@@ -233,8 +223,6 @@ if __name__ == "__main__":
             tokenizer=tokenizer,
             overlapped_ngrams=overlapped_ngrams,
         )
-        for stats_repr in all_contamination_stats:
-            all_contamination_stats[stats_repr].merge(file_contamination_stats[stats_repr])
 
     stats_summaries: List[str] = []
     for contamination_stats in all_contamination_stats.values():
