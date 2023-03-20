@@ -16,6 +16,7 @@ class Expansion:
     """
     Example: text = "this is a ${Topic}"
     """
+
     text: str
     tags: List[str] = field(default_factory=list)
 
@@ -33,6 +34,7 @@ class GrammarRule:
             <category> -> expansions[1]
             ...
     """
+
     category: str
     expansions: List[Expansion]
     tags: List[str] = field(default_factory=list)
@@ -45,7 +47,6 @@ def get_category(text: str) -> Optional[str]:
     if text.startswith("${") and text.endswith("}"):
         return text[2:-1]
     return None
-
 
 
 @dataclass
@@ -62,7 +63,7 @@ class Grammar:
 class Derivation:
     # Exactly one of value of children is active
     value: Optional[str]
-    children: Optional[List['Derivation']]
+    children: Optional[List["Derivation"]]
     tags: List[str]
 
     @property
@@ -113,7 +114,6 @@ def generate_derivations(grammar: Grammar) -> List[Derivation]:
             results = new_results
 
         return results
-
 
     def expand_category(category: str) -> List[Derivation]:
         results: List[Derivation] = []

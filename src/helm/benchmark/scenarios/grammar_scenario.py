@@ -1,8 +1,7 @@
 from typing import List
 
-from helm.common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Input, TEST_SPLIT
-from .grammar import read_grammar, generate_derivations, Derivation, get_values, get_tags
+from .grammar import read_grammar, generate_derivations, Derivation, get_values
 
 
 class GrammarScenario(Scenario):
@@ -24,7 +23,6 @@ class GrammarScenario(Scenario):
         derivations = generate_derivations(grammar)
 
         def derivation_to_instance(derivation: Derivation) -> Instance:
-            tags = get_tags(derivation)
             return Instance(
                 input=Input(text="".join(get_values(derivation))),
                 references=[],
