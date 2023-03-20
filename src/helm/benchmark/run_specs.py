@@ -1838,7 +1838,8 @@ def get_opinions_qa_spec(
     )
 
     return RunSpec(
-        name=f"opinions_qa:survey={survey_type},num_logprobs={num_logprobs},context={context},num_train_trials={num_train_trials}",
+        name=f"opinions_qa:survey={survey_type},num_logprobs={num_logprobs}"
+        + f",context={context},num_train_trials={num_train_trials}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),

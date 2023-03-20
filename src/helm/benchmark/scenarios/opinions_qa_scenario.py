@@ -1,11 +1,8 @@
-import json
 import os
-import string
-from typing import Dict, List
 import pandas as pd
-from typing import List, Dict, Optional
+from typing import List, Dict
 
-from helm.common.general import shell, ensure_directory_exists
+from helm.common.general import shell
 from .scenario import (
     Scenario,
     Instance,
@@ -138,10 +135,6 @@ class OpinionsQAScenario(Scenario):
             question_df = self.read_survey_questions(csv_path)
 
             for qidx, (question, answers) in enumerate(zip(question_df["question"], question_df["options"])):
-
-                prefixes = list(string.ascii_uppercase)
-                assert len(prefixes) >= len(answers)
-                answers_dict = dict(zip(prefixes, answers))
 
                 # Opinions QA test questions have no correct answer. However, since the HELM codebase requires a
                 # correct answer to be associated with each instance, we set it to be the first reference.
