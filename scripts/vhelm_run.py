@@ -6,7 +6,7 @@ import os
 
 from helm.common.general import parse_hocon, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
-from helm.proxy.models import get_models_with_tag, TEXT_TO_IMAGE_MODEL_TAG, Model
+from helm.proxy.models import get_model, get_models_with_tag, TEXT_TO_IMAGE_MODEL_TAG, Model
 
 
 DEFAULT_NLP_RUN: str = "-a vhelm -c 4 --memory 32g -w /u/scr/nlp/crfm/benchmarking/benchmarking"
@@ -58,7 +58,14 @@ def read_run_entries(paths: List[str]) -> RunEntries:
 
 
 @htrack(None)
-def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = False, use_sphinx: bool = False):
+def queue_jobs(
+    conf_path: str,
+    suite: str,
+    models_to_run: List[str],
+    priority: int = 2,
+    dry_run: bool = False,
+    use_sphinx: bool = False,
+):
     # Create a run directory at benchmark_output/runs/<suite>
     suite_path: str = os.path.join("benchmark_output", "runs", suite)
     ensure_directory_exists(suite_path)
@@ -80,8 +87,12 @@ def queue_jobs(conf_path: str, suite: str, priority: int = 2, dry_run: bool = Fa
             f.write(f'entries: [{{description: "{description}", priority: {priority}}}]')
         confs.append((description, conf_path))
 
-    # Run all models on all RunSpecs
-    models: List[Model] = get_models_with_tag(TEXT_TO_IMAGE_MODEL_TAG)
+    # Run all models on all RunSpecs if `models_to_run` is empty
+    models: List[Model] = (
+        get_models_with_tag(TEXT_TO_IMAGE_MODEL_TAG)
+        if len(models_to_run) == 0
+        else [get_model(model_name) for model_name in models_to_run]
+    )
     for model in models:
         for description, conf_path in confs:
             # Construct command here
@@ -149,6 +160,12 @@ if __name__ == "__main__":
         help="Where to read RunSpecs to run from",
         default="src/helm/benchmark/presentation/run_specs_vhelm.conf",
     )
+    parser.add_argument(
+        "--models-to-run",
+        nargs="+",
+        help="Only RunSpecs with these models specified. If no model is specified, runs with all models.",
+        default=None,
+    )
     parser.add_argument("--suite", help="Name of the suite", default="vhelm")
     parser.add_argument("--priority", default=2)
     parser.add_argument(
@@ -175,4 +192,11 @@ if __name__ == "__main__":
     if args.check:
         check(args.suite)
     else:
-        queue_jobs(args.conf_path, args.suite, args.priority, args.dry_run, args.use_sphinx)
+        queue_jobs(
+            conf_path=args.conf_path,
+            suite=args.suite,
+            models_to_run=args.models_to_run,
+            priority=args.priority,
+            dry_run=args.dry_run,
+            use_sphinx=args.use_sphinx,
+        )
