@@ -11,7 +11,7 @@ def get_requirements(path: str):
 
 setup(
     name="crfm-helm",
-    version="0.2.1",
+    version="0.2.2",
     description="Benchmark for language models",
     long_description="Benchmark for language models",
     url="https://github.com/stanford-crfm/helm",

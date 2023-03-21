@@ -4,6 +4,24 @@
 
 - Add changes for the upcoming release here
 
+## [v0.2.2]
+
+### Models
+
+- Added Cohere Command (#1412) 
+- Added Flan-T5 (#1398)
+- Added H3 (#1398)
+- Added GPT-NeoXT-Chat-Base-20B (#1407)
+
+### Framework
+
+- Fix `--exit-on-error` not working and add `--skip-completed-runs` (#1400)
+
+
+### Evaluations
+
+- Added evaluation results for Cohere Command and Aleph Alpha Luminous
+
 ## [v0.2.1]
 
 ### Models
@@ -63,7 +81,8 @@
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.1...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.2...HEAD
+[v0.2.2]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.2
 [v0.2.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.1
 [v0.2.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.1.0
