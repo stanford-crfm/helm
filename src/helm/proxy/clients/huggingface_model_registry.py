@@ -61,7 +61,9 @@ _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {}
 
 
 def register_huggingface_model_config(raw_model_config: str) -> HuggingFaceModelConfig:
-    """Parses a string in the format '[namespace/]model_name[#revision]'"""
+    """Register a AutoModelForCausalLM model from Hugging Face Model Hub for later use.
+
+    raw_model_config format: namespace/model_name[#revision]"""
     config = HuggingFaceModelConfig.from_string(raw_model_config)
     if config.model_id in _huggingface_model_registry:
         raise ValueError(f"A HuggingFace model is already registered for model_id {config.model_id}")
