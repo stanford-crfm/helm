@@ -12,7 +12,7 @@ from helm.proxy.models import get_model, get_models_with_tag, TEXT_TO_IMAGE_MODE
 DEFAULT_NLP_RUN: str = "-a vhelm -c 4 --memory 32g -w /u/scr/nlp/crfm/benchmarking/benchmarking"
 DEFAULT_NLP_RUN_CPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 0 --exclude john17"
 # jag 27, 29, 34 started the run, but did nothing. Saw CUDA OOM with 28.
-DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-25,27,28,29,34]"
+DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-25,27,28,29,34],sphinx3"
 MONGODB_MACHINE: str = "jagupard13"
 DEFAULT_HELM_ARGS: str = (
     f"--num-train-trials 1 --local -n 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers"
