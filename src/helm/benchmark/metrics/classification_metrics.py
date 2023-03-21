@@ -1,6 +1,7 @@
 from typing import List
 
 from sklearn.metrics import f1_score
+from sklearn.preprocessing import MultiLabelBinarizer
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.metric import Metric, MetricName
@@ -52,11 +53,14 @@ class ClassificationMetric(Metric):
             predictions = request_state.result.completions[0].text.split(self.delimiter)
             y_pred.append([pred.strip() for pred in predictions if pred])
         labels: List[str] = list(set(y for ys in y_true for y in ys))
+        mlb = MultiLabelBinarizer().fit([labels])
+        y_true = mlb.transform(y_true)
+        y_pred = mlb.transform(y_pred)
         return [
             Stat(MetricName("classification_macro_f1")).add(
-                f1_score(y_pred=y_pred, y_true=y_true, labels=list(labels), average="macro")
+                f1_score(y_pred=y_pred, y_true=y_true, average="macro")
             ),
             Stat(MetricName("classification_micro_f1")).add(
-                f1_score(y_pred=y_pred, y_true=y_true, labels=list(labels), average="micro")
+                f1_score(y_pred=y_pred, y_true=y_true, average="micro")
             ),
         ]
