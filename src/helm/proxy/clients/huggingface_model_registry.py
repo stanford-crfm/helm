@@ -18,14 +18,14 @@ class HuggingFaceModelConfig:
     May be None if the model (e.g. gpt2) does not have a namespace."""
 
     model_name: str
-    """Name of the model. e.g. 'alias-gpt2-small-x21'
+    """Name of the model. e.g. 'BioMedLM'
 
     Does not include the namespace. ."""
 
     revision: Optional[str]
     """Revision of the model to use e.g. 'main'.
 
-    If None, use the defaul revision."""
+    If None, use the default revision."""
 
     @property
     def model_id(self) -> str:
@@ -33,7 +33,7 @@ class HuggingFaceModelConfig:
 
         Examples:
         - 'gpt2'
-        - 'stanford-crfm/alias-gpt2-small-x21'"""
+        - 'stanford-crfm/BioMedLM'"""
         if self.namespace:
             return f"{self.namespace}/{self.model_name}"
         return self.model_name
@@ -44,8 +44,8 @@ class HuggingFaceModelConfig:
 
         Examples:
         - 'gpt2'
-        - 'stanford-crfm/alias-gpt2-small-x21'
-        - 'stanford-crfm/alias-gpt2-small-x21#checkpoint-400000'"""
+        - 'stanford-crfm/BioMedLM'
+        - 'stanford-crfm/BioMedLM#main'"""
         pattern = r"((?P<namespace>[^/#]+)/)?(?P<model_name>[^/#]+)(#(?P<revision>[^/#]+))?"
         match = re.fullmatch(pattern, raw)
         if not match:

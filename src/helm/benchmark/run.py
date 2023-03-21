@@ -215,16 +215,17 @@ def main():
     )
     parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=[])
     parser.add_argument(
-        "--register-huggingface-models",
+        "--enable-huggingface-models",
         nargs="+",
         default=[],
-        help="Experimental: Register Hugging Face models. Format: namespace/model_name[#revision]",
+        help="Experimental: Enable using AutoModelForCausalLM models from Hugging Face Model Hub. "
+        "Format: namespace/model_name[#revision]",
     )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
 
-    for raw_huggingface_model_config in args.register_huggingface_models:
+    for raw_huggingface_model_config in args.enable_huggingface_models:
         register_huggingface_model_config(raw_huggingface_model_config)
 
     run_entries: List[RunEntry] = []
