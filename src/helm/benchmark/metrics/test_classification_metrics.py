@@ -145,4 +145,3 @@ def test_evaluate_instances_multilabel():
             }
         ),
     )
-
