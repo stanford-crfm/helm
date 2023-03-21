@@ -167,7 +167,7 @@ if __name__ == "__main__":
         "--models-to-run",
         nargs="+",
         help="Only RunSpecs with these models specified. If no model is specified, runs with all models.",
-        default=None,
+        default=[],
     )
     parser.add_argument("--suite", help="Name of the suite", default="vhelm")
     parser.add_argument("--priority", default=2)
