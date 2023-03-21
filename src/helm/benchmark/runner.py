@@ -27,6 +27,8 @@ from .window_services.tokenizer_service import TokenizerService
 
 
 class RunnerError(Exception):
+    """Error that happens in the Runner."""
+
     pass
 
 
