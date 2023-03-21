@@ -3,7 +3,6 @@ from typing import List
 from sklearn.metrics import f1_score
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.basic_metrics import normalize_text
 from helm.benchmark.metrics.metric import Metric, MetricName
 from helm.benchmark.metrics.statistic import Stat
 
@@ -45,13 +44,13 @@ class ClassificationMetric(Metric):
                 raise ValueError("Result must contain exactly one completion")
 
             references = request_state.instance.all_correct_references
-            correct_ref_texts = [normalize_text(ref.output.text) for ref in references]
+            correct_ref_texts = [ref.output.text.strip() for ref in references if ref.output.text]
             y_true.append(correct_ref_texts)
 
             if request_state.output_mapping:
                 raise ValueError("ClassificationMetric does not support multiple choice adapters")
             predictions = request_state.result.completions[0].text.split(self.delimiter)
-            y_pred.append([normalize_text(prediction) for prediction in predictions])
+            y_pred.append([pred.strip() for pred in predictions if pred])
         labels: List[str] = list(set(y for ys in y_true for y in ys))
         return [
             Stat(MetricName("classification_macro_f1")).add(
