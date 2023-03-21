@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -29,7 +29,11 @@ class ClassificationMetric(Metric):
     - Currently, multi-label classification is not supported.
     """
 
-    delimiter = ","
+    def __init__(self, delimiter: Optional[str] = None):
+        self.delimiter = delimiter
+
+    def is_multi_label(self) -> bool:
+        return bool(self.delimiter)
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         y_pred: List[List[str]] = []
@@ -44,14 +48,17 @@ class ClassificationMetric(Metric):
             assert request_state.result is not None
             if len(request_state.result.completions) != 1:
                 raise ValueError("Result must contain exactly one completion")
+            if request_state.output_mapping:
+                raise ValueError("ClassificationMetric does not support multiple choice adapters")
 
             references = request_state.instance.all_correct_references
+            if not self.is_multi_label():
+                assert len(references) == 1
             correct_ref_texts = [normalize_text(ref.output.text) for ref in references if ref.output.text]
             y_true.append(correct_ref_texts)
 
-            if request_state.output_mapping:
-                raise ValueError("ClassificationMetric does not support multiple choice adapters")
-            predictions = request_state.result.completions[0].text.split(self.delimiter)
+            input_text = request_state.result.completions[0].text
+            predictions = input_text.split(self.delimiter) if self.is_multi_label() else [input_text]
             y_pred.append([normalize_text(pred) for pred in predictions if pred])
         labels: List[str] = list(set(y for ys in y_true for y in ys))
         mlb = MultiLabelBinarizer().fit([labels])

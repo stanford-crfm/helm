@@ -26,6 +26,11 @@ TASK_CODE_MAPPING = {
     CASE_HOLD: TaskType.QA,
 }
 
+
+def get_lex_glue_task_type(subset):
+    return TASK_CODE_MAPPING[subset]
+
+
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
     ECTHR_A: 1,  # ~ max 4096 tokens
     ECTHR_B: 1,  # ~ max 4096 tokens

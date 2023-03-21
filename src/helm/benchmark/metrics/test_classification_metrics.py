@@ -63,7 +63,8 @@ def _expected_stats(all_classes_counts: Dict[str, Dict[str, int]]):
 
 
 def test_evaluate_instances_binary_generation():
-    metric = ClassificationMetric()
+    metric = ClassificationMetric(delimiter=None)
+
     request_states = [
         _request_state("yes", [_Option("yes", True)]),
         _request_state("yes", [_Option("yes", True)]),
@@ -87,7 +88,7 @@ def test_evaluate_instances_binary_generation():
 
 def test_evaluate_instances_multi_class():
     # Note: no "a" because it would get filtered out by normalize_text()
-    metric = ClassificationMetric()
+    metric = ClassificationMetric(delimiter=None)
 
     def _options(correct: str):
         return [_Option(text, text == correct) for text in ["d", "b", "c"]]
@@ -118,7 +119,7 @@ def test_evaluate_instances_multi_class():
 
 def test_evaluate_instances_multilabel():
     # Note: no "a" because it would get filtered out by normalize_text()
-    metric = ClassificationMetric()
+    metric = ClassificationMetric(delimiter=",")
 
     def _options(correct: List[str]):
         return [_Option(text, text in correct) for text in ["d", "b", "c"]]
