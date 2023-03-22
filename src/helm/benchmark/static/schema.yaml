@@ -670,6 +670,14 @@ metrics:
     display_name: F1
     description: Average F1 score in terms of word overlap between the model output and correct reference.
     lower_is_better: false
+  - name: classification_macro_f1
+    display_name: Macro-F1
+    description: Population-level macro-averaged F1 score.
+    lower_is_better: false
+  - name: classification_micro_f1
+    display_name: Micro-F1
+    description: Population-level micro-averaged F1 score.
+    lower_is_better: false
   - name: absolute_value_difference
     display_name: Absolute difference
     short_display_name: Diff.
@@ -1199,6 +1207,14 @@ metric_groups:
       - name: self_bleu
         split: ${main_split}
       - name: monte_carlo_entropy
+        split: ${main_split}
+
+  - name: classification_metrics
+    display_name: Classification metrics
+    metrics:
+      - name: classification_macro_f1
+        split: ${main_split}
+      - name: classification_micro_f1
         split: ${main_split}
 
 ############################################################
@@ -2142,24 +2158,24 @@ run_groups:
     display_name: LEXTREME
     description: A Multilingual Legal Benchmark for Natural Language Understanding
     metric_groups:
-      - accuracy
+      - classification_metrics
       - calibration
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: classification_macro_f1
       main_split: test
 
   - name: lex_glue
     display_name: LexGLUE
     description: A Benchmark Dataset for Legal Language Understanding in English
     metric_groups:
-      - accuracy
+      - classification_metrics
       - calibration
       - efficiency
       - general_information
     environment:
-      main_name: f1_score
+      main_name: classification_macro_f1
       main_split: test
 
   - name: entity_data_imputation
