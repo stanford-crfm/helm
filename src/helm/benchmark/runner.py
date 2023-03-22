@@ -101,7 +101,7 @@ class Runner:
 
     def run_all(self, run_specs: List[RunSpec]):
         failed_run_specs: List[RunSpec] = []
-        for run_spec in tqdm(run_specs):
+        for run_spec in tqdm(run_specs, disable=None):
             try:
                 with htrack_block(f"Running {run_spec.name}"):
                     self.run_one(run_spec)
