@@ -3,6 +3,15 @@ from typing import List, Optional, Union
 
 
 @dataclass(frozen=True)
+class TokenizerInfo:
+    name: str
+    max_sequence_length: int
+    max_request_length: int
+    end_of_text_token: str
+    prefix_token: str
+
+
+@dataclass(frozen=True)
 class TokenizationRequest:
     """A `TokenizationRequest` specifies how to tokenize some text."""
 

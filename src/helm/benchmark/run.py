@@ -8,6 +8,7 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
 from helm.proxy.clients.huggingface_model_registry import register_huggingface_model_config
+from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -26,6 +27,7 @@ def run_entries_to_run_specs(
     models_to_run: Optional[List[str]] = None,
     groups_to_run: Optional[List[str]] = None,
     priority: Optional[int] = None,
+    server_url: Optional[str] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     run_specs: List[RunSpec] = []
@@ -33,8 +35,10 @@ def run_entries_to_run_specs(
         # Filter by priority
         if priority is not None and entry.priority > priority:
             continue
+        spec = parse_object_spec(entry.description)
+        check_and_register_remote_model(server_url, spec.args['model'])
 
-        for run_spec in construct_run_specs(parse_object_spec(entry.description)):
+        for run_spec in construct_run_specs(spec):
             # Filter by models
             if models_to_run and run_spec.adapter_spec.model not in models_to_run:
                 continue
@@ -243,6 +247,7 @@ def main():
         models_to_run=args.models_to_run,
         groups_to_run=args.groups_to_run,
         priority=args.priority,
+        server_url=None if args.local else args.server_url,
     )
     hlog(f"{len(run_entries)} entries produced {len(run_specs)} run specs")
 

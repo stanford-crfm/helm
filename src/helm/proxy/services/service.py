@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple, Any
 from helm.common.general import parse_hocon
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.tokenization_request import (
+    TokenizerInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -75,6 +76,11 @@ class Service(ABC):
     @abstractmethod
     def get_general_info(self) -> GeneralInfo:
         """Get general info."""
+        pass
+
+    @abstractmethod
+    def get_tokenizer_info(self, model_name: str) -> TokenizerInfo:
+        """Get tokenizer info."""
         pass
 
     @abstractmethod

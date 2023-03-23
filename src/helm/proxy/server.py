@@ -84,6 +84,14 @@ def handle_get_general_info():
     return safe_call(perform)
 
 
+@app.get("/api/tokenizer_info")
+def handle_get_tokenizer_info():
+    def perform(args):
+        return dataclasses.asdict(service.get_tokenizer_info(args["name"]))
+
+    return safe_call(perform)
+
+
 @app.post("/api/account")
 def handle_create_account():
     def perform(args):

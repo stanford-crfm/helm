@@ -8,6 +8,7 @@ from typing import Any, List, Optional
 from helm.common.authentication import Authentication
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
+    TokenizerInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequestResult,
@@ -40,6 +41,10 @@ class RemoteService(Service):
     def get_general_info(self) -> GeneralInfo:
         response = requests.get(f"{self.base_url}/api/general_info").json()
         return from_dict(GeneralInfo, response)
+
+    def get_tokenizer_info(self, model_name) -> TokenizerInfo:
+        response = requests.get(f"{self.base_url}/api/tokenizer_info?name={model_name}").json()
+        return from_dict(TokenizerInfo, response)
 
     def expand_query(self, query: Query) -> QueryResult:
         params = asdict(query)

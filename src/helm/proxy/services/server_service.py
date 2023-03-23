@@ -6,6 +6,7 @@ from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
+    TokenizerInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -58,6 +59,20 @@ class ServerService(Service):
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
+
+    def get_tokenizer_info(self, model_name) -> TokenizerInfo:
+        from helm.benchmark.window_services.tokenizer_service import TokenizerService
+        from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
+        token_service = TokenizerService(self, Authentication(""))
+        window_service = WindowServiceFactory.get_window_service(model_name, token_service)
+        tokenizer_info = TokenizerInfo(
+            name=model_name,
+            max_sequence_length=window_service.max_sequence_length,
+            max_request_length=window_service.max_request_length,
+            end_of_text_token=window_service.end_of_text_token,
+            prefix_token=window_service.prefix_token,
+        )
+        return tokenizer_info
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""

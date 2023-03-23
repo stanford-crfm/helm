@@ -1,5 +1,6 @@
 from helm.common.authentication import Authentication
 from helm.common.tokenization_request import (
+    TokenizerInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -24,3 +25,7 @@ class TokenizerService:
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         """Decode via an API."""
         return self._service.decode(self._auth, request)
+
+    def get_info(self, model_name: str) -> TokenizerInfo:
+        """Get info via an API."""
+        return self._service.get_tokenizer_info(model_name)
