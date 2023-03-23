@@ -1,7 +1,6 @@
 from statistics import mean
-from typing import List, Optional
+from typing import List
 
-from helm.common.images_utils import is_blacked_out_image
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -9,16 +8,13 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
-from .aesthetics_scorer import AestheticsScorer
 from .image_metrics_utils import gather_generated_image_locations
+from .fractal_dimension.fractal_dimension_util import compute_fractal_dimension
 
 
-class AestheticsMetric(Metric):
-    def __init__(self):
-        self._aesthetics_scorer: Optional[AestheticsScorer] = None
-
+class FractalDimensionMetric(Metric):
     def __repr__(self):
-        return "AestheticsMetric()"
+        return "FractalDimensionMetric()"
 
     def evaluate_generation(
         self,
@@ -33,17 +29,10 @@ class AestheticsMetric(Metric):
         if len(image_locations) == 0:
             return []
 
-        if self._aesthetics_scorer is None:
-            self._aesthetics_scorer = AestheticsScorer()
-
-        # Compute the aesthetics score for each generated image. Skip blacked out images.
-        scores: List[float] = [
-            self._aesthetics_scorer.compute_aesthetics_score(location)
-            for location in image_locations
-            if not is_blacked_out_image(location)
+        fractal_dimensions: List[float] = [
+            compute_fractal_dimension(image_location) for image_location in image_locations
         ]
         stats: List[Stat] = [
-            Stat(MetricName("expected_aesthetics_score")).add(mean(scores) if len(scores) > 0 else 0),
-            Stat(MetricName("max_aesthetics_score")).add(max(scores) if len(scores) > 0 else 0),
+            Stat(MetricName("mean_fractal_dimension")).add(mean(fractal_dimensions)),
         ]
         return stats

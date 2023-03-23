@@ -559,6 +559,7 @@ def get_core_vhelm_metric_specs() -> List[MetricSpec]:
         MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={}),
         MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={"multilingual": True}),
         MetricSpec(class_name="helm.benchmark.efficiency_metrics.EfficiencyMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.fractal_dimension_metric.FractalDimensionMetric", args={}),
         MetricSpec(class_name="helm.benchmark.nsfw_metrics.NSFWMetric", args={}),
         MetricSpec(class_name="helm.benchmark.nudity_metrics.NudityMetric", args={}),
         MetricSpec(class_name="helm.benchmark.q16_toxicity_metrics.Q16ToxicityMetric", args={}),

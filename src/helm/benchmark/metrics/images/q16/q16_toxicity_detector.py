@@ -44,7 +44,7 @@ class Q16ToxicityDetector:
         ]
         image_tensors: torch.Tensor = torch.stack(images).to(self._device)
         embeddings = self._clip_wrapper(image_tensors)
-        return embeddings.half() if is_cuda_available() else embeddings
+        return embeddings.half() if self._is_cuda_available else embeddings
 
     def is_inappropriate_batch(self, image_paths: List[str]) -> List[bool]:
         """

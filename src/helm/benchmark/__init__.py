@@ -93,6 +93,7 @@ from .metrics.images import clip_score_metrics  # noqa
 from .metrics.images import efficiency_metrics  # noqa
 from .metrics.images import fid_metric  # noqa
 from .metrics.images import fidelity_metrics  # noqa
+from .metrics.images import fractal_dimension_metric  # noqa
 from .metrics.images import gender_metrics  # noqa
 from .metrics.images import lpips_metrics  # noqa
 from .metrics.images import multi_scale_ssim_metrics  # noqa

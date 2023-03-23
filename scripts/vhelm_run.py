@@ -9,7 +9,7 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.proxy.models import get_model, get_models_with_tag, TEXT_TO_IMAGE_MODEL_TAG, Model
 
 
-DEFAULT_NLP_RUN: str = "-a vhelm -c 4 --memory 32g -w /u/scr/nlp/crfm/benchmarking/benchmarking"
+DEFAULT_NLP_RUN: str = "-a vhelm -c 4 --memory 32g -w /nlp/scr4/nlp/crfm/benchmarking/benchmarking"
 DEFAULT_NLP_RUN_CPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 0 --exclude john17"
 # jag 27, 29, 34 started the run, but did nothing. Saw CUDA OOM with 28.
 DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-25,27,28,29,34],sphinx3"
@@ -115,7 +115,7 @@ def queue_jobs(
     # Inform what to run next: summarize + copy
     hlog("\n\nTo check on the runs:\n")
     hlog(
-        f"scp -r tonyhlee@scdt.stanford.edu:/nlp/scr2/nlp/crfm/benchmarking/benchmarking/"
+        f"scp -r tonyhlee@scdt.stanford.edu:/nlp/scr4/nlp/crfm/benchmarking/benchmarking/"
         f"benchmark_output/runs/{suite}/logs ."
     )
     hlog("\npython3 scripts/vhelm_run.py --check")
