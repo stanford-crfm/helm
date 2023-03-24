@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.retry import retry_request
-from .human_task_client import HumanTaskClient, RandomHumanTaskClient, SurgeAIHumanTaskClient
+from .human_task_client import HumanTaskClient, SurgeAIHumanTaskClient
 from .client import Client
 from .ai21_client import AI21Client
 from .aleph_alpha_client import AlephAlphaClient
@@ -226,4 +226,8 @@ class AutoClient(Client):
         surgeai_credentials = self.credentials.get("surgeaiApiKey", None)
         if surgeai_credentials:
             return SurgeAIHumanTaskClient(surgeai_credentials, self._build_cache_config("surgeai"))
-        return RandomHumanTaskClient()
+        # To use the RandomHumanTaskClient:
+        # - Comment out `raise ValueError...`
+        # - Add `from .human_task_client import RandomHumanTaskClient`
+        # - Add `return RandomHumanTaskClient()` here
+        raise ValueError("surgeaiApiKey credentials are required for human tasks")

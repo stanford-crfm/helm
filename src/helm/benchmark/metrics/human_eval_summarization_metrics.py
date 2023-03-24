@@ -10,20 +10,21 @@ from helm.common.human_task_request import HumanTaskTemplate, HumanQuestionTempl
 
 
 class HumanEvalSummarizationMetric(Metric):
-    """
-    Reimplementation of SummarizationMetric's human evals using Surge AI.
-    """
+    """Reimplementation of SummarizationMetric's human evals using Surge AI.
 
-    _NUM_WORKERS = 2
+    This is a demonstration of the human evaluation and is not indended for production use."""
 
     _TEMPLATE = template = HumanTaskTemplate(
         name="HELM Summarization Evaluation v5",
+        # Note: Instructions can contain HTML.
         instructions="Rate the following summary.\n\nOriginal text:\n{{original_text}}\n\nSummary: {{summary}}",
         num_workers=2,
         questions=[
             HumanQuestionTemplate(
                 question_type="multiple_choice",
+                # Note: Text can contain HTML.
                 text="Can all the information expressed by the summary can be inferred from the article?",
+                # Note: Options can contain HTML.
                 options=["Yes", "No"],
             ),
             HumanQuestionTemplate(
@@ -60,15 +61,14 @@ class HumanEvalSummarizationMetric(Metric):
             self._TEMPLATE, fields={"original_text": request_state.instance.input.text, "summary": summary}
         )
         result = metric_service.get_human_task(request)
-        if not result.answers:
+        if not result or not result.workers:
             return []
         faithfulness_stat = Stat(MetricName("faithfulness"))
-        for answer in result.answers[0]:
-            faithfulness_stat.add(1 if answer == "yes" else 0)
         relevance_stat = Stat(MetricName("relevance"))
-        for answer in result.answers[1]:
-            relevance_stat.add((int(answer) - 1) / 4)
         coherence_stat = Stat(MetricName("coherence"))
-        for answer in result.answers[2]:
-            coherence_stat.add((int(answer) - 1) / 4)
+        for worker in result.workers:
+            # TODO: This assume that every worker completes every task; check if this is true for Surge AI.
+            faithfulness_stat.add(1 if worker.answers[0] == "yes" else 0)
+            relevance_stat.add((int(worker.answers[1]) - 1) / 4)
+            coherence_stat.add((int(worker.answers[2]) - 1) / 4)
         return [faithfulness_stat, relevance_stat, coherence_stat]

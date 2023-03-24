@@ -1,7 +1,7 @@
 import mako.template
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
 
 from helm.common.general import parse_hocon
 from helm.common.human_task_request import HumanTaskRequest, HumanTaskRequestResult
@@ -103,8 +103,13 @@ class Service(ABC):
         """Get toxicity scores for a batch of text."""
         pass
 
-    def get_human_task(self, auth: Authentication, request: HumanTaskRequest) -> HumanTaskRequestResult:
-        """Create a human task with a number of questions and fetch the results"""
+    def get_human_task(self, auth: Authentication, request: HumanTaskRequest) -> Optional[HumanTaskRequestResult]:
+        """Get responses to a human task.
+
+        Creates the human task on a labeller platform if it does not already exist.
+        Returns HumanTaskRequestResult if worker answers are complete, or None otherwise.
+        The intended use is to call it once to create the task, wait a while, and then call it
+        later to fetch answers."""
         pass
 
     @abstractmethod
