@@ -671,6 +671,15 @@ ALL_MODELS = [
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
+        group="cogview",
+        creator_organization="THUDM",
+        name="thudm/cogview2",
+        display_name="CogView2",
+        description="CogView2 is a hierarchical transformer (6B-9B-9B parameters) for text-to-"
+        "image generation in general domain.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
         group="lexica",
         creator_organization="Lexica",
         name="lexica/search-stable-diffusion-1.5",

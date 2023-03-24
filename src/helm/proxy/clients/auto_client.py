@@ -36,6 +36,7 @@ from .simple_client import SimpleClient
 from .dalle2_client import DALLE2Client
 from .mindalle_client import MinDALLEClient
 from .dalle_mini_client import DALLEMiniClient
+from .cogview2_client import CogView2Client
 from .huggingface_diffusers_client import HuggingFaceDiffusersClient
 from .together_vision_client import TogetherVisionClient
 from .lexica_client import LexicaClient
@@ -155,6 +156,8 @@ class AutoClient(Client):
                 client = MinDALLEClient(cache_config, file_cache)
             elif organization == "craiyon":
                 client = DALLEMiniClient(cache_config, file_cache)
+            elif organization == "thudm":
+                client = CogView2Client(cache_config, file_cache)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
             else:
