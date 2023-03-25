@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from typing import List, Dict
 
-from helm.common.general import shell, ensure_file_downloaded
+from helm.common.general import ensure_file_downloaded
 
 from .scenario import (
     Scenario,
@@ -137,16 +137,17 @@ class OpinionsQAScenario(Scenario):
             for qidx, (question, answers) in enumerate(zip(question_df["question"], question_df["options"])):
 
                 # Opinions QA test questions have no correct answer and thus we set it to be None by default
-                # for all test instances. 
+                # for all test instances.
                 # In the case where context = steer-qa, we add demographic information in the form of a
                 # in-context question answer pair as shown in the example above.
 
                 correct_answer = None if split == "test" else question_df["correct"][qidx]
 
                 def answer_to_reference(answer: str) -> Reference:
-                    return Reference(Output(text=answer), 
-                                     tags=[CORRECT_TAG] if (answer == correct_answer and split != 'test') \
-                                     else [])
+                    return Reference(
+                        Output(text=answer),
+                        tags=[CORRECT_TAG] if (answer == correct_answer and split != "test") else [],
+                    )
 
                 if bios_df is None:
                     # context = "default"/"steer-qa"
