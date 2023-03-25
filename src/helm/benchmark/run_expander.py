@@ -327,7 +327,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "openai/text-davinci-002",
             "openai/text-davinci-003",
         ],
-        "opinions_qa/ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "j1-grande-v2-beta"],
+        "opinions_qa/ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
     }
 
     # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
