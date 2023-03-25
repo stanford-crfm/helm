@@ -95,7 +95,9 @@ class InContextLearningAdapter(Adapter, ABC):
 
         return [request_state for result in results for request_state in result]
 
-    def sample_examples(self, all_train_instances: List[Instance], seed: int, sample_train: bool) -> List[Instance]:
+    def sample_examples(
+        self, all_train_instances: List[Instance], seed: int, sample_train: Optional[bool] = True
+    ) -> List[Instance]:
         """
         Sample a random set of train instances to use as examples by following the steps below:
         1. Sort the class labels (i.e., correct References) by the number of Instances that belong to the

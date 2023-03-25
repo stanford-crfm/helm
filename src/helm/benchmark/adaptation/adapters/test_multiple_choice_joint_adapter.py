@@ -6,9 +6,7 @@ from .test_adapter import TestAdapter
 
 class TestMultipleChoiceJointAdapter(TestAdapter):
     def test_sample_examples(self):
-        adapter_spec = AdapterSpec(
-            method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", max_train_instances=4, sample_train=True
-        )
+        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", max_train_instances=4)
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
             Instance(Input(text="say no"), references=[Reference(Output(text="no"), tags=[CORRECT_TAG])]),
