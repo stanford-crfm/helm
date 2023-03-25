@@ -54,7 +54,7 @@ def ensure_file_downloaded(
     target_path: str,
     unpack: bool = False,
     downloader_executable: str = "wget",
-    unpack_type: Optional[str] = None
+    unpack_type: Optional[str] = None,
 ):
     """Download `source_url` to `target_path` if it doesn't exist."""
     if os.path.exists(target_path):
