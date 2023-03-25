@@ -1842,8 +1842,8 @@ def get_opinions_qa_spec(
         + f",context={context},num_train_trials={num_train_trials}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
-        groups=["opinions-qa"],
+        metric_specs=[],
+        groups=["opinions_qa"],
     )
 
 

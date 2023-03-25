@@ -2,7 +2,8 @@ import os
 import pandas as pd
 from typing import List, Dict
 
-from helm.common.general import shell
+from helm.common.general import shell, ensure_file_downloaded
+
 from .scenario import (
     Scenario,
     Instance,
@@ -49,7 +50,8 @@ class OpinionsQAScenario(Scenario):
         A. Republican
         B. Democrat
         C. Independent
-        D. Something else E. Refused
+        D. Something else
+        E. Refused
         Answer: B
 
         Question: How much, if at all, do you think the ease with which people can legally obtain guns contributes
@@ -64,7 +66,7 @@ class OpinionsQAScenario(Scenario):
 
     """
 
-    name = "opinions-qa"
+    name = "opinions_qa"
     description = "Subjective questions dataset based on Pew American Trends Panel opinion polls."
     tags = ["multiple_choice"]
 
@@ -85,6 +87,10 @@ class OpinionsQAScenario(Scenario):
 
     def download_data(self):
 
+        self.output_path: str = os.path.join(self.output_path, "data")
+        if not os.path.exists(self.output_path):
+            os.makedirs(self.output_path)
+
         DOWNLOAD_FILENAMES = [self.FILE_NAME.format(wave=wave) for wave in self.PEW_SURVEY_WAVES]
         DOWNLOAD_FILENAMES += [f"{steer}.csv" for steer in ["steer-qa", "steer-bio", "steer-portray"]]
         DOWNLOAD_FILENAMES += ["Pew_American_Trends_Panel_disagreement_500.csv"]
@@ -93,8 +99,7 @@ class OpinionsQAScenario(Scenario):
             data_path: str = os.path.join(self.output_path, filename)
 
             source_url: str = self.CODALAB_URI_TEMPLATE.format(bundle=self.CODALAB_BUNDLE, filename=filename)
-            if not os.path.exists(data_path):
-                shell(["wget", source_url, "--no-check-certificate", "-O", data_path])
+            ensure_file_downloaded(source_url=source_url, target_path=data_path, downloader_executable="gdown")
 
     def read_survey_questions(self, csv_path):
         df = pd.read_csv(csv_path, sep="\t")
@@ -102,11 +107,6 @@ class OpinionsQAScenario(Scenario):
         return df
 
     def get_instances(self) -> List[Instance]:
-
-        self.output_path: str = os.path.join(self.output_path, "data")
-        if not os.path.exists(self.output_path):
-            os.makedirs(self.output_path)
-
         self.download_data()
 
         # Read all the instances
@@ -136,16 +136,17 @@ class OpinionsQAScenario(Scenario):
 
             for qidx, (question, answers) in enumerate(zip(question_df["question"], question_df["options"])):
 
-                # Opinions QA test questions have no correct answer. However, since the HELM codebase requires a
-                # correct answer to be associated with each instance, we set it to be the first reference.
-                # Note that this is never used in the analysis.
+                # Opinions QA test questions have no correct answer and thus we set it to be None by default
+                # for all test instances. 
                 # In the case where context = steer-qa, we add demographic information in the form of a
-                # question answer pair as shown in the example above.
+                # in-context question answer pair as shown in the example above.
 
-                correct_answer = answers[0] if split == "test" else question_df["correct"][qidx]
+                correct_answer = None if split == "test" else question_df["correct"][qidx]
 
                 def answer_to_reference(answer: str) -> Reference:
-                    return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
+                    return Reference(Output(text=answer), 
+                                     tags=[CORRECT_TAG] if (answer == correct_answer and split != 'test') \
+                                     else [])
 
                 if bios_df is None:
                     # context = "default"/"steer-qa"
