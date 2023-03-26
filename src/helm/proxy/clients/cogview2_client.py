@@ -21,7 +21,7 @@ from SwissArmyTransformer import get_args
 from SwissArmyTransformer.generation.autoregressive_sampling import filling_sequence
 from .cogview2.coglm_strategy import CoglmStrategy
 from .cogview2.sr_pipeline import SRGroup
-from .cogview2.utils import get_masks_and_position_ids_coglm, get_recipe, InferenceModel
+from .cogview2.coglm_utils import get_masks_and_position_ids_coglm, get_recipe, InferenceModel
 from icetk import icetk as tokenizer
 
 tokenizer.add_special_tokens(["<start_of_image>", "<start_of_english>", "<start_of_chinese>"])
