@@ -537,7 +537,7 @@ class Summarizer:
 
         # TODO: need to exclude contaminated numbers somehow
         value: Optional[float] = None if hide_value else aggregate_stat.mean
-        description = aggregate_stat.bare_str()
+        description: str = aggregate_stat.bare_str()
         if additional_info:
             description += "\n" + additional_info
         if self.verbose:
