@@ -60,7 +60,7 @@ class Stat:
             assert self.mean is not None
             assert self.sum is not None
 
-            if math.isnan(self.min):
+            if math.isnan(self.mean):
                 return "(nan)"
 
             return (
