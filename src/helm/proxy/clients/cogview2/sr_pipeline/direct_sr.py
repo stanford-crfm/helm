@@ -33,7 +33,7 @@ class DirectSuperResolution:
 
         load_checkpoint(model, args)  # on cpu
         model.eval()
-        self.model = model.cuda()
+        self.model = model.cuda() if torch.cuda.is_available() else model
 
         # save cpu weights
         self.saved_weights = dict((k, v.cpu()) for k, v in model.named_parameters() if "transformer" in k)

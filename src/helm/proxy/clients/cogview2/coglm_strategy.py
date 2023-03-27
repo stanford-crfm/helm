@@ -57,7 +57,9 @@ class CoglmStrategy:
         self.outlier_count_down = 5
         self.vis_list = [[] for i in range(16)]
         self.cluster_labels = torch.tensor(
-            np.load(f"{os.path.dirname(os.path.abspath(__file__))}/cluster_label.npy"), device="cuda", dtype=torch.long
+            np.load(f"{os.path.dirname(os.path.abspath(__file__))}/cluster_label.npy"),
+            device="cuda" if torch.cuda.is_available() else "cpu",
+            dtype=torch.long,
         )
         self.top_k_cluster = top_k_cluster
 

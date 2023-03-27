@@ -27,7 +27,7 @@ class IterativeEntfilterStrategy:
         self.topk = topk
         self.cluster_labels = torch.tensor(
             np.load(f"{os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}/cluster_label.npy"),
-            device="cuda",
+            device="cuda" if torch.cuda.is_available() else "cpu",
             dtype=torch.long,
         )
         self.temperature2 = temperature2
