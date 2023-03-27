@@ -635,6 +635,15 @@ ALL_MODELS = [
     ),
     # Text-to-image models
     Model(
+        group="magma",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/m-vader",
+        display_name="M-VADER",
+        description="M-VADER is similar to Stable Diffusion, but it supports multimodal inputs and the text encoder "
+        "is a Luminous model.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
         group="dall_e",
         creator_organization="OpenAI",
         name="openai/dalle-2",
