@@ -62,6 +62,9 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                 else:
                     store.put(request, result)
 
+                    if organization == "AlephAlpha":
+                        raise NotImplementedError("TODO: handle file cache")
+
                 count += 1
                 if count > 0 and count % 10_000 == 0:
                     hlog(f"Processed {count} entries")
