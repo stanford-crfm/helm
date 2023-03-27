@@ -28,7 +28,12 @@ if (nvcc --version > /dev/null 2>&1); then
     mkdir -p tmp && chmod -R 777 tmp && rm -r tmp
     mkdir -p tmp && cd tmp && git clone https://github.com/Sleepychord/Image-Local-Attention && cd Image-Local-Attention && git checkout 43fee310cb1c6f64fb0ed77404ba3b01fa586026 && python setup.py install
     cd $ROOT
-    mkdir -p tmp && cd tmp && git clone https://github.com/NVIDIA/apex && cd apex && git checkout 3ff1a10f72ec07067c4e44759442329804ac5162 && sed -i '33,41d' setup.py && pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+    mkdir -p tmp && cd tmp && git clone https://github.com/michiyasunaga/apex && cd apex && git checkout 9395ba2aab3c05e0e36ef0b7fe48d42de9f10bcf && pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+    cd $ROOT
+else
+    ROOT=`exec pwd`
+    mkdir -p tmp && chmod -R 777 tmp && rm -r tmp
+    mkdir -p tmp && cd tmp && git clone https://github.com/michiyasunaga/apex && cd apex && git checkout 9395ba2aab3c05e0e36ef0b7fe48d42de9f10bcf && pip install -v --disable-pip-version-check --no-cache-dir ./
     cd $ROOT
 fi
 
