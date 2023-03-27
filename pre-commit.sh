@@ -55,7 +55,7 @@ black --check --diff src scripts || (
   exit 1
 )
 
-mkdir .mypy_cache
+mkdir -p .mypy_cache
 mypy --install-types --non-interactive src scripts
 flake8 src scripts
 
