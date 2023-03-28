@@ -96,6 +96,6 @@ def test_compute_scenario_document_contamination():
         all_contamination_stats[stats_3_repr],
     )
 
-    assert stats_1.input_positive_rate == 0.5 and stats_1.reference_positive_rate == 0
-    assert stats_2.input_positive_rate == 1 and stats_2.reference_positive_rate == 1
-    assert stats_3.input_positive_rate == 1 and stats_3.reference_positive_rate == 1
+    assert stats_1.dirty_input_fraction == 0.5 and stats_1.dirty_reference_fraction == 0
+    assert stats_2.dirty_input_fraction == 1 and stats_2.dirty_reference_fraction == 1
+    assert stats_3.dirty_input_fraction == 1 and stats_3.dirty_reference_fraction == 1
