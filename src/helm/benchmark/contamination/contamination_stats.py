@@ -16,7 +16,7 @@ class ContaminationStats:
     every bit records whether an instance is dirty (contaminated) or not.
     """
 
-    def __init__(self, scenario_spec: str, num_instances: int, stats_tags: Optional[Dict[str, Any]] = None):
+    def __init__(self, scenario_spec: Dict[str, Any], num_instances: int, stats_tags: Optional[Dict[str, Any]] = None):
         self.stats_spec = {"scenario_spec": scenario_spec}
         self.num_instances = num_instances
         if isinstance(stats_tags, dict):
