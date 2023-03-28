@@ -8,15 +8,15 @@ from copy import deepcopy
 from helm.common.general import asdict_without_nones, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack_block
 
-from helm.benchmark.scenarios.scenario import Scenario, create_scenario, Instance
+from helm.benchmark.scenarios.scenario import Scenario, Instance, create_scenario, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario
 
 
-def create_light_instance_from_helm_instance(instance: Instance) -> LightInstance:
-    """Create a LightInstance given a helm Instance. Only keep the text attributes."""
+def create_light_instance_from_instance(instance: Instance) -> LightInstance:
+    """Create a LightInstance given an Instance. Only keep the text attributes."""
     input_text: str = instance.input.text
     reference_texts: List[str] = [reference.output.text for reference in instance.references]
     return LightInstance(input=input_text, references=reference_texts)
@@ -36,26 +36,28 @@ def get_light_scenarios_from_helm(
     scenario.output_path = os.path.join(scenario_download_path, scenario.name)
     ensure_directory_exists(scenario.output_path)
 
-    helm_scenario_spec = {"name": scenario.name}
-    helm_scenario_spec.update(run_spec.scenario_spec.args)
+    scenario_spec = {"name": scenario.name}
+    scenario_spec.update(run_spec.scenario_spec.args)
 
     # Load instances
-    helm_instances: List[Instance]
+    instances: List[Instance]
     with htrack_block("scenario.get_instances"):
-        helm_instances = scenario.get_instances()
+        instances = scenario.get_instances()
 
     # Classify instances into splits
-    splits: DefaultDict[str, list] = defaultdict(list)
-    for instance in helm_instances:
-        instance_split: str = "None" if instance.split is None else instance.split
-        splits[instance_split].append(instance)
+    splits: List[str] = [TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT]
+    split_mapping: DefaultDict[str, list] = defaultdict(list)
+    for instance in instances:
+        if instance.split is None or instance.split not in splits:
+            raise ValueError(
+                f"split should be one of {TRAIN_SPLIT}, {VALID_SPLIT}, or {TEST_SPLIT}, but got {instance.split}"
+            )
+        split_mapping[instance.split].append(instance)
 
     light_scenarios: List[LightScenario] = []
-    for split, instances in splits.items():
-        light_instances: List[LightInstance] = [
-            create_light_instance_from_helm_instance(instance) for instance in instances
-        ]
-        light_scenario_spec = deepcopy(helm_scenario_spec)
+    for split, instances in split_mapping.items():
+        light_instances: List[LightInstance] = [create_light_instance_from_instance(instance) for instance in instances]
+        light_scenario_spec = deepcopy(scenario_spec)
         light_scenario_spec["split"] = split
         light_scenario = LightScenario(scenario_spec=light_scenario_spec, light_instances=light_instances)
         light_scenarios.append(light_scenario)

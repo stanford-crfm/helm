@@ -83,8 +83,7 @@ def create_stats_and_ngram_index(
             stats_repr: str = str(stats.stats_spec)
             if stats_repr in all_contamination_stats:
                 raise ValueError("Duplicated settings detected.")
-            else:
-                all_contamination_stats[stats_repr] = stats
+            all_contamination_stats[stats_repr] = stats
 
             # Build the ngram index
             for i in range(len(scenario.light_instances)):
@@ -136,10 +135,10 @@ def compute_scenario_document_contamination(
     overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]] = None,
 ):
     """Given a document, compute a contamination stats for each n and each scenario"""
-    document_unigrams = tokenizer.tokenize(document)
+    document_tokens = tokenizer.tokenize(document)
     for n in n_values:
         assert n in ngram_index
-        for document_ngram in ngrams(document_unigrams, n):
+        for document_ngram in ngrams(document_tokens, n):
             if document_ngram in ngram_index[n]:
                 if overlapped_ngrams is not None:
                     overlapped_ngrams[n][str(document_ngram)] += 1
@@ -237,7 +236,7 @@ if __name__ == "__main__":
         stats_summaries.append(contamination_stats.generate_summary(tags))
 
     with open(args.output_stats, "w") as f:
-        f.write("\n".join(stats_summaries))
+        f.writelines(f"{stats_summary}\n" for stats_summary in stats_summaries)
     print(f"Written {len(stats_summaries)} results to {args.output_stats}")
 
     if args.output_ngrams is not None:

@@ -19,7 +19,7 @@ class ContaminationStats:
     def __init__(self, scenario_spec: Dict[str, Any], num_instances: int, stats_tags: Optional[Dict[str, Any]] = None):
         self.stats_spec = {"scenario_spec": scenario_spec}
         self.num_instances = num_instances
-        if isinstance(stats_tags, dict):
+        if stats_tags is not None:
             self.stats_spec.update(stats_tags)
 
         self._input_bits = bitarray(num_instances)
@@ -59,19 +59,19 @@ class ContaminationStats:
         self._reference_bits |= stats._reference_bits
 
     @property
-    def num_input_positive_instances(self):
+    def num_instances_with_dirty_input(self):
         return self._input_bits.count()
 
     @property
-    def num_reference_positive_instances(self):
+    def num_instances_with_dirty_reference(self):
         return self._reference_bits.count()
 
     @property
-    def input_positive_rate(self):
+    def dirty_input_fraction(self):
         return self._input_bits.count() / self.num_instances
 
     @property
-    def reference_positive_rate(self):
+    def dirty_reference_fraction(self):
         return self._reference_bits.count() / self.num_instances
 
     def generate_summary(self, summary_tags: Optional[Dict[str, Any]] = None) -> str:
@@ -81,10 +81,10 @@ class ContaminationStats:
         summary_tags.update(self.stats_spec)
         summary = {
             "setting": f"{summary_tags}",
-            "total_instances": self.num_instances,
-            "num_input_positive_instances": self.num_input_positive_instances,
-            "num_reference_positive_instances": self.num_reference_positive_instances,
-            "input_positive_rate": self.input_positive_rate,
-            "reference_positive_rate": self.reference_positive_rate,
+            "num_instances": self.num_instances,
+            "num_instances_with_dirty_input": self.num_instances_with_dirty_input,
+            "num_instances_with_dirty_reference": self.num_instances_with_dirty_reference,
+            "dirty_input_fraction": self.dirty_input_fraction,
+            "dirty_reference_fraction": self.dirty_reference_fraction,
         }
         return json.dumps(summary)
