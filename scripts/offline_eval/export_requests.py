@@ -5,6 +5,7 @@ import typing
 from typing import List
 from collections import Counter
 from dacite import from_dict
+from tqdm import tqdm
 
 from helm.common.request import Request
 from helm.common.cache import (
@@ -120,7 +121,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
                             hlog(f"Not generating requests for {current_organization}.")
                             continue
 
-                        for request_state in scenario_state["request_states"]:
+                        for request_state in tqdm(scenario_state["request_states"]):
                             request: Request = from_dict(Request, request_state["request"])
                             if current_organization == "microsoft":
                                 try:
