@@ -59,6 +59,8 @@ class WindowServiceFactory:
                 window_service = LuminousSupremeWindowService(service)
             elif engine == "luminous-world":
                 window_service = LuminousWorldWindowService(service)
+            elif engine == "m-vader":
+                window_service = CLIPWindowService(service)
             else:
                 raise ValueError(f"Unhandled Aleph Alpha model: {engine}")
         elif organization == "microsoft":
