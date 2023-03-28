@@ -22,12 +22,12 @@ def create_light_instance_from_instance(instance: Instance) -> LightInstance:
     return LightInstance(input=input_text, references=reference_texts)
 
 
-def get_light_scenarios_from_helm(
+def get_light_scenarios_from_run_spec(
     run_spec: RunSpec, scenario_download_path: str = "exported_scenarios"
 ) -> List[LightScenario]:
     """
-    Create a list of LightInstances given a helm run_spec. Only keep the text attributes. Note that one LightScenario
-    object is created for each split of the helm scenario for simplification.
+    Create a list of LightInstances given a RunSpec. Only keep the text attributes. Note that one LightScenario
+    object is created for each split of the Scenario for simplification.
     """
 
     scenario: Scenario = create_scenario(run_spec.scenario_spec)
@@ -85,9 +85,9 @@ if __name__ == "__main__":
         run_entries=run_entries,
     )
 
-    hlog("Loading instances from helm scenarios")
+    hlog("Generating light scenarios from scenarios")
     light_scenarios: List[LightScenario] = []
     for run_spec in run_specs:
-        light_scenarios.extend(get_light_scenarios_from_helm(run_spec))
+        light_scenarios.extend(get_light_scenarios_from_run_spec(run_spec))
 
     save_scenarios_to_jsonl(light_scenarios, args.output_data)

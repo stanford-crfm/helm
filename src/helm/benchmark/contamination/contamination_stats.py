@@ -1,5 +1,3 @@
-import json
-
 from bitarray import bitarray
 from typing import Optional, Dict, Any
 
@@ -74,17 +72,16 @@ class ContaminationStats:
     def dirty_reference_fraction(self):
         return self._reference_bits.count() / self.num_instances
 
-    def generate_summary(self, summary_tags: Optional[Dict[str, Any]] = None) -> str:
+    def generate_summary(self, summary_tags: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Output a summary of the stats"""
         if summary_tags is None:
             summary_tags = {}
-        summary_tags.update(self.stats_spec)
         summary = {
-            "setting": f"{summary_tags}",
+            "setting": {**self.stats_spec, **summary_tags},
             "num_instances": self.num_instances,
             "num_instances_with_dirty_input": self.num_instances_with_dirty_input,
             "num_instances_with_dirty_reference": self.num_instances_with_dirty_reference,
             "dirty_input_fraction": self.dirty_input_fraction,
             "dirty_reference_fraction": self.dirty_reference_fraction,
         }
-        return json.dumps(summary)
+        return summary
