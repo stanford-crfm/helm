@@ -225,8 +225,8 @@ def main():
     args = parser.parse_args()
     validate_args(args)
 
-    for raw_huggingface_model_config in args.enable_huggingface_models:
-        register_huggingface_model_config(raw_huggingface_model_config)
+    for huggingface_model_name in args.enable_huggingface_models:
+        register_huggingface_model_config(huggingface_model_name)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
