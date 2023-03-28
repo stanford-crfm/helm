@@ -26,23 +26,25 @@ class AlephAlphaVisionClient(Client):
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
-        assert isinstance(request, TextToImageRequest)
-        raw_request = {
-            "request_type": "image-model-inference",
+        raw_request: Dict = {
+            "request_type": "language-model-inference",
             "model": request.model_engine,
             "prompt": request.prompt,
             "n": request.num_completions,
-            "guidance_scale": request.guidance_scale
-            if request.guidance_scale is not None
-            else AlephAlphaVisionClient.DEFAULT_GUIDANCE_SCALE,
-            "steps": request.steps if request.steps is not None else AlephAlphaVisionClient.DEFAULT_STEPS,
+            "guidance_scale": AlephAlphaVisionClient.DEFAULT_GUIDANCE_SCALE,
+            "steps": AlephAlphaVisionClient.DEFAULT_STEPS,
+            "width": AlephAlphaVisionClient.DEFAULT_IMAGE_WIDTH,
+            "height": AlephAlphaVisionClient.DEFAULT_IMAGE_HEIGHT,
         }
-        if request.width is None or request.height is None:
-            raw_request["width"] = AlephAlphaVisionClient.DEFAULT_IMAGE_WIDTH
-            raw_request["height"] = AlephAlphaVisionClient.DEFAULT_IMAGE_HEIGHT
-        else:
-            raw_request["width"] = request.width
-            raw_request["height"] = request.height
+
+        if isinstance(request, TextToImageRequest):
+            if request.guidance_scale is not None:
+                raw_request["guidance_scale"] = request.guidance_scale
+            if request.steps is not None:
+                raw_request["steps"] = request.steps
+            if request.width is not None and request.height is not None:
+                raw_request["width"] = request.width
+                raw_request["height"] = request.height
 
         return raw_request
 
