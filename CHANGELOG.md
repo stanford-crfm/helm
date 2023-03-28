@@ -8,15 +8,23 @@
 
 ### Models
 
-- Added Cohere Command (#1412) 
+- Added Cohere Command (#1321)
 - Added Flan-T5 (#1398)
 - Added H3 (#1398)
 - Added GPT-NeoXT-Chat-Base-20B (#1407)
+- Added OpenAI gpt-3.5-turbo-0301 (#1401)
+- Added AI21 Jurassic-2 models (#1409)
+
+### Metrics
+
+- Add multilabel classification metrics (#1408)
 
 ### Framework
 
-- Fix `--exit-on-error` not working and add `--skip-completed-runs` (#1400)
-
+- Fixed `--exit-on-error` not working and added `--skip-completed-runs` (#1400)
+- Disabled tqdm in non-interactive mode (#1351)
+- Added plotting (#1403, #1411)
+- Added Hugging Face Model Hub integration (#1103)
 
 ### Evaluations
 
