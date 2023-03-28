@@ -2,7 +2,7 @@ import os
 import signal
 from typing import List, Optional
 
-from helm.common.human_task_request import HumanTaskRequest, HumanTaskRequestResult
+from helm.common.critic_request import CriticRequest, CriticRequestResult
 from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
@@ -110,7 +110,7 @@ class ServerService(Service):
         self.accounts.authenticate(auth)
         return get_toxicity_scores_with_retry(request)
 
-    def get_human_task(self, auth: Authentication, request: HumanTaskRequest) -> Optional[HumanTaskRequestResult]:
+    def get_human_task(self, auth: Authentication, request: CriticRequest) -> Optional[CriticRequestResult]:
         self.accounts.authenticate(auth)
         return self.human_task_client.get_human_task(request)
 

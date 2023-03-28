@@ -6,7 +6,7 @@ from dataclasses import asdict
 from typing import Any, List, Optional
 
 from helm.common.authentication import Authentication
-from helm.common.human_task_request import HumanTaskRequest, HumanTaskRequestResult
+from helm.common.critic_request import CriticRequest, CriticRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -88,7 +88,7 @@ class RemoteService(Service):
         RemoteService._check_response(response, request_json)
         return from_dict(PerspectiveAPIRequestResult, response)
 
-    def make_human_task_request(self, auth: Authentication, request: HumanTaskRequest) -> HumanTaskRequestResult:
+    def make_human_task_request(self, auth: Authentication, request: CriticRequest) -> CriticRequestResult:
         raise NotImplementedError("make_human_task_request is not supported by RemoteServer")
 
     def create_account(self, auth: Authentication) -> Account:
