@@ -21,7 +21,7 @@ class HuggingFaceModelConfig:
     model_name: str
     """Name of the model. e.g. 'BioMedLM'
 
-    Does not include the namespace. ."""
+    Does not include the namespace."""
 
     revision: Optional[str]
     """Revision of the model to use e.g. 'main'.
@@ -41,16 +41,16 @@ class HuggingFaceModelConfig:
 
     @staticmethod
     def from_string(raw: str) -> "HuggingFaceModelConfig":
-        """Parses a string in the format "[namespace/]model_name[#revision]" to a HuggingFaceModelConfig.
+        """Parses a string in the format "[namespace/]model_name[@revision]" to a HuggingFaceModelConfig.
 
         Examples:
         - 'gpt2'
         - 'stanford-crfm/BioMedLM'
-        - 'stanford-crfm/BioMedLM#main'"""
-        pattern = r"((?P<namespace>[^/#]+)/)?(?P<model_name>[^/#]+)(#(?P<revision>[^/#]+))?"
+        - 'stanford-crfm/BioMedLM@main'"""
+        pattern = r"((?P<namespace>[^/@]+)/)?(?P<model_name>[^/@]+)(@(?P<revision>[^/@]+))?"
         match = re.fullmatch(pattern, raw)
         if not match:
-            raise ValueError(f"Could not parse model name: '{raw}'; Expected format: [namespace/]model_name[#revision]")
+            raise ValueError(f"Could not parse model name: '{raw}'; Expected format: [namespace/]model_name[@revision]")
         model_name = match.group("model_name")
         assert model_name
         return HuggingFaceModelConfig(
@@ -64,7 +64,7 @@ _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {}
 def register_huggingface_model_config(raw_model_config: str) -> HuggingFaceModelConfig:
     """Register a AutoModelForCausalLM model from Hugging Face Model Hub for later use.
 
-    raw_model_config format: namespace/model_name[#revision]"""
+    raw_model_config format: namespace/model_name[@revision]"""
     config = HuggingFaceModelConfig.from_string(raw_model_config)
     if config.model_id in _huggingface_model_registry:
         raise ValueError(f"A HuggingFace model is already registered for model_id {config.model_id}")

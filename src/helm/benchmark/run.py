@@ -219,7 +219,7 @@ def main():
         nargs="+",
         default=[],
         help="Experimental: Enable using AutoModelForCausalLM models from Hugging Face Model Hub. "
-        "Format: namespace/model_name[#revision]",
+        "Format: namespace/model_name[@revision]",
     )
     add_run_args(parser)
     args = parser.parse_args()
