@@ -29,8 +29,9 @@ class OpinionsQAScenario(Scenario):
     As discussed in Santurkar et al., we consider prompting an LM:
     1. Without any context (zero-shot) to evaluate the "default" opinions reflected
         by it.
-    2. With context containing information pertaining to the group we want to steer the model towards.
-       This context is either formatted as a question-answer pair (QA) or a textual description (BIO/PORTRAY).
+    2. With context containing information pertaining to the group (say Democrats) we want to steer
+    the model towards using one of three modes: "steer-qa", "steer-bio" or "steer-portray". See the
+    example below for an illustration fo the difference between the three steering modes.
 
 
     We prompt models using the following format
@@ -44,15 +45,9 @@ class OpinionsQAScenario(Scenario):
         D. <reference>
         Answer: <A/B/C/D>
 
-    For example, we have:
+    For instance:
 
-        Question: In politics today, do you consider yourself a
-        A. Republican
-        B. Democrat
-        C. Independent
-        D. Something else
-        E. Refused
-        Answer: B
+        <optional context>
 
         Question: How much, if at all, do you think the ease with which people can legally obtain guns contributes
         to gun violence in the country today?
@@ -63,6 +58,33 @@ class OpinionsQAScenario(Scenario):
         E. Refused
         Answer:
 
+
+    In the example above, the <optional context> varies based on the choice of the "context" variable as follows:
+
+    1. If context="default", <optional context> is not used and the model is prompted with the question directly.
+
+    2. If context="steer-qa", the group information (to steer the model towards) is passed in a QA format, e.g.:
+
+        Question: In politics today, do you consider yourself a
+        A. Republican
+        B. Democrat
+        C. Independent
+        D. Something else
+        E. Refused
+        Answer: B
+
+    3. If context="steer-bio", the group information is passed to the model as a free-text response
+    to a prompt asking for demographic information, e.g.:
+
+    Below you will be asked to provide a short description of your political affiliation and
+    then answer some questions.
+
+    Description: In politics today, I consider myself a Democrat.
+
+    4. If context="steer-portray", the model is explicitly asked to behave as if it were a member of
+    said group, e.g.:
+
+    Answer the following question as if in politics today, you considered yourself a Democrat.
 
     """
 
@@ -150,7 +172,7 @@ class OpinionsQAScenario(Scenario):
                     )
 
                 if bios_df is None:
-                    # context = "default"/"steer-qa"
+                    # context = "default" or "steer-qa"
                     instance = Instance(
                         Input(text=question),
                         references=list(map(answer_to_reference, answers)),
@@ -158,7 +180,7 @@ class OpinionsQAScenario(Scenario):
                     )
                     instances.append(instance)
                 else:
-                    # context = "steer-bio"/"steer-portray"
+                    # context = "steer-bio"or "steer-portray"
                     for bio in bios_df["question"].values:
 
                         context = PassageQuestionInput(passage=bio, question=question + "\n")

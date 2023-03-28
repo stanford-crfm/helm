@@ -125,14 +125,14 @@ class InContextLearningAdapter(Adapter, ABC):
         random.seed(seed)
         num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
 
-        unlabeled_instances: List[Instance] = []
-        label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
         examples: List[Instance] = []
         if not sample_train:
-            # Sample sequentially from the train set
+            # Select sequentially from the train set
             examples = all_train_instances[num_instances_to_sample * seed : num_instances_to_sample * (seed + 1)]
             return examples
 
+        unlabeled_instances: List[Instance] = []
+        label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
         for instance in all_train_instances:
             if instance.first_correct_reference:
                 label_to_instances[instance.first_correct_reference.output.text].append(instance)

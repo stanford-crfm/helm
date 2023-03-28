@@ -53,7 +53,7 @@ def get_multiple_choice_joint_adapter_spec(
     num_outputs: int = 5,
     max_train_instances: int = 5,
     max_tokens: int = 5,
-    sample_train=True,
+    sample_train: bool = True,
     **kwargs,
 ) -> AdapterSpec:
     """
