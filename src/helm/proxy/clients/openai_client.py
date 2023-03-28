@@ -107,7 +107,6 @@ class OpenAIClient(Client):
                     openai.organization = self.org_id
                     openai.api_key = self.api_key
                     openai.api_base = self.api_base
-                    openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
                     return openai.ChatCompletion.create(**raw_request)
 
             else:
