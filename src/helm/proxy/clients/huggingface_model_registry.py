@@ -4,6 +4,7 @@ import re
 from helm.common.hierarchical_logger import hlog
 from helm.proxy.models import (
     Model,
+    ALL_MODELS,
     MODEL_NAME_TO_MODEL,
     TEXT_MODEL_TAG,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
@@ -87,6 +88,7 @@ def register_huggingface_model_config(raw_model_config: str) -> HuggingFaceModel
             tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
         )
         MODEL_NAME_TO_MODEL[helm_model_name] = model
+        ALL_MODELS.append(model)
     hlog(f"Registered HuggingFace model: {model} config: {config}")
     return config
 
