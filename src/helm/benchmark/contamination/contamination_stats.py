@@ -14,8 +14,10 @@ class ContaminationStats:
     every bit records whether an instance is dirty (contaminated) or not.
     """
 
-    def __init__(self, scenario_spec: Dict[str, Any], num_instances: int, stats_tags: Optional[Dict[str, Any]] = None):
-        self.stats_spec = {"scenario_spec": scenario_spec}
+    def __init__(
+        self, light_scenario_spec: Dict[str, Any], num_instances: int, stats_tags: Optional[Dict[str, Any]] = None
+    ):
+        self.stats_spec = {"light_scenario_spec": light_scenario_spec}
         self.num_instances = num_instances
         if stats_tags is not None:
             self.stats_spec.update(stats_tags)
@@ -28,7 +30,9 @@ class ContaminationStats:
     @classmethod
     def from_scenario(cls, scenario: LightScenario, stats_tags: Optional[Dict[str, Any]] = None):
         return cls(
-            scenario_spec=scenario.scenario_spec, num_instances=len(scenario.light_instances), stats_tags=stats_tags
+            light_scenario_spec=scenario.light_scenario_spec,
+            num_instances=len(scenario.light_instances),
+            stats_tags=stats_tags,
         )
 
     def write_dirty(self, instance_id: int, part: str):

@@ -3,7 +3,6 @@ import os
 import argparse
 from typing import List, DefaultDict
 from collections import defaultdict
-from copy import deepcopy
 
 from helm.common.general import asdict_without_nones, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack_block
@@ -36,9 +35,6 @@ def get_light_scenarios_from_run_spec(
     scenario.output_path = os.path.join(scenario_download_path, scenario.name)
     ensure_directory_exists(scenario.output_path)
 
-    scenario_spec = {"name": scenario.name}
-    scenario_spec.update(run_spec.scenario_spec.args)
-
     # Load instances
     instances: List[Instance]
     with htrack_block("scenario.get_instances"):
@@ -57,9 +53,10 @@ def get_light_scenarios_from_run_spec(
     light_scenarios: List[LightScenario] = []
     for split, instances in split_mapping.items():
         light_instances: List[LightInstance] = [create_light_instance_from_instance(instance) for instance in instances]
-        light_scenario_spec = deepcopy(scenario_spec)
-        light_scenario_spec["split"] = split
-        light_scenario = LightScenario(scenario_spec=light_scenario_spec, light_instances=light_instances)
+        light_scenario = LightScenario(
+            light_scenario_spec={"scenario_spec": run_spec.scenario_spec, "split": split},
+            light_instances=light_instances,
+        )
         light_scenarios.append(light_scenario)
     return light_scenarios
 

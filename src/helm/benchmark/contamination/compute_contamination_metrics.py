@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario
 from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
-from helm.benchmark.contamination.document_reading_processor import DocumentReadingProcessor
+from helm.benchmark.contamination.load_documents import get_document_generator
 from helm.benchmark.contamination.contamination_stats import ContaminationStats, PART_INPUT, PART_REF
 from helm.common.hierarchical_logger import hlog, htrack_block
 
@@ -20,7 +20,7 @@ from helm.common.hierarchical_logger import hlog, htrack_block
 N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
 
 
-def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
+def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     """
     Create a list of light scenarios from a jsonl file, where each json represents a LightScenario object.
 
@@ -33,9 +33,10 @@ def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
 
     Each line is a json and each json looks like:
     {
-        "scenario_spec": {
-            "name": "SCENARIO_NAME",
-            "split": "SPLIT"
+        "light_scenario_spec": {
+            "split": "SPLIT",
+            "scenario_attribute_1": "ATTRIBUTE1",
+            "scenario_attribute_2": {"KEY": "VALUE"},
         },
         "light_instances": [
             {
@@ -60,26 +61,26 @@ def load_scenarios_from_jsonl(path: str) -> List[LightScenario]:
         return LightInstance(input=instance_dict["input"], references=instance_dict["references"])
 
     light_scenarios: List[LightScenario] = []
-    scenario_jsons = open(path, "r").readlines()
-    for scenario_json in scenario_jsons:
-        scenario_dict: dict = json.loads(scenario_json)
-        scenario_spec: dict = scenario_dict["scenario_spec"]
+    light_scenario_jsons = open(path, "r").readlines()
+    for light_scenario_json in light_scenario_jsons:
+        light_scenario_dict: dict = json.loads(light_scenario_json)
+        light_scenario_spec: dict = light_scenario_dict["light_scenario_spec"]
         light_instances: List[LightInstance] = [
-            create_light_instance_from_dict(instance_dict) for instance_dict in scenario_dict["light_instances"]
+            create_light_instance_from_dict(instance_dict) for instance_dict in light_scenario_dict["light_instances"]
         ]
-        light_scenarios.append(LightScenario(scenario_spec=scenario_spec, light_instances=light_instances))
+        light_scenarios.append(LightScenario(light_scenario_spec=light_scenario_spec, light_instances=light_instances))
     return light_scenarios
 
 
 def create_stats_and_ngram_index(
-    scenarios: List[LightScenario], n_values: List[int], tokenizer: LightTokenizer
+    light_scenarios: List[LightScenario], n_values: List[int], tokenizer: LightTokenizer
 ) -> Tuple[Dict[str, ContaminationStats], DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]]:
     """Given a list of scenarios and n values, initialize the stats and ngram_index data structures"""
     # mapping from stats repr to stats instance
     all_contamination_stats: Dict[str, ContaminationStats] = {}
     ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]] = defaultdict(lambda: defaultdict(set))
-    for scenario in scenarios:
-        hlog(f"Building ngram indexes for {str(scenario.scenario_spec)}")
+    for scenario in light_scenarios:
+        hlog(f"Building ngram indexes for {str(scenario.light_scenario_spec)}")
         for n in n_values:
             # Initizlize a stats instance for every pair of <scenario, n>
             stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags={"N": n})
@@ -123,9 +124,7 @@ def compute_scenario_file_contamination(
     overlapped_ngrams: The ngrams that are overlapped between the training file and the scenario data and their counts.
     The outer dict maps from n to the inner dict, which maps from ngram to count.
     """
-    document_generator = DocumentReadingProcessor(
-        file_path=training_file_path, file_format=file_format
-    ).get_document_generator()
+    document_generator = get_document_generator(file_path=training_file_path, file_format=file_format)
     document_index: int = 0
     for document in document_generator:
         document_index += 1
@@ -215,12 +214,12 @@ if __name__ == "__main__":
     hlog(f"The input data will be loaded from {input_file_paths}")
 
     hlog(f"Loading scenario data from {args.scenario_data}")
-    scenarios = load_scenarios_from_jsonl(args.scenario_data)
+    light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
     with htrack_block("Initializing the stats and ngram_index"):
         all_contamination_stats: Dict[str, ContaminationStats]
         ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
-        all_contamination_stats, ngram_index = create_stats_and_ngram_index(scenarios, N_VALUES, tokenizer)
+        all_contamination_stats, ngram_index = create_stats_and_ngram_index(light_scenarios, N_VALUES, tokenizer)
 
     # Initialize overlapped_ngrams
     overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]]

@@ -21,8 +21,8 @@ class LightScenario:
     A lighter `Scenario`.
     """
 
-    scenario_spec: Dict[str, Any]
-    """The scenario spec"""
+    light_scenario_spec: Dict[str, Any]
+    """The light scenario spec"""
 
     light_instances: List[LightInstance]
     """Instances of this scenario"""

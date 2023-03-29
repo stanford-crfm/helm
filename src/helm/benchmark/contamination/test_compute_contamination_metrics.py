@@ -1,11 +1,11 @@
-from typing import Set, Dict, DefaultDict, Tuple
+from typing import Set, Dict, DefaultDict, Tuple, List
 
 from helm.benchmark.contamination.compute_contamination_metrics import (
     compute_scenario_document_contamination,
     create_stats_and_ngram_index,
 )
 from helm.benchmark.contamination.light_scenario import LightScenario, LightInstance
-from helm.benchmark.contamination.light_tokenizer import LightTokenizer
+from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
 from helm.benchmark.contamination.contamination_stats import ContaminationStats, PART_INPUT, PART_REF
 
 N_VALUES = [5, 13]
@@ -18,17 +18,121 @@ TEST_DOCUMENT: str = (
     "and deployment of foundation models."
 )
 
+TEST_TOKENS_SPLIT_BY_SPACE: List[str] = [
+    "The",
+    "Center",
+    "for",
+    "Research",
+    "on",
+    "Foundation",
+    "Models",
+    "(CRFM)",
+    "is",
+    "an",
+    "interdisciplinary",
+    "initiative",
+    "born",
+    "out",
+    "of",
+    "the",
+    "Stanford",
+    "Institute",
+    "for",
+    "Human-Centered",
+    "Artificial",
+    "Intelligence",
+    "(HAI)",
+    "that",
+    "aims",
+    "to",
+    "make",
+    "fundamental",
+    "advances",
+    "in",
+    "the",
+    "study,",
+    "development,",
+    "and",
+    "deployment",
+    "of",
+    "foundation",
+    "models.",
+]
+
+TEST_TOKENS_BY_DEFAULT_TOKENIZER: List[str] = [
+    "the",
+    "center",
+    "for",
+    "research",
+    "on",
+    "foundation",
+    "models",
+    "crfm",
+    "is",
+    "an",
+    "interdisciplinary",
+    "initiative",
+    "born",
+    "out",
+    "of",
+    "the",
+    "stanford",
+    "institute",
+    "for",
+    "human",
+    "centered",
+    "artificial",
+    "intelligence",
+    "hai",
+    "that",
+    "aims",
+    "to",
+    "make",
+    "fundamental",
+    "advances",
+    "in",
+    "the",
+    "study",
+    "development",
+    "and",
+    "deployment",
+    "of",
+    "foundation",
+    "models",
+    "",
+]
+
 TEST_SCENARIO_1 = LightScenario(
-    scenario_spec={"name": "TEST_SCENARIO_1"},
+    light_scenario_spec={"name": "TEST_SCENARIO_1"},
     light_instances=[
         LightInstance(input="Center for Research on Foundation", references=["bar", "baz"]),
         LightInstance(input="bar bar", references=["foo", "baz"]),
     ],
 )
 TEST_SCENARIO_2 = LightScenario(
-    scenario_spec={"name": "TEST_SCENARIO_2"},
+    light_scenario_spec={"name": "TEST_SCENARIO_2"},
     light_instances=[LightInstance(input=TEST_DOCUMENT, references=[TEST_DOCUMENT, TEST_DOCUMENT])],
 )
+
+
+def test_light_tokenizer():
+    light_tokenizer = LightTokenizer()
+    default_tokenizer = DefaultTokenizer()
+
+    assert light_tokenizer.tokenize(TEST_DOCUMENT) == TEST_TOKENS_SPLIT_BY_SPACE
+    assert default_tokenizer.tokenize(TEST_DOCUMENT) == TEST_TOKENS_BY_DEFAULT_TOKENIZER
+
+    simple_tokenization_test_case: str = "THis ,,iS a SiMPlE t-EsT cAsE"
+    assert light_tokenizer.tokenize(simple_tokenization_test_case) == ["THis", ",,iS", "a", "SiMPlE", "t-EsT", "cAsE"]
+    assert default_tokenizer.tokenize(simple_tokenization_test_case) == [
+        "this",
+        "is",
+        "a",
+        "simple",
+        "t",
+        "est",
+        "case",
+    ]
 
 
 def test_create_stats_and_ngram_index():
@@ -37,13 +141,13 @@ def test_create_stats_and_ngram_index():
     all_contamination_stats: Dict[str, ContaminationStats]
     ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
     all_contamination_stats, ngram_index = create_stats_and_ngram_index(
-        scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer
+        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer
     )
 
     stats_1_repr, stats_2_repr, stats_3_repr = (
-        str({"scenario_spec": TEST_SCENARIO_1.scenario_spec, "N": 5}),
-        str({"scenario_spec": TEST_SCENARIO_2.scenario_spec, "N": 5}),
-        str({"scenario_spec": TEST_SCENARIO_2.scenario_spec, "N": 13}),
+        str({"light_scenario_spec": TEST_SCENARIO_1.light_scenario_spec, "N": 5}),
+        str({"light_scenario_spec": TEST_SCENARIO_2.light_scenario_spec, "N": 5}),
+        str({"light_scenario_spec": TEST_SCENARIO_2.light_scenario_spec, "N": 13}),
     )
     stats_1, stats_2, stats_3 = (
         all_contamination_stats[stats_1_repr],
@@ -80,15 +184,15 @@ def test_compute_scenario_document_contamination():
     all_contamination_stats: Dict[str, ContaminationStats]
     ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
     all_contamination_stats, ngram_index = create_stats_and_ngram_index(
-        scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer
+        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer
     )
 
     compute_scenario_document_contamination(ngram_index, document=TEST_DOCUMENT, n_values=N_VALUES, tokenizer=tokenizer)
 
     stats_1_repr, stats_2_repr, stats_3_repr = (
-        str({"scenario_spec": TEST_SCENARIO_1.scenario_spec, "N": 5}),
-        str({"scenario_spec": TEST_SCENARIO_2.scenario_spec, "N": 5}),
-        str({"scenario_spec": TEST_SCENARIO_2.scenario_spec, "N": 13}),
+        str({"light_scenario_spec": TEST_SCENARIO_1.light_scenario_spec, "N": 5}),
+        str({"light_scenario_spec": TEST_SCENARIO_2.light_scenario_spec, "N": 5}),
+        str({"light_scenario_spec": TEST_SCENARIO_2.light_scenario_spec, "N": 13}),
     )
     stats_1, stats_2, stats_3 = (
         all_contamination_stats[stats_1_repr],
