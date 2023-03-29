@@ -2,6 +2,7 @@ from typing import Dict, List, Optional
 
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
+from helm.common.general import get_helm_cache_path
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.request import Request, RequestResult, TextToImageRequest, Sequence
 from helm.common.tokenization_request import (
@@ -43,8 +44,7 @@ class CogView2Client(Client):
 
     def _get_model(self) -> None:
         MODEL_URL = "https://nlp.stanford.edu/projects/vhelm/cogview2/sharefs.zip"
-        HOME = os.environ["HOME"]
-        MODEL_LOCAL_PATH = f"{HOME}/.cache/cogview2"
+        MODEL_LOCAL_PATH = f"{get_helm_cache_path()}/cogview2"
         os.environ["SAT_HOME"] = f"{MODEL_LOCAL_PATH}/sharefs/cogview-new"
 
         # Download the model if not yet
