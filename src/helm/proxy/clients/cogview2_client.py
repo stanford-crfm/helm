@@ -129,7 +129,6 @@ class CogView2Client(Client):
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):
                     self._get_model()
-                    print("model loaded")
 
                     images: List[torch.Tensor] = []
                     for _ in range(request.num_completions):
