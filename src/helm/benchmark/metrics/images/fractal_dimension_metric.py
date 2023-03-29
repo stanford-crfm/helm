@@ -1,3 +1,4 @@
+import math
 from statistics import mean
 from typing import List
 
@@ -32,6 +33,7 @@ class FractalDimensionMetric(Metric):
         fractal_dimensions: List[float] = [
             compute_fractal_dimension(image_location) for image_location in image_locations
         ]
+        fractal_dimensions = [dim for dim in fractal_dimensions if not math.isnan(dim)]
         stats: List[Stat] = [
             Stat(MetricName("mean_fractal_dimension")).add(mean(fractal_dimensions)),
         ]

@@ -3,6 +3,7 @@ import json
 from collections import defaultdict
 import os
 from typing import Dict
+from tqdm import tqdm
 
 from helm.common.cache import (
     KeyValueStoreCacheConfig,
@@ -44,7 +45,7 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
     # Updates cache with request/result pairs from input jsonl file at `request_results_path`
     with create_key_value_store(cache_config) as store:
         with open(request_results_path, "r") as f:
-            for line in f:
+            for line in tqdm(f):
                 if len(line.strip()) == 0:
                     continue
 
@@ -61,6 +62,9 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                     store.put(cache_key, result)
                 else:
                     store.put(request, result)
+
+                    if organization == "AlephAlpha":
+                        raise NotImplementedError("TODO: handle file cache")
 
                 count += 1
                 if count > 0 and count % 10_000 == 0:

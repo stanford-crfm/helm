@@ -48,13 +48,21 @@ class Stat:
     def __repr__(self):
         return f"{self.name}[{self.bare_str()}]"
 
-    def bare_str(self):
+    def bare_str(self) -> str:
         def process(x: float):
             if int(x) == x:
                 return int(x)
             return round(x, 3)
 
         if self.count > 0:
+            assert self.min is not None
+            assert self.max is not None
+            assert self.mean is not None
+            assert self.sum is not None
+
+            if math.isnan(self.mean):
+                return "(nan)"
+
             return (
                 f"min={process(self.min)}, "
                 f"mean={process(self.mean)}, "

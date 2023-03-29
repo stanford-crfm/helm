@@ -33,6 +33,7 @@ from .microsoft_client import MicrosoftClient
 from .perspective_api_client import PerspectiveAPIClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
+from .aleph_alpha_vision_client import AlephAlphaVisionClient
 from .dalle2_client import DALLE2Client
 from .mindalle_client import MinDALLEClient
 from .dalle_mini_client import DALLEMiniClient
@@ -111,7 +112,10 @@ class AutoClient(Client):
                         org_id=org_id,
                     )
             elif organization == "AlephAlpha":
-                client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
+                if is_text_to_image_request:
+                    client = AlephAlphaVisionClient(cache_config, file_cache)
+                else:
+                    client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
             elif organization == "cohere":
