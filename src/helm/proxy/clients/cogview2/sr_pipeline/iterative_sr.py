@@ -64,10 +64,10 @@ class IterativeSuperResolution:
                 big_img2 = tokenizer.encode(image_pil=image_pil_raw.enhance(1.5), image_size=480).view(-1)
                 new_image_tokens.append(big_img2)
             image_tokens = torch.stack(new_image_tokens)
-        print("Converting Itersr model...")
+
         self._restore_transformer_from_cpu()
         model = self.model
-        print("iterative super-resolution...")
+
         output_list = []
         for tim in range(max(text_tokens.shape[0] // self.max_bz, 1)):
             big_img = image_tokens[tim * self.max_bz : (tim + 1) * self.max_bz]
@@ -132,6 +132,5 @@ class IterativeSuperResolution:
                     model, text_seq, seq1, warmup_steps=1, block_hw=(1, 0), strategy=self.strategy
                 )
                 big_img = output1
-                print(f"Iter {mask_ratio} times.")
             output_list.append(output1.clone())
         return torch.cat(output_list, dim=0)
