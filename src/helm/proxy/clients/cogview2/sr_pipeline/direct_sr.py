@@ -83,10 +83,10 @@ class DirectSuperResolution:
             .unsqueeze(0)
             .expand(text_tokens.shape[0], -1)
         )
-        print("Converting Dsr model...")
+
         self._restore_transformer_from_cpu()
         model = self.model
-        print("Direct super-resolution...")
+
         output_list = []
         for tim in range(max(text_tokens.shape[0] // self.max_bz, 1)):
             output1 = filling_sequence_dsr(
