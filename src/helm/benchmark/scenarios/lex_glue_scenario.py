@@ -63,19 +63,65 @@ def get_lex_glue_max_tokens(subset):
 
 INSTRUCTIONS = {
     ECTHR_A: "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-    "Predict the articles of the ECtHR that were violated (if any).",
+    "Predict the articles of the ECtHR that were violated (if any) out of the following: "
+    "0: Article 2, "
+    "1: Article 3, "
+    "2: Article 5, "
+    "3: Article 6, "
+    "4: Article 8, "
+    "5: Article 9, "
+    "6: Article 10, "
+    "7: Article 11, "
+    "8: Article 14, "
+    "9: Article 1 of Protocol 1. "
+    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     ECTHR_B: "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-    "Predict the articles of ECtHR that were allegedly violated (considered by the court).",
+    "Predict the articles of ECtHR that were allegedly violated (considered by the court) out of the following:"
+    "0: Article 2, "
+    "1: Article 3, "
+    "2: Article 5, "
+    "3: Article 6, "
+    "4: Article 8, "
+    "5: Article 9, "
+    "6: Article 10, "
+    "7: Article 11, "
+    "8: Article 14, "
+    "9: Article 1 of Protocol 1. "
+    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     SCOTUS: "In this task, you are given a case heard at the Supreme Court of the United States (SCOTUS). "
-    "Predict the relevant issue area.",
+    "Predict the relevant issue area out of the following: "
+    "0: Criminal Procedure, "
+    "1: Civil Rights, "
+    "2: First Amendment, "
+    "3: Due Process, "
+    "4: Privacy, "
+    "5: Attorneys, "
+    "6: Unions, "
+    "7: Economic Activity, "
+    "8: Judicial Power, "
+    "9: Federalism, "
+    "10: Interstate Relations, "
+    "11: Federal Taxation, "
+    "12: Miscellaneous, "
+    "13: Private Action.",
     EURLEX: "In this task, you are given an EU law document published in the EUR-Lex portal. "
-    "Predict the relevant EuroVoc concepts.",
+    "Predict the relevant EuroVoc concepts. "
+    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     LEDGAR: "In this task, you are given a contract provision "
     "from contracts obtained from US Securities and Exchange Commission (SEC) filings."
-    "Predict the main topic.",
+    "Predict the main topic. ",
     UNFAIR_TOS: "In this task, you are given a sentence "
-    "from a Terms of Service (ToS) document from on-line platforms. "
-    "Predict the types of unfair contractual terms",
+    "from a Terms of Service (ToS) document from online platforms. "
+    "Predict the types of unfair contractual terms out of the following: "
+    "0: Limitation of liability, "
+    "1: Unilateral termination, "
+    "2: Unilateral change, "
+    "3: Content removal, "
+    "4: Contract by using, "
+    "5: Choice of law, "
+    "6: Jurisdiction, "
+    "7: Arbitration. "
+    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     CASE_HOLD: "In this task, you are given an excerpt from a court decision, "
     "containing a reference to a particular case, while the holding statement is masked out. "
     "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",

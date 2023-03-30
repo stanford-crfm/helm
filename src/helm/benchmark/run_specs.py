@@ -1777,7 +1777,7 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         name=f"lextreme:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs() + build_classification_metrics(get_lextreme_task_type(subset)),
+        metric_specs=build_classification_metrics(get_lextreme_task_type(subset)),
         groups=["lextreme"],
     )
 
@@ -1800,7 +1800,7 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
         name=f"lex_glue:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs() + build_classification_metrics(get_lex_glue_task_type(subset)),
+        metric_specs=build_classification_metrics(get_lex_glue_task_type(subset)),
         groups=["lex_glue"],
     )
 
