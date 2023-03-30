@@ -1621,12 +1621,7 @@ def get_me_q_sum_spec() -> RunSpec:
         name="me_q_sum",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=[
-            MetricSpec(
-                class_name="helm.benchmark.summarization_critique_metrics.SummarizationCritiqueMetric",
-                args={"num_respondants": 5},
-            )
-        ],
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
         groups=["MeQSum"],
     )
 
