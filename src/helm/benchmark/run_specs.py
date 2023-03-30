@@ -20,6 +20,7 @@ from .scenarios.lex_glue_scenario import (
     get_lex_glue_max_train_instances,
     get_lex_glue_instructions,
     get_lex_glue_max_tokens,
+    get_lex_glue_task_type,
 )
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
@@ -31,6 +32,8 @@ from .scenarios.lextreme_scenario import (
     get_lextreme_instructions,
     get_lextreme_max_train_instances,
     get_lextreme_max_tokens,
+    TaskType,
+    get_lextreme_task_type,
 )
 from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG
 from helm.common.general import singleton
@@ -408,8 +411,12 @@ def get_f1_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score"])
 
 
-def get_classification_metric_specs() -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.classification_metrics.ClassificationMetric", args={})]
+def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.classification_metrics.ClassificationMetric", args={"delimiter": delimiter}
+        )
+    ]
 
 
 def get_bbq_metric_specs() -> List[MetricSpec]:
@@ -1747,6 +1754,14 @@ def get_pubmed_qa_spec() -> RunSpec:
     )
 
 
+def build_classification_metrics(task_type):
+    if task_type in [TaskType.QA, TaskType.SLTC]:
+        return get_classification_metric_specs(delimiter=None)
+    elif task_type == TaskType.MLTC:
+        return get_classification_metric_specs(delimiter=",")
+    return []
+
+
 def get_lextreme_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lextreme_scenario.LEXTREMEScenario",
@@ -1765,7 +1780,7 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         name=f"lextreme:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_f1_metric_specs() + build_classification_metrics(get_lextreme_task_type(subset)),
         groups=["lextreme"],
     )
 
@@ -1788,7 +1803,7 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
         name=f"lex_glue:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=get_f1_metric_specs() + build_classification_metrics(get_lex_glue_task_type(subset)),
         groups=["lex_glue"],
     )
 

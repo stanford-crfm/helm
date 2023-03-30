@@ -55,6 +55,11 @@ TASK_CODE_MAPPING = {
     MAPA_FINE: TaskType.NER,
 }
 
+
+def get_lextreme_task_type(subset):
+    return TASK_CODE_MAPPING[subset]
+
+
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
     BRAZILIAN_COURT_DECISIONS_JUDGMENT: 4,  # ~ max 1024 tokens
     BRAZILIAN_COURT_DECISIONS_UNANIMITY: 4,  # ~ max 1024 tokens
@@ -226,7 +231,6 @@ class LEXTREMEScenario(Scenario):
 
     dataset_name = "joelito/lextreme"
     max_number_of_wrong_answers = 30
-    mltc_no_label_name = "No Label"
     delimiter = '" "'  # we choose quotes and whitespace as a delimiter because this is what worked for gpt3
 
     ner_class_mapping = {
@@ -395,15 +399,6 @@ class LEXTREMEScenario(Scenario):
                             wrong_references.append(wrong_reference)
 
             wrong_references = reduce_wrong_reference_count(wrong_references)
-
-            if task_code == TaskType.MLTC:  # special case for multilabel classification tasks
-                if correct_labels:  # if we have a correct label
-                    # add the no_label to the wrong references
-                    # IMPORTANT: add it after reduce_wrong_reference_count, to make sure the no label is always there
-                    wrong_references.append(Reference(output=Output(self.mltc_no_label_name), tags=[]))
-                else:  # if we don't have a correct label
-                    # add the no_label to the correct labels
-                    correct_labels = [self.mltc_no_label_name]
 
             # construct correct references and input
             if task_code in [TaskType.SLTC, TaskType.MLTC]:

@@ -12,6 +12,7 @@ from .openai_window_service import OpenAIWindowService
 from .wider_openai_window_service import WiderOpenAIWindowService
 from .mt_nlg_window_service import MTNLGWindowService
 from .bloom_window_service import BloomWindowService
+from .huggingface_window_service import HuggingFaceWindowService
 from .ice_window_service import ICEWindowService
 from .santacoder_window_service import SantaCoderWindowService
 from .gpt2_window_service import GPT2WindowService
@@ -25,6 +26,7 @@ from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
+from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 
 
 class WindowServiceFactory:
@@ -39,7 +41,10 @@ class WindowServiceFactory:
         engine: str = model.engine
 
         window_service: WindowService
-        if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
+        huggingface_model_config = get_huggingface_model_config(model_name)
+        if huggingface_model_config:
+            window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
+        elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)
         # For the Google models, we approximate with the OpenAIWindowService
         elif organization == "openai" or organization == "simple" or organization == "google":
