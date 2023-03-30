@@ -4,7 +4,7 @@
 
 - Add changes for the upcoming release here
 
-## [v0.2.2]
+## [v0.2.2] - 2023-03-30
 
 ### Models
 
@@ -35,7 +35,7 @@
 
 - Added evaluation results for Cohere Command and Aleph Alpha Luminous
 
-## [v0.2.1]
+## [v0.2.1] - 2022-02-24
 
 ### Models
 
@@ -55,7 +55,7 @@
 - Added classification metrics (#1368)
 - Updated released JSON assets to conform to current JSON schema
 
-## [v0.2.0]
+## [v0.2.0] 2022-01-11
 
 ### Models
 
