@@ -104,12 +104,7 @@ class Service(ABC):
         pass
 
     def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
-        """Get responses to a human task.
-
-        Creates the human task on a labeller platform if it does not already exist.
-        Returns HumanTaskRequestResult if worker answers are complete, or None otherwise.
-        The intended use is to call it once to create the task, wait a while, and then call it
-        later to fetch answers."""
+        """Get responses to a critique request."""
         pass
 
     @abstractmethod

@@ -226,7 +226,7 @@ class AutoClient(Client):
         surgeai_credentials = self.credentials.get("surgeaiApiKey", None)
         if surgeai_credentials:
             return SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
-        # To use the RandomHumanTaskClient:
+        # To use the RandomCritiqueClient for debugging:
         # - Comment out `raise ValueError...`
         # - Add `from .critique_client import RandomCritiqueClient`
         # - Add `return RandomCritiqueClient()` here

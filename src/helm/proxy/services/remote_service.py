@@ -88,8 +88,8 @@ class RemoteService(Service):
         RemoteService._check_response(response, request_json)
         return from_dict(PerspectiveAPIRequestResult, response)
 
-    def make_human_task_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
-        raise NotImplementedError("make_human_task_request is not supported by RemoteServer")
+    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
+        raise NotImplementedError("make_critique_request is not supported by RemoteServer")
 
     def create_account(self, auth: Authentication) -> Account:
         data = {"auth": json.dumps(asdict(auth))}

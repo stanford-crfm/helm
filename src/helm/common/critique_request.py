@@ -18,12 +18,12 @@ class CritiqueQuestionTemplate:
     text: str
     """Text of the options.
 
-    Can contain placeholders like {{placeholder}} that will be interpolated using the fields in HumanTaskRequest."""
+    Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
     options: List[str]
     """Only used when question_type is 'multiple_choice' or 'checkbox'. List of text for the options.
 
-    Can contain placeholders like {{placeholder}} that will be interpolated using the fields in HumanTaskRequest."""
+    Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
 
 @dataclass(frozen=True)
@@ -36,7 +36,7 @@ class CritiqueTaskTemplate:
     instructions: str
     """Instructions that will be displayed before all the questions.
 
-    Can contain placeholders like {{placeholder}} that will be interpolated using the fields in HumanTaskRequest."""
+    Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
     num_respondants: int
     """Requested number of respondants."""

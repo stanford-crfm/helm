@@ -181,7 +181,7 @@ class SurgeAICritiqueClient(CritiqueClient):
     def make_critique_request(self, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
         """Create a task on Surge AI and fetch responses from Surge AI if available.
 
-        Returns HumanTaskRequestResult if worker answers are complete, or None otherwise.
+        Returns CritiqueRequestResult if worker answers are complete, or None otherwise.
         The intended use is to call it once to create the task, wait a while, and then call it
         later to fetch answers.
 
