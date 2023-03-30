@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, field, replace
+from functools import cached_property
 from typing import List, Optional
 from helm.common.hierarchical_logger import hlog
 
@@ -11,18 +12,45 @@ import yaml
 ROOT_CATEGORY = "Root"
 
 
-@dataclass
+def get_category(text: str) -> Optional[str]:
+    """
+    Parse the category out of `text`; return `None` if it's not a category.
+    Example: "${Root}" => "Root"
+    """
+    if text.startswith("${") and text.endswith("}"):
+        return text[2:-1]
+    return None
+
+
+@dataclass(frozen=True)
 class Expansion:
     """
+    An `Expansion` corresponds to the right-hand side of a grammar rule,
+    and consists of a sequence of tokens and categories.
+    The Expansion is given by a single string `text`, in which categories are specified
+    using special notation (e.g., ${Topic}).
+
     Example: text = "this is a ${Topic}"
     """
 
     text: str
     tags: List[str] = field(default_factory=list)
 
-    def __post_init__(self):
-        self.children = re.split(r"(\${\w+})", self.text)
-        self.categories = [x for x in [get_category(child) for child in self.children] if x is not None]
+    @cached_property
+    def children(self):
+        """
+        List of categories and tokens.
+        Example: ['this is a ', '${Topic}', '']
+        """
+        return re.split(r"(\${\w+})", self.text)
+
+    @cached_property
+    def categories(self):
+        """
+        Return the list of categories (non-terminals).
+        Example: ["Topic"]
+        """
+        return [x for x in [get_category(child) for child in self.children] if x is not None]
 
 
 @dataclass(frozen=True)
@@ -40,28 +68,34 @@ class GrammarRule:
     tags: List[str] = field(default_factory=list)
 
 
-def get_category(text: str) -> Optional[str]:
-    """
-    Example: "${Root}" => "Root"
-    """
-    if text.startswith("${") and text.endswith("}"):
-        return text[2:-1]
-    return None
-
-
-@dataclass
+@dataclass(frozen=True)
 class Grammar:
+    """
+    A grammar, specified by a set of `rules` defines a set of strings generated
+    by that grammar, and is a compact way of specifying a large structured set
+    of strings.
+    """
+
     rules: List[GrammarRule]
 
-    def __post_init__(self):
-        self.category_to_rules = defaultdict(list)
+    @cached_property
+    def category_to_rules(self):
+        category_to_rules = defaultdict(list)
         for rule in self.rules:
-            self.category_to_rules[rule.category].append(rule)
+            category_to_rules[rule.category].append(rule)
+        return category_to_rules
 
 
 @dataclass(frozen=True)
 class Derivation:
-    # Exactly one of value of children is active
+    """
+    A `Derivation` corresponds to a node in a parse tree.
+    Exactly one of {value, children} should be specified depending whether this
+    node is a leaf or not.
+    `tags` is based on the tags of the grammar rules, and is used to filter out
+    examples later.
+    """
+
     value: Optional[str]
     children: Optional[List["Derivation"]]
     tags: List[str]
@@ -81,6 +115,7 @@ def validate_grammar(grammar: Grammar):
 
 
 def read_grammar(path: str) -> Grammar:
+    """Read a grammar from `path` and return it."""
     with open(path) as f:
         raw = yaml.safe_load(f)
     grammar = dacite.from_dict(Grammar, raw)

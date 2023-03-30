@@ -8,13 +8,16 @@ from .scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TEST_SP
 
 class SelfInstructScenario(Scenario):
     """
-    This scenario is based on the manually-curated instructions from this paper on self-instruct:
+    This scenario is based on the manually-curated instructions from the self-instruct paper:
 
     https://arxiv.org/pdf/2212.10560.pdf
+
+    Note that we are not using the self-instruct method here, just the manual data.
     """
 
     name = "self-instruct"
     description = "Self-instruct eval dataset"
+    tags = ["instructions"]
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
