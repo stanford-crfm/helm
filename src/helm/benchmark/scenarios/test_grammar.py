@@ -46,4 +46,5 @@ def test_generate():
 
 
 def test_read_grammar():
-    read_grammar("src/helm/benchmark/scenarios/assistant_prompts.yaml")
+    read_grammar("src/helm/benchmark/scenarios/best_chatgpt_prompts.yaml")
+    read_grammar("src/helm/benchmark/scenarios/compositional_instructions.yaml")
