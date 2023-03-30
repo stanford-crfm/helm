@@ -111,7 +111,7 @@ def validate_grammar(grammar: Grammar):
             # Make sure all categories are defined
             for category in expansion.categories:
                 if category not in grammar.category_to_rules:
-                    hlog(f"Category {category} is not defined")
+                    hlog(f"WARNING: Category {category} is not defined")
 
 
 def read_grammar(path: str) -> Grammar:

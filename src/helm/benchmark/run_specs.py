@@ -1856,16 +1856,16 @@ def get_self_instruct_spec() -> RunSpec:
     )
 
 
-def get_grammar_spec(path: str) -> RunSpec:
+def get_grammar_spec(path: str, tags: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.grammar_scenario.GrammarScenario",
-        args={"path": path},
+        args={"path": path, "tags": tags},
     )
 
     adapter_spec = get_instruct_adapter_spec()
 
     return RunSpec(
-        name=f"grammar:path={path}",
+        name=f"grammar:path={path},tags={tags}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
