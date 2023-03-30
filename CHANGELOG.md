@@ -15,9 +15,14 @@
 - Added OpenAI gpt-3.5-turbo-0301 (#1401)
 - Added AI21 Jurassic-2 models (#1409)
 
+### Scenarios
+
+- Some improvements to LEXTREME and LexGLUE legal scenarios (#1429)
+- Added OpinionsQA scenario (#1424)
+
 ### Metrics
 
-- Add multilabel classification metrics (#1408)
+- Added multilabel classification metrics (#1408)
 
 ### Framework
 
