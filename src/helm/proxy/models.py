@@ -17,6 +17,9 @@ CHATML_MODEL_TAG: str = "chatml"
 # For OpenAI models with wider context windows
 WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"  # 4000 tokens
 
+# For AI21 Jurassic-2 models with wider context windows
+AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
+
 # To fetch models that use these tokenizers
 GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
 AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
@@ -140,7 +143,7 @@ ALL_MODELS = [
         name="ai21/j2-grande",
         display_name="Jurassic-2 Grande (17B)",
         description="Jurassic-2 Grande (17B parameters) with a few tweaks to the training process.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
         group="jurassic",
@@ -148,7 +151,7 @@ ALL_MODELS = [
         name="ai21/j2-large",
         display_name="Jurassic-2 Large (7.5B)",
         description="Jurassic-2 Large (7.5B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
     Model(
