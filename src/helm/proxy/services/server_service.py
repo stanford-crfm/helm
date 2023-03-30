@@ -2,7 +2,7 @@ import os
 import signal
 from typing import List, Optional
 
-from helm.common.critic_request import CriticRequest, CriticRequestResult
+from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
@@ -54,7 +54,7 @@ class ServerService(Service):
         self.token_counter = AutoTokenCounter(self.client.huggingface_client)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.perspective_api_client = self.client.get_toxicity_classifier_client()
-        self.human_task_client = self.client.get_human_task_client()
+        self.human_task_client = self.client.get_critique_client()
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
@@ -110,9 +110,9 @@ class ServerService(Service):
         self.accounts.authenticate(auth)
         return get_toxicity_scores_with_retry(request)
 
-    def get_human_task(self, auth: Authentication, request: CriticRequest) -> Optional[CriticRequestResult]:
+    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
         self.accounts.authenticate(auth)
-        return self.human_task_client.get_human_task(request)
+        return self.human_task_client.make_critique_request(request)
 
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""

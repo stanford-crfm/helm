@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple, Any, Optional
 
 from helm.common.general import parse_hocon
-from helm.common.critic_request import CriticRequest, CriticRequestResult
+from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -103,7 +103,7 @@ class Service(ABC):
         """Get toxicity scores for a batch of text."""
         pass
 
-    def get_human_task(self, auth: Authentication, request: CriticRequest) -> Optional[CriticRequestResult]:
+    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
         """Get responses to a human task.
 
         Creates the human task on a labeller platform if it does not already exist.

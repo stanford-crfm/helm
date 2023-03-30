@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.retry import retry_request
-from .critic_client import CriticClient, SurgeAICriticClient
+from .critique_client import CritiqueClient, SurgeAICritiqueClient
 from .client import Client
 from .ai21_client import AI21Client
 from .aleph_alpha_client import AlephAlphaClient
@@ -221,13 +221,13 @@ class AutoClient(Client):
         cache_config: CacheConfig = self._build_cache_config("perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
 
-    def get_human_task_client(self) -> CriticClient:
-        """Get the human task client."""
+    def get_critique_client(self) -> CritiqueClient:
+        """Get the critique client."""
         surgeai_credentials = self.credentials.get("surgeaiApiKey", None)
         if surgeai_credentials:
-            return SurgeAICriticClient(surgeai_credentials, self._build_cache_config("surgeai"))
+            return SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
         # To use the RandomHumanTaskClient:
         # - Comment out `raise ValueError...`
-        # - Add `from .human_task_client import RandomHumanTaskClient`
-        # - Add `return RandomHumanTaskClient()` here
-        raise ValueError("surgeaiApiKey credentials are required for human tasks")
+        # - Add `from .critique_client import RandomCritiqueClient`
+        # - Add `return RandomCritiqueClient()` here
+        raise ValueError("surgeaiApiKey credentials are required for SurgeAICriticClient")
