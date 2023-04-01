@@ -93,7 +93,7 @@ class LocalWindowService(WindowService):
         result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
 
         # HACK: For the vast majority of cases, the above logic works, but it sometimes doesn't work
-        # for non-English, non-Chinese text (e.g., Russian from multi_eurlex. See more 
+        # for non-English, non-Chinese text (e.g., Russian from multi_eurlex. See more
         # in https://github.com/stanford-crfm/helm/issues/1448).
         # Truncate by removing character by character until the prompt fits within the context window.
         while not self.fits_within_context_window(result, expected_completion_token_length):
