@@ -8,6 +8,7 @@ from nltk import ngrams
 from typing import Dict, Optional, DefaultDict
 from collections import defaultdict
 from tqdm import tqdm
+from dataclasses import dataclass
 
 from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario, LightScenarioKey
 from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
@@ -24,6 +25,21 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 # The n values of the ngrams to be computed
 N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
+
+
+@dataclass(frozen=True)
+class EntryContaminationKey:
+    """Unique key representing either the input or references of a single instance in a scenario."""
+
+    stats_key: ContaminationStatsKey
+    instance_id: int
+    part: str
+    """Either PART_INPUT or PART_REF"""
+
+
+# type alias for contamination-related data structures
+NgramIndex = Dict[int, Dict[Tuple[str, ...], Set[EntryContaminationKey]]]
+AllContaminationStats = Dict[ContaminationStatsKey, ContaminationStats]
 
 
 def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
@@ -87,15 +103,42 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     return light_scenarios
 
 
-def create_stats_and_ngram_index(
+def create_ngram_index(
     light_scenarios: List[LightScenario], n_values: List[int], tokenizer: LightTokenizer
-) -> Tuple[Dict[ContaminationStatsKey, ContaminationStats], DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]]:
-    """Given a list of scenarios and n values, initialize the stats and ngram_index data structures"""
-    # mapping from stats repr to stats instance
-    all_contamination_stats: Dict[ContaminationStatsKey, ContaminationStats] = {}
-    ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]] = defaultdict(lambda: defaultdict(set))
+) -> NgramIndex:
+    """Given a list of scenarios and n values, initialize ngram_index"""
+    ngram_index: NgramIndex = {n: {} for n in n_values}
     for scenario in light_scenarios:
         hlog(f"Building ngram indexes for {scenario.light_scenario_key}")
+        for n in n_values:
+            stats_key = ContaminationStatsKey(metadata={"light_scenario_key": scenario.light_scenario_key, "N": n})
+            for i in range(len(scenario.light_instances)):
+                instance = scenario.light_instances[i]
+                input_tokens = tokenizer.tokenize(instance.input)
+                for input_ngram in ngrams(input_tokens, n):
+                    if input_ngram not in ngram_index[n]:
+                        ngram_index[n][input_ngram] = set()
+                    ngram_index[n][input_ngram].add(
+                        EntryContaminationKey(stats_key=stats_key, instance_id=i, part=PART_INPUT)
+                    )
+
+                # compute reference ngrams
+                for reference in instance.references:
+                    reference_unigrams = tokenizer.tokenize(reference)
+                    for reference_ngram in ngrams(reference_unigrams, n):
+                        if reference_ngram not in ngram_index[n]:
+                            ngram_index[n][reference_ngram] = set()
+                        ngram_index[n][reference_ngram].add(
+                            EntryContaminationKey(stats_key=stats_key, instance_id=i, part=PART_REF)
+                        )
+    return ngram_index
+
+
+def create_all_contamination_stats(light_scenarios: List[LightScenario], n_values: List[int]) -> AllContaminationStats:
+    """Given a list of scenarios and n values, initialize all_contamination_stats"""
+    hlog("Intializing all contamination stats")
+    all_contamination_stats: AllContaminationStats = {}
+    for scenario in light_scenarios:
         for n in n_values:
             # Initizlize a stats instance for every pair of <scenario, n>
             stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags={"N": n})
@@ -103,36 +146,25 @@ def create_stats_and_ngram_index(
             if stats.stats_key in all_contamination_stats:
                 raise ValueError("Duplicated settings detected.")
             all_contamination_stats[stats.stats_key] = stats
-
-            # Build the ngram index
-            for i in range(len(scenario.light_instances)):
-                instance = scenario.light_instances[i]
-                # compute input ngrams
-                # TODO: The unigram computation can be taken out to further optimize efficiency if necessary.
-                input_unigrams = tokenizer.tokenize(instance.input)
-                for input_ngram in ngrams(input_unigrams, n):
-                    ngram_index[n][input_ngram].add((stats, i, PART_INPUT))
-
-                # compute reference ngrams
-                for reference in instance.references:
-                    reference_unigrams = tokenizer.tokenize(reference)
-                    for reference_ngram in ngrams(reference_unigrams, n):
-                        ngram_index[n][reference_ngram].add((stats, i, PART_REF))
-    return all_contamination_stats, ngram_index
+    return all_contamination_stats
 
 
 def compute_scenario_file_contamination(
     training_file_path: str,
-    n_values: List[int],
     file_format: str,
-    ngram_index: DefaultDict[int, DefaultDict[Tuple[str], set]],
+    ngram_index: NgramIndex,
+    all_contamination_stats: AllContaminationStats,
     tokenizer: LightTokenizer,
     overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]] = None,
 ):
     """
-    Given an input file, compute a contamination stats for each n and each scenario
+    Given an input file, compute a contamination stats for each n and each scenario by calling
+    `compute_scenario_document_contamination()` for each document in the file. The function writes
+    to the contamination stats directly and does not return anything.
 
     ngram_index: The ngram index that maps from ngrams to contamination stats
+
+    all_contamination_stats: The contamination stats for each scenario and n. The variable to write to.
 
     tokenizer: The tokenizer used to break documents in the file into tokens
 
@@ -145,40 +177,43 @@ def compute_scenario_file_contamination(
         document_index += 1
         print(f"Processing the {document_index}th document...", end="\r")
         compute_scenario_document_contamination(
-            ngram_index=ngram_index,
             document=document,
-            n_values=n_values,
+            ngram_index=ngram_index,
+            all_contamination_stats=all_contamination_stats,
             tokenizer=tokenizer,
             overlapped_ngrams=overlapped_ngrams,
         )
 
 
 def compute_scenario_document_contamination(
-    ngram_index: Dict[int, DefaultDict[Tuple[str], set]],
     document: str,
-    n_values: List[int],
+    ngram_index: NgramIndex,
+    all_contamination_stats: AllContaminationStats,
     tokenizer: LightTokenizer,
     overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]] = None,
 ):
     """
-    Given a document, compute a contamination stats for each n and each scenario
+    Given a document, compute a contamination stats for each n and each scenario. The function
+    writes to the contamination stats directly and does not return anything.
 
     ngram_index: The ngram index that maps from ngrams to contamination stats
 
     tokenizer: The tokenizer used to break the document into tokens
 
+    all_contamination_stats: The contamination stats for each scenario and n. The variable to write to.
+
     overlapped_ngrams: The ngrams that are overlapped between the training file and the scenario data and their counts.
     The outer dict maps from n to the inner dict, which maps from ngram to count.
     """
     document_tokens = tokenizer.tokenize(document)
-    for n in n_values:
-        assert n in ngram_index
+    for n in ngram_index.keys():
         for document_ngram in ngrams(document_tokens, n):
             if document_ngram in ngram_index[n]:
                 if overlapped_ngrams is not None:
                     overlapped_ngrams[n][str(document_ngram)] += 1
-                for contamination_stats, instance_id, part in ngram_index[n][document_ngram]:
-                    contamination_stats.write_dirty(instance_id, part)
+                for entry_contamination_key in ngram_index[n][document_ngram]:
+                    stats: ContaminationStats = all_contamination_stats[entry_contamination_key.stats_key]
+                    stats.write_dirty(entry_contamination_key.instance_id, entry_contamination_key.part)
 
 
 if __name__ == "__main__":
@@ -232,9 +267,10 @@ if __name__ == "__main__":
     light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
     with htrack_block("Initializing the stats and ngram_index"):
-        all_contamination_stats: Dict[ContaminationStatsKey, ContaminationStats]
-        ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
-        all_contamination_stats, ngram_index = create_stats_and_ngram_index(light_scenarios, N_VALUES, tokenizer)
+        all_contamination_stats: AllContaminationStats
+        ngram_index: NgramIndex
+        all_contamination_stats = create_all_contamination_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
+        ngram_index = create_ngram_index(light_scenarios=light_scenarios, n_values=N_VALUES, tokenizer=tokenizer)
 
     # Initialize overlapped_ngrams
     overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]]
@@ -250,9 +286,9 @@ if __name__ == "__main__":
         input_file_path: str = input_file_paths[input_file_index]
         compute_scenario_file_contamination(
             training_file_path=input_file_path,
-            n_values=N_VALUES,
             file_format=args.input_format,
             ngram_index=ngram_index,
+            all_contamination_stats=all_contamination_stats,
             tokenizer=tokenizer,
             overlapped_ngrams=overlapped_ngrams,
         )

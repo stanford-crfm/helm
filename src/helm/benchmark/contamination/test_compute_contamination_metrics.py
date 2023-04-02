@@ -1,8 +1,12 @@
-from typing import Set, Dict, DefaultDict, Tuple, List
+from typing import Tuple, List
 
 from helm.benchmark.contamination.compute_contamination_metrics import (
     compute_scenario_document_contamination,
-    create_stats_and_ngram_index,
+    create_all_contamination_stats,
+    create_ngram_index,
+    EntryContaminationKey,
+    NgramIndex,
+    AllContaminationStats,
 )
 from helm.benchmark.contamination.light_scenario import LightScenario, LightInstance, LightScenarioKey
 from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
@@ -140,26 +144,45 @@ def test_light_tokenizer():
     ]
 
 
-def test_create_stats_and_ngram_index():
-    tokenizer = LightTokenizer()
+def test_create_contamination_stats():
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_contamination_stats: Dict[ContaminationStatsKey, ContaminationStats]
-    ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
-    all_contamination_stats, ngram_index = create_stats_and_ngram_index(
-        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer
-    )
+    all_contamination_stats: AllContaminationStats
+    all_contamination_stats = create_all_contamination_stats(light_scenarios=scenarios, n_values=N_VALUES)
 
     stats_1_key, stats_2_key, stats_3_key = (
         ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
         ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
         ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
     )
+
+    assert (
+        stats_1_key in all_contamination_stats
+        and stats_2_key in all_contamination_stats
+        and stats_3_key in all_contamination_stats
+    )
+
+    stats_1: ContaminationStats
+    stats_2: ContaminationStats
+    stats_3: ContaminationStats
     stats_1, stats_2, stats_3 = (
         all_contamination_stats[stats_1_key],
         all_contamination_stats[stats_2_key],
         all_contamination_stats[stats_3_key],
     )
     assert stats_1.num_instances == 2 and stats_2.num_instances == 1 and stats_3.num_instances == 1
+
+
+def test_create_ngram_index():
+    tokenizer = LightTokenizer()
+    scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
+    ngram_index: NgramIndex
+    ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
+
+    stats_1_key, stats_2_key, stats_3_key = (
+        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
+        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
+        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
+    )
 
     test_5_gram: Tuple(str) = ("Center", "for", "Research", "on", "Foundation")
     test_13_gram: Tuple(str) = (
@@ -177,22 +200,36 @@ def test_create_stats_and_ngram_index():
         "initiative",
         "born",
     )
+
     assert ngram_index[5][test_5_gram] == set(
-        [(stats_1, 0, PART_INPUT), (stats_2, 0, PART_INPUT), (stats_2, 0, PART_REF)]
+        [
+            EntryContaminationKey(stats_key=stats_1_key, instance_id=0, part=PART_INPUT),
+            EntryContaminationKey(stats_key=stats_2_key, instance_id=0, part=PART_INPUT),
+            EntryContaminationKey(stats_key=stats_2_key, instance_id=0, part=PART_REF),
+        ]
     )
-    assert ngram_index[13][test_13_gram] == set([(stats_3, 0, PART_INPUT), (stats_3, 0, PART_REF)])
+    assert ngram_index[13][test_13_gram] == set(
+        [
+            EntryContaminationKey(stats_key=stats_3_key, instance_id=0, part=PART_INPUT),
+            EntryContaminationKey(stats_key=stats_3_key, instance_id=0, part=PART_REF),
+        ]
+    )
 
 
 def test_compute_scenario_document_contamination():
     tokenizer = LightTokenizer()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_contamination_stats: Dict[ContaminationStatsKey, ContaminationStats]
-    ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
-    all_contamination_stats, ngram_index = create_stats_and_ngram_index(
-        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer
-    )
+    all_contamination_stats: AllContaminationStats
+    ngram_index: NgramIndex
+    all_contamination_stats = create_all_contamination_stats(light_scenarios=scenarios, n_values=N_VALUES)
+    ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
 
-    compute_scenario_document_contamination(ngram_index, document=TEST_DOCUMENT, n_values=N_VALUES, tokenizer=tokenizer)
+    compute_scenario_document_contamination(
+        document=TEST_DOCUMENT,
+        ngram_index=ngram_index,
+        all_contamination_stats=all_contamination_stats,
+        tokenizer=tokenizer,
+    )
 
     stats_1_key, stats_2_key, stats_3_key = (
         ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
