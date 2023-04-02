@@ -1,10 +1,11 @@
-from typing import Tuple, List
+from typing import List
 
 from helm.benchmark.contamination.compute_contamination_metrics import (
     compute_scenario_document_contamination,
     create_all_contamination_stats,
     create_ngram_index,
     EntryContaminationKey,
+    Ngram,
     NgramIndex,
     AllContaminationStats,
 )
@@ -184,8 +185,8 @@ def test_create_ngram_index():
         ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
     )
 
-    test_5_gram: Tuple(str) = ("Center", "for", "Research", "on", "Foundation")
-    test_13_gram: Tuple(str) = (
+    test_5_gram: Ngram = ("Center", "for", "Research", "on", "Foundation")
+    test_13_gram: Ngram = (
         "The",
         "Center",
         "for",

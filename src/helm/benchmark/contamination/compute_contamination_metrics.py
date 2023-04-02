@@ -3,7 +3,7 @@ import argparse
 import os
 import glob
 
-from typing import List, Tuple, Set, Any
+from typing import List, Tuple, Set, Any, Optional
 from nltk import ngrams
 from typing import Dict
 from tqdm import tqdm
@@ -157,8 +157,8 @@ def compute_scenario_file_contamination(
     ngram_index: NgramIndex,
     all_contamination_stats: AllContaminationStats,
     tokenizer: LightTokenizer,
-    ngram_counter: NgramCounter,
-    max_contaminated_ngrams: int,
+    ngram_counter: Optional[NgramCounter] = None,
+    max_contaminated_ngrams: int = 0,
 ):
     """
     Given an input file, compute a contamination stats for each n and each scenario by calling
@@ -195,8 +195,8 @@ def compute_scenario_document_contamination(
     ngram_index: NgramIndex,
     all_contamination_stats: AllContaminationStats,
     tokenizer: LightTokenizer,
-    ngram_counter: NgramCounter,
-    max_contaminated_ngrams: int,
+    ngram_counter: Optional[NgramCounter] = None,
+    max_contaminated_ngrams: int = 0,
 ):
     """
     Given a document, compute a contamination stats for each n and each scenario. The function
@@ -222,6 +222,7 @@ def compute_scenario_document_contamination(
                     stats.write_dirty(entry_contamination_key.instance_id, entry_contamination_key.part)
                     # skip the rest if max_contaminated_ngrams is 0
                     if max_contaminated_ngrams != 0:
+                        assert ngram_counter is not None
                         # update ngram_counter
                         if entry_contamination_key not in ngram_counter:
                             ngram_counter[entry_contamination_key] = {}
