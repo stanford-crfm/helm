@@ -1,11 +1,22 @@
 from bitarray import bitarray
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Hashable
+from dataclasses import dataclass
 
-from helm.benchmark.contamination.light_scenario import LightScenario
+from helm.benchmark.contamination.light_scenario import LightScenario, LightScenarioKey
+from helm.common.general import asdict_without_nones
 
 
 PART_INPUT: str = "input"
 PART_REF: str = "reference"
+
+
+@dataclass(frozen=True)
+class ContaminationStatsKey:
+
+    metadata: Dict[str, Hashable]
+
+    def __hash__(self):
+        return hash(tuple((k, self.metadata[k]) for k in sorted(self.metadata.keys())))
 
 
 class ContaminationStats:
@@ -15,12 +26,12 @@ class ContaminationStats:
     """
 
     def __init__(
-        self, light_scenario_spec: Dict[str, Any], num_instances: int, stats_tags: Optional[Dict[str, Any]] = None
+        self, light_scenario_key: LightScenarioKey, num_instances: int, stats_tags: Optional[Dict[str, Any]] = None
     ):
-        self.stats_spec = {"light_scenario_spec": light_scenario_spec}
+        self.stats_key = ContaminationStatsKey(metadata={"light_scenario_key": light_scenario_key})
         self.num_instances = num_instances
         if stats_tags is not None:
-            self.stats_spec.update(stats_tags)
+            self.stats_key.metadata.update(stats_tags)
 
         self._input_bits = bitarray(num_instances)
         self._reference_bits = bitarray(num_instances)
@@ -30,7 +41,7 @@ class ContaminationStats:
     @classmethod
     def from_scenario(cls, scenario: LightScenario, stats_tags: Optional[Dict[str, Any]] = None):
         return cls(
-            light_scenario_spec=scenario.light_scenario_spec,
+            light_scenario_key=scenario.light_scenario_key,
             num_instances=len(scenario.light_instances),
             stats_tags=stats_tags,
         )
@@ -53,8 +64,8 @@ class ContaminationStats:
 
     def merge(self, stats):
         """Merge two stats instance of the same scenario"""
-        if self.stats_spec != stats.stats_spec:
-            raise ValueError("Only stats with the same `stats_spec` can be merged.")
+        if self.stats_key != stats.stats_key:
+            raise ValueError("Only stats with the same `stats_key` can be merged.")
         if self.num_instances != stats.num_instances:
             raise ValueError("The sizes of the two scenarios need to equal.")
         self._input_bits |= stats._input_bits
@@ -81,7 +92,7 @@ class ContaminationStats:
         if summary_tags is None:
             summary_tags = {}
         summary = {
-            "setting": {**self.stats_spec, **summary_tags},
+            "setting": {"stats_key": asdict_without_nones(self.stats_key), **summary_tags},
             "num_instances": self.num_instances,
             "num_instances_with_dirty_input": self.num_instances_with_dirty_input,
             "num_instances_with_dirty_reference": self.num_instances_with_dirty_reference,

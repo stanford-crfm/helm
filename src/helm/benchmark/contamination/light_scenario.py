@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import List, Dict, Hashable
 
 
 @dataclass(frozen=True, eq=False)
@@ -15,14 +15,22 @@ class LightInstance:
     """References that help us evaluate"""
 
 
+@dataclass(frozen=True)
+class LightScenarioKey:
+
+    metadata: Dict[str, Hashable]
+
+    def __hash__(self):
+        return hash(tuple((k, self.metadata[k]) for k in sorted(self.metadata.keys())))
+
+
 @dataclass(frozen=True, eq=False)
 class LightScenario:
     """
     A lighter `Scenario`.
     """
 
-    light_scenario_spec: Dict[str, Any]
-    """The light scenario spec"""
+    light_scenario_key: LightScenarioKey
 
     light_instances: List[LightInstance]
     """Instances of this scenario"""

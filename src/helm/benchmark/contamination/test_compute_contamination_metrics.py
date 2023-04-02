@@ -4,9 +4,14 @@ from helm.benchmark.contamination.compute_contamination_metrics import (
     compute_scenario_document_contamination,
     create_stats_and_ngram_index,
 )
-from helm.benchmark.contamination.light_scenario import LightScenario, LightInstance
+from helm.benchmark.contamination.light_scenario import LightScenario, LightInstance, LightScenarioKey
 from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
-from helm.benchmark.contamination.contamination_stats import ContaminationStats, PART_INPUT, PART_REF
+from helm.benchmark.contamination.contamination_stats import (
+    ContaminationStats,
+    ContaminationStatsKey,
+    PART_INPUT,
+    PART_REF,
+)
 
 N_VALUES = [5, 13]
 
@@ -103,14 +108,14 @@ TEST_TOKENS_BY_DEFAULT_TOKENIZER: List[str] = [
 ]
 
 TEST_SCENARIO_1 = LightScenario(
-    light_scenario_spec={"name": "TEST_SCENARIO_1"},
+    light_scenario_key=LightScenarioKey(metadata={"name": "TEST_SCENARIO_1"}),
     light_instances=[
         LightInstance(input="Center for Research on Foundation", references=["bar", "baz"]),
         LightInstance(input="bar bar", references=["foo", "baz"]),
     ],
 )
 TEST_SCENARIO_2 = LightScenario(
-    light_scenario_spec={"name": "TEST_SCENARIO_2"},
+    light_scenario_key=LightScenarioKey(metadata={"name": "TEST_SCENARIO_2"}),
     light_instances=[LightInstance(input=TEST_DOCUMENT, references=[TEST_DOCUMENT, TEST_DOCUMENT])],
 )
 
@@ -138,21 +143,21 @@ def test_light_tokenizer():
 def test_create_stats_and_ngram_index():
     tokenizer = LightTokenizer()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_contamination_stats: Dict[str, ContaminationStats]
+    all_contamination_stats: Dict[ContaminationStatsKey, ContaminationStats]
     ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
     all_contamination_stats, ngram_index = create_stats_and_ngram_index(
         light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer
     )
 
-    stats_1_repr, stats_2_repr, stats_3_repr = (
-        str({"light_scenario_spec": TEST_SCENARIO_1.light_scenario_spec, "N": 5}),
-        str({"light_scenario_spec": TEST_SCENARIO_2.light_scenario_spec, "N": 5}),
-        str({"light_scenario_spec": TEST_SCENARIO_2.light_scenario_spec, "N": 13}),
+    stats_1_key, stats_2_key, stats_3_key = (
+        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
+        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
+        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
     )
     stats_1, stats_2, stats_3 = (
-        all_contamination_stats[stats_1_repr],
-        all_contamination_stats[stats_2_repr],
-        all_contamination_stats[stats_3_repr],
+        all_contamination_stats[stats_1_key],
+        all_contamination_stats[stats_2_key],
+        all_contamination_stats[stats_3_key],
     )
     assert stats_1.num_instances == 2 and stats_2.num_instances == 1 and stats_3.num_instances == 1
 
@@ -181,7 +186,7 @@ def test_create_stats_and_ngram_index():
 def test_compute_scenario_document_contamination():
     tokenizer = LightTokenizer()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_contamination_stats: Dict[str, ContaminationStats]
+    all_contamination_stats: Dict[ContaminationStatsKey, ContaminationStats]
     ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
     all_contamination_stats, ngram_index = create_stats_and_ngram_index(
         light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer
@@ -189,15 +194,15 @@ def test_compute_scenario_document_contamination():
 
     compute_scenario_document_contamination(ngram_index, document=TEST_DOCUMENT, n_values=N_VALUES, tokenizer=tokenizer)
 
-    stats_1_repr, stats_2_repr, stats_3_repr = (
-        str({"light_scenario_spec": TEST_SCENARIO_1.light_scenario_spec, "N": 5}),
-        str({"light_scenario_spec": TEST_SCENARIO_2.light_scenario_spec, "N": 5}),
-        str({"light_scenario_spec": TEST_SCENARIO_2.light_scenario_spec, "N": 13}),
+    stats_1_key, stats_2_key, stats_3_key = (
+        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
+        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
+        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
     )
     stats_1, stats_2, stats_3 = (
-        all_contamination_stats[stats_1_repr],
-        all_contamination_stats[stats_2_repr],
-        all_contamination_stats[stats_3_repr],
+        all_contamination_stats[stats_1_key],
+        all_contamination_stats[stats_2_key],
+        all_contamination_stats[stats_3_key],
     )
 
     assert stats_1.dirty_input_fraction == 0.5 and stats_1.dirty_reference_fraction == 0

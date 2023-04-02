@@ -9,11 +9,17 @@ from typing import Dict, Optional, DefaultDict
 from collections import defaultdict
 from tqdm import tqdm
 
-from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario
+from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario, LightScenarioKey
 from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
 from helm.benchmark.contamination.load_documents import get_document_generator
-from helm.benchmark.contamination.contamination_stats import ContaminationStats, PART_INPUT, PART_REF
+from helm.benchmark.contamination.contamination_stats import (
+    ContaminationStats,
+    ContaminationStatsKey,
+    PART_INPUT,
+    PART_REF,
+)
 from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 # The n values of the ngrams to be computed
@@ -33,10 +39,12 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
 
     Each line is a json and each json looks like:
     {
-        "light_scenario_spec": {
-            "split": "SPLIT",
-            "scenario_attribute_1": "ATTRIBUTE1",
-            "scenario_attribute_2": {"KEY": "VALUE"},
+        "light_scenario_key": {
+            "metadata":{
+                "split": "SPLIT",
+                "scenario_attribute_1": "ATTRIBUTE1",
+                "scenario_attribute_2": "ATTRIBUTE2",
+            }
         },
         "light_instances": [
             {
@@ -55,6 +63,8 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
             }
         ]
     }
+
+    Note that the values of light_scenario_key.metadata need to be hashable.
     """
 
     def create_light_instance_from_dict(instance_dict: dict) -> LightInstance:
@@ -64,30 +74,35 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     light_scenario_jsons = open(path, "r").readlines()
     for light_scenario_json in light_scenario_jsons:
         light_scenario_dict: dict = json.loads(light_scenario_json)
-        light_scenario_spec: dict = light_scenario_dict["light_scenario_spec"]
+
+        light_scenario_metadata: dict = light_scenario_dict["light_scenario_key"]["metadata"]
+        # if the light_scenarios are exported from helm, they will have a scenario_spec field
+        if "scenario_spec" in light_scenario_metadata:
+            light_scenario_metadata["scenario_spec"] = ScenarioSpec(**light_scenario_metadata["scenario_spec"])
+        light_scenario_key = LightScenarioKey(metadata=light_scenario_metadata)
         light_instances: List[LightInstance] = [
             create_light_instance_from_dict(instance_dict) for instance_dict in light_scenario_dict["light_instances"]
         ]
-        light_scenarios.append(LightScenario(light_scenario_spec=light_scenario_spec, light_instances=light_instances))
+        light_scenarios.append(LightScenario(light_scenario_key=light_scenario_key, light_instances=light_instances))
     return light_scenarios
 
 
 def create_stats_and_ngram_index(
     light_scenarios: List[LightScenario], n_values: List[int], tokenizer: LightTokenizer
-) -> Tuple[Dict[str, ContaminationStats], DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]]:
+) -> Tuple[Dict[ContaminationStatsKey, ContaminationStats], DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]]:
     """Given a list of scenarios and n values, initialize the stats and ngram_index data structures"""
     # mapping from stats repr to stats instance
-    all_contamination_stats: Dict[str, ContaminationStats] = {}
+    all_contamination_stats: Dict[ContaminationStatsKey, ContaminationStats] = {}
     ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]] = defaultdict(lambda: defaultdict(set))
     for scenario in light_scenarios:
-        hlog(f"Building ngram indexes for {str(scenario.light_scenario_spec)}")
+        hlog(f"Building ngram indexes for {scenario.light_scenario_key}")
         for n in n_values:
             # Initizlize a stats instance for every pair of <scenario, n>
             stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags={"N": n})
-            stats_repr: str = str(stats.stats_spec)
-            if stats_repr in all_contamination_stats:
+            # stats_repr: str = str(stats.stats_spec)
+            if stats.stats_key in all_contamination_stats:
                 raise ValueError("Duplicated settings detected.")
-            all_contamination_stats[stats_repr] = stats
+            all_contamination_stats[stats.stats_key] = stats
 
             # Build the ngram index
             for i in range(len(scenario.light_instances)):
@@ -217,7 +232,7 @@ if __name__ == "__main__":
     light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
     with htrack_block("Initializing the stats and ngram_index"):
-        all_contamination_stats: Dict[str, ContaminationStats]
+        all_contamination_stats: Dict[ContaminationStatsKey, ContaminationStats]
         ngram_index: DefaultDict[int, DefaultDict[Tuple[str], Set[tuple]]]
         all_contamination_stats, ngram_index = create_stats_and_ngram_index(light_scenarios, N_VALUES, tokenizer)
 
