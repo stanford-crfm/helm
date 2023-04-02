@@ -5,8 +5,7 @@ import glob
 
 from typing import List, Tuple, Set, Any
 from nltk import ngrams
-from typing import Dict, Optional, DefaultDict
-from collections import defaultdict
+from typing import Dict
 from tqdm import tqdm
 from dataclasses import dataclass
 
@@ -20,6 +19,7 @@ from helm.benchmark.contamination.contamination_stats import (
     PART_REF,
 )
 from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.general import asdict_without_nones
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
@@ -40,6 +40,7 @@ class EntryContaminationKey:
 # type alias for contamination-related data structures
 NgramIndex = Dict[int, Dict[Tuple[str, ...], Set[EntryContaminationKey]]]
 AllContaminationStats = Dict[ContaminationStatsKey, ContaminationStats]
+NgramCounter = Dict[EntryContaminationKey, Dict[Tuple[str, ...], int]]
 
 
 def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
@@ -155,7 +156,8 @@ def compute_scenario_file_contamination(
     ngram_index: NgramIndex,
     all_contamination_stats: AllContaminationStats,
     tokenizer: LightTokenizer,
-    overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]] = None,
+    ngram_counter: NgramCounter,
+    max_contaminated_ngrams: int,
 ):
     """
     Given an input file, compute a contamination stats for each n and each scenario by calling
@@ -168,7 +170,8 @@ def compute_scenario_file_contamination(
 
     tokenizer: The tokenizer used to break documents in the file into tokens
 
-    overlapped_ngrams: The ngrams that are overlapped between the training file and the scenario data and their counts.
+    ngram_counter: The ngrams that are overlapped between the training file and the scenario data
+    and their counts.
     The outer dict maps from n to the inner dict, which maps from ngram to count.
     """
     document_generator = get_document_generator(file_path=training_file_path, file_format=file_format)
@@ -181,7 +184,8 @@ def compute_scenario_file_contamination(
             ngram_index=ngram_index,
             all_contamination_stats=all_contamination_stats,
             tokenizer=tokenizer,
-            overlapped_ngrams=overlapped_ngrams,
+            ngram_counter=ngram_counter,
+            max_contaminated_ngrams=max_contaminated_ngrams,
         )
 
 
@@ -190,7 +194,8 @@ def compute_scenario_document_contamination(
     ngram_index: NgramIndex,
     all_contamination_stats: AllContaminationStats,
     tokenizer: LightTokenizer,
-    overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]] = None,
+    ngram_counter: NgramCounter,
+    max_contaminated_ngrams: int,
 ):
     """
     Given a document, compute a contamination stats for each n and each scenario. The function
@@ -202,18 +207,30 @@ def compute_scenario_document_contamination(
 
     all_contamination_stats: The contamination stats for each scenario and n. The variable to write to.
 
-    overlapped_ngrams: The ngrams that are overlapped between the training file and the scenario data and their counts.
+    ngram_counter: The ngrams that are overlapped between the training file and the scenario data
+    and their counts.
     The outer dict maps from n to the inner dict, which maps from ngram to count.
     """
     document_tokens = tokenizer.tokenize(document)
     for n in ngram_index.keys():
         for document_ngram in ngrams(document_tokens, n):
             if document_ngram in ngram_index[n]:
-                if overlapped_ngrams is not None:
-                    overlapped_ngrams[n][str(document_ngram)] += 1
                 for entry_contamination_key in ngram_index[n][document_ngram]:
+                    # update contamination_stats
                     stats: ContaminationStats = all_contamination_stats[entry_contamination_key.stats_key]
                     stats.write_dirty(entry_contamination_key.instance_id, entry_contamination_key.part)
+                    # skip the rest if max_contaminated_ngrams is 0
+                    if max_contaminated_ngrams != 0:
+                        # update ngram_counter
+                        if entry_contamination_key not in ngram_counter:
+                            ngram_counter[entry_contamination_key] = {}
+                        if document_ngram in ngram_counter[entry_contamination_key]:
+                            ngram_counter[entry_contamination_key][document_ngram] += 1
+                        elif (
+                            max_contaminated_ngrams == -1
+                            or len(ngram_counter[entry_contamination_key]) < max_contaminated_ngrams
+                        ):
+                            ngram_counter[entry_contamination_key][document_ngram] = 1
 
 
 if __name__ == "__main__":
@@ -231,7 +248,7 @@ if __name__ == "__main__":
         "--tags",
         type=str,
         nargs="*",
-        help="Other tags, such as whether the input data is for pretraining or instruction tuning.",
+        help="Other tags, such as whether the input data is for pretraining or instruction tuning",
     )
     parser.add_argument(
         "--normalization", type=str, default="default", help="What normalization and tokenization strategy to apply"
@@ -240,7 +257,16 @@ if __name__ == "__main__":
         "--output-ngrams",
         type=str,
         default=None,
-        help="Path to the file of overlapped ngrams. If not given, ngrams will not be output.",
+        help="Path to the file of contaminated ngrams. To output the ngrams, you must also specify --max-output-ngrams",
+    )
+    parser.add_argument(
+        "--max-output-ngrams",
+        type=int,
+        default=0,
+        help=(
+            "The max number of contaminated ngrams to be stored for each (n, light_instance, part)."
+            "Set to -1 to store all"
+        ),
     )
 
     args = parser.parse_args()
@@ -252,6 +278,11 @@ if __name__ == "__main__":
         tokenizer = DefaultTokenizer()
     else:
         raise ValueError(f"Normalization strategy {args.normalization} is not defined.")
+
+    if args.max_output_ngrams != 0 and args.output_ngrams is None:
+        raise ValueError("You must specify --output-ngrams if you want to output ngrams.")
+    if args.max_output_ngrams == 0 and args.output_ngrams is not None:
+        raise ValueError("You must specify --max-output-ngrams != 0 if you want to output ngrams.")
 
     input_file_paths: List[str]
     if os.path.isdir(args.input_data):
@@ -266,18 +297,12 @@ if __name__ == "__main__":
     hlog(f"Loading scenario data from {args.scenario_data}")
     light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
-    with htrack_block("Initializing the stats and ngram_index"):
+    with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
         all_contamination_stats: AllContaminationStats
         ngram_index: NgramIndex
         all_contamination_stats = create_all_contamination_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
         ngram_index = create_ngram_index(light_scenarios=light_scenarios, n_values=N_VALUES, tokenizer=tokenizer)
-
-    # Initialize overlapped_ngrams
-    overlapped_ngrams: Optional[DefaultDict[int, DefaultDict[str, int]]]
-    if args.output_ngrams is None:
-        overlapped_ngrams = None
-    else:
-        overlapped_ngrams = defaultdict(lambda: defaultdict(int))
+        ngram_counter: NgramCounter = {}
 
     # commpute the stats
     for input_file_index in tqdm(
@@ -290,7 +315,8 @@ if __name__ == "__main__":
             ngram_index=ngram_index,
             all_contamination_stats=all_contamination_stats,
             tokenizer=tokenizer,
-            overlapped_ngrams=overlapped_ngrams,
+            ngram_counter=ngram_counter,
+            max_contaminated_ngrams=args.max_output_ngrams,
         )
 
     stats_summaries: List[Dict[str, Any]] = []
@@ -303,7 +329,19 @@ if __name__ == "__main__":
 
     if args.output_ngrams is not None:
         with open(args.output_ngrams, "w") as f:
-            json.dump(overlapped_ngrams, f)
-        hlog(f"Written the overlapped ngrams to {args.output_ngrams}")
+            # convert the ngram counter to json format
+            ngram_counter_json = []
+            for entry_contamination_key, contaminated_ngrams in ngram_counter.items():
+                ngram_counter_json.append(
+                    {
+                        "entry_contamination_key": asdict_without_nones(entry_contamination_key),
+                        "contaminated_ngrams": {str(ngram): count for ngram, count in contaminated_ngrams.items()},
+                    }
+                )
+            json.dump(ngram_counter_json, f)
+        hlog(f"Written the contaminated ngrams to {args.output_ngrams}")
     else:
-        hlog("Overlapped ngrams are not written to disk. Set --output_ngrams if you want output the data.")
+        hlog(
+            "Contaminated ngrams are not written to disk. "
+            "Set --output-ngrams and --max-output-ngrams if you want output the data."
+        )
