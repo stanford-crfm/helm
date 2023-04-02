@@ -306,19 +306,20 @@ if __name__ == "__main__":
         ngram_counter: NgramCounter = {}
 
     # commpute the stats
-    for input_file_index in tqdm(
-        range(len(input_file_paths)), desc="Computing contamination stats for input files", disable=None
-    ):
-        input_file_path: str = input_file_paths[input_file_index]
-        compute_scenario_file_contamination(
-            training_file_path=input_file_path,
-            file_format=args.input_format,
-            ngram_index=ngram_index,
-            all_contamination_stats=all_contamination_stats,
-            tokenizer=tokenizer,
-            ngram_counter=ngram_counter,
-            max_contaminated_ngrams=args.max_output_ngrams,
-        )
+    with htrack_block("Computing contamination stats"):
+        for input_file_index in tqdm(
+            range(len(input_file_paths)), desc="Computing contamination stats for input files", disable=None
+        ):
+            input_file_path: str = input_file_paths[input_file_index]
+            compute_scenario_file_contamination(
+                training_file_path=input_file_path,
+                file_format=args.input_format,
+                ngram_index=ngram_index,
+                all_contamination_stats=all_contamination_stats,
+                tokenizer=tokenizer,
+                ngram_counter=ngram_counter,
+                max_contaminated_ngrams=args.max_output_ngrams,
+            )
 
     stats_summaries: List[Dict[str, Any]] = []
     for contamination_stats in all_contamination_stats.values():
