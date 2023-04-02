@@ -38,9 +38,10 @@ class EntryContaminationKey:
 
 
 # type alias for contamination-related data structures
-NgramIndex = Dict[int, Dict[Tuple[str, ...], Set[EntryContaminationKey]]]
+Ngram = Tuple[str, ...]
+NgramIndex = Dict[int, Dict[Ngram, Set[EntryContaminationKey]]]
 AllContaminationStats = Dict[ContaminationStatsKey, ContaminationStats]
-NgramCounter = Dict[EntryContaminationKey, Dict[Tuple[str, ...], int]]
+NgramCounter = Dict[EntryContaminationKey, Dict[Ngram, int]]
 
 
 def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
