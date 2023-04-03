@@ -128,7 +128,7 @@ def get_multiple_choice_adapter_spec(
     output_noun: str,
     max_train_instances: int = 5,
     num_outputs: int = 5,
-    max_tokens: int = 5,
+    max_tokens: int = 1,
     empty_input: bool = False,
     sample_train: bool = True,
     **kwargs,
@@ -1976,7 +1976,9 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
             run_spec = singleton(global_prefix_expander.expand(run_spec))
 
-        if OPENAI_CHATGPT_MODEL_TAG in model.tags:
+        # When running ChatGPT on non-language modelling tasks, increase max_tokens by 1
+        # to add room for the special message role token.
+        if OPENAI_CHATGPT_MODEL_TAG in model.tags and run_spec.adapter_spec.max_tokens:
             increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=1)
             run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
 

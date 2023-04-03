@@ -858,7 +858,8 @@ class IncreaseMaxTokensRunExpander(RunExpander):
         self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        adapter_spec: AdapterSpec = replace(run_spec.adapter_spec, max_tokens=adapter_spec.max_tokens + self.value)
+        adapter_spec: AdapterSpec = run_spec.adapter_spec
+        adapter_spec = replace(adapter_spec, max_tokens=adapter_spec.max_tokens + self.value)
         return [
             replace(
                 run_spec,
