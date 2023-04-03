@@ -21,12 +21,12 @@ class SummarizationCritiqueMetric(Metric):
 
     This is a demonstration of critique evaluation and is not indended for production use."""
 
-    def __init__(self, num_respondants: int) -> None:
+    def __init__(self, num_respondents: int) -> None:
         self._template = CritiqueTaskTemplate(
             name="HELM Summarization Evaluation",
             # Note: Instructions can contain HTML.
             instructions="Rate the following summary.\n\nOriginal text:\n{{original_text}}\n\nSummary: {{summary}}",
-            num_respondants=num_respondants,
+            num_respondents=num_respondents,
             questions=[
                 CritiqueQuestionTemplate(
                     name=_FAITHFULNESS_NAME,
@@ -77,8 +77,10 @@ class SummarizationCritiqueMetric(Metric):
         stats: Dict[str, Stat] = {}
         for question in self._template.questions:
             stats[question.name] = Stat(MetricName(question.name))
+        # Skip computing metrics if therea re not enough responses.
+        if len(result.responses) < request.template.num_respondents:
+            return []
         for response in result.responses:
-            # TODO: This assume that every worker completes every task; check if this is true for Surge AI.
             for answer_name, answer in response.answers.items():
                 answer_value: float
                 if answer_name == _FAITHFULNESS_NAME:

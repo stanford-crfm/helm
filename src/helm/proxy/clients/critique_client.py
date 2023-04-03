@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
 import random
 import threading
-from typing import Dict, List, Optional
+from typing import Dict, List
+
+from cattrs import unstructure
+import surge
+from surge import questions as surge_questions
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.cache import Cache, CacheConfig
@@ -13,44 +17,39 @@ from helm.common.critique_request import (
     CritiqueResponse,
 )
 
-from cattrs import unstructure
-
-import surge
-from surge import questions as surge_questions
-
 
 _surge_cache_lock = threading.Lock()
 
 
 class CritiqueClient(ABC):
-    """A client that allows making critic requests."""
+    """A client that allows making critique requests."""
 
     @abstractmethod
-    def make_critique_request(self, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
-        """Get responses to a critic request."""
+    def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
+        """Get responses to a critique request."""
         pass
 
 
 class RandomCritiqueClient(CritiqueClient):
-    """A CriticClient that returns random choices for debugging."""
+    """A CritiqueClient that returns random choices for debugging."""
 
-    def make_critique_request(self, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
+    def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
         responses: List[CritiqueResponse] = []
         random.seed(0)
-        for respondant_index in range(request.template.num_respondants):
+        for respondent_index in range(request.template.num_respondents):
             answers: Dict[str, str] = {}
             for question in request.template.questions:
                 if question.question_type != "multiple_choice":
                     raise ValueError("Currently, only multiple_choice questions are supported")
                 answers[question.name] = random.choice(question.options)
             responses.append(
-                CritiqueResponse(id=str(respondant_index), respondant_id=str(respondant_index), answers=answers)
+                CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
             )
         return CritiqueRequestResult(responses)
 
 
 class SurgeAICritiqueClient(CritiqueClient):
-    """A CriticClient that creates tasks for workers on Surge AI.
+    """A CritiqueClient that creates tasks for workers on Surge AI.
 
     Surge AI concepts:
 
@@ -97,7 +96,7 @@ class SurgeAICritiqueClient(CritiqueClient):
                 name=template.name,
                 instructions=template.instructions,
                 questions=[self._to_surge_question(question) for question in template.questions],
-                num_workers_per_task=template.num_respondants,
+                num_workers_per_task=template.num_respondents,
             )
             return {"id": project.id}
 
@@ -108,7 +107,7 @@ class SurgeAICritiqueClient(CritiqueClient):
             #     # See CritiqueQuestionTemplate for complete schema
             #     "name": "some_name",
             #     "instructions": "some_instructions",
-            #     "num_respondants": 1,
+            #     "num_respondents": 1,
             #     "questions": []
             #   }
             # }
@@ -172,13 +171,13 @@ class SurgeAICritiqueClient(CritiqueClient):
         return [
             CritiqueResponse(
                 id=task_response.id,
-                respondant_id=task_response.worker_id,
+                respondent_id=task_response.worker_id,
                 answers={question.name: task_response.data[question.name] for question in questions},
             )
             for task_response in task.responses
         ]
 
-    def make_critique_request(self, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
+    def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
         """Create a task on Surge AI and fetch responses from Surge AI if available.
 
         Returns CritiqueRequestResult if worker answers are complete, or None otherwise.
@@ -203,6 +202,4 @@ class SurgeAICritiqueClient(CritiqueClient):
         project_id = self._get_or_create_surge_project(request.template)
         task_id = self._get_or_create_task(project_id, request.fields)
         worker_responses = self._get_worker_responses(task_id, request.template.questions)
-        if len(worker_responses) < request.template.num_respondants:
-            return None
         return CritiqueRequestResult(worker_responses)

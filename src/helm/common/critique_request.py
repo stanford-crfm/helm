@@ -38,8 +38,8 @@ class CritiqueTaskTemplate:
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
-    num_respondants: int
-    """Requested number of respondants."""
+    num_respondents: int
+    """Requested number of respondents."""
 
     questions: List[CritiqueQuestionTemplate]
     """List of templates for the questions."""
@@ -62,21 +62,21 @@ class CritiqueRequest:
 
 @dataclass(frozen=True)
 class CritiqueResponse:
-    """All answers from a single respondant, along with worker metadata."""
+    """All answers from a single respondent, along with worker metadata."""
 
     id: str
     """A string that identifies the response. Implementation-dependent."""
 
-    respondant_id: str
-    """A string that identifies the respondant. Implementation-dependent."""
+    respondent_id: str
+    """A string that identifies the respondent. Implementation-dependent."""
 
     answers: Dict[str, str]
-    """Map of question names to the respondant's answer."""
+    """Map of question names to the respondent's answer."""
 
 
 @dataclass(frozen=True)
 class CritiqueRequestResult:
-    """List of answers from each critic."""
+    """List of answers from each respondent."""
 
     responses: List[CritiqueResponse]
-    """List of respondants' responses."""
+    """List of respondents' responses."""

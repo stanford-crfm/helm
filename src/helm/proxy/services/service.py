@@ -1,7 +1,7 @@
 import mako.template
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any
 
 from helm.common.general import parse_hocon
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
@@ -103,7 +103,7 @@ class Service(ABC):
         """Get toxicity scores for a batch of text."""
         pass
 
-    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
+    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
         """Get responses to a critique request."""
         pass
 

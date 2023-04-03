@@ -1,6 +1,6 @@
 import os
 import signal
-from typing import List, Optional
+from typing import List
 
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
@@ -109,7 +109,7 @@ class ServerService(Service):
         self.accounts.authenticate(auth)
         return get_toxicity_scores_with_retry(request)
 
-    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
+    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
         self.accounts.authenticate(auth)
         return self.client.get_critique_client().make_critique_request(request)
 
