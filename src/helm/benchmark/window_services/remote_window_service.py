@@ -33,3 +33,15 @@ class RemoteWindowService(LocalWindowService):
     def tokenizer_name(self) -> str:
         """Name of the tokenizer to use when sending a request."""
         return self.model_name
+
+
+# If the windowing logic is different from the base LocalWindowService,
+# please add the specific implementation for the model and add it to the following dict.
+remote_window_services = {}
+
+
+def get_remote_window_service(service: TokenizerService, model_name: str):
+    if model_name in remote_window_services:
+        return remote_window_services[model_name](service, model_name)
+    else:
+        return RemoteWindowService(service, model_name)

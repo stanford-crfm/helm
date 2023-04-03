@@ -26,7 +26,7 @@ from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
 from .opt_window_service import OPTWindowService
-from .remote_window_service import RemoteWindowService
+from .remote_window_service import get_remote_window_service
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
 from .flan_t5_window_service import FlanT5WindowService
@@ -52,7 +52,7 @@ class WindowServiceFactory:
         window_service: WindowService
         huggingface_model_config = get_huggingface_model_config(model_name)
         if get_remote_model(model_name):
-            window_service = RemoteWindowService(service, model_name)
+            window_service = get_remote_window_service(service, model_name)
         elif huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
         elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
