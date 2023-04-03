@@ -14,7 +14,13 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metrics.metric import MetricSpec
-from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander, ChatMLRunExpander
+from .run_expander import (
+    RUN_EXPANDERS,
+    GlobalPrefixRunExpander,
+    StopRunExpander,
+    ChatMLRunExpander,
+    IncreaseMaxTokensRunExpander,
+)
 from .runner import RunSpec
 from .scenarios.lex_glue_scenario import (
     get_lex_glue_max_train_instances,
@@ -35,7 +41,7 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
-from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG
+from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG
 from helm.common.general import singleton
 
 
@@ -1969,6 +1975,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if NLG_PREFIX_TAG in model.tags:
             global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
             run_spec = singleton(global_prefix_expander.expand(run_spec))
+
+        if OPENAI_CHATGPT_MODEL_TAG in model.tags:
+            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=1)
+            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
 
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
