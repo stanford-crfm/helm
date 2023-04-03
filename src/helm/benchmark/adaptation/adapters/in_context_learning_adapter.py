@@ -222,7 +222,7 @@ class InContextLearningAdapter(Adapter, ABC):
         Returns a single example of the prompt. `include_output` controls whether the gold output is included.
         """
         # Input
-        result: str = self.adapter_spec.input_prefix + instance.input.text + self.adapter_spec.input_suffix
+        result: str = self.adapter_spec.input_prefix + (instance.input.text or "") + self.adapter_spec.input_suffix
 
         # References (optionally) and output
         output: str
