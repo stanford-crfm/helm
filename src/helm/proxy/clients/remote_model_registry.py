@@ -12,13 +12,11 @@ _remote_model_registry: Dict[str, Model] = {}
 
 
 def get_remote_model(model_name: str) -> Optional[Model]:
-    """Returns a General Model for the model_name."""
+    """Returns a Model for the model_name."""
     return _remote_model_registry.get(model_name)
 
 
-def check_and_register_remote_model(server_url: Optional[str], model_names: List[str]):
-    if server_url is None:
-        return
+def check_and_register_remote_model(server_url: str, model_names: List[str]):
     try:
         service = RemoteService(server_url)
         info = service.get_general_info()

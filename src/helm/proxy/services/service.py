@@ -6,7 +6,7 @@ from typing import Dict, List, Tuple, Any
 from helm.common.general import parse_hocon
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.tokenization_request import (
-    TokenizerInfo,
+    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -79,7 +79,7 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    def get_tokenizer_info(self, model_name: str) -> TokenizerInfo:
+    def get_window_service_info(self, model_name: str) -> WindowServiceInfo:
         """Get tokenizer info."""
         pass
 

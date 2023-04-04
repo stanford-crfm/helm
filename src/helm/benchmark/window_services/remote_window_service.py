@@ -1,6 +1,6 @@
 from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
-from helm.common.tokenization_request import TokenizerInfo
+from helm.common.tokenization_request import WindowServiceInfo
 
 
 class RemoteWindowService(LocalWindowService):
@@ -8,6 +8,7 @@ class RemoteWindowService(LocalWindowService):
         super().__init__(service)
         self.model_name = model_name
         info = self.service.get_info(model_name)
+        self._tokenizer_name = info.tokenizer_name
         self._max_sequence_length = info.max_sequence_length
         self._max_request_length = info.max_request_length
         self._end_of_text_token = info.end_of_text_token
@@ -32,7 +33,7 @@ class RemoteWindowService(LocalWindowService):
     @property
     def tokenizer_name(self) -> str:
         """Name of the tokenizer to use when sending a request."""
-        return self.model_name
+        return self._tokenizer_name
 
 
 # If the windowing logic is different from the base LocalWindowService,

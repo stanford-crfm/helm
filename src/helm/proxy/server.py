@@ -84,10 +84,10 @@ def handle_get_general_info():
     return safe_call(perform)
 
 
-@app.get("/api/tokenizer_info")
-def handle_get_tokenizer_info():
+@app.get("/api/window_service_info")
+def handle_get_window_service_info():
     def perform(args):
-        return dataclasses.asdict(service.get_tokenizer_info(args["name"]))
+        return dataclasses.asdict(service.get_window_service_info(args["name"]))
 
     return safe_call(perform)
 

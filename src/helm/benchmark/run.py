@@ -223,11 +223,12 @@ def main():
         "Format: namespace/model_name[@revision]",
     )
     parser.add_argument(
-        "--register-remote-models",
+        "--enable-remote-models",
         nargs="+",
         default=[],
-        help="Experimental: Register remote service models,"
-        "Format: namespace/model_name",
+        help="Experimental: Enable remote service models that are not available on the client. "
+        "The client will use RemoteWindowService for windowing. "
+        "Format: namespace/model_name[@revision]",
     )
     add_run_args(parser)
     args = parser.parse_args()
@@ -236,7 +237,8 @@ def main():
     for huggingface_model_name in args.enable_huggingface_models:
         register_huggingface_model_config(huggingface_model_name)
 
-    check_and_register_remote_model(None if args.local else args.server_url, args.register_remote_models)
+    if not args.local:
+        check_and_register_remote_model(args.server_url, args.enable_remote_models)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:

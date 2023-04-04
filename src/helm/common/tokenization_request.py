@@ -3,8 +3,8 @@ from typing import List, Optional, Union
 
 
 @dataclass(frozen=True)
-class TokenizerInfo:
-    name: str
+class WindowServiceInfo:
+    tokenizer_name: str
     max_sequence_length: int
     max_request_length: int
     end_of_text_token: str
