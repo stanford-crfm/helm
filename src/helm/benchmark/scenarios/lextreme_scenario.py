@@ -423,7 +423,7 @@ class LEXTREMEScenario(Scenario):
                 if "multi_eurlex" in config:
                     input_text = ast.literal_eval(input_text)
                     assert isinstance(input_text, dict)
-                    languages = list(input_text.keys())
+                    languages = list([lang for lang, content in input_text.items() if content is not None])
                     input_text = input_text[self.random.choice(languages)]  # just choose a random language
                 correct_references = [
                     Reference(output=Output(correct_label), tags=[CORRECT_TAG]) for correct_label in correct_labels
