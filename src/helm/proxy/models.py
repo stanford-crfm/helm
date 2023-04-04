@@ -135,7 +135,7 @@ ALL_MODELS = [
         name="ai21/j2-jumbo",
         display_name="Jurassic-2 Jumbo (178B)",
         description="Jurassic-2 Jumbo (178B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
         group="jurassic",
