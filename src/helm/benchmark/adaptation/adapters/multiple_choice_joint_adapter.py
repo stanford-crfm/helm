@@ -57,7 +57,7 @@ class MultipleChoiceJointAdapter(InContextLearningAdapter):
             num_completions=1,
             top_k_per_token=self.adapter_spec.num_outputs,
             temperature=0,
-            max_tokens=1,
+            max_tokens=self.adapter_spec.max_tokens,  # usually this is 1
             stop_sequences=[],
             random=self.adapter_spec.random,
         )

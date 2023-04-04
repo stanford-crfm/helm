@@ -14,6 +14,9 @@ LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 # ChatML format
 CHATML_MODEL_TAG: str = "chatml"
 
+# OpenAI Chat format
+OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
+
 # For OpenAI models with wider context windows
 WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"  # 4000 tokens
 
@@ -569,7 +572,13 @@ ALL_MODELS = [
         # sequence length is smaller at 4087 with one user input message and one assistant
         # output message because ChatGPT uses special tokens for message roles and boundaries.
         # We use a rounded-down sequence length of 4000 to account for these special tokens.
-        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            WIDER_CONTEXT_WINDOW_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+        ],
     ),
     Model(
         group="gpt3",

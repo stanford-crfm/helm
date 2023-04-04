@@ -18,7 +18,7 @@ from helm.proxy.models import (
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
-from helm.benchmark.adaptation.adapter_spec import Substitution
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 
@@ -840,6 +840,31 @@ class NumOutputTokensRunExpander(RunExpander):
                 adapter_spec=replace(run_spec.adapter_spec, **{self.adapter_spec_name: value}),
             )
             for value in self.values
+        ]
+
+
+class IncreaseMaxTokensRunExpander(RunExpander):
+    """
+    Run expander for increasing the number of max tokens.
+    """
+
+    name = "increase_max_tokens"
+
+    def __init__(self, value: int):
+        """
+        Args:
+            value (int): The number of tokens to increase max tokens by
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec: AdapterSpec = run_spec.adapter_spec
+        adapter_spec = replace(adapter_spec, max_tokens=adapter_spec.max_tokens + self.value)
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
+            ),
         ]
 
 
