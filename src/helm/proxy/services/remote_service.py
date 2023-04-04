@@ -43,7 +43,7 @@ class RemoteService(Service):
         return from_dict(GeneralInfo, response)
 
     def get_window_service_info(self, model_name) -> WindowServiceInfo:
-        params = {"name": model_name}
+        params = {"model_name": model_name}
         response = requests.get(f"{self.base_url}/api/window_service_info?{urllib.parse.urlencode(params)}").json()
         return from_dict(WindowServiceInfo, response)
 
