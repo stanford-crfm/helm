@@ -36,7 +36,7 @@ class OpenAIClient(Client):
         self.chat_gpt_client: Optional[ChatGPTClient] = chat_gpt_client
 
     def _is_chat_model_engine(self, model_engine: str):
-        return model_engine.startswith("gpt-3.5")
+        return model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4")
 
     def make_request(self, request: Request) -> RequestResult:
         if request.model_engine == "chat-gpt":
