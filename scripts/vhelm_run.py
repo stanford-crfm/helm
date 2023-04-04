@@ -9,6 +9,7 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.proxy.models import get_model, get_models_with_tag, TEXT_TO_IMAGE_MODEL_TAG, Model
 
 
+NLP_RUN: str = "nlprun"
 DEFAULT_NLP_RUN: str = "-a vhelm -c 4 --memory 64g -w /nlp/scr4/nlp/crfm/benchmarking/benchmarking"
 DEFAULT_NLP_RUN_CPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 0 --exclude john17"
 # jag 27, 29, 34 started the run, but did nothing. Saw CUDA OOM with 28.
@@ -108,7 +109,7 @@ def queue_jobs(
                 swiss_army_port = f"MASTER_PORT={60_000 + i} "
 
             command: str = (
-                f"nlprun {nlp_run_gpu_args} --job-name {job_name} '{swiss_army_port}helm-run {DEFAULT_HELM_ARGS} "
+                f"{NLP_RUN} {nlp_run_gpu_args} --job-name {job_name} '{swiss_army_port}helm-run {DEFAULT_HELM_ARGS} "
                 f"--suite {suite} --conf-paths {conf_path} --models-to-run {model.name} --priority {priority} "
                 f"> {log_path} 2>&1'"
             )
@@ -128,7 +129,7 @@ def queue_jobs(
         f"helm-summarize --suite {suite} > {os.path.join(logs_path, 'summarize.log')} 2>&1 && "
         f"sh scripts/create-www-vhelm.sh {suite} > {os.path.join(logs_path, 'upload.log')} 2>&1"
     )
-    hlog(f"nlprun {DEFAULT_NLP_RUN_CPU_ARGS} --job-name {suite}-summarize-upload '{command}'\n")
+    hlog(f"{NLP_RUN} {DEFAULT_NLP_RUN_CPU_ARGS} --job-name {suite}-summarize-upload '{command}'\n")
 
 
 @htrack(None)

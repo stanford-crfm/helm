@@ -34,7 +34,8 @@ class FractalDimensionMetric(Metric):
             compute_fractal_dimension(image_location) for image_location in image_locations
         ]
         fractal_dimensions = [dim for dim in fractal_dimensions if not math.isnan(dim)]
-        stats: List[Stat] = [
-            Stat(MetricName("mean_fractal_dimension")).add(mean(fractal_dimensions)),
-        ]
+
+        stats: List[Stat] = []
+        if len(fractal_dimensions) > 0:
+            stats.append(Stat(MetricName("fractal_dimension")).add(mean(fractal_dimensions)))
         return stats
