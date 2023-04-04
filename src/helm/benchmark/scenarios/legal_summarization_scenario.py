@@ -40,11 +40,11 @@ _SUPPORTED_LANGUAGES = {
 }
 
 
-def _clean_and_truncate(text: str, max_length: Optional[int] = None) -> str:
+def _clean_and_truncate(text: str, max_num_words: Optional[int] = None) -> str:
     text = text.replace("\n", " ")
     whitespace_tokens = text.split()
-    if max_length:
-        whitespace_tokens = whitespace_tokens[:max_length]
+    if max_num_words:
+        whitespace_tokens = whitespace_tokens[:max_num_words]
     return " ".join(whitespace_tokens)
 
 
