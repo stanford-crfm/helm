@@ -94,7 +94,7 @@ def queue_jobs(
         else [get_model(model_name) for model_name in models_to_run]
     )
     for model in models:
-        for description, conf_path in confs:
+        for i, (description, conf_path) in enumerate(confs):
             # Construct command here
             job_name: str = f"{model.engine}_{description}"
             log_path: str = os.path.join(logs_path, f"{job_name}.log")
@@ -103,8 +103,12 @@ def queue_jobs(
             if use_sphinx:
                 nlp_run_gpu_args += " -q sphinx"
 
+            swiss_army_port: str = ""
+            if model.name == "thudm/cogview2":
+                swiss_army_port = f"MASTER_PORT={60_000 + i} "
+
             command: str = (
-                f"nlprun {nlp_run_gpu_args} --job-name {job_name} 'helm-run {DEFAULT_HELM_ARGS} "
+                f"nlprun {nlp_run_gpu_args} --job-name {job_name} '{swiss_army_port}helm-run {DEFAULT_HELM_ARGS} "
                 f"--suite {suite} --conf-paths {conf_path} --models-to-run {model.name} --priority {priority} "
                 f"> {log_path} 2>&1'"
             )
