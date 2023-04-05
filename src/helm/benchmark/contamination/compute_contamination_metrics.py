@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario, LightScenarioKey
 from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
-from helm.benchmark.contamination.load_documents import get_document_generator
+from helm.benchmark.contamination.load_documents import get_document_iterator
 from helm.benchmark.contamination.contamination_stats import (
     ContaminationStats,
     ContaminationStatsKey,
@@ -175,9 +175,9 @@ def compute_scenario_file_contamination(
     and their counts.
     The outer dict maps from n to the inner dict, which maps from ngram to count.
     """
-    document_generator = get_document_generator(file_path=training_file_path, file_format=file_format)
+    document_iterator = get_document_iterator(file_path=training_file_path, file_format=file_format)
     document_index: int = 0
-    for document in document_generator:
+    for document in document_iterator:
         document_index += 1
         compute_scenario_document_contamination(
             document=document,
