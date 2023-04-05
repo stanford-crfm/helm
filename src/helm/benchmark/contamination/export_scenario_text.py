@@ -25,8 +25,8 @@ def get_light_scenarios_from_run_spec(
     run_spec: RunSpec, scenario_download_path: str = "exported_scenarios"
 ) -> List[LightScenario]:
     """
-    Create a list of LightInstances given a RunSpec. Only keep the text attributes. Note that one LightScenario
-    object is created for each split of the Scenario for simplification.
+    Create a list of LightInstances given a RunSpec. Only keep the text of the input and references.
+    Note that one LightScenario object is created for each split of the Scenario for simplification.
     """
 
     scenario: Scenario = create_scenario(run_spec.scenario_spec)

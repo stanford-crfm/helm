@@ -32,9 +32,9 @@ class EntryContaminationKey:
     """Unique key representing either the input or references of a single instance in a scenario."""
 
     stats_key: ContaminationStatsKey
-    instance_id: int
     part: str
     """Either PART_INPUT or PART_REF"""
+    instance_id: int
 
 
 # type alias for contamination-related data structures
@@ -179,7 +179,6 @@ def compute_scenario_file_contamination(
     document_index: int = 0
     for document in document_generator:
         document_index += 1
-        print(f"Processing the {document_index}th document...", end="\r")
         compute_scenario_document_contamination(
             document=document,
             ngram_index=ngram_index,
@@ -219,10 +218,11 @@ def compute_scenario_document_contamination(
                 for entry_contamination_key in ngram_index[n][document_ngram]:
                     # update contamination_stats
                     stats: ContaminationStats = all_contamination_stats[entry_contamination_key.stats_key]
-                    stats.write_dirty(entry_contamination_key.instance_id, entry_contamination_key.part)
+                    stats.write_one_to_bit(entry_contamination_key.instance_id, entry_contamination_key.part)
                     # skip the rest if max_contaminated_ngrams is 0
                     if max_contaminated_ngrams != 0:
-                        assert ngram_counter is not None
+                        if ngram_counter is None:
+                            raise ValueError("ngram_counter must be not none when max_contaminated_ngrams != 0")
                         # update ngram_counter
                         if entry_contamination_key not in ngram_counter:
                             ngram_counter[entry_contamination_key] = {}

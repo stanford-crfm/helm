@@ -1,9 +1,9 @@
 import json
 
-from typing import Generator
+from typing import Iterator
 
 
-def get_document_generator(file_path: str, file_format: str) -> Generator:
+def get_document_generator(file_path: str, file_format: str) -> Iterator[str]:
     if file_format == "the_pile":
         return get_the_pile_document_generator(file_path)
     elif file_format == "raw":
@@ -14,7 +14,7 @@ def get_document_generator(file_path: str, file_format: str) -> Generator:
         raise NotImplementedError()
 
 
-def get_the_pile_document_generator(file_path: str) -> Generator:
+def get_the_pile_document_generator(file_path: str) -> Iterator[str]:
     """
     This method reads input files with similar file formats with The Pile's jsonl format.
     Each line of the input file should be a json string, where the document is stored in a field named "text".
@@ -29,7 +29,7 @@ def get_the_pile_document_generator(file_path: str) -> Generator:
             yield json.loads(line)["text"]
 
 
-def get_raw_document_generator(file_path: str) -> Generator:
+def get_raw_document_generator(file_path: str) -> Iterator[str]:
     """
     This method reads input files where each line is a document. The file should not be organized
     in any specific file structures such as json, jsonl, or tsv, as this may affect ngram computation.
@@ -45,6 +45,6 @@ def get_raw_document_generator(file_path: str) -> Generator:
             yield line.rstrip("\n")
 
 
-def get_custom_document_generator(file_path: str) -> Generator:
+def get_custom_document_generator(file_path: str) -> Iterator[str]:
     """Define your own document reading method"""
     pass

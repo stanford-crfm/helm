@@ -17,6 +17,7 @@ from helm.benchmark.contamination.contamination_stats import (
     PART_INPUT,
     PART_REF,
 )
+from helm.common.general import asdict_without_nones
 
 N_VALUES = [5, 13]
 
@@ -243,6 +244,19 @@ def test_compute_scenario_document_contamination():
         all_contamination_stats[stats_3_key],
     )
 
-    assert stats_1.dirty_input_fraction == 0.5 and stats_1.dirty_reference_fraction == 0
-    assert stats_2.dirty_input_fraction == 1 and stats_2.dirty_reference_fraction == 1
-    assert stats_3.dirty_input_fraction == 1 and stats_3.dirty_reference_fraction == 1
+    assert (
+        stats_1._input_bits[0] == 1
+        and stats_1.contaminated_input_fraction == 0.5
+        and stats_1.contaminated_reference_fraction == 0
+    )
+    assert stats_2.contaminated_input_fraction == 1 and stats_2.contaminated_reference_fraction == 1
+    assert stats_3.contaminated_input_fraction == 1 and stats_3.contaminated_reference_fraction == 1
+
+    assert stats_1.generate_summary() == {
+        "setting": {"stats_key": asdict_without_nones(stats_1_key)},
+        "num_instances": 2,
+        "num_instances_with_contaminated_input": 1,
+        "num_instances_with_contaminated_reference": 0,
+        "contaminated_input_fraction": 0.5,
+        "contaminated_reference_fraction": 0,
+    }

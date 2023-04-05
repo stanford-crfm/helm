@@ -22,7 +22,7 @@ class ContaminationStatsKey:
 class ContaminationStats:
     """
     A memory-efficient class for contamination stats. The core data structures are bit arrays where
-    every bit records whether an instance is dirty (contaminated) or not.
+    every bit records whether an instance is contaminated or not.
     """
 
     def __init__(
@@ -46,7 +46,7 @@ class ContaminationStats:
             stats_tags=stats_tags,
         )
 
-    def write_dirty(self, instance_id: int, part: str):
+    def write_one_to_bit(self, instance_id: int, part: str):
         if part == PART_INPUT:
             self._input_bits[instance_id] = 1
         elif part == PART_REF:
@@ -72,19 +72,19 @@ class ContaminationStats:
         self._reference_bits |= stats._reference_bits
 
     @property
-    def num_instances_with_dirty_input(self):
+    def num_instances_with_contaminated_input(self):
         return self._input_bits.count()
 
     @property
-    def num_instances_with_dirty_reference(self):
+    def num_instances_with_contaminated_reference(self):
         return self._reference_bits.count()
 
     @property
-    def dirty_input_fraction(self):
+    def contaminated_input_fraction(self):
         return self._input_bits.count() / self.num_instances
 
     @property
-    def dirty_reference_fraction(self):
+    def contaminated_reference_fraction(self):
         return self._reference_bits.count() / self.num_instances
 
     def generate_summary(self, summary_tags: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -94,9 +94,9 @@ class ContaminationStats:
         summary = {
             "setting": {"stats_key": asdict_without_nones(self.stats_key), **summary_tags},
             "num_instances": self.num_instances,
-            "num_instances_with_dirty_input": self.num_instances_with_dirty_input,
-            "num_instances_with_dirty_reference": self.num_instances_with_dirty_reference,
-            "dirty_input_fraction": self.dirty_input_fraction,
-            "dirty_reference_fraction": self.dirty_reference_fraction,
+            "num_instances_with_contaminated_input": self.num_instances_with_contaminated_input,
+            "num_instances_with_contaminated_reference": self.num_instances_with_contaminated_reference,
+            "contaminated_input_fraction": self.contaminated_input_fraction,
+            "contaminated_reference_fraction": self.contaminated_reference_fraction,
         }
         return summary
