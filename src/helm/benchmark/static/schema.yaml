@@ -2184,6 +2184,64 @@ run_groups:
       main_name: classification_macro_f1
       main_split: test
 
+  - name: billsum_legal_summarization
+    display_name: BillSum
+    description: The BillSum benchmark for legal text summarization ([Kornilova & Eidelmann, 2020](https://aclanthology.org/D19-5406/)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal text from US bills
+      who: lawyers
+      language: English
+
+  - name: multilexsum_legal_summarization
+    display_name: MultiLexSum
+    description: The MultiLexSum benchmark for legal text summarization ([Shen et al., 2022](https://arxiv.org/abs/2206.10883)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal text from US civil rights lawsuits
+      who: lawyers
+      language: English
+
+  - name: eurlexsum_legal_summarization
+    display_name: EurLexSum
+    description: The EurLexSum benchmark for legal text summarization ([Aumiller et al., 2022](https://arxiv.org/abs/2210.13448)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal text from EU legislation
+      who: lawyers
+      when: 1960 - 2020
+      language: English
+
   - name: entity_data_imputation
     display_name: Data imputation
     description: Scenario from [Mei et al. (2021)](https://ieeexplore.ieee.org/document/9458712/) that tests the ability to impute missing entities in a data table.
