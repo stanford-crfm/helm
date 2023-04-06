@@ -12,6 +12,7 @@ PART_REF: str = "reference"
 
 @dataclass(frozen=True)
 class ContaminationStatsKey:
+    """Unique key representing a `ContaminationStats` instance."""
 
     metadata: Dict[str, Hashable]
 

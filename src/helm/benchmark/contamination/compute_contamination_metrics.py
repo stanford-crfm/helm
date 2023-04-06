@@ -19,7 +19,7 @@ from helm.benchmark.contamination.contamination_stats import (
     PART_REF,
 )
 from helm.common.hierarchical_logger import hlog, htrack_block
-from helm.common.general import asdict_without_nones
+from helm.common.general import asdict_without_nones, write
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
@@ -138,13 +138,12 @@ def create_ngram_index(
 
 def create_all_contamination_stats(light_scenarios: List[LightScenario], n_values: List[int]) -> AllContaminationStats:
     """Given a list of scenarios and n values, initialize all_contamination_stats"""
-    hlog("Intializing all contamination stats")
+    hlog("Initializing all contamination stats")
     all_contamination_stats: AllContaminationStats = {}
     for scenario in light_scenarios:
         for n in n_values:
-            # Initizlize a stats instance for every pair of <scenario, n>
+            # Initialize a stats instance for every pair of <scenario, n>
             stats: ContaminationStats = ContaminationStats.from_scenario(scenario, stats_tags={"N": n})
-            # stats_repr: str = str(stats.stats_spec)
             if stats.stats_key in all_contamination_stats:
                 raise ValueError("Duplicated settings detected.")
             all_contamination_stats[stats.stats_key] = stats
@@ -331,18 +330,16 @@ if __name__ == "__main__":
     hlog(f"Written {len(stats_summaries)} results to {args.output_stats}")
 
     if args.output_ngrams is not None:
-        with open(args.output_ngrams, "w") as f:
-            # convert the ngram counter to json format
-            ngram_counter_json = []
-            for entry_contamination_key, contaminated_ngrams in ngram_counter.items():
-                ngram_counter_json.append(
-                    {
-                        "entry_contamination_key": asdict_without_nones(entry_contamination_key),
-                        "contaminated_ngrams": {str(ngram): count for ngram, count in contaminated_ngrams.items()},
-                    }
-                )
-            json.dump(ngram_counter_json, f)
-        hlog(f"Written the contaminated ngrams to {args.output_ngrams}")
+        # convert the ngram counter to json format
+        ngram_entries = []
+        for entry_contamination_key, contaminated_ngrams in ngram_counter.items():
+            ngram_entries.append(
+                {
+                    "entry_contamination_key": asdict_without_nones(entry_contamination_key),
+                    "contaminated_ngrams": {" ".join(ngram): count for ngram, count in contaminated_ngrams.items()},
+                }
+            )
+        write(args.output_ngrams, json.dumps(ngram_entries))
     else:
         hlog(
             "Contaminated ngrams are not written to disk. "

@@ -17,6 +17,7 @@ class LightInstance:
 
 @dataclass(frozen=True)
 class LightScenarioKey:
+    """Unique key representing a `LightScenario` instance."""
 
     metadata: Dict[str, Hashable]
 
