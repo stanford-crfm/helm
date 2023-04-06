@@ -1,5 +1,4 @@
 import json
-import argparse
 import os
 import glob
 
@@ -12,12 +11,14 @@ from dataclasses import dataclass
 from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario, LightScenarioKey
 from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
 from helm.benchmark.contamination.load_documents import get_document_iterator
+from helm.benchmark.contamination.contamination_parser import create_parser
 from helm.benchmark.contamination.contamination_stats import (
     ContaminationStats,
     ContaminationStatsKey,
     PART_INPUT,
     PART_REF,
 )
+
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.general import asdict_without_nones, write
 from helm.benchmark.scenarios.scenario import ScenarioSpec
@@ -234,51 +235,21 @@ def compute_scenario_document_contamination(
                             ngram_counter[entry_contamination_key][document_ngram] = 1
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input-data", type=str, required=True, help="Path to your training data")
-    parser.add_argument("--scenario-data", type=str, required=True, help="Path to scenario data (benchmarking data)")
-    parser.add_argument("--output-stats", type=str, required=True, help="Path to the output file")
-    parser.add_argument(
-        "--input-format",
-        type=str,
-        required=True,
-        help="The format of your input file for your training data, e.g. raw, custom, the_pile",
-    )
-    parser.add_argument(
-        "--tags",
-        type=str,
-        nargs="*",
-        help="Other tags, such as whether the input data is for pretraining or instruction tuning",
-    )
-    parser.add_argument(
-        "--normalization", type=str, default="default", help="What normalization and tokenization strategy to apply"
-    )
-    parser.add_argument(
-        "--output-ngrams",
-        type=str,
-        default=None,
-        help="Path to the file of contaminated ngrams. To output the ngrams, you must also specify --max-output-ngrams",
-    )
-    parser.add_argument(
-        "--max-output-ngrams",
-        type=int,
-        default=0,
-        help=(
-            "The max number of contaminated ngrams to be stored for each (n, light_instance, part)."
-            "Set to -1 to store all"
-        ),
-    )
-
-    args = parser.parse_args()
-
+def get_light_tokenizer(normalization: str) -> LightTokenizer:
     tokenizer: LightTokenizer
-    if args.normalization == "none":
+    if normalization == "none":
         tokenizer = LightTokenizer()
-    elif args.normalization == "default":
+    elif normalization == "default":
         tokenizer = DefaultTokenizer()
     else:
-        raise ValueError(f"Normalization strategy {args.normalization} is not defined.")
+        raise ValueError(f"Normalization strategy {normalization} is not defined.")
+    return tokenizer
+
+
+if __name__ == "__main__":
+    args = create_parser().parse_args()
+
+    tokenizer = get_light_tokenizer(args.normalization)
 
     if args.max_output_ngrams != 0 and args.output_ngrams is None:
         raise ValueError("You must specify --output-ngrams if you want to output ngrams.")
