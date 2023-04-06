@@ -61,6 +61,8 @@ class ServerService(Service):
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
 
     def get_window_service_info(self, model_name) -> WindowServiceInfo:
+        # The import statement is placed here to avoid two problems, please refer to the link for details
+        # https://github.com/stanford-crfm/helm/pull/1430#discussion_r1156686624
         from helm.benchmark.window_services.tokenizer_service import TokenizerService
         from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
         token_service = TokenizerService(self, Authentication(""))
