@@ -4,6 +4,7 @@ from typing import List, Union
 from enum import Enum
 import pandas as pd
 
+from .ice_scenario_pinned_file_order import listdir_with_pinned_order
 from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
 
@@ -424,9 +425,11 @@ class ICEScenario(Scenario):
 
             can_filter = subset in list(METADATA_FORMAT.keys()) and self.gender
             selected_texts = (
-                self.filter_by_metadata(subset, os.path.join(data_path, "Headers"), os.listdir(corpus_path))
+                self.filter_by_metadata(
+                    subset, os.path.join(data_path, "Headers"), listdir_with_pinned_order(corpus_path)
+                )
                 if can_filter
-                else os.listdir(corpus_path)
+                else listdir_with_pinned_order(corpus_path)
             )
 
             for filename in selected_texts:
