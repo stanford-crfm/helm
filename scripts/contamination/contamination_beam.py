@@ -44,19 +44,21 @@ class ComputeContaminationStatsFn(beam.CombineFn):
         self.scenarios = load_light_scenarios_from_jsonl(self.scenario_data_path)
 
         def init_shared_ngram_index():
-            return NgramIndexWrapper(create_ngram_index(self.scenarios, self.n_values, self.tokenizer))
+            return NgramIndexWrapper(
+                create_ngram_index(light_scenarios=self.scenarios, n_values=self.n_values, tokenizer=self.tokenizer)
+            )
 
         self.ngram_index_wrapper = self.shared_ngram_index.acquire(init_shared_ngram_index)
         return super().setup(*args, **kwargs)
 
     def create_accumulator(self) -> AllContaminationStats:
-        return create_all_contamination_stats(self.scenarios, self.n_values)
+        return create_all_contamination_stats(light_scenarios=self.scenarios, n_values=self.n_values)
 
     def add_input(self, all_contamination_stats: AllContaminationStats, document: str) -> AllContaminationStats:
         # update all_contamination_stats in-place
         compute_scenario_document_contamination(
             document=document,
-            ngram_index=self.ngram_index_wrapper.ngram_index,  # debug
+            ngram_index=self.ngram_index_wrapper.ngram_index,
             all_contamination_stats=all_contamination_stats,
             tokenizer=self.tokenizer,
         )
@@ -107,6 +109,6 @@ class ComputeAndWriteContaminationStats(beam.PTransform):
                 )
             )
             | "ExtractSummaryFromAllContaminationStats"
-            >> beam.Map(extract_summary_from_all_contamination_stats, tags={"tags:": self.tags})
+            >> beam.Map(extract_summary_from_all_contamination_stats, tags=self.tags)
             | "WriteSummaries" >> beam.io.WriteToText(self.output_stats)
         )

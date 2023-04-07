@@ -7,7 +7,7 @@ from helm.benchmark.contamination.contamination_parser import create_parser
 from contamination_beam import ComputeAndWriteContaminationStats
 
 
-def get_text_extract_function(input_format: str):
+def get_extract_text_function(input_format: str):
     def extract_text_from_the_pile_document(document: str) -> str:
         return json.loads(document)["text"]
 
@@ -27,7 +27,7 @@ def main():
     args = parser.parse_args()
 
     n_values: List[int] = [5, 9, 13]  # TODO: Pick the N values
-    extract_text_from_document: Callable[[str], str] = get_text_extract_function(args.input_format)
+    extract_text_from_document: Callable[[str], str] = get_extract_text_function(args.input_format)
 
     # The model developer should pass in the appropriate PipelineOptions here.
     with beam.Pipeline() as pipeline:
@@ -42,7 +42,7 @@ def main():
                 scenario_data_path=args.scenario_data,
                 n_values=n_values,
                 normalization=args.normalization,
-                tags=args.tags,
+                tags={"tags:": args.tags},
                 output_stats=args.output_stats,
             )
         )
