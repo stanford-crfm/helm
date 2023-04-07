@@ -574,6 +574,10 @@ def get_vhelm_bias_metric_specs() -> List[MetricSpec]:
     ]
 
 
+def get_vhelm_detection_metric_specs() -> List[MetricSpec]:
+    return [MetricSpec(class_name="helm.benchmark.detection_metrics.DetectionMetric", args={})]
+
+
 def get_fid_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="helm.benchmark.fidelity_metrics.FidelityMetric", args={}),
@@ -1941,6 +1945,21 @@ def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     )
 
 
+def get_detection_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.detection_scenario.DetectionScenario", args={})
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    return RunSpec(
+        name="detection",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        # TODO: add back get_core_vhelm_metric_specs after implementing
+        metric_specs=get_vhelm_detection_metric_specs(),  # + get_core_vhelm_metric_specs(),
+        groups=["detection"],
+    )
+
+
 def get_draw_bench_spec(category: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.draw_bench_scenario.DrawBenchScenario", args={"category": category}
@@ -2226,6 +2245,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "cub200": get_cub200_spec,
     "daily_dalle": get_daily_dalle_spec,
     "demographic_stereotypes": get_demographic_stereotypes_spec,
+    "detection": get_detection_spec,
     "draw_bench": get_draw_bench_spec,
     "i2p": get_i2p_spec,
     "landing_page": get_landing_page_spec,
