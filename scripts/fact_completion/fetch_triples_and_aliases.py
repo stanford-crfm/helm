@@ -80,7 +80,7 @@ def main() -> None:
     table_files.extend(get_batch_files(processed_folder / args.entity_values_folder))
 
     filtered_triples = []
-    for filepath in tqdm(table_files):
+    for filepath in tqdm(table_files, disable=None):
         filtered_triples.extend(rel_filtering_func(seed_relations, filepath))
     print(f"Extracted {len(filtered_triples)} triples for seed relations.")
 
@@ -96,7 +96,7 @@ def main() -> None:
 
     table_files = get_batch_files(processed_folder / args.aliases_folder)
     filtered_aliases = []
-    for filepath in tqdm(table_files):
+    for filepath in tqdm(table_files, disable=None):
         filtered_aliases.extend(alias_filtering_func(qids, filepath))
     print(f"Extracted {len(filtered_aliases)} aliases.")
 

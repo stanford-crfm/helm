@@ -1,7 +1,8 @@
 import os
 import signal
-from typing import List
+from typing import List, Optional
 
+from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
@@ -16,6 +17,7 @@ from helm.common.request import Request, RequestResult
 from helm.common.hierarchical_logger import hlog
 from helm.proxy.accounts import Accounts, Account
 from helm.proxy.clients.auto_client import AutoClient
+from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 from helm.proxy.example_queries import example_queries
 from helm.proxy.models import (
     ALL_MODELS,
@@ -60,8 +62,11 @@ class ServerService(Service):
         self.client = AutoClient(credentials, cache_path, mongo_uri)
         self.token_counter = AutoTokenCounter(self.client.huggingface_client)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
-        self.perspective_api_client = self.client.get_toxicity_classifier_client()
+
         self.moderation_api_client = self.client.get_moderation_api_client()
+
+        # Lazily instantiated by get_toxicity_scores()
+        self.perspective_api_client: Optional[PerspectiveAPIClient] = None
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(
@@ -118,6 +123,8 @@ class ServerService(Service):
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request
         def get_toxicity_scores_with_retry(request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+            if not self.perspective_api_client:
+                self.perspective_api_client = self.client.get_toxicity_classifier_client()
             return self.perspective_api_client.get_toxicity_scores(request)
 
         self.accounts.authenticate(auth)
@@ -130,6 +137,10 @@ class ServerService(Service):
 
         self.accounts.authenticate(auth)
         return get_moderation_results_with_retry(request)
+
+    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
+        self.accounts.authenticate(auth)
+        return self.client.get_critique_client().make_critique_request(request)
 
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""

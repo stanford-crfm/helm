@@ -17,6 +17,7 @@ autokeras==1.0.20
 backcall==0.2.0
 beautifulsoup4==4.11.2
 bert-score==0.3.12
+bitarray==2.7.3
 black==22.10.0
 blanc==0.3.0
 blis==0.7.9
@@ -123,7 +124,7 @@ numba==0.56.4
 numpy==1.23.5
 oauthlib==3.2.2
 omegaconf==2.3.0
-openai==0.25.0
+openai==0.27.0
 opencv-python==4.7.0.68
 openpyxl==3.1.0
 opt-einsum==3.3.0
@@ -201,6 +202,7 @@ stack-data==0.6.2
 stanza==1.4.2
 summ-eval==0.892
 SwissArmyTransformer==0.2.1
+surge-api==1.1.0
 sympy==1.11.1
 tabulate==0.9.0
 tensorboard==2.9.0

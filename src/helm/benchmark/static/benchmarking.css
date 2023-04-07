@@ -136,3 +136,17 @@ tbody .table-sort-column {
   background-color: #f5f5f5;
   white-space: pre-wrap;
 }
+
+.plot {
+  margin: 15px;
+}
+
+.plot img {
+  margin: 10px;
+}
+
+.plot-caption {
+  color: #555;
+  font-style: italic;
+  margin: 5px;
+}

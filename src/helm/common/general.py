@@ -57,7 +57,13 @@ def shell(args: List[str]):
 
 
 @htrack(None)
-def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = False, unpack_type: Optional[str] = None):
+def ensure_file_downloaded(
+    source_url: str,
+    target_path: str,
+    unpack: bool = False,
+    downloader_executable: str = "wget",
+    unpack_type: Optional[str] = None,
+):
     """Download `source_url` to `target_path` if it doesn't exist."""
     if os.path.exists(target_path):
         # Assume it's all good
@@ -67,7 +73,8 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
     # Download
     # gdown is used to download large files/zip folders from Google Drive.
     # It bypasses security warnings which wget cannot handle.
-    downloader_executable: str = "gdown" if source_url.startswith("https://drive.google.com") else "wget"
+    if source_url.startswith("https://drive.google.com"):
+        downloader_executable = "gdown"
     tmp_path: str = f"{target_path}.tmp"
     shell([downloader_executable, source_url, "-O", tmp_path])
 
@@ -203,13 +210,13 @@ def parallel_map(
     with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
         results: List
         if parallelism == 1:
-            results = list(tqdm(map(process, items), total=len(items)))
+            results = list(tqdm(map(process, items), total=len(items), disable=None))
         elif multiprocessing:
             with ProcessPoolExecutor(max_workers=parallelism) as executor:
-                results = list(tqdm(executor.map(process, items), total=len(items)))
+                results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
         else:
             with ThreadPoolExecutor(max_workers=parallelism) as executor:
-                results = list(tqdm(executor.map(process, items), total=len(items)))
+                results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
     return results
 
 

@@ -15,8 +15,14 @@ LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 # ChatML format
 CHATML_MODEL_TAG: str = "chatml"
 
+# OpenAI Chat format
+OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
+
 # For OpenAI models with wider context windows
-WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"
+WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"  # 4000 tokens
+
+# For AI21 Jurassic-2 models with wider context windows
+AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
 
 # To fetch models that use these tokenizers
 GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
@@ -126,6 +132,31 @@ ALL_MODELS = [
         display_name="Jurassic-1 Large (7.5B)",
         description="Jurassic-1 Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+    ),
+    # AI21 Jurassic-2 Models: https://www.ai21.com/blog/introducing-j2
+    Model(
+        group="jurassic",
+        creator_organization="AI21 Labs",
+        name="ai21/j2-jumbo",
+        display_name="Jurassic-2 Jumbo (178B)",
+        description="Jurassic-2 Jumbo (178B parameters)",
+        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+    ),
+    Model(
+        group="jurassic",
+        creator_organization="AI21 Labs",
+        name="ai21/j2-grande",
+        display_name="Jurassic-2 Grande (17B)",
+        description="Jurassic-2 Grande (17B parameters) with a few tweaks to the training process.",
+        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+    ),
+    Model(
+        group="jurassic",
+        creator_organization="AI21 Labs",
+        name="ai21/j2-large",
+        display_name="Jurassic-2 Large (7.5B)",
+        description="Jurassic-2 Large (7.5B parameters)",
+        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
     Model(
@@ -530,7 +561,27 @@ ALL_MODELS = [
         description="Code model that is a stronger, multilingual version of the Codex (12B) model in the paper.",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
-    # ChatGPT - https://openai.com/blog/chatgpt
+    # ChatGPT: https://openai.com/blog/chatgpt
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/gpt-3.5-turbo-0301",
+        display_name="gpt-3.5-turbo-0301",
+        # https://platform.openai.com/docs/models/gpt-3-5
+        description="Sibling model of text-davinci-003 is optimized for chat but works well "
+        "for traditional completions tasks as well. Snapshot from 2023-03-01.",
+        # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
+        # sequence length is smaller at 4087 with one user input message and one assistant
+        # output message because ChatGPT uses special tokens for message roles and boundaries.
+        # We use a rounded-down sequence length of 4000 to account for these special tokens.
+        tags=[
+            TEXT_MODEL_TAG,
+            WIDER_CONTEXT_WINDOW_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+        ],
+    ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",

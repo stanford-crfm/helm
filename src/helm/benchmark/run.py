@@ -7,6 +7,7 @@ from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
+from helm.proxy.clients.huggingface_model_registry import register_huggingface_model_config
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -213,9 +214,20 @@ def main():
         "If a value for --priority is not specified, run on everything",
     )
     parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=[])
+    parser.add_argument(
+        "--enable-huggingface-models",
+        nargs="+",
+        default=[],
+        help="Experimental: Enable using AutoModelForCausalLM models from Hugging Face Model Hub. "
+        "Format: namespace/model_name[@revision]",
+    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
+
+    for huggingface_model_name in args.enable_huggingface_models:
+        register_huggingface_model_config(huggingface_model_name)
+
     run_entries: List[RunEntry] = []
     if args.conf_paths:
         run_entries.extend(read_run_entries(args.conf_paths).entries)

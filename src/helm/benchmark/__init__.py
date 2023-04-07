@@ -39,9 +39,14 @@ from .scenarios import bold_scenario  # noqa
 from .scenarios import civil_comments_scenario  # noqa
 from .scenarios import dyck_language_scenario  # noqa
 from .scenarios import legal_support_scenario  # noqa
+from .scenarios import legal_summarization_scenario  # noqa
+from .scenarios import lex_glue_scenario  # noqa
+from .scenarios import lextreme_scenario  # noqa
 from .scenarios import entity_matching_scenario  # noqa
 from .scenarios import entity_data_imputation_scenario  # noqa
 from .scenarios import big_bench_scenario  # noqa
+from .scenarios import opinions_qa_scenario  # noqa
+
 
 # Biomedical
 from .scenarios import covid_dialog_scenario  # noqa
@@ -86,6 +91,7 @@ from .metrics import summarization_metrics  # noqa
 from .metrics import toxicity_metrics  # noqa
 from .metrics import tokens_metric  # noqa
 from .metrics import machine_translation_metrics  # noqa
+from .metrics import summarization_critique_metrics  # noqa
 
 # VHELM
 from .metrics.images import aesthetics_metrics  # noqa

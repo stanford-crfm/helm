@@ -16,6 +16,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.retry import retry_request
+from .critique_client import CritiqueClient, SurgeAICritiqueClient
 from .client import Client
 from .ai21_client import AI21Client
 from .aleph_alpha_client import AlephAlphaClient
@@ -26,6 +27,7 @@ from .together_client import TogetherClient
 from .google_client import GoogleClient
 from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
+from .huggingface_model_registry import get_huggingface_model_config
 from .ice_tokenizer_client import ICETokenizerClient
 from .openai_client import OpenAIClient
 from .moderation_api_client import ModerationAPIClient
@@ -54,6 +56,8 @@ class AutoClient(Client):
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
         self.tokenizer_clients: Dict[str, Client] = {}
+        # self.critique_client is lazily instantiated by get_critique_client()
+        self.critique_client: Optional[CritiqueClient] = None
         huggingface_cache_config = self._build_cache_config("huggingface")
         self.huggingface_client = HuggingFaceClient(huggingface_cache_config)
         hlog(f"AutoClient: cache_path = {cache_path}")
@@ -67,8 +71,8 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def get_client(self, request: Request) -> Client:
-        """Return a client based on `Request`, creating it if necessary."""
+    def _get_client(self, request: Request) -> Client:
+        """Return a client based on the model, creating it if necessary."""
         organization: str = request.model_organization
         is_text_to_image_request: bool = isinstance(request, TextToImageRequest)
         key: str = request_to_key({"organization": organization, "is_text_to_image": is_text_to_image_request})
@@ -79,18 +83,19 @@ class AutoClient(Client):
         file_cache: FileCache = LocalFileCache(local_file_cache_path, file_extension="png", binary_mode=True)
 
         if client is None:
-            # At this point, it's the first request for this client, so need to initialize the client.
             cache_config: CacheConfig = self._build_cache_config(organization)
 
-            if organization == "openai":
-                org_id: Optional[str] = self.credentials.get("openaiOrgId", None)
-
+            if get_huggingface_model_config(request.model):
+                client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "openai":
+                org_id = self.credentials.get("openaiOrgId", None)
                 if is_text_to_image_request:
                     client = DALLE2Client(
                         api_key=self.credentials["openaiApiKey"],
                         cache_config=cache_config,
                         file_cache=file_cache,
                         moderation_api_client=self.get_moderation_api_client(),
+                        tokenizer_client=self._get_tokenizer_client("huggingface"),
                         org_id=org_id,
                     )
                 else:
@@ -103,11 +108,13 @@ class AutoClient(Client):
                         # TODO: use `cache_config` above. Since this feature is still experimental,
                         #       save queries and responses in a separate collection.
                         cache_config=self._build_cache_config("ChatGPT"),
-                        tokenizer_client=self.get_tokenizer_client("huggingface"),
+                        tokenizer_client=self._get_tokenizer_client("huggingface"),
                     )
+
                     client = OpenAIClient(
                         api_key=self.credentials["openaiApiKey"],
                         cache_config=cache_config,
+                        tokenizer_client=self._get_tokenizer_client("huggingface"),
                         chat_gpt_client=chat_gpt_client,
                         org_id=org_id,
                     )
@@ -165,7 +172,7 @@ class AutoClient(Client):
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
             else:
-                raise ValueError(f"Unknown organization: {organization}")
+                raise ValueError(f"Could not find client for model: {request.model}")
 
             # Cache the client
             self.clients[key] = client
@@ -173,7 +180,7 @@ class AutoClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         """
-        Dispatch based on the organization in the name of the model (e.g., openai/davinci).
+        Dispatch based on the name of the model (e.g., openai/davinci).
         Retries if request fails.
         """
 
@@ -182,28 +189,30 @@ class AutoClient(Client):
         def make_request_with_retry(client: Client, request: Request) -> RequestResult:
             return client.make_request(request)
 
-        organization: str = request.model_organization
-        client: Client = self.get_client(request)
+        client: Client = self._get_client(request)
 
         try:
             return make_request_with_retry(client=client, request=request)
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = (
-                f"Failed to make request to {organization} after retrying {last_attempt.attempt_number} times"
+                f"Failed to make request to {request.model} after retrying {last_attempt.attempt_number} times"
             )
             hlog(retry_error)
 
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
-    def get_tokenizer_client(self, organization: str) -> Client:
-        """Return a client based on `organization`, creating it if necessary."""
-        client: Optional[Client] = self.tokenizer_clients.get(organization)
+    def _get_tokenizer_client(self, tokenizer: str) -> Client:
+        """Return a client based on the tokenizer, creating it if necessary."""
+        organization: str = tokenizer.split("/")[0]
+        client: Optional[Client] = self.tokenizer_clients.get(tokenizer)
 
         if client is None:
             cache_config: CacheConfig = self._build_cache_config(organization)
-            if organization in [
+            if get_huggingface_model_config(tokenizer):
+                client = HuggingFaceClient(cache_config=cache_config)
+            elif organization in [
                 "anthropic",
                 "bigscience",
                 "bigcode",
@@ -229,19 +238,18 @@ class AutoClient(Client):
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
             else:
-                raise ValueError(f"Unknown organization: {organization}")
-            self.tokenizer_clients[organization] = client
+                raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
+            self.tokenizer_clients[tokenizer] = client
         return client
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2)."""
+        """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
 
         @retry_request
         def tokenize_with_retry(client: Client, request: TokenizationRequest) -> TokenizationRequestResult:
             return client.tokenize(request)
 
-        organization: str = request.tokenizer_organization
-        client: Client = self.get_tokenizer_client(organization)
+        client: Client = self._get_tokenizer_client(request.tokenizer)
 
         try:
             return tokenize_with_retry(client=client, request=request)
@@ -252,14 +260,13 @@ class AutoClient(Client):
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2)."""
+        """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
 
         @retry_request
         def decode_with_retry(client: Client, request: DecodeRequest) -> DecodeRequestResult:
             return client.decode(request)
 
-        organization: str = request.tokenizer_organization
-        client: Client = self.get_tokenizer_client(organization)
+        client: Client = self._get_tokenizer_client(request.tokenizer)
 
         try:
             return decode_with_retry(client=client, request=request)
@@ -278,3 +285,15 @@ class AutoClient(Client):
         """Get the ModerationAPI client."""
         cache_config: CacheConfig = self._build_cache_config("ModerationAPI")
         return ModerationAPIClient(self.credentials.get("openaiApiKey", ""), cache_config)
+
+    def get_critique_client(self) -> CritiqueClient:
+        """Get the critique client."""
+        if not self.critique_client:
+            surgeai_credentials = self.credentials.get("surgeaiApiKey", None)
+            if surgeai_credentials:
+                self.critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
+            # To use the RandomCritiqueClient for debugging, comment out `raise ValueError` and uncomment the following
+            # from .critique_client import RandomCritiqueClient
+            # self.critique_client =  RandomCritiqueClient()
+            raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
+        return self.critique_client

@@ -1,9 +1,11 @@
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from transformers import AutoTokenizer
 
 from helm.common.hierarchical_logger import htrack_block, hlog
+
+from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 
 
 class HuggingFaceTokenizers:
@@ -17,8 +19,11 @@ class HuggingFaceTokenizers:
         Returns the tokenizer.
         """
 
-        def load_tokenizer(hf_tokenizer_name: str):
+        def load_tokenizer(hf_tokenizer_name: str, revision: Optional[str] = None):
             """Loads tokenizer using files from disk if they exist. Otherwise, downloads from HuggingFace."""
+            tokenizer_kwargs = {}
+            if revision is not None:
+                tokenizer_kwargs["revision"] = revision
             try:
                 # From the Hugging Face documentation, "local_files_only(defaults to False) —
                 # Whether or not to only look at local files".
@@ -29,10 +34,14 @@ class HuggingFaceTokenizers:
                 # From https://huggingface.co/course/chapter6/3, "slow tokenizers are those written in Python inside
                 # the Hugging Face Transformers library, while the fast versions are the ones provided by Hugging Face
                 # Tokenizers, which are written in Rust." So, use the "fast" version of the tokenizers if available.
-                return AutoTokenizer.from_pretrained(hf_tokenizer_name, local_files_only=True, use_fast=True)
+                return AutoTokenizer.from_pretrained(
+                    hf_tokenizer_name, local_files_only=True, use_fast=True, **tokenizer_kwargs
+                )
             except OSError:
                 hlog(f"Local files do not exist for HuggingFace tokenizer: {hf_tokenizer_name}. Downloading...")
-                return AutoTokenizer.from_pretrained(hf_tokenizer_name, local_files_only=False, use_fast=True)
+                return AutoTokenizer.from_pretrained(
+                    hf_tokenizer_name, local_files_only=False, use_fast=True, **tokenizer_kwargs
+                )
 
         if tokenizer_name not in HuggingFaceTokenizers.tokenizers:
             with htrack_block(f"Loading {tokenizer_name} with Hugging Face Transformers"):
@@ -41,7 +50,12 @@ class HuggingFaceTokenizers:
 
                 # Weights are cached at ~/.cache/huggingface/transformers.
                 hf_tokenizer_name: str
-                if tokenizer_name == "huggingface/gpt2":
+                revision: Optional[str] = None
+                model_config = get_huggingface_model_config(tokenizer_name)
+                if model_config:
+                    hf_tokenizer_name = model_config.model_id
+                    revision = model_config.revision
+                elif tokenizer_name == "huggingface/gpt2":
                     hf_tokenizer_name = "gpt2"
                 elif tokenizer_name == "EleutherAI/gpt-j-6B":
                     # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
@@ -65,9 +79,9 @@ class HuggingFaceTokenizers:
                 elif tokenizer_name == "openai/clip-vit-large-patch14":
                     hf_tokenizer_name = "openai/clip-vit-large-patch14"
                 else:
-                    raise ValueError(f"Unsupported tokenizer: {tokenizer_name}")
+                    raise ValueError(f"Unsupported HuggingFace tokenizer: {tokenizer_name}")
 
                 # Keep the tokenizer in memory, so we don't recreate it for future requests
-                HuggingFaceTokenizers.tokenizers[tokenizer_name] = load_tokenizer(hf_tokenizer_name)
+                HuggingFaceTokenizers.tokenizers[tokenizer_name] = load_tokenizer(hf_tokenizer_name, revision)
 
         return HuggingFaceTokenizers.tokenizers[tokenizer_name]

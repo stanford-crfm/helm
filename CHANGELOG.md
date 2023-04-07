@@ -4,7 +4,38 @@
 
 - Add changes for the upcoming release here
 
-## [v0.2.1]
+## [v0.2.2] - 2023-03-30
+
+### Models
+
+- Added Cohere Command (#1321)
+- Added Flan-T5 (#1398)
+- Added H3 (#1398)
+- Added GPT-NeoXT-Chat-Base-20B (#1407)
+- Added OpenAI gpt-3.5-turbo-0301 (#1401)
+- Added AI21 Jurassic-2 models (#1409)
+
+### Scenarios
+
+- Some improvements to LEXTREME and LexGLUE legal scenarios (#1429)
+- Added OpinionsQA scenario (#1424)
+
+### Metrics
+
+- Added multilabel classification metrics (#1408)
+
+### Framework
+
+- Fixed `--exit-on-error` not working and added `--skip-completed-runs` (#1400)
+- Disabled tqdm in non-interactive mode (#1351)
+- Added plotting (#1403, #1411)
+- Added Hugging Face Model Hub integration (#1103)
+
+### Evaluations
+
+- Added evaluation results for Cohere Command and Aleph Alpha Luminous
+
+## [v0.2.1] - 2022-02-24
 
 ### Models
 
@@ -24,7 +55,7 @@
 - Added classification metrics (#1368)
 - Updated released JSON assets to conform to current JSON schema
 
-## [v0.2.0]
+## [v0.2.0] 2022-01-11
 
 ### Models
 
@@ -63,7 +94,8 @@
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.1...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.2...HEAD
+[v0.2.2]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.2
 [v0.2.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.1
 [v0.2.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.1.0

@@ -26,6 +26,12 @@ from .metrics.tokens_metric import TokensMetric
 from .window_services.tokenizer_service import TokenizerService
 
 
+class RunnerError(Exception):
+    """Error that happens in the Runner."""
+
+    pass
+
+
 @dataclass(frozen=True)
 class RunSpec:
     """
@@ -96,7 +102,8 @@ class Runner:
         ensure_directory_exists(self.eval_cache_path)
 
     def run_all(self, run_specs: List[RunSpec]):
-        for run_spec in tqdm(run_specs):
+        failed_run_specs: List[RunSpec] = []
+        for run_spec in tqdm(run_specs, disable=None):
             try:
                 with htrack_block(f"Running {run_spec.name}"):
                     self.run_one(run_spec)
@@ -105,6 +112,10 @@ class Runner:
                     raise e
                 else:
                     hlog(f"Error when running {run_spec.name}:\n{traceback.format_exc()}")
+                    failed_run_specs.append(run_spec)
+        if not self.exit_on_error and failed_run_specs:
+            failed_runs_str = ", ".join([f'"{run_spec.name}"' for run_spec in failed_run_specs])
+            raise RunnerError(f"Failed runs: [{failed_runs_str}]")
 
     def run_one(self, run_spec: RunSpec):
         # Load the scenario

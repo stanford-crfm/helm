@@ -68,6 +68,9 @@ class AdapterSpec:
     # set of training instances.  Used to compute error bars.
     num_train_trials: int = 1
 
+    # If true, randomly sample N training examples; if false, select N consecutive training examples
+    sample_train: bool = True
+
     # Decoding parameters (inherited by `Request`)
 
     # Model to make the request to (need to fill in)

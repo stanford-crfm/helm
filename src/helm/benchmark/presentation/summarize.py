@@ -291,7 +291,7 @@ class Summarizer:
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
         # so filter them out.
         run_dir_names = sorted([p for p in os.listdir(self.run_suite_path) if p != "eval_cache" and p != "groups"])
-        for run_dir_name in tqdm(run_dir_names):
+        for run_dir_name in tqdm(run_dir_names, disable=None):
             run_spec_path: str = os.path.join(self.run_suite_path, run_dir_name, "run_spec.json")
             stats_path: str = os.path.join(self.run_suite_path, run_dir_name, "stats.json")
             if not os.path.exists(run_spec_path) or not os.path.exists(stats_path):
