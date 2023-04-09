@@ -27,7 +27,7 @@ class AlephAlphaVisionClient(Client):
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
         raw_request: Dict = {
-            "request_type": "language-model-inference",
+            "request_type": "image-model-inference",
             "model": request.model_engine,
             "prompt": request.prompt,
             "n": request.num_completions,
