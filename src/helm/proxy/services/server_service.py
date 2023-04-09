@@ -65,6 +65,7 @@ class ServerService(Service):
         # https://github.com/stanford-crfm/helm/pull/1430#discussion_r1156686624
         from helm.benchmark.window_services.tokenizer_service import TokenizerService
         from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
+
         token_service = TokenizerService(self, Authentication(""))
         window_service = WindowServiceFactory.get_window_service(model_name, token_service)
         return WindowServiceInfo(
