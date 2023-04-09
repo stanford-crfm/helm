@@ -292,8 +292,6 @@ class AutoClient(Client):
             surgeai_credentials = self.credentials.get("surgeaiApiKey", None)
             if surgeai_credentials:
                 self.critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
-            # To use the RandomCritiqueClient for debugging, comment out `raise ValueError` and uncomment the following
-            # from .critique_client import RandomCritiqueClient
-            # self.critique_client =  RandomCritiqueClient()
-            raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
+            else:
+                raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
         return self.critique_client

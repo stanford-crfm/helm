@@ -77,13 +77,16 @@ class SurgeAICritiqueClient(CritiqueClient):
         surge.api_key = api_key
         self._cache = Cache(cache_config)
 
-    def _to_surge_question(self, question: CritiqueQuestionTemplate) -> surge_questions.MultipleChoiceQuestion:
-        if question.question_type != "multiple_choice":
-            raise ValueError("Currently, only multiple_choice questions are supported")
-        return surge_questions.MultipleChoiceQuestion(
-            text=question.text,
-            options=question.options,
-        )
+    def _to_surge_question(self, question: CritiqueQuestionTemplate) -> surge_questions.Question:
+        if question.question_type == "multiple_choice":
+            return surge_questions.MultipleChoiceQuestion(
+                text=question.text,
+                options=question.options,
+            )
+        elif question.question_type == "free_response":
+            return surge_questions.FreeResponseQuestion(text=question.text)
+        else:
+            raise ValueError(f"Unsupported question type: {question.question_type}")
 
     def _get_or_create_surge_project(self, template: CritiqueTaskTemplate) -> str:
         """Get or create a project on Surge AI and return the Surge AI project ID.

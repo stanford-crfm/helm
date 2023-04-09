@@ -630,6 +630,24 @@ def get_vhelm_reference_required_metric_specs(include_fidelity: bool = False) ->
     return metrics
 
 
+# TODO: figure out the right default value for `num_respondents`. -Tony
+def get_vhelm_critique_metric_specs(
+    include_alignment: bool, include_photorealism: bool, include_originality: bool, num_respondents: int = 3
+) -> List[MetricSpec]:
+    # TODO: pass in study name or title -Tony
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.image_critique_metrics.ImageCritiqueMetric",
+            args={
+                "include_alignment": include_alignment,
+                "include_photorealism": include_photorealism,
+                "include_originality": include_originality,
+                "num_respondents": num_respondents,
+            },
+        ),
+    ]
+
+
 ############################################################
 # Run specs
 
@@ -2181,7 +2199,8 @@ def get_magazine_cover_spec() -> RunSpec:
         name="magazine_cover",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs()
+        + get_vhelm_critique_metric_specs(include_alignment=True, include_photorealism=False, include_originality=True),
         groups=["magazine_cover"],
     )
 
@@ -2211,7 +2230,9 @@ def get_mscoco_spec() -> RunSpec:
         name="mscoco",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True)
+        + get_core_vhelm_metric_specs()
+        + get_vhelm_critique_metric_specs(include_alignment=True, include_photorealism=True, include_originality=False),
         groups=["mscoco"],
     )
 
