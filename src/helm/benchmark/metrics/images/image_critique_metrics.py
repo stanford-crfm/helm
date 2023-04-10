@@ -74,7 +74,8 @@ class ImageCritiqueMetric(Metric):
                 CritiqueQuestionTemplate(
                     name="clear_subject_human",
                     question_type="multiple_choice",
-                    text="Is it clear who the subject(s) of the image is?",
+                    text="Is it clear who the subject(s) of the image is? The subject can be a living being "
+                    "(e.g., a dog or a person) or an inanimate body or object (e.g., a mountain).",
                     options=[
                         "Yes, it's clear.",
                         "No, it's unclear.",
