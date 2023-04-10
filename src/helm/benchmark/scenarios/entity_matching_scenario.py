@@ -5,6 +5,7 @@ from typing import Dict, List, Tuple
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from .entity_matching_scenario_fixed_random_state import set_random_state_for_dataset
 
 
 class EntityMatchingScenario(Scenario):
@@ -102,6 +103,7 @@ class EntityMatchingScenario(Scenario):
         return ". ".join(res)
 
     def get_instances(self) -> List[Instance]:
+        set_random_state_for_dataset(self.dataset)
         data_path = Path(self.output_path) / "data" / self.dataset
         data_path.parent.mkdir(parents=True, exist_ok=True)
         ensure_file_downloaded(
@@ -114,7 +116,7 @@ class EntityMatchingScenario(Scenario):
         )
         # Read in tableA and tableB
         tableA, tableB = self.read_tables(data_path)
-        # Columns for row cerialization; do not add id column
+        # Columns for row serialization; do not add id column
         column_mapA = {f"{c}_A": c for c in tableA.columns if c != "id"}
         column_mapB = {f"{c}_B": c for c in tableB.columns if c != "id"}
         # Read in tables and matches
