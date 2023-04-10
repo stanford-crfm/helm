@@ -135,7 +135,6 @@ def get_multiple_choice_adapter_spec(
     sample_train: bool = True,
     **kwargs,
 ):
-
     """
     Toggle between joint and separate adapters.
     """
@@ -783,11 +782,7 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT, t
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
-        method=method,
-        instructions="",
-        input_noun="Question",
-        output_noun="Answer",
-        temperature=temperature
+        method=method, instructions="", input_noun="Question", output_noun="Answer", temperature=temperature
     )
 
     return RunSpec(
