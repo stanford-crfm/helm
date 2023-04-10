@@ -431,6 +431,26 @@ ALL_MODELS = [
         "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-6.7b",
+        display_name="OPT (6.7B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained "
+        "transformers that are fully and responsibly shared with interested researchers.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-1.3b",
+        display_name="OPT (1.3B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained "
+        "transformers that are fully and responsibly shared with interested researchers.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
+    ),
     # Microsoft/NVIDIA
     Model(
         group="microsoft",
