@@ -15,6 +15,8 @@ from .client import Client, wrap_request_time, truncate_sequence
 MODEL_ALIASES = {
     "flan-t5-xxl": "flan-t5-xxl-hf",
     "h3-2.7b": "h3-2.7b-h3",
+    "opt-1.3b": "opt-1.3b-ft-tp1",
+    "opt-6.7b": "opt-6.7b-ft-tp1",
 }
 """Together model name aliases.
 

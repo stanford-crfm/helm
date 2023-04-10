@@ -48,6 +48,8 @@ models=(
   "together/glm"
   "together/gpt-j-6b"
   "together/gpt-neox-20b"
+  "together/opt-1.3b"
+  "together/opt-6.7b"
   "together/opt-66b"
   "together/opt-175b"
   "together/t0pp"
