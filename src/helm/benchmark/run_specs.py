@@ -62,6 +62,7 @@ def get_multiple_choice_joint_adapter_spec(
     num_outputs: int = 5,
     max_train_instances: int = 5,
     max_tokens: int = 5,
+    temperature: float = 0,
     sample_train: bool = True,
     **kwargs,
 ) -> AdapterSpec:
@@ -91,7 +92,7 @@ def get_multiple_choice_joint_adapter_spec(
         max_train_instances=max_train_instances,
         num_outputs=num_outputs,
         max_tokens=max_tokens,
-        temperature=0.0,
+        temperature=temperature,
         stop_sequences=["\n"],
         sample_train=sample_train,
         **kwargs,
@@ -129,6 +130,7 @@ def get_multiple_choice_adapter_spec(
     max_train_instances: int = 5,
     num_outputs: int = 5,
     max_tokens: int = 1,
+    temperature: float = 0,
     empty_input: bool = False,
     sample_train: bool = True,
     **kwargs,
@@ -145,6 +147,7 @@ def get_multiple_choice_adapter_spec(
             max_train_instances=max_train_instances,
             num_outputs=num_outputs,
             max_tokens=max_tokens,
+            temperature=temperature,
             sample_train=sample_train,
             **kwargs,
         )
@@ -574,7 +577,7 @@ def get_simple1_spec() -> RunSpec:
     )
 
 
-def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT, temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.bbq_scenario.BBQScenario", args={"subject": subject}
     )
@@ -583,11 +586,12 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
         instructions="The following are multiple choice questions (with answers).",
         input_noun="Passage",
         output_noun="Answer",
+        temperature=temperature,
     )
     metric_specs = get_bbq_metric_specs()
 
     return RunSpec(
-        name=f"bbq:subject={subject},method={method}",
+        name=f"bbq:subject={subject},method={method},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -651,7 +655,7 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
     )
 
 
-def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT, temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject}
     )
@@ -661,10 +665,11 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
         instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
         input_noun="Question",
         output_noun="Answer",
+        temperature=temperature,
     )
 
     return RunSpec(
-        name=f"mmlu:subject={subject},method={method}",
+        name=f"mmlu:subject={subject},method={method},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -672,7 +677,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
 
-def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
+def get_interactive_qa_mmlu_spec(subject: str, temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.interactive_qa_mmlu_scenario.InteractiveQAMMLUScenario",
         args={"subject": subject},
@@ -683,9 +688,10 @@ def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
         instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
         input_noun="Question",
         output_noun="Answer",
+        temperature=temperature,
     )
     return RunSpec(
-        name=f"interactive_qa_mmlu:subject={subject}",
+        name=f"interactive_qa_mmlu:subject={subject},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -718,7 +724,7 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     )
 
 
-def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
+def get_commonsense_spec(dataset: str, method: str, temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
         args={"dataset": dataset},
@@ -729,10 +735,11 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
         instructions="The following are multiple choice questions (with answers) about common sense.",
         input_noun="Question",
         output_noun="Answer",
+        temperature=temperature,
     )
 
     return RunSpec(
-        name=f"commonsense:dataset={dataset},method={method}",
+        name=f"commonsense:dataset={dataset},method={method},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -769,18 +776,22 @@ def get_news_qa_spec() -> RunSpec:
     )
 
 
-def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT, temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario",
         args={"task": task},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
-        method=method, instructions="", input_noun="Question", output_noun="Answer"
+        method=method,
+        instructions="",
+        input_noun="Question",
+        output_noun="Answer",
+        temperature=temperature
     )
 
     return RunSpec(
-        name=f"truthful_qa:task={task},method={method}",
+        name=f"truthful_qa:task={task},method={method},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -1022,7 +1033,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
     )
 
 
-def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT, temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task}
     )
@@ -1032,11 +1043,12 @@ def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
         instructions="The following are multiple choice questions (with answers).",
         input_noun="Passage",
         output_noun="Answer",
+        temperature=temperature,
     )
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name=f"lsat_qa:task={task},method={method}",
+        name=f"lsat_qa:task={task},method={method},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -1474,7 +1486,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     )
 
 
-def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT, temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={}
     )
@@ -1485,11 +1497,12 @@ def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
         input_noun="Passage",
         output_noun="Answer",
         max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
+        temperature=temperature,
     )
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name=f"legal_support,method={method}",
+        name=f"legal_support,method={method},temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -1680,7 +1693,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
     )
 
 
-def get_med_mcqa_spec() -> RunSpec:
+def get_med_mcqa_spec(temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_mcqa_scenario.MedMCQAScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1688,10 +1701,11 @@ def get_med_mcqa_spec() -> RunSpec:
         instructions="Give a letter answer among A, B, C or D.",
         input_noun="Question",
         output_noun="Answer",
+        temperature=temperature,
     )
 
     return RunSpec(
-        name="med_mcqa",
+        name=f"med_mcqa:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -1720,7 +1734,7 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
     )
 
 
-def get_med_qa_spec() -> RunSpec:
+def get_med_qa_spec(temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.med_qa_scenario.MedQAScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1728,10 +1742,11 @@ def get_med_qa_spec() -> RunSpec:
         instructions="Give a letter answer among A, B, C or D.",
         input_noun="Question",
         output_noun="Answer",
+        temperature=temperature,
     )
 
     return RunSpec(
-        name="med_qa",
+        name=f"med_qa:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -1739,7 +1754,7 @@ def get_med_qa_spec() -> RunSpec:
     )
 
 
-def get_pubmed_qa_spec() -> RunSpec:
+def get_pubmed_qa_spec(temperature: float = 0) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -1747,10 +1762,11 @@ def get_pubmed_qa_spec() -> RunSpec:
         instructions="Answer A for yes, B for no or C for maybe.",
         input_noun="Question",
         output_noun="Answer",
+        temperature=temperature,
     )
 
     return RunSpec(
-        name="pubmed_qa",
+        name=f"pubmed_qa:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -1930,6 +1946,7 @@ def get_opinions_qa_spec(
     context: str = "None",
     num_train_trials: str = "1",
     method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
+    temperature: float = 0,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.opinions_qa_scenario.OpinionsQAScenario",
@@ -1945,11 +1962,12 @@ def get_opinions_qa_spec(
         max_tokens=1,
         num_outputs=int(num_logprobs),
         num_train_trials=1 if context != "steer-qa" else int(num_train_trials),
+        temperature=temperature,
         sample_train=False,
     )
 
     return RunSpec(
-        name=f"opinions_qa:survey={survey_type},num_logprobs={num_logprobs}"
+        name=f"opinions_qa:survey={survey_type},num_logprobs={num_logprobs},temperature={temperature}"
         + f",context={context},num_train_trials={num_train_trials}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
