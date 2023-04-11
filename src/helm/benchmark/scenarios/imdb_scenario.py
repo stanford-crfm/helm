@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, Input, Output
+from .imdb_scenario_pinned_file_order import listdir_with_pinned_file_order
 
 
 class IMDBScenario(Scenario):
@@ -53,14 +54,16 @@ class IMDBScenario(Scenario):
         super().__init__()
         self.only_contrast = only_contrast
 
-    def get_split_instances(self, split: str, path: str, contrast_map: Dict[str, Dict[str, str]]) -> List[Instance]:
+    def get_split_instances(
+        self, target_path: str, split: str, contrast_map: Dict[str, Dict[str, str]]
+    ) -> List[Instance]:
         label_to_classname: Dict[str, str] = {"pos": "Positive", "neg": "Negative"}
         split_instances: List[Instance] = []
-
+        split_to_subdirectory: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "test"}
+        split_path: str = os.path.join(target_path, split_to_subdirectory[split])
         for class_name, label_id in label_to_classname.items():
-            split_path_label: str = os.path.join(path, class_name)
-            all_file_name = os.listdir(split_path_label)
-            for file in all_file_name:
+            split_path_label: str = os.path.join(split_path, class_name)
+            for file in listdir_with_pinned_file_order(target_path, split, class_name):
                 with open(os.path.join(split_path_label, file), "r") as f:
                     context: str = f.read().strip()
                     prompt: str = context
@@ -129,9 +132,6 @@ class IMDBScenario(Scenario):
         contrast_map = self.get_contrast_map(target_path, "test")
         contrast_map.update(self.get_contrast_map(target_path, "dev"))
 
-        split_to_filename: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "test"}
-
-        for split, filename in split_to_filename.items():
-            split_path: str = os.path.join(target_path, filename)
-            instances.extend(self.get_split_instances(split, split_path, contrast_map))
+        for split in [TRAIN_SPLIT, VALID_SPLIT]:
+            instances.extend(self.get_split_instances(target_path, split, contrast_map))
         return instances
