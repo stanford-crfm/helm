@@ -42,7 +42,7 @@ class TogetherClient(Client):
     checks if the request/result is cached. We return the result if it's in the cache. Otherwise, we return an error.
     """
 
-    INFERENCE_ENDPOINT: str = "https://staging.together.xyz/api/inference"
+    INFERENCE_ENDPOINT: str = "https://api.together.xyz/api/inference"
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
