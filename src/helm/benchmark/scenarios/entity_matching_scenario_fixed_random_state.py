@@ -1920,8 +1920,8 @@ _DATASET_TO_RANDOM_STATE: Dict[str, RandomState] = {
 }
 
 
-def set_random_state_for_dataset(dataset: str) -> None:
-    """Set the random state for entity_matching_scenario."""
+def set_fixed_random_state_for_dataset(dataset: str) -> None:
+    """Set the fixed random state for entity_matching_scenario to ensure reproducibility."""
     random_state = _DATASET_TO_RANDOM_STATE.get(dataset)
     if random_state:
         np.random.set_state(random_state)
