@@ -20,6 +20,7 @@ from .run_expander import (
     StopRunExpander,
     ChatMLRunExpander,
     IncreaseMaxTokensRunExpander,
+    IncreaseTemperatureRunExpander,
 )
 from .runner import RunSpec
 from .scenarios.lex_glue_scenario import (
@@ -41,7 +42,7 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
-from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG
+from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, BUGGY_TEMP_0_TAG
 from helm.common.general import singleton
 
 
@@ -2071,6 +2072,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
+
+        # For multiple choice
+        if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
+            increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
+            run_spec = singleton(increase_temperature_expander.expand(run_spec))
 
         return run_spec
 
