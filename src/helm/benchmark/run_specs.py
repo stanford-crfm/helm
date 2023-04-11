@@ -42,7 +42,14 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
-from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, BUGGY_TEMP_0_TAG
+from helm.proxy.models import (
+    get_model,
+    NO_NEWLINES_TAG,
+    NLG_PREFIX_TAG,
+    CHATML_MODEL_TAG,
+    OPENAI_CHATGPT_MODEL_TAG,
+    BUGGY_TEMP_0_TAG,
+)
 from helm.common.general import singleton
 
 
@@ -134,7 +141,6 @@ def get_multiple_choice_adapter_spec(
     sample_train: bool = True,
     **kwargs,
 ):
-
     """
     Toggle between joint and separate adapters.
     """

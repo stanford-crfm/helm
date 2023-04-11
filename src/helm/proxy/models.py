@@ -312,7 +312,13 @@ ALL_MODELS = [
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTJ_TOKENIZER_TAG, BUGGY_TEMP_0_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            GPTJ_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
     ),
     Model(
         group="together",
@@ -442,7 +448,13 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG, BUGGY_TEMP_0_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            OPT_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
     ),
     Model(
         group="together",
@@ -452,7 +464,13 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG, BUGGY_TEMP_0_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            OPT_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
     ),
     # Microsoft/NVIDIA
     Model(

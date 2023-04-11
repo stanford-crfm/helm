@@ -867,6 +867,7 @@ class IncreaseMaxTokensRunExpander(RunExpander):
             ),
         ]
 
+
 class IncreaseTemperatureRunExpander(RunExpander):
     """
     Run expander for increasing the temperature.
