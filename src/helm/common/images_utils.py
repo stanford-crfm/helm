@@ -3,7 +3,7 @@ import io
 import requests
 import shutil
 from urllib.request import urlopen
-from typing import Optional
+from typing import Optional, List
 
 import cv2
 import numpy as np
@@ -20,6 +20,11 @@ def is_blacked_out_image(image_location: str) -> bool:
     else:
         image = cv2.imread(image_location, 0)
     return cv2.countNonZero(image) == 0
+
+
+def filter_blacked_out_images(image_locations: List[str]) -> List[str]:
+    """Returns a list of image locations that are not blacked out."""
+    return [image_location for image_location in image_locations if not is_blacked_out_image(image_location)]
 
 
 def open_image(image_location: str) -> Image:

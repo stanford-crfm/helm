@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 @dataclass(frozen=True)
@@ -24,6 +24,9 @@ class CritiqueQuestionTemplate:
     """Only used when question_type is 'multiple_choice' or 'checkbox'. List of text for the options.
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
+
+    correct_option: Optional[str] = None
+    """Only used when question_type is 'multiple_choice'. Text of the correct option."""
 
 
 @dataclass(frozen=True)

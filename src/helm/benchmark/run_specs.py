@@ -630,20 +630,37 @@ def get_vhelm_reference_required_metric_specs(include_fidelity: bool = False) ->
     return metrics
 
 
-# TODO: figure out the right default value for `num_respondents`. -Tony
 def get_vhelm_critique_metric_specs(
-    include_alignment: bool, include_photorealism: bool, include_originality: bool, num_respondents: int = 3
+    scenario_spec: ScenarioSpec,
+    include_aesthetics: bool = False,
+    include_originality: bool = False,
+    include_copyright: bool = False,
+    num_examples: int = 10,
+    num_respondents: int = 5,
 ) -> List[MetricSpec]:
-    # TODO: pass in study name or title -Tony
+    scenario_name: str = scenario_spec.class_name.split(".")[-1]
+    study_title: str = f"VHELM image evaluation - {scenario_name}"
     return [
         MetricSpec(
             class_name="helm.benchmark.image_critique_metrics.ImageCritiqueMetric",
             args={
-                "include_alignment": include_alignment,
-                "include_photorealism": include_photorealism,
+                "study_title": study_title,
+                "include_alignment": True,  # Always ask about image-text alignment
+                "include_aesthetics": include_aesthetics,
                 "include_originality": include_originality,
+                "include_copyright": include_copyright,
+                "num_examples": num_examples,
                 "num_respondents": num_respondents,
             },
+        ),
+    ]
+
+
+def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 5) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.photorealism_critique_metrics.PhotorealismCritiqueMetric",
+            args={"num_examples": num_examples, "num_respondents": num_respondents},
         ),
     ]
 
@@ -2200,7 +2217,13 @@ def get_magazine_cover_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_core_vhelm_metric_specs()
-        + get_vhelm_critique_metric_specs(include_alignment=True, include_photorealism=False, include_originality=True),
+        + get_vhelm_critique_metric_specs(
+            scenario_spec,
+            include_aesthetics=True,
+            include_originality=True,
+            include_copyright=True,
+            num_examples=1,
+        ),
         groups=["magazine_cover"],
     )
 
@@ -2232,7 +2255,13 @@ def get_mscoco_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True)
         + get_core_vhelm_metric_specs()
-        + get_vhelm_critique_metric_specs(include_alignment=True, include_photorealism=True, include_originality=False),
+        + get_vhelm_critique_metric_specs(
+            scenario_spec, include_aesthetics=True, include_copyright=True, num_examples=1
+        )
+        # From https://arxiv.org/abs/2304.01816, among these 200 samples, 100 images are generated
+        # by Stable Diffusion conditioned by the captions, while the other 100 images are real ones.
+        # TODO: change to 100
+        + get_vhelm_photorealism_critique_metric_specs(num_examples=5),
         groups=["mscoco"],
     )
 
