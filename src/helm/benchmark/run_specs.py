@@ -636,7 +636,8 @@ def get_vhelm_critique_metric_specs(
     include_originality: bool = False,
     include_copyright: bool = False,
     num_examples: int = 10,
-    num_respondents: int = 5,
+    # TODO: increase num_respondents later -Tony
+    num_respondents: int = 1,
 ) -> List[MetricSpec]:
     study_title: str = f"VHELM image evaluation - {run_spec_name}"
     return [
@@ -655,7 +656,8 @@ def get_vhelm_critique_metric_specs(
     ]
 
 
-def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 5) -> List[MetricSpec]:
+# TODO: increase num_respondents later -Tony
+def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 1) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.photorealism_critique_metrics.PhotorealismCritiqueMetric",
