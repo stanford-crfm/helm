@@ -88,6 +88,20 @@ models:
     access: closed
     num_parameters: 52000000000
     release_date: 2021-12-01
+  - name: anthropic/claude-v1.3
+    display_name: Anthropic Claude V1.3 (52B)
+    description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
+    creator_organization: Anthropic
+    access: limited
+    num_parameters: 52000000000
+    release_date: 2023-03-17
+  - name: anthropic/claude-instant-v1
+    display_name: Anthropic Claude Instant V1 (TBD)
+    description: A TBD parameter language model (light weight version of Anthropic Claude) [paper](https://arxiv.org/pdf/2204.05862.pdf).
+    creator_organization: Anthropic
+    access: limited
+    num_parameters: 13000000000
+    release_date: 2023-03-17
 
   # BigScience
   - name: together/bloom
