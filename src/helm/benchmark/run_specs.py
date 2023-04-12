@@ -2079,7 +2079,7 @@ def get_common_syntactic_processes_spec(phenomenon: str) -> RunSpec:
         name=f"common_syntactic_processes:phenomenon={phenomenon}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs() + get_vhelm_critique_metric_specs(scenario_spec, num_examples=10),
         groups=["common_syntactic_processes"],
     )
 
@@ -2093,7 +2093,11 @@ def get_cub200_spec() -> RunSpec:
         name="cub200",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True)
+        + get_core_vhelm_metric_specs()
+        + get_vhelm_critique_metric_specs(
+            scenario_spec, include_aesthetics=True, include_copyright=True, num_examples=10
+        ),
         groups=["cub200"],
     )
 
@@ -2107,7 +2111,10 @@ def get_daily_dalle_spec() -> RunSpec:
         name="daily_dalle",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs()
+        + get_vhelm_critique_metric_specs(
+            scenario_spec, include_aesthetics=True, include_copyright=True, include_originality=True, num_examples=25
+        ),
         groups=["daily_dalle"],
     )
 
@@ -2150,11 +2157,20 @@ def get_draw_bench_spec(category: str) -> RunSpec:
     else:
         group = "reasoning"
 
+    if category == "Reddit":
+        human_eval_metrics = get_vhelm_critique_metric_specs(scenario_spec, include_copyright=True, num_examples=50)
+    elif category in ["Colors", "DALL-E", "Text", "Rare"]:
+        human_eval_metrics = get_vhelm_critique_metric_specs(
+            scenario_spec, include_aesthetics=True, include_copyright=True, num_examples=10
+        )
+    else:
+        human_eval_metrics = get_vhelm_critique_metric_specs(scenario_spec, num_examples=10)
+
     return RunSpec(
         name=f"draw_bench:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs() + human_eval_metrics,
         groups=[f"draw_bench_{group}"],
     )
 
@@ -2186,7 +2202,10 @@ def get_landing_page_spec() -> RunSpec:
         name="landing_page",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs()
+        + get_vhelm_critique_metric_specs(
+            scenario_spec, include_aesthetics=True, include_copyright=True, include_originality=True, num_examples=25
+        ),
         groups=["landing_page"],
     )
 
@@ -2200,7 +2219,10 @@ def get_logos_spec() -> RunSpec:
         name="logos",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs()
+        + get_vhelm_critique_metric_specs(
+            scenario_spec, include_aesthetics=True, include_copyright=True, include_originality=True, num_examples=25
+        ),
         groups=["logos"],
     )
 
@@ -2222,7 +2244,7 @@ def get_magazine_cover_spec() -> RunSpec:
             include_aesthetics=True,
             include_originality=True,
             include_copyright=True,
-            num_examples=1,
+            num_examples=25,
         ),
         groups=["magazine_cover"],
     )
@@ -2256,12 +2278,11 @@ def get_mscoco_spec() -> RunSpec:
         metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True)
         + get_core_vhelm_metric_specs()
         + get_vhelm_critique_metric_specs(
-            scenario_spec, include_aesthetics=True, include_copyright=True, num_examples=1
+            scenario_spec, include_aesthetics=True, include_copyright=True, num_examples=10
         )
         # From https://arxiv.org/abs/2304.01816, among these 200 samples, 100 images are generated
         # by Stable Diffusion conditioned by the captions, while the other 100 images are real ones.
-        # TODO: change to 100
-        + get_vhelm_photorealism_critique_metric_specs(num_examples=5),
+        + get_vhelm_photorealism_critique_metric_specs(num_examples=100),
         groups=["mscoco"],
     )
 
@@ -2277,7 +2298,9 @@ def get_paint_skills_spec(skill: str) -> RunSpec:
         name=f"paint_skills:skill={skill}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_reference_required_metric_specs()
+        + get_core_vhelm_metric_specs()
+        + get_vhelm_critique_metric_specs(scenario_spec, num_examples=10),
         groups=["paint_skills"],
     )
 
@@ -2299,11 +2322,20 @@ def get_parti_prompts_spec(category: str) -> RunSpec:
     else:
         group = "image_quality"
 
+    if category == "Illustrations":
+        human_eval_metrics = get_vhelm_critique_metric_specs(scenario_spec, num_examples=10)
+    elif category == "World":
+        human_eval_metrics = get_vhelm_critique_metric_specs(scenario_spec, include_copyright=True, num_examples=50)
+    else:
+        human_eval_metrics = get_vhelm_critique_metric_specs(
+            scenario_spec, include_aesthetics=True, include_copyright=True, num_examples=10
+        )
+
     return RunSpec(
         name=f"parti_prompts:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs() + human_eval_metrics,
         groups=[f"parti_prompts_{group}"],
     )
 
@@ -2333,7 +2365,7 @@ def get_relational_understanding_spec() -> RunSpec:
         name="relational_understanding",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs() + get_vhelm_critique_metric_specs(scenario_spec, num_examples=10),
         groups=["relational_understanding"],
     )
 
@@ -2351,7 +2383,7 @@ def get_time_most_significant_historical_figures_spec() -> RunSpec:
         name="time_most_significant_historical_figures",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs() + get_vhelm_critique_metric_specs(scenario_spec, num_examples=50),
         groups=["time_most_significant_historical_figures"],
     )
 
@@ -2365,7 +2397,9 @@ def get_winoground_spec() -> RunSpec:
         name="winoground",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_reference_required_metric_specs()
+        + get_core_vhelm_metric_specs()
+        + get_vhelm_critique_metric_specs(scenario_spec, num_examples=10),
         groups=["winoground"],
     )
 
