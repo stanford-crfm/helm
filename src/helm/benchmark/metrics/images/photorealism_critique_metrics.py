@@ -39,13 +39,14 @@ class PhotorealismCritiqueMetric(Metric):
     ) -> MetricResult:
         request_states: List[RequestState] = scenario_state.request_states
         np.random.seed(0)
-        request_states = list(
-            np.random.choice(
-                request_states,  # type: ignore
-                self._num_examples,
-                replace=False,
+        if self._num_examples < len(request_states):
+            request_states = list(
+                np.random.choice(
+                    request_states,  # type: ignore
+                    self._num_examples,
+                    replace=False,
+                )
             )
-        )
 
         questions: List[CritiqueQuestionTemplate] = []
         for request_state in request_states:
