@@ -23,3 +23,15 @@ class AnthropicWindowService(GPT2WindowService):
         Anthropic does not include the start of sequence token.
         """
         return self.max_sequence_length
+
+
+class AnthropicClaudeWindowService(AnthropicWindowService):
+    @property
+    def tokenizer_name(self) -> str:
+        return "anthropic/claude-v1.3"
+
+
+class AnthropicClaudeInstantWindowService(AnthropicWindowService):
+    @property
+    def tokenizer_name(self) -> str:
+        return "anthropic/claude-instant-v1"

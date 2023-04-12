@@ -103,7 +103,11 @@ class AutoClient(Client):
             elif organization == "huggingface":
                 client = self.huggingface_client
             elif organization == "anthropic":
-                client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_config=cache_config)
+                client = AnthropicClient(
+                    api_key=self.credentials["anthropicApiKey"],
+                    cache_config=cache_config,
+                    tokenizer_client=self._get_tokenizer_client("huggingface"),
+                )
             elif organization == "microsoft":
                 org_id = self.credentials.get("microsoftOrgId", None)
                 lock_file_path: str = os.path.join(self.cache_path, f"{organization}.lock")
