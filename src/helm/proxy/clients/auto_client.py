@@ -120,7 +120,8 @@ class AutoClient(Client):
                     )
             elif organization == "AlephAlpha":
                 if is_text_to_image_request:
-                    client = AlephAlphaVisionClient(cache_config, file_cache)
+                    cache_config = self._build_cache_config("AlephAlphaVision")
+                    client = AlephAlphaVisionClient(cache_config)
                 else:
                     client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
             elif organization == "ai21":

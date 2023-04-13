@@ -1,7 +1,6 @@
 from typing import List, Dict
 
 from helm.common.cache import Cache, CacheConfig
-from helm.common.file_caches.file_cache import FileCache
 from helm.common.request import Request, RequestResult, Sequence, TextToImageRequest
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -48,10 +47,8 @@ class AlephAlphaVisionClient(Client):
 
         return raw_request
 
-    def __init__(self, cache_config: CacheConfig, file_cache: FileCache):
-        self.cache = Cache(cache_config)
-        self.file_cache: FileCache = file_cache
-
+    def __init__(self, cache_config: CacheConfig):
+        self._cache = Cache(cache_config)
         self._promptist_model = None
         self._promptist_tokenizer = None
 
@@ -72,7 +69,7 @@ class AlephAlphaVisionClient(Client):
                     f"The result has not been uploaded to the cache for the following request: {cache_key}"
                 )
 
-            response, cached = self.cache.get(cache_key, fail)
+            response, cached = self._cache.get(cache_key, fail)
         except RuntimeError as e:
             error: str = f"AlephAlphaVisionClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
