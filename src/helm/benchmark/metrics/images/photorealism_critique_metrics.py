@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -8,7 +8,12 @@ from helm.benchmark.metrics.metric import Metric, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
-from helm.common.critique_request import CritiqueTaskTemplate, CritiqueQuestionTemplate, CritiqueRequest
+from helm.common.critique_request import (
+    CritiqueTaskTemplate,
+    CritiqueQuestionTemplate,
+    CritiqueRequest,
+    CritiqueRequestResult,
+)
 from helm.common.images_utils import encode_base64, filter_blacked_out_images
 from helm.common.request import RequestResult
 from .image_metrics_utils import gather_generated_image_locations
@@ -48,7 +53,28 @@ class PhotorealismCritiqueMetric(Metric):
                 )
             )
 
-        questions: List[CritiqueQuestionTemplate] = []
+        template = CritiqueTaskTemplate(
+            name=f"VHELM image evaluation - photorealism,{scenario_state.adapter_spec.model}",
+            instructions="Determine if the following image is AI-generated or real."
+            '\n<img src="data:image;base64,{{image}}">',
+            num_respondents=self._num_respondents,
+            questions=[
+                CritiqueQuestionTemplate(
+                    name="photorealism_human",
+                    question_type="multiple_choice",
+                    text="Does the image look like an AI-generated photo or a real photo?",
+                    options=[
+                        self.AI_GENERATED_PHOTO_RESPONSE,
+                        "Probably an AI-generated photo, but photorealistic",
+                        "Neutral",
+                        "Probably a real photo, but with irregular textures and shapes",
+                        self.REAL_PHOTO_RESPONSE,
+                    ],
+                )
+            ],
+        )
+
+        responses: List[Tuple[Optional[CritiqueRequestResult], str]] = []
         for request_state in request_states:
             assert request_state.result is not None
             request_result: RequestResult = request_state.result
@@ -69,42 +95,18 @@ class PhotorealismCritiqueMetric(Metric):
                 (generated_image_path, self.AI_GENERATED_PHOTO_RESPONSE),
                 (real_image_path, self.REAL_PHOTO_RESPONSE),
             ]:
-                base64_image: str = encode_base64(image_path)
-                questions.append(
-                    CritiqueQuestionTemplate(
-                        name="photorealism_human",
-                        question_type="multiple_choice",
-                        text="Does the image look like an AI-generated photo or a real photo? "
-                        f'\n<img src="data:image;base64,{base64_image}">',
-                        options=[
-                            self.AI_GENERATED_PHOTO_RESPONSE,
-                            "Probably an AI-generated photo, but photorealistic",
-                            "Neutral",
-                            "Probably a real photo, but with irregular textures and shapes",
-                            self.REAL_PHOTO_RESPONSE,
-                        ],
-                        correct_option=correct_response,
-                    )
-                )
+                request = CritiqueRequest(template, fields={"image": encode_base64(image_path)})
+                result = metric_service.make_critique_request(request)
+                responses.append((result, correct_response))
 
-        # Randomly shuffle questions to get a mix of real and generated images
-        np.random.shuffle(questions)  # type: ignore
-        template = CritiqueTaskTemplate(
-            name=f"VHELM image evaluation - photorealism,{scenario_state.adapter_spec.model}",
-            instructions="Determine if the following images are AI-generated or real.",
-            num_respondents=self._num_respondents,
-            questions=questions,
-        )
+        # Go through all the critique responses and compute the score
+        for (result, correct_response) in responses:
+            if not result or not result.responses:
+                return MetricResult(aggregated_stats=[], per_instance_stats=[])
 
-        # Send the critique request
-        request = CritiqueRequest(template, fields={})
-        result = metric_service.make_critique_request(request)
-        if not result or not result.responses:
-            return MetricResult(aggregated_stats=[], per_instance_stats=[])
-
-        # Skip computing metrics if there are not enough responses.
-        if len(result.responses) < request.template.num_respondents:
-            return MetricResult(aggregated_stats=[], per_instance_stats=[])
+            # Skip computing metrics if there are not enough responses.
+            if len(result.responses) < self._num_respondents:
+                return MetricResult(aggregated_stats=[], per_instance_stats=[])
 
         # TODO: compute score -Tony
         score: float = 0
