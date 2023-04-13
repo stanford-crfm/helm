@@ -637,7 +637,7 @@ def get_vhelm_critique_metric_specs(
     include_copyright: bool = False,
     num_examples: int = 10,
     # TODO: increase num_respondents later -Tony
-    num_respondents: int = 1,
+    num_respondents: int = 5,
 ) -> List[MetricSpec]:
     study_title: str = f"VHELM image evaluation - {run_spec_name}"
     return [
@@ -657,7 +657,7 @@ def get_vhelm_critique_metric_specs(
 
 
 # TODO: increase num_respondents later -Tony
-def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 1) -> List[MetricSpec]:
+def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 5) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.photorealism_critique_metrics.PhotorealismCritiqueMetric",
@@ -2276,9 +2276,9 @@ def get_mscoco_spec() -> RunSpec:
         name="mscoco",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True)
-        + get_core_vhelm_metric_specs()
-        + get_vhelm_critique_metric_specs("mscoco", include_aesthetics=True, include_copyright=True, num_examples=10)
+        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs()
+        # TODO: undo this later -Tony
+        # + get_vhelm_critique_metric_specs("mscoco", include_aesthetics=True, include_copyright=True, num_examples=10)
         # From https://arxiv.org/abs/2304.01816, among these 200 samples, 100 images are generated
         # by Stable Diffusion conditioned by the captions, while the other 100 images are real ones.
         + get_vhelm_photorealism_critique_metric_specs(num_examples=100),
