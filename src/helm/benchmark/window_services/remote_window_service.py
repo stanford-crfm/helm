@@ -1,6 +1,6 @@
+from typing import Dict, Type
 from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
-from helm.common.tokenization_request import WindowServiceInfo
 
 
 class RemoteWindowService(LocalWindowService):
@@ -38,7 +38,7 @@ class RemoteWindowService(LocalWindowService):
 
 # If the windowing logic is different from the base LocalWindowService,
 # please add the specific implementation for the model and add it to the following dict.
-remote_window_services = {}
+remote_window_services: Dict[str, Type[RemoteWindowService]] = {}
 
 
 def get_remote_window_service(service: TokenizerService, model_name: str):

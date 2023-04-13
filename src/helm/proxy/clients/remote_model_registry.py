@@ -1,11 +1,7 @@
 from typing import Dict, List, Optional
-from dataclasses import dataclass
-import re
 
-from helm.common.hierarchical_logger import hlog
-from helm.proxy.models import Model, MODEL_NAME_TO_MODEL, get_all_models
+from helm.proxy.models import Model
 from helm.proxy.services.remote_service import RemoteService
-from helm.proxy.services.service import GeneralInfo
 
 
 _remote_model_registry: Dict[str, Model] = {}

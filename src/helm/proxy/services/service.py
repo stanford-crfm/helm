@@ -80,7 +80,7 @@ class Service(ABC):
 
     @abstractmethod
     def get_window_service_info(self, model_name: str) -> WindowServiceInfo:
-        """Get tokenizer info."""
+        """Get window service info."""
         pass
 
     @abstractmethod

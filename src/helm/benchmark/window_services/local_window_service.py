@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from typing import List, Optional, cast
 
 from .window_service import WindowService, EncodeResult
@@ -15,11 +14,6 @@ from helm.common.tokenization_request import (
 class LocalWindowService(WindowService):
     def __init__(self, service: TokenizerService):
         self.service: TokenizerService = service
-
-    @property
-    @abstractmethod
-    def tokenizer_name(self) -> str:
-        pass
 
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """
