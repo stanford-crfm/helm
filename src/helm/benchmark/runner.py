@@ -22,7 +22,7 @@ from .executor import ExecutionSpec, Executor
 from .metrics.metric_name import MetricName
 from .metrics.metric_service import MetricService
 from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
-from .metrics.tokens_metric import TokensMetric
+from .metrics.estimated_tokens_metric import EstimatedTokensMetric
 from .window_services.tokenizer_service import TokenizerService
 
 
@@ -166,8 +166,10 @@ class Runner:
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
         metrics: List[Metric] = (
-            [] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
-        ) + [TokensMetric()]
+            [EstimatedTokensMetric()]
+            if self.dry_run
+            else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
+        )
         stats: List[Stat] = []
         per_instance_stats: List[PerInstanceStats] = []
         with htrack_block(f"{len(metrics)} metrics"):

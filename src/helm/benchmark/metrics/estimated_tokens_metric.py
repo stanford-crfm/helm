@@ -6,6 +6,8 @@ from helm.common.request import Request
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.statistic import Stat, merge_stat
+from helm.benchmark.window_services.window_service import WindowService
+from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from .metric import Metric, MetricResult, PerInstanceStats
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -33,13 +35,17 @@ class Processor:
 
         # Maximum number of tokens in the completions
         # This is an overestimate of the actual number of output tokens since sequences can early terminate
-        # TODO: rename this to max_num_completion_tokens
-        stats.append(Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens))
+        stats.append(Stat(MetricName("max_num_completion_tokens")).add(request.num_completions * request.max_tokens))
+
+        # Get number of tokens in the prompt
+        tokenizer: WindowService = WindowServiceFactory.get_window_service(request.model, self.metric_service)
+        num_prompt_tokens: int = tokenizer.get_num_tokens(request.prompt)
+        stats.append(Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens))
 
         return stats
 
 
-class TokensMetric(Metric):
+class EstimatedTokensMetric(Metric):
     """
     Estimates the total number of tokens that will be used based on the requests.
     """
@@ -48,7 +54,7 @@ class TokensMetric(Metric):
         self.token_cost_estimator = AutoTokenCostEstimator()
 
     def __repr__(self):
-        return "TokensMetric()"
+        return "EstimatedTokensMetric()"
 
     def evaluate(
         self,
