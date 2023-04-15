@@ -19,10 +19,10 @@ from .adaptation.scenario_state import ScenarioState
 from .adaptation.adapter_spec import AdapterSpec
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
+from .metrics.dry_run_metrics import DryRunMetric
 from .metrics.metric_name import MetricName
 from .metrics.metric_service import MetricService
 from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
-from .metrics.estimated_tokens_metric import EstimatedTokensMetric
 from .window_services.tokenizer_service import TokenizerService
 
 
@@ -166,9 +166,7 @@ class Runner:
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
         metrics: List[Metric] = (
-            [EstimatedTokensMetric()]
-            if self.dry_run
-            else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
+            [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
         )
         stats: List[Stat] = []
         per_instance_stats: List[PerInstanceStats] = []

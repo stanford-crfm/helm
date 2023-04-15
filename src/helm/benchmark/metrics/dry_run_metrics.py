@@ -45,16 +45,14 @@ class Processor:
         return stats
 
 
-class EstimatedTokensMetric(Metric):
-    """
-    Estimates the total number of tokens that will be used based on the requests.
-    """
+class DryRunMetric(Metric):
+    """Metrics for dry run."""
 
     def __init__(self):
         self.token_cost_estimator = AutoTokenCostEstimator()
 
     def __repr__(self):
-        return "EstimatedTokensMetric()"
+        return "DryRunMetric"
 
     def evaluate(
         self,

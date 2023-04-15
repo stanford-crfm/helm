@@ -19,6 +19,10 @@ class ModelCost:
 
     total_max_num_completion_tokens: int = 0
 
+    @property
+    def total_tokens(self) -> int:
+        return self.total_num_prompt_tokens + self.total_max_num_completion_tokens
+
     def add_prompt_tokens(self, num_tokens: int):
         self.total_num_prompt_tokens += num_tokens
 
@@ -73,6 +77,7 @@ if __name__ == "__main__":
     model_costs: Dict[str, ModelCost] = calculator.aggregate()
     for model_name, model_cost in model_costs.items():
         print(
-            f"{model_name}: Total prompt tokens={model_cost.total_num_prompt_tokens}, "
-            f"Total max completion tokens={model_cost.total_max_num_completion_tokens}"
+            f"{model_name}: Total prompt tokens={model_cost.total_num_prompt_tokens} + "
+            f"Total max completion tokens={model_cost.total_max_num_completion_tokens} = "
+            f"{model_cost.total_tokens}"
         )
