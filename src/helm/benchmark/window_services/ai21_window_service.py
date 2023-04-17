@@ -39,6 +39,11 @@ class AI21WindowService(WindowService):
         self.gpt2_window_service: GPT2WindowService = gpt2_window_service
 
     @property
+    def tokenizer_name(self) -> str:
+        """Name of the tokenizer to use when sending a request."""
+        return "ai21/j1"
+
+    @property
     def max_sequence_length(self) -> int:
         """
         The max token length of the model in. The AI21 server automatically prepends a token to every prompt,
@@ -187,7 +192,7 @@ class AI21WindowService(WindowService):
 
     def _make_tokenization_request(self, text: str) -> TokenizationRequestResult:
         """Sends a request to the server to tokenize the text via the `TokenizerService`."""
-        return self.service.tokenize(TokenizationRequest(text=text, tokenizer="ai21/j1"))
+        return self.service.tokenize(TokenizationRequest(text=text, tokenizer=self.tokenizer_name))
 
     def _make_long_tokenization_request(self, text: str) -> Tuple[List[TokenizationToken], str]:
         """If the text is too long  (longer than 11,000 tokens when tokenized by the GPT-2 tokenizer),

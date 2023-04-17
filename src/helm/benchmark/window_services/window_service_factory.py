@@ -26,6 +26,7 @@ from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
 from .opt_window_service import OPTWindowService
+from .remote_window_service import get_remote_window_service
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
 from .flan_t5_window_service import FlanT5WindowService
@@ -34,6 +35,7 @@ from .yalm_window_service import YaLMWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
+from helm.proxy.clients.remote_model_registry import get_remote_model
 
 
 class WindowServiceFactory:
@@ -49,7 +51,9 @@ class WindowServiceFactory:
 
         window_service: WindowService
         huggingface_model_config = get_huggingface_model_config(model_name)
-        if huggingface_model_config:
+        if get_remote_model(model_name):
+            window_service = get_remote_window_service(service, model_name)
+        elif huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
         elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)

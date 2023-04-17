@@ -84,6 +84,14 @@ def handle_get_general_info():
     return safe_call(perform)
 
 
+@app.get("/api/window_service_info")
+def handle_get_window_service_info():
+    def perform(args):
+        return dataclasses.asdict(service.get_window_service_info(args["model_name"]))
+
+    return safe_call(perform)
+
+
 @app.post("/api/account")
 def handle_create_account():
     def perform(args):
