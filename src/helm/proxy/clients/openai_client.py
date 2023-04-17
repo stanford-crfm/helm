@@ -21,11 +21,13 @@ ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__ba
 
 class OpenAIClient(Client):
     END_OF_TEXT: str = "<|endoftext|>"
+    MODELS_USING_TIKTOKEN: List[str] = ["gpt-3.5-turbo-0301", "gpt-4-32k-0314"]
 
     def __init__(
         self,
         api_key: str,
         cache_config: CacheConfig,
+        tokenizer_client: Client,
         chat_gpt_client: Optional[ChatGPTClient] = None,
         org_id: Optional[str] = None,
     ):
@@ -33,6 +35,7 @@ class OpenAIClient(Client):
         self.api_key: str = api_key
         self.api_base: str = "https://api.openai.com/v1"
         self.cache = Cache(cache_config)
+        self.tokenizer_client: Client = tokenizer_client
         self.chat_gpt_client: Optional[ChatGPTClient] = chat_gpt_client
 
     def _is_chat_model_engine(self, model_engine: str):
@@ -63,7 +66,7 @@ class OpenAIClient(Client):
                 # Note: Setting stop to ["\n"] results in an error
                 # See: https://community.openai.com/t/stop-n-in-gpt-3-5-turbo-leads-to-500-error/87815/15
                 # TODO: Handle this in the adapter.
-                # "stop": request.stop_sequences or [],  # API doesn't like empty list
+                "stop": request.stop_sequences or [],  # API doesn't like empty list
                 # Note: Chat models may require adding an extra token to max_tokens
                 # for the internal special role token.
                 # TODO: Handle this in the adapter.
@@ -137,22 +140,21 @@ class OpenAIClient(Client):
             embedding = response["data"][0]["embedding"]
         elif self._is_chat_model_engine(request.model_engine):
             for raw_completion in response["choices"]:
-                # The ChatGPT API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
+                # The OpenAI API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
                 raw_completion_content = raw_completion["message"]["content"]
                 text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
-                # The ChatGPT API doesn't return us tokens or logprobs, so we tokenize ourselves.
+                # The OpenAI API doesn't return us tokens or logprobs, so we tokenize ourselves.
                 tokenization_result: TokenizationRequestResult = self.tokenize(
-                    # We're assuming ChatGPT uses the GPT-2 tokenizer.
                     TokenizationRequest(text, model_engine=request.model_engine)
                 )
-                # Log probs are not currently not supported by the ChatGPT, so set to 0 for now.
+                # Log probs are not currently not supported by the OpenAI, so set to 0 for now.
                 tokens = [
                     Token(text=cast(str, raw_token), logprob=0, top_logprobs={})
                     for raw_token in tokenization_result.raw_tokens
                 ]
                 completion = Sequence(
                     text=text,
-                    logprob=0,  # ChatGPT does not provide logprobs
+                    logprob=0,  # OpenAI does not provide logprobs
                     tokens=tokens,
                     finish_reason={"reason": raw_completion["finish_reason"]},
                 )
@@ -191,7 +193,23 @@ class OpenAIClient(Client):
             embedding=embedding,
         )
 
+    @staticmethod
+    def _get_model_engine_name(model_engine: str) -> str:
+        return "/".join(model_engine.split("/")[1:])
+
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        # For reproducibility purposes, we use huggingface/gpt2 as the default tokenizer.
+        # except for gpt-3.5 turbo models and gpt-4 that use the tiktoken library.
+
+        if (
+            request.model_engine is not None
+            and self._get_model_engine_name(request.model_engine) not in OpenAIClient.MODELS_USING_TIKTOKEN
+        ):
+            return self.tokenizer_client.tokenize(
+                # We're assuming the model uses the GPT-2 tokenizer.
+                TokenizationRequest(request.text, tokenizer="huggingface/gpt2")
+            )
+
         cache_key = asdict(request)
 
         try:
@@ -219,6 +237,18 @@ class OpenAIClient(Client):
             return TokenizationRequestResult(success=False, cached=False, text=request.text, tokens=[], error=error)
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        # For reproducibility purposes, we use huggingface/gpt2 as the default tokenizer.
+        # except for gpt-3.5 turbo models and gpt-4 that use the tiktoken library.
+
+        if (
+            request.model_engine is not None
+            and OpenAIClient._get_model_engine_name(request.model_engine) not in OpenAIClient.MODELS_USING_TIKTOKEN
+        ):
+            return self.tokenizer_client.decode(
+                # We're assuming the model uses the GPT-2 tokenizer.
+                DecodeRequest(request.tokens, tokenizer="huggingface/gpt2")
+            )
+
         cache_key = asdict(request)
 
         try:

@@ -85,7 +85,7 @@ class AutoClient(Client):
                 client = OpenAIClient(
                     api_key=self.credentials["openaiApiKey"],
                     cache_config=cache_config,
-                    # tokenizer_client=self._get_tokenizer_client("huggingface"),
+                    tokenizer_client=self._get_tokenizer_client("huggingface"),
                     chat_gpt_client=chat_gpt_client,
                     org_id=org_id,
                 )
