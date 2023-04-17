@@ -21,7 +21,7 @@ class SummarizationCritiqueMetric(Metric):
 
     This is a demonstration of critique evaluation and is not indended for production use."""
 
-    def __init__(self, num_respondents: int) -> None:
+    def __init__(self, num_respondents: int = 1) -> None:
         self._template = CritiqueTaskTemplate(
             name="HELM Summarization Evaluation",
             # Note: Instructions can contain HTML.

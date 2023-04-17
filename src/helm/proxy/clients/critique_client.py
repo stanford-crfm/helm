@@ -6,9 +6,11 @@ from typing import Dict, List
 from cattrs import unstructure
 import surge
 from surge import questions as surge_questions
+from .client import Client
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.cache import Cache, CacheConfig
+from helm.common.request import Request, RequestResult
 from helm.common.critique_request import (
     CritiqueQuestionTemplate,
     CritiqueRequest,
@@ -46,6 +48,78 @@ class RandomCritiqueClient(CritiqueClient):
                 CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
             )
         return CritiqueRequestResult(responses)
+
+
+class LargeLanguageModelCritiqueClient(CritiqueClient):
+    """A CritiqueClient that uses a large language model to generate critiques."""
+
+    def __init__(self, language_model_client: Client, model_engine: str):
+        self._language_model_client = language_model_client
+        self._model_engine = model_engine
+
+    @staticmethod
+    def _make_prompt(instructions: str, question: CritiqueQuestionTemplate):
+        if question.question_type != "multiple_choice":
+            raise ValueError("Currently, only multiple_choice questions are supported")
+        prompt = instructions + ""
+        prompt += f"{question.text}\n\nOptions:\n"
+        for i, option in enumerate(question.options):
+            prompt += f"{i + 1}. {option}\n"
+        prompt += "The correct option number for the answer to this task is"
+        return prompt
+
+    def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
+        """Get responses to a critique request."""
+        answers: Dict[str, str] = {}
+        respondent_id: str = self._model_engine
+        response_id: str = "0"
+
+        # Get the instructions
+        instructions: str = request.template.instructions
+        for field_name, field_value in request.fields.items():
+            instructions = instructions.replace("{{" + field_name + "}}", field_value)
+        # print("================ instructions", instructions)
+        # print("================ request", request)
+
+        for question in request.template.questions:
+            prompt: str = self._make_prompt(instructions, question)
+
+            # Asks the language model to generate a response to the prompt.
+            # The response is a list of tokens.
+            # print("============= prompt", prompt)
+            response: RequestResult = self._language_model_client.make_request(
+                Request(
+                    model=self._model_engine,
+                    prompt=prompt,
+                    max_tokens=1,
+                    temperature=0,
+                    num_completions=1,
+                )
+            )
+
+            if response.error:
+                # TODO: CritiqueRequestResult does not allow errors to be returned.
+                # We should change this.
+                raise ValueError(f"Error from language model: {response.error}")
+            elif not response.success or not response.completions or len(response.completions) < 1:
+                raise ValueError(f"Unexpected response from language model: {response}")
+
+            # Gets the response text from the response.
+            response_text: str = response.completions[0].text
+            # print("================ response_text", response_text)
+            response_number: int = int(response_text)
+            answer: str = question.options[response_number - 1]
+
+            # Add the answer to the request.
+            answers[question.name] = answer
+
+        response_critique: CritiqueResponse = CritiqueResponse(
+            id=response_id,
+            respondent_id=respondent_id,
+            answers=answers,
+        )
+
+        return CritiqueRequestResult(responses=[response_critique])
 
 
 class SurgeAICritiqueClient(CritiqueClient):

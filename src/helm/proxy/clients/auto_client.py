@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.retry import retry_request
-from .critique_client import CritiqueClient, SurgeAICritiqueClient
+from .critique_client import CritiqueClient, SurgeAICritiqueClient, LargeLanguageModelCritiqueClient
 from .client import Client
 from .ai21_client import AI21Client
 from .aleph_alpha_client import AlephAlphaClient
@@ -229,6 +229,32 @@ class AutoClient(Client):
 
     def get_critique_client(self) -> CritiqueClient:
         """Get the critique client."""
+
+        # Get LargeLanguageModelCritiqueClient with the gpt3 client
+        if not self.critique_client:
+            organization = "openai"
+            model_engine = "openai/davinci"
+            cache_config: CacheConfig = self._build_cache_config(organization)
+            chat_gpt_client: ChatGPTClient = ChatGPTClient(
+                session_token=self.credentials.get("chatGPTSessionToken", ""),
+                lock_file_path=os.path.join(self.cache_path, "ChatGPT.lock"),
+                # TODO: use `cache_config` above. Since this feature is still experimental,
+                #       save queries and responses in a separate collection.
+                cache_config=self._build_cache_config("ChatGPT"),
+                tokenizer_client=self._get_tokenizer_client("huggingface"),
+            )
+
+            org_id = self.credentials.get("openaiOrgId", None)
+            client = OpenAIClient(
+                api_key=self.credentials["openaiApiKey"],
+                cache_config=cache_config,
+                tokenizer_client=self._get_tokenizer_client("huggingface"),
+                chat_gpt_client=chat_gpt_client,
+                org_id=org_id,
+            )
+            self.critique_client = LargeLanguageModelCritiqueClient(client, model_engine)
+        return self.critique_client
+
         if not self.critique_client:
             surgeai_credentials = self.credentials.get("surgeaiApiKey", None)
             if surgeai_credentials:
