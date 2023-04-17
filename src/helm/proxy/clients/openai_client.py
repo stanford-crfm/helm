@@ -1,7 +1,8 @@
-from dataclasses import replace
+from dataclasses import replace, asdict
 from typing import Any, Dict, List, Optional, cast
 
 import openai
+import tiktoken
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
@@ -10,6 +11,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
+    TokenizationToken,
 )
 from .client import Client, truncate_sequence, wrap_request_time
 from .chat_gpt_client import ChatGPTClient
@@ -24,7 +26,6 @@ class OpenAIClient(Client):
         self,
         api_key: str,
         cache_config: CacheConfig,
-        tokenizer_client: Client,
         chat_gpt_client: Optional[ChatGPTClient] = None,
         org_id: Optional[str] = None,
     ):
@@ -32,7 +33,6 @@ class OpenAIClient(Client):
         self.api_key: str = api_key
         self.api_base: str = "https://api.openai.com/v1"
         self.cache = Cache(cache_config)
-        self.tokenizer_client: Client = tokenizer_client
         self.chat_gpt_client: Optional[ChatGPTClient] = chat_gpt_client
 
     def _is_chat_model_engine(self, model_engine: str):
@@ -63,7 +63,7 @@ class OpenAIClient(Client):
                 # Note: Setting stop to ["\n"] results in an error
                 # See: https://community.openai.com/t/stop-n-in-gpt-3-5-turbo-leads-to-500-error/87815/15
                 # TODO: Handle this in the adapter.
-                "stop": request.stop_sequences or [],  # API doesn't like empty list
+                # "stop": request.stop_sequences or [],  # API doesn't like empty list
                 # Note: Chat models may require adding an extra token to max_tokens
                 # for the internal special role token.
                 # TODO: Handle this in the adapter.
@@ -141,9 +141,9 @@ class OpenAIClient(Client):
                 raw_completion_content = raw_completion["message"]["content"]
                 text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
                 # The ChatGPT API doesn't return us tokens or logprobs, so we tokenize ourselves.
-                tokenization_result: TokenizationRequestResult = self.tokenizer_client.tokenize(
+                tokenization_result: TokenizationRequestResult = self.tokenize(
                     # We're assuming ChatGPT uses the GPT-2 tokenizer.
-                    TokenizationRequest(text, tokenizer="huggingface/gpt2")
+                    TokenizationRequest(text, model_engine=request.model_engine)
                 )
                 # Log probs are not currently not supported by the ChatGPT, so set to 0 for now.
                 tokens = [
@@ -192,7 +192,54 @@ class OpenAIClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
+        cache_key = asdict(request)
+
+        try:
+
+            def do_it():
+                if request.model_engine is not None:
+                    tokenizer_client = tiktoken.encoding_for_model(request.model_engine)
+                else:
+                    tokenizer_client = tiktoken.get_encoding(request.tokenizer)
+                tokens = tokenizer_client.encode(request.text)
+                return tokens
+
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
+            return TokenizationRequestResult(
+                success=True,
+                cached=cached,
+                text=request.text,
+                tokens=[TokenizationToken(value) for value in response],
+                request_time=response["request_time"],
+                error=None,
+            )
+        except Exception as e:
+            error: str = f"Tiktoken error: {e}"
+            return TokenizationRequestResult(success=False, cached=False, text=request.text, tokens=[], error=error)
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to decode.")
+        cache_key = asdict(request)
+
+        try:
+
+            def do_it():
+                if request.model_engine is not None:
+                    tokenizer_client = tiktoken.encoding_for_model(request.model_engine)
+                else:
+                    tokenizer_client = tiktoken.get_encoding(request.tokenizer)
+                text = tokenizer_client.decode(request.tokens)
+                return text
+
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
+            return DecodeRequestResult(
+                success=True,
+                cached=cached,
+                text=str(response),
+                request_time=response["request_time"],
+                error=None,
+            )
+        except Exception as e:
+            error: str = f"Tiktoken error: {e}"
+            return DecodeRequestResult(success=False, cached=False, text="", error=error)
