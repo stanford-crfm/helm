@@ -285,6 +285,22 @@ models:
     num_parameters: 66000000000
     release_date: 2022-05-02
 
+  - name: together/opt-6.7b
+    display_name: OPT (6.7B)
+    description: Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 6700000000
+    release_date: 2022-05-02
+  
+  - name: together/opt-1.3b
+    display_name: OPT (1.3B)
+    description: Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 1300000000
+    release_date: 2022-05-02
+
   - name: together/galactica-120b
     display_name: Galactica (120B)
     description: Galactica (120B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).

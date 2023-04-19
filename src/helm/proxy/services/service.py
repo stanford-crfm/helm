@@ -8,6 +8,7 @@ from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.tokenization_request import (
+    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -83,6 +84,11 @@ class Service(ABC):
     @abstractmethod
     def get_general_info(self) -> GeneralInfo:
         """Get general info."""
+        pass
+
+    @abstractmethod
+    def get_window_service_info(self, model_name: str) -> WindowServiceInfo:
+        """Get window service info."""
         pass
 
     @abstractmethod

@@ -8,6 +8,7 @@ from helm.common.general import ensure_directory_exists, parse_hocon
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
+    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -75,6 +76,22 @@ class ServerService(Service):
             all_models=ALL_MODELS,
             all_text_code_models=get_models_with_tag(TEXT_MODEL_TAG) + get_models_with_tag(CODE_MODEL_TAG),
             all_text_to_image_models=get_models_with_tag(TEXT_TO_IMAGE_MODEL_TAG),
+        )
+
+    def get_window_service_info(self, model_name) -> WindowServiceInfo:
+        # The import statement is placed here to avoid two problems, please refer to the link for details
+        # https://github.com/stanford-crfm/helm/pull/1430#discussion_r1156686624
+        from helm.benchmark.window_services.tokenizer_service import TokenizerService
+        from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
+
+        token_service = TokenizerService(self, Authentication(""))
+        window_service = WindowServiceFactory.get_window_service(model_name, token_service)
+        return WindowServiceInfo(
+            tokenizer_name=window_service.tokenizer_name,
+            max_sequence_length=window_service.max_sequence_length,
+            max_request_length=window_service.max_request_length,
+            end_of_text_token=window_service.end_of_text_token,
+            prefix_token=window_service.prefix_token,
         )
 
     def expand_query(self, query: Query) -> QueryResult:
