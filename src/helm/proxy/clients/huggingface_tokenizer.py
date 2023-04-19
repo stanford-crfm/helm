@@ -76,6 +76,8 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name = "google/flan-t5-xxl"
                 elif tokenizer_name == "bigcode/santacoder":
                     hf_tokenizer_name = "bigcode/santacoder"
+                elif tokenizer_name == "bigcode/large-model":
+                    hf_tokenizer_name = "bigcode/large-model"
                 else:
                     raise ValueError(f"Unsupported HuggingFace tokenizer: {tokenizer_name}")
 

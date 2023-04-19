@@ -371,6 +371,14 @@ ALL_MODELS = [
         "JavaScript subset of The Stack (v1.1).",
         tags=[CODE_MODEL_TAG],
     ),
+    Model(
+        group="huggingface",
+        creator_organization="BigCode",
+        name="huggingface/large-model",
+        display_name="BigCode's Large Model (15.5B)",
+        description="BigCode's Large Model (15.5B) trained on The Stack (v1.2)",
+        tags=[CODE_MODEL_TAG],
+    ),
     # Google
     Model(
         group="together",
