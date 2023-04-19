@@ -15,8 +15,11 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
+    TokenizationToken,
 )
 from .client import Client, wrap_request_time, truncate_sequence
+from tokenizers import Tokenizer
+from dataclasses import asdict
 
 
 class AnthropicClient(Client):
@@ -25,14 +28,16 @@ class AnthropicClient(Client):
     They use their own version of the GPT-2 tokenizer.
     """
 
-    MAX_COMPLETION_LENGTH: int = 8192
+    MAX_COMPLETION_LENGTH: int = (
+        8192  # See https://docs.google.com/document/d/1vX6xgoA-KEKxqtMlBVAqYvE8KUfZ7ABCjTxAjf1T5kI/edit#
+    )
     ADDITIONAL_TOKENS: int = 5
     PROMPT_ANSWER_START: str = "The answer is"
 
-    def __init__(self, api_key: str, cache_config: CacheConfig, tokenizer_client: Client):
+    def __init__(self, api_key: str, cache_config: CacheConfig):
         self.api_key: str = api_key
         self.cache = Cache(cache_config)
-        self.tokenizer_client: Client = tokenizer_client
+        self.tokenizer: Tokenizer = anthropic.get_tokenizer()
         self._client = anthropic.Client(api_key)
 
     def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
@@ -43,7 +48,9 @@ class AnthropicClient(Client):
     def _filter_completion(self, completion: str, max_tokens: int) -> str:
         # If the completion starts with a colon, space, or newline, remove it.
         for _ in range(AnthropicClient.ADDITIONAL_TOKENS):
-            if completion[0] in [":", " ", "\n"]:
+            if len(completion) == 0:
+                return completion
+            elif completion[0] in [":", " ", "\n"]:
                 completion = completion[1:]
             else:
                 break
@@ -51,6 +58,9 @@ class AnthropicClient(Client):
         # NOTE(josselin): For now, this is disabled as it is not an accurate
         # limit of tokens. It is still handled by truncate_sequence() further
         # down the line, but it is not ideal. (warnings are disabled)
+        # It is now expected that truncate_sequence() will truncate some tokens
+        # as we queried mroe tokens than necessary to ensure that the completion
+        # does not start with a colon, space, or newline.
 
         # Remove excess tokens at the end of the completion.
         # completion = " ".join(completion.split(" ")[:max_tokens])
@@ -58,9 +68,6 @@ class AnthropicClient(Client):
         return completion
 
     def make_request(self, request: Request) -> RequestResult:
-        def fix_token_text(text: str):
-            return text.replace("Ġ", " ")
-
         if request.max_tokens > AnthropicClient.MAX_COMPLETION_LENGTH:
             raise ValueError(
                 "The value for `max_tokens` exceeds the currently supported maximum "
@@ -70,11 +77,10 @@ class AnthropicClient(Client):
             raise ValueError("echo_prompt must be True when max_tokens=0.")
 
         raw_request = {
-            "prompt": f"{anthropic.HUMAN_PROMPT} {request.prompt}{anthropic.AI_PROMPT}"
-            + f" {AnthropicClient.PROMPT_ANSWER_START}",
-            "stop_sequences": [anthropic.HUMAN_PROMPT],
+            "prompt": request.prompt,
+            "stop_sequences": request.stop_sequences,
             "model": request.model_engine,
-            "max_tokens_to_sample": request.max_tokens + AnthropicClient.ADDITIONAL_TOKENS,
+            "max_tokens_to_sample": request.max_tokens,
             "temperature": request.temperature,
             "top_p": request.top_p,
             "top_k": request.top_k_per_token,
@@ -118,15 +124,13 @@ class AnthropicClient(Client):
             text: str = request.prompt + response["completion"] if request.echo_prompt else response["completion"]
             # The Anthropic API doesn't return us tokens or logprobs, so we tokenize ourselves.
             tokenization_result: TokenizationRequestResult = self.tokenize(
-                # Anthropic uses their own version of the GPT-2 tokenizer
-                # but we approximate it with the HuggingFace tokenizer.
-                TokenizationRequest(text, tokenizer="huggingface/gpt2")
+                # Anthropic uses their own tokenizer
+                TokenizationRequest(text, tokenizer=request.model_engine)
             )
 
             # Log probs are not currently not supported by the Anthropic, so set to 0 for now.
             tokens: List[Token] = [
-                Token(text=fix_token_text(str(text)), logprob=0, top_logprobs={})
-                for text in tokenization_result.raw_tokens
+                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
             ]
 
             completion = Sequence(text=response["completion"], logprob=0, tokens=tokens)
@@ -144,10 +148,48 @@ class AnthropicClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        return self.tokenizer_client.tokenize(request)
+        cache_key = asdict(request)
+
+        try:
+
+            def do_it():
+                encoding = self.tokenizer.encode(request.text)
+                return {"tokens": encoding.ids}
+
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
+            return TokenizationRequestResult(
+                success=True,
+                cached=cached,
+                text=request.text,
+                tokens=[TokenizationToken(value) for value in response["tokens"]],
+                request_time=response["request_time"],
+                error=None,
+            )
+        except Exception as error:
+            raise ValueError(f"Anthropic tokenizer error: {error} response {response}")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        return self.tokenizer_client.decode(request)
+        cache_key = asdict(request)
+
+        try:
+
+            def do_it():
+                text = self.tokenizer.decode(request.tokens)
+                return {"text": text}
+
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
+            return DecodeRequestResult(
+                success=True,
+                cached=cached,
+                text=str(response["text"]),
+                request_time=response["request_time"],
+                error=None,
+            )
+        except Exception as error:
+            print("================= response:", response)
+            raise ValueError(f"Anthropic tokenizer error: {error} {response}")
 
 
 class AnthropicRequestError(Exception):
@@ -202,6 +244,7 @@ class AnthropicLegacyClient(Client):
             return False
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
+        hlog("This client is deprecated. Please use AnthropicClient instead.")
         self.api_key = api_key
         self.cache = Cache(cache_config)
 

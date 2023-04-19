@@ -103,7 +103,6 @@ class AutoClient(Client):
                 client = AnthropicClient(
                     api_key=self.credentials["anthropicApiKey"],
                     cache_config=cache_config,
-                    tokenizer_client=self._get_tokenizer_client("huggingface"),
                 )
             elif organization == "microsoft":
                 org_id = self.credentials.get("microsoftOrgId", None)
