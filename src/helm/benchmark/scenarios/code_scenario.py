@@ -136,7 +136,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
 
         num_problems = 0
         skipped_problems = []
-        for problem_name in apps_listdir_with_pinned_order(split_tag, split_dir):
+        for problem_name in apps_listdir_with_pinned_order(target_path, split_tag):
             problem_dir = os.path.join(split_dir, problem_name)
 
             question_fname = os.path.join(problem_dir, "question.txt")
