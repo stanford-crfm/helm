@@ -18,7 +18,10 @@ CHATML_MODEL_TAG: str = "chatml"
 OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
 
 # For OpenAI models with wider context windows
-WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"  # 4000 tokens
+# TODO(#1455): Simplify context window tags.
+WIDER_CONTEXT_WINDOW_TAG: str = "openai_wider_context_window"  # 4000 tokens
+GPT4_CONTEXT_WINDOW_TAG: str = "gpt4_context_window"  # 8192 tokens
+GPT4_32K_CONTEXT_WINDOW_TAG: str = "gpt4_32k_context_window"  # 32768 tokens
 
 # For AI21 Jurassic-2 models with wider context windows
 AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
@@ -599,6 +602,41 @@ ALL_MODELS = [
         display_name="code-cushman-001 (12B)",
         description="Code model that is a stronger, multilingual version of the Codex (12B) model in the paper.",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
+    # GPT-4
+    Model(
+        group="gpt4",
+        creator_organization="OpenAI",
+        name="openai/gpt-4-0314",
+        display_name="gpt-4-0314",
+        # https://platform.openai.com/docs/models/gpt-4
+        description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
+        "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
+        "from March 14th 2023.",
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT4_CONTEXT_WINDOW_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+        ],
+    ),
+    Model(
+        group="gpt4",
+        creator_organization="OpenAI",
+        name="openai/gpt-4-32k-0314",
+        display_name="gpt-4-32k-0314",
+        # https://platform.openai.com/docs/models/gpt-4
+        description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
+        "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
+        "with a longer context length of 32,768 tokens from March 14th 2023.",
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT4_32K_CONTEXT_WINDOW_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+        ],
     ),
     # ChatGPT: https://openai.com/blog/chatgpt
     Model(
