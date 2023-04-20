@@ -19,7 +19,9 @@ from .run_expander import (
     GlobalPrefixRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
+    AddToStopRunExpander,
     IncreaseMaxTokensRunExpander,
+    FormatPromptRunExpander,
 )
 from .runner import RunSpec
 from .scenarios.lex_glue_scenario import (
@@ -41,8 +43,17 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
-from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG
+from helm.proxy.models import (
+    get_model,
+    NO_NEWLINES_TAG,
+    NLG_PREFIX_TAG,
+    CHATML_MODEL_TAG,
+    OPENAI_CHATGPT_MODEL_TAG,
+    ANTHROPIC_MODEL_TAG,
+)
 from helm.common.general import singleton
+import anthropic
+from helm.proxy.clients.anthropic_client import AnthropicClient
 
 
 ############################################################
@@ -2071,6 +2082,16 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
+
+        if ANTHROPIC_MODEL_TAG in model.tags:
+            add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
+            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
+            format_expander = FormatPromptRunExpander(
+                prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
+            )
+            run_spec = singleton(add_to_stop_expander.expand(run_spec))
+            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
+            run_spec = singleton(format_expander.expand(run_spec))
 
         return run_spec
 
