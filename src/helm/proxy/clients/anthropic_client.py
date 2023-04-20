@@ -167,7 +167,7 @@ class AnthropicClient(Client):
                 error=None,
             )
         except Exception as error:
-            raise ValueError(f"Anthropic tokenizer error: {error} response {response}")
+            raise ValueError(f"Anthropic tokenizer error: {error}")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         cache_key = asdict(request)
@@ -188,8 +188,7 @@ class AnthropicClient(Client):
                 error=None,
             )
         except Exception as error:
-            print("================= response:", response)
-            raise ValueError(f"Anthropic tokenizer error: {error} {response}")
+            raise ValueError(f"Anthropic tokenizer error: {error}")
 
 
 class AnthropicRequestError(Exception):
