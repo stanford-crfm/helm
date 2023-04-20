@@ -28,6 +28,7 @@ from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
 from .opt_window_service import OPTWindowService
+from .palmyra_window_service import PalmyraWindowService, PalmyraRWindowService
 from .remote_window_service import get_remote_window_service
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
@@ -84,6 +85,15 @@ class WindowServiceFactory:
             window_service = MTNLGWindowService(service)
         elif organization == "anthropic":
             window_service = AnthropicWindowService(service)
+        elif organization == "writer":
+            if engine == "palmyra-base":
+                window_service = PalmyraWindowService(service)
+            elif engine == "palmyra-large":
+                window_service = PalmyraWindowService(service)
+            elif engine == "palmyra-r":
+                window_service = PalmyraRWindowService(service)
+            else:
+                raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":
             window_service = SantaCoderWindowService(service)
         elif model_name == "huggingface/gpt2":

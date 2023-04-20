@@ -29,6 +29,7 @@ from .ice_tokenizer_client import ICETokenizerClient
 from .openai_client import OpenAIClient
 from .microsoft_client import MicrosoftClient
 from .perspective_api_client import PerspectiveAPIClient
+from .palmyra_client import PalmyraClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
@@ -119,6 +120,8 @@ class AutoClient(Client):
                 client = TogetherClient(api_key=self.credentials.get("togetherApiKey", None), cache_config=cache_config)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
+            elif organization == "writer":
+                client = PalmyraClient(api_key=self.credentials["writerApiKey"], cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client
@@ -183,6 +186,8 @@ class AutoClient(Client):
                 client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
+            elif organization == "writer" or organization == "Writer":
+                client = PalmyraClient(api_key=self.credentials["writerApiKey"], cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client
