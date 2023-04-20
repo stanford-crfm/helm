@@ -66,7 +66,7 @@ class OpenAIClient(Client):
                 # Note: Setting stop to ["\n"] results in an error
                 # See: https://community.openai.com/t/stop-n-in-gpt-3-5-turbo-leads-to-500-error/87815/15
                 # TODO: Handle this in the adapter.
-                "stop": request.stop_sequences or [],  # API doesn't like empty list
+                "stop": ["\n"],  # request.stop_sequences or [],  # API doesn't like empty list
                 # Note: Chat models may require adding an extra token to max_tokens
                 # for the internal special role token.
                 # TODO: Handle this in the adapter.
@@ -140,12 +140,15 @@ class OpenAIClient(Client):
             embedding = response["data"][0]["embedding"]
         elif self._is_chat_model_engine(request.model_engine):
             for raw_completion in response["choices"]:
-                # The OpenAI API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
+                # The OpenAI chat completion API doesn't support echo.
+                # If `echo_prompt` is true, combine the prompt and completion.
                 raw_completion_content = raw_completion["message"]["content"]
                 text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
-                # The OpenAI API doesn't return us tokens or logprobs, so we tokenize ourselves.
+                # The OpenAI chat completion API doesn't return us tokens or logprobs, so we tokenize ourselves.
                 tokenization_result: TokenizationRequestResult = self.tokenize(
-                    TokenizationRequest(text, model_engine=request.model_engine)
+                    TokenizationRequest(
+                        text, tokenizer="openai/" + tiktoken.encoding_for_model(request.model_engine).name
+                    )
                 )
                 # Log probs are not currently not supported by the OpenAI, so set to 0 for now.
                 tokens = [
@@ -194,20 +197,25 @@ class OpenAIClient(Client):
         )
 
     @staticmethod
-    def _get_model_engine_name(model_engine: str) -> str:
-        return "/".join(model_engine.split("/")[1:])
+    def _get_tokenizer_name(tokenizer: str) -> str:
+        return "/".join(tokenizer.split("/")[1:])
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         # For reproducibility purposes, we use huggingface/gpt2 as the default tokenizer.
         # except for gpt-3.5 turbo models and gpt-4 that use the tiktoken library.
 
-        if (
-            request.model_engine is not None
-            and self._get_model_engine_name(request.model_engine) not in OpenAIClient.MODELS_USING_TIKTOKEN
-        ):
-            return self.tokenizer_client.tokenize(
+        if "openai/" not in request.tokenizer:
+            print("request.tokenizer: ", request.tokenizer)
+            result = self.tokenizer_client.tokenize(
                 # We're assuming the model uses the GPT-2 tokenizer.
                 TokenizationRequest(request.text, tokenizer="huggingface/gpt2")
+            )
+            print("Using huggingface/gpt2 for tokenization", result)
+            return result
+        elif request.tokenizer != "openai/cl100k_base":
+            raise ValueError(
+                f"{request.tokenizer} is not supported."
+                + "Only openai/cl100k-base is supported by the tiktoken library for now."
             )
 
         cache_key = asdict(request)
@@ -215,38 +223,40 @@ class OpenAIClient(Client):
         try:
 
             def do_it():
-                if request.model_engine is not None:
-                    tokenizer_client = tiktoken.encoding_for_model(request.model_engine)
-                else:
-                    tokenizer_client = tiktoken.get_encoding(request.tokenizer)
-                tokens = tokenizer_client.encode(request.text)
-                return tokens
+                tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
+                tokens = tokenizer.encode(request.text)
+                return {"tokens": tokens}
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
-            return TokenizationRequestResult(
+            result = TokenizationRequestResult(
                 success=True,
                 cached=cached,
                 text=request.text,
-                tokens=[TokenizationToken(value) for value in response],
+                tokens=[TokenizationToken(value) for value in response["tokens"]],
                 request_time=response["request_time"],
                 error=None,
             )
-        except Exception as e:
-            error: str = f"Tiktoken error: {e}"
-            return TokenizationRequestResult(success=False, cached=False, text=request.text, tokens=[], error=error)
+            print("Using tiktoken for tokenization", result)
+            return result
+        except Exception as error:
+            raise ValueError(
+                f"Error encoding with tiktoken: {error}." + "You might want to consider using huggingface/gpt2."
+            )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         # For reproducibility purposes, we use huggingface/gpt2 as the default tokenizer.
         # except for gpt-3.5 turbo models and gpt-4 that use the tiktoken library.
 
-        if (
-            request.model_engine is not None
-            and OpenAIClient._get_model_engine_name(request.model_engine) not in OpenAIClient.MODELS_USING_TIKTOKEN
-        ):
+        if "openai/" not in request.tokenizer:
             return self.tokenizer_client.decode(
                 # We're assuming the model uses the GPT-2 tokenizer.
                 DecodeRequest(request.tokens, tokenizer="huggingface/gpt2")
+            )
+        elif request.tokenizer != "openai/cl100k_base":
+            raise ValueError(
+                f"{request.tokenizer} is not supported."
+                + "Only openai/cl100k-base is supported by the tiktoken library for now."
             )
 
         cache_key = asdict(request)
@@ -254,22 +264,20 @@ class OpenAIClient(Client):
         try:
 
             def do_it():
-                if request.model_engine is not None:
-                    tokenizer_client = tiktoken.encoding_for_model(request.model_engine)
-                else:
-                    tokenizer_client = tiktoken.get_encoding(request.tokenizer)
-                text = tokenizer_client.decode(request.tokens)
-                return text
+                tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
+                text = tokenizer.decode(request.tokens)
+                return {"text": text}
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
             return DecodeRequestResult(
                 success=True,
                 cached=cached,
-                text=str(response),
+                text=str(response["text"]),
                 request_time=response["request_time"],
                 error=None,
             )
-        except Exception as e:
-            error: str = f"Tiktoken error: {e}"
-            return DecodeRequestResult(success=False, cached=False, text="", error=error)
+        except Exception as error:
+            raise ValueError(
+                f"Error decoding with tiktoken: {error}." + "You might want to consider using huggingface/gpt2."
+            )

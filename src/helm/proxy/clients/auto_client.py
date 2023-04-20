@@ -168,9 +168,14 @@ class AutoClient(Client):
                 "gooseai",
                 "huggingface",
                 "microsoft",
-                "openai",
             ]:
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "openai":
+                client = OpenAIClient(
+                    api_key=self.credentials["openaiApiKey"],
+                    cache_config=cache_config,
+                    tokenizer_client=self._get_tokenizer_client("huggingface"),
+                )
             elif organization == "AlephAlpha":
                 client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
             elif organization == "TsinghuaKEG":

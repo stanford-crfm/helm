@@ -11,7 +11,6 @@ class TokenizationRequest:
 
     # Which tokenizer we should use
     tokenizer: str = "huggingface/gpt2"
-    model_engine: Optional[str] = None
 
     # Whether to encode
     encode: bool = False
@@ -96,7 +95,6 @@ class DecodeRequest:
 
     # Which tokenizer we should use
     tokenizer: str = "huggingface/gpt2"
-    model_engine: Optional[str] = None
 
     # Whether to clean up the tokenization spaces. Setting to False preserves the original text.
     clean_up_tokenization_spaces: bool = False

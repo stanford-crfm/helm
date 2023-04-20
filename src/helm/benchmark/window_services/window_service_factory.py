@@ -4,6 +4,7 @@ from helm.proxy.models import (
     Model,
     AI21_WIDER_CONTEXT_WINDOW_TAG,
     WIDER_CONTEXT_WINDOW_TAG,
+    GPT4_TOKENIZER_TAG,
 )
 from .ai21_window_service import AI21WindowService
 from .wider_ai21_window_service import WiderAI21WindowService
@@ -16,7 +17,7 @@ from .luminous_window_service import (
     LuminousWorldWindowService,
 )
 from .openai_window_service import OpenAIWindowService
-from .wider_openai_window_service import WiderOpenAIWindowService
+from .wider_openai_window_service import WiderOpenAIWindowService, OpenAIChatWindowService
 from .mt_nlg_window_service import MTNLGWindowService
 from .bloom_window_service import BloomWindowService
 from .huggingface_window_service import HuggingFaceWindowService
@@ -51,6 +52,8 @@ class WindowServiceFactory:
         huggingface_model_config = get_huggingface_model_config(model_name)
         if huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
+        elif model_name in get_model_names_with_tag(GPT4_TOKENIZER_TAG):
+            window_service = OpenAIChatWindowService(service)
         elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)
         # For the Google models, we approximate with the OpenAIWindowService

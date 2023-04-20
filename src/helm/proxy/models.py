@@ -29,6 +29,7 @@ AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
 COHERE_TOKENIZER_TAG: str = "cohere_tokenizer"
 OPT_TOKENIZER_TAG: str = "opt_tokenizer"
 GPTJ_TOKENIZER_TAG: str = "gptj_tokenizer"
+GPT4_TOKENIZER_TAG: str = "gpt4_tokenizer"
 GPTNEO_TOKENIZER_TAG: str = "gptneo_tokenizer"
 
 # Models that are used for ablations and fine-grained analyses.
@@ -595,9 +596,9 @@ ALL_MODELS = [
         tags=[
             TEXT_MODEL_TAG,
             WIDER_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
             OPENAI_CHATGPT_MODEL_TAG,
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-            GPT2_TOKENIZER_TAG,
         ],
     ),
     Model(
@@ -607,7 +608,7 @@ ALL_MODELS = [
         display_name="ChatGPT",
         description="Sibling model to InstructGPT which interacts in a conversational way",
         # TODO: The max context length is unknown. Assume it's the same length as Davinci Instruct for now.
-        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, GPT4_TOKENIZER_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
     Model(

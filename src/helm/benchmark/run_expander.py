@@ -15,6 +15,7 @@ from helm.proxy.models import (
     OPT_TOKENIZER_TAG,
     GPTJ_TOKENIZER_TAG,
     GPTNEO_TOKENIZER_TAG,
+    GPT4_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
@@ -770,6 +771,7 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
         (COHERE_TOKENIZER_TAG, "cohere/cohere"),
         (OPT_TOKENIZER_TAG, "meta/opt"),
         (GPTJ_TOKENIZER_TAG, "eleutherai/gptj"),
+        (GPT4_TOKENIZER_TAG, "openai/cl100k_base"),
         (GPTNEO_TOKENIZER_TAG, "eleutherai/gptneox"),
     ]
     for model_tag, tokenizer in model_tags_and_tokenizers:

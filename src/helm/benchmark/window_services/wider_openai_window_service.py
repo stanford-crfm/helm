@@ -14,3 +14,9 @@ class WiderOpenAIWindowService(GPT2WindowService):
         Source: https://beta.openai.com/docs/engines
         """
         return 4000
+
+
+class OpenAIChatWindowService(WiderOpenAIWindowService):
+    @property
+    def tokenizer_name(self) -> str:
+        return "openai/cl100k_base"
