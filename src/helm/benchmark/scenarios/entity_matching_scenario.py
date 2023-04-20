@@ -103,7 +103,7 @@ class EntityMatchingScenario(Scenario):
         return ". ".join(res)
 
     def get_instances(self) -> List[Instance]:
-        set_fixed_random_state_for_dataset(self.dataset)
+        set_fixed_random_state_for_dataset(self.output_path, self.dataset)
         data_path = Path(self.output_path) / "data" / self.dataset
         data_path.parent.mkdir(parents=True, exist_ok=True)
         ensure_file_downloaded(
