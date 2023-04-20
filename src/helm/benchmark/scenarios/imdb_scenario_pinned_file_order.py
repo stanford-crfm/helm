@@ -22,7 +22,7 @@ def get_split_to_class_to_pinned_file_order(download_dir: str):
         file_path: str = os.path.join(download_dir, _PINNED_FILE_ORDER_FILENAME)
         ensure_file_downloaded(
             source_url=_PINNED_FILE_ORDER_URL,
-            download_dir=file_path,
+            target_path=file_path,
             unpack=False,
         )
         with open(file_path) as f:
