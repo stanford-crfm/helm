@@ -62,7 +62,7 @@ class SummarizationScenario(Scenario):
         """
         super().__init__()
         if dataset_name not in ["xsum", "xsum-sampled", "cnn-dm"]:
-            raise Exception(f"Uknown dataset_name: {dataset_name}")
+            raise Exception(f"Unknown dataset_name: {dataset_name}")
         self.dataset_name = dataset_name
         self.sampling_min_length = sampling_min_length
         self.sampling_max_length = sampling_max_length

@@ -18,7 +18,7 @@ from helm.proxy.models import (
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
-from helm.benchmark.adaptation.adapter_spec import Substitution
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 
@@ -907,11 +907,37 @@ class IncreaseMaxTokensRunExpander(RunExpander):
         self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec: AdapterSpec = run_spec.adapter_spec
+        adapter_spec = replace(adapter_spec, max_tokens=adapter_spec.max_tokens + self.value)
         return [
             replace(
                 run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(run_spec.adapter_spec, max_tokens=run_spec.adapter_spec.max_tokens + self.value),
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
+class IncreaseTemperatureRunExpander(RunExpander):
+    """
+    Run expander for increasing the temperature.
+    """
+
+    name = "increase_temperature"
+
+    def __init__(self, value: float):
+        """
+        Args:
+            value (float): The amount to increase temperature by
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec: AdapterSpec = run_spec.adapter_spec
+        adapter_spec = replace(adapter_spec, temperature=adapter_spec.temperature + self.value)
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
             ),
         ]
 

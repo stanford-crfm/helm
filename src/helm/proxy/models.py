@@ -14,11 +14,17 @@ LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 # ChatML format
 CHATML_MODEL_TAG: str = "chatml"
 
+# OpenAI Chat format
+OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
+
 # For Anthropic models
 ANTHROPIC_MODEL_TAG: str = "anthropic"
 
 # For OpenAI models with wider context windows
-WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"  # 4000 tokens
+# TODO(#1455): Simplify context window tags.
+WIDER_CONTEXT_WINDOW_TAG: str = "openai_wider_context_window"  # 4000 tokens
+GPT4_CONTEXT_WINDOW_TAG: str = "gpt4_context_window"  # 8192 tokens
+GPT4_32K_CONTEXT_WINDOW_TAG: str = "gpt4_32k_context_window"  # 32768 tokens
 
 # For AI21 Jurassic-2 models with wider context windows
 AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
@@ -30,6 +36,9 @@ COHERE_TOKENIZER_TAG: str = "cohere_tokenizer"
 OPT_TOKENIZER_TAG: str = "opt_tokenizer"
 GPTJ_TOKENIZER_TAG: str = "gptj_tokenizer"
 GPTNEO_TOKENIZER_TAG: str = "gptneo_tokenizer"
+
+# Models which emit garbage tokens when temperature=0.
+BUGGY_TEMP_0_TAG: str = "buggy_temp_0"
 
 # Models that are used for ablations and fine-grained analyses.
 # These models are selected specifically because of their low marginal cost to evaluate.
@@ -138,7 +147,7 @@ ALL_MODELS = [
         name="ai21/j2-jumbo",
         display_name="Jurassic-2 Jumbo (178B)",
         description="Jurassic-2 Jumbo (178B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
         group="jurassic",
@@ -337,7 +346,13 @@ ALL_MODELS = [
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            GPTJ_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
     ),
     Model(
         group="together",
@@ -458,6 +473,38 @@ ALL_MODELS = [
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-6.7b",
+        display_name="OPT (6.7B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained "
+        "transformers that are fully and responsibly shared with interested researchers.",
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            OPT_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
+    ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-1.3b",
+        display_name="OPT (1.3B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained "
+        "transformers that are fully and responsibly shared with interested researchers.",
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            OPT_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
     ),
     # Microsoft/NVIDIA
     Model(
@@ -587,6 +634,41 @@ ALL_MODELS = [
         description="Code model that is a stronger, multilingual version of the Codex (12B) model in the paper.",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
+    # GPT-4
+    Model(
+        group="gpt4",
+        creator_organization="OpenAI",
+        name="openai/gpt-4-0314",
+        display_name="gpt-4-0314",
+        # https://platform.openai.com/docs/models/gpt-4
+        description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
+        "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
+        "from March 14th 2023.",
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT4_CONTEXT_WINDOW_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+        ],
+    ),
+    Model(
+        group="gpt4",
+        creator_organization="OpenAI",
+        name="openai/gpt-4-32k-0314",
+        display_name="gpt-4-32k-0314",
+        # https://platform.openai.com/docs/models/gpt-4
+        description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
+        "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
+        "with a longer context length of 32,768 tokens from March 14th 2023.",
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT4_32K_CONTEXT_WINDOW_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+        ],
+    ),
     # ChatGPT: https://openai.com/blog/chatgpt
     Model(
         group="gpt3",
@@ -600,7 +682,13 @@ ALL_MODELS = [
         # sequence length is smaller at 4087 with one user input message and one assistant
         # output message because ChatGPT uses special tokens for message roles and boundaries.
         # We use a rounded-down sequence length of 4000 to account for these special tokens.
-        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            WIDER_CONTEXT_WINDOW_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+        ],
     ),
     Model(
         group="gpt3",

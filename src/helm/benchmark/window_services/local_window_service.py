@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from typing import List, Optional, cast
 
 from .window_service import WindowService, EncodeResult
@@ -15,11 +14,6 @@ from helm.common.tokenization_request import (
 class LocalWindowService(WindowService):
     def __init__(self, service: TokenizerService):
         self.service: TokenizerService = service
-
-    @property
-    @abstractmethod
-    def tokenizer_name(self) -> str:
-        pass
 
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """
@@ -92,7 +86,10 @@ class LocalWindowService(WindowService):
         max_length: int = self.max_request_length - expected_completion_token_length
         result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
 
-        # Validate that the truncated text now fits. Fail fast otherwise.
-        num_tokens: int = self.get_num_tokens(result)
-        assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
+        # HACK: For the vast majority of cases, the above logic works, but it sometimes doesn't work
+        # for non-English, non-Chinese text (e.g., Russian from multi_eurlex. See more
+        # in https://github.com/stanford-crfm/helm/issues/1448).
+        # Truncate by removing character by character until the prompt fits within the context window.
+        while not self.fits_within_context_window(result, expected_completion_token_length):
+            result = result[:-1]
         return result

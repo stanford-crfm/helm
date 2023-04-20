@@ -297,6 +297,22 @@ models:
     num_parameters: 66000000000
     release_date: 2022-05-02
 
+  - name: together/opt-6.7b
+    display_name: OPT (6.7B)
+    description: Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 6700000000
+    release_date: 2022-05-02
+  
+  - name: together/opt-1.3b
+    display_name: OPT (1.3B)
+    description: Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 1300000000
+    release_date: 2022-05-02
+
   - name: together/galactica-120b
     display_name: Galactica (120B)
     description: Galactica (120B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).
@@ -403,6 +419,18 @@ models:
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-27
+  - name: openai/gpt-4-0314
+    display_name: gpt-4-0314
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from March 14th 2023.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-03-14
+  - name: openai/gpt-4-32k-0314
+    display_name: gpt-4-32k-0314
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 with a longer context length of 32,768 tokens from March 14th 2023.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-03-14
   - name: openai/code-davinci-002
     display_name: code-davinci-002
     description: Codex-style model that is designed for pure code-completion tasks ([docs](https://beta.openai.com/docs/models/codex)).
@@ -2195,6 +2223,64 @@ run_groups:
     environment:
       main_name: classification_macro_f1
       main_split: test
+
+  - name: billsum_legal_summarization
+    display_name: BillSum
+    description: The BillSum benchmark for legal text summarization ([Kornilova & Eidelmann, 2020](https://aclanthology.org/D19-5406/)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal text from US bills
+      who: lawyers
+      language: English
+
+  - name: multilexsum_legal_summarization
+    display_name: MultiLexSum
+    description: The MultiLexSum benchmark for legal text summarization ([Shen et al., 2022](https://arxiv.org/abs/2206.10883)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal text from US civil rights lawsuits
+      who: lawyers
+      language: English
+
+  - name: eurlexsum_legal_summarization
+    display_name: EurLexSum
+    description: The EurLexSum benchmark for legal text summarization ([Aumiller et al., 2022](https://arxiv.org/abs/2210.13448)).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+      - general_information
+    environment:
+      main_name: rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: legal text from EU legislation
+      who: lawyers
+      when: 1960 - 2020
+      language: English
 
   - name: entity_data_imputation
     display_name: Data imputation

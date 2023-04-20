@@ -8,6 +8,7 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
 from helm.proxy.clients.huggingface_model_registry import register_huggingface_model_config
+from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -221,12 +222,23 @@ def main():
         help="Experimental: Enable using AutoModelForCausalLM models from Hugging Face Model Hub. "
         "Format: namespace/model_name[@revision]",
     )
+    parser.add_argument(
+        "--enable-remote-models",
+        nargs="+",
+        default=[],
+        help="Experimental: Enable remote service models that are not available on the client. "
+        "The client will use RemoteWindowService for windowing. "
+        "Format: namespace/model_name[@revision]",
+    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
 
     for huggingface_model_name in args.enable_huggingface_models:
         register_huggingface_model_config(huggingface_model_name)
+
+    if not args.local:
+        check_and_register_remote_model(args.server_url, args.enable_remote_models)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:

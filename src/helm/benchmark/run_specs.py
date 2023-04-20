@@ -22,6 +22,7 @@ from .run_expander import (
     AddToStopRunExpander,
     IncreaseMaxTokensRunExpander,
     FormatPromptRunExpander,
+    IncreaseTemperatureRunExpander,
 )
 from .runner import RunSpec
 from .scenarios.lex_glue_scenario import (
@@ -43,7 +44,15 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
-from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG, ANTHROPIC_MODEL_TAG
+from helm.proxy.models import (
+    get_model,
+    NO_NEWLINES_TAG,
+    NLG_PREFIX_TAG,
+    CHATML_MODEL_TAG,
+    OPENAI_CHATGPT_MODEL_TAG,
+    ANTHROPIC_MODEL_TAG,
+    BUGGY_TEMP_0_TAG,
+)
 from helm.common.general import singleton
 import anthropic
 from helm.proxy.clients.anthropic_client import AnthropicClient
@@ -132,12 +141,11 @@ def get_multiple_choice_adapter_spec(
     output_noun: str,
     max_train_instances: int = 5,
     num_outputs: int = 5,
-    max_tokens: int = 5,
+    max_tokens: int = 1,
     empty_input: bool = False,
     sample_train: bool = True,
     **kwargs,
 ):
-
     """
     Toggle between joint and separate adapters.
     """
@@ -323,13 +331,15 @@ def get_language_modeling_adapter_spec() -> AdapterSpec:
     )
 
 
-def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
+def get_summarization_adapter_spec(num_sents: Optional[int], max_train_instances: int = 5, **kwargs) -> AdapterSpec:
     """
     Used for summarization.
     """
 
     if num_sents == 1:
         out_pref = "Summarize the above article in 1 sentence.\n"
+    elif num_sents is None:
+        out_pref = "Summarize the above article.\n"
     else:
         out_pref = f"Summarize the above article in {num_sents} sentences.\n"
 
@@ -340,7 +350,7 @@ def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
         input_suffix="\n\n",
         output_prefix=out_pref,
         output_suffix="\n",
-        max_train_instances=5,
+        max_train_instances=max_train_instances,
         num_outputs=1,
         stop_sequences=["###"],  # Separator between few-shot instances.
         **kwargs,
@@ -1207,7 +1217,6 @@ def get_code_spec(dataset: str, timeout=3) -> RunSpec:
 
 
 def get_natural_qa_spec(mode: str) -> RunSpec:
-
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={"mode": mode}
     )
@@ -1815,6 +1824,87 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
     )
 
 
+def get_billsum_legal_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legal_summarization_scenario.LegalSummarizationScenario",
+        args={
+            "dataset_name": "BillSum",
+            "sampling_min_length": 200,
+            "sampling_max_length": 800,  # 2000 would be ideal, but for economic reasons set it lower
+            "doc_max_length": 2048,  # 4096 would be ideal, but for economic reasons set it lower
+        },
+    )
+
+    adapter_spec = get_summarization_adapter_spec(
+        num_sents=None,
+        max_tokens=1024,  # From Kornilova & Eidelmann, 2020 (https://arxiv.org/pdf/1910.00523.pdf)
+        temperature=temperature,  # similar to other summarization tasks
+    )
+
+    return RunSpec(
+        name=f"legal_summarization:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "billsum_legal_summarization", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=["legal_summarization", "summarization"],
+    )
+
+
+def get_multilexsum_legal_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legal_summarization_scenario.LegalSummarizationScenario",
+        args={
+            "dataset_name": "MultiLexSum",
+            "sampling_min_length": 100,
+            "sampling_max_length": 400,  # 1000 would be ideal, but for economic reasons set it lower
+            "doc_max_length": 1024,  # 2048 would be ideal, but for economic reasons set it lower
+        },
+    )
+
+    adapter_spec = get_summarization_adapter_spec(
+        num_sents=2,
+        max_tokens=256,  # From Shen et al., 2022 (https://arxiv.org/pdf/2206.10883.pdf)
+        temperature=temperature,  # similar to other summarization tasks
+    )
+
+    return RunSpec(
+        name=f"legal_summarization:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "multilexsum_legal_summarization", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=["legal_summarization", "summarization"],
+    )
+
+
+def get_eurlexsum_legal_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legal_summarization_scenario.LegalSummarizationScenario",
+        args={
+            "dataset_name": "EurLexSum",
+            "sampling_min_length": 400,
+            "sampling_max_length": 1600,  # 4000 would be ideal, but for economic reasons set it lower
+            "doc_max_length": 2048,  # 8192 would be ideal, but for economic reasons set it lower
+        },
+    )
+
+    adapter_spec = get_summarization_adapter_spec(
+        num_sents=None,
+        max_tokens=2048,  # From Aumiller et al., 2022 (https://arxiv.org/pdf/2210.13448.pdf)
+        temperature=temperature,  # similar to other summarization tasks
+    )
+
+    return RunSpec(
+        name=f"legal_summarization:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "eurlexsum_legal_summarization", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=["legal_summarization", "summarization"],
+    )
+
+
 def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec:
     FULL_LANGUAGE_NAMES = {
         "cs": "Czech",
@@ -1921,14 +2011,18 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "bbq": get_bbq_spec,
     "civil_comments": get_civil_comments_spec,
     "dyck_language": get_dyck_language_spec,
-    "legal_support": get_legal_support_spec,
     "entity_matching": get_entity_matching_spec,
     "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
     "big_bench": get_big_bench_spec,
+    "wmt_14": get_wmt_14_spec,
+    # Legal
+    "legal_support": get_legal_support_spec,
     "lextreme": get_lextreme_spec,
     "lex_glue": get_lex_glue_spec,
-    "wmt_14": get_wmt_14_spec,
+    "billsum_legal_summarization": get_billsum_legal_summarization_spec,
+    "multilexsum_legal_summarization": get_multilexsum_legal_summarization_spec,
+    "eurlexsum_legal_summarization": get_eurlexsum_legal_summarization_spec,
     # Biomedical
     "covid_dialog": get_covid_dialog_spec,
     "me_q_sum": get_me_q_sum_spec,
@@ -1980,6 +2074,12 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
             run_spec = singleton(global_prefix_expander.expand(run_spec))
 
+        # When running ChatGPT on non-language modelling tasks, increase max_tokens by 1
+        # to add room for the special message role token.
+        if OPENAI_CHATGPT_MODEL_TAG in model.tags and run_spec.adapter_spec.max_tokens:
+            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=1)
+            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
+
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
@@ -1993,6 +2093,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             run_spec = singleton(add_to_stop_expander.expand(run_spec))
             run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
             run_spec = singleton(format_expander.expand(run_spec))
+
+        # For multiple choice
+        if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
+            increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
+            run_spec = singleton(increase_temperature_expander.expand(run_spec))
 
         return run_spec
 

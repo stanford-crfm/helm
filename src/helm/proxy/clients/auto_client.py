@@ -14,6 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.retry import retry_request
+from .critique_client import CritiqueClient, SurgeAICritiqueClient
 from .client import Client
 from .ai21_client import AI21Client
 from .aleph_alpha_client import AlephAlphaClient
@@ -42,6 +43,8 @@ class AutoClient(Client):
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
         self.tokenizer_clients: Dict[str, Client] = {}
+        # self.critique_client is lazily instantiated by get_critique_client()
+        self.critique_client: Optional[CritiqueClient] = None
         huggingface_cache_config = self._build_cache_config("huggingface")
         self.huggingface_client = HuggingFaceClient(huggingface_cache_config)
         hlog(f"AutoClient: cache_path = {cache_path}")
@@ -226,3 +229,15 @@ class AutoClient(Client):
         """Get the toxicity classifier client. We currently only support Perspective API."""
         cache_config: CacheConfig = self._build_cache_config("perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
+
+    def get_critique_client(self) -> CritiqueClient:
+        """Get the critique client."""
+        if not self.critique_client:
+            surgeai_credentials = self.credentials.get("surgeaiApiKey", None)
+            if surgeai_credentials:
+                self.critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
+            # To use the RandomCritiqueClient for debugging, comment out `raise ValueError` and uncomment the following
+            # from .critique_client import RandomCritiqueClient
+            # self.critique_client =  RandomCritiqueClient()
+            raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
+        return self.critique_client
