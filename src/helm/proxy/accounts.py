@@ -18,6 +18,7 @@ from helm.common.general import hlog
 DEFAULT_QUOTAS = {
     # model group -> {granularity -> quota}
     "gpt3": {"daily": 10000},
+    "gpt4": {"daily": 10000},
     "codex": {"daily": 10000},
     "jurassic": {"daily": 10000},
     "gooseai": {"daily": 10000},

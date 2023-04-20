@@ -22,6 +22,7 @@ from .run_expander import (
     AddToStopRunExpander,
     IncreaseMaxTokensRunExpander,
     FormatPromptRunExpander,
+    IncreaseTemperatureRunExpander,
 )
 from .runner import RunSpec
 from .scenarios.lex_glue_scenario import (
@@ -50,6 +51,7 @@ from helm.proxy.models import (
     CHATML_MODEL_TAG,
     OPENAI_CHATGPT_MODEL_TAG,
     ANTHROPIC_MODEL_TAG,
+    BUGGY_TEMP_0_TAG,
 )
 from helm.common.general import singleton
 import anthropic
@@ -144,7 +146,6 @@ def get_multiple_choice_adapter_spec(
     sample_train: bool = True,
     **kwargs,
 ):
-
     """
     Toggle between joint and separate adapters.
     """
@@ -2092,6 +2093,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             run_spec = singleton(add_to_stop_expander.expand(run_spec))
             run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
             run_spec = singleton(format_expander.expand(run_spec))
+
+        # For multiple choice
+        if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
+            increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
+            run_spec = singleton(increase_temperature_expander.expand(run_spec))
 
         return run_spec
 
