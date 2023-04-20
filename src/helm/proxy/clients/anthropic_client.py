@@ -115,7 +115,37 @@ class AnthropicClient(Client):
 
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except Exception as error:
-                return RequestResult(success=False, cached=False, error=str(error), completions=[], embedding=[])
+                if "Prompt must contain anthropic.AI_PROMPT" in str(error) or "exceeds max (" in str(error):
+                    error_string: str = str(error)
+
+                    def do_it_error():
+                        # NOTE(josselin): This is HACKY.
+                        # It is used two solve 2 API eerors:
+                        # - "Prompt must contain anthropic.AI_PROMPT". Usually caused by some truncations
+                        # that removes the suffix.
+                        # - Prompt length + max_tokens exceeds nax (9192). This is because we request too many tokens.
+                        # In practice it is very rare but it will fail the runs so we add an error message
+                        # as the completion instead.
+                        return {"completion": "[HELM] Prompt too long. [ERROR] " + error_string}
+
+                    new_cache_key = Client.make_cache_key(
+                        {
+                            "engine": request.model_engine,
+                            "echo_prompt": request.echo_prompt,
+                            "completion_index": completion_index,
+                            "exception": True,
+                            **raw_request,
+                        },
+                        request,
+                    )
+
+                    response, cached = self.cache.get(new_cache_key, wrap_request_time(do_it_error))
+                else:
+                    print("++++++++++++++++++++++++++++++")
+                    print(error)
+                    print(str(error))
+                    print("++++++++++++++++++++++++++++++")
+                    return RequestResult(success=False, cached=False, error=str(error), completions=[], embedding=[])
 
             # Post process the completion.
             response["completion"] = self._filter_completion(response["completion"], request.max_tokens)
