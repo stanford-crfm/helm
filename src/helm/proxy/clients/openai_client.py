@@ -66,7 +66,7 @@ class OpenAIClient(Client):
                 # Note: Setting stop to ["\n"] results in an error
                 # See: https://community.openai.com/t/stop-n-in-gpt-3-5-turbo-leads-to-500-error/87815/15
                 # TODO: Handle this in the adapter.
-                "stop": ["\n"],  # request.stop_sequences or [],  # API doesn't like empty list
+                "stop": request.stop_sequences or [],  # API doesn't like empty list
                 # Note: Chat models may require adding an extra token to max_tokens
                 # for the internal special role token.
                 # TODO: Handle this in the adapter.
@@ -224,7 +224,13 @@ class OpenAIClient(Client):
 
             def do_it():
                 tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
-                tokens = tokenizer.encode(request.text)
+                # NOTE(josselin): The tokenizer.encode method returns a list of integers.
+                # This shouuld be fine as TokenizationToken accepts both integers and strings.
+                # In reality, some metrics assume strings, so we decode the integers here.
+                # This is Hacky and should be fixed.
+                # If fixed, the following line should be fine:
+                # tokenizer.encode(request.text)
+                tokens = [tokenizer.decode([token]) for token in tokenizer.encode(request.text)]
                 return {"tokens": tokens}
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
