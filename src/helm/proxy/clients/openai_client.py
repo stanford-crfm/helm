@@ -146,7 +146,7 @@ class OpenAIClient(Client):
                         text, tokenizer="openai/" + tiktoken.encoding_for_model(request.model_engine).name
                     )
                 )
-                # Log probs are not currently not supported by the OpenAI, so set to 0 for now.
+                # Log probs are not currently not supported by the OpenAI chat completion API, so set to 0 for now.
                 tokens = [
                     Token(text=cast(str, raw_token), logprob=0, top_logprobs={})
                     for raw_token in tokenization_result.raw_tokens
@@ -201,12 +201,10 @@ class OpenAIClient(Client):
         # except for gpt-3.5 turbo models and gpt-4 that use the tiktoken library.
 
         if "openai/" not in request.tokenizer:
-            print("request.tokenizer: ", request.tokenizer)
             result = self.tokenizer_client.tokenize(
                 # We're assuming the model uses the GPT-2 tokenizer.
                 TokenizationRequest(request.text, tokenizer="huggingface/gpt2")
             )
-            print("Using huggingface/gpt2 for tokenization", result)
             return result
         elif request.tokenizer != "openai/cl100k_base":
             raise ValueError(
@@ -239,7 +237,6 @@ class OpenAIClient(Client):
                 request_time=response["request_time"],
                 error=None,
             )
-            print("Using tiktoken for tokenization", result)
             return result
         except Exception as error:
             raise ValueError(
