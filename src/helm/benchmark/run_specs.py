@@ -1045,7 +1045,6 @@ def get_math_spec(
 
 
 @run_spec_function("boolq")
-@run_spec_function("boolq")
 def get_boolq_spec(only_contrast=False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast}
