@@ -588,7 +588,7 @@ ALL_MODELS = [
         # https://platform.openai.com/docs/models/gpt-4
         description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
         "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
-        "from March 14th 2023.",
+        "with a longer context length of 32,768 tokens from March 14th 2023.",
         tags=[
             TEXT_MODEL_TAG,
             GPT4_32K_CONTEXT_WINDOW_TAG,

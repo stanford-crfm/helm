@@ -60,13 +60,9 @@ class OpenAIClient(Client):
                 "temperature": request.temperature,
                 "top_p": request.top_p,
                 "n": request.num_completions,
-                # Note: Setting stop to ["\n"] results in an error
-                # See: https://community.openai.com/t/stop-n-in-gpt-3-5-turbo-leads-to-500-error/87815/15
-                # TODO: Handle this in the adapter.
                 "stop": request.stop_sequences or None,  # API doesn't like empty list
                 # Note: Chat models may require adding an extra token to max_tokens
                 # for the internal special role token.
-                # TODO: Handle this in the adapter.
                 "max_tokens": request.max_tokens,
                 "presence_penalty": request.presence_penalty,
                 "frequency_penalty": request.frequency_penalty,

@@ -6,7 +6,7 @@ class WiderOpenAIWindowService(GPT2WindowService):
     def max_sequence_length(self) -> int:
         """Return the max sequence length of the larger second-generation OpenAI models.
 
-        Source: https://beta.openai.com/docs/engines"""
+        Source: https://platform.openai.com/docs/models"""
         return 4000
 
 
@@ -15,7 +15,7 @@ class GPT4WindowService(GPT2WindowService):
     def max_sequence_length(self) -> int:
         """Return the max sequence length for GPT-4.
 
-        Source: https://beta.openai.com/docs/engines"""
+        Source: https://platform.openai.com/docs/models"""
         return 8192
 
 
@@ -24,5 +24,5 @@ class GPT432KWindowService(GPT2WindowService):
     def max_sequence_length(self) -> int:
         """Return the max sequence length for GPT-4.
 
-        Source: https://beta.openai.com/docs/engines"""
+        Source: https://platform.openai.com/docs/models"""
         return 32768
