@@ -24,6 +24,11 @@ class EncodeResult:
 class WindowService(ABC):
     @property
     @abstractmethod
+    def tokenizer_name(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
     def max_sequence_length(self) -> int:
         """The max length of the model input."""
         pass

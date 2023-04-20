@@ -870,6 +870,31 @@ class IncreaseMaxTokensRunExpander(RunExpander):
         ]
 
 
+class IncreaseTemperatureRunExpander(RunExpander):
+    """
+    Run expander for increasing the temperature.
+    """
+
+    name = "increase_temperature"
+
+    def __init__(self, value: float):
+        """
+        Args:
+            value (float): The amount to increase temperature by
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec: AdapterSpec = run_spec.adapter_spec
+        adapter_spec = replace(adapter_spec, temperature=adapter_spec.temperature + self.value)
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
 class ChatMLRunExpander(RunExpander):
     """
     Adapt to ChatML: https://github.com/openai/openai-python/blob/main/chatml.md
