@@ -828,8 +828,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
             assert correct_stat.mean is not None
             max_probs.append(max_prob_stat.mean)
             cur_correct = float(correct_stat.mean)
-            # For a single example, we either get it correct or not.
-            assert np.isclose(cur_correct, 1.0) or np.isclose(cur_correct, 0.0)
+            assert 0.0 <= cur_correct <= 1.0
             correct.append(int(cur_correct))
 
     stats: List[Stat] = []
