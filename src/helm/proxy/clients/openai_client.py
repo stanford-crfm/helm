@@ -21,7 +21,6 @@ ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__ba
 
 class OpenAIClient(Client):
     END_OF_TEXT: str = "<|endoftext|>"
-    MODELS_USING_TIKTOKEN: List[str] = ["gpt-3.5-turbo-0301", "gpt-4-32k-0314"]
 
     def __init__(
         self,
@@ -194,19 +193,13 @@ class OpenAIClient(Client):
 
     @staticmethod
     def _get_tokenizer_name(tokenizer: str) -> str:
-        return "/".join(tokenizer.split("/")[1:])
+        return tokenizer.split("/")[1]
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         # For reproducibility purposes, we use huggingface/gpt2 as the default tokenizer.
         # except for gpt-3.5 turbo models and gpt-4 that use the tiktoken library.
 
-        if "openai/" not in request.tokenizer:
-            result = self.tokenizer_client.tokenize(
-                # We're assuming the model uses the GPT-2 tokenizer.
-                TokenizationRequest(request.text, tokenizer="huggingface/gpt2")
-            )
-            return result
-        elif request.tokenizer != "openai/cl100k_base":
+        if request.tokenizer != "openai/cl100k_base":
             raise ValueError(
                 f"{request.tokenizer} is not supported."
                 + "Only openai/cl100k-base is supported by the tiktoken library for now."
@@ -247,12 +240,7 @@ class OpenAIClient(Client):
         # For reproducibility purposes, we use huggingface/gpt2 as the default tokenizer.
         # except for gpt-3.5 turbo models and gpt-4 that use the tiktoken library.
 
-        if "openai/" not in request.tokenizer:
-            return self.tokenizer_client.decode(
-                # We're assuming the model uses the GPT-2 tokenizer.
-                DecodeRequest(request.tokens, tokenizer="huggingface/gpt2")
-            )
-        elif request.tokenizer != "openai/cl100k_base":
+        if request.tokenizer != "openai/cl100k_base":
             raise ValueError(
                 f"{request.tokenizer} is not supported."
                 + "Only openai/cl100k-base is supported by the tiktoken library for now."
@@ -264,7 +252,10 @@ class OpenAIClient(Client):
 
             def do_it():
                 tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
-                text = tokenizer.decode(request.tokens)
+                for token in request.tokens:
+                    print(tokenizer.encode(token))
+                tokens = [token if isinstance(token, int) else tokenizer.encode(token)[0] for token in request.tokens]
+                text = tokenizer.decode(tokens)
                 return {"text": text}
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))

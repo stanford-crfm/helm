@@ -667,7 +667,7 @@ ALL_MODELS = [
         display_name="ChatGPT",
         description="Sibling model to InstructGPT which interacts in a conversational way",
         # TODO: The max context length is unknown. Assume it's the same length as Davinci Instruct for now.
-        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, GPT4_TOKENIZER_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, GPT2_TOKENIZER_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
     Model(

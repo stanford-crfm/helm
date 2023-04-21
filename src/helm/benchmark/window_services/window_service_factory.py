@@ -21,7 +21,7 @@ from .luminous_window_service import (
 from .openai_window_service import OpenAIWindowService
 from .wider_openai_window_service import (
     WiderOpenAIWindowService,
-    OpenAIChatWindowService,
+    GPT3Dot5TurboWindowService,
     GPT4WindowService,
     GPT432KWindowService,
 )
@@ -71,7 +71,7 @@ class WindowServiceFactory:
             if model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
                 window_service = GPT432KWindowService(service)
             if model_name in get_model_names_with_tag(GPT4_TOKENIZER_TAG):
-                window_service = OpenAIChatWindowService(service)
+                window_service = GPT3Dot5TurboWindowService(service)
             else:
                 window_service = OpenAIWindowService(service)
         # For the Google models, we approximate with the OpenAIWindowService
