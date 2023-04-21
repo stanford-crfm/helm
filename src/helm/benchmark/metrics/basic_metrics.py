@@ -791,8 +791,7 @@ class BasicMetric(Metric):
 
         # It is possible that multiple references achieve the same maximal score. We break ties by picking the
         # first reference in the argmax list. Exact match is calculated as the fraction of argmax references that are correct.
-        reference_scores = np.array(reference_scores)
-        argmax_references = np.flatnonzero(reference_scores >= reference_scores.max())
+        argmax_references = np.flatnonzero(reference_scores >= np.max(reference_scores))
         exact_match_score = len(set(answers).intersection(argmax_references)) / len(argmax_references)
 
         stats.extend(
