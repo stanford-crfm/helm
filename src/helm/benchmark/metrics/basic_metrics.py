@@ -784,21 +784,15 @@ class BasicMetric(Metric):
         else:
             raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
 
-        answer_scores = [reference_scores[i] for i in answers]
-
         stats: List[Stat] = []
         stats.extend(self.compute_all_general_metrics(adapter_spec, request_state, metric_service))
 
         max_prob = np.max(scipy.special.softmax(reference_scores))
-        # TODO: fix the accuracy calculation---it is currently incorrect when there are ties.
-        # For example, in binary classification if the model's predicted probabilities are
-        # [0.5, 0.5], then this code will say we got the example correct, regardless of what
-        # the answer is, because the calculation max(reference_scores) == max(answer_scores)
-        # will always return True.
+
         stats.extend(
             [
                 Stat(MetricName("max_prob")).add(max_prob),
-                Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
+                Stat(MetricName("exact_match")).add(np.argmax(reference_scores) in answers),
                 Stat(MetricName("predicted_index")).add(reference_scores.index(max(reference_scores))),
             ]
         )
