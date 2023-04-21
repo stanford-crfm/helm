@@ -68,6 +68,10 @@ class PalmyraClient(Client):
             "maxTokens": request.max_tokens,
             "temperature": request.temperature,
             "topP": request.top_p,
+            "topK": request.top_k_per_token,
+            "stop": request.stop_sequences,
+            "presencePenalty": request.presence_penalty,
+            "frequencyPenalty": request.frequency_penalty,
             # bestOf: figure out what this does
         }
 

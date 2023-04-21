@@ -517,6 +517,35 @@ models:
     access: limited
     num_parameters: 30000000000
     release_date: 2023-04-20
+  - name: writer/camel
+    display_name: Camel (5B)
+    description: Camel (5B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 5000000000
+    release_date: 2023-04-20
+  - name: writer/instruct-palmyra
+    display_name: InstructPalmyra (30B)
+    description: InstructPalmyra (30B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-04-20
+  - name: writer/palmyra-e
+    display_name: Palmyra E (30B)
+    description: Palmyra E (30B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-04-20
+  - name: writer/silk-road
+    display_name: Silk Road (35B)
+    description: Silk Road (35B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 35000000000
+    release_date: 2023-04-20
+  
 
     
   # Yandex
