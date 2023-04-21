@@ -793,13 +793,14 @@ class BasicMetric(Metric):
         # we select the first reference within the argmax list as the `predicted_index`.
         # Meanwhile, the "exact match" is calculated as the portion of correct references in the list.
         argmax_references = np.flatnonzero(reference_scores >= np.max(reference_scores))
+        predicted_index = argmax_references[0].item()
         exact_match_score = len(set(answers).intersection(argmax_references)) / len(argmax_references)
 
         stats.extend(
             [
                 Stat(MetricName("max_prob")).add(max_prob),
                 Stat(MetricName("exact_match")).add(exact_match_score),
-                Stat(MetricName("predicted_index")).add(argmax_references[0].item()),
+                Stat(MetricName("predicted_index")).add(predicted_index),
             ]
         )
         return stats
