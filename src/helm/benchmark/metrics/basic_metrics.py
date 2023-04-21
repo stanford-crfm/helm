@@ -789,11 +789,16 @@ class BasicMetric(Metric):
 
         max_prob = np.max(scipy.special.softmax(reference_scores))
 
+        # It is likely that multiple references achieved the same maximal score. We break ties by picking the
+        # first reference in the list. Exact match is calculated as the fraction of argmax references that are correct.
+        argmax_references = np.flatnonzero(reference_scores >= reference_scores.max())
+        exact_match_score = len(set(answers).intersection(argmax_references)) / len(argmax_references)
+
         stats.extend(
             [
                 Stat(MetricName("max_prob")).add(max_prob),
-                Stat(MetricName("exact_match")).add(np.argmax(reference_scores) in answers),
-                Stat(MetricName("predicted_index")).add(reference_scores.index(max(reference_scores))),
+                Stat(MetricName("exact_match")).add(exact_match_score),
+                Stat(MetricName("predicted_index")).add(argmax_references[0]),
             ]
         )
         return stats
