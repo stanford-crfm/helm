@@ -799,7 +799,7 @@ class BasicMetric(Metric):
             [
                 Stat(MetricName("max_prob")).add(max_prob),
                 Stat(MetricName("exact_match")).add(exact_match_score),
-                Stat(MetricName("predicted_index")).add(argmax_references[0]),
+                Stat(MetricName("predicted_index")).add(argmax_references[0].item()),
             ]
         )
         return stats
