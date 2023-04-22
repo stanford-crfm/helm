@@ -64,14 +64,14 @@ class WindowServiceFactory:
         elif huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
         elif organization == "openai":
-            if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
-                window_service = WiderOpenAIWindowService(service)
             if model_name in get_model_names_with_tag(GPT4_CONTEXT_WINDOW_TAG):
                 window_service = GPT4WindowService(service)
-            if model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
+            elif model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
                 window_service = GPT432KWindowService(service)
-            if model_name in get_model_names_with_tag(GPT4_TOKENIZER_TAG):
+            elif model_name in get_model_names_with_tag(GPT4_TOKENIZER_TAG):
                 window_service = GPT3Dot5TurboWindowService(service)
+            elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
+                window_service = WiderOpenAIWindowService(service)
             else:
                 window_service = OpenAIWindowService(service)
         # For the Google models, we approximate with the OpenAIWindowService
