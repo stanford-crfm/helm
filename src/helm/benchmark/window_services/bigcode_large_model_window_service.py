@@ -8,7 +8,7 @@ class BigCodeLargeModelWindowService(LocalWindowService):
 
     @property
     def max_sequence_length(self) -> int:
-        return 8000
+        return 8192
 
     @property
     def max_request_length(self) -> int:
