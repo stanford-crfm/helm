@@ -412,6 +412,18 @@ models:
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-27
+  - name: openai/gpt-4-0314
+    display_name: gpt-4-0314
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from March 14th 2023.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-03-14
+  - name: openai/gpt-4-32k-0314
+    display_name: gpt-4-32k-0314
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 with a longer context length of 32,768 tokens from March 14th 2023.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-03-14
   - name: openai/code-davinci-002
     display_name: code-davinci-002
     description: Codex-style model that is designed for pure code-completion tasks ([docs](https://beta.openai.com/docs/models/codex)).

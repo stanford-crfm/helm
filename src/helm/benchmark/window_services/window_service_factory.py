@@ -4,6 +4,8 @@ from helm.proxy.models import (
     Model,
     AI21_WIDER_CONTEXT_WINDOW_TAG,
     WIDER_CONTEXT_WINDOW_TAG,
+    GPT4_CONTEXT_WINDOW_TAG,
+    GPT4_32K_CONTEXT_WINDOW_TAG,
 )
 from .ai21_window_service import AI21WindowService
 from .wider_ai21_window_service import WiderAI21WindowService
@@ -16,7 +18,7 @@ from .luminous_window_service import (
     LuminousWorldWindowService,
 )
 from .openai_window_service import OpenAIWindowService
-from .wider_openai_window_service import WiderOpenAIWindowService
+from .wider_openai_window_service import WiderOpenAIWindowService, GPT4WindowService, GPT432KWindowService
 from .mt_nlg_window_service import MTNLGWindowService
 from .bloom_window_service import BloomWindowService
 from .huggingface_window_service import HuggingFaceWindowService
@@ -56,10 +58,17 @@ class WindowServiceFactory:
             window_service = get_remote_window_service(service, model_name)
         elif huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
-        elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
-            window_service = WiderOpenAIWindowService(service)
+        elif organization == "openai":
+            if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
+                window_service = WiderOpenAIWindowService(service)
+            if model_name in get_model_names_with_tag(GPT4_CONTEXT_WINDOW_TAG):
+                window_service = GPT4WindowService(service)
+            if model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
+                window_service = GPT432KWindowService(service)
+            else:
+                window_service = OpenAIWindowService(service)
         # For the Google models, we approximate with the OpenAIWindowService
-        elif organization == "openai" or organization == "simple" or organization == "google":
+        elif organization == "simple" or organization == "google":
             window_service = OpenAIWindowService(service)
         elif organization == "AlephAlpha":
             if engine == "luminous-base":
