@@ -66,6 +66,7 @@ def queue_jobs(
     priority: int = 2,
     dry_run: bool = False,
     use_sphinx: bool = False,
+    machine: Optional[str] = None,
 ):
     # Create a run directory at benchmark_output/runs/<suite>
     suite_path: str = os.path.join("benchmark_output", "runs", suite)
@@ -75,7 +76,7 @@ def queue_jobs(
     confs_path: str = os.path.join(suite_path, "confs")
     ensure_directory_exists(confs_path)
 
-    # Read the RunSpecs and split each RunSpec into it's own file
+    # Read the RunSpecs and split each RunSpec into its own file
     confs: List[Tuple[str, str]] = []
     run_entries = read_run_entries([conf_path])
     for entry in run_entries.entries:
@@ -101,7 +102,9 @@ def queue_jobs(
             log_path: str = os.path.join(logs_path, f"{job_name}.log")
 
             nlp_run_gpu_args: str = DEFAULT_NLP_RUN_GPU_ARGS
-            if use_sphinx:
+            if machine is not None:
+                nlp_run_gpu_args += f" -m {machine}"
+            elif use_sphinx:
                 nlp_run_gpu_args += " -q sphinx"
 
             swiss_army_port: str = ""
@@ -195,6 +198,12 @@ if __name__ == "__main__":
         default=None,
         help="Checks logs",
     )
+    parser.add_argument(
+        "--machine",
+        type=str,
+        default=None,
+        help="If specified, runs on that specific machine",
+    )
     args = parser.parse_args()
 
     if args.check:
@@ -207,4 +216,5 @@ if __name__ == "__main__":
             priority=args.priority,
             dry_run=args.dry_run,
             use_sphinx=args.use_sphinx,
+            machine=args.machine,
         )
