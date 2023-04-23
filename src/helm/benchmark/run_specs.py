@@ -359,6 +359,7 @@ def get_image_generation_adapter_spec(
     image_height: Optional[int] = None,
     guidance_scale: Optional[float] = None,
     steps: Optional[int] = None,
+    random: Optional[str] = None,
 ) -> AdapterSpec:
     return TextToImageAdapterSpec(
         method=ADAPT_GENERATION,
@@ -374,6 +375,7 @@ def get_image_generation_adapter_spec(
         height=image_height,
         guidance_scale=guidance_scale,
         steps=steps,
+        random=random,
     )
 
 
@@ -2166,7 +2168,7 @@ def get_landing_page_spec() -> RunSpec:
 def get_logos_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.logos_scenario.LogosScenario", args={})
 
-    adapter_spec = get_image_generation_adapter_spec(modifications=["simple", "memorable", "timeless"], num_outputs=4)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name="logos",
