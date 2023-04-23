@@ -133,7 +133,7 @@ class HuggingFaceClient(Client):
                 self.model_server_instances[model] = HuggingFaceServer(
                     HuggingFaceModelConfig.from_string("bigcode/santacoder")
                 )
-            elif model == "bigcode/large-model":
+            elif model == "huggingface/large-model":
                 self.model_server_instances[model] = HuggingFaceServer(
                     HuggingFaceModelConfig.from_string("bigcode/large-model")
                 )
