@@ -784,22 +784,23 @@ class BasicMetric(Metric):
         else:
             raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
 
-        answer_scores = [reference_scores[i] for i in answers]
-
         stats: List[Stat] = []
         stats.extend(self.compute_all_general_metrics(adapter_spec, request_state, metric_service))
 
         max_prob = np.max(scipy.special.softmax(reference_scores))
-        # TODO: fix the accuracy calculation---it is currently incorrect when there are ties.
-        # For example, in binary classification if the model's predicted probabilities are
-        # [0.5, 0.5], then this code will say we got the example correct, regardless of what
-        # the answer is, because the calculation max(reference_scores) == max(answer_scores)
-        # will always return True.
+
+        # Multiple references may attain the same maximal score; in such cases,
+        # we select the first reference within the argmax list as the `predicted_index`.
+        # Meanwhile, the "exact match" is calculated as the portion of correct references in the list.
+        argmax_references = np.flatnonzero(reference_scores >= np.max(reference_scores))
+        predicted_index = argmax_references[0].item()
+        exact_match_score = len(set(answers).intersection(argmax_references)) / len(argmax_references)
+
         stats.extend(
             [
                 Stat(MetricName("max_prob")).add(max_prob),
-                Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
-                Stat(MetricName("predicted_index")).add(reference_scores.index(max(reference_scores))),
+                Stat(MetricName("exact_match")).add(exact_match_score),
+                Stat(MetricName("predicted_index")).add(predicted_index),
             ]
         )
         return stats
@@ -829,8 +830,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
             assert correct_stat.mean is not None
             max_probs.append(max_prob_stat.mean)
             cur_correct = float(correct_stat.mean)
-            # For a single example, we either get it correct or not.
-            assert np.isclose(cur_correct, 1.0) or np.isclose(cur_correct, 0.0)
+            assert 0.0 <= cur_correct <= 1.0
             correct.append(int(cur_correct))
 
     stats: List[Stat] = []
