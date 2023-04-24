@@ -28,6 +28,9 @@ class HuggingFaceModelConfig:
 
     If None, use the default revision."""
 
+    path: Optional[str] = None
+    """Local path to the Hugging Face model weights"""
+
     @property
     def model_id(self) -> str:
         """Return the model ID.
@@ -35,6 +38,8 @@ class HuggingFaceModelConfig:
         Examples:
         - 'gpt2'
         - 'stanford-crfm/BioMedLM'"""
+        if self.path:
+            return self.path
         if self.namespace:
             return f"{self.namespace}/{self.model_name}"
         return self.model_name
@@ -46,6 +51,8 @@ class HuggingFaceModelConfig:
         - 'gpt2'
         - 'stanford-crfm/BioMedLM'
         - 'stanford-crfm/BioMedLM@main'"""
+        if self.path:
+            return self.path
         result = self.model_name
         if self.namespace:
             result = f"{self.namespace}/{result}"
@@ -71,15 +78,29 @@ class HuggingFaceModelConfig:
             namespace=match.group("namespace"), model_name=model_name, revision=match.group("revision")
         )
 
+    @staticmethod
+    def from_path(path: str) -> "HuggingFaceModelConfig":
+        """Genertes a HuggingFaceModelConfig from a (relative or absolute) path to a local HuggingFace model."""
+        model_name = path.split("/")[-1]
+        assert model_name
+        return HuggingFaceModelConfig(
+            namespace="local",
+            model_name=model_name,
+            revision=None,
+            path=path
+        )
 
 _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {}
 
 
-def register_huggingface_model_config(model_name: str) -> HuggingFaceModelConfig:
-    """Register a AutoModelForCausalLM model from Hugging Face Model Hub for later use.
+def register_huggingface_model_config(model_name: str, local: bool = False) -> HuggingFaceModelConfig:
+    """Register a AutoModelForCausalLM model from Hugging Face Model Hub or a local directory for later use.
 
-    model_name format: namespace/model_name[@revision]"""
-    config = HuggingFaceModelConfig.from_string(model_name)
+    model_name format: namespace/model_name[@revision] OR just a path to your HF model"""
+    if local:
+        config = HuggingFaceModelConfig.from_path(model_name)
+    else:
+        config = HuggingFaceModelConfig.from_string(model_name)
     if config.model_id in _huggingface_model_registry:
         raise ValueError(f"A Hugging Face model is already registered for model_id {model_name}")
     _huggingface_model_registry[model_name] = config
