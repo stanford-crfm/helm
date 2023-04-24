@@ -5,7 +5,7 @@ import traceback
 import typing
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any, Dict, List
 
 from tqdm import tqdm
 
@@ -148,8 +148,8 @@ class Runner:
         else:
             if self.read_instances_from_file:
                 with open(os.path.join(scenario.output_path, "instances.json")) as f:
-                    instances = json.load(f)
-                instances = [dacite.from_dict(Instance, instance) for instance in instances]
+                    json_instances: List[Dict[str, Any]] = json.load(f)
+                instances = [dacite.from_dict(Instance, instance) for instance in json_instances]
             else:
                 # Create the instances of the scenario
                 with htrack_block("scenario.get_instances"):
