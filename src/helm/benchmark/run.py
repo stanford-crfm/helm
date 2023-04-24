@@ -94,7 +94,15 @@ def run_benchmarking(
         for run_spec in run_specs:
             hlog(run_spec)
 
-    runner = Runner(execution_spec, output_path, suite, save_instances_only, read_instances_from_file, skip_completed_runs, exit_on_error)
+    runner = Runner(
+        execution_spec,
+        output_path,
+        suite,
+        save_instances_only,
+        read_instances_from_file,
+        skip_completed_runs,
+        exit_on_error,
+    )
     runner.run_all(run_specs)
     return run_specs
 
@@ -269,7 +277,7 @@ def main():
         hlog("There were no RunSpecs or they got filtered out.")
         return
 
-    auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
+    auth: Authentication = Authentication("") if args.local else create_authentication(args)
     run_benchmarking(
         run_specs=run_specs,
         auth=auth,

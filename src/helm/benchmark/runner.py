@@ -152,9 +152,10 @@ class Runner:
             # Save instances to file
             write(
                 os.path.join(scenario.output_path, "instances.json"),
-                json.dumps([asdict_without_nones(instance) for instance in instances], indent=2)
+                json.dumps([asdict_without_nones(instance) for instance in instances], indent=2),
             )
-            if save_instances_only: return  # Exit after saving the instances.
+            if self.save_instances_only:
+                return  # Exit after saving the instances.
 
         # Give each instance a unique ID
         instances = with_instance_ids(instances)
