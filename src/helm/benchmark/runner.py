@@ -98,6 +98,9 @@ class Runner:
         # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
         self.scenarios_path: str = os.path.join(output_path, "scenarios")
         ensure_directory_exists(self.scenarios_path)
+        # Decide where to save pre-processed instances
+        self.instances_path: str = os.path.join(output_path, "scenario_instances")
+        ensure_directory_exists(self.instances_path)
 
         # Output the results under a folder with the name of the suite
         self.runs_path: str = os.path.join(output_path, "runs", suite)
@@ -105,9 +108,28 @@ class Runner:
         # The path where to cache files needs to compute metrics, e.g., human evaluation results
         self.eval_cache_path: str = os.path.join(self.runs_path, "eval_cache")
         ensure_directory_exists(self.eval_cache_path)
+    
+    # TEMPORARY! This is bad styling.
+    def get_instances_output_path(self, scenario_spec):
+        args_str = ','.join([f"{k}:{v}" for k,v in scenario_spec.args.items()])
+        return os.path.join(self.instances_path, f"{scenario.name}:{args_str}")
+    
+    def _write_instances(self, run_specs):
+        unique_scenario_specs = set([run_spec.scenario_spec for run_spec in run_specs])
+        for scenario_spec in scenario_specs:
+            # Create the instances of the scenario
+            with htrack_block("scenario.get_instances"):
+                instances = scenario.get_instances()
+            write(
+                os.path.join(self.get_instances_output_path(scenario_spec), "input_instances.json"),
+                json.dumps([asdict_without_nones(instance) for instance in instances], indent=2),
+            )
 
     def run_all(self, run_specs: List[RunSpec]):
         failed_run_specs: List[RunSpec] = []
+        
+        if self.write_instances:
+            self._write_instances(run_specs)
         for run_spec in tqdm(run_specs, disable=None):
             try:
                 with htrack_block(f"Running {run_spec.name}"):
@@ -130,6 +152,9 @@ class Runner:
         scenario.output_path = os.path.join(self.scenarios_path, scenario.name)
         ensure_directory_exists(scenario.output_path)
 
+        # This 'output_path' will be used when the model's input instances are saved.
+        input_instances_output_path = self.get_instances_output_path(run_spec.scenario_spec)
+
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
 
@@ -147,31 +172,32 @@ class Runner:
             instances = []
         else:
             if self.read_instances_from_file:
-                with open(os.path.join(scenario.output_path, "instances.json")) as f:
+                with open(os.path.join(input_instances_output_path, "input_instances.json")) as f:
                     json_instances: List[Dict[str, Any]] = json.load(f)
                 instances = [dacite.from_dict(Instance, instance) for instance in json_instances]
             else:
                 # Create the instances of the scenario
                 with htrack_block("scenario.get_instances"):
                     instances = scenario.get_instances()
-                # Save instances to file
-                write(
-                    os.path.join(scenario.output_path, "instances.json"),
-                    json.dumps([asdict_without_nones(instance) for instance in instances], indent=2),
-                )
-                if self.save_instances_only:
-                    return  # Exit after saving the instances.
-
-            # Give each instance a unique ID
-            instances = with_instance_ids(instances)
-
-            # Get the instances necessary for this run.
-            instances = adapter.get_run_instances(instances)
-
-            # Data preprocessing
-            instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
-                instances, self.executor.execution_spec.parallelism
+        if True:
+            # Save instances to file
+            write(
+                os.path.join(scenario.output_path, "input_instances.json"),
+                json.dumps([asdict_without_nones(instance) for instance in instances], indent=2),
             )
+        if self.save_instances_only:
+            return  # Exit after saving the instances.
+
+        # Give each instance a unique ID
+        instances = with_instance_ids(instances)
+
+        # Get the instances necessary for this run.
+        instances = adapter.get_run_instances(instances)
+
+        # Data preprocessing
+        instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
+            instances, self.executor.execution_spec.parallelism
+        )
 
         # Adapt (convert to requests)
         scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
