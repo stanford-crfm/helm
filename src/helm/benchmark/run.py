@@ -74,6 +74,7 @@ def run_benchmarking(
     output_path: str,
     suite: str,
     dry_run: bool,
+    skip_instances: bool,
     save_instances_only: bool,
     read_instances_from_file: bool,
     skip_completed_runs: bool,
@@ -98,6 +99,7 @@ def run_benchmarking(
         execution_spec,
         output_path,
         suite,
+        skip_instances,
         save_instances_only,
         read_instances_from_file,
         skip_completed_runs,
@@ -125,6 +127,12 @@ def add_run_args(parser: argparse.ArgumentParser):
         "-o", "--output-path", type=str, help="Where to save all the output", default="benchmark_output"
     )
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=4)
+    parser.add_argument(
+        "--skip-instances",
+        action="store_true",
+        default=None,
+        help="Skip creation of instances (basically do nothing but just parse everything).",
+    )
     parser.add_argument(
         "--save-instances-only",
         action="store_true",
@@ -277,7 +285,7 @@ def main():
         hlog("There were no RunSpecs or they got filtered out.")
         return
 
-    auth: Authentication = Authentication("") if args.local else create_authentication(args)
+    auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
     run_benchmarking(
         run_specs=run_specs,
         auth=auth,
@@ -288,6 +296,7 @@ def main():
         output_path=args.output_path,
         suite=args.suite,
         dry_run=args.dry_run,
+        skip_instances=args.skip_instances,
         save_instances_only=args.save_instances_only,
         read_instances_from_file=args.read_instances_from_file,
         skip_completed_runs=args.skip_completed_runs,

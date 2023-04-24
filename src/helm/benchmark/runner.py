@@ -78,6 +78,7 @@ class Runner:
         execution_spec: ExecutionSpec,
         output_path: str,
         suite: str,
+        skip_instances: bool,
         save_instances_only: bool,
         read_instances_from_file: bool,
         skip_completed_runs: bool,
@@ -87,6 +88,7 @@ class Runner:
         self.dry_run: bool = execution_spec.dry_run
         self.tokenizer_service = TokenizerService(self.executor.service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.service, execution_spec.auth)
+        self.skip_instances: bool = skip_instances
         self.save_instances_only: bool = save_instances_only
         self.read_instances_from_file: bool = read_instances_from_file
         self.skip_completed_runs: bool = skip_completed_runs
@@ -141,32 +143,35 @@ class Runner:
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
 
         instances: List[Instance]
-        if self.read_instances_from_file:
-            with open(os.path.join(scenario.output_path, "instances.json")) as f:
-                instances = json.load(f)
-            instances = [dacite.from_dict(Instance, instance) for instance in instances]
+        if self.skip_instances:
+            instances = []
         else:
-            # Create the instances of the scenario
-            with htrack_block("scenario.get_instances"):
-                instances = scenario.get_instances()
-            # Save instances to file
-            write(
-                os.path.join(scenario.output_path, "instances.json"),
-                json.dumps([asdict_without_nones(instance) for instance in instances], indent=2),
+            if self.read_instances_from_file:
+                with open(os.path.join(scenario.output_path, "instances.json")) as f:
+                    instances = json.load(f)
+                instances = [dacite.from_dict(Instance, instance) for instance in instances]
+            else:
+                # Create the instances of the scenario
+                with htrack_block("scenario.get_instances"):
+                    instances = scenario.get_instances()
+                # Save instances to file
+                write(
+                    os.path.join(scenario.output_path, "instances.json"),
+                    json.dumps([asdict_without_nones(instance) for instance in instances], indent=2),
+                )
+                if self.save_instances_only:
+                    return  # Exit after saving the instances.
+
+            # Give each instance a unique ID
+            instances = with_instance_ids(instances)
+
+            # Get the instances necessary for this run.
+            instances = adapter.get_run_instances(instances)
+
+            # Data preprocessing
+            instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
+                instances, self.executor.execution_spec.parallelism
             )
-            if self.save_instances_only:
-                return  # Exit after saving the instances.
-
-        # Give each instance a unique ID
-        instances = with_instance_ids(instances)
-
-        # Get the instances necessary for this run.
-        instances = adapter.get_run_instances(instances)
-
-        # Data preprocessing
-        instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
-            instances, self.executor.execution_spec.parallelism
-        )
 
         # Adapt (convert to requests)
         scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
