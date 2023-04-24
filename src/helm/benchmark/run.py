@@ -129,13 +129,13 @@ def add_run_args(parser: argparse.ArgumentParser):
         "--save-instances-only",
         action="store_true",
         default=None,
-        help="Test",
+        help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
     )
     parser.add_argument(
         "--read-instances-from-file",
         action="store_true",
         default=None,
-        help="Test",
+        help="Read instances from already generated instances.json file (if it exists)",
     )
     parser.add_argument(
         "-d",
