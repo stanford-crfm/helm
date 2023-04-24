@@ -74,7 +74,8 @@ def run_benchmarking(
     output_path: str,
     suite: str,
     dry_run: bool,
-    skip_instances: bool,
+    save_instances_only: bool,
+    read_instances_from_file: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
     mongo_uri: str = "",
@@ -93,7 +94,7 @@ def run_benchmarking(
         for run_spec in run_specs:
             hlog(run_spec)
 
-    runner = Runner(execution_spec, output_path, suite, skip_instances, skip_completed_runs, exit_on_error)
+    runner = Runner(execution_spec, output_path, suite, save_instances_only, read_instances_from_file, skip_completed_runs, exit_on_error)
     runner.run_all(run_specs)
     return run_specs
 
@@ -117,10 +118,16 @@ def add_run_args(parser: argparse.ArgumentParser):
     )
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=4)
     parser.add_argument(
-        "--skip-instances",
+        "--save-instances-only",
         action="store_true",
         default=None,
-        help="Skip creation of instances (basically do nothing but just parse everything).",
+        help="Test",
+    )
+    parser.add_argument(
+        "--read-instances-from-file",
+        action="store_true",
+        default=None,
+        help="Test",
     )
     parser.add_argument(
         "-d",
@@ -273,7 +280,8 @@ def main():
         output_path=args.output_path,
         suite=args.suite,
         dry_run=args.dry_run,
-        skip_instances=args.skip_instances,
+        save_instances_only=args.save_instances_only,
+        read_instances_from_file=args.read_instances_from_file,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
         mongo_uri=args.mongo_uri,
