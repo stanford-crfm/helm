@@ -342,7 +342,9 @@ class RandomSeedRunExpander(ReplaceValueRunExpander):
 
     name = "random"
     values_dict = {
-        "default": [None, "1", "2"],
+        "default": [None],
+        "one": ["1"],
+        "two": ["2"],
     }
 
 
