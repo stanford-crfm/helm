@@ -33,7 +33,6 @@ class HuggingFaceServer:
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_config.model_id, trust_remote_code=True, **model_kwargs
             ).to(self.device)
-            print("done loading this shiz!!")
         with htrack_block(f"Loading Hugging Face tokenizer model for config {model_config}"):
             self.tokenizer = AutoTokenizer.from_pretrained(model_config.model_id, **model_kwargs)
 
