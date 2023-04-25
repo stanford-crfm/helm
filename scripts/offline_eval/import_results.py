@@ -124,13 +124,13 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    if (args.cache_dir and args.mongo_uri) or (not args.cache_dir and not args.mongo_uri):
-        raise ValueError("Exactly one of --cache-dir or --mongo-uri should be specified")
     cache_config: KeyValueStoreCacheConfig
-    if args.cache_dir:
-        cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{args.organization}.sqlite"))
-    elif args.mongo_uri:
+    if args.mongo_uri:
         cache_config = MongoCacheConfig(args.mongo_uri, args.organization)
+    elif args.cache_dir:
+        cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{args.organization}.sqlite"))
+    else:
+        raise ValueError("One of --cache-dir or --mongo-uri should be specified")
 
     import_results(cache_config, args.organization, args.request_results_path, args.dry_run)
     hlog("Done.")
