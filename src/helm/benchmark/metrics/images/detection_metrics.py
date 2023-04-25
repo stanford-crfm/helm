@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, Dict, Any
+import json
+from statistics import mean
 
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
@@ -8,6 +10,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from .image_metrics_utils import gather_generated_image_locations
+from .detectors.vitdet import ViTDetDetctor
 
 
 class DetectionMetric(Metric):
@@ -16,7 +19,6 @@ class DetectionMetric(Metric):
     """
 
     def __init__(self):
-        # TODO: if it takes a long to initialize, lazy load the model later (see clip_score_metrics.py as an example)
         self._detection_model = None
 
     def __repr__(self):
@@ -35,22 +37,19 @@ class DetectionMetric(Metric):
         if len(image_locations) == 0:
             return []
 
-        # TODO: At this point, we're evaluating multiple output images for a single prompt.
-        #       Implement logic to evaluate (prompt, image) pairs. Examples:
-        # https://github.com/stanford-crfm/helm/blob/vhelm/src/helm/benchmark/metrics/images/clip_score_metrics.py
-        # https://github.com/stanford-crfm/helm/blob/vhelm/src/helm/benchmark/metrics/images/watermark_metrics.py
+        if self._detection_model is None:
+            self._detection_model = ViTDetDetctor()
+
+        instance = request_state.instance
+        references: Dict[str, Any] = {**json.loads(instance.references[0].output.text), 'skill': instance.sub_split}
 
         prompt: str = request_state.request.prompt
-        num_correct: int = 0
+        scores: List[float] = []
         for image_location in image_locations:
-            if self._is_correct(prompt, image_location):
-                num_correct += 1
+            score: float = self._detection_model.compute_score(prompt, image_location, references)
+            scores.append(score)
 
         stats: List[Stat] = [
-            Stat(MetricName("detection_correct_frac")).add(num_correct / len(image_locations)),
+            Stat(MetricName("detection_correct_frac")).add(mean(scores) if len(scores) > 0 else 0),
         ]
         return stats
-
-    def _is_correct(self, prompt: str, image_location: str) -> bool:
-        # TODO: Evaluate the prompt and image using the detection model
-        return True
