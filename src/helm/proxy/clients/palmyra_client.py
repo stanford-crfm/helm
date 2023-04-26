@@ -64,15 +64,12 @@ class PalmyraClient(Client):
         """Make a request"""
         raw_request = {
             "prompt": request.prompt,
-            "minTokens": "1",  # Setting to 1 for now
             "maxTokens": request.max_tokens,
             "temperature": request.temperature,
             "topP": request.top_p,
-            "topK": request.top_k_per_token,
+            "bestOf": request.top_k_per_token,
             "stop": request.stop_sequences,
-            "presencePenalty": request.presence_penalty,
-            "frequencyPenalty": request.frequency_penalty,
-            # bestOf: figure out what this does
+            "random_seed": request.random,
         }
 
         completions: List[Sequence] = []
@@ -83,6 +80,10 @@ class PalmyraClient(Client):
             try:
 
                 def do_it():
+                    # HACKY: Use the random seed to get different results for each completion.
+                    raw_request["random_seed"] = (
+                        completion_index if request.random is None else request.random + completion_index
+                    )
                     result = self._send_request(model_name, raw_request)
                     assert "choices" in result, f"Invalid response: {result}"
                     return result

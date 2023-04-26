@@ -28,7 +28,7 @@ from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
 from .opt_window_service import OPTWindowService
-from .palmyra_window_service import PalmyraWindowService, PalmyraRWindowService
+from .palmyra_window_service import PalmyraWindowService, SilkRoadWindowService
 from .remote_window_service import get_remote_window_service
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
@@ -86,12 +86,10 @@ class WindowServiceFactory:
         elif organization == "anthropic":
             window_service = AnthropicWindowService(service)
         elif organization == "writer":
-            if engine == "palmyra-base":
+            if engine in ["palmyra-base", "palmyra-large", "palmyra-instruct-30", "palmyra-e"]:
                 window_service = PalmyraWindowService(service)
-            elif engine == "palmyra-large":
-                window_service = PalmyraWindowService(service)
-            elif engine == "palmyra-r":
-                window_service = PalmyraRWindowService(service)
+            elif engine == "silk-road":
+                window_service = SilkRoadWindowService(service)
             else:
                 raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":

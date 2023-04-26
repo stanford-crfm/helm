@@ -771,7 +771,7 @@ ALL_MODELS = [
     Model(
         group="palmyra",
         creator_organization="Writer",
-        name="writer/instruct-palmyra",
+        name="writer/palmyra-instruct-30",
         display_name="InstructPalmyra (30B)",
         description="Training language models to follow instructions with human feedback (30B parameters)",
         # Does not support echo
@@ -784,7 +784,7 @@ ALL_MODELS = [
         display_name="Palmyra E (30B)",
         description="Training language models to follow instructions with human feedback (30B parameters)",
         # Does not support echo
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, BUGGY_TEMP_0_TAG],
     ),
     Model(
         group="palmyra",
@@ -793,7 +793,7 @@ ALL_MODELS = [
         display_name="Silk Road (35B)",
         description="Autoregressive language mode with multi-scale Attention in parallel (35B parameters)",
         # Does not support echo
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, BUGGY_TEMP_0_TAG],
     ),
     # Yandex
     Model(

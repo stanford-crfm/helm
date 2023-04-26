@@ -510,21 +510,7 @@ models:
     access: limited
     num_parameters: 20000000000
     release_date: 2023-04-20
-  - name: writer/palmyra-r
-    display_name: Palmyra R (30B)
-    description: Palmyra R (30B)
-    creator_organization: Writer
-    access: limited
-    num_parameters: 30000000000
-    release_date: 2023-04-20
-  - name: writer/camel
-    display_name: Camel (5B)
-    description: Camel (5B)
-    creator_organization: Writer
-    access: limited
-    num_parameters: 5000000000
-    release_date: 2023-04-20
-  - name: writer/instruct-palmyra
+  - name: writer/palmyra-instruct-30
     display_name: InstructPalmyra (30B)
     description: InstructPalmyra (30B)
     creator_organization: Writer
