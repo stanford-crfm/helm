@@ -143,10 +143,6 @@ class AnthropicClient(Client):
 
                     response, cached = self.cache.get(new_cache_key, wrap_request_time(do_it_error))
                 else:
-                    print("++++++++++++++++++++++++++++++")
-                    print(error)
-                    print(str(error))
-                    print("++++++++++++++++++++++++++++++")
                     return RequestResult(success=False, cached=False, error=str(error), completions=[], embedding=[])
 
             # Post process the completion.
