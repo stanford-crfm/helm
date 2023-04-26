@@ -24,17 +24,15 @@ class OpenAIClient(Client):
 
     def __init__(
         self,
-        api_key: str,
         cache_config: CacheConfig,
-        tokenizer_client: Client,
         chat_gpt_client: Optional[ChatGPTClient] = None,
+        api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
         self.org_id: Optional[str] = org_id
-        self.api_key: str = api_key
+        self.api_key: Optional[str] = api_key
         self.api_base: str = "https://api.openai.com/v1"
         self.cache = Cache(cache_config)
-        self.tokenizer_client: Client = tokenizer_client
         self.chat_gpt_client: Optional[ChatGPTClient] = chat_gpt_client
 
     def _is_chat_model_engine(self, model_engine: str):
@@ -44,6 +42,9 @@ class OpenAIClient(Client):
         if request.model_engine == "chat-gpt":
             assert self.chat_gpt_client is not None
             return self.chat_gpt_client.make_request(request)
+
+        if self.api_key is None:
+            raise ValueError("OpenAI API key is required")
 
         raw_request: Dict[str, Any]
         if request.embedding:
@@ -201,8 +202,7 @@ class OpenAIClient(Client):
 
         if request.tokenizer != "openai/cl100k_base":
             raise ValueError(
-                f"{request.tokenizer} is not supported."
-                + "Only openai/cl100k-base is supported by the tiktoken library for now."
+                f"{request.tokenizer} is not supported." + "Only openai/cl100k-base is supported in HELM for now."
             )
 
         cache_key = asdict(request)
@@ -211,13 +211,11 @@ class OpenAIClient(Client):
 
             def do_it():
                 tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
-                # NOTE(josselin): The tokenizer.encode method returns a list of integers.
-                # This shouuld be fine as TokenizationToken accepts both integers and strings.
-                # In reality, some metrics assume strings, so we decode the integers here.
-                # This is Hacky and should be fixed.
-                # If fixed, the following line should be fine:
-                # tokenizer.encode(request.text)
-                tokens = [tokenizer.decode([token]) for token in tokenizer.encode(request.text)]
+                tokens = tokenizer.encode(request.text)
+                if not request.encode:
+                    tokens = [tokenizer.decode([token]) for token in tokens]
+                if request.truncation:
+                    tokens = tokens[: request.max_length]
                 return {"tokens": tokens}
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
@@ -242,8 +240,7 @@ class OpenAIClient(Client):
 
         if request.tokenizer != "openai/cl100k_base":
             raise ValueError(
-                f"{request.tokenizer} is not supported."
-                + "Only openai/cl100k-base is supported by the tiktoken library for now."
+                f"{request.tokenizer} is not supported." + "Only openai/cl100k-base is supported in HELM for now."
             )
 
         cache_key = asdict(request)
@@ -252,8 +249,6 @@ class OpenAIClient(Client):
 
             def do_it():
                 tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
-                for token in request.tokens:
-                    print(tokenizer.encode(token))
                 tokens = [token if isinstance(token, int) else tokenizer.encode(token)[0] for token in request.tokens]
                 text = tokenizer.decode(tokens)
                 return {"text": text}

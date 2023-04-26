@@ -1,7 +1,7 @@
 import shutil
 import tempfile
 
-from .test_utils import get_tokenizer_service, TEST_PROMPT, GPT4_TEST_TOKENS
+from .test_utils import get_tokenizer_service, TEST_PROMPT, GPT4_TEST_TOKEN_IDS, GPT4_TEST_TOKENS
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 
@@ -16,7 +16,7 @@ class TestOpenAIWindowService:
         shutil.rmtree(self.path)
 
     def test_encode(self):
-        assert self.window_service.encode(TEST_PROMPT).token_values == GPT4_TEST_TOKENS
+        assert self.window_service.encode(TEST_PROMPT).token_values == GPT4_TEST_TOKEN_IDS
 
     def test_decode(self):
         assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == TEST_PROMPT

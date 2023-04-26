@@ -15,13 +15,8 @@ class OpenAIChatWindowService(WiderOpenAIWindowService):
     def tokenizer_name(self) -> str:
         return "openai/cl100k_base"
 
-    @property
-    def prefix_token(self) -> str:
-        """The prefix token"""
-        return "<|fim_prefix|>"
 
-
-class GPT3Dot5TurboWindowService(OpenAIChatWindowService):
+class GPT3Point5TurboWindowService(OpenAIChatWindowService):
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length for GPT-3.5 Turbo.

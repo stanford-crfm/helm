@@ -21,7 +21,7 @@ from .luminous_window_service import (
 from .openai_window_service import OpenAIWindowService
 from .wider_openai_window_service import (
     WiderOpenAIWindowService,
-    GPT3Dot5TurboWindowService,
+    GPT3Point5TurboWindowService,
     GPT4WindowService,
     GPT432KWindowService,
 )
@@ -69,7 +69,7 @@ class WindowServiceFactory:
             elif model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
                 window_service = GPT432KWindowService(service)
             elif model_name in get_model_names_with_tag(GPT4_TOKENIZER_TAG):
-                window_service = GPT3Dot5TurboWindowService(service)
+                window_service = GPT3Point5TurboWindowService(service)
             elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
                 window_service = WiderOpenAIWindowService(service)
             else:
