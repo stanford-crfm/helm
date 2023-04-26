@@ -104,7 +104,7 @@ def queue_jobs(
             nlp_run_gpu_args: str = DEFAULT_NLP_RUN_GPU_ARGS
             if machine is not None:
                 nlp_run_gpu_args += f" -m {machine}"
-            elif use_sphinx:
+            if use_sphinx or (machine is not None and "sphinx" in machine):
                 nlp_run_gpu_args += " -q sphinx-hi "
 
             swiss_army_port: str = ""
