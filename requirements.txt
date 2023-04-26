@@ -66,6 +66,7 @@ surge-api~=1.1.0
 # End users should install a CUDA version of PyTorch manually if needed
 torch~=1.12.1  # Summarization metrics
 torchvision~=0.13.1
+boto3==1.24.89  # Mechanical Turk for critique
 
 # plotting
 colorcet~=3.0.1

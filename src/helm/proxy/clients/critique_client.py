@@ -88,8 +88,8 @@ class SurgeAICritiqueClient(CritiqueClient):
     def _get_or_create_surge_project(self, template: CritiqueTaskTemplate) -> str:
         """Get or create a project on Surge AI and return the Surge AI project ID.
 
-        Attempt to find a Surge AI project for the template. If one exists, reuse that project.
-        Otherwise, create a new project using the template. Return the Surge AI project ID."""
+        Attempt to find a Surge AI project for the template from the cache. If one exists, reuse that project.
+        Otherwise, create a new project using the template and save it to the cache. Return the Surge AI project ID."""
 
         def create_surge_project():
             project = surge.Project.create(
@@ -130,9 +130,9 @@ class SurgeAICritiqueClient(CritiqueClient):
     def _get_or_create_task(self, project_id: str, fields: Dict[str, str]) -> str:
         """Get or create a task on Surge AI and return the Surge AI project ID.
 
-        Attempt to find a Surge AI task inside this project for the fields.
+        Attempt to find a Surge AI task inside this project for the fields from the cache.
         If one exists, reuse that task. Otherwise, create a new task inside the project using the fields.
-        Return the Surge AI task ID."""
+        and save it to the cache. Return the Surge AI task ID."""
         project = surge.Project.retrieve(project_id)
 
         def create_surge_task():

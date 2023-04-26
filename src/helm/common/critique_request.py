@@ -1,5 +1,15 @@
 from dataclasses import dataclass
+import re
 from typing import Dict, List
+
+
+class QuestionType:
+    """String enum of question types."""
+
+    # TODO: Make this a StrEnum after upgrading to Python 3.11
+    MULTIPLE_CHOICE: str = "multiple_choice"
+    CHECKBOX: str = "checkbox"
+    FREE_RESPONSE: str = "free_response"
 
 
 @dataclass(frozen=True)
@@ -16,12 +26,12 @@ class CritiqueQuestionTemplate:
     """Type of the question. One of 'multiple_choice', 'checkbox' or 'free_response'."""
 
     text: str
-    """Text of the options.
+    """HTML-formatted instructions text of the question.
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
     options: List[str]
-    """Only used when question_type is 'multiple_choice' or 'checkbox'. List of text for the options.
+    """Only used when question_type is 'multiple_choice' or 'checkbox'. List of HTML-formatted text for the options.
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
@@ -33,8 +43,18 @@ class CritiqueTaskTemplate:
     name: str
     """Name of the template."""
 
+    description: str
+    """Human-friendly short description that will be displayed to the workers on the index page.
+
+    Only used by Mechanical Turk."""
+
+    reward: str
+    """Reward per response in US dollars as a string without currency symbols. e.g. '1.50'
+
+    Only used by Mechanical Turk."""
+
     instructions: str
-    """Instructions that will be displayed before all the questions.
+    """HTML-formatted instructions that will be displayed before all the questions.
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
@@ -80,3 +100,9 @@ class CritiqueRequestResult:
 
     responses: List[CritiqueResponse]
     """List of respondents' responses."""
+
+
+def populate_template_with_fields(template: str, fields: Dict[str, str]):
+    """Populate a string method with the given fields"""
+    format_string = re.sub(r"{{([^{}]+)}}", r"{\g<1>}", template)
+    return format_string.format(**fields)
