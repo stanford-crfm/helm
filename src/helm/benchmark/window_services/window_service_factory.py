@@ -4,6 +4,7 @@ from helm.proxy.models import (
     Model,
     AI21_WIDER_CONTEXT_WINDOW_TAG,
     WIDER_CONTEXT_WINDOW_TAG,
+    GPT4_TOKENIZER_TAG,
     GPT4_CONTEXT_WINDOW_TAG,
     GPT4_32K_CONTEXT_WINDOW_TAG,
 )
@@ -18,7 +19,12 @@ from .luminous_window_service import (
     LuminousWorldWindowService,
 )
 from .openai_window_service import OpenAIWindowService
-from .wider_openai_window_service import WiderOpenAIWindowService, GPT4WindowService, GPT432KWindowService
+from .wider_openai_window_service import (
+    WiderOpenAIWindowService,
+    GPT3Point5TurboWindowService,
+    GPT4WindowService,
+    GPT432KWindowService,
+)
 from .mt_nlg_window_service import MTNLGWindowService
 from .bloom_window_service import BloomWindowService
 from .huggingface_window_service import HuggingFaceWindowService
@@ -59,12 +65,14 @@ class WindowServiceFactory:
         elif huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
         elif organization == "openai":
-            if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
-                window_service = WiderOpenAIWindowService(service)
             if model_name in get_model_names_with_tag(GPT4_CONTEXT_WINDOW_TAG):
                 window_service = GPT4WindowService(service)
-            if model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
+            elif model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
                 window_service = GPT432KWindowService(service)
+            elif model_name in get_model_names_with_tag(GPT4_TOKENIZER_TAG):
+                window_service = GPT3Point5TurboWindowService(service)
+            elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
+                window_service = WiderOpenAIWindowService(service)
             else:
                 window_service = OpenAIWindowService(service)
         # For the Google models, we approximate with the OpenAIWindowService
