@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import random
 import threading
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from cattrs import unstructure
 import surge
@@ -15,6 +15,7 @@ from helm.common.critique_request import (
     CritiqueRequestResult,
     CritiqueTaskTemplate,
     CritiqueResponse,
+    QuestionType,
 )
 
 
@@ -37,11 +38,16 @@ class RandomCritiqueClient(CritiqueClient):
         responses: List[CritiqueResponse] = []
         random.seed(0)
         for respondent_index in range(request.template.num_respondents):
-            answers: Dict[str, str] = {}
+            answers: Dict[str, Union[str, List[str]]] = {}
             for question in request.template.questions:
-                if question.question_type != "multiple_choice":
-                    raise ValueError("Currently, only multiple_choice questions are supported")
-                answers[question.name] = random.choice(question.options)
+                if question.question_type == QuestionType.MULTIPLE_CHOICE:
+                    answers[question.name] = random.choice(question.options)
+                elif question.question_type == QuestionType.CHECKBOX:
+                    answers[question.name] = random.sample(question.options, random.randint(0, len(question.options)))
+                elif question.question_type == QuestionType.FREE_RESPONSE:
+                    answers[question.name] = random.choice(["foo", "bar", "bax", "qux"])
+                else:
+                    raise ValueError(f"Unknown question type: {question.question_type}")
             responses.append(
                 CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
             )
@@ -88,8 +94,8 @@ class SurgeAICritiqueClient(CritiqueClient):
     def _get_or_create_surge_project(self, template: CritiqueTaskTemplate) -> str:
         """Get or create a project on Surge AI and return the Surge AI project ID.
 
-        Attempt to find a Surge AI project for the template. If one exists, reuse that project.
-        Otherwise, create a new project using the template. Return the Surge AI project ID."""
+        Attempt to find a Surge AI project for the template from the cache. If one exists, reuse that project.
+        Otherwise, create a new project using the template and save it to the cache. Return the Surge AI project ID."""
 
         def create_surge_project():
             project = surge.Project.create(
@@ -130,9 +136,9 @@ class SurgeAICritiqueClient(CritiqueClient):
     def _get_or_create_task(self, project_id: str, fields: Dict[str, str]) -> str:
         """Get or create a task on Surge AI and return the Surge AI project ID.
 
-        Attempt to find a Surge AI task inside this project for the fields.
+        Attempt to find a Surge AI task inside this project for the fields from the cache.
         If one exists, reuse that task. Otherwise, create a new task inside the project using the fields.
-        Return the Surge AI task ID."""
+        and save it to the cache. Return the Surge AI task ID."""
         project = surge.Project.retrieve(project_id)
 
         def create_surge_task():
