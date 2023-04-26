@@ -24,6 +24,7 @@ from .bloom_window_service import BloomWindowService
 from .huggingface_window_service import HuggingFaceWindowService
 from .ice_window_service import ICEWindowService
 from .santacoder_window_service import SantaCoderWindowService
+from .bigcode_large_model_window_service import BigCodeLargeModelWindowService
 from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
@@ -94,6 +95,8 @@ class WindowServiceFactory:
                 raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":
             window_service = SantaCoderWindowService(service)
+        elif engine == "large-model":
+            window_service = BigCodeLargeModelWindowService(service)
         elif model_name == "huggingface/gpt2":
             window_service = GPT2WindowService(service)
         elif model_name == "together/bloom":

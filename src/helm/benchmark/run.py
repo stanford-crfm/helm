@@ -263,6 +263,9 @@ def main():
         return
 
     auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
+
+    symlink_latest(output_path=args.output_path, suite=args.suite)
+
     run_benchmarking(
         run_specs=run_specs,
         auth=auth,
@@ -278,8 +281,6 @@ def main():
         exit_on_error=args.exit_on_error,
         mongo_uri=args.mongo_uri,
     )
-
-    symlink_latest(output_path=args.output_path, suite=args.suite)
 
     hlog("Done.")
 
