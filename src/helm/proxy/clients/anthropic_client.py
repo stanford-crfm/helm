@@ -25,7 +25,7 @@ from dataclasses import asdict
 class AnthropicClient(Client):
     """
     Client for the Anthropic models (https://arxiv.org/abs/2204.05862).
-    They use their own version of the GPT-2 tokenizer.
+    They use their own tokenizer.
     """
 
     MAX_COMPLETION_LENGTH: int = (
@@ -34,13 +34,15 @@ class AnthropicClient(Client):
     ADDITIONAL_TOKENS: int = 5
     PROMPT_ANSWER_START: str = "The answer is"
 
-    def __init__(self, api_key: str, cache_config: CacheConfig):
-        self.api_key: str = api_key
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+        self.api_key: Optional[str] = api_key
         self.cache = Cache(cache_config)
         self.tokenizer: Tokenizer = anthropic.get_tokenizer()
-        self._client = anthropic.Client(api_key)
+        self._client = anthropic.Client(api_key) if api_key else None
 
     def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
+        if self.api_key is None:
+            raise Exception("API key is not set. Please set it in the HELM config file.")
         result = self._client.completion(**raw_request)
         assert "error" not in result, f"Request failed with error: {result['error']}"
         return result
@@ -184,7 +186,14 @@ class AnthropicClient(Client):
 
             def do_it():
                 encoding = self.tokenizer.encode(request.text)
-                return {"tokens": encoding.ids}
+                tokens: List[Token] = []
+                if request.encode:
+                    tokens = [TokenizationToken(value) for value in encoding.ids]
+                else:
+                    tokens = [TokenizationToken(value) for value in encoding.tokens]
+                if request.truncation:
+                    tokens = tokens[: request.max_length]
+                return {"tokens": tokens}
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
@@ -192,7 +201,7 @@ class AnthropicClient(Client):
                 success=True,
                 cached=cached,
                 text=request.text,
-                tokens=[TokenizationToken(value) for value in response["tokens"]],
+                tokens=response["tokens"],
                 request_time=response["request_time"],
                 error=None,
             )
@@ -205,7 +214,10 @@ class AnthropicClient(Client):
         try:
 
             def do_it():
-                text = self.tokenizer.decode(request.tokens)
+                ids = request.tokens
+                if len(ids) > 0 and isinstance(ids[0], str):
+                    ids = [self.tokenizer.token_to_id(token) for token in ids]
+                text = self.tokenizer.decode(ids)
                 return {"text": text}
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))

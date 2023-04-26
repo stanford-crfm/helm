@@ -13,8 +13,13 @@ class AnthropicWindowService(GPT2WindowService):
 
     @property
     def max_sequence_length(self) -> int:
-        """Return the max sequence length of the Anthropic model."""
-        return 8192
+        """
+        Return the max sequence length of the Anthropic model.
+        While the limits seems to be 8192, we limit to 8000
+        according to Anthropic's recommendations.
+        See: https://console.anthropic.com/docs/prompt-design
+        """
+        return 8000
 
     @property
     def max_request_length(self) -> int:
@@ -24,14 +29,6 @@ class AnthropicWindowService(GPT2WindowService):
         """
         return self.max_sequence_length
 
-
-class AnthropicClaudeWindowService(AnthropicWindowService):
     @property
     def tokenizer_name(self) -> str:
-        return "anthropic/claude-v1.3"
-
-
-class AnthropicClaudeInstantWindowService(AnthropicWindowService):
-    @property
-    def tokenizer_name(self) -> str:
-        return "anthropic/claude-instant-v1"
+        return "anthropic/claude"
