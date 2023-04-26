@@ -98,6 +98,10 @@ def register_huggingface_model_config(model_name: str) -> HuggingFaceModelConfig
         display_name=model_name,
         creator_organization=config.namespace,
         description=description,
+        # TODO: Fix this (might be different for different models)
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=1024,
+        max_request_length=1024 + 1,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     )
     MODEL_NAME_TO_MODEL[model_name] = model

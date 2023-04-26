@@ -73,6 +73,16 @@ class Model:
     # Short description of the model
     description: str
 
+    # Tokenizer name used for the model (e.g. "huggingface/gpt2")
+    tokenizer_name: str
+
+    # The max length of the model input.
+    max_sequence_length: int
+
+    # The max request length of the model. Some models allow `max_request_length > max_sequence_length`
+    # so that users can specify the last output token. e.g. GPT-3.
+    max_request_length: int
+
     # Tags corresponding to the properties of the model
     tags: List[str] = field(default_factory=list)
 
@@ -108,6 +118,12 @@ ALL_MODELS = [
         name="ai21/j1-jumbo",
         display_name="Jurassic-1 Jumbo (178B)",
         description="Jurassic-1 Jumbo (178B parameters)",
+        tokenizer_name="ai21/j1",
+        # The max token length of the model in. The AI21 server automatically prepends a token to every prompt,
+        # so the actual max sequence length is 2048-1 = 2047.
+        max_sequence_length=2047,
+        # The max sequence length is the same as the max request length for AI21.
+        max_request_length=2047,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
@@ -119,6 +135,12 @@ ALL_MODELS = [
         name="ai21/j1-grande",
         display_name="Jurassic-1 Grande (17B)",
         description="Jurassic-1 Grande (17B parameters) with a few tweaks to the training process.",
+        tokenizer_name="ai21/j1",
+        # The max token length of the model in. The AI21 server automatically prepends a token to every prompt,
+        # so the actual max sequence length is 2048-1 = 2047.
+        max_sequence_length=2047,
+        # The max sequence length is the same as the max request length for AI21.
+        max_request_length=2047,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
@@ -127,6 +149,12 @@ ALL_MODELS = [
         name="ai21/j1-grande-v2-beta",
         display_name="Jurassic-1 Grande v2 beta (17B)",
         description="Jurassic-1 Grande v2 beta (17B parameters)",
+        tokenizer_name="ai21/j1",
+        # The max token length of the model in. The AI21 server automatically prepends a token to every prompt,
+        # so the actual max sequence length is 2048-1 = 2047.
+        max_sequence_length=2047,
+        # The max sequence length is the same as the max request length for AI21.
+        max_request_length=2047,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
@@ -135,6 +163,12 @@ ALL_MODELS = [
         name="ai21/j1-large",
         display_name="Jurassic-1 Large (7.5B)",
         description="Jurassic-1 Large (7.5B parameters)",
+        tokenizer_name="ai21/j1",
+        # The max token length of the model in. The AI21 server automatically prepends a token to every prompt,
+        # so the actual max sequence length is 2048-1 = 2047.
+        max_sequence_length=2047,
+        # The max sequence length is the same as the max request length for AI21.
+        max_request_length=2047,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # AI21 Jurassic-2 Models: https://www.ai21.com/blog/introducing-j2
@@ -144,6 +178,12 @@ ALL_MODELS = [
         name="ai21/j2-jumbo",
         display_name="Jurassic-2 Jumbo (178B)",
         description="Jurassic-2 Jumbo (178B parameters)",
+        tokenizer_name="ai21/j1",
+        # The AI21 server automatically prepends a token to every prompt,
+        # so the actual max sequence length is 8192 - 1 = 8191.
+        max_sequence_length=8191,
+        # The max sequence length is the same as the max request length for AI21.
+        max_request_length=8191,
         tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
@@ -152,6 +192,12 @@ ALL_MODELS = [
         name="ai21/j2-grande",
         display_name="Jurassic-2 Grande (17B)",
         description="Jurassic-2 Grande (17B parameters) with a few tweaks to the training process.",
+        tokenizer_name="ai21/j1",
+        # The AI21 server automatically prepends a token to every prompt,
+        # so the actual max sequence length is 8192 - 1 = 8191.
+        max_sequence_length=8191,
+        # The max sequence length is the same as the max request length for AI21.
+        max_request_length=8191,
         tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
@@ -160,6 +206,12 @@ ALL_MODELS = [
         name="ai21/j2-large",
         display_name="Jurassic-2 Large (7.5B)",
         description="Jurassic-2 Large (7.5B parameters)",
+        tokenizer_name="ai21/j1",
+        # The AI21 server automatically prepends a token to every prompt,
+        # so the actual max sequence length is 8192 - 1 = 8191.
+        max_sequence_length=8191,
+        # The max sequence length is the same as the max request length for AI21.
+        max_request_length=8191,
         tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
@@ -169,6 +221,12 @@ ALL_MODELS = [
         name="AlephAlpha/luminous-base",
         display_name="Luminous Base (13B)",
         description="Luminous Base (13B parameters)",
+        tokenizer_name="AlephAlpha/luminous-base",
+        # From https://docs.aleph-alpha.com/api/complete, "the summed number of tokens of prompt
+        # and maximum_tokens..may not exceed 2048 tokens." Confirmed it's 2048 for the Luminous
+        # models currently available.
+        max_sequence_length=2048,
+        max_request_length=2048,
         # Does not support echo
         tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -178,6 +236,12 @@ ALL_MODELS = [
         name="AlephAlpha/luminous-extended",
         display_name="Luminous Extended (30B)",
         description="Luminous Extended (30B parameters)",
+        tokenizer_name="AlephAlpha/luminous-extended",
+        # From https://docs.aleph-alpha.com/api/complete, "the summed number of tokens of prompt
+        # and maximum_tokens..may not exceed 2048 tokens." Confirmed it's 2048 for the Luminous
+        # models currently available.
+        max_sequence_length=2048,
+        max_request_length=2048,
         # Does not support echo
         tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -187,6 +251,12 @@ ALL_MODELS = [
         name="AlephAlpha/luminous-supreme",
         display_name="Luminous Supreme (70B)",
         description="Luminous Supreme (70B parameters)",
+        tokenizer_name="AlephAlpha/luminous-supreme",
+        # From https://docs.aleph-alpha.com/api/complete, "the summed number of tokens of prompt
+        # and maximum_tokens..may not exceed 2048 tokens." Confirmed it's 2048 for the Luminous
+        # models currently available.
+        max_sequence_length=2048,
+        max_request_length=2048,
         # Does not support echo.
         # TODO: images will be supported in the near future. Add IMAGE_MODEL_TAG.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
@@ -198,6 +268,12 @@ ALL_MODELS = [
     #     name="AlephAlpha/luminous-world",
     #     display_name="Luminous World",
     #     description="Luminous World",
+    #     tokenizer_name="AlephAlpha/luminous-world",
+    #     # From https://docs.aleph-alpha.com/api/complete, "the summed number of tokens of prompt
+    #     # and maximum_tokens..may not exceed 2048 tokens." Confirmed it's 2048 for the Luminous
+    #     # models currently available.
+    #     max_sequence_length=2048,
+    #     max_request_length=2048,
     #     tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     # ),
     # Anthropic
@@ -207,6 +283,10 @@ ALL_MODELS = [
         name="anthropic/stanford-online-all-v4-s3",
         display_name="Anthropic-LM (52B)",
         description="Anthropic model (52B parameters)",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=8192,
+        # Anthropic does not include the start of sequence token.
+        max_request_length=8192,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
     ),
     # BigScience
@@ -218,6 +298,11 @@ ALL_MODELS = [
         # From https://bigscience.huggingface.co/blog/bloom
         description="BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained "
         "on 46 natural languages and 13 programming languages.",
+        tokenizer_name="bigscience/bloom",
+        # The model was trained with a sequence length of 2,048.
+        # Source: https://huggingface.co/bigscience/bloom
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
@@ -228,6 +313,12 @@ ALL_MODELS = [
         # From https://huggingface.co/bigscience/T0pp
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
         "specified in natural language prompts.",
+        tokenizer_name="bigscience/T0pp",
+        # From https://arxiv.org/pdf/2110.08207.pdf, "we truncate input and target sequences to 1024 and 256 tokens,
+        # respectively. Following Raffel et al. (2020), we use packing to combine multiple training examples into
+        # a single sequence to reach the maximum sequence length."
+        max_sequence_length=1024,
+        max_request_length=1024,
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
@@ -248,6 +339,15 @@ ALL_MODELS = [
         name="cohere/xlarge-20220609",
         display_name="Cohere xlarge v20220609 (52.4B)",
         description="Cohere xlarge v20220609 (52.4B parameters)",
+        tokenizer_name="cohere/cohere",
+        # The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
+        # the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2047,
+        # The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
+        # If we exceed the `max_sequence_length`, we get the following error:
+        # Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
+        # exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+        max_request_length=2048,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -256,6 +356,15 @@ ALL_MODELS = [
         name="cohere/xlarge-20221108",
         display_name="Cohere xlarge v20221108 (52.4B)",
         description="Cohere xlarge v20221108 (52.4B parameters)",
+        tokenizer_name="cohere/cohere",
+        # The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
+        # the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2047,
+        # The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
+        # If we exceed the `max_sequence_length`, we get the following error:
+        # Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
+        # exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+        max_request_length=2048,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -264,6 +373,15 @@ ALL_MODELS = [
         name="cohere/large-20220720",
         display_name="Cohere large v20220720 (13.1B)",
         description="Cohere large v20220720 (13.1B parameters)",
+        tokenizer_name="cohere/cohere",
+        # The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
+        # the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2047,
+        # The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
+        # If we exceed the `max_sequence_length`, we get the following error:
+        # Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
+        # exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+        max_request_length=2048,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -272,6 +390,15 @@ ALL_MODELS = [
         name="cohere/medium-20220720",
         display_name="Cohere medium v20220720 (6.1B)",
         description="Cohere medium v20220720 (6.1B parameters)",
+        tokenizer_name="cohere/cohere",
+        # The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
+        # the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2047,
+        # The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
+        # If we exceed the `max_sequence_length`, we get the following error:
+        # Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
+        # exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+        max_request_length=2048,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -280,6 +407,15 @@ ALL_MODELS = [
         name="cohere/medium-20221108",
         display_name="Cohere medium v20221108 (6.1B)",
         description="Cohere medium v20221108 (6.1B parameters)",
+        tokenizer_name="cohere/cohere",
+        # The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
+        # the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2047,
+        # The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
+        # If we exceed the `max_sequence_length`, we get the following error:
+        # Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
+        # exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+        max_request_length=2048,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -288,6 +424,15 @@ ALL_MODELS = [
         name="cohere/small-20220720",
         display_name="Cohere small v20220720 (410M)",
         description="Cohere small v20220720 (410M parameters)",
+        tokenizer_name="cohere/cohere",
+        # The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
+        # the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2047,
+        # The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
+        # If we exceed the `max_sequence_length`, we get the following error:
+        # Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
+        # exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+        max_request_length=2048,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -297,6 +442,18 @@ ALL_MODELS = [
         display_name="Cohere Command beta (6.1B)",
         description="Cohere Command beta (6.1B parameters) is fine-tuned from the medium model "
         "to respond well with instruction-like prompts",
+        tokenizer_name="cohere/cohere",
+        # The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
+        # the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2019,
+        # The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
+        # If we exceed the `max_sequence_length`, we get the following error:
+        # Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
+        # exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+        # For the Command model, in rare situations, the co.tokenize returns a shorter list of tokens
+        # than the co.generate. This causes sequence length errors for rare inputs. Cohere's advice is
+        # to reduce the sequence length to 2020 to avoid these issues.
+        max_request_length=2020,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -306,6 +463,18 @@ ALL_MODELS = [
         display_name="Cohere Command beta (52.4B)",
         description="Cohere Command beta (52.4B parameters) is fine-tuned from the XL model "
         "to respond well with instruction-like prompts",
+        tokenizer_name="cohere/cohere",
+        # The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
+        # the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2019,
+        # The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
+        # If we exceed the `max_sequence_length`, we get the following error:
+        # Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
+        # exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
+        # For the Command model, in rare situations, the co.tokenize returns a shorter list of tokens
+        # than the co.generate. This causes sequence length errors for rare inputs. Cohere's advice is
+        # to reduce the sequence length to 2020 to avoid these issues.
+        max_request_length=2020,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     # EleutherAI
@@ -315,6 +484,9 @@ ALL_MODELS = [
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile",
+        tokenizer_name="EleutherAI/gpt-j-6B",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[
             TEXT_MODEL_TAG,
             FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
@@ -329,6 +501,9 @@ ALL_MODELS = [
         name="together/gpt-neox-20b",
         display_name="GPT-NeoX (20B)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
+        tokenizer_name="EleutherAI/gpt-neox-20b",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
     # GooseAI supported models
@@ -338,7 +513,9 @@ ALL_MODELS = [
         name="gooseai/gpt-neo-20b",
         display_name="GPT-NeoX (20B, GooseAI)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
+        tokenizer_name="EleutherAI/gpt-neox-20b",
+        max_sequence_length=2048,
+        max_request_length=2049,
     ),
     Model(
         group="gooseai",
@@ -346,6 +523,9 @@ ALL_MODELS = [
         name="gooseai/gpt-j-6b",
         display_name="GPT-J (6B, GooseAI)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
+        tokenizer_name="EleutherAI/gpt-j-6B",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
     ),
     # HuggingFace
@@ -355,6 +535,9 @@ ALL_MODELS = [
         name="huggingface/gpt2",
         display_name="GPT-2 (1.5B)",
         description="GPT-2 (1.5B parameters)",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=1024,
+        max_request_length=1025,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -363,6 +546,9 @@ ALL_MODELS = [
         name="huggingface/gpt-j-6b",
         display_name="GPT-J (6B, HuggingFace)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
+        tokenizer_name="EleutherAI/gpt-j-6B",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
     ),
     Model(
@@ -372,6 +558,9 @@ ALL_MODELS = [
         display_name="SantaCoder (1.1B)",
         description="SantaCoder (1.1B parameters) model trained on the Python, Java, and "
         "JavaScript subset of The Stack (v1.1).",
+        tokenizer_name="bigcode/santacoder",
+        max_sequence_length=2048,
+        max_request_length=2048,
         tags=[CODE_MODEL_TAG],
     ),
     Model(
@@ -380,6 +569,9 @@ ALL_MODELS = [
         name="huggingface/large-model",
         display_name="BigCode's Large Model (15.5B)",
         description="BigCode's Large Model (15.5B) trained on The Stack (v1.2)",
+        tokenizer_name="bigcode/large-model",
+        max_sequence_length=8192,
+        max_request_length=8192,
         tags=[CODE_MODEL_TAG],
     ),
     # Google
@@ -392,6 +584,11 @@ ALL_MODELS = [
         description="T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of "
         "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
         "format.",
+        tokenizer_name="google/t5-11b",
+        # From https://arxiv.org/pdf/1910.10683.pdf, "we use a maximum sequence length of 512".
+        # We subtract 1 to account for <extra_id_0> that gets appended to prompts.
+        max_sequence_length=512 - 1,
+        max_request_length=812 - 1,
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
@@ -401,6 +598,10 @@ ALL_MODELS = [
         name="together/flan-t5-xxl",
         display_name="Flan-T5 (11B)",
         description="Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks.",
+        tokenizer_name="google/t5-xxl",
+        # We subtract 1 to account for <extra_id_0> that gets appended to prompts.
+        max_sequence_length=512 - 1,
+        max_request_length=812 - 1,
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
@@ -412,6 +613,11 @@ ALL_MODELS = [
         # From https://huggingface.co/google/ul2
         description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
         "but trained with a different objective and slightly different scaling knobs.",
+        tokenizer_name="google/ul2",
+        # From https://arxiv.org/pdf/2205.05131.pdf, "the sequence length is set to 512/512 for inputs and targets".
+        # We subtract 1 to account for <extra_id_0> that gets appended to prompts.
+        max_sequence_length=512 - 1,
+        max_request_length=812 - 1,
         # Does not support echo=True
         tags=[
             TEXT_MODEL_TAG,
@@ -428,6 +634,9 @@ ALL_MODELS = [
         name="together/h3-2.7b",
         display_name="H3 (2.7B)",
         description="H3 (2.7B parameters) is a decoder-only language model based on state space models.",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=1024,
+        max_request_length=1025,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OPT
@@ -439,6 +648,11 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
+        tokenizer_name="facebook/opt-66b",
+        # The max length of the model input. The max sequence length for the OPT models is 2048.
+        # Source: https://arxiv.org/pdf/2205.01068.pdf
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
@@ -449,6 +663,11 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
+        tokenizer_name="facebook/opt-66b",
+        # The max length of the model input. The max sequence length for the OPT models is 2048.
+        # Source: https://arxiv.org/pdf/2205.01068.pdf
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
@@ -459,6 +678,11 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
+        tokenizer_name="facebook/opt-66b",
+        # The max length of the model input. The max sequence length for the OPT models is 2048.
+        # Source: https://arxiv.org/pdf/2205.01068.pdf
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[
             TEXT_MODEL_TAG,
             FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
@@ -475,6 +699,11 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
+        tokenizer_name="facebook/opt-66b",
+        # The max length of the model input. The max sequence length for the OPT models is 2048.
+        # Source: https://arxiv.org/pdf/2205.01068.pdf
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[
             TEXT_MODEL_TAG,
             FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
@@ -491,6 +720,13 @@ ALL_MODELS = [
         display_name="TNLGv2 (530B)",
         description="TNLGv2 (530B parameters) autoregressive language model. "
         "It is trained on a filtered subset of the Pile and CommonCrawl.",
+        tokenizer_name="huggingface/gpt2",
+        # The max length of the model input. MT-NLG does not predict the logprob of the first
+        # input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2047,
+        # The max request length for the MT-NLG models is 2048.
+        # Source: https://github.com/microsoft/turing-academic-TNLG
+        max_request_length=2048,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -500,6 +736,13 @@ ALL_MODELS = [
         display_name="TNLGv2 (7B)",
         description="TNLGv2 (7B parameters) autoregressive language model. "
         "It is trained on a filtered subset of the Pile and CommonCrawl.",
+        tokenizer_name="huggingface/gpt2",
+        # The max length of the model input. MT-NLG does not predict the logprob of the first
+        # input token so `max_sequence_length` is one token shorter than `max_request_length`.
+        max_sequence_length=2047,
+        # The max request length for the MT-NLG models is 2048.
+        # Source: https://github.com/microsoft/turing-academic-TNLG
+        max_request_length=2048,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OpenAI: https://beta.openai.com/docs/engines/gpt-3
@@ -509,6 +752,9 @@ ALL_MODELS = [
         name="openai/davinci",
         display_name="davinci (175B)",
         description="Original GPT-3 (175B parameters) autoregressive language model.",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -517,6 +763,9 @@ ALL_MODELS = [
         name="openai/curie",
         display_name="curie (6.7B)",
         description="Original GPT-3 (6.7B parameters) autoregressive language model.",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -525,6 +774,9 @@ ALL_MODELS = [
         name="openai/babbage",
         display_name="babbage (1.3B)",
         description="Original GPT-3 (1.3B parameters) autoregressive language model.",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -533,6 +785,9 @@ ALL_MODELS = [
         name="openai/ada",
         display_name="ada (350M)",
         description="Original GPT-3 (350M parameters) autoregressive language model.",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
@@ -544,6 +799,11 @@ ALL_MODELS = [
         display_name="text-davinci-003",
         description="text-davinci-003 model that involves reinforcement learning (PPO) with reward models."
         "Derived from text-davinci-002.",
+        tokenizer_name="huggingface/gpt2",
+        # Max sequence length of the larger second-generation OpenAI models.
+        # Source: https://platform.openai.com/docs/models
+        max_sequence_length=4000,
+        max_request_length=4001,
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -553,6 +813,11 @@ ALL_MODELS = [
         display_name="text-davinci-002",
         description="text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations."
         "Derived from code-davinci-002.",
+        tokenizer_name="huggingface/gpt2",
+        # Max sequence length of the larger second-generation OpenAI models.
+        # Source: https://platform.openai.com/docs/models
+        max_sequence_length=4000,
+        max_request_length=4001,
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -561,6 +826,9 @@ ALL_MODELS = [
         name="openai/text-davinci-001",
         display_name="text-davinci-001",
         description="text-davinci-001 model that involves supervised fine-tuning on human-written demonstrations",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -569,6 +837,9 @@ ALL_MODELS = [
         name="openai/text-curie-001",
         display_name="text-curie-001",
         description="text-curie-001 model that involves supervised fine-tuning on human-written demonstrations",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -577,6 +848,9 @@ ALL_MODELS = [
         name="openai/text-babbage-001",
         display_name="text-babbage-001",
         description="text-babbage-001 model that involves supervised fine-tuning on human-written demonstrations",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -585,6 +859,9 @@ ALL_MODELS = [
         name="openai/text-ada-001",
         display_name="text-ada-001",
         description="text-ada-001 model that involves supervised fine-tuning on human-written demonstrations",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -593,6 +870,11 @@ ALL_MODELS = [
         name="openai/code-davinci-002",
         display_name="code-davinci-002",
         description="code-davinci-002 model that is designed for pure code-completion tasks",
+        tokenizer_name="huggingface/gpt2",
+        # Max sequence length of the larger second-generation OpenAI models.
+        # Source: https://platform.openai.com/docs/models
+        max_sequence_length=4000,
+        max_request_length=4001,
         tags=[CODE_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -601,6 +883,9 @@ ALL_MODELS = [
         name="openai/code-davinci-001",
         display_name="code-davinci-001",
         description="code-davinci-001 model",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -609,6 +894,9 @@ ALL_MODELS = [
         name="openai/code-cushman-001",
         display_name="code-cushman-001 (12B)",
         description="Code model that is a stronger, multilingual version of the Codex (12B) model in the paper.",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # GPT-4
@@ -621,6 +909,10 @@ ALL_MODELS = [
         description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
         "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
         "from March 14th 2023.",
+        tokenizer_name="openai/cl100k_base",
+        # Source: https://platform.openai.com/docs/models
+        max_sequence_length=8192,
+        max_request_length=8193,
         tags=[
             TEXT_MODEL_TAG,
             GPT4_CONTEXT_WINDOW_TAG,
@@ -638,6 +930,10 @@ ALL_MODELS = [
         description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
         "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
         "with a longer context length of 32,768 tokens from March 14th 2023.",
+        tokenizer_name="openai/cl100k_base",
+        # Source: https://platform.openai.com/docs/models
+        max_sequence_length=32768,
+        max_request_length=32769,
         tags=[
             TEXT_MODEL_TAG,
             GPT4_32K_CONTEXT_WINDOW_TAG,
@@ -655,10 +951,13 @@ ALL_MODELS = [
         # https://platform.openai.com/docs/models/gpt-3-5
         description="Sibling model of text-davinci-003 is optimized for chat but works well "
         "for traditional completions tasks as well. Snapshot from 2023-03-01.",
+        tokenizer_name="openai/cl100k_base",
         # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
         # sequence length is smaller at 4087 with one user input message and one assistant
         # output message because ChatGPT uses special tokens for message roles and boundaries.
         # We use a rounded-down sequence length of 4000 to account for these special tokens.
+        max_sequence_length=4000,
+        max_request_length=4001,
         tags=[
             TEXT_MODEL_TAG,
             WIDER_CONTEXT_WINDOW_TAG,
@@ -673,7 +972,10 @@ ALL_MODELS = [
         name="openai/chat-gpt",
         display_name="ChatGPT",
         description="Sibling model to InstructGPT which interacts in a conversational way",
+        tokenizer_name="openai/cl100k_base",
         # TODO: The max context length is unknown. Assume it's the same length as Davinci Instruct for now.
+        max_sequence_length=4000,
+        max_request_length=4001,
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
@@ -683,6 +985,9 @@ ALL_MODELS = [
         name="openai/text-similarity-davinci-001",
         display_name="GPT-3 (12288-dimension embeddings)",
         description="GPT-3 (12288-dimension embeddings)",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[EMBEDDING_MODEL_TAG],
     ),
     Model(
@@ -691,6 +996,9 @@ ALL_MODELS = [
         name="openai/text-similarity-curie-001",
         display_name="GPT-3 (4096-dimension embeddings)",
         description="GPT-3 (4096-dimension embeddings)",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[EMBEDDING_MODEL_TAG],
     ),
     Model(
@@ -699,6 +1007,9 @@ ALL_MODELS = [
         name="openai/text-similarity-babbage-001",
         display_name="GPT-3 (2048-dimension embeddings)",
         description="GPT-3 (2048-dimension embeddings)",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[EMBEDDING_MODEL_TAG],
     ),
     Model(
@@ -707,6 +1018,9 @@ ALL_MODELS = [
         name="openai/text-similarity-ada-001",
         display_name="GPT-3 (1024-dimension embeddings)",
         description="GPT-3 (1024-dimension embeddings)",
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[EMBEDDING_MODEL_TAG],
     ),
     # Together
@@ -716,6 +1030,9 @@ ALL_MODELS = [
         name="together/gpt-jt-6b-v1",
         display_name="GPT-JT (6B)",
         description="GPT-JT (6B parameters) is a fork of GPT-J",
+        tokenizer_name="EleutherAI/gpt-j-6B",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
     ),
     Model(
@@ -724,6 +1041,9 @@ ALL_MODELS = [
         name="together/gpt-neoxt-chat-base-20b",
         display_name="GPT-NeoXT-Chat-Base (20B)",
         description="GPT-NeoXT-Chat-Base (20B parameters) is a fork of GPT-NeoX",
+        tokenizer_name="EleutherAI/gpt-neox-20b",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
     # Tsinghua
@@ -735,6 +1055,11 @@ ALL_MODELS = [
         # From https://github.com/THUDM/GLM-130B
         description="GLM-130B is an open bilingual (English & Chinese) bidirectional dense model with 130 billion "
         "parameters, pre-trained using the algorithm of General Language Model (GLM).",
+        # From https://github.com/THUDM/GLM-130B, "the tokenizer is implemented based on
+        # icetk---a unified multimodal tokenizer for images, Chinese, and English."
+        tokenizer_name="TsinghuaKEG/ice",
+        max_sequence_length=2048,
+        max_request_length=2049,
         # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
@@ -747,6 +1072,9 @@ ALL_MODELS = [
         display_name="YaLM (100B)",
         # From https://github.com/yandex/YaLM-100B
         description="YaLM (100B parameters) is an autoregressive language model trained on English and Russian text.",
+        tokenizer_name="Yandex/yalm",
+        max_sequence_length=2048,
+        max_request_length=2049,
         # TODO: change to `FULL_FUNCTIONALITY_TEXT_MODEL_TAG` when we fix the infinite loop in L.M. adaptation
         #       https://github.com/stanford-crfm/benchmarking/issues/738
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
@@ -759,6 +1087,10 @@ ALL_MODELS = [
         display_name="PaLM (540B)",
         description="Pathways Language Model (540B parameters) is trained using 6144 TPU v4 chips "
         "([paper](https://arxiv.org/pdf/2204.02311.pdf)).",
+        #  We approximate with the OpenAI GPT-2 parameters
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging
@@ -768,6 +1100,10 @@ ALL_MODELS = [
         name="simple/model1",
         display_name="Simple Model 1",
         description="Copy last tokens (for debugging)",
+        #  We approximate with the OpenAI GPT-2 parameters
+        tokenizer_name="huggingface/gpt2",
+        max_sequence_length=2048,
+        max_request_length=2049,
     ),
 ]
 
