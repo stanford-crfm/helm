@@ -105,7 +105,7 @@ def queue_jobs(
             if machine is not None:
                 nlp_run_gpu_args += f" -m {machine}"
             elif use_sphinx:
-                nlp_run_gpu_args += " -q sphinx --priority high "
+                nlp_run_gpu_args += " -q sphinx-hi "
 
             swiss_army_port: str = ""
             if model.name == "thudm/cogview2":
