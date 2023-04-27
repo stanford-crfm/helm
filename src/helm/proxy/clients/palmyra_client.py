@@ -94,11 +94,6 @@ class PalmyraClient(Client):
 
             # Post process the completion.
             response_text: str = response["choices"][0]["text"]
-            # NOTE(josselin): The Writer API sometimes returns a space at the beginning of the completion.
-            # We remove it here, but this is a hacky solution.
-            # TODO(#1512): Remove this hacky solution.
-            if len(response_text) and response_text[0] == " ":
-                response_text = response_text[1:]
 
             # The Writer API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
