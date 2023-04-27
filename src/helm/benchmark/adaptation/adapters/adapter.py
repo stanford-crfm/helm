@@ -11,6 +11,7 @@ from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.common.hierarchical_logger import hlog
+from helm.proxy.models import Model, get_model
 
 
 class Adapter(ABC):
@@ -21,6 +22,7 @@ class Adapter(ABC):
 
     def __init__(self, adapter_spec: AdapterSpec, tokenizer_service: TokenizerService):
         self.adapter_spec: AdapterSpec = adapter_spec
+        self.model: Model = get_model(adapter_spec.model)
         self.window_service: WindowService = WindowServiceFactory.get_window_service(
             adapter_spec.model, tokenizer_service
         )

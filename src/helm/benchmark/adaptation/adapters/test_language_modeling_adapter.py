@@ -46,7 +46,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         conditioning_tokens: List[TokenizationToken] = [TokenizationToken(50256)]
         pred_tokens: List[TokenizationToken] = [TokenizationToken(464)] + [TokenizationToken(262)] * 2048
         prompt, pred_tokens = adapter.fits_tokens_within_context_window(
-            conditioning_tokens, pred_tokens, adapter.window_service.max_request_length
+            conditioning_tokens, pred_tokens, adapter.model.max_request_length
         )
 
         # Ensure the prompt is correct

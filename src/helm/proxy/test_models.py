@@ -25,3 +25,15 @@ def test_get_models_by_organization():
 
 def test_all_code_models():
     assert "openai/code-davinci-002" in get_all_code_models()
+
+def test_sequence_length():
+    model: Model = get_model("cohere/medium-20221108")
+    assert model.max_sequence_length == 2047
+    model: Model = get_model("together/gpt-neox-20b")
+    assert model.max_sequence_length == 2048
+
+def test_tokenizer_name():
+    model: Model = get_model("cohere/medium-20221108")
+    assert model.tokenizer_name == "cohere/cohere"
+    model: Model = get_model("together/gpt-neox-20b")
+    assert model.tokenizer_name == "EleutherAI/gpt-neox-20b"

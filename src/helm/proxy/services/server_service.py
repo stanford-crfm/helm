@@ -33,7 +33,10 @@ from .service import (
     expand_environments,
     synthesize_request,
 )
-
+from helm.proxy.models import (
+    get_model,
+    Model,
+)
 
 class ServerService(Service):
     """
@@ -69,10 +72,11 @@ class ServerService(Service):
 
         token_service = TokenizerService(self, Authentication(""))
         window_service = WindowServiceFactory.get_window_service(model_name, token_service)
+        model: Model = get_model(model_name)
         return WindowServiceInfo(
-            tokenizer_name=window_service.tokenizer_name,
-            max_sequence_length=window_service.max_sequence_length,
-            max_request_length=window_service.max_request_length,
+            tokenizer_name=model.tokenizer_name,
+            max_sequence_length=model.max_sequence_length,
+            max_request_length=model.max_request_length,
             end_of_text_token=window_service.end_of_text_token,
             prefix_token=window_service.prefix_token,
         )

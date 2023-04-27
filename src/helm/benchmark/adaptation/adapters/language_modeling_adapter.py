@@ -46,8 +46,8 @@ class LanguageModelingAdapter(Adapter):
         """
         Adapted from https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py.
         """
-        max_sequence_length: int = self.window_service.max_sequence_length
-        max_request_length: int = self.window_service.max_request_length
+        max_sequence_length: int = self.model.max_sequence_length
+        max_request_length: int = self.model.max_request_length
         prefix_token: str = self.window_service.prefix_token
 
         encode_result: EncodeResult = self.window_service.encode(eval_instance.input.text)
