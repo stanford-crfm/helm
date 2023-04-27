@@ -44,7 +44,11 @@ class PalmyraClient(Client):
             "topP": request.top_p,
             "bestOf": request.top_k_per_token,
             "stop": request.stop_sequences,
-            "random_seed": request.random,
+            # random_seed have been disabled for now.
+            # It is here to ensure that Writer does not cache the request when we
+            # want several completions with the same prompt. Right now it seems
+            # to have no effect so we are disabling it.
+            # "random_seed": request.random,
         }
 
         completions: List[Sequence] = []
@@ -76,7 +80,6 @@ class PalmyraClient(Client):
                 cache_key = Client.make_cache_key(
                     {
                         "engine": request.model_engine,
-                        "echo_prompt": request.echo_prompt,
                         "completion_index": completion_index,
                         **raw_request,
                     },

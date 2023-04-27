@@ -537,8 +537,6 @@ models:
     num_parameters: 35000000000
     release_date: 2023-04-13
   
-
-    
   # Yandex
   - name: together/yalm
     display_name: YaLM (100B)
