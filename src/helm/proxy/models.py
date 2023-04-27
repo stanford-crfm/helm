@@ -32,6 +32,7 @@ AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
 COHERE_TOKENIZER_TAG: str = "cohere_tokenizer"
 OPT_TOKENIZER_TAG: str = "opt_tokenizer"
 GPTJ_TOKENIZER_TAG: str = "gptj_tokenizer"
+GPT4_TOKENIZER_TAG: str = "gpt4_tokenizer"
 GPTNEO_TOKENIZER_TAG: str = "gptneo_tokenizer"
 
 # Models which emit garbage tokens when temperature=0.
@@ -961,9 +962,9 @@ ALL_MODELS = [
         tags=[
             TEXT_MODEL_TAG,
             WIDER_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
             OPENAI_CHATGPT_MODEL_TAG,
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-            GPT2_TOKENIZER_TAG,
         ],
     ),
     Model(

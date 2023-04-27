@@ -10,7 +10,22 @@ class WiderOpenAIWindowService(GPT2WindowService):
         return 4000
 
 
-class GPT4WindowService(GPT2WindowService):
+class OpenAIChatWindowService(WiderOpenAIWindowService):
+    @property
+    def tokenizer_name(self) -> str:
+        return "openai/cl100k_base"
+
+
+class GPT3Point5TurboWindowService(OpenAIChatWindowService):
+    @property
+    def max_sequence_length(self) -> int:
+        """Return the max sequence length for GPT-3.5 Turbo.
+
+        Source: https://platform.openai.com/docs/models"""
+        return 4000
+
+
+class GPT4WindowService(OpenAIChatWindowService):
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length for GPT-4.
@@ -19,7 +34,7 @@ class GPT4WindowService(GPT2WindowService):
         return 8192
 
 
-class GPT432KWindowService(GPT2WindowService):
+class GPT432KWindowService(OpenAIChatWindowService):
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length for GPT-4.
