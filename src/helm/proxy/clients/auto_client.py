@@ -83,11 +83,11 @@ class AutoClient(Client):
                 )
 
                 org_id = self.credentials.get("openaiOrgId", None)
+                api_key = self.credentials.get("openaiApiKey", None)
                 client = OpenAIClient(
-                    api_key=self.credentials["openaiApiKey"],
                     cache_config=cache_config,
-                    tokenizer_client=self._get_tokenizer_client("huggingface"),
                     chat_gpt_client=chat_gpt_client,
+                    api_key=api_key,
                     org_id=org_id,
                 )
             elif organization == "AlephAlpha":
@@ -175,10 +175,13 @@ class AutoClient(Client):
                 "gooseai",
                 "huggingface",
                 "microsoft",
-                "openai",
                 "Writer",
             ]:
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "openai":
+                client = OpenAIClient(
+                    cache_config=cache_config,
+                )
             elif organization == "AlephAlpha":
                 client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
             elif organization == "TsinghuaKEG":
