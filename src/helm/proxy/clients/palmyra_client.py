@@ -48,6 +48,7 @@ class PalmyraClient(Client):
             # It is here to ensure that Writer does not cache the request when we
             # want several completions with the same prompt. Right now it seems
             # to have no effect so we are disabling it.
+            # TODO(#1515): re-enable it when it works.
             # "random_seed": request.random,
         }
 
@@ -57,13 +58,13 @@ class PalmyraClient(Client):
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
             try:
-
+                # This is disabled for now. See above TODO(#1515).
                 # HACKY: Use the random seed to get different results for each completion.
-                raw_request["random_seed"] = (
-                    f"completion_index={completion_index}"
-                    if request.random is None
-                    else request.random + f":completion_index={completion_index}"
-                )
+                # raw_request["random_seed"] = (
+                #     f"completion_index={completion_index}"
+                #     if request.random is None
+                #     else request.random + f":completion_index={completion_index}"
+                # )
 
                 def do_it():
                     result = self._send_request(model_name, raw_request)
