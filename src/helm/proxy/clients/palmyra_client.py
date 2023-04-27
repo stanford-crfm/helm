@@ -54,11 +54,14 @@ class PalmyraClient(Client):
         for completion_index in range(request.num_completions):
             try:
 
+                # HACKY: Use the random seed to get different results for each completion.
+                raw_request["random_seed"] = (
+                    f"completion_index={completion_index}"
+                    if request.random is None
+                    else request.random + f":completion_index={completion_index}"
+                )
+
                 def do_it():
-                    # HACKY: Use the random seed to get different results for each completion.
-                    raw_request["random_seed"] = (
-                        completion_index if request.random is None else request.random + completion_index
-                    )
                     result = self._send_request(model_name, raw_request)
                     if "choices" not in result:
                         raise ValueError(f"Invalid response: {result}")
@@ -89,6 +92,7 @@ class PalmyraClient(Client):
             response_text: str = response["choices"][0]["text"]
             # NOTE(josselin): The Writer API sometimes returns a space at the beginning of the completion.
             # We remove it here, but this is a hacky solution.
+            # TODO(#1512): Remove this hacky solution.
             if len(response_text) and response_text[0] == " ":
                 response_text = response_text[1:]
 
