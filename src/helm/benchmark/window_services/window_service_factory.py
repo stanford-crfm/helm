@@ -9,7 +9,7 @@ from helm.proxy.models import (
 )
 from .ai21_window_service import AI21WindowService
 from .wider_ai21_window_service import WiderAI21WindowService
-from .anthropic_window_service import AnthropicWindowService
+from .anthropic_window_service import AnthropicWindowService, LegacyAnthropicWindowService
 from .cohere_window_service import CohereWindowService, CohereCommandWindowService
 from .luminous_window_service import (
     LuminousBaseWindowService,
@@ -83,7 +83,10 @@ class WindowServiceFactory:
         elif organization == "microsoft":
             window_service = MTNLGWindowService(service)
         elif organization == "anthropic":
-            window_service = AnthropicWindowService(service)
+            if engine == "stanford-online-all-v4-s3":
+                window_service = LegacyAnthropicWindowService(service)
+            else:
+                window_service = AnthropicWindowService(service)
         elif engine == "santacoder":
             window_service = SantaCoderWindowService(service)
         elif model_name == "huggingface/gpt2":

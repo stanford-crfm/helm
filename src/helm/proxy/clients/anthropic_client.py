@@ -26,6 +26,18 @@ class AnthropicClient(Client):
     """
     Client for the Anthropic models (https://arxiv.org/abs/2204.05862).
     They use their own tokenizer.
+    Here are a list of bugs that we deal with in this client:
+    - The completions is often too verbse, so we add the PROMPT_ANSWER_START to the prompt.
+    - The completions often start with a colon, space, or newline, so we remove it. This means
+    that we need to query more tokens than necessary to ensure that the completion does not start
+    with a colon, space, or newline. We query `max_tokens + ADDITIONAL_TOKENS` tokens and then
+    remove the excess tokens at the end of the completion.
+    - The tokenizer returns stange characters like "Ġ". See TEST_TOKENS in test_anthropic_with_service.py.
+    It shows the actual tokens that are returned by the tokenizer.
+    - The API sometimes returns "Prompt must contain anthropic.AI_PROMPT" or Prompt length + max_tokens
+    exceeds max (9192). This is a bug related to the window_service that does not properly truncate some
+    prompts. The first issue is caused by the suffix being truncated and the second is something we do not
+    handle yet (we have not limit on prompt length + max_tokens).
     """
 
     MAX_COMPLETION_LENGTH: int = (
@@ -59,9 +71,9 @@ class AnthropicClient(Client):
 
         # NOTE(josselin): For now, this is disabled as it is not an accurate
         # limit of tokens. It is still handled by truncate_sequence() further
-        # down the line, but it is not ideal. (warnings are disabled)
+        # down the line, but it is not ideal. (prints a warning in the logs)
         # It is now expected that truncate_sequence() will truncate some tokens
-        # as we queried mroe tokens than necessary to ensure that the completion
+        # as we queried more tokens than necessary to ensure that the completion
         # does not start with a colon, space, or newline.
 
         # Remove excess tokens at the end of the completion.
@@ -107,8 +119,6 @@ class AnthropicClient(Client):
                 # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
                 cache_key = Client.make_cache_key(
                     {
-                        "engine": request.model_engine,
-                        "echo_prompt": request.echo_prompt,
                         "completion_index": completion_index,
                         **raw_request,
                     },
@@ -122,18 +132,16 @@ class AnthropicClient(Client):
 
                     def do_it_error():
                         # NOTE(josselin): This is HACKY.
-                        # It is used two solve 2 API eerors:
+                        # It is used to solve 2 API errors:
                         # - "Prompt must contain anthropic.AI_PROMPT". Usually caused by some truncations
                         # that removes the suffix.
-                        # - Prompt length + max_tokens exceeds nax (9192). This is because we request too many tokens.
+                        # - Prompt length + max_tokens exceeds max (9192). This is because we request too many tokens.
                         # In practice it is very rare but it will fail the runs so we add an error message
                         # as the completion instead.
                         return {"completion": "[HELM] Prompt too long. [ERROR] " + error_string}
 
                     new_cache_key = Client.make_cache_key(
                         {
-                            "engine": request.model_engine,
-                            "echo_prompt": request.echo_prompt,
                             "completion_index": completion_index,
                             "exception": True,
                             **raw_request,
@@ -162,8 +170,9 @@ class AnthropicClient(Client):
             ]
 
             completion = Sequence(text=response["completion"], logprob=0, tokens=tokens)
-            # See NOTE() in _filter_completion() to understand why warnings are disabled.
-            sequence = truncate_sequence(completion, request, print_warning=False)
+            # See NOTE() in _filter_completion() to understand why warnings are printed for truncation.
+            # TODO(#1512): Fix this with post-processing.
+            sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
         return RequestResult(

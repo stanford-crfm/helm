@@ -7,7 +7,7 @@ from .window_service_factory import WindowServiceFactory
 from .test_utils import get_tokenizer_service, TEST_PROMPT
 
 
-class TestAntrhopicWindowService:
+class TestAnthropicWindowService:
     TEST_PROMPT_LENGTH: int = 52
     TEST_TOKEN_IDS: List[int] = [
         773,
