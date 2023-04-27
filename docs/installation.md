@@ -10,7 +10,7 @@ Using [Virtualenv](https://docs.python.org/3/library/venv.html#creating-virtual-
 # Create a virtual environment.
 # Only run this the first time.
 python3 -m pip install virtualenv
-python3 -m virtualenv -p python3 helm-venv
+python3 -m virtualenv -p python3.8 helm-venv
 
 # Activate the virtual environment.
 source helm-venv/bin/activate
