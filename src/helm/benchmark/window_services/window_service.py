@@ -24,26 +24,6 @@ class EncodeResult:
 class WindowService(ABC):
     @property
     @abstractmethod
-    def tokenizer_name(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def max_sequence_length(self) -> int:
-        """The max length of the model input."""
-        pass
-
-    @property
-    @abstractmethod
-    def max_request_length(self) -> int:
-        """
-        The max request length of the model. Some models allow `max_request_length > max_sequence_length`
-        so that users can specify the last output token. e.g. GPT-3.
-        """
-        pass
-
-    @property
-    @abstractmethod
     def end_of_text_token(self) -> str:
         """The end of text token."""
         pass
