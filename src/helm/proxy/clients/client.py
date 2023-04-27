@@ -10,7 +10,12 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
+    TokenizationToken,
 )
+
+from helm.proxy.tokenizers import Tokenizer
+from helm.proxy.models import Model
+from helm.common.cache import Cache, CacheConfig
 
 
 class Client(ABC):
@@ -38,6 +43,47 @@ class Client(ABC):
     @abstractmethod
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         pass
+
+
+class FullClient(Client):
+    """Implements a model client that uses a model and a tokenizer."""
+
+    def __init__(self, cache_config: CacheConfig, model: Model, tokenizer: Tokenizer):
+        self.model = model
+        self.tokenizer = tokenizer
+        self.cache = Cache(cache_config)
+
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        if request.tokenizer_name != self.tokenizer.name:
+            error: str = f"Tokenizer name mismatch: {request.tokenizer_name} != {self.tokenizer.name}"
+            return TokenizationRequestResult(success=False, cached=False, text=request.text, error=error, tokens=[])
+        
+        try:
+
+            def do_it():
+                tokens = []
+                if request.encode:
+                    tokens = self.tokenizer.encode(request.text, truncation=request.truncation, max_length=request.max_length)
+                else:
+                    tokens = self.tokenizer.tokenize(request.text)
+                return {"tokens": tokens}
+            
+            response, cached = self.cache.get(request, wrap_request_time(do_it))
+        except Exception as e:
+            error: str = f"Tokenizer error: {e}"
+            return TokenizationRequestResult(success=False, cached=False, error=error, tokens=[])
+        
+        return TokenizationRequestResult(
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
+            text=request.text,
+            tokens=[TokenizationToken(token) for token in response["tokens"]],
+        )
+    
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        raise NotImplementedError
+
 
 
 def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:

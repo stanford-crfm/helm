@@ -92,3 +92,8 @@ class Tokenizer(ABC):
     def tokenize(self, text: str) -> List[str]:
         """Tokenizes the text."""
         pass
+
+
+ALL_TOKENIZERS = [
+    TokenizerSpec(name="huggingface/gpt2", end_of_text_token="<|endoftext|>", prefix_token="<|endoftext|>"),
+]
