@@ -229,7 +229,7 @@ class HuggingFaceClient(Client):
                     else:
                         tokens = tokenizer.encode(request.text, add_special_tokens=False)
                 else:
-                    tokens = tokenizer.tokenize(request.text)
+                    tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
                 return {"tokens": tokens}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
