@@ -9,9 +9,22 @@ from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
 
 class DetectionScenario(Scenario):
     """
-    TODO: include description of the scenario. Link relevant papers.
-    See https://github.com/stanford-crfm/helm/blob/vhelm/src/helm/benchmark/scenarios/draw_bench_scenario.py#L11
-    as an example.
+    This metrics measures whether generated images follows the specification of
+    objects and their relations in the text prompts.
+
+    The following three skills, as defined in DALL-EVAL being evaluated:
+    1. "Object". Given a text prompt "a photo of OBJ", whether the generated image
+    contains OBJ.
+    2. "Count". Given a text prompt "a phot of COUNT OBJ", whether the generated image
+    contains OBJ and whether its number matches COUNT.
+    3. "Spatial". Given a text prompt "a photo of OBJ1 and OBJ2; OBJ1 is RELATION OBJ2",
+    whether the generated image contains OBJ1 and OBJ2, and whether their spatial relation
+    matches RELATION.
+
+    We use a pre-trained ViTDet (ViT-B) as the detection backbone.
+    Paper:
+    [DALL-EVAL](https://arxiv.org/abs/2202.04053).
+    [ViTDet](https://arxiv.org/abs/2203.16527).
     """
 
     DATASET_DOWNLOAD_URL: str = (
@@ -20,7 +33,7 @@ class DetectionScenario(Scenario):
     )
 
     name = "detection"
-    description = "TODO: include a short description of this scenario."
+    description = "A benchmark to measure the accuracy of objects and relations in generated images."
     tags = ["text-to-image"]
 
     def get_instances(self) -> List[Instance]:

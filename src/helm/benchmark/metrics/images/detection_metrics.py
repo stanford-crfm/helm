@@ -15,7 +15,9 @@ from .detectors.vitdet import ViTDetDetctor
 
 class DetectionMetric(Metric):
     """
-    TODO: write a short description of this metric here
+    Define metrics following DALL-EVAL (https://arxiv.org/abs/2202.04053),
+    which measure whether generated images contain the correct objects, counts, and relations
+    as specified in input text prompts.
     """
 
     def __init__(self):

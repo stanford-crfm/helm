@@ -81,12 +81,6 @@ class ViTDetDetctor(BaseDetector):
             pred_class_name = COCO_CLASSES[pred_class.item()]
 
             correct = pred_class == gt_class
-        # info = {
-        #     "correct": correct.item(),
-        #     "pred_object": pred_class_name,
-        #     "pred_confidence": pred_score.item(),
-        #     "target_object": gt_class_name,
-        # }
         return correct.item()
 
     def compute_score_count(self, instances, references):
@@ -100,11 +94,6 @@ class ViTDetDetctor(BaseDetector):
             pred_count = (instances.pred_classes == gt_class_idx).sum().item()
             correct = int(pred_count == gt_count)
 
-        # info = {
-        #         "correct": correct,
-        #         "pred_count": pred_count,
-        #         "gt_count": gt_count,
-        #     }
         return correct.item()
 
     def compute_score_spatial(self, instances, references):
