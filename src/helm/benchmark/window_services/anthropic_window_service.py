@@ -5,7 +5,7 @@ from .tokenizer_service import TokenizerService
 class LegacyAnthropicWindowService(GPT2WindowService):
     """
     This is the window service for the legacy Anthropic client.
-    Please condisider using the new Anthropic client with the AnthropicWindowService.
+    Please consider using the new Anthropic client with the AnthropicWindowService.
     Anthropic has their own tokenizer based on the GPT-2 tokenizer.
     This tokenizer is not publicly available, so approximate with the GPT-2 tokenizer.
     """

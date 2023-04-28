@@ -22,22 +22,35 @@ from tokenizers import Tokenizer
 from dataclasses import asdict
 
 
+class AnthropicPromptTooLongError(Exception):
+    pass
+
+
+class AnthropicPromptPlusMaxTokensTooLongError(Exception):
+    pass
+
+
 class AnthropicClient(Client):
     """
     Client for the Anthropic models (https://arxiv.org/abs/2204.05862).
     They use their own tokenizer.
     Here are a list of bugs that we deal with in this client:
-    - The completions is often too verbse, so we add the PROMPT_ANSWER_START to the prompt.
+    - The prompt must contains anthropic.HUMAN_PROMPT ('\n\nHuman:') and anthropic.AI_PROMPT ('\n\nAssistant:')
+    - The completions is often too verbose, so we add the PROMPT_ANSWER_START to the prompt.
+    TODO(#1521): Remove this when we have a better way to do prompt engineering.
     - The completions often start with a colon, space, or newline, so we remove it. This means
     that we need to query more tokens than necessary to ensure that the completion does not start
     with a colon, space, or newline. We query `max_tokens + ADDITIONAL_TOKENS` tokens and then
     remove the excess tokens at the end of the completion.
+    TODO(#1512): Once we have a good way to post-process the completion, move this logic to the
+    post-processing.
     - The tokenizer returns stange characters like "Ġ". See TEST_TOKENS in test_anthropic_with_service.py.
     It shows the actual tokens that are returned by the tokenizer.
-    - The API sometimes returns "Prompt must contain anthropic.AI_PROMPT" or Prompt length + max_tokens
-    exceeds max (9192). This is a bug related to the window_service that does not properly truncate some
-    prompts. The first issue is caused by the suffix being truncated and the second is something we do not
-    handle yet (we have not limit on prompt length + max_tokens).
+    TODO(#1516): Will be ffixed after we merge #1519. Then, fix tests.
+    - The API sometimes returns "Prompt must contain anthropic.AI_PROMPT". This is a bug related to the
+    window_service that does not properly truncate some prompts.  It is caused by the suffix being truncated.
+    - The API sometimes return Prompt length + max_tokens exceeds max (9192). This is something we do not
+    handle yet (we have not limit on prompt length + max_tokens). TODO(#1520): Fix this.
     """
 
     MAX_COMPLETION_LENGTH: int = (
@@ -127,31 +140,11 @@ class AnthropicClient(Client):
 
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except Exception as error:
-                if "Prompt must contain anthropic.AI_PROMPT" in str(error) or "exceeds max (" in str(error):
-                    error_string: str = str(error)
-
-                    def do_it_error():
-                        # NOTE(josselin): This is HACKY.
-                        # It is used to solve 2 API errors:
-                        # - "Prompt must contain anthropic.AI_PROMPT". Usually caused by some truncations
-                        # that removes the suffix.
-                        # - Prompt length + max_tokens exceeds max (9192). This is because we request too many tokens.
-                        # In practice it is very rare but it will fail the runs so we add an error message
-                        # as the completion instead.
-                        return {"completion": "[HELM] Prompt too long. [ERROR] " + error_string}
-
-                    new_cache_key = Client.make_cache_key(
-                        {
-                            "completion_index": completion_index,
-                            "exception": True,
-                            **raw_request,
-                        },
-                        request,
-                    )
-
-                    response, cached = self.cache.get(new_cache_key, wrap_request_time(do_it_error))
-                else:
-                    return RequestResult(success=False, cached=False, error=str(error), completions=[], embedding=[])
+                if "Prompt must contain anthropic.AI_PROMPT" in str(error):
+                    raise AnthropicPromptTooLongError(f"Prompt too long: {request.prompt}")
+                if "exceeds max (" in str(error):
+                    raise AnthropicPromptPlusMaxTokensTooLongError(f"Prompt + max_tokens too long: {request.prompt}")
+                return RequestResult(success=False, cached=False, error=str(error), completions=[], embedding=[])
 
             # Post process the completion.
             response["completion"] = self._filter_completion(response["completion"], request.max_tokens)
