@@ -57,7 +57,7 @@ from .scenarios import med_paragraph_simplification_scenario  # noqa
 from .scenarios import med_qa_scenario  # noqa
 from .scenarios import pubmed_qa_scenario  # noqa
 from .scenarios import wmt_14_scenario  # noqa
-from .scenarios import verifiability_judgement_scenario  # noqa
+from .scenarios import verifiability_judgment_scenario  # noqa
 
 #
 # Metrics

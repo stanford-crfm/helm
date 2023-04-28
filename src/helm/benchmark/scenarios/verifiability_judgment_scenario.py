@@ -4,6 +4,7 @@ import json
 import random
 from typing import Dict, List, Tuple
 
+from helm.common.general import ensure_file_downloaded
 from .scenario import (
     Scenario,
     Instance,
@@ -130,8 +131,16 @@ class VerifiabilityJudgementScenario(Scenario):
         return file_instances
 
     def get_instances(self) -> List[Instance]:
-        file_path: str = os.path.join("restricted", self.name, "verifiability_judgments.jsonl")
-        assert os.path.exists(file_path)
+        data_path: str = os.path.join(self.output_path, "data")
+        data_url: str = (
+            "https://github.com/nelson-liu/evaluating-verifiability-in-generative-search-engines/"
+            "raw/main/verifiability_judgments.jsonl.tar.gz")
+        verifiability_path: str = os.path.join(data_path, "verifiability_judgments.jsonl")
+        ensure_file_downloaded(
+            source_url=data_url,
+            target_path=verifiability_path,
+            unpack=True)
+        assert os.path.exists(verifiability_path)
         random.seed(0)  # randomness needed to pick question at random
-        instances: List[Instance] = self.get_file_instances(target_file=file_path, split=TEST_SPLIT)
+        instances: List[Instance] = self.get_file_instances(target_file=verifiability_path, split=TEST_SPLIT)
         return instances
