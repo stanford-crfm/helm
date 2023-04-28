@@ -54,8 +54,8 @@ class PalmyraClient(Client):
         }
 
         if request.random is not None or request.num_completions > 1:
-            hlog.warn(
-                "Writer does not support random_seed or num_completions. "
+            hlog(
+                "WARNING: Writer does not support random_seed or num_completions. "
                 "This request will be sent to Writer multiple times."
             )
 
