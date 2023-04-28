@@ -95,7 +95,7 @@ class VerifiabilityJudgementScenario(Scenario):
         if (sample.get("source_date") or "").strip():
             source_texts.append(sample["source_date"])
         source_texts.extend(sample["source_text"])
-        source_text = "\n".join(source_texts)
+        source_text = " ".join(source_texts)
 
         statement = sample["statement"]
         prompt = PassageQuestionInput(
