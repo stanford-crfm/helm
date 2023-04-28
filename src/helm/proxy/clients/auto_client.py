@@ -104,7 +104,10 @@ class AutoClient(Client):
             elif organization == "huggingface":
                 client = self.huggingface_client
             elif organization == "anthropic":
-                client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_config=cache_config)
+                client = AnthropicClient(
+                    api_key=self.credentials.get("anthropicApiKey", None),
+                    cache_config=cache_config,
+                )
             elif organization == "microsoft":
                 org_id = self.credentials.get("microsoftOrgId", None)
                 lock_file_path: str = os.path.join(self.cache_path, f"{organization}.lock")
@@ -166,7 +169,6 @@ class AutoClient(Client):
             if get_huggingface_model_config(tokenizer):
                 client = HuggingFaceClient(cache_config=cache_config)
             elif organization in [
-                "anthropic",
                 "bigscience",
                 "bigcode",
                 "EleutherAI",
@@ -184,6 +186,10 @@ class AutoClient(Client):
                 )
             elif organization == "AlephAlpha":
                 client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
+            elif organization == "anthropic":
+                client = AnthropicClient(
+                    api_key=self.credentials.get("anthropicApiKey", None), cache_config=cache_config
+                )
             elif organization == "TsinghuaKEG":
                 client = ICETokenizerClient(cache_config=cache_config)
             elif organization == "Yandex":

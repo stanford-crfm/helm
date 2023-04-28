@@ -17,6 +17,9 @@ CHATML_MODEL_TAG: str = "chatml"
 # OpenAI Chat format
 OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
 
+# For Anthropic models
+ANTHROPIC_MODEL_TAG: str = "anthropic"
+
 # For OpenAI models with wider context windows
 # TODO(#1455): Simplify context window tags.
 WIDER_CONTEXT_WINDOW_TAG: str = "openai_wider_context_window"  # 4000 tokens
@@ -209,6 +212,34 @@ ALL_MODELS = [
         display_name="Anthropic-LM (52B)",
         description="Anthropic model (52B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
+    ),
+    Model(
+        group="anthropic",
+        creator_organization="Anthropic",
+        name="anthropic/claude-v1.3",
+        display_name="Anthropic Claude (52B)",
+        description="Anthropic Claude V1.3 (52B parameters)",
+        tags=[
+            ANTHROPIC_MODEL_TAG,
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            ABLATION_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="anthropic",
+        creator_organization="Anthropic",
+        name="anthropic/claude-instant-v1",
+        display_name="Anthropic Claude Instant (TBD)",
+        description="Anthropic Claude Instant (TBD parameters)",
+        tags=[
+            ANTHROPIC_MODEL_TAG,
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            ABLATION_MODEL_TAG,
+        ],
     ),
     # BigScience
     Model(
