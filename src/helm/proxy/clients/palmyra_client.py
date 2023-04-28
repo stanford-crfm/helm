@@ -3,6 +3,7 @@ import requests
 from typing import Any, Dict, List
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -52,6 +53,12 @@ class PalmyraClient(Client):
             # "random_seed": request.random,
         }
 
+        if request.random is not None or request.num_completions > 1:
+            hlog.warn(
+                "Writer does not support random_seed or num_completions. "
+                "This request will be sent to Writer multiple times."
+            )
+
         completions: List[Sequence] = []
         model_name: str = request.model_engine
 
@@ -92,7 +99,6 @@ class PalmyraClient(Client):
                 error: str = f"PalmyraClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-            # Post process the completion.
             response_text: str = response["choices"][0]["text"]
 
             # The Writer API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
