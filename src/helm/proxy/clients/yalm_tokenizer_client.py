@@ -35,14 +35,7 @@ class YaLMTokenizerClient(Client):
                 token_ids = self.tokenizer.tokenize(request.text)
                 if request.truncation:
                     token_ids = token_ids[: request.max_length]
-                return {
-                    "tokens": token_ids
-                    if request.encode
-                    else [
-                        self.tokenizer.convert_tokens_to_string([i])
-                        for i in self.tokenizer.convert_ids_to_tokens(token_ids)
-                    ]
-                }
+                return {"tokens": token_ids if request.encode else self.tokenizer.convert_ids_to_string(token_ids)}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
