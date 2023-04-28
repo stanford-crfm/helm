@@ -45,10 +45,10 @@ class Request:
     """Same from tokens that occupy this probability mass (nucleus sampling)"""
 
     presence_penalty: float = 0
-    """Penalize repetition (OpenAI only)"""
+    """Penalize repetition (OpenAI & Writer only)"""
 
     frequency_penalty: float = 0
-    """Penalize repetition (OpenAI only)"""
+    """Penalize repetition (OpenAI & Writer only)"""
 
     random: Optional[str] = None
     """Used to control randomness. Expect different responses for the same

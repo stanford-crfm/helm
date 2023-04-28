@@ -511,7 +511,44 @@ models:
     num_parameters: 13000000000
     release_date: 2022-09-19
     todo: true
-    
+
+  # Writer
+  - name: writer/palmyra-base
+    display_name: Palmyra Base (5B)
+    description: Palmyra Base (5B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 5000000000
+    release_date: 2022-10-13
+  - name: writer/palmyra-large
+    display_name: Palmyra Large (20B)
+    description: Palmyra Large (20B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 20000000000
+    release_date: 2022-12-23
+  - name: writer/palmyra-instruct-30
+    display_name: InstructPalmyra (30B)
+    description: InstructPalmyra (30B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-02-16
+  - name: writer/palmyra-e
+    display_name: Palmyra E (30B)
+    description: Palmyra E (30B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-03-03
+  - name: writer/silk-road
+    display_name: Silk Road (35B)
+    description: Silk Road (35B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 35000000000
+    release_date: 2023-04-13
+  
   # Yandex
   - name: together/yalm
     display_name: YaLM (100B)

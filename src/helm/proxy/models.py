@@ -771,6 +771,70 @@ ALL_MODELS = [
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
+    # Writer
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-base",
+        display_name="Palmyra Base (5B)",
+        description="Autoregressive language model (5B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-large",
+        display_name="Palmyra Large (20B)",
+        description="Autoregressive language model (20B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-r",
+        display_name="Palmyra R (30B)",
+        description="Autoregressive language model with Retrieval-Augmented Generation (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/camel",
+        display_name="Camel (5B)",
+        description="Training language models to follow instructions with human feedback (5B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-instruct-30",
+        display_name="InstructPalmyra (30B)",
+        description="Training language models to follow instructions with human feedback (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-e",
+        display_name="Palmyra E (30B)",
+        description="Training language models to follow instructions with human feedback (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/silk-road",
+        display_name="Silk Road (35B)",
+        description="Autoregressive language mode with multi-scale Attention in parallel (35B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # Yandex
     Model(
         group="together",
