@@ -75,9 +75,8 @@ def run_benchmarking(
     suite: str,
     dry_run: bool,
     skip_instances: bool,
-    write_instances: bool,
-    write_instances_only: bool,
-    read_instances_from_file: bool,
+    cache_instances: bool,
+    cache_instances_only: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
     mongo_uri: str = "",
@@ -101,9 +100,8 @@ def run_benchmarking(
         output_path,
         suite,
         skip_instances,
-        write_instances,
-        write_instances_only,
-        read_instances_from_file,
+        cache_instances,
+        cache_instances_only,
         skip_completed_runs,
         exit_on_error,
     )
@@ -136,22 +134,16 @@ def add_run_args(parser: argparse.ArgumentParser):
         help="Skip creation of instances (basically do nothing but just parse everything).",
     )
     parser.add_argument(
-        "--write-instances",
+        "--cache-instances",
         action="store_true",
         default=None,
-        help="Save generated instances input to model to disk.",
+        help="Save generated instances input to model to disk. If they're already cached, read instances from cache file.",
     )
     parser.add_argument(
-        "--write-instances-only",
+        "--cache-instances-only",
         action="store_true",
         default=None,
         help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
-    )
-    parser.add_argument(
-        "--read-instances-from-file",
-        action="store_true",
-        default=None,
-        help="Read instances from already generated instances.json file",
     )
     parser.add_argument(
         "-d",
@@ -305,9 +297,8 @@ def main():
         suite=args.suite,
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
-        write_instances=args.write_instances,
-        write_instances_only=args.write_instances_only,
-        read_instances_from_file=args.read_instances_from_file,
+        cache_instances=args.cache_instances,
+        cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
         mongo_uri=args.mongo_uri,

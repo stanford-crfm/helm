@@ -79,9 +79,8 @@ class Runner:
         output_path: str,
         suite: str,
         skip_instances: bool,
-        write_instances: bool,
-        write_instances_only: bool,
-        read_instances_from_file: bool,
+        cache_instances: bool,
+        cache_instances_only: bool,
         skip_completed_runs: bool,
         exit_on_error: bool,
     ):
@@ -90,9 +89,8 @@ class Runner:
         self.tokenizer_service = TokenizerService(self.executor.service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.service, execution_spec.auth)
         self.skip_instances: bool = skip_instances
-        self.write_instances: bool = write_instances
-        self.write_instances_only: bool = write_instances_only
-        self.read_instances_from_file: bool = read_instances_from_file
+        self.cache_instances: bool = cache_instances
+        self.cache_instances_only: bool = cache_instances_only
         self.skip_completed_runs: bool = skip_completed_runs
         self.exit_on_error: bool = exit_on_error
 
@@ -137,9 +135,8 @@ class Runner:
         ensure_directory_exists(scenario.output_path)
 
         # This 'output_path' will be used when the model's input instances are saved.
-        args_str = ",".join([f"{k}:{v}" for k, v in run_spec.scenario_spec.args.items()])
+        args_str = ",".join([f"{k}:{v}" for k, v in sorted(run_spec.scenario_spec.args.items())])
         input_instances_output_path = os.path.join(self.instances_path, f"{scenario.name}:{args_str}")
-        ensure_directory_exists(input_instances_output_path)
         input_instances_file_path = os.path.join(input_instances_output_path, "input_instances.json")
 
         run_path: str = os.path.join(self.runs_path, run_spec.name)
@@ -158,7 +155,7 @@ class Runner:
         if self.skip_instances:
             instances = []
         else:
-            if self.read_instances_from_file or (self.write_instances and os.path.exists(input_instances_file_path)):
+            if self.cache_instances and os.path.exists(input_instances_file_path):
                 with open(input_instances_file_path) as f:
                     json_instances: List[Dict[str, Any]] = json.load(f)
                 instances = [dacite.from_dict(Instance, instance) for instance in json_instances]
@@ -166,13 +163,14 @@ class Runner:
                 # Create the instances of the scenario
                 with htrack_block("scenario.get_instances"):
                     instances = scenario.get_instances()
-        if self.write_instances and not os.path.exists(input_instances_file_path):
+        if self.cache_instances and not os.path.exists(input_instances_file_path):
             # Save instances to file
+            ensure_directory_exists(input_instances_output_path)
             write(
                 os.path.join(input_instances_file_path),
                 json.dumps([asdict_without_nones(instance) for instance in instances], indent=2),
             )
-        if self.write_instances_only:
+        if self.cache_instances_only:
             return  # Exit after saving the instances.
 
         # Give each instance a unique ID
