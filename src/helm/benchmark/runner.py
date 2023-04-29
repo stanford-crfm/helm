@@ -135,7 +135,7 @@ class Runner:
         ensure_directory_exists(scenario.output_path)
 
         # This 'output_path' will be used when the model's input instances are saved.
-        args_str = ",".join([f"{k}:{v}" for k, v in sorted(run_spec.scenario_spec.args.items())])
+        args_str = ",".join([f"{k}={v}" for k, v in sorted(run_spec.scenario_spec.args.items())])
         input_instances_output_path = os.path.join(self.instances_path, f"{scenario.name}:{args_str}")
         input_instances_file_path = os.path.join(input_instances_output_path, "input_instances.json")
 
