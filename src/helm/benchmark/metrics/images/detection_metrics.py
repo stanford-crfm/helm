@@ -10,7 +10,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from .image_metrics_utils import gather_generated_image_locations
-from .detectors.vitdet import ViTDetDetctor
+from .detectors.vitdet import ViTDetDetector
 
 
 class DetectionMetric(Metric):
@@ -40,7 +40,7 @@ class DetectionMetric(Metric):
             return []
 
         if self._detection_model is None:
-            self._detection_model = ViTDetDetctor()
+            self._detection_model = ViTDetDetector()
 
         instance = request_state.instance
         references: Dict[str, Any] = {**json.loads(instance.references[0].output.text), "skill": instance.sub_split}

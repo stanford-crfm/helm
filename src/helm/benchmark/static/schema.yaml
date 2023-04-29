@@ -1849,7 +1849,7 @@ run_groups:
     subgroups:
       - common_syntactic_processes
       - relational_understanding
-      - paint_skills
+      - detection
       - winoground
       - draw_bench_reasoning
       - parti_prompts_reasoning
@@ -2161,8 +2161,8 @@ run_groups:
       main_split: test
     taxonomy:
       task: Reasoning
-  - name: paint_skills
-    display_name: PaintSkills
+  - name: detection
+    display_name: Detection
     description: A compositional diagnostic dataset an evaluation toolkit that measures visual reasoning skills ([paper](https://arxiv.org/abs/2202.04053)).
     metric_groups:
       - vhelm_image_text_alignment

@@ -37,6 +37,9 @@ else
     cd $ROOT
 fi
 
+# For Detectron2. Following https://detectron2.readthedocs.io/en/latest/tutorials/install.html
+python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu113/torch1.10/index.html
+
 
 # Install all pinned dependencies
 pip install -r requirements-freeze.txt

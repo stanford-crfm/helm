@@ -2110,13 +2110,15 @@ def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     )
 
 
-def get_detection_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.detection_scenario.DetectionScenario", args={})
+def get_detection_spec(skill: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.detection_scenario.DetectionScenario", args={"skill": skill}
+    )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
-        name="detection",
+        name=f"detection:skill={skill}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         # TODO: add back get_core_vhelm_metric_specs after implementing

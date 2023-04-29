@@ -1,3 +1,4 @@
+import os
 from typing import Dict, Any
 
 from detectron2.data.common import DatasetFromList, MapDataset
@@ -8,7 +9,7 @@ from detectron2.data.catalog import MetadataCatalog
 from PIL import Image
 import torch
 
-from helm.common.general import ensure_file_downloaded, hlog
+from helm.common.general import ensure_file_downloaded, hlog, get_helm_cache_path
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device
 from .base_detector import BaseDetector
@@ -22,15 +23,16 @@ MODEL_CHECKPOINT_DOWNLOAD_URL = (
 )
 
 
-class ViTDetDetctor(BaseDetector):
+class ViTDetDetector(BaseDetector):
     def __init__(self):
         super().__init__()
 
-        # TODO: where to put downloaded files and checkpoints?
-        cfg_path = "./vitdet_model.yaml"
+        cache_path: str = get_helm_cache_path()
+        cfg_path: str = os.path.join(cache_path, "vitdet_model.yaml")
         ensure_file_downloaded(source_url=MODEL_CONFIG_DOWNLOAD_URL, target_path=cfg_path)
         cfg = LazyConfig.load(cfg_path)
-        model_path = "./vitdet_model.pkl"
+
+        model_path: str = os.path.join(cache_path, "vitdet_model.pkl")
         ensure_file_downloaded(source_url=MODEL_CHECKPOINT_DOWNLOAD_URL, target_path=model_path)
         cfg.train.init_checkpoint = model_path
 
