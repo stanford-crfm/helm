@@ -137,7 +137,7 @@ def add_run_args(parser: argparse.ArgumentParser):
         "--cache-instances",
         action="store_true",
         default=None,
-        help="Save generated instances input to model to disk. If they're already cached, read instances from cache file.",
+        help="Save generated instances input to model to disk. If already cached, read instances from file.",
     )
     parser.add_argument(
         "--cache-instances-only",
