@@ -53,6 +53,7 @@ class ViTDetDetctor(BaseDetector):
         return outputs[0]['instances']
 
     def compute_score(self, caption: str, image_location: str, references: Dict[str, Any]) -> float:
+        # print(f'compute score for prompt: {caption}, file: {image_location}, skill: {references["skill"]}')
         instances = self.forward_model(image_location)
         if references['skill'] == 'object':
             return self.compute_score_object(instances, references)
@@ -71,7 +72,7 @@ class ViTDetDetctor(BaseDetector):
             pred_score = torch.zeros(())
             pred_class = None
             pred_class_name = None
-            correct = torch.zeros(())
+            correct = 0.
         else:
             pred_id = instances.scores.max(-1).indices
             pred_score = instances.scores[pred_id]  # (num_instances,) -> ()
@@ -80,8 +81,9 @@ class ViTDetDetctor(BaseDetector):
             ]  # (num_instances,) -> ()
             pred_class_name = COCO_CLASSES[pred_class.item()]
 
-            correct = pred_class == gt_class
-        return correct.item()
+            correct = float(pred_class == gt_class)
+        # print(f'pred_class: {pred_class_name}, gt_class: {gt_class_name}, correct: {correct}')
+        return correct
 
     def compute_score_count(self, instances, references):
         # assume that there is only one type of object
@@ -89,12 +91,16 @@ class ViTDetDetctor(BaseDetector):
         gt_class_idx = COCO_CLASSES.index(gt_class_name)
         gt_count = references['count']
         if len(instances.scores) == 0:
-            correct = torch.zeros(())
+            pred_count = 0
+            correct = 0.
         else:
             pred_count = (instances.pred_classes == gt_class_idx).sum().item()
-            correct = int(pred_count == gt_count)
+            correct = float(pred_count == gt_count)
 
-        return correct.item()
+        # print(f'pred_class: {[COCO_CLASSES[ind] for ind in instances.pred_classes.tolist()]}, '
+        #       f'pred_cuont: {pred_count}, '
+        #       f'gt_class: {gt_class_name}, gt_count: {gt_count}, correct: {correct}')
+        return correct
 
     def compute_score_spatial(self, instances, references):
         gt_class_name_1, gt_class_name_2 = references['objects']
@@ -130,11 +136,13 @@ class ViTDetDetctor(BaseDetector):
                     if abs(x_diff) > abs(y_diff):
                         if relation in ["left", "right"]:
                             correct = 1
+                            pred_rel = 'relation_correct'
                         else:
                             pred_rel = "relation_incorrect"
                             correct = 0
                     else:
                         if relation in ["above", "below"]:
+                            pred_rel = 'relation_correct'
                             correct = 1
                         else:
                             pred_rel = "relation_incorrect"
@@ -155,5 +163,7 @@ class ViTDetDetctor(BaseDetector):
                         correct = 1
                     else:
                         correct = 0
-
+        # print(f'gt_class_1: {gt_class_name_1}, gt_class_2: {gt_class_name_2}, gt_rel: {relation}, '
+        #       f'pred_class: {[COCO_CLASSES[ind] for ind in instances.pred_classes.tolist()]}',
+        #       f'pred_count_1: {pred_count_1}, pred_count_2: {pred_count_2}, pred_rel: {pred_rel}, correct: {correct}')
         return correct

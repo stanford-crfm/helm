@@ -28,7 +28,7 @@ class DetectionScenario(Scenario):
     """
 
     DATASET_DOWNLOAD_URL: str = (
-        "https://docs.google.com/spreadsheets/d/1VUMEfl44_0wPMQ9KRM7WNys7YIdAksju2KCJnT1ss1Y/"
+        "https://docs.google.com/spreadsheets/d/1swAJwokfhduUqPypRpxHmDrPGHQAxUVK4w3Qn7avcpA/"
         "gviz/tq?tqx=out:csv&sheet=detection_prompts_paintskills"
     )
 
@@ -52,10 +52,10 @@ class DetectionScenario(Scenario):
                 prompt: str = row[1]
                 skill: str = row[0]
                 obj1: str = row[2]
-                obj2: str = row[3]
                 if skill == 'count':
                     count: int = int(row[4])
                 if skill == 'spatial':
+                    obj2: str = row[3]
                     relation: str = row[5]
 
                 if skill == 'object':
