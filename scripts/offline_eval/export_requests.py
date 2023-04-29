@@ -36,7 +36,7 @@ Usage:
 """
 
 # List of organizations currently supported for offline batch evaluation
-SUPPORTED_ORGS: List[str] = ["together", "google", "microsoft", "AlephAlpha"]
+SUPPORTED_ORGS: List[str] = ["together", "google", "microsoft", "AlephAlphaVision"]
 
 
 @htrack("Generating jsonl file with list of raw requests")

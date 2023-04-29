@@ -55,6 +55,11 @@ TASK_CODE_MAPPING = {
     MAPA_FINE: TaskType.NER,
 }
 
+
+def get_lextreme_task_type(subset):
+    return TASK_CODE_MAPPING[subset]
+
+
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
     BRAZILIAN_COURT_DECISIONS_JUDGMENT: 4,  # ~ max 1024 tokens
     BRAZILIAN_COURT_DECISIONS_UNANIMITY: 4,  # ~ max 1024 tokens
@@ -134,14 +139,14 @@ INSTRUCTIONS = {
     "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     SWISS_JUDGMENT_PREDICTION: "In this task, you are given the facts description "
     "from a decision heard at the Swiss Federal Supreme Court. "
-    "Predict the judgment of the case (approval or dismissal)",
+    "Predict the judgment of the case (approval: The appeal was approved, or dismissal: The appeal was denied)",
     ONLINE_TERMS_OF_SERVICE_UNFAIRNESS_LEVELS: "In this task, you are given a sentence "
     "from a Terms of Service (ToS) document. "
     "Predict the unfairness level of the sentence (potentially_unfair, clearly_unfair, clearly_fair, untagged)",
     ONLINE_TERMS_OF_SERVICE_CLAUSE_TOPICS: "In this task, you are given a sentence "
     "from a Terms of Service (ToS) document. "
-    "Predict the clause topics of the sentence "
-    "(0: Arbitration, "
+    "Predict the clause topics of the sentence out of the following: "
+    "0: Arbitration, "
     "1: Unilateral change, "
     "2: Content removal, "
     "3: Jurisdiction, "
@@ -149,34 +154,51 @@ INSTRUCTIONS = {
     "5: Limitation of liability, "
     "6: Unilateral termination, "
     "7: Contract by using, "
-    "8: Privacy included)",
+    "8: Privacy included. "
+    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     COVID19_EMERGENCY_EVENT: "In this task, you are given a sentence from a European legislative document. "
-    "Predict the applicable measurements against COVID-19 "
-    "(0: State of Emergency, "
+    "Predict the applicable measurements against COVID-19 out of the following: "
+    "0: State of Emergency, "
     "1: Restrictions of fundamental rights and civil liberties, "
     "2: Restrictions of daily liberties, "
     "3: Closures / lockdown, "
     "4: Suspension of international cooperation and commitments, "
     "5: Police mobilization, "
     "6: Army mobilization, "
-    "7: Government oversight)",
+    "7: Government oversight. "
+    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     MULTI_EURLEX_LEVEL_1: "In this task, you are given a document from an EU law. "
-    "Predict the level 1 concept in the EUROVOC taxonomy.",
+    "Predict the level 1 concept in the EUROVOC taxonomy. "
+    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     MULTI_EURLEX_LEVEL_2: "In this task, you are given a document from an EU law. "
-    "Predict the level 2 concept in the EUROVOC taxonomy.",
+    "Predict the level 2 concept in the EUROVOC taxonomy. "
+    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     MULTI_EURLEX_LEVEL_3: "In this task, you are given a document from an EU law. "
-    "Predict the level 3 concept in the EUROVOC taxonomy.",
+    "Predict the level 3 concept in the EUROVOC taxonomy. "
+    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     GREEK_LEGAL_NER: "In this task, you are given a sentence from Greek legislation. "
-    "Predict the named entity type for each token.",
+    "Predict the named entity type for each token out of the following: "
+    "O, B-ORG, I-ORG, B-GPE, I-GPE, B-LEG-REFS, I-LEG-REFS, B-PUBLIC-DOCS, I-PUBLIC-DOCS, B-PERSON, I-PERSON, "
+    "B-FACILITY, I-FACILITY, B-LOCATION-UNK, I-LOCATION-UNK, B-LOCATION-NAT, I-LOCATION-NAT",
     LEGALNERO: "In this task, you are given a sentence from Romanian legislation. "
-    "Predict the named entity type for each token.",
+    "Predict the named entity type for each token out of the following: "
+    "O, B-TIME, I-TIME, B-LEGAL, I-LEGAL, B-ORG, I-ORG, B-LOC, I-LOC, B-PER, I-PER",
     LENER_BR: "In this task, you are given a sentence "
     "from Brazilian legal documents (court decisions and legislation). "
-    "Predict the named entity type for each token.",
+    "Predict the named entity type for each token out of the following: "
+    "O, B-ORGANIZACAO, I-ORGANIZACAO, B-PESSOA, I-PESSOA, B-TEMPO, I-TEMPO, B-LOCAL, I-LOCAL, "
+    "B-LEGISLACAO, I-LEGISLACAO, B-JURISPRUDENCIA, I-JURISPRUDENCIA",
     MAPA_COARSE: "In this task, you are given a sentence from the EUR-Lex database. "
-    "Predict the coarse grained named entity type for each token.",
+    "Predict the coarse grained named entity type for each token out of the following: "
+    "O, B-ORGANISATION, I-ORGANISATION, B-ADDRESS, I-ADDRESS, B-DATE, I-DATE, "
+    "B-PERSON, I-PERSON, B-AMOUNT, I-AMOUNT, B-TIME, I-TIME",
     MAPA_FINE: "In this task, you are given a sentence from the EUR-Lex database. "
-    "Predict the fine grained named entity type for each token.",
+    "Predict the fine grained named entity type for each token out of the following: "
+    "O, B-BUILDING, I-BUILDING, B-CITY, I-CITY, B-COUNTRY, I-COUNTRY, B-PLACE, I-PLACE, B-TERRITORY, I-TERRITORY, "
+    "I-UNIT, B-UNIT, B-VALUE, I-VALUE, B-YEAR, I-YEAR, B-STANDARD ABBREVIATION, I-STANDARD ABBREVIATION, "
+    "B-MONTH, I-MONTH, B-DAY, I-DAY, B-AGE, I-AGE, B-ETHNIC CATEGORY, I-ETHNIC CATEGORY, B-FAMILY NAME, I-FAMILY NAME, "
+    "B-INITIAL NAME, I-INITIAL NAME, B-MARITAL STATUS, I-MARITAL STATUS, B-PROFESSION, I-PROFESSION, B-ROLE, I-ROLE, "
+    "B-NATIONALITY, I-NATIONALITY, B-TITLE, I-TITLE, B-URL, I-URL, B-TYPE, I-TYPE",
 }
 
 
@@ -226,7 +248,6 @@ class LEXTREMEScenario(Scenario):
 
     dataset_name = "joelito/lextreme"
     max_number_of_wrong_answers = 30
-    mltc_no_label_name = "No Label"
     delimiter = '" "'  # we choose quotes and whitespace as a delimiter because this is what worked for gpt3
 
     ner_class_mapping = {
@@ -396,22 +417,13 @@ class LEXTREMEScenario(Scenario):
 
             wrong_references = reduce_wrong_reference_count(wrong_references)
 
-            if task_code == TaskType.MLTC:  # special case for multilabel classification tasks
-                if correct_labels:  # if we have a correct label
-                    # add the no_label to the wrong references
-                    # IMPORTANT: add it after reduce_wrong_reference_count, to make sure the no label is always there
-                    wrong_references.append(Reference(output=Output(self.mltc_no_label_name), tags=[]))
-                else:  # if we don't have a correct label
-                    # add the no_label to the correct labels
-                    correct_labels = [self.mltc_no_label_name]
-
             # construct correct references and input
             if task_code in [TaskType.SLTC, TaskType.MLTC]:
                 input_text = example["input"]
                 if "multi_eurlex" in config:
                     input_text = ast.literal_eval(input_text)
                     assert isinstance(input_text, dict)
-                    languages = list(input_text.keys())
+                    languages = list([lang for lang, content in input_text.items() if content is not None])
                     input_text = input_text[self.random.choice(languages)]  # just choose a random language
                 correct_references = [
                     Reference(output=Output(correct_label), tags=[CORRECT_TAG]) for correct_label in correct_labels

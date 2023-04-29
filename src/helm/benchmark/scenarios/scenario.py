@@ -155,6 +155,11 @@ class Instance:
                 return reference
         return None
 
+    @property
+    def all_correct_references(self) -> List[Reference]:
+        """Return all correct references."""
+        return [reference for reference in self.references if reference.is_correct]
+
     def render_lines(self) -> List[str]:
         info = [f"input: {format_text(self.input.text)}"]
         if self.sub_split:

@@ -20,7 +20,7 @@ if [[ $OSTYPE != 'darwin'* ]]; then
 fi
 
 # Manually install protobuf to workaround issue: https://github.com/protocolbuffers/protobuf/issues/6550
-pip install --no-binary=protobuf protobuf==3.20.2
+pip install --no-binary=protobuf protobuf==3.20.1
 
 # For CogView2, manually install apex and Image-Local-Attention. NOTE: need to run this on a GPU machine
 if (nvcc --version > /dev/null 2>&1); then

@@ -14,12 +14,20 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, TextToImageAdapterSpec
 from .metrics.metric import MetricSpec
-from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander, ChatMLRunExpander
+from .run_expander import (
+    RUN_EXPANDERS,
+    GlobalPrefixRunExpander,
+    StopRunExpander,
+    ChatMLRunExpander,
+    IncreaseMaxTokensRunExpander,
+    IncreaseTemperatureRunExpander,
+)
 from .runner import RunSpec
 from .scenarios.lex_glue_scenario import (
     get_lex_glue_max_train_instances,
     get_lex_glue_instructions,
     get_lex_glue_max_tokens,
+    get_lex_glue_task_type,
 )
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
@@ -31,8 +39,17 @@ from .scenarios.lextreme_scenario import (
     get_lextreme_instructions,
     get_lextreme_max_train_instances,
     get_lextreme_max_tokens,
+    TaskType,
+    get_lextreme_task_type,
 )
-from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG
+from helm.proxy.models import (
+    get_model,
+    NO_NEWLINES_TAG,
+    NLG_PREFIX_TAG,
+    CHATML_MODEL_TAG,
+    OPENAI_CHATGPT_MODEL_TAG,
+    BUGGY_TEMP_0_TAG,
+)
 from helm.common.general import singleton
 
 
@@ -47,7 +64,14 @@ def format_instructions(instructions: str) -> str:
 
 
 def get_multiple_choice_joint_adapter_spec(
-    instructions: str, input_noun: Optional[str], output_noun: str, max_train_instances: int = 5, **kwargs
+    instructions: str,
+    input_noun: Optional[str],
+    output_noun: str,
+    num_outputs: int = 5,
+    max_train_instances: int = 5,
+    max_tokens: int = 5,
+    sample_train: bool = True,
+    **kwargs,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -64,6 +88,7 @@ def get_multiple_choice_joint_adapter_spec(
     [reference_k]
     [output_noun]:
     """
+
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=format_instructions(instructions),
@@ -72,10 +97,11 @@ def get_multiple_choice_joint_adapter_spec(
         output_prefix=f"{output_noun}: ",
         output_suffix="\n",
         max_train_instances=max_train_instances,
-        num_outputs=1,
-        max_tokens=5,
+        num_outputs=num_outputs,
+        max_tokens=max_tokens,
         temperature=0.0,
         stop_sequences=["\n"],
+        sample_train=sample_train,
         **kwargs,
     )
 
@@ -109,7 +135,10 @@ def get_multiple_choice_adapter_spec(
     input_noun: Optional[str],
     output_noun: str,
     max_train_instances: int = 5,
+    num_outputs: int = 5,
+    max_tokens: int = 1,
     empty_input: bool = False,
+    sample_train: bool = True,
     **kwargs,
 ):
     """
@@ -117,7 +146,14 @@ def get_multiple_choice_adapter_spec(
     """
     if method == ADAPT_MULTIPLE_CHOICE_JOINT:
         return get_multiple_choice_joint_adapter_spec(
-            instructions, input_noun, output_noun, max_train_instances, **kwargs
+            instructions,
+            input_noun,
+            output_noun,
+            max_train_instances=max_train_instances,
+            num_outputs=num_outputs,
+            max_tokens=max_tokens,
+            sample_train=sample_train,
+            **kwargs,
         )
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
         return get_multiple_choice_separate_adapter_spec(method, empty_input)
@@ -290,13 +326,15 @@ def get_language_modeling_adapter_spec() -> AdapterSpec:
     )
 
 
-def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
+def get_summarization_adapter_spec(num_sents: Optional[int], max_train_instances: int = 5, **kwargs) -> AdapterSpec:
     """
     Used for summarization.
     """
 
     if num_sents == 1:
         out_pref = "Summarize the above article in 1 sentence.\n"
+    elif num_sents is None:
+        out_pref = "Summarize the above article.\n"
     else:
         out_pref = f"Summarize the above article in {num_sents} sentences.\n"
 
@@ -307,7 +345,7 @@ def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
         input_suffix="\n\n",
         output_prefix=out_pref,
         output_suffix="\n",
-        max_train_instances=5,
+        max_train_instances=max_train_instances,
         num_outputs=1,
         stop_sequences=["###"],  # Separator between few-shot instances.
         **kwargs,
@@ -321,6 +359,7 @@ def get_image_generation_adapter_spec(
     image_height: Optional[int] = None,
     guidance_scale: Optional[float] = None,
     steps: Optional[int] = None,
+    random: Optional[str] = None,
 ) -> AdapterSpec:
     return TextToImageAdapterSpec(
         method=ADAPT_GENERATION,
@@ -336,6 +375,7 @@ def get_image_generation_adapter_spec(
         height=image_height,
         guidance_scale=guidance_scale,
         steps=steps,
+        random=random,
     )
 
 
@@ -410,8 +450,12 @@ def get_f1_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score"])
 
 
-def get_classification_metric_specs() -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.classification_metrics.ClassificationMetric", args={})]
+def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.classification_metrics.ClassificationMetric", args={"delimiter": delimiter}
+        )
+    ]
 
 
 def get_bbq_metric_specs() -> List[MetricSpec]:
@@ -562,7 +606,6 @@ def get_core_vhelm_metric_specs() -> List[MetricSpec]:
         MetricSpec(class_name="helm.benchmark.fractal_dimension_metric.FractalDimensionMetric", args={}),
         MetricSpec(class_name="helm.benchmark.nsfw_metrics.NSFWMetric", args={}),
         MetricSpec(class_name="helm.benchmark.nudity_metrics.NudityMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.q16_toxicity_metrics.Q16ToxicityMetric", args={}),
         MetricSpec(class_name="helm.benchmark.watermark_metrics.WatermarkMetric", args={}),
     ] + get_basic_metric_specs(names=[])
 
@@ -1245,7 +1288,6 @@ def get_code_spec(dataset: str, timeout=3) -> RunSpec:
 
 
 def get_natural_qa_spec(mode: str) -> RunSpec:
-
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={"mode": mode}
     )
@@ -1799,6 +1841,14 @@ def get_pubmed_qa_spec() -> RunSpec:
     )
 
 
+def build_classification_metrics(task_type):
+    if task_type in [TaskType.QA, TaskType.SLTC]:
+        return get_classification_metric_specs(delimiter=None)
+    elif task_type == TaskType.MLTC:
+        return get_classification_metric_specs(delimiter=",")
+    return []
+
+
 def get_lextreme_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lextreme_scenario.LEXTREMEScenario",
@@ -1817,7 +1867,7 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         name=f"lextreme:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=build_classification_metrics(get_lextreme_task_type(subset)),
         groups=["lextreme"],
     )
 
@@ -1840,8 +1890,89 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
         name=f"lex_glue:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_f1_metric_specs(),
+        metric_specs=build_classification_metrics(get_lex_glue_task_type(subset)),
         groups=["lex_glue"],
+    )
+
+
+def get_billsum_legal_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legal_summarization_scenario.LegalSummarizationScenario",
+        args={
+            "dataset_name": "BillSum",
+            "sampling_min_length": 200,
+            "sampling_max_length": 800,  # 2000 would be ideal, but for economic reasons set it lower
+            "doc_max_length": 2048,  # 4096 would be ideal, but for economic reasons set it lower
+        },
+    )
+
+    adapter_spec = get_summarization_adapter_spec(
+        num_sents=None,
+        max_tokens=1024,  # From Kornilova & Eidelmann, 2020 (https://arxiv.org/pdf/1910.00523.pdf)
+        temperature=temperature,  # similar to other summarization tasks
+    )
+
+    return RunSpec(
+        name=f"legal_summarization:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "billsum_legal_summarization", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=["legal_summarization", "summarization"],
+    )
+
+
+def get_multilexsum_legal_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legal_summarization_scenario.LegalSummarizationScenario",
+        args={
+            "dataset_name": "MultiLexSum",
+            "sampling_min_length": 100,
+            "sampling_max_length": 400,  # 1000 would be ideal, but for economic reasons set it lower
+            "doc_max_length": 1024,  # 2048 would be ideal, but for economic reasons set it lower
+        },
+    )
+
+    adapter_spec = get_summarization_adapter_spec(
+        num_sents=2,
+        max_tokens=256,  # From Shen et al., 2022 (https://arxiv.org/pdf/2206.10883.pdf)
+        temperature=temperature,  # similar to other summarization tasks
+    )
+
+    return RunSpec(
+        name=f"legal_summarization:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "multilexsum_legal_summarization", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=["legal_summarization", "summarization"],
+    )
+
+
+def get_eurlexsum_legal_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legal_summarization_scenario.LegalSummarizationScenario",
+        args={
+            "dataset_name": "EurLexSum",
+            "sampling_min_length": 400,
+            "sampling_max_length": 1600,  # 4000 would be ideal, but for economic reasons set it lower
+            "doc_max_length": 2048,  # 8192 would be ideal, but for economic reasons set it lower
+        },
+    )
+
+    adapter_spec = get_summarization_adapter_spec(
+        num_sents=None,
+        max_tokens=2048,  # From Aumiller et al., 2022 (https://arxiv.org/pdf/2210.13448.pdf)
+        temperature=temperature,  # similar to other summarization tasks
+    )
+
+    return RunSpec(
+        name=f"legal_summarization:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "eurlexsum_legal_summarization", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=["legal_summarization", "summarization"],
     )
 
 
@@ -1873,6 +2004,40 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         adapter_spec=adapter_spec,
         metric_specs=get_machine_translation_metric_specs(),
         groups=["wmt_14"],
+    )
+
+
+def get_opinions_qa_spec(
+    survey_type: str,
+    num_logprobs: str,
+    context: str = "None",
+    num_train_trials: str = "1",
+    method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
+) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.opinions_qa_scenario.OpinionsQAScenario",
+        args={"survey_type": survey_type, "context": context},
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=1 if "steer" in context else 0,
+        max_tokens=1,
+        num_outputs=int(num_logprobs),
+        num_train_trials=1 if context != "steer-qa" else int(num_train_trials),
+        sample_train=False,
+    )
+
+    return RunSpec(
+        name=f"opinions_qa:survey={survey_type},num_logprobs={num_logprobs}"
+        + f",context={context},num_train_trials={num_train_trials}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=[],
+        groups=["opinions_qa"],
     )
 
 
@@ -2021,7 +2186,7 @@ def get_landing_page_spec() -> RunSpec:
 def get_logos_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.logos_scenario.LogosScenario", args={})
 
-    adapter_spec = get_image_generation_adapter_spec(modifications=["simple", "memorable", "timeless"], num_outputs=4)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name="logos",
@@ -2224,14 +2389,19 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "bbq": get_bbq_spec,
     "civil_comments": get_civil_comments_spec,
     "dyck_language": get_dyck_language_spec,
-    "legal_support": get_legal_support_spec,
     "entity_matching": get_entity_matching_spec,
     "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
     "big_bench": get_big_bench_spec,
+    "wmt_14": get_wmt_14_spec,
+    "opinions_qa": get_opinions_qa_spec,
+    # Legal
+    "legal_support": get_legal_support_spec,
     "lextreme": get_lextreme_spec,
     "lex_glue": get_lex_glue_spec,
-    "wmt_14": get_wmt_14_spec,
+    "billsum_legal_summarization": get_billsum_legal_summarization_spec,
+    "multilexsum_legal_summarization": get_multilexsum_legal_summarization_spec,
+    "eurlexsum_legal_summarization": get_eurlexsum_legal_summarization_spec,
     # Biomedical
     "covid_dialog": get_covid_dialog_spec,
     "me_q_sum": get_me_q_sum_spec,
@@ -2301,9 +2471,20 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
             run_spec = singleton(global_prefix_expander.expand(run_spec))
 
+        # When running ChatGPT on non-language modelling tasks, increase max_tokens by 1
+        # to add room for the special message role token.
+        if OPENAI_CHATGPT_MODEL_TAG in model.tags and run_spec.adapter_spec.max_tokens:
+            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=1)
+            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
+
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
+
+        # For multiple choice
+        if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
+            increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
+            run_spec = singleton(increase_temperature_expander.expand(run_spec))
 
         return run_spec
 

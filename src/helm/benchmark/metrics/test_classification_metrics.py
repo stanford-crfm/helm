@@ -63,7 +63,8 @@ def _expected_stats(all_classes_counts: Dict[str, Dict[str, int]]):
 
 
 def test_evaluate_instances_binary_generation():
-    metric = ClassificationMetric()
+    metric = ClassificationMetric(delimiter=None)
+
     request_states = [
         _request_state("yes", [_Option("yes", True)]),
         _request_state("yes", [_Option("yes", True)]),
@@ -86,20 +87,21 @@ def test_evaluate_instances_binary_generation():
 
 
 def test_evaluate_instances_multi_class():
-    metric = ClassificationMetric()
+    # Note: no "a" because it would get filtered out by normalize_text()
+    metric = ClassificationMetric(delimiter=None)
 
     def _options(correct: str):
-        return [_Option(text, text == correct) for text in ["a", "b", "c"]]
+        return [_Option(text, text == correct) for text in ["d", "b", "c"]]
 
     request_states = [
-        _request_state("a", _options("a")),
-        _request_state("a", _options("a")),
-        _request_state("a", _options("a")),
-        _request_state("a", _options("b")),
+        _request_state("d", _options("d")),
+        _request_state("d", _options("d")),
+        _request_state("d", _options("d")),
+        _request_state("d", _options("b")),
         _request_state("b", _options("b")),
         _request_state("b", _options("b")),
         _request_state("b", _options("c")),
-        _request_state("c", _options("a")),
+        _request_state("c", _options("d")),
         _request_state("c", _options("c")),
         _request_state("invalid", _options("c")),
     ]
@@ -107,9 +109,42 @@ def test_evaluate_instances_multi_class():
         metric.evaluate_instances(request_states),
         _expected_stats(
             {
-                "a": {"tp": 3, "fp": 1, "tn": 5, "fn": 1},
+                "d": {"tp": 3, "fp": 1, "tn": 5, "fn": 1},
                 "b": {"tp": 2, "fp": 1, "tn": 6, "fn": 1},
                 "c": {"tp": 1, "fp": 1, "tn": 6, "fn": 2},
+            }
+        ),
+    )
+
+
+def test_evaluate_instances_multilabel():
+    # Note: no "a" because it would get filtered out by normalize_text()
+    metric = ClassificationMetric(delimiter=",")
+
+    def _options(correct: List[str]):
+        return [_Option(text, text in correct) for text in ["d", "b", "c"]]
+
+    request_states = [
+        _request_state("d,b", _options(["d", "b"])),
+        _request_state("d,b", _options(["d", "c"])),
+        _request_state("d", _options(["d"])),
+        _request_state("c", _options(["b"])),
+        _request_state("b", _options(["b", "c"])),
+        _request_state("d,b", _options(["c"])),
+        _request_state("d,c", _options(["d"])),
+        _request_state("d,b,c", _options(["d", "b", "c"])),
+        _request_state("", []),
+        _request_state("n/a", []),
+        _request_state("invalid", _options(["c"])),
+    ]
+
+    assert_stats_equal(
+        metric.evaluate_instances(request_states),
+        _expected_stats(
+            {
+                "d": {"tp": 5, "fp": 1, "tn": 5, "fn": 0},
+                "b": {"tp": 3, "fp": 2, "tn": 5, "fn": 1},
+                "c": {"tp": 1, "fp": 2, "tn": 4, "fn": 4},
             }
         ),
     )

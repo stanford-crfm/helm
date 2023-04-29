@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import openai
 
@@ -24,6 +24,7 @@ class OpenAIClient(Client):
         self,
         api_key: str,
         cache_config: CacheConfig,
+        tokenizer_client: Client,
         chat_gpt_client: Optional[ChatGPTClient] = None,
         org_id: Optional[str] = None,
     ):
@@ -31,7 +32,11 @@ class OpenAIClient(Client):
         self.api_key: str = api_key
         self.api_base: str = "https://api.openai.com/v1"
         self.cache = Cache(cache_config)
+        self.tokenizer_client: Client = tokenizer_client
         self.chat_gpt_client: Optional[ChatGPTClient] = chat_gpt_client
+
+    def _is_chat_model_engine(self, model_engine: str):
+        return model_engine.startswith("gpt-3.5")
 
     def make_request(self, request: Request) -> RequestResult:
         if request.model_engine == "chat-gpt":
@@ -43,6 +48,28 @@ class OpenAIClient(Client):
             raw_request = {
                 "input": request.prompt,
                 "engine": request.model_engine,
+            }
+        elif self._is_chat_model_engine(request.model_engine):
+            raw_request = {
+                "model": request.model_engine,
+                # For now, put the whole prompt in a single user message, and expect the response
+                # to be returned in a single assistant message.
+                # TODO: Support ChatML for creating multiple messages with different roles.
+                # See: https://github.com/openai/openai-python/blob/main/chatml.md
+                "messages": [{"role": "user", "content": request.prompt}],
+                "temperature": request.temperature,
+                "top_p": request.top_p,
+                "n": request.num_completions,
+                # Note: Setting stop to ["\n"] results in an error
+                # See: https://community.openai.com/t/stop-n-in-gpt-3-5-turbo-leads-to-500-error/87815/15
+                # TODO: Handle this in the adapter.
+                "stop": request.stop_sequences or [],  # API doesn't like empty list
+                # Note: Chat models may require adding an extra token to max_tokens
+                # for the internal special role token.
+                # TODO: Handle this in the adapter.
+                "max_tokens": request.max_tokens,
+                "presence_penalty": request.presence_penalty,
+                "frequency_penalty": request.frequency_penalty,
             }
         else:
             raw_request = {
@@ -74,6 +101,14 @@ class OpenAIClient(Client):
                     openai.api_base = self.api_base
                     return openai.Embedding.create(**raw_request)
 
+            elif self._is_chat_model_engine(request.model_engine):
+
+                def do_it():
+                    openai.organization = self.org_id
+                    openai.api_key = self.api_key
+                    openai.api_base = self.api_base
+                    return openai.ChatCompletion.create(**raw_request)
+
             else:
 
                 def do_it():
@@ -95,14 +130,37 @@ class OpenAIClient(Client):
         # needs to be populated, and `embedding` should be an empty list and vice-versa.
         embedding: List[float] = []
         completions: List[Sequence] = []
+        tokens: List[Token]
         if request.embedding:
             # If the user is requesting an embedding instead of completion
             # then completions would be left as an empty list. The embedding needs to be set.
             embedding = response["data"][0]["embedding"]
+        elif self._is_chat_model_engine(request.model_engine):
+            for raw_completion in response["choices"]:
+                # The ChatGPT API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
+                raw_completion_content = raw_completion["message"]["content"]
+                text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
+                # The ChatGPT API doesn't return us tokens or logprobs, so we tokenize ourselves.
+                tokenization_result: TokenizationRequestResult = self.tokenizer_client.tokenize(
+                    # We're assuming ChatGPT uses the GPT-2 tokenizer.
+                    TokenizationRequest(text, tokenizer="huggingface/gpt2")
+                )
+                # Log probs are not currently not supported by the ChatGPT, so set to 0 for now.
+                tokens = [
+                    Token(text=cast(str, raw_token), logprob=0, top_logprobs={})
+                    for raw_token in tokenization_result.raw_tokens
+                ]
+                completion = Sequence(
+                    text=text,
+                    logprob=0,  # ChatGPT does not provide logprobs
+                    tokens=tokens,
+                    finish_reason={"reason": raw_completion["finish_reason"]},
+                )
+                completions.append(truncate_sequence(completion, request))  # Truncate the text by stop sequences
         else:
             for raw_completion in response["choices"]:
                 sequence_logprob = 0
-                tokens: List[Token] = []
+                tokens = []
 
                 raw_data = raw_completion["logprobs"]
                 for text, logprob, top_logprobs in zip(

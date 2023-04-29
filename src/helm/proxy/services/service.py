@@ -4,9 +4,11 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple, Any
 
 from helm.common.general import parse_hocon
+from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.tokenization_request import (
+    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -85,6 +87,11 @@ class Service(ABC):
         pass
 
     @abstractmethod
+    def get_window_service_info(self, model_name: str) -> WindowServiceInfo:
+        """Get window service info."""
+        pass
+
+    @abstractmethod
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
         pass
@@ -107,6 +114,10 @@ class Service(ABC):
     @abstractmethod
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """Get toxicity scores for a batch of text."""
+        pass
+
+    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
+        """Get responses to a critique request."""
         pass
 
     @abstractmethod

@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 from sklearn.metrics import f1_score
+from sklearn.preprocessing import MultiLabelBinarizer
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.basic_metrics import normalize_text
@@ -20,8 +21,7 @@ class ClassificationMetric(Metric):
 
     Note:
     - The set of classes is derived from the correct references from all the instances.
-      This means that classes may be omitted if they never are never used as a correct
-      reference.
+      This means that classes may be omitted if they are never used as a correct reference.
     - Generations that are not in any of the known classes are counted as a
       negative prediction for every class.
     - Perturbed classes are considered different classes from unperturbed
@@ -29,10 +29,16 @@ class ClassificationMetric(Metric):
     - Currently, multi-label classification is not supported.
     """
 
+    def __init__(self, delimiter: Optional[str] = None):
+        self.delimiter = delimiter
+
+    def is_multi_label(self) -> bool:
+        return bool(self.delimiter)
+
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-        y_pred: List[str] = []
-        y_true: List[str] = []
-        for request_state in request_states:
+        y_pred: List[List[str]] = []
+        y_true: List[List[str]] = []
+        for request_state in request_states:  # one request state per instance
             # Only the generation adapter is supported.
             # TODO: Support multiple_choice_* adapters.
             if request_state.reference_index is not None:
@@ -42,24 +48,23 @@ class ClassificationMetric(Metric):
             assert request_state.result is not None
             if len(request_state.result.completions) != 1:
                 raise ValueError("Result must contain exactly one completion")
-
-            num_correct = 0
-            for reference in request_state.instance.references:
-                if reference.is_correct:
-                    num_correct += 1
-                    y_true.append(normalize_text(reference.output.text))
-            if num_correct != 1:
-                # TODO: Support multi-label classification.
-                raise ValueError("ClassificationMetric does not support multi-label classification")
             if request_state.output_mapping:
                 raise ValueError("ClassificationMetric does not support multiple choice adapters")
-            y_pred.append(normalize_text(request_state.result.completions[0].text))
-        labels = list(set(y_true))
+
+            references = request_state.instance.all_correct_references
+            if not self.is_multi_label():
+                assert len(references) == 1
+            correct_ref_texts = [normalize_text(ref.output.text) for ref in references if ref.output.text]
+            y_true.append(correct_ref_texts)
+
+            input_text = request_state.result.completions[0].text
+            predictions = input_text.split(self.delimiter) if self.is_multi_label() else [input_text]
+            y_pred.append([normalize_text(pred) for pred in predictions if pred])
+        labels: List[str] = list(set(y for ys in y_true for y in ys))
+        mlb = MultiLabelBinarizer().fit([labels])
+        y_true = mlb.transform(y_true)
+        y_pred = mlb.transform(y_pred)
         return [
-            Stat(MetricName("classification_macro_f1")).add(
-                f1_score(y_pred=y_pred, y_true=y_true, labels=list(labels), average="macro")
-            ),
-            Stat(MetricName("classification_micro_f1")).add(
-                f1_score(y_pred=y_pred, y_true=y_true, labels=list(labels), average="micro")
-            ),
+            Stat(MetricName("classification_macro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="macro")),
+            Stat(MetricName("classification_micro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="micro")),
         ]

@@ -37,6 +37,7 @@ nav:
     - 'quick_start.md'
     - 'tutorial.md'
     - 'benchmark.md'
+    - 'huggingface_models.md'
     - 'proxy-server.md'
   - 'Reference':
     - 'models.md'

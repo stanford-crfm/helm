@@ -19,11 +19,17 @@ from .adaptation.scenario_state import ScenarioState
 from .adaptation.adapter_spec import AdapterSpec
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
+from .metrics.dry_run_metrics import DryRunMetric
 from .metrics.metric_name import MetricName
 from .metrics.metric_service import MetricService
 from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
-from .metrics.tokens_metric import TokensMetric
 from .window_services.tokenizer_service import TokenizerService
+
+
+class RunnerError(Exception):
+    """Error that happens in the Runner."""
+
+    pass
 
 
 @dataclass(frozen=True)
@@ -96,7 +102,8 @@ class Runner:
         ensure_directory_exists(self.eval_cache_path)
 
     def run_all(self, run_specs: List[RunSpec]):
-        for run_spec in tqdm(run_specs):
+        failed_run_specs: List[RunSpec] = []
+        for run_spec in tqdm(run_specs, disable=None):
             try:
                 with htrack_block(f"Running {run_spec.name}"):
                     self.run_one(run_spec)
@@ -105,6 +112,10 @@ class Runner:
                     raise e
                 else:
                     hlog(f"Error when running {run_spec.name}:\n{traceback.format_exc()}")
+                    failed_run_specs.append(run_spec)
+        if not self.exit_on_error and failed_run_specs:
+            failed_runs_str = ", ".join([f'"{run_spec.name}"' for run_spec in failed_run_specs])
+            raise RunnerError(f"Failed runs: [{failed_runs_str}]")
 
     def run_one(self, run_spec: RunSpec):
         # Load the scenario
@@ -155,8 +166,8 @@ class Runner:
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
         metrics: List[Metric] = (
-            [] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
-        ) + [TokensMetric()]
+            [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
+        )
         stats: List[Stat] = []
         per_instance_stats: List[PerInstanceStats] = []
         with htrack_block(f"{len(metrics)} metrics"):

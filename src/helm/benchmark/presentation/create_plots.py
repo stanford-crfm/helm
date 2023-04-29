@@ -146,7 +146,7 @@ class Plotter:
         """Save and close a figure."""
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
-        fig.savefig(os.path.join(self.save_path, f"{name}.{self.plot_format}"), bbox_inches="tight")
+        fig.savefig(os.path.join(self.save_path, f"{name}.{self.plot_format}"), bbox_inches="tight", dpi=300)
         plt.close(fig)
 
     def create_accuracy_v_x_plots(self):
@@ -358,9 +358,26 @@ class Plotter:
             grain = 0.016
             return round(bpb / grain) * grain
 
-        self.create_accuracy_v_model_property_plot("Release date", get_model_release_date, cumulative=True)
-        self.create_accuracy_v_model_property_plot("Num parameters", get_model_size, cumulative=True, logscale=True)
-        self.create_accuracy_v_model_property_plot("The Pile perplexity", get_model_perplexity, logscale=True)
+        annotate_models = True if self.plot_format == "pdf" else False
+        self.create_accuracy_v_model_property_plot(
+            "Release date",
+            get_model_release_date,
+            cumulative=True,
+            annotate_models=annotate_models,
+        )
+        self.create_accuracy_v_model_property_plot(
+            "Num parameters",
+            get_model_size,
+            cumulative=True,
+            logscale=True,
+            annotate_models=annotate_models,
+        )
+        self.create_accuracy_v_model_property_plot(
+            "The Pile perplexity",
+            get_model_perplexity,
+            logscale=True,
+            annotate_models=annotate_models,
+        )
 
     def create_accuracy_v_access_bar_plot(self):
         """
@@ -416,22 +433,25 @@ class Plotter:
         fig.subplots_adjust(hspace=0.7)
         self.save_figure(fig, "generic_summary")
 
-    def create_targeted_eval_plot(self, targeted_eval: str):
-        """For a targeted evaluation, create a box plot with scenario accuracy across models."""
-        table = self.get_group_tables(targeted_eval)["Accuracy"]
-        fig, ax = plt.subplots(figsize=(len(table.columns), 3.5))
+    def create_targeted_eval_plots(self):
+        """Create a box plots with scenario accuracy across models for a range of targeted evaluations."""
+        fig, axd = plt.subplot_mosaic([["language", "knowledge"], ["reasoning", "reasoning"]], figsize=(12, 7))
+        for targeted_eval in ["language", "knowledge", "reasoning"]:
+            table = self.get_group_tables(targeted_eval)["Accuracy"]
+            ax = axd[targeted_eval]
 
-        group_to_accuracies: Dict[str, np.ndarray] = {}
-        for column in table.columns:
-            arrow = DOWN_ARROW if column.lower_is_better else UP_ARROW
-            group = f"{column.group}\n({column.metric} {arrow})"
-            group_to_accuracies[group] = column.values
+            group_to_accuracies: Dict[str, np.ndarray] = {}
+            for column in table.columns:
+                arrow = DOWN_ARROW if column.lower_is_better else UP_ARROW
+                group = f"{column.group}\n({column.metric} {arrow})"
+                group_to_accuracies[group] = column.values
 
-        draw_box_plot(group_to_accuracies, ax)
-        ax.set_title(targeted_eval.capitalize())
-        ax.set_ylim(-0.1, 3.6 if targeted_eval == "language" else 1.1)
+            draw_box_plot(group_to_accuracies, ax)
+            ax.set_title(targeted_eval.capitalize())
+            ax.set_ylim(-0.1, 3.6 if targeted_eval == "language" else 1.1)
 
-        self.save_figure(fig, f"targeted_eval_{targeted_eval}")
+        fig.subplots_adjust(hspace=0.75)
+        self.save_figure(fig, "targeted_evals")
 
     def create_copyright_plot(self):
         """Plot copyright metrics across models."""
@@ -565,8 +585,7 @@ class Plotter:
         self.create_all_accuracy_v_model_property_plots()
         self.create_accuracy_v_access_bar_plot()
         self.create_task_summary_plots()
-        for targeted_eval in ["language", "knowledge", "reasoning"]:
-            self.create_targeted_eval_plot(targeted_eval)
+        self.create_targeted_eval_plots()
         self.create_copyright_plot()
         self.create_bbq_plot()
         self.create_in_context_examples_plot()
