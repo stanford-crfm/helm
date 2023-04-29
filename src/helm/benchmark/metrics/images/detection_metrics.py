@@ -43,7 +43,7 @@ class DetectionMetric(Metric):
             self._detection_model = ViTDetDetctor()
 
         instance = request_state.instance
-        references: Dict[str, Any] = {**json.loads(instance.references[0].output.text), 'skill': instance.sub_split}
+        references: Dict[str, Any] = {**json.loads(instance.references[0].output.text), "skill": instance.sub_split}
 
         prompt: str = request_state.request.prompt
         scores: List[float] = []

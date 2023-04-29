@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 import json
 
 from helm.common.general import ensure_file_downloaded
@@ -52,19 +52,19 @@ class DetectionScenario(Scenario):
                 prompt: str = row[1]
                 skill: str = row[0]
                 obj1: str = row[2]
-                if skill == 'count':
+                if skill == "count":
                     count: int = int(row[4])
-                if skill == 'spatial':
+                if skill == "spatial":
                     obj2: str = row[3]
                     relation: str = row[5]
 
-                if skill == 'object':
-                    references = {'object': obj1}
-                elif skill == 'count':
-                    references = {'count': count, 'object': obj1}
-                elif skill == 'spatial':
-                    references = {'objects': [obj1, obj2],
-                                  'relation': relation}
+                references: Dict
+                if skill == "object":
+                    references = {"object": obj1}
+                elif skill == "count":
+                    references = {"count": count, "object": obj1}
+                elif skill == "spatial":
+                    references = {"objects": [obj1, obj2], "relation": relation}
 
                 instance = Instance(
                     Input(text=prompt),
