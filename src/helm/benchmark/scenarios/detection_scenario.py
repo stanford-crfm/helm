@@ -53,10 +53,11 @@ class DetectionScenario(Scenario):
                 skill: str = row[0]
                 obj1: str = row[2]
                 obj2: str = row[3]
-                count: int = int(row[4])
-                relation: str = row[5]
+                if skill == 'count':
+                    count: int = int(row[4])
+                if skill == 'spatial':
+                    relation: str = row[5]
 
-                # TODO parse from csv
                 if skill == 'object':
                     references = {'object': obj1}
                 elif skill == 'count':
