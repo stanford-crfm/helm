@@ -28,8 +28,8 @@ class DetectionScenario(Scenario):
     """
 
     DATASET_DOWNLOAD_URL: str = (
-        "https://docs.google.com/spreadsheets/d/1xwp0rUvec9iitc2z_Pi4XJ9J24mZbjZ1Gh0-KVWCOXc/"
-        "gviz/tq?tqx=out:csv&sheet=detection_prompts_coco"
+        "https://docs.google.com/spreadsheets/d/1VUMEfl44_0wPMQ9KRM7WNys7YIdAksju2KCJnT1ss1Y/"
+        "gviz/tq?tqx=out:csv&sheet=detection_prompts_paintskills"
     )
 
     name = "detection"
@@ -51,16 +51,19 @@ class DetectionScenario(Scenario):
 
                 prompt: str = row[1]
                 skill: str = row[0]
+                obj1: str = row[2]
+                obj2: str = row[3]
+                count: int = int(row[4])
+                relation: str = row[5]
 
                 # TODO parse from csv
                 if skill == 'object':
-                    references = {'object': 'person'}
+                    references = {'object': obj1}
                 elif skill == 'count':
-                    references = {'count': 4, 'object': 'person'}
+                    references = {'count': count, 'object': obj1}
                 elif skill == 'spatial':
-                    references = {'objects': ['person', 'vase'],
-                                  'relation': 'left to'
-                                  }
+                    references = {'objects': [obj1, obj2],
+                                  'relation': relation}
 
                 instance = Instance(
                     Input(text=prompt),
