@@ -57,7 +57,7 @@ class AnthropicClient(Client):
         8192  # See https://docs.google.com/document/d/1vX6xgoA-KEKxqtMlBVAqYvE8KUfZ7ABCjTxAjf1T5kI/edit#
     )
     ADDITIONAL_TOKENS: int = 5
-    PROMPT_ANSWER_START: str = "The answer is"
+    PROMPT_ANSWER_START: str = "The answer is "
 
     def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
         self.api_key: Optional[str] = api_key
