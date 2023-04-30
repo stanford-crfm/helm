@@ -28,9 +28,7 @@ class DetectionScenario(Scenario):
     [ViTDet](https://arxiv.org/abs/2203.16527).
     """
 
-    DATASET_DOWNLOAD_URL: str = (
-        "https://drive.google.com/uc?export=download&id=1XtUBVQAnr25i3h5puFqDTlyaf8qvKyzs"
-    )
+    DATASET_DOWNLOAD_URL: str = "https://drive.google.com/uc?export=download&id=1XtUBVQAnr25i3h5puFqDTlyaf8qvKyzs"
 
     name = "detection"
     description = "A benchmark to measure the accuracy of objects and relations in generated images."
