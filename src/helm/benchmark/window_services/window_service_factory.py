@@ -3,13 +3,14 @@ from helm.proxy.models import (
     get_model_names_with_tag,
     Model,
     AI21_WIDER_CONTEXT_WINDOW_TAG,
+    AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG,
     WIDER_CONTEXT_WINDOW_TAG,
     GPT4_TOKENIZER_TAG,
     GPT4_CONTEXT_WINDOW_TAG,
     GPT4_32K_CONTEXT_WINDOW_TAG,
 )
 from .ai21_window_service import AI21WindowService
-from .wider_ai21_window_service import WiderAI21WindowService
+from .wider_ai21_window_service import WiderAI21WindowService, AI21Jurassic2JumboWindowService
 from .anthropic_window_service import AnthropicWindowService, LegacyAnthropicWindowService
 from .cohere_window_service import CohereWindowService, CohereCommandWindowService
 from .luminous_window_service import (
@@ -142,6 +143,10 @@ class WindowServiceFactory:
         elif organization == "ai21":
             if model_name in get_model_names_with_tag(AI21_WIDER_CONTEXT_WINDOW_TAG):
                 window_service = WiderAI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
+            if model_name in get_model_names_with_tag(AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG):
+                window_service = AI21Jurassic2JumboWindowService(
+                    service=service, gpt2_window_service=GPT2WindowService(service)
+                )
             else:
                 window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         else:

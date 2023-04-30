@@ -29,6 +29,10 @@ GPT4_32K_CONTEXT_WINDOW_TAG: str = "gpt4_32k_context_window"  # 32768 tokens
 # For AI21 Jurassic-2 models with wider context windows
 AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
 
+# For AI21 Jurassic-2 Jumbo
+# AI21 has recommended using a sequence length of 6000 tokens to avoid OOMs.
+AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG: str = "ai21_jurassic_2_jumbo_context_window"  # 6000
+
 # To fetch models that use these tokenizers
 GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
 AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
@@ -148,7 +152,12 @@ ALL_MODELS = [
         name="ai21/j2-jumbo",
         display_name="Jurassic-2 Jumbo (178B)",
         description="Jurassic-2 Jumbo (178B parameters)",
-        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            AI21_TOKENIZER_TAG,
+        ],
     ),
     Model(
         group="jurassic",
