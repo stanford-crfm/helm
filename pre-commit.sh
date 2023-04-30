@@ -37,6 +37,9 @@ else
     cd $ROOT
 fi
 
+# For Detectron2. Following https://detectron2.readthedocs.io/en/latest/tutorials/install.html
+python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+
 
 # Install all pinned dependencies
 pip install -r requirements-freeze.txt
