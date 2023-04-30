@@ -2121,8 +2121,7 @@ def get_detection_spec(skill: str) -> RunSpec:
         name=f"detection:skill={skill}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        # TODO: add back get_core_vhelm_metric_specs after implementing
-        metric_specs=get_vhelm_detection_metric_specs(),  # + get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_detection_metric_specs() + get_core_vhelm_metric_specs(),
         groups=["detection"],
     )
 
