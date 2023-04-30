@@ -38,7 +38,7 @@ else
 fi
 
 # For Detectron2. Following https://detectron2.readthedocs.io/en/latest/tutorials/install.html
-python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu113/torch1.10/index.html
+python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
 
 
 # Install all pinned dependencies
