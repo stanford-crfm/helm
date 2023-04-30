@@ -1127,6 +1127,13 @@ metrics:
     description: TODO
     lower_is_better: false
 
+  # Detection
+  - name: detection_correct_frac
+    display_name: Detection correct fraction
+    short_display_name: Detection correct frac
+    description: TODO
+    lower_is_better: false
+
   # Aesthetics
   - name: expected_aesthetics_score
     display_name: Expected aesthetics score
@@ -1560,6 +1567,12 @@ metric_groups:
         split: ${main_split}
 #      - name: max_aesthetics_score
 #        split: ${main_split}
+
+  - name: vhelm_detection
+    display_name: VHELM detection metrics
+    metrics:
+      - name: detection_correct_frac
+        split: ${main_split}
 
   - name: vhelm_fractal_dimension
     display_name: VHELM fractal dimension metrics
@@ -2165,6 +2178,7 @@ run_groups:
     display_name: Detection
     description: A compositional diagnostic dataset an evaluation toolkit that measures visual reasoning skills ([paper](https://arxiv.org/abs/2202.04053)).
     metric_groups:
+      - vhelm_detection
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_fractal_dimension
