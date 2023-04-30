@@ -29,8 +29,7 @@ class DetectionScenario(Scenario):
     """
 
     DATASET_DOWNLOAD_URL: str = (
-        "https://docs.google.com/spreadsheets/d/1swAJwokfhduUqPypRpxHmDrPGHQAxUVK4w3Qn7avcpA/"
-        "gviz/tq?tqx=out:csv&sheet=detection_prompts_paintskills"
+        "https://drive.google.com/uc?export=download&id=1XtUBVQAnr25i3h5puFqDTlyaf8qvKyzs"
     )
 
     name = "detection"

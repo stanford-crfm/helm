@@ -76,7 +76,6 @@ class ViTDetDetector(BaseDetector):
 
     def compute_score_object(self, instances, references):
         gt_class_name = references["object"]
-        # gt_class = PAINTSKILLS_SHAPE_TO_IX[gt_class_name]
         gt_class = COCO_CLASSES.index(gt_class_name)
         if len(instances.scores) == 0:
             pred_id = None
