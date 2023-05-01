@@ -185,7 +185,7 @@ class AnthropicClient(Client):
                 if request.encode:
                     tokens = [TokenizationToken(value) for value in encoding.ids]
                 else:
-                    tokens = [TokenizationToken(value) for value in encoding.tokens]
+                    tokens = [TokenizationToken(self.tokenizer.decode([token])) for token in encoding.ids]
                 if request.truncation:
                     tokens = tokens[: request.max_length]
                 return {"tokens": tokens}
@@ -211,7 +211,7 @@ class AnthropicClient(Client):
             def do_it():
                 ids = request.tokens
                 if len(ids) > 0 and isinstance(ids[0], str):
-                    ids = [self.tokenizer.token_to_id(token) for token in ids]
+                    ids = [self.tokenizer.encode(token).ids[0] for token in ids]
                 text = self.tokenizer.decode(ids)
                 return {"text": text}
 
