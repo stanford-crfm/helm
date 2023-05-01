@@ -193,6 +193,8 @@ def add_run_args(parser: argparse.ArgumentParser):
 
 def validate_args(args):
     assert args.suite != LATEST_SYMLINK, f"Suite name can't be '{LATEST_SYMLINK}'"
+    if args.cache_instances_only:
+        assert args.cache_instances, "If --cache-instances-only is set, --cache-instances must also be set."
 
 
 @htrack(None)

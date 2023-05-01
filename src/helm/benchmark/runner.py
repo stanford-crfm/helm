@@ -98,7 +98,7 @@ class Runner:
         # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
         self.scenarios_path: str = os.path.join(output_path, "scenarios")
         ensure_directory_exists(self.scenarios_path)
-        # Decide where to save pre-processed instances
+        # Decide where to save input instances
         self.instances_path: str = os.path.join(output_path, "scenario_instances")
         ensure_directory_exists(self.instances_path)
 
@@ -136,7 +136,8 @@ class Runner:
 
         # This 'output_path' will be used when the model's input instances are saved.
         args_str = ",".join([f"{k}={v}" for k, v in sorted(run_spec.scenario_spec.args.items())])
-        input_instances_output_path = os.path.join(self.instances_path, f"{scenario.name}:{args_str}")
+        scenario_name_with_args = f"{scenario.name}:{args_str}" if args_str else f"{scenario.name}"
+        input_instances_output_path = os.path.join(self.instances_path, scenario_name_with_args)
         input_instances_file_path = os.path.join(input_instances_output_path, "input_instances.json")
 
         run_path: str = os.path.join(self.runs_path, run_spec.name)
