@@ -1,6 +1,5 @@
 import argparse
 from dataclasses import replace
-import os
 from typing import List, Optional
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
@@ -13,11 +12,8 @@ from helm.proxy.services.remote_service import create_authentication, add_servic
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
-from .runner import Runner, RunSpec
+from .runner import Runner, RunSpec, LATEST_SYMLINK
 from .run_specs import construct_run_specs
-
-
-LATEST_SYMLINK: str = "latest"
 
 
 def run_entries_to_run_specs(
@@ -96,19 +92,6 @@ def run_benchmarking(
     runner = Runner(execution_spec, output_path, suite, skip_instances, skip_completed_runs, exit_on_error)
     runner.run_all(run_specs)
     return run_specs
-
-
-def symlink_latest(output_path: str, suite: str) -> None:
-    # Create a symlink runs/latest -> runs/<name_of_suite>,
-    # so runs/latest always points to the latest run suite.
-    runs_dir: str = os.path.join(output_path, "runs")
-    suite_dir: str = os.path.join(runs_dir, suite)
-    symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
-    hlog(f"Symlinking {suite_dir} to {LATEST_SYMLINK}.")
-    if os.path.islink(symlink_path):
-        # Remove the previous symlink if it exists.
-        os.unlink(symlink_path)
-    os.symlink(os.path.abspath(suite_dir), symlink_path)
 
 
 def add_run_args(parser: argparse.ArgumentParser):
@@ -263,8 +246,6 @@ def main():
         return
 
     auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
-
-    symlink_latest(output_path=args.output_path, suite=args.suite)
 
     run_benchmarking(
         run_specs=run_specs,

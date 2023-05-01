@@ -25,7 +25,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
-from helm.benchmark.runner import RunSpec
+from helm.benchmark.runner import RunSpec, LATEST_SYMLINK
 from .table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
 from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
 
@@ -946,6 +946,19 @@ class Summarizer:
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
 
+def symlink_latest(output_path: str, suite: str) -> None:
+    # Create a symlink runs/latest -> runs/<name_of_suite>,
+    # so runs/latest always points to the latest run suite.
+    runs_dir: str = os.path.join(output_path, "runs")
+    suite_dir: str = os.path.join(runs_dir, suite)
+    symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
+    hlog(f"Symlinking {suite_dir} to {LATEST_SYMLINK}.")
+    if os.path.islink(symlink_path):
+        # Remove the previous symlink if it exists.
+        os.unlink(symlink_path)
+    os.symlink(os.path.abspath(suite_dir), symlink_path)
+
+
 @htrack(None)
 def main():
     parser = argparse.ArgumentParser()
@@ -983,6 +996,7 @@ def main():
     summarizer.write_run_specs()
     summarizer.write_groups()
     summarizer.write_cost_report()
+    symlink_latest()
 
     if not args.skip_write_run_display_json:
         summarizer.write_run_display_json()
