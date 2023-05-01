@@ -27,6 +27,9 @@ from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, 
 from .window_services.tokenizer_service import TokenizerService
 
 
+LATEST_SYMLINK: str = "latest"
+
+
 class RunnerError(Exception):
     """Error that happens in the Runner."""
 
