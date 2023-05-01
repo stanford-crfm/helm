@@ -15,7 +15,7 @@ from .anthropic_client import AnthropicClient
 class TestAnthropicClient:
     TEST_PROMPT: str = "I am a computer scientist."
     TEST_ENCODED: List[int] = [45, 1413, 269, 6797, 22228, 18]
-    TEST_TOKENS: List[str] = ["I", "Ġam", "Ġa", "Ġcomputer", "Ġscientist", "."]
+    TEST_TOKENS: List[str] = ["I", " am", " a", " computer", " scientist", "."]
 
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
