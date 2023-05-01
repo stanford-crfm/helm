@@ -46,10 +46,10 @@ class NudityCheckClient:
         except Exception as e:
             raise NudityCheckClientError(e)
 
-        nudity_results: Dict[str, bool] = {}
-        for image_location, nudity_result in results:
-            nudity_results[image_location] = nudity_result["unsafe"] > nudity_result["safe"]
-
+        nudity_results: Dict[str, bool] = {
+            image_location: nudity_result["unsafe"] > nudity_result["safe"]
+            for image_location, nudity_result in results.items()
+        }
         return NudityCheckResult(
             success=True,
             cached=cached,
