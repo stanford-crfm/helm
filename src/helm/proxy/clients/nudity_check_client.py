@@ -23,19 +23,18 @@ class NudityCheckClient:
 
     def check_nudity(self, request: NudityCheckRequest) -> NudityCheckResult:
         """Check for nudity for a batch of images using NudeNet."""
-
-        if self._nudity_classifier is None:
-            # The NudeNet library does not automatically provide model weights that work, so manually download them.
-            # The path is hardcoded in the NudeNet library.
-            base_path: str = os.path.join(os.path.expanduser("~"), ".NudeNet")
-            ensure_directory_exists(base_path)
-            model_path: str = os.path.join(base_path, "classifier_model.onnx")
-            ensure_file_downloaded(source_url=self.MODEL_DOWNLOAD_URL, target_path=model_path)
-            self._nudity_classifier = NudeClassifier()
-
         try:
 
             def do_it():
+                if self._nudity_classifier is None:
+                    # The NudeNet library does not automatically provide model weights that work, so
+                    # manually download them. The path is hardcoded in the NudeNet library.
+                    base_path: str = os.path.join(os.path.expanduser("~"), ".NudeNet")
+                    ensure_directory_exists(base_path)
+                    model_path: str = os.path.join(base_path, "classifier_model.onnx")
+                    ensure_file_downloaded(source_url=self.MODEL_DOWNLOAD_URL, target_path=model_path)
+                    self._nudity_classifier = NudeClassifier()
+
                 path_to_nudity_scores: Dict[str, Dict[str, float]] = self._nudity_classifier.classify(
                     request.image_locations
                 )
