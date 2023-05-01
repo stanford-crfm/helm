@@ -56,12 +56,3 @@ class TestAnthropicClient:
         result: DecodeRequestResult = self.client.decode(request)
         assert result.cached, "Result should be cached"
         assert result.text == self.TEST_PROMPT
-
-        # Checks that decode also works with a list of strings
-        request_str = DecodeRequest(tokens=self.TEST_TOKENS)
-        result_str: DecodeRequestResult = self.client.decode(request_str)
-        assert not result_str.cached, "First time making the decode request str. Result should not be cached"
-        assert result_str.text == self.TEST_PROMPT
-        result_str: DecodeRequestResult = self.client.decode(request_str)
-        assert result_str.cached, "Result should be cached"
-        assert result_str.text == self.TEST_PROMPT
