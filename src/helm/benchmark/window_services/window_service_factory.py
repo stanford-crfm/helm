@@ -3,14 +3,15 @@ from helm.proxy.models import (
     get_model_names_with_tag,
     Model,
     AI21_WIDER_CONTEXT_WINDOW_TAG,
+    AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG,
     WIDER_CONTEXT_WINDOW_TAG,
     GPT4_TOKENIZER_TAG,
     GPT4_CONTEXT_WINDOW_TAG,
     GPT4_32K_CONTEXT_WINDOW_TAG,
 )
 from .ai21_window_service import AI21WindowService
-from .wider_ai21_window_service import WiderAI21WindowService
-from .anthropic_window_service import AnthropicWindowService
+from .wider_ai21_window_service import WiderAI21WindowService, AI21Jurassic2JumboWindowService
+from .anthropic_window_service import AnthropicWindowService, LegacyAnthropicWindowService
 from .cohere_window_service import CohereWindowService, CohereCommandWindowService
 from .luminous_window_service import (
     LuminousBaseWindowService,
@@ -35,6 +36,7 @@ from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
 from .opt_window_service import OPTWindowService
+from .palmyra_window_service import PalmyraWindowService, SilkRoadWindowService
 from .remote_window_service import get_remote_window_service
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
@@ -92,7 +94,17 @@ class WindowServiceFactory:
         elif organization == "microsoft":
             window_service = MTNLGWindowService(service)
         elif organization == "anthropic":
-            window_service = AnthropicWindowService(service)
+            if engine == "stanford-online-all-v4-s3":
+                window_service = LegacyAnthropicWindowService(service)
+            else:
+                window_service = AnthropicWindowService(service)
+        elif organization == "writer":
+            if engine in ["palmyra-base", "palmyra-large", "palmyra-instruct-30", "palmyra-e"]:
+                window_service = PalmyraWindowService(service)
+            elif engine == "silk-road":
+                window_service = SilkRoadWindowService(service)
+            else:
+                raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":
             window_service = SantaCoderWindowService(service)
         elif engine == "large-model":
@@ -131,6 +143,10 @@ class WindowServiceFactory:
         elif organization == "ai21":
             if model_name in get_model_names_with_tag(AI21_WIDER_CONTEXT_WINDOW_TAG):
                 window_service = WiderAI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
+            if model_name in get_model_names_with_tag(AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG):
+                window_service = AI21Jurassic2JumboWindowService(
+                    service=service, gpt2_window_service=GPT2WindowService(service)
+                )
             else:
                 window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         else:

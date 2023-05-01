@@ -17,6 +17,9 @@ CHATML_MODEL_TAG: str = "chatml"
 # OpenAI Chat format
 OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
 
+# For Anthropic models
+ANTHROPIC_MODEL_TAG: str = "anthropic"
+
 # For OpenAI models with wider context windows
 # TODO(#1455): Simplify context window tags.
 WIDER_CONTEXT_WINDOW_TAG: str = "openai_wider_context_window"  # 4000 tokens
@@ -25,6 +28,10 @@ GPT4_32K_CONTEXT_WINDOW_TAG: str = "gpt4_32k_context_window"  # 32768 tokens
 
 # For AI21 Jurassic-2 models with wider context windows
 AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
+
+# For AI21 Jurassic-2 Jumbo
+# AI21 has recommended using a sequence length of 6000 tokens to avoid OOMs.
+AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG: str = "ai21_jurassic_2_jumbo_context_window"  # 6000
 
 # To fetch models that use these tokenizers
 GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
@@ -145,7 +152,12 @@ ALL_MODELS = [
         name="ai21/j2-jumbo",
         display_name="Jurassic-2 Jumbo (178B)",
         description="Jurassic-2 Jumbo (178B parameters)",
-        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            AI21_TOKENIZER_TAG,
+        ],
     ),
     Model(
         group="jurassic",
@@ -209,6 +221,34 @@ ALL_MODELS = [
         display_name="Anthropic-LM (52B)",
         description="Anthropic model (52B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
+    ),
+    Model(
+        group="anthropic",
+        creator_organization="Anthropic",
+        name="anthropic/claude-v1.3",
+        display_name="Anthropic Claude (52B)",
+        description="Anthropic Claude V1.3 (52B parameters)",
+        tags=[
+            ANTHROPIC_MODEL_TAG,
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            ABLATION_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="anthropic",
+        creator_organization="Anthropic",
+        name="anthropic/claude-instant-v1",
+        display_name="Anthropic Claude Instant (TBD)",
+        description="Anthropic Claude Instant (TBD parameters)",
+        tags=[
+            ANTHROPIC_MODEL_TAG,
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            ABLATION_MODEL_TAG,
+        ],
     ),
     # BigScience
     Model(
@@ -739,6 +779,70 @@ ALL_MODELS = [
         # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+    ),
+    # Writer
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-base",
+        display_name="Palmyra Base (5B)",
+        description="Autoregressive language model (5B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-large",
+        display_name="Palmyra Large (20B)",
+        description="Autoregressive language model (20B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-r",
+        display_name="Palmyra R (30B)",
+        description="Autoregressive language model with Retrieval-Augmented Generation (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/camel",
+        display_name="Camel (5B)",
+        description="Training language models to follow instructions with human feedback (5B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-instruct-30",
+        display_name="InstructPalmyra (30B)",
+        description="Training language models to follow instructions with human feedback (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-e",
+        display_name="Palmyra E (30B)",
+        description="Training language models to follow instructions with human feedback (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/silk-road",
+        display_name="Silk Road (35B)",
+        description="Autoregressive language mode with multi-scale Attention in parallel (35B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Yandex
     Model(
