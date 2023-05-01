@@ -18,7 +18,7 @@ from helm.common.tokenization_request import (
     TokenizationToken,
 )
 from .client import Client, wrap_request_time, truncate_sequence
-from tokenizers import Tokenizer
+from transformers import PreTrainedTokenizerBase, PreTrainedTokenizerFast
 from dataclasses import asdict
 
 
@@ -57,12 +57,12 @@ class AnthropicClient(Client):
         8192  # See https://docs.google.com/document/d/1vX6xgoA-KEKxqtMlBVAqYvE8KUfZ7ABCjTxAjf1T5kI/edit#
     )
     ADDITIONAL_TOKENS: int = 5
-    PROMPT_ANSWER_START: str = "The answer is"
+    PROMPT_ANSWER_START: str = "The answer is "
 
     def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
         self.api_key: Optional[str] = api_key
         self.cache = Cache(cache_config)
-        self.tokenizer: Tokenizer = anthropic.get_tokenizer()
+        self.tokenizer: PreTrainedTokenizerBase = PreTrainedTokenizerFast(tokenizer_object=anthropic.get_tokenizer())
         self._client = anthropic.Client(api_key) if api_key else None
 
     def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
@@ -178,57 +178,64 @@ class AnthropicClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        # Method copied from HuggingFaceClient.
+        # TODO: Unify this with HuggingFaceClient.
         cache_key = asdict(request)
 
         try:
 
             def do_it():
-                encoding = self.tokenizer.encode(request.text)
-                tokens: List[Token] = []
                 if request.encode:
-                    tokens = [TokenizationToken(value) for value in encoding.ids]
+                    if request.truncation:
+                        tokens = self.tokenizer.encode(
+                            request.text,
+                            truncation=request.truncation,
+                            max_length=request.max_length,
+                            add_special_tokens=False,
+                        )
+                    else:
+                        tokens = self.tokenizer.encode(request.text, add_special_tokens=False)
                 else:
-                    tokens = [TokenizationToken(value) for value in encoding.tokens]
-                if request.truncation:
-                    tokens = tokens[: request.max_length]
+                    tokens = [
+                        self.tokenizer.convert_tokens_to_string([i]) for i in self.tokenizer.tokenize(request.text)
+                    ]
                 return {"tokens": tokens}
 
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except Exception as e:
+            error: str = f"HuggingFace error: {e}"
+            return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
 
-            return TokenizationRequestResult(
-                success=True,
-                cached=cached,
-                text=request.text,
-                tokens=response["tokens"],
-                request_time=response["request_time"],
-                error=None,
-            )
-        except Exception as error:
-            raise ValueError(f"Anthropic tokenizer error: {error}")
+        return TokenizationRequestResult(
+            success=True,
+            cached=cached,
+            text=request.text,
+            tokens=[TokenizationToken(value) for value in result["tokens"]],
+            request_time=result["request_time"],
+        )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        # Method copied from HuggingFaceClient.
+        # TODO: Unify this with HuggingFaceClient
         cache_key = asdict(request)
 
         try:
 
             def do_it():
-                ids = request.tokens
-                if len(ids) > 0 and isinstance(ids[0], str):
-                    ids = [self.tokenizer.token_to_id(token) for token in ids]
-                text = self.tokenizer.decode(ids)
-                return {"text": text}
+                return {
+                    "text": self.tokenizer.decode(
+                        request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces
+                    )
+                }
 
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except Exception as e:
+            error: str = f"HuggingFace error: {e}"
+            return DecodeRequestResult(success=False, cached=False, error=error, text="")
 
-            return DecodeRequestResult(
-                success=True,
-                cached=cached,
-                text=str(response["text"]),
-                request_time=response["request_time"],
-                error=None,
-            )
-        except Exception as error:
-            raise ValueError(f"Anthropic tokenizer error: {error}")
+        return DecodeRequestResult(
+            success=True, cached=cached, text=result["text"], request_time=result["request_time"]
+        )
 
 
 class AnthropicRequestError(Exception):
