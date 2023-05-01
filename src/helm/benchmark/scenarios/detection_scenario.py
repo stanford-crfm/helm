@@ -4,7 +4,7 @@ import os
 import csv
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
+from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output, CORRECT_TAG
 
 
 class DetectionScenario(Scenario):
@@ -74,7 +74,7 @@ class DetectionScenario(Scenario):
 
                 instance = Instance(
                     Input(text=prompt),
-                    references=[Reference(output=Output(text=json.dumps(references)), tags=[])],
+                    references=[Reference(output=Output(text=json.dumps(references)), tags=[CORRECT_TAG])],
                     split=TEST_SPLIT,
                     sub_split=skill,
                 )
