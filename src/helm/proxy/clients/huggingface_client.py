@@ -229,7 +229,11 @@ class HuggingFaceClient(Client):
                     else:
                         tokens = tokenizer.encode(request.text, add_special_tokens=False)
                 else:
-                    if "gpt" in request.tokenizer:
+                    if "gpt" in request.tokenizer or request.tokenizer in [
+                        "bigscience/bloom",
+                        "Writer/palmyra-base",
+                        "facebook/opt-66b",
+                    ]:
                         tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
                     else:
                         tokens = tokenizer.tokenize(request.text)
