@@ -996,11 +996,11 @@ def main():
     summarizer.write_run_specs()
     summarizer.write_groups()
     summarizer.write_cost_report()
-    symlink_latest()
 
     if not args.skip_write_run_display_json:
         summarizer.write_run_display_json()
 
+    symlink_latest()
     hlog("Done.")
 
 
