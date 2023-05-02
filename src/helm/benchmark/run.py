@@ -75,6 +75,8 @@ def run_benchmarking(
     suite: str,
     dry_run: bool,
     skip_instances: bool,
+    cache_instances: bool,
+    cache_instances_only: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
     mongo_uri: str = "",
@@ -93,7 +95,16 @@ def run_benchmarking(
         for run_spec in run_specs:
             hlog(run_spec)
 
-    runner = Runner(execution_spec, output_path, suite, skip_instances, skip_completed_runs, exit_on_error)
+    runner = Runner(
+        execution_spec,
+        output_path,
+        suite,
+        skip_instances,
+        cache_instances,
+        cache_instances_only,
+        skip_completed_runs,
+        exit_on_error,
+    )
     runner.run_all(run_specs)
     return run_specs
 
@@ -121,6 +132,18 @@ def add_run_args(parser: argparse.ArgumentParser):
         action="store_true",
         default=None,
         help="Skip creation of instances (basically do nothing but just parse everything).",
+    )
+    parser.add_argument(
+        "--cache-instances",
+        action="store_true",
+        default=None,
+        help="Save generated instances input to model to disk. If already cached, read instances from file.",
+    )
+    parser.add_argument(
+        "--cache-instances-only",
+        action="store_true",
+        default=None,
+        help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
     )
     parser.add_argument(
         "-d",
@@ -170,6 +193,8 @@ def add_run_args(parser: argparse.ArgumentParser):
 
 def validate_args(args):
     assert args.suite != LATEST_SYMLINK, f"Suite name can't be '{LATEST_SYMLINK}'"
+    if args.cache_instances_only:
+        assert args.cache_instances, "If --cache-instances-only is set, --cache-instances must also be set."
 
 
 @htrack(None)
@@ -277,6 +302,8 @@ def main():
         suite=args.suite,
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
+        cache_instances=args.cache_instances,
+        cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
         mongo_uri=args.mongo_uri,
