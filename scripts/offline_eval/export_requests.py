@@ -64,7 +64,9 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
 
         # Only export requests that are not in the cache
         if not store.contains(raw_request):
-            request_json: str = request_to_key({"scenario": scenario_name, "request": raw_request})
+            request_json: str = json.dumps(
+                {"scenario": scenario_name, "request": raw_request}, sort_keys=True, ensure_ascii=False
+            )
             out_file.write(request_json + "\n")
             counts["pending_count"] += 1
         else:
