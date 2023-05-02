@@ -32,6 +32,7 @@ from .ice_tokenizer_client import ICETokenizerClient
 from .openai_client import OpenAIClient
 from .moderation_api_client import ModerationAPIClient
 from .microsoft_client import MicrosoftClient
+from .nudity_check_client import NudityCheckClient
 from .perspective_api_client import PerspectiveAPIClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
@@ -276,6 +277,10 @@ class AutoClient(Client):
             retry_error: str = f"Failed to decode after retrying {last_attempt.attempt_number} times"
             hlog(retry_error)
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
+
+    def get_nudity_check_client(self) -> NudityCheckClient:
+        cache_config: CacheConfig = self._build_cache_config("nudity")
+        return NudityCheckClient(cache_config)
 
     def get_toxicity_classifier_client(self) -> PerspectiveAPIClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""

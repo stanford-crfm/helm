@@ -7,6 +7,7 @@ from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.tokenization_request import (
     WindowServiceInfo,
     TokenizationRequest,
@@ -19,6 +20,7 @@ from helm.common.hierarchical_logger import hlog
 from helm.proxy.accounts import Accounts, Account
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
+from helm.proxy.clients.nudity_check_client import NudityCheckClient
 from helm.proxy.example_queries import example_queries
 from helm.proxy.models import (
     ALL_MODELS,
@@ -68,6 +70,7 @@ class ServerService(Service):
 
         # Lazily instantiated by get_toxicity_scores()
         self.perspective_api_client: Optional[PerspectiveAPIClient] = None
+        self.nudity_check_client: Optional[NudityCheckClient] = None
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(
@@ -136,6 +139,14 @@ class ServerService(Service):
         """Decodes to text."""
         self.accounts.authenticate(auth)
         return self.client.decode(request)
+
+    def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
+        """Check for nudity."""
+        self.accounts.authenticate(auth)
+
+        if not self.nudity_check_client:
+            self.nudity_check_client = self.client.get_nudity_check_client()
+        return self.nudity_check_client.check_nudity(request)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request
