@@ -203,7 +203,8 @@ class Runner:
         write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
 
         # Write scenario state
-        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
+        with open(os.path.join(run_path, "scenario_state.json"), "w", encoding="utf8") as f:
+            json.dump(asdict_without_nones(scenario_state), f, indent=2, ensure_ascii=False)
 
         write(
             os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
