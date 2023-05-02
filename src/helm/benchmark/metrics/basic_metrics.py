@@ -674,6 +674,7 @@ class BasicMetric(Metric):
         # Some more details about AI21 tokenizer: If the input prompt begins with a space, then
         # the tokenizer inserts an empty token to the beginning.
         # e.g. " burying him" -> ["▁"(0,0), "▁burying"(0,8), "▁him"(8,12)].
+        # TODO(#1522): Update this comment once solved.
         # Since this empty token is introduced by our chunking approach, we need to remove it.
         tokens: List[Token]
         if request_state.num_conditioning_tokens > 0 and sequence.tokens[0].text == "":

@@ -11,7 +11,7 @@ from .test_utils import TEST_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 
-
+# TODO(#1522): Remove "▁" from the tokens.
 TEST_TOKEN_REPRESENTATIONS: List[TokenizationToken] = [
     TokenizationToken(value="▁The▁Center▁for", text_range=TextRange(start=0, end=14)),
     TokenizationToken(value="▁Research▁on", text_range=TextRange(start=14, end=26)),

@@ -44,9 +44,6 @@ class AnthropicClient(Client):
     remove the excess tokens at the end of the completion.
     TODO(#1512): Once we have a good way to post-process the completion, move this logic to the
     post-processing.
-    - The tokenizer returns stange characters like "Ġ". See TEST_TOKENS in test_anthropic_with_service.py.
-    It shows the actual tokens that are returned by the tokenizer.
-    TODO(#1516): Will be ffixed after we merge #1519. Then, fix tests.
     - The API sometimes returns "Prompt must contain anthropic.AI_PROMPT". This is a bug related to the
     window_service that does not properly truncate some prompts.  It is caused by the suffix being truncated.
     - The API sometimes return Prompt length + max_tokens exceeds max (9192). This is something we do not

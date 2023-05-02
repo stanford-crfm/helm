@@ -32,6 +32,7 @@ available implementations on Together."""
 
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
+    # TODO(#1522): check if with #1519 this is still needed. This is similar to #1516.
     x = x.replace("▁", " ")
     return x
 

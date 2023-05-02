@@ -32,6 +32,13 @@ class ICETokenizerClient(Client):
         try:
 
             def do_it():
+                # TODO: check if tokenize can be replaced with something similar to what we do
+                #  in yalm_tokenizer_client.py:
+                # token_ids = tokenizer.encode(request.text)
+                # tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.convert_ids_to_tokens(token_ids)]
+                # if request.encode:
+                #     tokens = token_ids
+                # This way we could address #1516 and remove the ▁ in the tests.
                 tokens = tokenizer.encode(request.text) if request.encode else tokenizer.tokenize(request.text)
                 if request.truncation:
                     tokens = tokens[: request.max_length]

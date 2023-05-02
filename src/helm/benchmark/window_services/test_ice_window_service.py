@@ -80,6 +80,7 @@ class TestICEWindowService:
         assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == TEST_PROMPT
 
     def test_tokenize(self):
+        # TODO(#1522): Remove "▁" from the tokens.
         assert self.window_service.tokenize(TEST_PROMPT) == [
             "▁The",
             "▁Center",
