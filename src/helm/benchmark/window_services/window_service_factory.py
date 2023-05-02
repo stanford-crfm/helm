@@ -38,6 +38,7 @@ from .dalle2_window_service import DALLE2WindowService
 from .lexica_search_window_service import LexicaSearchWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
+from helm.proxy.clients.adobe_vision_client import AdobeVisionClient
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.remote_model_registry import get_remote_model
 
@@ -76,7 +77,9 @@ class WindowServiceFactory:
                 window_service = LuminousSupremeWindowService(service)
             elif engine == "luminous-world":
                 window_service = LuminousWorldWindowService(service)
-            elif engine == "m-vader":
+            elif engine == "m-vader" or engine in AdobeVisionClient.SUPPORTED_MODELS:
+                # Window services are not super critical for text-to-image models.
+                # For the Adobe models, just use the CLIP window service for now.
                 window_service = CLIPWindowService(service)
             else:
                 raise ValueError(f"Unhandled Aleph Alpha model: {engine}")
