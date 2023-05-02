@@ -1662,8 +1662,8 @@ run_groups:
       - toxicity_detection
       - miscellaneous_text_classification
       - vhelm_image_quality
-      - vhelm_fractal_dimension
-      - vhelm_detection
+      - vhelm_fractal_dimension_group
+      - vhelm_detection_group
       - vhelm_originality
       - vhelm_reasoning
       - vhelm_knowledge
@@ -1847,7 +1847,7 @@ run_groups:
       - draw_bench_image_quality
       - parti_prompts_image_quality
 
-  - name: vhelm_fractal_dimension
+  - name: vhelm_fractal_dimension_group
     display_name: VHELM fractal dimension
     description: TODO
     category: Core scenarios
@@ -1857,7 +1857,7 @@ run_groups:
       - draw_bench_image_quality
       - parti_prompts_image_quality
 
-  - name: vhelm_detection
+  - name: vhelm_detection_group
     display_name: VHELM detection
     description: TODO
     category: Core scenarios
