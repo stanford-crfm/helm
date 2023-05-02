@@ -736,7 +736,24 @@ ALL_MODELS = [
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
-        group="dall_e",
+        group="giga_gan",
+        creator_organization="Adobe",
+        name="adobe/giga-gan",
+        display_name="GigaGAN (1B)",
+        description="GigaGAN (1B parameters)",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="firefly",
+        creator_organization="Adobe",
+        name="adobe/firefly",
+        display_name="Firefly",
+        description="Adobe Firefly was trained on the Adobe Stock dataset, along with openly licensed work and "
+        "public domain content where copyright has expired.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="dall_e2",
         creator_organization="OpenAI",
         name="openai/dalle-2",
         display_name="DALL-E 2 (3.5B)",
@@ -745,7 +762,7 @@ ALL_MODELS = [
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
-        group="dall_e",
+        group="mindall-e",
         creator_organization="kakaobrain",
         name="kakaobrain/mindall-e",
         display_name="minDALL-E (1.3B)",
