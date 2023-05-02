@@ -2230,17 +2230,26 @@ def get_mental_disorders_spec() -> RunSpec:
     )
 
 
-def get_mscoco_spec() -> RunSpec:
+def get_mscoco_spec(for_efficiency: bool = True) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+
+    metric_specs: List[MetricSpec]
+    group: str
+    if for_efficiency:
+        metric_specs = [MetricSpec(class_name="helm.benchmark.denoised_runtime_metric.DenoisedRuntimeMetric", args={})]
+        group = "mscoco_efficiency"
+    else:
+        metric_specs = get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs()
+        group = "mscoco"
 
     return RunSpec(
         name="mscoco",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs(),
-        groups=["mscoco"],
+        metric_specs=metric_specs,
+        groups=[group],
     )
 
 

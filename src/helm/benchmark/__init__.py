@@ -97,6 +97,7 @@ from .metrics import summarization_critique_metrics  # noqa
 # VHELM
 from .metrics.images import aesthetics_metrics  # noqa
 from .metrics.images import clip_score_metrics  # noqa
+from .metrics.images import denoised_runtime_metric  # noqa
 from .metrics.images import detection_metrics  # noqa
 from .metrics.images import efficiency_metrics  # noqa
 from .metrics.images import fid_metric  # noqa

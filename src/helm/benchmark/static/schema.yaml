@@ -1241,6 +1241,11 @@ metrics:
     lower_is_better: true
 
   # Efficiency for image generation
+  - name: denoised_runtime
+    display_name: Denoised runtime (in seconds)
+    short_display_name: Denoised runtime (s)
+    description: TODO
+    lower_is_better: true
   - name: prompt_length
     display_name: Prompt length (number of characters)
     short_display_name: Prompt length (characters)
@@ -1640,7 +1645,7 @@ metric_groups:
     metrics:
 #      - name: prompt_length
 #        split: ${main_split}
-      - name: inference_runtime
+      - name: denoised_runtime
         split: ${main_split}
 #      - name: num_generated_images
 #        split: ${main_split}
@@ -1664,6 +1669,7 @@ run_groups:
       - vhelm_image_quality
       - vhelm_fractal_dimension_group
       - vhelm_detection_group
+      - vhelm_efficiency_group
       - vhelm_originality
       - vhelm_reasoning
       - vhelm_knowledge
@@ -1863,6 +1869,13 @@ run_groups:
     category: Core scenarios
     subgroups:
       - detection
+
+  - name: vhelm_efficiency_group
+    display_name: VHELM efficiency
+    description: TODO
+    category: Core scenarios
+    subgroups:
+      - mscoco_efficiency
 
   - name: vhelm_originality
     display_name: VHELM originality
