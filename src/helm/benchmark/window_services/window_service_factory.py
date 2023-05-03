@@ -135,6 +135,8 @@ class WindowServiceFactory:
             window_service = UL2WindowService(service)
         elif model_name == "together/yalm":
             window_service = YaLMWindowService(service)
+        elif model_name == "megatron/gpt2":
+            window_service = GPT2WindowService(service)
         elif organization == "cohere":
             if "command" in engine:
                 window_service = CohereCommandWindowService(service)

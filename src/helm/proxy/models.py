@@ -866,6 +866,15 @@ ALL_MODELS = [
         "([paper](https://arxiv.org/pdf/2204.02311.pdf)).",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    # Nvidia
+    Model(
+        group="megatron",
+        creator_organization="Nvidia",
+        name="megatron/gpt2",
+        display_name="GPT-2",
+        description="GPT-2",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     # For debugging
     Model(
         group="simple",
