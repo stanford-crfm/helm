@@ -2230,7 +2230,7 @@ run_groups:
       - vhelm_efficiency
       - general_information
     environment:
-      main_split: valid
+      main_split: test
     taxonomy:
       task: Reasoning
   - name: winoground
