@@ -6,7 +6,12 @@ const ChatBox = {
 		var questions =
 			[	
 				{
-					tag: "test-combo-all",
+                                        tag: "workerID",
+                                        text: "Please enter your Mechanical Turk WorkerID for payment processing",
+                                        type: "freeForm",
+                                },
+				{
+					tag: "initiative-1",
 					type: "combo",
 					text: "",
 					likert: {	
@@ -21,38 +26,111 @@ const ChatBox = {
 					}
 				},
 				{
-					tag: "test-combo-turn",
+					tag: "initiative-2",
 					type: "combo",
 					text: "",
 					likert: {	
-						text: "How much do agree with the following statement: 'The chatbot let me talk about what I wanted'",
+						text: "How much do agree with the following statement: 'I had enough opportunities to drive the conversation/choose topics'",
 						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
 					},
-					turn: true
+					turn: true,
+					why: {
+						options: ["the bot asked enough questions about topics I chose", "the bot let me choose topics",
+							 "the bot did not ask enough questions about topics I chose", "the bot chose too many topics",
+						         "the bot let me drive the conversation enough", "the bot did not let me drive the conversation enough"]
+					}
 				},
 				{
-					tag: "test-combo-why",
+					tag: "interested",
 					type: "combo",
 					text: "",
 					likert: {	
 						text: "Did the chatbot seem interested in you?",
 						options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
 					},
+					turn: true,
 					why: {
-						options: ["the bot asked personal questions", "the bot listened to me", "the bot gave specific responses",
-						"the bot did not ask enough personal questions", "the bot did not listen to me", "the bot gave generic responses"]
+						options: ["the bot asked questions about me or my interests", "I felt like the bot was listening to me", "the bot followed through on the topics I raised",
+						"the bot did not ask enough questions about me or my interests", "I did not feel like the bot was listening to me", "the bot gave generic responses to what I said"]
 					}
 				},
 				{
-					tag: "test-combo-likert",
+					tag: "sharing",
 					type: "combo",
 
 					text: "",
 					likert: {	
 						text: "Did the chatbot share about itself?",
 						options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
+					},
+					turn: true,
+					why: {
+						options: ["the bot shared about itself", "the bot was genuine", "the bot did not share about itself", "the bot was inappropriate"]
 					}
-				}
+				},
+				{
+					tag: "fun",
+					type: "combo",
+					text: "",
+					likert: {
+						text: "How much do you agree with the following statement: 'Talking to the chatbot was fun.'",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"],
+					},
+					turn: true,
+					why: {
+						options: ["the bot was fun", "the bot had a good sense of humor", "I was interested in what the bot was saying", "the bot was boring/bland", "the bot was not engaging", "I got tired of talking to the bot"]
+					}
+				},
+				{
+					tag: "emotional-connection",
+					type: "combo",
+					text: "",
+					likert: {
+						text: "How much do you agree with the following statement: “I felt an emotional connection to the chatbot.”  For example, the chatbot understood how you were feeling, or made you feel less lonely.",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+					why: {
+						options: ["I felt like I was talking to a friend", "the bot seemed human", "the bot made me feel less lonely",
+                                                        "the bot understood my feelings", "the bot did not like me", "the bot made me feel uncomfortable", "I did not like the bot"]
+					}
+				},
+				{
+					tag: "communication-skills",
+					type: "combo",
+					text: "",
+					likert: {
+						text: "How much do you agree with the following statement: “The chatbot displayed good communication skills” For example, the bot was coherent, did not repeat itself, understood what I was saying, and was logically correct.",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+					why: {
+						options: ["I understood everything the bot was talking about", "what the bot said was always consistent with the scenario", "I could not understand the bot's language", "the bot repeated itself", "the bot said things that were inconsistent with the scenario", "the bot contradicted itself", "I understood what the bot was saying, but it was absurd/ridiculous", "there were times when the bot did not make sense"]
+					}
+				},
+				{
+					tag: "social-skills",
+					type: "combo",
+					text: "",
+					likert: {
+						text: "How much do you agree with the following statement: “The chatbot responded in a way that was socially appropriate” For example, the bot was polite or the bot understood social situations.",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+					why: {
+						options: ["the bot was polite", "the bot understood social situations", "the bot was rude", "the bot was inappropriate", "the bot was argumentative", "the bot was uncooperative", "the bot was too agreeable"]
+					}
+				},
+				{
+                                        tag: "feedback-bot",
+                                        text: "Is there anything else you would like to say about the bot?",
+                                        type: "freeForm",
+                                },
+				{
+                                        tag: "feedback-survey",
+                                        text: "Is there anything else you would like to say about the survey?",
+                                        type: "freeForm",
+                                }
 				/*
 				{
 					tag: "email",
@@ -173,12 +251,14 @@ const ChatBox = {
 				question.turnAnnotations = [];
 				/* TO DO: Add initialization for new type of question */
 			} else if (question.type === "combo") {
+				question.rating = "";
 				if (question.turn !== null && typeof(question.turn) !== 'undefined') {
 					question.selectedUtterances = [];
 					question.notaUtterance = false;
 				}
 				if (question.why !== null && typeof(question.why) !== 'undefined') {
 					question.selectedReasons = [];
+					question.somethingElseValue = "";
 				}
 			}
 
@@ -341,9 +421,13 @@ const ChatBox = {
 					question.turn !== null && typeof(question.turn) !== 'undefined')) {
 					question.selectedUtterances = [];
 					question.notaUtterance = false;
-				} else if (question.type === "combo" && question.why !== null
-						   && typeof(question.why) !== 'undefined') {
-					question.selectedReasons = [];
+				} else if (question.type === "combo") {
+					question.rating = "";
+					consolte.log("initialized rating");
+					if (question.why !== null && typeof(question.why) !== 'undefined') {
+						question.selectedReasons = [];
+						question.somethingElseValue = "";
+					}
 				}
 				else if (question.type === "turn-ternary"){
 					question.notaUtterance = false;
@@ -426,6 +510,10 @@ const ChatBox = {
 				return true;
 			}
 			else if (this.currentQuestion.type === "combo") {
+				if (!(this.currentQuestion.likert.options.includes(this.currentQuestion.rating))) {
+                                        this.error = "Select one out of the given options";
+                                        return false;
+                                }
 				if (this.currentQuestion.turn !== null && typeof(this.currentQuestion.turn) !== 'undefined') {
 					if (this.currentQuestion.selectedUtterances.length === 0 && !this.currentQuestion.notaUtterance) {
 						this.error = "Either select one or more utterances or check 'None of the utterances'";
