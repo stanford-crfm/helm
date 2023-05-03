@@ -4,19 +4,13 @@ from typing import Any, Dict, List
 import traceback
 
 from helm.common.cache import CacheConfig
-from helm.common.request import (
-    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
-    Request,
-    RequestResult,
-    Sequence,
-    Token)
+from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import TokenizationRequest
 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 from helm.proxy.clients.client import Client, wrap_request_time, truncate_sequence
 
 
 class MegatronClient(HuggingFaceClient):
-
     def __init__(self, cache_config: CacheConfig):
         super().__init__(cache_config)
 
@@ -38,14 +32,10 @@ class MegatronClient(HuggingFaceClient):
         return out
 
     def _tokenize_response(self, text: str) -> List[Token]:
-        tokenized_text = self.tokenize(
-            TokenizationRequest(text, tokenizer="huggingface/gpt2"))
+        tokenized_text = self.tokenize(TokenizationRequest(text, tokenizer="huggingface/gpt2"))
 
         # TODO(tgale): Support logprobs.
-        tokens = [
-            Token(text=str(token), logprob=0, top_logprobs={})
-            for token in tokenized_text.raw_tokens
-        ]
+        tokens = [Token(text=str(token), logprob=0, top_logprobs={}) for token in tokenized_text.raw_tokens]
         return tokens
 
     def _make_request(self, request: Request) -> RequestResult:
@@ -68,8 +58,7 @@ class MegatronClient(HuggingFaceClient):
         }
 
         cache_key = Client.make_cache_key(raw_request, request)
-        response, cached = self.cache.get(cache_key, wrap_request_time(
-            lambda: self._send_request(raw_request)))
+        response, cached = self.cache.get(cache_key, wrap_request_time(lambda: self._send_request(raw_request)))
 
         # Verify we got a single response for the prompt.
         assert len(response["text"]) == 1
@@ -77,7 +66,7 @@ class MegatronClient(HuggingFaceClient):
         # NOTE: Megatron returns the response with the prompt included.
         generated_text = response["text"][0]
         if not request.echo_prompt:
-            generated_text = generated_text[len(request.prompt):]
+            generated_text = generated_text[len(request.prompt) :]
 
         # NOTE: Megatron returns the de-tokenized response. Re-tokenize.
         tokens = self._tokenize_response(generated_text)
@@ -90,7 +79,8 @@ class MegatronClient(HuggingFaceClient):
             request_time=response["request_time"],
             request_datetime=response.get("request_datetime"),
             completions=[completion],
-            embedding=[])
+            embedding=[],
+        )
 
     def make_request(self, request: Request) -> RequestResult:
         try:
@@ -101,4 +91,5 @@ class MegatronClient(HuggingFaceClient):
                 cached=False,
                 error=f"MegatronClient Error: {e}\n\n{traceback.format_exc()}",
                 completions=[],
-                embedding=[])
+                embedding=[],
+            )
