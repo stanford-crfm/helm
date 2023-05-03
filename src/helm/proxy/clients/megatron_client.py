@@ -96,11 +96,9 @@ class MegatronClient(HuggingFaceClient):
         try:
             return self._make_request(request)
         except Exception as e:
-            print(f"EXCEPTION = {e}")
-            print(traceback.format_exc())
             return RequestResult(
                 success=False,
                 cached=False,
-                error=f"MegatronClient Error: {e}",
+                error=f"MegatronClient Error: {e}\n\n{traceback.format_exc()}",
                 completions=[],
                 embedding=[])
