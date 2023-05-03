@@ -35,6 +35,7 @@ from .bigcode_large_model_window_service import BigCodeLargeModelWindowService
 from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
+from .megatron_window_service import MegatronWindowService
 from .opt_window_service import OPTWindowService
 from .palmyra_window_service import PalmyraWindowService, SilkRoadWindowService
 from .remote_window_service import get_remote_window_service
@@ -136,7 +137,7 @@ class WindowServiceFactory:
         elif model_name == "together/yalm":
             window_service = YaLMWindowService(service)
         elif model_name == "megatron/gpt2":
-            window_service = GPT2WindowService(service)
+            window_service = MegatronWindowService(service)
         elif organization == "cohere":
             if "command" in engine:
                 window_service = CohereCommandWindowService(service)
