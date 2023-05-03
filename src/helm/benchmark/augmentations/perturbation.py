@@ -46,7 +46,7 @@ class Perturbation(ABC):
         # All the perturbed Instances generated from a single Instance should have the same ID.
         return replace(
             instance,
-            input=Input(text=self.perturb(instance.input.text, rng)),
+            input=Input(text=self.perturb(instance.input.text, rng), original_text=instance.input.text),
             references=references,
             perturbation=description,
         )

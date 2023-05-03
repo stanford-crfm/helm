@@ -61,6 +61,9 @@ class Input:
     file_path: Optional[str] = None
     """Optional input file path (e.g., path to an image for visual QA, path to an audio file, etc.)"""
 
+    original_text: Optional[str] = None
+    """Unperturbed text before any perturbations are applied."""
+
 
 @dataclass(frozen=True)
 class PassageQuestionInput(Input):

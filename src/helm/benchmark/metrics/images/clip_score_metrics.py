@@ -47,9 +47,18 @@ class CLIPScoreMetric(Metric):
         if self._clip_scorer is None:
             self._clip_scorer = CLIPScorer() if not self._multilingual else MultilingualCLIPScorer()
 
+        prompt: str = request_state.request.prompt
+        perturbation_name: str = request_state.instance.perturbation.name if request_state.instance.perturbation else ""
+        if request_state.instance.input.original_text is not None and perturbation_name in [
+            "translate",
+            "dialect",
+            "mild_mix",
+        ]:
+            prompt = request_state.instance.input.original_text
+
         # Truncate the prompt using the CLIP tokenizer before feeding into the CLIP model.
         # Otherwise, the library will throw an error.
-        prompt: str = CLIPWindowService(metric_service).truncate_from_right(request_state.request.prompt)
+        prompt = CLIPWindowService(metric_service).truncate_from_right(prompt)
 
         scores: List[float] = []
         for image in request_result.completions:
