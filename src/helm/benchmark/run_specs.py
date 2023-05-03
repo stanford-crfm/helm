@@ -2230,7 +2230,7 @@ def get_mental_disorders_spec() -> RunSpec:
     )
 
 
-def get_mscoco_spec(for_efficiency: bool = True) -> RunSpec:
+def get_mscoco_spec(for_efficiency: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
