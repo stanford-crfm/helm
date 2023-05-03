@@ -2016,6 +2016,15 @@ run_groups:
       main_split: valid
     taxonomy:
       task: Image quality
+  - name: mscoco
+    display_name: MS COCO
+    description: Efficiency for MSCOCO
+    metric_groups:
+      - vhelm_efficiency
+    environment:
+      main_split: valid
+    taxonomy:
+      task: Efficiency
   - name: cub200
     display_name: Caltech-UCSD Birds-200-2011
     description: Caltech-UCSD Birds-200-2011 is a challenging dataset of 200 bird species with 10 captions for each bird ([paper](https://authors.library.caltech.edu/27452/1/CUB_200_2011.pdf), [paper](https://arxiv.org/abs/1711.10485)).
