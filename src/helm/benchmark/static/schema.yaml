@@ -2016,7 +2016,7 @@ run_groups:
       main_split: valid
     taxonomy:
       task: Image quality
-  - name: mscoco
+  - name: mscoco_efficiency
     display_name: MS COCO
     description: Efficiency for MSCOCO
     metric_groups:
