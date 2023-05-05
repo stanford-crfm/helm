@@ -2309,7 +2309,7 @@ def get_mscoco_spec(for_efficiency: bool = False) -> RunSpec:
         metric_specs = (
             get_vhelm_reference_required_metric_specs(include_fidelity=True)
             + get_core_vhelm_metric_specs()
-            + get_vhelm_photorealism_critique_metric_specs()
+            + get_vhelm_photorealism_critique_metric_specs(num_examples=100)
         )
         group = "mscoco"
 
