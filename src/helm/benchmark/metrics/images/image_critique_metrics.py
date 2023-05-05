@@ -11,6 +11,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.common.critique_request import CritiqueTaskTemplate, CritiqueQuestionTemplate, CritiqueRequest
 from helm.common.images_utils import encode_base64, filter_blacked_out_images
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
 from .image_metrics_utils import gather_generated_image_locations
 
@@ -106,6 +107,7 @@ class ImageCritiqueMetric(Metric):
 
         # Skip computing metrics if there are not enough responses.
         if len(result.responses) < request.template.num_respondents:
+            hlog("Waiting for all responses to be collected.")
             return []
 
         stats: Dict[str, Stat] = {}

@@ -8,6 +8,7 @@ from helm.benchmark.metrics.metric import Metric, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.scenarios.scenario import Reference
 from helm.common.critique_request import (
     CritiqueTaskTemplate,
     CritiqueQuestionTemplate,
@@ -17,7 +18,6 @@ from helm.common.critique_request import (
 from helm.common.images_utils import encode_base64, filter_blacked_out_images
 from helm.common.request import RequestResult
 from .image_metrics_utils import gather_generated_image_locations
-from ...scenarios.scenario import Reference
 
 
 class PhotorealismCritiqueMetric(Metric):
