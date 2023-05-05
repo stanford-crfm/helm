@@ -868,12 +868,12 @@ ALL_MODELS = [
     ),
     # Nvidia
     Model(
-        group="megatron",
+        group="nvidia",
         creator_organization="Nvidia",
-        name="megatron/gpt2",
-        display_name="GPT-2",
-        description="GPT-2",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        name="nvidia/megatron-gpt2",
+        display_name="Megatron GPT-2",
+        description="GPT-2 implemented in Megatron-LM ([paper](https://arxiv.org/abs/1909.08053)).",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, BUGGY_TEMP_0_TAG],
     ),
     # For debugging
     Model(

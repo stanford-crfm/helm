@@ -11,8 +11,13 @@ from helm.proxy.clients.client import Client, wrap_request_time, truncate_sequen
 
 
 class MegatronClient(HuggingFaceClient):
-    def __init__(self, cache_config: CacheConfig):
-        super().__init__(cache_config)
+    """Client for remote Megatron-LM server.
+
+    This client expects an external Megatron-LM server to be run on localhost:5000. See the
+    Megatron-LM respository for documentation on starting a Megatron text generation server:
+
+    https://github.com/NVIDIA/Megatron-LM#gpt-text-generation
+    """
 
     def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -53,7 +58,7 @@ class MegatronClient(HuggingFaceClient):
         raw_request = {
             "prompts": [request.prompt],
             "tokens_to_generate": request.max_tokens,
-            "temperature": 1e-7 if request.temperature == 0 else request.temperature,
+            "temperature": request.temperature,
             "top_k": request.top_k_per_token,
         }
 

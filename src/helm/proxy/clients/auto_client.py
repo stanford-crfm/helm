@@ -130,7 +130,7 @@ class AutoClient(Client):
                     cache_config=cache_config,
                     tokenizer_client=self._get_tokenizer_client("huggingface"),
                 )
-            elif organization == "megatron":
+            elif organization == "nvidia":
                 client = MegatronClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find client for model: {model}")
@@ -203,7 +203,7 @@ class AutoClient(Client):
                 client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
-            elif organization == "megatron":
+            elif organization == "nvidia":
                 client = MegatronClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
