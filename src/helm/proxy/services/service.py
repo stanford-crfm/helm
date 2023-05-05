@@ -5,9 +5,11 @@ from typing import Dict, List, Tuple, Any
 
 from helm.common.general import parse_hocon
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
+from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.tokenization_request import (
+    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -86,6 +88,11 @@ class Service(ABC):
         pass
 
     @abstractmethod
+    def get_window_service_info(self, model_name: str) -> WindowServiceInfo:
+        """Get window service info."""
+        pass
+
+    @abstractmethod
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
         pass
@@ -103,6 +110,11 @@ class Service(ABC):
     @abstractmethod
     def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes to text."""
+        pass
+
+    @abstractmethod
+    def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
+        """Check for nudity for a batch of images."""
         pass
 
     @abstractmethod

@@ -8,8 +8,10 @@ from typing import Any, List, Optional
 from helm.common.authentication import Authentication
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
+from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
+    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequestResult,
@@ -42,6 +44,11 @@ class RemoteService(Service):
     def get_general_info(self) -> GeneralInfo:
         response = requests.get(f"{self.base_url}/api/general_info").json()
         return from_dict(GeneralInfo, response)
+
+    def get_window_service_info(self, model_name) -> WindowServiceInfo:
+        params = {"model_name": model_name}
+        response = requests.get(f"{self.base_url}/api/window_service_info?{urllib.parse.urlencode(params)}").json()
+        return from_dict(WindowServiceInfo, response)
 
     def expand_query(self, query: Query) -> QueryResult:
         params = asdict(query)
@@ -78,6 +85,9 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/decode?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response, request_json)
         return from_dict(DecodeRequestResult, response)
+
+    def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
+        raise NotImplementedError("Not supported through RemoteService")
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         request_json: str = json.dumps(asdict(request))

@@ -337,6 +337,19 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     }
 
 
+class NumRandomTrialRunExpander(ReplaceValueRunExpander):
+    """For getting different generations for the same requests."""
+
+    name = "num_random_trials"
+    values_dict = {
+        "1": [1],
+        "2": [2],
+        "3": [3],
+        "4": [4],
+        "5": [5],
+    }
+
+
 class ModelRunExpander(ReplaceValueRunExpander):
     """
     For specifying different models.
@@ -564,17 +577,6 @@ FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
     ),
 ]
 
-VHELM_FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
-    dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
-    gender(mode="terms", prob=1.0, source_class="male", target_class="female"),
-]
-
-TRANSLATE_PERTURBATION_SPECS: List[PerturbationSpec] = [
-    translate(language_code="zh-CN"),
-    translate(language_code="hi"),
-    translate(language_code="es"),
-]
-
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     # Robustness
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
@@ -702,9 +704,6 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "robustness": {"robustness": ROBUSTNESS_PERTURBATION_SPECS},
     "fairness": {"fairness": FAIRNESS_PERTURBATION_SPECS},
     "canonical": {"canonical": ROBUSTNESS_PERTURBATION_SPECS + FAIRNESS_PERTURBATION_SPECS},
-    "vhelm": {
-        "canonical": ROBUSTNESS_PERTURBATION_SPECS + VHELM_FAIRNESS_PERTURBATION_SPECS + TRANSLATE_PERTURBATION_SPECS
-    },
     "robustness_all": {
         "robustness_all": [
             *contract_and_expand(),
@@ -716,6 +715,10 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             typo(prob=0.01),
         ]
     },
+    # Multilinguality
+    "chinese": {"chinese": [translate(language_code="zh-CN")]},
+    "hindi": {"hindi": [translate(language_code="hi")]},
+    "spanish": {"spanish": [translate(language_code="es")]},
 }
 
 
@@ -932,6 +935,31 @@ class IncreaseMaxTokensRunExpander(RunExpander):
         ]
 
 
+class IncreaseTemperatureRunExpander(RunExpander):
+    """
+    Run expander for increasing the temperature.
+    """
+
+    name = "increase_temperature"
+
+    def __init__(self, value: float):
+        """
+        Args:
+            value (float): The amount to increase temperature by
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec: AdapterSpec = run_spec.adapter_spec
+        adapter_spec = replace(adapter_spec, temperature=adapter_spec.temperature + self.value)
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
 class ChatMLRunExpander(RunExpander):
     """
     Adapt to ChatML: https://github.com/openai/openai-python/blob/main/chatml.md
@@ -1033,6 +1061,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     MaxEvalInstancesRunExpander,
     MaxTrainInstancesRunExpander,
     NumOutputsRunExpander,
+    NumRandomTrialRunExpander,
     ModelRunExpander,
     DataAugmentationRunExpander,
     TokenizerRunExpander,

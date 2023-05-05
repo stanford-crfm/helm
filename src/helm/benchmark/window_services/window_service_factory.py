@@ -27,6 +27,7 @@ from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
 from .opt_window_service import OPTWindowService
+from .remote_window_service import get_remote_window_service
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
 from .flan_t5_window_service import FlanT5WindowService
@@ -37,7 +38,9 @@ from .dalle2_window_service import DALLE2WindowService
 from .lexica_search_window_service import LexicaSearchWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
+from helm.proxy.clients.adobe_vision_client import AdobeVisionClient
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
+from helm.proxy.clients.remote_model_registry import get_remote_model
 
 
 class WindowServiceFactory:
@@ -53,7 +56,9 @@ class WindowServiceFactory:
 
         window_service: WindowService
         huggingface_model_config = get_huggingface_model_config(model_name)
-        if huggingface_model_config:
+        if get_remote_model(model_name):
+            window_service = get_remote_window_service(service, model_name)
+        elif huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
         elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)
@@ -72,7 +77,9 @@ class WindowServiceFactory:
                 window_service = LuminousSupremeWindowService(service)
             elif engine == "luminous-world":
                 window_service = LuminousWorldWindowService(service)
-            elif engine == "m-vader":
+            elif engine == "m-vader" or engine in AdobeVisionClient.SUPPORTED_MODELS:
+                # Window services are not super critical for text-to-image models.
+                # For the Adobe models, just use the CLIP window service for now.
                 window_service = CLIPWindowService(service)
             else:
                 raise ValueError(f"Unhandled Aleph Alpha model: {engine}")
@@ -96,7 +103,7 @@ class WindowServiceFactory:
             window_service = GPTNeoXWindowService(service)
         elif model_name == "together/h3-2.7b":
             window_service = GPT2WindowService(service)
-        elif model_name in ["together/opt-66b", "together/opt-175b"]:
+        elif model_name in ["together/opt-1.3b", "together/opt-6.7b", "together/opt-66b", "together/opt-175b"]:
             window_service = OPTWindowService(service)
         elif model_name == "together/t0pp":
             window_service = T0ppWindowService(service)

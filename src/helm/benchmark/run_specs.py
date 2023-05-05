@@ -20,6 +20,7 @@ from .run_expander import (
     StopRunExpander,
     ChatMLRunExpander,
     IncreaseMaxTokensRunExpander,
+    IncreaseTemperatureRunExpander,
 )
 from .runner import RunSpec
 from .scenarios.lex_glue_scenario import (
@@ -41,7 +42,14 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
-from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG, CHATML_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG
+from helm.proxy.models import (
+    get_model,
+    NO_NEWLINES_TAG,
+    NLG_PREFIX_TAG,
+    CHATML_MODEL_TAG,
+    OPENAI_CHATGPT_MODEL_TAG,
+    BUGGY_TEMP_0_TAG,
+)
 from helm.common.general import singleton
 
 
@@ -133,7 +141,6 @@ def get_multiple_choice_adapter_spec(
     sample_train: bool = True,
     **kwargs,
 ):
-
     """
     Toggle between joint and separate adapters.
     """
@@ -352,6 +359,7 @@ def get_image_generation_adapter_spec(
     image_height: Optional[int] = None,
     guidance_scale: Optional[float] = None,
     steps: Optional[int] = None,
+    random: Optional[str] = None,
 ) -> AdapterSpec:
     return TextToImageAdapterSpec(
         method=ADAPT_GENERATION,
@@ -367,6 +375,7 @@ def get_image_generation_adapter_spec(
         height=image_height,
         guidance_scale=guidance_scale,
         steps=steps,
+        random=random,
     )
 
 
@@ -592,12 +601,11 @@ def get_core_vhelm_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="helm.benchmark.aesthetics_metrics.AestheticsMetric", args={}),
         MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={"multilingual": True}),
+        # MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={"multilingual": True}),
         MetricSpec(class_name="helm.benchmark.efficiency_metrics.EfficiencyMetric", args={}),
         MetricSpec(class_name="helm.benchmark.fractal_dimension_metric.FractalDimensionMetric", args={}),
         MetricSpec(class_name="helm.benchmark.nsfw_metrics.NSFWMetric", args={}),
         MetricSpec(class_name="helm.benchmark.nudity_metrics.NudityMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.q16_toxicity_metrics.Q16ToxicityMetric", args={}),
         MetricSpec(class_name="helm.benchmark.watermark_metrics.WatermarkMetric", args={}),
     ] + get_basic_metric_specs(names=[])
 
@@ -607,6 +615,10 @@ def get_vhelm_bias_metric_specs() -> List[MetricSpec]:
         MetricSpec(class_name="helm.benchmark.gender_metrics.GenderMetric", args={}),
         MetricSpec(class_name="helm.benchmark.skin_tone_metrics.SkinToneMetric", args={}),
     ]
+
+
+def get_vhelm_detection_metric_specs() -> List[MetricSpec]:
+    return [MetricSpec(class_name="helm.benchmark.detection_metrics.DetectionMetric", args={})]
 
 
 def get_fid_metric_specs() -> List[MetricSpec]:
@@ -636,8 +648,8 @@ def get_vhelm_critique_metric_specs(
     include_originality: bool = False,
     include_copyright: bool = False,
     num_examples: int = 10,
-    # TODO: increase num_respondents later -Tony
-    num_respondents: int = 5,
+    # TODO: increase num_respondents later to 5 -Tony
+    num_respondents: int = 3,
 ) -> List[MetricSpec]:
     study_title: str = f"VHELM image evaluation - {run_spec_name}"
     return [
@@ -656,8 +668,8 @@ def get_vhelm_critique_metric_specs(
     ]
 
 
-# TODO: increase num_respondents later -Tony
-def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 5) -> List[MetricSpec]:
+# TODO: increase num_respondents later to 5 -Tony
+def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 3) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.photorealism_critique_metrics.PhotorealismCritiqueMetric",
@@ -2140,6 +2152,22 @@ def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     )
 
 
+def get_detection_spec(skill: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.detection_scenario.DetectionScenario", args={"skill": skill}
+    )
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    return RunSpec(
+        name=f"detection:skill={skill}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_vhelm_detection_metric_specs() + get_core_vhelm_metric_specs(),
+        groups=["detection"],
+    )
+
+
 def get_draw_bench_spec(category: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.draw_bench_scenario.DrawBenchScenario", args={"category": category}
@@ -2214,7 +2242,7 @@ def get_landing_page_spec() -> RunSpec:
 def get_logos_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.logos_scenario.LogosScenario", args={})
 
-    adapter_spec = get_image_generation_adapter_spec(modifications=["simple", "memorable", "timeless"], num_outputs=4)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name="logos",
@@ -2267,22 +2295,30 @@ def get_mental_disorders_spec() -> RunSpec:
     )
 
 
-def get_mscoco_spec() -> RunSpec:
+def get_mscoco_spec(for_efficiency: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+
+    metric_specs: List[MetricSpec]
+    group: str
+    if for_efficiency:
+        metric_specs = [MetricSpec(class_name="helm.benchmark.denoised_runtime_metric.DenoisedRuntimeMetric", args={})]
+        group = "mscoco_efficiency"
+    else:
+        metric_specs = (
+            get_vhelm_reference_required_metric_specs(include_fidelity=True)
+            + get_core_vhelm_metric_specs()
+            + get_vhelm_photorealism_critique_metric_specs()
+        )
+        group = "mscoco"
 
     return RunSpec(
         name="mscoco",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs()
-        # TODO: undo this later -Tony
-        # + get_vhelm_critique_metric_specs("mscoco", include_aesthetics=True, include_copyright=True, num_examples=10)
-        # From https://arxiv.org/abs/2304.01816, among these 200 samples, 100 images are generated
-        # by Stable Diffusion conditioned by the captions, while the other 100 images are real ones.
-        + get_vhelm_photorealism_critique_metric_specs(num_examples=100),
-        groups=["mscoco"],
+        metric_specs=metric_specs,
+        groups=[group],
     )
 
 
@@ -2475,6 +2511,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "cub200": get_cub200_spec,
     "daily_dalle": get_daily_dalle_spec,
     "demographic_stereotypes": get_demographic_stereotypes_spec,
+    "detection": get_detection_spec,
     "draw_bench": get_draw_bench_spec,
     "i2p": get_i2p_spec,
     "landing_page": get_landing_page_spec,
@@ -2539,6 +2576,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
+
+        # For multiple choice
+        if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
+            increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
+            run_spec = singleton(increase_temperature_expander.expand(run_spec))
 
         return run_spec
 

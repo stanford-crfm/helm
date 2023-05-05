@@ -16,6 +16,7 @@ from helm.common.cache import (
     request_to_key,
 )
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.proxy.clients.adobe_vision_client import AdobeVisionClient
 from helm.proxy.clients.aleph_alpha_vision_client import AlephAlphaVisionClient
 from helm.proxy.clients.google_client import GoogleClient
 from helm.proxy.clients.together_client import TogetherClient
@@ -36,7 +37,7 @@ Usage:
 """
 
 # List of organizations currently supported for offline batch evaluation
-SUPPORTED_ORGS: List[str] = ["together", "google", "microsoft", "AlephAlpha"]
+SUPPORTED_ORGS: List[str] = ["together", "google", "microsoft", "AlephAlphaVision", "adobe"]
 
 
 @htrack("Generating jsonl file with list of raw requests")
@@ -51,6 +52,8 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
             return TogetherClient
         elif organization == "google":
             return GoogleClient
+        elif organization == "adobe":
+            return AdobeVisionClient
         elif organization == "AlephAlpha":
             return AlephAlphaVisionClient
         else:
@@ -61,7 +64,9 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
 
         # Only export requests that are not in the cache
         if not store.contains(raw_request):
-            request_json: str = request_to_key({"scenario": scenario_name, "request": raw_request})
+            request_json: str = json.dumps(
+                {"scenario": scenario_name, "request": raw_request}, sort_keys=True, ensure_ascii=False
+            )
             out_file.write(request_json + "\n")
             counts["pending_count"] += 1
         else:

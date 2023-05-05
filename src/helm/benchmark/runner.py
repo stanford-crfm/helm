@@ -19,10 +19,10 @@ from .adaptation.scenario_state import ScenarioState
 from .adaptation.adapter_spec import AdapterSpec
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
+from .metrics.dry_run_metrics import DryRunMetric
 from .metrics.metric_name import MetricName
 from .metrics.metric_service import MetricService
 from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
-from .metrics.tokens_metric import TokensMetric
 from .window_services.tokenizer_service import TokenizerService
 
 
@@ -166,8 +166,8 @@ class Runner:
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
         metrics: List[Metric] = (
-            [] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
-        ) + [TokensMetric()]
+            [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
+        )
         stats: List[Stat] = []
         per_instance_stats: List[PerInstanceStats] = []
         with htrack_block(f"{len(metrics)} metrics"):
@@ -203,7 +203,8 @@ class Runner:
         write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
 
         # Write scenario state
-        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
+        with open(os.path.join(run_path, "scenario_state.json"), "w", encoding="utf8") as f:
+            json.dump(asdict_without_nones(scenario_state), f, indent=2, ensure_ascii=False)
 
         write(
             os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)

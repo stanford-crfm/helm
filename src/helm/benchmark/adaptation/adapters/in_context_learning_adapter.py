@@ -11,6 +11,7 @@ from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, Reference
 from helm.common.general import parallel_map
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.request import Request
 from .adapter import Adapter
 
 
@@ -89,11 +90,22 @@ class InContextLearningAdapter(Adapter, ABC):
                             hlog(line)
 
         # Flatten and return
-        all_request_states: List[RequestState] = []
-        for result_index, result in enumerate(results):
-            all_request_states.extend(result)
+        all_request_states: List[RequestState] = [request_state for result in results for request_state in result]
+        return self._add_random_trials(all_request_states)
 
-        return [request_state for result in results for request_state in result]
+    def _add_random_trials(self, request_states: List[RequestState]) -> List[RequestState]:
+        if self.adapter_spec.num_random_trials <= 1:
+            return request_states
+
+        all_request_states: List[RequestState] = request_states.copy()
+        for i in range(1, self.adapter_spec.num_random_trials):
+            seed: str = str(i)
+            for request_state in request_states:
+                request: Request = replace(request_state.request, random=seed)
+                all_request_states.append(replace(request_state, request=request))
+
+        assert len(all_request_states) == len(request_states) * self.adapter_spec.num_random_trials
+        return all_request_states
 
     def sample_examples(
         self, all_train_instances: List[Instance], seed: int, sample_train: bool = True

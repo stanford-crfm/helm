@@ -63,6 +63,7 @@ from .scenarios import common_syntactic_processes_scenario  # noqa
 from .scenarios import cub200_scenario  # noqa
 from .scenarios import daily_dalle_scenario  # noqa
 from .scenarios import demographic_stereotypes_scenario  # noqa
+from .scenarios import detection_scenario  # noqa
 from .scenarios import draw_bench_scenario  # noqa
 from .scenarios import i2p_scenario  # noqa
 from .scenarios import landing_page_scenario  # noqa
@@ -89,13 +90,15 @@ from .metrics import numeracy_metrics  # noqa
 from .metrics import ranking_metrics  # noqa
 from .metrics import summarization_metrics  # noqa
 from .metrics import toxicity_metrics  # noqa
-from .metrics import tokens_metric  # noqa
+from .metrics import dry_run_metrics  # noqa
 from .metrics import machine_translation_metrics  # noqa
 from .metrics import summarization_critique_metrics  # noqa
 
 # VHELM
 from .metrics.images import aesthetics_metrics  # noqa
 from .metrics.images import clip_score_metrics  # noqa
+from .metrics.images import denoised_runtime_metric  # noqa
+from .metrics.images import detection_metrics  # noqa
 from .metrics.images import efficiency_metrics  # noqa
 from .metrics.images import fid_metric  # noqa
 from .metrics.images import fidelity_metrics  # noqa

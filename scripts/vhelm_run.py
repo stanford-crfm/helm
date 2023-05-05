@@ -12,8 +12,8 @@ from helm.proxy.models import get_model, get_models_with_tag, TEXT_TO_IMAGE_MODE
 NLP_RUN: str = "nlprun"
 DEFAULT_NLP_RUN: str = "-a vhelm -c 4 --memory 64g -w /nlp/scr4/nlp/crfm/benchmarking/benchmarking"
 DEFAULT_NLP_RUN_CPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 0 --exclude john17"
-# jag 27, 29, 34 started the run, but did nothing. Saw CUDA OOM with 28.
-DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-25,27,28,29,34],sphinx3"
+# jag 27, 29 started the run, but did nothing. Saw CUDA OOM with 28.
+DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[10-31],sphinx3"
 MONGODB_MACHINE: str = "john13"
 DEFAULT_HELM_ARGS: str = (
     f"--num-train-trials 1 --local -n 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers"
@@ -66,6 +66,7 @@ def queue_jobs(
     priority: int = 2,
     dry_run: bool = False,
     use_sphinx: bool = False,
+    machine: Optional[str] = None,
 ):
     # Create a run directory at benchmark_output/runs/<suite>
     suite_path: str = os.path.join("benchmark_output", "runs", suite)
@@ -75,7 +76,7 @@ def queue_jobs(
     confs_path: str = os.path.join(suite_path, "confs")
     ensure_directory_exists(confs_path)
 
-    # Read the RunSpecs and split each RunSpec into it's own file
+    # Read the RunSpecs and split each RunSpec into its own file
     confs: List[Tuple[str, str]] = []
     run_entries = read_run_entries([conf_path])
     for entry in run_entries.entries:
@@ -101,8 +102,13 @@ def queue_jobs(
             log_path: str = os.path.join(logs_path, f"{job_name}.log")
 
             nlp_run_gpu_args: str = DEFAULT_NLP_RUN_GPU_ARGS
-            if use_sphinx:
-                nlp_run_gpu_args += " -q sphinx"
+            if machine is not None:
+                nlp_run_gpu_args += f" -m {machine}"
+
+                if "sphinx" in machine:
+                    nlp_run_gpu_args += " -p high "
+            elif use_sphinx:
+                nlp_run_gpu_args += " -q sphinx "
 
             swiss_army_port: str = ""
             if model.name == "thudm/cogview2":
@@ -195,6 +201,12 @@ if __name__ == "__main__":
         default=None,
         help="Checks logs",
     )
+    parser.add_argument(
+        "--machine",
+        type=str,
+        default=None,
+        help="If specified, runs on that specific machine",
+    )
     args = parser.parse_args()
 
     if args.check:
@@ -207,4 +219,5 @@ if __name__ == "__main__":
             priority=args.priority,
             dry_run=args.dry_run,
             use_sphinx=args.use_sphinx,
+            machine=args.machine,
         )

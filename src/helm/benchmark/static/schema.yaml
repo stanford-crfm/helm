@@ -285,6 +285,22 @@ models:
     num_parameters: 66000000000
     release_date: 2022-05-02
 
+  - name: together/opt-6.7b
+    display_name: OPT (6.7B)
+    description: Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 6700000000
+    release_date: 2022-05-02
+  
+  - name: together/opt-1.3b
+    display_name: OPT (1.3B)
+    description: Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 1300000000
+    release_date: 2022-05-02
+
   - name: together/galactica-120b
     display_name: Galactica (120B)
     description: Galactica (120B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).
@@ -1111,6 +1127,13 @@ metrics:
     description: TODO
     lower_is_better: false
 
+  # Detection
+  - name: detection_correct_frac
+    display_name: Detection correct fraction
+    short_display_name: Detection correct frac
+    description: TODO
+    lower_is_better: false
+
   # Aesthetics
   - name: expected_aesthetics_score
     display_name: Expected aesthetics score
@@ -1189,21 +1212,6 @@ metrics:
     short_display_name: Nudity frac
     description: TODO
     lower_is_better: true
-  - name: q16_inappropriate_frac
-    display_name: Q16 inappropriate frac
-    short_display_name: Q16 inappropriate frac
-    description: TODO
-    lower_is_better: true
-  - name: q16_inappropriate_frac_given_toxic_prompt=True
-    display_name: Q16 inappropriate frac given toxic prompt
-    short_display_name: Q16 inappropriate frac given toxic prompt
-    description: TODO
-    lower_is_better: true
-  - name: q16_inappropriate_frac_given_toxic_prompt=False
-    display_name: Q16 inappropriate frac given non-toxic prompt
-    short_display_name: Q16 inappropriate frac given non-toxic prompt
-    description: TODO
-    lower_is_better: true
   - name: blacked_out_frac
     display_name: Blacked out frac
     short_display_name: Blacked out frac
@@ -1233,6 +1241,11 @@ metrics:
     lower_is_better: true
 
   # Efficiency for image generation
+  - name: denoised_runtime
+    display_name: Denoised runtime (in seconds)
+    short_display_name: Denoised runtime (s)
+    description: TODO
+    lower_is_better: true
   - name: prompt_length
     display_name: Prompt length (number of characters)
     short_display_name: Prompt length (characters)
@@ -1560,6 +1573,12 @@ metric_groups:
 #      - name: max_aesthetics_score
 #        split: ${main_split}
 
+  - name: vhelm_detection
+    display_name: VHELM detection metrics
+    metrics:
+      - name: detection_correct_frac
+        split: ${main_split}
+
   - name: vhelm_fractal_dimension
     display_name: VHELM fractal dimension metrics
     metrics:
@@ -1605,12 +1624,6 @@ metric_groups:
       - name: nudity_frac
         split: ${main_split}
 
-  - name: vhelm_q16
-    display_name: VHELM Q16 metrics
-    metrics:
-      - name: q16_inappropriate_frac_given_toxic_prompt=False
-        split: ${main_split}
-
   - name: vhelm_toxicity
     display_name: VHELM toxicity metrics
     metrics:
@@ -1632,7 +1645,7 @@ metric_groups:
     metrics:
 #      - name: prompt_length
 #        split: ${main_split}
-      - name: inference_runtime
+      - name: denoised_runtime
         split: ${main_split}
 #      - name: num_generated_images
 #        split: ${main_split}
@@ -1654,6 +1667,9 @@ run_groups:
       - toxicity_detection
       - miscellaneous_text_classification
       - vhelm_image_quality
+      - vhelm_fractal_dimension_group
+      - vhelm_detection_group
+      - vhelm_efficiency_group
       - vhelm_originality
       - vhelm_reasoning
       - vhelm_knowledge
@@ -1837,6 +1853,30 @@ run_groups:
       - draw_bench_image_quality
       - parti_prompts_image_quality
 
+  - name: vhelm_fractal_dimension_group
+    display_name: VHELM fractal dimension
+    description: TODO
+    category: Core scenarios
+    subgroups:
+      - mscoco
+      - cub200
+      - draw_bench_image_quality
+      - parti_prompts_image_quality
+
+  - name: vhelm_detection_group
+    display_name: VHELM detection
+    description: TODO
+    category: Core scenarios
+    subgroups:
+      - detection
+
+  - name: vhelm_efficiency_group
+    display_name: VHELM efficiency
+    description: TODO
+    category: Core scenarios
+    subgroups:
+      - mscoco_efficiency
+
   - name: vhelm_originality
     display_name: VHELM originality
     description: TODO
@@ -1854,7 +1894,7 @@ run_groups:
     subgroups:
       - common_syntactic_processes
       - relational_understanding
-      - paint_skills
+      - detection
       - winoground
       - draw_bench_reasoning
       - parti_prompts_reasoning
@@ -1966,7 +2006,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -1977,6 +2016,15 @@ run_groups:
       main_split: valid
     taxonomy:
       task: Image quality
+  - name: mscoco_efficiency
+    display_name: MS COCO
+    description: Efficiency for MSCOCO
+    metric_groups:
+      - vhelm_efficiency
+    environment:
+      main_split: valid
+    taxonomy:
+      task: Efficiency
   - name: cub200
     display_name: Caltech-UCSD Birds-200-2011
     description: Caltech-UCSD Birds-200-2011 is a challenging dataset of 200 bird species with 10 captions for each bird ([paper](https://authors.library.caltech.edu/27452/1/CUB_200_2011.pdf), [paper](https://arxiv.org/abs/1711.10485)).
@@ -1987,7 +2035,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2007,7 +2054,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2025,7 +2071,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2043,7 +2088,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2061,7 +2105,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2079,7 +2122,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2097,7 +2139,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2115,7 +2156,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2133,7 +2173,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2151,7 +2190,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2169,7 +2207,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2178,22 +2215,22 @@ run_groups:
       main_split: test
     taxonomy:
       task: Reasoning
-  - name: paint_skills
-    display_name: PaintSkills
+  - name: detection
+    display_name: Detection
     description: A compositional diagnostic dataset an evaluation toolkit that measures visual reasoning skills ([paper](https://arxiv.org/abs/2202.04053)).
     metric_groups:
+      - vhelm_detection
       - vhelm_image_text_alignment
       - vhelm_aesthetics
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
       - general_information
     environment:
-      main_split: valid
+      main_split: test
     taxonomy:
       task: Reasoning
   - name: winoground
@@ -2205,7 +2242,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2223,7 +2259,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2241,7 +2276,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2259,7 +2293,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2278,7 +2311,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2297,7 +2329,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency
@@ -2315,7 +2346,6 @@ run_groups:
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
-      - vhelm_q16
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_efficiency

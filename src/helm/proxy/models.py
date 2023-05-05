@@ -33,6 +33,9 @@ GPTJ_TOKENIZER_TAG: str = "gptj_tokenizer"
 GPTNEO_TOKENIZER_TAG: str = "gptneo_tokenizer"
 CLIP_TOKENIZER_TAG: str = "clip_tokenizer"
 
+# Models which emit garbage tokens when temperature=0.
+BUGGY_TEMP_0_TAG: str = "buggy_temp_0"
+
 # Models that are used for ablations and fine-grained analyses.
 # These models are selected specifically because of their low marginal cost to evaluate.
 ABLATION_MODEL_TAG: str = "ablation"
@@ -311,7 +314,13 @@ ALL_MODELS = [
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            GPTJ_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
     ),
     Model(
         group="together",
@@ -432,6 +441,38 @@ ALL_MODELS = [
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-6.7b",
+        display_name="OPT (6.7B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained "
+        "transformers that are fully and responsibly shared with interested researchers.",
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            OPT_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
+    ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-1.3b",
+        display_name="OPT (1.3B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained "
+        "transformers that are fully and responsibly shared with interested researchers.",
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            OPT_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
     ),
     # Microsoft/NVIDIA
     Model(
@@ -695,7 +736,24 @@ ALL_MODELS = [
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
-        group="dall_e",
+        group="giga_gan",
+        creator_organization="Adobe",
+        name="adobe/giga-gan",
+        display_name="GigaGAN (1B)",
+        description="GigaGAN (1B parameters)",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="firefly",
+        creator_organization="Adobe",
+        name="adobe/firefly",
+        display_name="Firefly",
+        description="Adobe Firefly was trained on the Adobe Stock dataset, along with openly licensed work and "
+        "public domain content where copyright has expired.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="dall_e2",
         creator_organization="OpenAI",
         name="openai/dalle-2",
         display_name="DALL-E 2 (3.5B)",
@@ -704,7 +762,7 @@ ALL_MODELS = [
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
-        group="dall_e",
+        group="mindall-e",
         creator_organization="kakaobrain",
         name="kakaobrain/mindall-e",
         display_name="minDALL-E (1.3B)",
