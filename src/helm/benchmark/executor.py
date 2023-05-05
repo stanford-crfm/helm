@@ -3,7 +3,7 @@ from dataclasses import dataclass, replace
 
 from helm.common.general import parallel_map
 from helm.common.hierarchical_logger import htrack, hlog
-from helm.common.request import RequestResult
+from helm.common.request import RequestResult, Sequence
 from helm.common.authentication import Authentication
 from helm.proxy.services.remote_service import RemoteService
 from helm.proxy.services.server_service import ServerService
@@ -85,5 +85,9 @@ class Executor:
     def process(self, state: RequestState) -> RequestState:
         result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
         if not result.success:
-            raise ExecutorError(f"{str(result.error)} Request: {state.request}")
+            if result.error_flags and not result.error_flags.is_fatal:
+                hlog(f"WARNING: Non-fatal error: {result.error}")
+                result.completions = [Sequence(text="", logprob=0, tokens=[])]
+            else:
+                raise ExecutorError(f"{str(result.error)} Request: {state.request}")
         return replace(state, result=result)

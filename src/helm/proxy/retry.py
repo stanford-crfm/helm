@@ -48,7 +48,13 @@ def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResu
     """Fails if `success` of `RequestResult` or `TokenizationRequestResult` is false."""
     if not result.success:
         hlog(result.error)
-    return not result.success
+    retry_if_fail: bool = (
+        not hasattr(result, "error_flags")
+        or result.error_flags is None
+        or result.error_flags.is_retriable is None
+        or result.error_flags.is_retriable
+    )
+    return not result.success and retry_if_fail
 
 
 retry_request: Callable = get_retry_decorator(

@@ -129,6 +129,17 @@ class Sequence:
 
 
 @dataclass(frozen=True)
+class ErrorFlags:
+    """Describes how to treat errors in the request."""
+
+    is_retriable: Optional[bool] = None
+    """Whether the request is retriable or wheter the error is permanent."""
+
+    is_fatal: Optional[bool] = None
+    """Whether the error is fatal, i.e. the run should be discarded."""
+
+
+@dataclass(frozen=False)
 class RequestResult:
     """What comes back due to a `Request`."""
 
@@ -154,6 +165,9 @@ class RequestResult:
 
     error: Optional[str] = None
     """If `success` is false, what was the error?"""
+
+    error_flags: Optional[ErrorFlags] = None
+    """Describes how to treat errors in the request."""
 
     batch_size: Optional[int] = None
     """Batch size (`TogetherClient` only)"""
