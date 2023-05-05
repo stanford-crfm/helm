@@ -648,8 +648,7 @@ def get_vhelm_critique_metric_specs(
     include_originality: bool = False,
     include_copyright: bool = False,
     num_examples: int = 10,
-    # TODO: increase num_respondents later to 5 -Tony
-    num_respondents: int = 3,
+    num_respondents: int = 5,
 ) -> List[MetricSpec]:
     study_title: str = f"VHELM image evaluation - {run_spec_name}"
     return [
@@ -668,8 +667,7 @@ def get_vhelm_critique_metric_specs(
     ]
 
 
-# TODO: increase num_respondents later to 5 -Tony
-def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 3) -> List[MetricSpec]:
+def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 5) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.photorealism_critique_metrics.PhotorealismCritiqueMetric",
@@ -2309,7 +2307,8 @@ def get_mscoco_spec(for_efficiency: bool = False) -> RunSpec:
         metric_specs = (
             get_vhelm_reference_required_metric_specs(include_fidelity=True)
             + get_core_vhelm_metric_specs()
-            + get_vhelm_photorealism_critique_metric_specs(num_examples=100)
+            # TODO: INCREASE TO 100 after pilot -Tony
+            + get_vhelm_photorealism_critique_metric_specs(num_examples=25)
         )
         group = "mscoco"
 
