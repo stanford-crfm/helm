@@ -109,6 +109,8 @@ def queue_jobs(
                     nlp_run_gpu_args += " -p high "
             elif use_sphinx:
                 nlp_run_gpu_args += " -q sphinx "
+            else:
+                nlp_run_gpu_args += " -p high "
 
             swiss_army_port: str = ""
             if model.name == "thudm/cogview2":
