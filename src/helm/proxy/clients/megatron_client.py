@@ -3,7 +3,6 @@ import requests
 from typing import Any, Dict, List
 import traceback
 
-from helm.common.cache import CacheConfig
 from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import TokenizationRequest
 from helm.proxy.clients.huggingface_client import HuggingFaceClient
