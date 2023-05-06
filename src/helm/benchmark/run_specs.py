@@ -629,13 +629,13 @@ def get_fid_metric_specs() -> List[MetricSpec]:
 
 def get_vhelm_reference_required_metric_specs(include_fidelity: bool = False) -> List[MetricSpec]:
     metrics: List[MetricSpec] = [
-        MetricSpec(class_name="helm.benchmark.lpips_metrics.LearnedPerceptualImagePatchSimilarityMetric", args={}),
-        MetricSpec(
-            class_name="helm.benchmark.multi_scale_ssim_metrics.MultiScaleStructuralSimilarityIndexMeasureMetric",
-            args={},
-        ),
-        MetricSpec(class_name="helm.benchmark.psnr_metrics.PeakSignalToNoiseRatioMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.uiqi_metrics.UniversalImageQualityIndexMetric", args={}),
+        # MetricSpec(class_name="helm.benchmark.lpips_metrics.LearnedPerceptualImagePatchSimilarityMetric", args={}),
+        # MetricSpec(
+        #     class_name="helm.benchmark.multi_scale_ssim_metrics.MultiScaleStructuralSimilarityIndexMeasureMetric",
+        #     args={},
+        # ),
+        # MetricSpec(class_name="helm.benchmark.psnr_metrics.PeakSignalToNoiseRatioMetric", args={}),
+        # MetricSpec(class_name="helm.benchmark.uiqi_metrics.UniversalImageQualityIndexMetric", args={}),
     ]
     if include_fidelity:
         metrics.extend(get_fid_metric_specs())
@@ -2241,7 +2241,9 @@ def get_mscoco_spec(for_efficiency: bool = False) -> RunSpec:
         metric_specs = [MetricSpec(class_name="helm.benchmark.denoised_runtime_metric.DenoisedRuntimeMetric", args={})]
         group = "mscoco_efficiency"
     else:
-        metric_specs = get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs()
+        metric_specs = get_vhelm_reference_required_metric_specs(
+            include_fidelity=True
+        )  # + get_core_vhelm_metric_specs()
         group = "mscoco"
 
     return RunSpec(

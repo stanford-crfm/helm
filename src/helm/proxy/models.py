@@ -733,7 +733,7 @@ ALL_MODELS = [
         display_name="M-VADER",
         description="M-VADER is similar to Stable Diffusion, but it supports multimodal inputs and the text encoder "
         "is a Luminous model.",
-        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+        tags=[CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="giga_gan",
@@ -741,7 +741,7 @@ ALL_MODELS = [
         name="adobe/giga-gan",
         display_name="GigaGAN (1B)",
         description="GigaGAN (1B parameters)",
-        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+        tags=[CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="firefly",
@@ -750,7 +750,7 @@ ALL_MODELS = [
         display_name="Firefly",
         description="Adobe Firefly was trained on the Adobe Stock dataset, along with openly licensed work and "
         "public domain content where copyright has expired.",
-        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+        tags=[CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="dall_e2",
@@ -759,7 +759,7 @@ ALL_MODELS = [
         display_name="DALL-E 2 (3.5B)",
         description="DALL-E 2 (3.5B parameters) is a model that can create realistic images and art "
         "from a description in natural language.",
-        tags=[TEXT_TO_IMAGE_MODEL_TAG],
+        tags=[],
     ),
     Model(
         group="mindall-e",
@@ -803,7 +803,7 @@ ALL_MODELS = [
         name="lexica/search-stable-diffusion-1.5",
         display_name="Lexica Search with Stable Diffusion v1.5",
         description="Searches Stable Diffusion v1.5 images Lexica users generated.",
-        tags=[TEXT_TO_IMAGE_MODEL_TAG],
+        tags=[],
     ),
     Model(
         group="huggingface_diffusers",
