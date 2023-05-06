@@ -132,7 +132,7 @@ models:
     creator_organization: BigCode
     access: open
   - name: huggingface/starcoder
-    display_name: Starcoder (15.5B)
+    display_name: StarCoder (15.5B)
     description: The StarCoder (15.5B parameter) model trained on 80+ programming languages from The Stack (v1.2) ([model card](https://huggingface.co/bigcode/starcoder)).
     creator_organization: BigCode
     access: open
