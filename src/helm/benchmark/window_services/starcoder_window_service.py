@@ -2,7 +2,7 @@ from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 
 
-class BigCodeLargeModelWindowService(LocalWindowService):
+class StarCoderWindowService(LocalWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 
@@ -20,7 +20,7 @@ class BigCodeLargeModelWindowService(LocalWindowService):
 
     @property
     def tokenizer_name(self) -> str:
-        return "bigcode/large-model"
+        return "bigcode/starcoder"
 
     @property
     def prefix_token(self) -> str:

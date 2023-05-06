@@ -418,9 +418,9 @@ ALL_MODELS = [
     Model(
         group="huggingface",
         creator_organization="BigCode",
-        name="huggingface/large-model",
-        display_name="BigCode's Large Model (15.5B)",
-        description="BigCode's Large Model (15.5B) trained on The Stack (v1.2)",
+        name="huggingface/starcoder",
+        display_name="StarCoder (15.5B)",
+        description="StarCoder (15.5B parameter) model trained on 80+ programming languages from The Stack (v1.2)",
         tags=[CODE_MODEL_TAG],
     ),
     # Google
