@@ -733,7 +733,7 @@ ALL_MODELS = [
         display_name="M-VADER",
         description="M-VADER is similar to Stable Diffusion, but it supports multimodal inputs and the text encoder "
         "is a Luminous model.",
-        tags=[CLIP_TOKENIZER_TAG],
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="giga_gan",
@@ -759,7 +759,7 @@ ALL_MODELS = [
         display_name="DALL-E 2 (3.5B)",
         description="DALL-E 2 (3.5B parameters) is a model that can create realistic images and art "
         "from a description in natural language.",
-        tags=[],
+        tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
         group="mindall-e",
@@ -803,7 +803,7 @@ ALL_MODELS = [
         name="lexica/search-stable-diffusion-1.5",
         display_name="Lexica Search with Stable Diffusion v1.5",
         description="Searches Stable Diffusion v1.5 images Lexica users generated.",
-        tags=[],
+        tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
         group="huggingface_diffusers",
