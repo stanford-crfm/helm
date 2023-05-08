@@ -37,7 +37,7 @@ Usage:
 """
 
 # List of organizations currently supported for offline batch evaluation
-SUPPORTED_ORGS: List[str] = ["together", "google", "microsoft", "AlephAlphaVision", "AlephAlpha", "adobe"]
+SUPPORTED_ORGS: List[str] = ["together", "google", "microsoft", "AlephAlphaVision", "adobe"]
 
 
 @htrack("Generating jsonl file with list of raw requests")
@@ -54,7 +54,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
             return GoogleClient
         elif organization == "adobe":
             return AdobeVisionClient
-        elif organization == "AlephAlpha":
+        elif organization == "AlephAlphaVision":
             return AlephAlphaVisionClient
         else:
             raise ValueError(f"Invalid organization: {organization}")
@@ -122,7 +122,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
                         model_name: str = scenario_state["adapter_spec"]["model"]
                         current_organization: str = model_name.split("/")[0]
 
-                        if current_organization != organization:
+                        if current_organization in organization:
                             hlog(f"Not generating requests for {current_organization}.")
                             continue
 
