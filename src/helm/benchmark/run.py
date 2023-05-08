@@ -41,7 +41,7 @@ def run_entries_to_run_specs(
             # Filter by groups
             if groups_to_run and not any(group in groups_to_run for group in run_spec.groups):
                 continue
-            
+
             # Filter by scenario names
             if scenarios_to_run and not (create_scenario(run_spec.scenario_spec).name in scenarios_to_run):
                 continue
@@ -212,7 +212,8 @@ def main():
     parser.add_argument(
         "--scenarios-to-run",
         nargs="+",
-        help="Only RunSpecs with these scenario names specified. " "If no scenario is specified, runs with all scenarios.",
+        help="Only RunSpecs with these scenario names specified. "
+        "If no scenario is specified, runs with all scenarios.",
         default=None,
     )
     parser.add_argument(
