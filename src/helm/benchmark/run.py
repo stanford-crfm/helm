@@ -14,6 +14,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
 from .run_specs import construct_run_specs
+from .scenarios.scenario import create_scenario
 
 
 def run_entries_to_run_specs(
@@ -22,6 +23,7 @@ def run_entries_to_run_specs(
     num_train_trials: Optional[int] = None,
     models_to_run: Optional[List[str]] = None,
     groups_to_run: Optional[List[str]] = None,
+    scenarios_to_run: Optional[List[str]] = None,
     priority: Optional[int] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
@@ -38,6 +40,10 @@ def run_entries_to_run_specs(
 
             # Filter by groups
             if groups_to_run and not any(group in groups_to_run for group in run_spec.groups):
+                continue
+            
+            # Filter by scenario names
+            if scenarios_to_run and not (create_scenario(run_spec.scenario_spec).name in scenarios_to_run):
                 continue
 
             # Modify AdapterSpec
@@ -204,6 +210,12 @@ def main():
         default=None,
     )
     parser.add_argument(
+        "--scenarios-to-run",
+        nargs="+",
+        help="Only RunSpecs with these scenario names specified. " "If no scenario is specified, runs with all scenarios.",
+        default=None,
+    )
+    parser.add_argument(
         "--exit-on-error",
         action="store_true",
         default=None,
@@ -262,6 +274,7 @@ def main():
         num_train_trials=args.num_train_trials,
         models_to_run=args.models_to_run,
         groups_to_run=args.groups_to_run,
+        scenarios_to_run=args.scenarios_to_run,
         priority=args.priority,
     )
     hlog(f"{len(run_entries)} entries produced {len(run_specs)} run specs")
