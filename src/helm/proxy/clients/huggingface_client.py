@@ -17,6 +17,7 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 from .huggingface_tokenizer import HuggingFaceTokenizers
 from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config
+from threading import Lock
 
 
 class HuggingFaceServer:
@@ -37,7 +38,7 @@ class HuggingFaceServer:
             self.tokenizer = AutoTokenizer.from_pretrained(model_config.model_id, **model_kwargs)
 
     def serve_request(self, raw_request: Dict[str, Any]):
-        encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt").to(self.device)
+        encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(self.device)
         raw_request = deepcopy(raw_request)
         raw_request["do_sample"] = True
         raw_request["return_dict_in_generate"] = True
@@ -45,7 +46,7 @@ class HuggingFaceServer:
         top_k_per_token: int = raw_request["top_k_per_token"]
         del raw_request["top_k_per_token"]
         if len(raw_request["stop_sequences"]) > 0:
-            stop_sequence_ids = self.tokenizer(raw_request["stop_sequences"])
+            stop_sequence_ids = self.tokenizer(raw_request["stop_sequences"], return_token_type_ids=False)
             # Total number of stop words should be 1.
             assert len(stop_sequence_ids.input_ids) == 1
             # Total number of tokens in each stop word should be 1.
@@ -93,9 +94,15 @@ class HuggingFaceServer:
         if not raw_request["echo_prompt"]:
             sequences = [sequence[len(encoded_input.input_ids[0]) :] for sequence in sequences]
 
-        all_tokens = [self.tokenizer.convert_ids_to_tokens(sequence) for sequence in sequences]
-        # The tokens looked up in the vocabulary contain some artifacts.
-        all_tokens = [self.tokenizer.convert_tokens_to_string([token]) for token in all_tokens]
+        all_tokens = [
+            [
+                self.tokenizer.convert_tokens_to_string(
+                    self.tokenizer.convert_ids_to_tokens([token])
+                )
+                for token in sequence_tokens
+            ]
+            for sequence_tokens in sequences
+        ]
         all_decoded_text = self.tokenizer.batch_decode(sequences)
 
         completions = []
@@ -118,26 +125,28 @@ class HuggingFaceClient(Client):
     def __init__(self, cache_config: CacheConfig):
         self.cache = Cache(cache_config)
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
+        self.server_lock = threading.Lock()
 
     def get_model_server_instance(self, model) -> HuggingFaceServer:
-        if model not in self.model_server_instances:
-            model_config = get_huggingface_model_config(model)
-            if model_config:
-                self.model_server_instances[model] = HuggingFaceServer(model_config)
-            elif model == "EleutherAI/gpt-j-6B":
-                self.model_server_instances[model] = HuggingFaceServer(
-                    HuggingFaceModelConfig.from_string("EleutherAI/gpt-j-6B")
-                )
-            elif model == "huggingface/gpt2":
-                self.model_server_instances[model] = HuggingFaceServer(HuggingFaceModelConfig.from_string("gpt2"))
-            elif model == "bigcode/santacoder":
-                self.model_server_instances[model] = HuggingFaceServer(
-                    HuggingFaceModelConfig.from_string("bigcode/santacoder")
-                )
-            else:
-                raise Exception(f"Unknown HuggingFace model: {model}")
+        with self.server_lock:
+            if model not in self.model_server_instances:
+                model_config = get_huggingface_model_config(model)
+                if model_config:
+                    self.model_server_instances[model] = HuggingFaceServer(model_config)
+                elif model == "EleutherAI/gpt-j-6B":
+                    self.model_server_instances[model] = HuggingFaceServer(
+                        HuggingFaceModelConfig.from_string("EleutherAI/gpt-j-6B")
+                    )
+                elif model == "huggingface/gpt2":
+                    self.model_server_instances[model] = HuggingFaceServer(HuggingFaceModelConfig.from_string("gpt2"))
+                elif model == "bigcode/santacoder":
+                    self.model_server_instances[model] = HuggingFaceServer(
+                        HuggingFaceModelConfig.from_string("bigcode/santacoder")
+                    )
+                else:
+                    raise Exception(f"Unknown HuggingFace model: {model}")
 
-        return self.model_server_instances[model]
+            return self.model_server_instances[model]
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
