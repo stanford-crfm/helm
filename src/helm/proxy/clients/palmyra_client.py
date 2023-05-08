@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, Sequence, Token, ErrorFlags
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -75,8 +75,6 @@ class PalmyraClient(Client):
 
                 def do_it():
                     result = self._send_request(model_name, raw_request)
-                    if "choices" not in result:
-                        raise ValueError(f"Invalid response: {result}")
                     return result
 
                 # We need to include the engine's name to differentiate among requests made for different model
@@ -98,6 +96,21 @@ class PalmyraClient(Client):
             except (requests.exceptions.RequestException, AssertionError) as e:
                 error: str = f"PalmyraClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
+            if "choices" not in response:
+                if "errors" in response and response["errors"][0]["key"] == "fail.content.moderation.failed":
+                    return RequestResult(
+                        success=False,
+                        cached=False,
+                        error=response["errors"][0]["description"],
+                        completions=[],
+                        embedding=[],
+                        error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                        request_time=response["request_time"],
+                        request_datetime=response["request_datetime"],
+                    )
+                else:
+                    raise ValueError(f"Invalid response: {response}")
 
             response_text: str = response["choices"][0]["text"]
 

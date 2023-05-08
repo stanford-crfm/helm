@@ -9,7 +9,14 @@ import anthropic
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
+from helm.common.request import (
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
+    ErrorFlags,
+)
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -20,14 +27,6 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 from transformers import PreTrainedTokenizerBase, PreTrainedTokenizerFast
 from dataclasses import asdict
-
-
-class AnthropicPromptTooLongError(Exception):
-    pass
-
-
-class AnthropicPromptPlusMaxTokensTooLongError(Exception):
-    pass
 
 
 class AnthropicClient(Client):
@@ -138,9 +137,23 @@ class AnthropicClient(Client):
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except Exception as error:
                 if "Prompt must contain anthropic.AI_PROMPT" in str(error):
-                    raise AnthropicPromptTooLongError(f"Prompt too long: {request.prompt}")
+                    return RequestResult(
+                        success=False,
+                        cached=False,
+                        error=response["error"],
+                        completions=[],
+                        embedding=[],
+                        error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    )
                 if "exceeds max (" in str(error):
-                    raise AnthropicPromptPlusMaxTokensTooLongError(f"Prompt + max_tokens too long: {request.prompt}")
+                    return RequestResult(
+                        success=False,
+                        cached=False,
+                        error=response["error"],
+                        completions=[],
+                        embedding=[],
+                        error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    )
                 return RequestResult(success=False, cached=False, error=str(error), completions=[], embedding=[])
 
             # Post process the completion.
