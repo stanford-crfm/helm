@@ -122,7 +122,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
                         model_name: str = scenario_state["adapter_spec"]["model"]
                         current_organization: str = model_name.split("/")[0]
 
-                        if current_organization in organization:
+                        if current_organization not in organization:
                             hlog(f"Not generating requests for {current_organization}.")
                             continue
 
