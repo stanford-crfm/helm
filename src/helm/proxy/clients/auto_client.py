@@ -26,6 +26,7 @@ from .google_client import GoogleClient
 from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
 from .ice_tokenizer_client import ICETokenizerClient
+from .megatron_client import MegatronClient
 from .openai_client import OpenAIClient
 from .microsoft_client import MicrosoftClient
 from .perspective_api_client import PerspectiveAPIClient
@@ -129,6 +130,8 @@ class AutoClient(Client):
                     cache_config=cache_config,
                     tokenizer_client=self._get_tokenizer_client("huggingface"),
                 )
+            elif organization == "nvidia":
+                client = MegatronClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client
@@ -200,6 +203,8 @@ class AutoClient(Client):
                 client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
+            elif organization == "nvidia":
+                client = MegatronClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client
