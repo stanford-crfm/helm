@@ -6,6 +6,8 @@ import textwrap
 import re
 
 from helm.common.critique_request import CritiqueQuestionTemplate, CritiqueRequest, CritiqueTaskTemplate, QuestionType
+from helm.common.general import ensure_directory_exists
+from helm.common.hierarchical_logger import hlog
 
 
 def _indent_to_level(text: str, level: int) -> str:
@@ -143,9 +145,13 @@ class _MechanicalTurkCritiqueRequestExporter:
 
     def _initialize(self, field_names: Sequence[str]) -> None:
         # self._lock must be held when calling this.
+        ensure_directory_exists(self._get_directory_path())
+
+        hlog(f"Exporting Mechanical Turk layout to {self._get_template_filename()}")
         with open(self._get_template_filename(), "w") as f:
             f.write(_render_template_crowd_html(self._template))
 
+        hlog(f"Exporting Mechanical Turk requests to {self._get_requests_filename()}")
         with open(self._get_requests_filename(), "w") as f:
             self._field_names = field_names
             dict_writer: csv.DictWriter = csv.DictWriter(f, fieldnames=field_names)

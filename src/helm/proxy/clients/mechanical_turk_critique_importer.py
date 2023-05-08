@@ -12,6 +12,7 @@ from helm.common.critique_request import (
     QuestionType,
     CritiqueRequestResult,
 )
+from helm.common.hierarchical_logger import hlog
 
 
 # A representation of fields that can be used as a dict key.
@@ -87,9 +88,14 @@ class _MechanicalTurkRequestImporter:
         Thread-hostile.
         Must be called exactly once per instance.
         Must be called before `import_request_result()`."""
+        if not os.path.exists(self._get_directory_path()) or not os.path.isdir(self._get_directory_path()):
+            return
+
         for file_name in os.listdir(self._get_directory_path()):
             if re.match("Batch_\\d+_batch_results.csv", file_name):
-                self._import_from_file_path(os.path.join(self._get_directory_path(), file_name))
+                file_path = os.path.join(self._get_directory_path(), file_name)
+                hlog(f"Importing Mechanical Turk results from {file_path}")
+                self._import_from_file_path(file_path)
 
     def import_request_result(self, fields: Dict[str, str]) -> Optional[CritiqueRequestResult]:
         """Import the request result.
