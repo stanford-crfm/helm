@@ -95,6 +95,13 @@ class HuggingFaceServer:
 
         # TODO: Get rid of the extra tokenization?
         all_tokens = [self.tokenizer.convert_ids_to_tokens(sequence) for sequence in sequences]
+        all_tokens = [
+            [
+                self.tokenizer.convert_tokens_to_string([token])
+                for token in sequence_tokens
+            ]
+            for sequence_tokens in all_tokens
+        ]
         all_decoded_text = self.tokenizer.batch_decode(sequences)
 
         completions = []
