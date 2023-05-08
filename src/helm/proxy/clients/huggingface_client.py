@@ -93,8 +93,9 @@ class HuggingFaceServer:
         if not raw_request["echo_prompt"]:
             sequences = [sequence[len(encoded_input.input_ids[0]) :] for sequence in sequences]
 
-        # TODO: Get rid of the extra tokenization?
         all_tokens = [self.tokenizer.convert_ids_to_tokens(sequence) for sequence in sequences]
+        # The tokens looked up in the vocabulary contain some artifacts.
+        all_tokens = [self.tokenizer.convert_tokens_to_string([token]) for token in all_tokens]
         all_decoded_text = self.tokenizer.batch_decode(sequences)
 
         completions = []
