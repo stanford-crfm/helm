@@ -125,7 +125,7 @@ class HuggingFaceClient(Client):
     def __init__(self, cache_config: CacheConfig):
         self.cache = Cache(cache_config)
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
-        self.server_lock = threading.Lock()
+        self.server_lock = Lock()
 
     def get_model_server_instance(self, model) -> HuggingFaceServer:
         with self.server_lock:
