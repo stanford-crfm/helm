@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 import typing
-from typing import List
+from typing import List, Set
 from collections import Counter
 from dacite import from_dict
 from tqdm import tqdm
@@ -67,8 +67,10 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
             request_json: str = json.dumps(
                 {"scenario": scenario_name, "request": raw_request}, sort_keys=True, ensure_ascii=False
             )
-            out_file.write(request_json + "\n")
-            counts["pending_count"] += 1
+            if request_json not in unique_json_requests:
+                out_file.write(request_json + "\n")
+                counts["pending_count"] += 1
+                unique_json_requests.add(request_json)
         else:
             counts["cached_count"] += 1
 
@@ -92,6 +94,8 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
                 counts["cached_count"] += 1
 
     counts: typing.Counter = Counter(pending_count=0, cached_count=0)
+
+    unique_json_requests: Set[str] = set()
 
     # Go through all the valid run folders, pull requests from the scenario_state.json files
     # and write them out to the jsonl file at path `output_path`.
