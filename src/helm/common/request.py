@@ -133,10 +133,12 @@ class ErrorFlags:
     """Describes how to treat errors in the request."""
 
     is_retriable: Optional[bool] = None
-    """Whether the request is retriable or wheter the error is permanent."""
+    """Whether the request is retriable or whether the error is permanent.
+    If None, the error is treated as retriable."""
 
     is_fatal: Optional[bool] = None
-    """Whether the error is fatal, i.e. the run should be discarded."""
+    """Whether the error is fatal, i.e. the run should be discarded.
+    If None, the error is treated as fatal."""
 
 
 @dataclass(frozen=False)

@@ -86,7 +86,7 @@ class Executor:
         result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
         if not result.success:
             if result.error_flags and not result.error_flags.is_fatal:
-                hlog(f"WARNING: Non-fatal error: {result.error}")
+                hlog(f"WARNING: Non-fatal error treated as empty completion: {result.error}")
                 result.completions = [Sequence(text="", logprob=0, tokens=[])]
             else:
                 raise ExecutorError(f"{str(result.error)} Request: {state.request}")

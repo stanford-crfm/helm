@@ -48,12 +48,11 @@ def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResu
     """Fails if `success` of `RequestResult` or `TokenizationRequestResult` is false."""
     if not result.success:
         hlog(result.error)
-    retry_if_fail: bool = (
-        not hasattr(result, "error_flags")
-        or result.error_flags is None
-        or result.error_flags.is_retriable is None
-        or result.error_flags.is_retriable
-    )
+    retry_if_fail: bool = True
+    if isinstance(result, RequestResult):
+        retry_if_fail = (
+            result.error_flags is None or result.error_flags.is_retriable is None or result.error_flags.is_retriable
+        )
     return not result.success and retry_if_fail
 
 

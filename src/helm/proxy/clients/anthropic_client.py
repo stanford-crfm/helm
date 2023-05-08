@@ -143,7 +143,7 @@ class AnthropicClient(Client):
                     return RequestResult(
                         success=False,
                         cached=False,
-                        error=f"Prompt too long: {request.prompt}",
+                        error=response["error"],
                         completions=[],
                         embedding=[],
                         error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
@@ -152,7 +152,7 @@ class AnthropicClient(Client):
                     return RequestResult(
                         success=False,
                         cached=False,
-                        error=f"Prompt + max_tokens too long: {request.prompt}",
+                        error=response["error"],
                         completions=[],
                         embedding=[],
                         error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
