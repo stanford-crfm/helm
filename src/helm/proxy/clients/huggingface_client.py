@@ -237,6 +237,7 @@ class HuggingFaceClient(Client):
                         tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
                     else:
                         tokens = tokenizer.tokenize(request.text)
+                        tokens = [token.replace("▁", " ") for token in tokens]
                         # TODO(1522): Reenable this to revove "▁"
                         # tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
                 return {"tokens": tokens}

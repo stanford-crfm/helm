@@ -40,6 +40,8 @@ class ICETokenizerClient(Client):
                 #     tokens = token_ids
                 # This way we could address #1516 and remove the ▁ in the tests.
                 tokens = tokenizer.encode(request.text) if request.encode else tokenizer.tokenize(request.text)
+                if not request.encode:
+                    tokens = [t.replace("▁", " ") for t in tokens]
                 if request.truncation:
                     tokens = tokens[: request.max_length]
                 return {"tokens": tokens}
