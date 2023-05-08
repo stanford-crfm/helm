@@ -54,18 +54,6 @@ class SummarizationCritiqueMetric(Metric):
                     "(1 = not at all, 5 = very much)",
                     options=["1", "2", "3", "4", "5"],
                 ),
-                CritiqueQuestionTemplate(
-                    name="my-boxes",
-                    question_type=QuestionType.CHECKBOX,
-                    text="Check these boxes.",
-                    options=["hello", "world"],
-                ),
-                CritiqueQuestionTemplate(
-                    name="my-text",
-                    question_type=QuestionType.FREE_RESPONSE,
-                    text="Fill in this text",
-                    options=[],
-                ),
             ],
         )
 
