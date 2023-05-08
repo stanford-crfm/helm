@@ -131,9 +131,9 @@ models:
     description: SantaCoder (1.1B parameters) model trained on the Python, Java, and JavaScript subset of The Stack (v1.1) ([model card](https://huggingface.co/bigcode/santacoder)).
     creator_organization: BigCode
     access: open
-  - name: huggingface/large-model
-    display_name: BigCode's Large Model (15.5B)
-    description: BigCode's Large Model (15.5B parameters) trained on The Stack (v1.2) ([model card](https://huggingface.co/bigcode/large-model)).
+  - name: huggingface/starcoder
+    display_name: StarCoder (15.5B)
+    description: The StarCoder (15.5B parameter) model trained on 80+ programming languages from The Stack (v1.2) ([model card](https://huggingface.co/bigcode/starcoder)).
     creator_organization: BigCode
     access: open
 
