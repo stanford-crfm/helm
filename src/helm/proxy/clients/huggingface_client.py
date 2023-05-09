@@ -19,7 +19,6 @@ from .huggingface_tokenizer import HuggingFaceTokenizers
 from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config
 from threading import Lock
 
-
 class HuggingFaceServer:
     def __init__(self, model_config: HuggingFaceModelConfig):
         if torch.cuda.is_available():
@@ -118,33 +117,33 @@ class HuggingFaceServer:
 
         return {"completions": completions, "input_length": len(encoded_input.input_ids[0])}
 
+_servers_lock: Lock = Lock()
+_servers: Dict[str, HuggingFaceServer] = {}
+
+def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceServer:
+    with _servers_lock:
+        if model_config.model_id not in _servers:
+            _servers[model_config.model_id] = HuggingFaceServer(model_config)
+    return _servers[model_config.model_id]
 
 class HuggingFaceClient(Client):
     def __init__(self, cache_config: CacheConfig):
         self.cache = Cache(cache_config)
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
-        self.server_lock = Lock()
 
     def get_model_server_instance(self, model) -> HuggingFaceServer:
-        with self.server_lock:
-            if model not in self.model_server_instances:
-                model_config = get_huggingface_model_config(model)
-                if model_config:
-                    self.model_server_instances[model] = HuggingFaceServer(model_config)
-                elif model == "EleutherAI/gpt-j-6B":
-                    self.model_server_instances[model] = HuggingFaceServer(
-                        HuggingFaceModelConfig.from_string("EleutherAI/gpt-j-6B")
-                    )
-                elif model == "huggingface/gpt2":
-                    self.model_server_instances[model] = HuggingFaceServer(HuggingFaceModelConfig.from_string("gpt2"))
-                elif model == "bigcode/santacoder":
-                    self.model_server_instances[model] = HuggingFaceServer(
-                        HuggingFaceModelConfig.from_string("bigcode/santacoder")
-                    )
-                else:
-                    raise Exception(f"Unknown HuggingFace model: {model}")
-
-            return self.model_server_instances[model]
+        model_config = get_huggingface_model_config(model)
+        # Special-case some models in so that users don't have to enable them with --enable-huggingface-models
+        if not model_config:
+            if model == "EleutherAI/gpt-j-6B":
+                model_config = HuggingFaceModelConfig.from_string("EleutherAI/gpt-j-6B")
+            elif model == "huggingface/gpt2":
+                model_config = HuggingFaceModelConfig.from_string("gpt2")
+            elif model == "bigcode/santacoder":
+                model_config = HuggingFaceModelConfig.from_string("bigcode/santacoder")
+            else:
+                raise Exception(f"Unknown HuggingFace model: {model}")
+        return _get_singleton_server(model_config)
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
