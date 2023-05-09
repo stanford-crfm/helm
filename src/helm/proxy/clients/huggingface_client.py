@@ -92,12 +92,7 @@ class HuggingFaceServer:
             sequences = [sequence[len(encoded_input.input_ids[0]) :] for sequence in sequences]
 
         all_tokens = [
-            [
-                self.tokenizer.convert_tokens_to_string(
-                    self.tokenizer.convert_ids_to_tokens([token])
-                )
-                for token in sequence_tokens
-            ]
+            [self.tokenizer.decode(token) for token in sequence_tokens] 
             for sequence_tokens in sequences
         ]
         all_decoded_text = self.tokenizer.batch_decode(sequences)
