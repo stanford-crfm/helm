@@ -5,7 +5,7 @@ from transformers import AutoTokenizer
 
 from helm.common.hierarchical_logger import htrack_block, hlog
 
-from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
+from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config, HuggingFaceModelConfig, LOCAL_MODEL_DIR
 
 
 class HuggingFaceTokenizers:
@@ -52,8 +52,19 @@ class HuggingFaceTokenizers:
                 hf_tokenizer_name: str
                 revision: Optional[str] = None
                 model_config = get_huggingface_model_config(tokenizer_name)
+                if not model_config:
+                    organization = tokenizer_name.split("/")[0]
+                    engine = tokenizer_name.split("/")[1]
+                    #TODO avoid having to recreate this config in multiple places
+                    if organization == "local":
+                        model_config = HuggingFaceModelConfig.from_path(f"{LOCAL_MODEL_DIR}/{engine}")
                 if model_config:
-                    hf_tokenizer_name = model_config.model_id
+                    # If the HuggingFace model is stored locally, the tokenizer config
+                    # will be found at the defined path.
+                    if model_config.path:
+                        hf_tokenizer_name = model_config.path
+                    else:
+                        hf_tokenizer_name = model_config.model_id
                     revision = model_config.revision
                 elif tokenizer_name == "huggingface/gpt2":
                     hf_tokenizer_name = "gpt2"

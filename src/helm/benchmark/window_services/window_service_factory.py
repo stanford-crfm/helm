@@ -37,8 +37,8 @@ from .yalm_window_service import YaLMWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
+from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, LOCAL_MODEL_DIR
 from helm.proxy.clients.remote_model_registry import get_remote_model
-
 
 class WindowServiceFactory:
     @staticmethod
@@ -52,10 +52,14 @@ class WindowServiceFactory:
         engine: str = model.engine
 
         window_service: WindowService
+        # Catch any HuggingFace models registered via the command line flags
         huggingface_model_config = get_huggingface_model_config(model_name)
+        # Catch a select list of local HuggingFace models not registered upfront (only the ones defined in models.py)
+        if not huggingface_model_config and organization == "local":
+            huggingface_model_config = HuggingFaceModelConfig.from_path(f"{LOCAL_MODEL_DIR}/{engine}")
         if get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
-        elif huggingface_model_config:
+        elif huggingface_model_config: 
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
         elif organization == "openai":
             if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):

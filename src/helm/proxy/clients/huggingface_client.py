@@ -16,8 +16,9 @@ from helm.common.tokenization_request import (
 )
 from .client import Client, wrap_request_time, truncate_sequence
 from .huggingface_tokenizer import HuggingFaceTokenizers
-from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config
+from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config, LOCAL_MODEL_DIR
 from threading import Lock
+
 
 class HuggingFaceServer:
     def __init__(self, model_config: HuggingFaceModelConfig):
@@ -29,12 +30,18 @@ class HuggingFaceServer:
         model_kwargs = {}
         if model_config.revision:
             model_kwargs["revision"] = model_config.revision
+        # If the HuggingFace model is stored locally, it will have a path defined and we should load it from there.
+        # Otherwise, download it from the HuggingFace hub by passing in its identifier.
+        if model_config.path:
+            model_name = model_config.path
+        else:
+            model_name = model_config.model_id
         with htrack_block(f"Loading Hugging Face model for config {model_config}"):
             self.model = AutoModelForCausalLM.from_pretrained(
-                model_config.model_id, trust_remote_code=True, **model_kwargs
+                model_name, trust_remote_code=True, **model_kwargs
             ).to(self.device)
         with htrack_block(f"Loading Hugging Face tokenizer model for config {model_config}"):
-            self.tokenizer = AutoTokenizer.from_pretrained(model_config.model_id, **model_kwargs)
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name, **model_kwargs)
 
     def serve_request(self, raw_request: Dict[str, Any]):
         encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(self.device)
@@ -128,8 +135,15 @@ class HuggingFaceClient(Client):
 
     def get_model_server_instance(self, model) -> HuggingFaceServer:
         model_config = get_huggingface_model_config(model)
+        if not model_config:
+            organization = model.split("/")[0]
+            engine = model.split("/")[1]
+            #TODO avoid having to recreate this config in multiple places
+            if organization == "local":
+                model_config = HuggingFaceModelConfig.from_path(f"{LOCAL_MODEL_DIR}/{engine}")
         # Special-case some models in so that users don't have to enable them with --enable-huggingface-models
         if not model_config:
+            # Other HuggingFace hub models that we'll look up for you even if you didn't enable them via the flag
             if model == "EleutherAI/gpt-j-6B":
                 model_config = HuggingFaceModelConfig.from_string("EleutherAI/gpt-j-6B")
             elif model == "huggingface/gpt2":

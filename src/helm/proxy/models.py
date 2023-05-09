@@ -374,6 +374,31 @@ ALL_MODELS = [
         "JavaScript subset of The Stack (v1.1).",
         tags=[CODE_MODEL_TAG],
     ),
+    # Local HuggingFace models
+    Model(
+        group="local",
+        creator_organization="Meta",
+        name="local/llama-7b",
+        display_name="LLaMA (7B)",
+        description="", # TODO add description
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    ),
+    Model(
+        group="local",
+        creator_organization="CRFM",
+        name="local/alpaca-7b",
+        display_name="Alpaca (7B)",
+        description="", # TODO add description
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    ),
+    Model(
+        group="local",
+        creator_organization="OpenAI",
+        name="local/gpt2",
+        display_name="GPT-2",
+        description="", # TODO add description
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG]
+    ),
     # Google
     Model(
         group="together",

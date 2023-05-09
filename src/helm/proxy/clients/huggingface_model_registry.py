@@ -10,6 +10,8 @@ from helm.proxy.models import (
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 
+# The path where local HuggingFace models should be downloaded or symlinked, e.g. ./helm-models/llama-7b
+LOCAL_MODEL_DIR = "./helm-models"
 
 @dataclass(frozen=True)
 class HuggingFaceModelConfig:
@@ -37,10 +39,7 @@ class HuggingFaceModelConfig:
 
         Examples:
         - 'gpt2'
-        - 'stanford-crfm/BioMedLM'
-        - OR a path to the local model"""
-        if self.path:
-            return self.path
+        - 'stanford-crfm/BioMedLM'"""
         if self.namespace:
             return f"{self.namespace}/{self.model_name}"
         return self.model_name
@@ -51,10 +50,7 @@ class HuggingFaceModelConfig:
         Examples:
         - 'gpt2'
         - 'stanford-crfm/BioMedLM'
-        - 'stanford-crfm/BioMedLM@main'
-        - OR a path to the local model"""
-        if self.path:
-            return self.path
+        - 'stanford-crfm/BioMedLM@main'"""
         result = self.model_name
         if self.namespace:
             result = f"{self.namespace}/{result}"
@@ -83,12 +79,16 @@ class HuggingFaceModelConfig:
     @staticmethod
     def from_path(path: str) -> "HuggingFaceModelConfig":
         """Genertes a HuggingFaceModelConfig from a (relative or absolute) path to a local HuggingFace model."""
-        model_name = path.split("/")[-1]
+        pattern = r"((?P<containing_dir>.+?)/)?(?P<model_name>[^/@]+)(@(?P<revision>[^/@]+))?/?"
+        match = re.fullmatch(pattern, path)
+        if not match:
+            raise ValueError(f"Could not parse model path: '{path}'; Expected format: /path/to/model_name[@revision]")
+        model_name = match.group("model_name")
         assert model_name
         return HuggingFaceModelConfig(
             namespace="local",
             model_name=model_name,
-            revision=None,
+            revision=match.group("revision"),
             path=path
         )
 
@@ -105,25 +105,25 @@ def register_huggingface_model_config(model_name: str, local: bool = False) -> H
         config = HuggingFaceModelConfig.from_string(model_name)
     if config.model_id in _huggingface_model_registry:
         raise ValueError(f"A Hugging Face model is already registered for model_id {model_name}")
-    _huggingface_model_registry[model_name] = config
+    _huggingface_model_registry[config.model_id] = config
 
     # HELM model names require a namespace
     if not config.namespace:
         raise Exception("Registration of Hugging Face models without a namespace is not supported")
-    if model_name in MODEL_NAME_TO_MODEL:
+    if config.model_name in MODEL_NAME_TO_MODEL:
         raise ValueError(f"A HELM model is already registered for model name: {model_name}")
     description = f"HuggingFace model {config.model_id}"
     if config.revision:
         description += f" at revision {config.revision}"
     model = Model(
         group=config.namespace,
-        name=model_name,
-        display_name=model_name,
+        name=config.model_id,
+        display_name=config.model_id,
         creator_organization=config.namespace,
         description=description,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     )
-    MODEL_NAME_TO_MODEL[model_name] = model
+    MODEL_NAME_TO_MODEL[config.model_id] = model
     ALL_MODELS.append(model)
     hlog(f"Registered Hugging Face model: {model} config: {config}")
     return config

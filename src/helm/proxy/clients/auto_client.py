@@ -68,6 +68,9 @@ class AutoClient(Client):
 
             if get_huggingface_model_config(model):
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "local":
+                # HACK since we want to use the huggingface sqlite file. TODO avoid this
+                client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "openai":
                 # TODO: add ChatGPT to the OpenAIClient when it's supported.
                 #       We're using a separate client for now since we're using an unofficial Python library.
@@ -157,6 +160,8 @@ class AutoClient(Client):
         if client is None:
             cache_config: CacheConfig = self._build_cache_config(organization)
             if get_huggingface_model_config(tokenizer):
+                client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "local":
                 client = HuggingFaceClient(cache_config=cache_config)
             elif organization in [
                 "anthropic",
