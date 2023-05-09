@@ -54,7 +54,6 @@ class HuggingFaceServer:
         if len(raw_request["stop_sequences"]) > 0:
             stop_sequence_ids = self.tokenizer(raw_request["stop_sequences"], return_token_type_ids=False)
             assert len(stop_sequence_ids.input_ids) == 1, "Total number of stop words should be 1."
-            assert len(stop_sequence_ids.input_ids[0]) == 1, "Total number of tokens in each stop word should be 1."
             del raw_request["stop_sequences"]
             raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
 
