@@ -37,7 +37,8 @@ class HuggingFaceModelConfig:
 
         Examples:
         - 'gpt2'
-        - 'stanford-crfm/BioMedLM'"""
+        - 'stanford-crfm/BioMedLM'
+        - OR a path to the local model"""
         if self.path:
             return self.path
         if self.namespace:
@@ -50,7 +51,8 @@ class HuggingFaceModelConfig:
         Examples:
         - 'gpt2'
         - 'stanford-crfm/BioMedLM'
-        - 'stanford-crfm/BioMedLM@main'"""
+        - 'stanford-crfm/BioMedLM@main'
+        - OR a path to the local model"""
         if self.path:
             return self.path
         result = self.model_name
