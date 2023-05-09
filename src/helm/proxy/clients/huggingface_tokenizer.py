@@ -24,7 +24,6 @@ class HuggingFaceTokenizers:
             tokenizer_kwargs = {}
             if revision is not None:
                 tokenizer_kwargs["revision"] = revision
-            tokenizer_kwargs["max_new_tokens"] = 4096
             try:
                 # From the Hugging Face documentation, "local_files_only(defaults to False) —
                 # Whether or not to only look at local files".
