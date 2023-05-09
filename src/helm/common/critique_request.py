@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-import re
 from typing import Dict, List, Union
 
 
@@ -42,16 +41,6 @@ class CritiqueTaskTemplate:
 
     name: str
     """Name of the template."""
-
-    description: str
-    """Human-friendly short description that will be displayed to the workers on the index page.
-
-    Only used by Mechanical Turk."""
-
-    reward: str
-    """Reward per response in US dollars as a string without currency symbols. e.g. '1.50'
-
-    Only used by Mechanical Turk."""
 
     instructions: str
     """HTML-formatted instructions that will be displayed before all the questions.
@@ -100,9 +89,3 @@ class CritiqueRequestResult:
 
     responses: List[CritiqueResponse]
     """List of respondents' responses."""
-
-
-def populate_template_with_fields(template: str, fields: Dict[str, str]):
-    """Populate a string method with the given fields"""
-    format_string = re.sub(r"{{([^{}]+)}}", r"{\g<1>}", template)
-    return format_string.format(**fields)

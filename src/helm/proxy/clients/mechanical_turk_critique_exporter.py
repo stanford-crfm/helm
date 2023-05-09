@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 import os
 from threading import Lock
 from typing import Dict, List, Sequence
@@ -122,12 +123,17 @@ def _render_checkbox_options_crowd_html(name: str, options: List[str]) -> str:
 class _MechanicalTurkCritiqueRequestExporter:
     """Exports critique requests.
 
-    - The requests will be exported to mturk/{template.name}/requests.csv
-    - The template Crowd HTML will be exported to mturk/{template.name}/layout.html"""
+    - The requests will be exported to mturk/{template.name}/requests_{timestamp}.csv
+    - The template Crowd HTML will be exported to mturk/{template.name}/layout_{timestamp}.html"""
 
     def __init__(self, template: CritiqueTaskTemplate):
         self._template: CritiqueTaskTemplate = template
         self._lock: Lock = Lock()
+
+        self._directory_path = os.path.join("mturk", self._template.name)
+        timestamp = datetime.now().isoformat()
+        self._template_filename = os.path.join(self._directory_path, f"layout_{timestamp}.html")
+        self._requests_filename = os.path.join(self._get_directory_path(), f"requests_{timestamp}.csv")
 
         # Protected by `_lock`.
         # Populated by `_initialize()`.
@@ -137,22 +143,16 @@ class _MechanicalTurkCritiqueRequestExporter:
         # TODO: Make this configurable.
         return os.path.join("mturk", self._template.name)
 
-    def _get_template_filename(self):
-        return os.path.join(self._get_directory_path(), "layout.html")
-
-    def _get_requests_filename(self):
-        return os.path.join(self._get_directory_path(), "requests.csv")
-
     def _initialize(self, field_names: Sequence[str]) -> None:
         # self._lock must be held when calling this.
         ensure_directory_exists(self._get_directory_path())
 
-        hlog(f"Exporting Mechanical Turk layout to {self._get_template_filename()}")
-        with open(self._get_template_filename(), "w") as f:
+        hlog(f"Exporting Mechanical Turk layout to {self._template_filename}")
+        with open(self._template_filename, "w") as f:
             f.write(_render_template_crowd_html(self._template))
 
-        hlog(f"Exporting Mechanical Turk requests to {self._get_requests_filename()}")
-        with open(self._get_requests_filename(), "w") as f:
+        hlog(f"Exporting Mechanical Turk requests to {self._requests_filename}")
+        with open(self._requests_filename, "w") as f:
             self._field_names = field_names
             dict_writer: csv.DictWriter = csv.DictWriter(f, fieldnames=field_names)
             dict_writer.writeheader()
@@ -160,8 +160,8 @@ class _MechanicalTurkCritiqueRequestExporter:
     def export(self, fields: Dict[str, str]):
         """Export a single critique request.
 
-        - The request will be written as a row to mturk/{template.name}/requests.csv
-        - The template Crowd HTML will be written to mturk/{template.name}/layout.html
+        - The request will be written as a row to mturk/{template.name}/requests_{timestamp}.csv
+        - The template Crowd HTML will be written to mturk/{template.name}/layout_{timestamp}.html
           when this is called for the first time"""
         with self._lock:
             if not self._field_names:
@@ -169,7 +169,7 @@ class _MechanicalTurkCritiqueRequestExporter:
             assert self._field_names
             # Unfortunately, we have to re-open and close the file every time.
             # TODO: Support exporting batches of requests.
-            with open(self._get_requests_filename(), "a") as f:
+            with open(self._requests_filename, "a") as f:
                 dict_writer = csv.DictWriter(f, fieldnames=self._field_names)
                 dict_writer.writerow(fields)
 
@@ -184,8 +184,8 @@ def export_request(request: CritiqueRequest):
     After the calling this, the user should manually upload the generated CSV
     and Crowd HTML files to the Mechanical Turk web UI.
 
-    - The requests will be exported to mturk/{template.name}/requests.csv
-    - The template Crowd HTML will be exported to mturk/{template.name}/layout.html"""
+    - The requests will be exported to mturk/{template.name}/requests_{timestamp}.csv
+    - The template Crowd HTML will be exported to mturk/{template.name}/layout_{timestamp}.html"""
 
     template: CritiqueTaskTemplate = request.template
     with _exporters_lock:
