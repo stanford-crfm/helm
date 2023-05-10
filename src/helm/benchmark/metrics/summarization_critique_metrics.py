@@ -19,7 +19,7 @@ _NO_VALUE = "No"
 class SummarizationCritiqueMetric(Metric):
     """Reimplementation of SummarizationMetric's evals using critique evaluation.
 
-    This is a demonstration of critique evaluation and is not indended for production use."""
+    This is a demonstration of critique evaluation and is not intended for production use."""
 
     def __init__(self, num_respondents: int) -> None:
         self._template = CritiqueTaskTemplate(
@@ -81,9 +81,11 @@ class SummarizationCritiqueMetric(Metric):
         stats: Dict[str, Stat] = {}
         for question in self._template.questions:
             stats[question.name] = Stat(MetricName(question.name))
-        # Skip computing metrics if therea re not enough responses.
+
+        # Skip computing metrics if there are not enough responses.
         if len(result.responses) < request.template.num_respondents:
             return []
+
         for response in result.responses:
             for answer_name, answer in response.answers.items():
                 if not isinstance(answer, str):
