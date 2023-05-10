@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 from helm.common.tokenization_request import TokenizationToken
 
+INFINITY: int = 2**31 - 1
+
 
 @dataclass(frozen=True)
 class EncodeResult:
@@ -41,6 +43,17 @@ class WindowService(ABC):
         so that users can specify the last output token. e.g. GPT-3.
         """
         pass
+
+    @property
+    def max_sequence_and_tokens_length(self) -> int:
+        """
+        The max length of the model input and output tokens.
+        Some models (like Anthropic/Claude and Megatron) have a
+        specifix limit sequence length + max_token.
+
+        Since models do not have this limit, returns infinity.
+        """
+        return INFINITY
 
     @property
     @abstractmethod
