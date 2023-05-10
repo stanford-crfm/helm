@@ -47,10 +47,9 @@ class DALLE2Client(OpenAIClient):
         cache_config: CacheConfig,
         file_cache: FileCache,
         moderation_api_client: ModerationAPIClient,
-        tokenizer_client: Client,
         org_id: Optional[str] = None,
     ):
-        super().__init__(api_key, cache_config, org_id=org_id, tokenizer_client=tokenizer_client)
+        super().__init__(cache_config=cache_config, api_key=api_key, org_id=org_id)
         self.file_cache: FileCache = file_cache
         self.moderation_api_client: ModerationAPIClient = moderation_api_client
 

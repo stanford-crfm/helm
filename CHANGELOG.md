@@ -2,7 +2,27 @@
 
 ## [Upcoming]
 
-- Add changes for the upcoming release here
+### Models
+
+- Added BigCode (#1506)
+- Added GPT-4 (#1457)
+- Added OPT 1.3B and 6.7B (#1468)
+
+### Scenarios
+
+- Added legal summarization scenarios (#1454)
+- Fixed corner cases in window service truncation (#1449)
+- Pinned file order for ICE, APPS (code) and ICE scenarios (#1352)
+- Fixed random seed for entity matching scenario (#1475)
+
+### Metrics
+
+- Fixed bug in multi-choice exact match calculation when scores are tied (#1494)
+
+### Framework
+
+- Added script for estimating the cost of a run suite (#1480)
+- Added support for human critique evaluation using Surge AI (#1330)
 
 ## [v0.2.2] - 2023-03-30
 
@@ -40,7 +60,6 @@
 ### Models
 
 - Added BigCode SantaCoder (#1312)
-- Added OPT-IML, Cohere Command, CodeGeeX (#1331)
 
 ### Scenarios
 

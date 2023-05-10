@@ -1,6 +1,5 @@
 import argparse
 from dataclasses import replace
-import os
 from typing import List, Optional
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
@@ -13,11 +12,8 @@ from helm.proxy.services.remote_service import create_authentication, add_servic
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
-from .runner import Runner, RunSpec
+from .runner import Runner, RunSpec, LATEST_SYMLINK
 from .run_specs import construct_run_specs
-
-
-LATEST_SYMLINK: str = "latest"
 
 
 def run_entries_to_run_specs(
@@ -75,6 +71,8 @@ def run_benchmarking(
     suite: str,
     dry_run: bool,
     skip_instances: bool,
+    cache_instances: bool,
+    cache_instances_only: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
     mongo_uri: str = "",
@@ -93,22 +91,18 @@ def run_benchmarking(
         for run_spec in run_specs:
             hlog(run_spec)
 
-    runner = Runner(execution_spec, output_path, suite, skip_instances, skip_completed_runs, exit_on_error)
+    runner = Runner(
+        execution_spec,
+        output_path,
+        suite,
+        skip_instances,
+        cache_instances,
+        cache_instances_only,
+        skip_completed_runs,
+        exit_on_error,
+    )
     runner.run_all(run_specs)
     return run_specs
-
-
-def symlink_latest(output_path: str, suite: str) -> None:
-    # Create a symlink runs/latest -> runs/<name_of_suite>,
-    # so runs/latest always points to the latest run suite.
-    runs_dir: str = os.path.join(output_path, "runs")
-    suite_dir: str = os.path.join(runs_dir, suite)
-    symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
-    hlog(f"Symlinking {suite_dir} to {LATEST_SYMLINK}.")
-    if os.path.islink(symlink_path):
-        # Remove the previous symlink if it exists.
-        os.unlink(symlink_path)
-    os.symlink(os.path.abspath(suite_dir), symlink_path)
 
 
 def add_run_args(parser: argparse.ArgumentParser):
@@ -121,6 +115,18 @@ def add_run_args(parser: argparse.ArgumentParser):
         action="store_true",
         default=None,
         help="Skip creation of instances (basically do nothing but just parse everything).",
+    )
+    parser.add_argument(
+        "--cache-instances",
+        action="store_true",
+        default=None,
+        help="Save generated instances input to model to disk. If already cached, read instances from file.",
+    )
+    parser.add_argument(
+        "--cache-instances-only",
+        action="store_true",
+        default=None,
+        help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
     )
     parser.add_argument(
         "-d",
@@ -170,6 +176,8 @@ def add_run_args(parser: argparse.ArgumentParser):
 
 def validate_args(args):
     assert args.suite != LATEST_SYMLINK, f"Suite name can't be '{LATEST_SYMLINK}'"
+    if args.cache_instances_only:
+        assert args.cache_instances, "If --cache-instances-only is set, --cache-instances must also be set."
 
 
 @htrack(None)
@@ -263,6 +271,7 @@ def main():
         return
 
     auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
+
     run_benchmarking(
         run_specs=run_specs,
         auth=auth,
@@ -274,12 +283,12 @@ def main():
         suite=args.suite,
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
+        cache_instances=args.cache_instances,
+        cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
         mongo_uri=args.mongo_uri,
     )
-
-    symlink_latest(output_path=args.output_path, suite=args.suite)
 
     hlog("Done.")
 

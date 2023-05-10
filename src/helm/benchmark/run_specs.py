@@ -19,7 +19,9 @@ from .run_expander import (
     GlobalPrefixRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
+    AddToStopRunExpander,
     IncreaseMaxTokensRunExpander,
+    FormatPromptRunExpander,
     IncreaseTemperatureRunExpander,
 )
 from .runner import RunSpec
@@ -48,9 +50,12 @@ from helm.proxy.models import (
     NLG_PREFIX_TAG,
     CHATML_MODEL_TAG,
     OPENAI_CHATGPT_MODEL_TAG,
+    ANTHROPIC_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
 )
 from helm.common.general import singleton
+import anthropic
+from helm.proxy.clients.anthropic_client import AnthropicClient
 
 
 ############################################################
@@ -520,6 +525,15 @@ def get_summarization_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
     return [
         MetricSpec(class_name="helm.benchmark.summarization_metrics.SummarizationMetric", args=args)
     ] + get_basic_metric_specs([])
+
+
+def get_summarization_critique_metric_specs(num_respondents: int) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.summarization_critique_metrics.SummarizationCritiqueMetric",
+            args={"num_respondents": num_respondents},
+        )
+    ]
 
 
 def get_srn_metric_specs() -> List[MetricSpec]:
@@ -2575,6 +2589,16 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
+
+        if ANTHROPIC_MODEL_TAG in model.tags:
+            add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
+            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
+            format_expander = FormatPromptRunExpander(
+                prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
+            )
+            run_spec = singleton(add_to_stop_expander.expand(run_spec))
+            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
+            run_spec = singleton(format_expander.expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:

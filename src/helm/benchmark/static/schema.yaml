@@ -88,6 +88,18 @@ models:
     access: closed
     num_parameters: 52000000000
     release_date: 2021-12-01
+  - name: anthropic/claude-v1.3
+    display_name: Anthropic Claude V1.3
+    description: A model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-03-17
+  - name: anthropic/claude-instant-v1
+    display_name: Anthropic Claude Instant V1
+    description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-03-17
 
   # BigScience
   - name: together/bloom
@@ -117,6 +129,11 @@ models:
   - name: huggingface/santacoder
     display_name: SantaCoder (1.1B)
     description: SantaCoder (1.1B parameters) model trained on the Python, Java, and JavaScript subset of The Stack (v1.1) ([model card](https://huggingface.co/bigcode/santacoder)).
+    creator_organization: BigCode
+    access: open
+  - name: huggingface/starcoder
+    display_name: StarCoder (15.5B)
+    description: The StarCoder (15.5B parameter) model trained on 80+ programming languages from The Stack (v1.2) ([model card](https://huggingface.co/bigcode/starcoder)).
     creator_organization: BigCode
     access: open
 
@@ -292,7 +309,7 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2022-05-02
-  
+
   - name: together/opt-1.3b
     display_name: OPT (1.3B)
     description: Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
@@ -407,6 +424,18 @@ models:
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-27
+  - name: openai/gpt-4-0314
+    display_name: gpt-4-0314
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from March 14th 2023.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-03-14
+  - name: openai/gpt-4-32k-0314
+    display_name: gpt-4-32k-0314
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 with a longer context length of 32,768 tokens from March 14th 2023.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-03-14
   - name: openai/code-davinci-002
     display_name: code-davinci-002
     description: Codex-style model that is designed for pure code-completion tasks ([docs](https://beta.openai.com/docs/models/codex)).
@@ -482,7 +511,44 @@ models:
     num_parameters: 13000000000
     release_date: 2022-09-19
     todo: true
-    
+
+  # Writer
+  - name: writer/palmyra-base
+    display_name: Palmyra Base (5B)
+    description: Palmyra Base (5B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 5000000000
+    release_date: 2022-10-13
+  - name: writer/palmyra-large
+    display_name: Palmyra Large (20B)
+    description: Palmyra Large (20B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 20000000000
+    release_date: 2022-12-23
+  - name: writer/palmyra-instruct-30
+    display_name: InstructPalmyra (30B)
+    description: InstructPalmyra (30B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-02-16
+  - name: writer/palmyra-e
+    display_name: Palmyra E (30B)
+    description: Palmyra E (30B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-03-03
+  - name: writer/silk-road
+    display_name: Silk Road (35B)
+    description: Silk Road (35B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 35000000000
+    release_date: 2023-04-13
+
   # Yandex
   - name: together/yalm
     display_name: YaLM (100B)
@@ -491,6 +557,14 @@ models:
     access: open
     num_parameters: 100000000000
     release_date: 2022-06-23
+
+  # Nvidia
+  - name: nvidia/megatron-gpt2
+    display_name: Megatron GPT2
+    description: Megatron GPT2
+    description: GPT-2 implemented in Megatron-LM ([paper](https://arxiv.org/abs/1909.08053)).
+    creator_organization: Nvidia
+    access: open
 
 ############################################################
 adapter:
@@ -3315,21 +3389,21 @@ run_groups:
 ## Aspirational scenarios
 # Task coverage
   - name: data_to_text_generation
-    display_name: Data-to-text generation 
+    display_name: Data-to-text generation
     description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement data-to-text generation. Could be implemented via WebNLG, E2E, ToTTo, etc.
     taxonomy:
       task: data-to-text generation
     todo: true
 
   - name: fact_verification
-    display_name: Fact verification 
+    display_name: Fact verification
     description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement fact verification. Could be implemented via FEVER.
     taxonomy:
       task: fact verification
     todo: true
 
   - name: copywriting
-    display_name: Copywriting 
+    display_name: Copywriting
     description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement tasks that have not been historically studied in the NLP research community like (ad) copywriting.
     taxonomy:
       task: copywriting
@@ -3401,7 +3475,7 @@ run_groups:
     todo: true
 
   - name: non_US_demographics
-    display_name: Scenarios involving data from marginalized demographics in non-US English-speaking regions 
+    display_name: Scenarios involving data from marginalized demographics in non-US English-speaking regions
     description: Currently, we ensure some coverage of language based on US-centric demographic groups, including marginalized groups. We should implement scenarios to ensure coverage of other socially-relevant groups beyond US demographics (e.g., caste in India).
     taxonomy:
       who: relevant demographics in non-US English-speaking regions
