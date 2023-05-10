@@ -227,17 +227,21 @@ class AutoClient(Client):
             cache_config: CacheConfig = self._build_cache_config(organization)
             if get_huggingface_model_config(tokenizer):
                 client = HuggingFaceClient(cache_config=cache_config)
-            elif organization in [
-                "bigscience",
-                "bigcode",
-                "EleutherAI",
-                "facebook",
-                "google",
-                "gooseai",
-                "huggingface",
-                "microsoft",
-                "Writer",
-            ]:
+            elif (
+                organization
+                in [
+                    "bigscience",
+                    "bigcode",
+                    "EleutherAI",
+                    "facebook",
+                    "google",
+                    "gooseai",
+                    "huggingface",
+                    "microsoft",
+                    "Writer",
+                ]
+                or tokenizer == "openai/clip-vit-large-patch14"
+            ):
                 client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "openai":
                 client = OpenAIClient(
