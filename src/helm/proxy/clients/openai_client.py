@@ -53,13 +53,25 @@ class OpenAIClient(Client):
                 "engine": request.model_engine,
             }
         elif self._is_chat_model_engine(request.model_engine):
-            raw_request = {
-                "model": request.model_engine,
+            messages: Optional[List[Dict[str, str]]] = request.messages
+            if request.messages and len(request.messages) > 1:
+                # Checks that all messages have a role and some content
+                for message in request.messages:
+                    if not message.get("role") or not message.get("content"):
+                        raise ValueError("All messages must have a role and content")
+                # Checks that the last role is "user"
+                if request.messages[-1]["role"] != "user":
+                    raise ValueError("Last message must have role 'user'")
+            else:
+                # Convert prompt into a single message
                 # For now, put the whole prompt in a single user message, and expect the response
                 # to be returned in a single assistant message.
                 # TODO: Support ChatML for creating multiple messages with different roles.
                 # See: https://github.com/openai/openai-python/blob/main/chatml.md
-                "messages": [{"role": "user", "content": request.prompt}],
+                messages = [{"role": "user", "content": request.prompt}]
+            raw_request = {
+                "model": request.model_engine,
+                "messages": messages,
                 "temperature": request.temperature,
                 "top_p": request.top_p,
                 "n": request.num_completions,
