@@ -1000,7 +1000,7 @@ def main():
     if not args.skip_write_run_display_json:
         summarizer.write_run_display_json()
 
-    symlink_latest()
+    symlink_latest(args.output_path, args.suite)
     hlog("Done.")
 
 

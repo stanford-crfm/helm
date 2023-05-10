@@ -500,6 +500,15 @@ def get_summarization_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
     ] + get_basic_metric_specs([])
 
 
+def get_summarization_critique_metric_specs(num_respondents: int) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.summarization_critique_metrics.SummarizationCritiqueMetric",
+            args={"num_respondents": num_respondents},
+        )
+    ]
+
+
 def get_srn_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["f1_set_match", "iou_set_match", "exact_set_match"])
 
