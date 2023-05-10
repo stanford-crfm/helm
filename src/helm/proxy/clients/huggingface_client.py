@@ -123,6 +123,8 @@ _servers: Dict[str, HuggingFaceServer] = {}
 
 # TODO (julian-q) server still gets instantiated multiple times
 def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceServer:
+    global _servers_lock
+    global _servers
     with _servers_lock:
         if model_config.model_id not in _servers:
             hlog("WARNING: instantiating new HuggingFaceServer")
