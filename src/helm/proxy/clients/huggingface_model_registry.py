@@ -10,8 +10,8 @@ from helm.proxy.models import (
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 
-# The path where local HuggingFace models should be downloaded or symlinked, e.g. ./helm-models/llama-7b
-LOCAL_MODEL_DIR = "./helm-models"
+# The path where local HuggingFace models should be downloaded or symlinked, e.g. ./huggingface_models/llama-7b
+LOCAL_MODEL_DIR = "./huggingface_models"
 
 @dataclass(frozen=True)
 class HuggingFaceModelConfig:
