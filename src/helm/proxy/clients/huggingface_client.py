@@ -236,10 +236,15 @@ class HuggingFaceClient(Client):
                     ]:
                         tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
                     else:
-                        tokens = tokenizer.tokenize(request.text)
-                        tokens = [token.replace("▁", " ") for token in tokens]
-                        # TODO(1522): Reenable this to revove "▁"
-                        # tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
+                        # Tokenizes the text and returns the tokens as a list of strings,
+                        # not a list of token objects (otherwise "Hello world" would be"
+                        # ["Hello", "▁world"] and not ["Hello", " world"])
+                        # We could do this with a simple replace like this:
+                        # tokens = tokenizer.tokenize(request.text)
+                        # tokens = [token.replace("▁", " ") for token in tokens]
+                        # But this is not robust enough, so we use the convert_tokens_to_string
+                        # method instead (to handle futurte special characters like Ġ)
+                        tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
                 return {"tokens": tokens}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
