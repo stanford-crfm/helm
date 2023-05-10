@@ -13,6 +13,7 @@ proxy_api_key*.txt
 microsoft_client.lock
 .helm_cache
 logs/
+mturk/
 *.log
 *.out
 *.jsonl
