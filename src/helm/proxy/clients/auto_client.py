@@ -16,7 +16,8 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.retry import retry_request
-from .critique_client import CritiqueClient, SurgeAICritiqueClient
+from .critique_client import CritiqueClient, RandomCritiqueClient, SurgeAICritiqueClient
+from .mechanical_turk_critique_client import MechanicalTurkCritiqueClient
 from .client import Client
 from .ai21_client import AI21Client
 from .aleph_alpha_client import AlephAlphaClient
@@ -29,11 +30,13 @@ from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
 from .huggingface_model_registry import get_huggingface_model_config
 from .ice_tokenizer_client import ICETokenizerClient
+from .megatron_client import MegatronClient
 from .openai_client import OpenAIClient
 from .moderation_api_client import ModerationAPIClient
 from .microsoft_client import MicrosoftClient
 from .nudity_check_client import NudityCheckClient
 from .perspective_api_client import PerspectiveAPIClient
+from .palmyra_client import PalmyraClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
 from .aleph_alpha_vision_client import AlephAlphaVisionClient
@@ -90,13 +93,14 @@ class AutoClient(Client):
                 client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "openai":
                 org_id = self.credentials.get("openaiOrgId", None)
+                api_key = self.credentials.get("openaiApiKey", None)
+
                 if is_text_to_image_request:
                     client = DALLE2Client(
                         api_key=self.credentials["openaiApiKey"],
                         cache_config=cache_config,
                         file_cache=file_cache,
                         moderation_api_client=self.get_moderation_api_client(),
-                        tokenizer_client=self._get_tokenizer_client("huggingface"),
                         org_id=org_id,
                     )
                 else:
@@ -111,12 +115,10 @@ class AutoClient(Client):
                         cache_config=self._build_cache_config("ChatGPT"),
                         tokenizer_client=self._get_tokenizer_client("huggingface"),
                     )
-
                     client = OpenAIClient(
-                        api_key=self.credentials["openaiApiKey"],
                         cache_config=cache_config,
-                        tokenizer_client=self._get_tokenizer_client("huggingface"),
                         chat_gpt_client=chat_gpt_client,
+                        api_key=api_key,
                         org_id=org_id,
                     )
             elif organization == "AlephAlpha":
@@ -145,7 +147,10 @@ class AutoClient(Client):
                 else:
                     client = self.huggingface_client
             elif organization == "anthropic":
-                client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_config=cache_config)
+                client = AnthropicClient(
+                    api_key=self.credentials.get("anthropicApiKey", None),
+                    cache_config=cache_config,
+                )
             elif organization == "microsoft":
                 org_id = self.credentials.get("microsoftOrgId", None)
                 lock_file_path: str = os.path.join(self.cache_path, f"{organization}.lock")
@@ -173,6 +178,14 @@ class AutoClient(Client):
                 client = CogView2Client(cache_config, file_cache)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
+            elif organization == "writer":
+                client = PalmyraClient(
+                    api_key=self.credentials["writerApiKey"],
+                    cache_config=cache_config,
+                    tokenizer_client=self._get_tokenizer_client("huggingface"),
+                )
+            elif organization == "nvidia":
+                client = MegatronClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find client for model: {request.model}")
 
@@ -215,7 +228,6 @@ class AutoClient(Client):
             if get_huggingface_model_config(tokenizer):
                 client = HuggingFaceClient(cache_config=cache_config)
             elif organization in [
-                "anthropic",
                 "bigscience",
                 "bigcode",
                 "EleutherAI",
@@ -224,11 +236,19 @@ class AutoClient(Client):
                 "gooseai",
                 "huggingface",
                 "microsoft",
-                "openai",
+                "Writer",
             ]:
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "openai":
+                client = OpenAIClient(
+                    cache_config=cache_config,
+                )
             elif organization == "AlephAlpha":
                 client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
+            elif organization == "anthropic":
+                client = AnthropicClient(
+                    api_key=self.credentials.get("anthropicApiKey", None), cache_config=cache_config
+                )
             elif organization == "TsinghuaKEG":
                 client = ICETokenizerClient(cache_config=cache_config)
             elif organization == "Yandex":
@@ -239,6 +259,8 @@ class AutoClient(Client):
                 client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
+            elif organization == "nvidia":
+                client = MegatronClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client
@@ -294,12 +316,18 @@ class AutoClient(Client):
 
     def get_critique_client(self) -> CritiqueClient:
         """Get the critique client."""
-        if not self.critique_client:
-            surgeai_credentials = self.credentials.get("surgeaiApiKey", None)
-            if surgeai_credentials:
-                self.critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
-            # To use the RandomCritiqueClient for debugging, comment out `raise ValueError` and uncomment the following
-            # from .critique_client import RandomCritiqueClient
-            # self.critique_client =  RandomCritiqueClient()
-            raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
+        critique_type = self.credentials.get("critiqueType")
+        if critique_type == "random":
+            self.critique_client = RandomCritiqueClient()
+        elif critique_type == "mturk":
+            self.critique_client = MechanicalTurkCritiqueClient()
+        elif critique_type == "surgeai":
+            surgeai_credentials = self.credentials.get("surgeaiApiKey")
+            if not surgeai_credentials:
+                raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
+            self.critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
+        else:
+            raise ValueError(
+                "CritiqueClient is not configured; set critiqueType to 'mturk', 'mturk-sandbox', 'surgeai' or 'random'"
+            )
         return self.critique_client

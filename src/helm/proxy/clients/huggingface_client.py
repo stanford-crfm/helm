@@ -133,6 +133,10 @@ class HuggingFaceClient(Client):
                 self.model_server_instances[model] = HuggingFaceServer(
                     HuggingFaceModelConfig.from_string("bigcode/santacoder")
                 )
+            elif model == "huggingface/large-model":
+                self.model_server_instances[model] = HuggingFaceServer(
+                    HuggingFaceModelConfig.from_string("bigcode/large-model")
+                )
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")
 
@@ -225,7 +229,16 @@ class HuggingFaceClient(Client):
                     else:
                         tokens = tokenizer.encode(request.text, add_special_tokens=False)
                 else:
-                    tokens = tokenizer.tokenize(request.text)
+                    if "gpt" in request.tokenizer or request.tokenizer in [
+                        "bigscience/bloom",
+                        "Writer/palmyra-base",
+                        "facebook/opt-66b",
+                    ]:
+                        tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
+                    else:
+                        tokens = tokenizer.tokenize(request.text)
+                        # TODO(1522): Reenable this to revove "▁"
+                        # tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
                 return {"tokens": tokens}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))

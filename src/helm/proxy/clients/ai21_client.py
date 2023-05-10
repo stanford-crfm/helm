@@ -85,6 +85,7 @@ class AI21Client(Client):
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
         def fix_text(x: str, first: bool) -> str:
+            # TODO(#1522): check if with #1519 this is still needed. This is similar to #1516.
             x = x.replace("▁", " ")
             x = x.replace("<|newline|>", "\n")
             # For some reason, the first token sometimes starts with a space, so get rid of it
