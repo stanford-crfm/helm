@@ -80,7 +80,7 @@ class CogView2Client(Client):
             text = getattr(self._args, "query_template").format(prompt)
             seq = tokenizer.encode(text)
             if len(seq) > MAX_SEQ_LEN:
-                seq = seq[:MAX_SEQ_LEN - 2] + seq[-2:]
+                seq = seq[: MAX_SEQ_LEN - 2] + seq[-2:]
             txt_len = len(seq) - 1
             device = getattr(self._args, "device")
             seq = torch.tensor(seq + [-1] * 400, device=device)
