@@ -56,7 +56,7 @@ class WindowServiceFactory:
         huggingface_model_config = get_huggingface_model_config(model_name)
         if get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
-        elif huggingface_model_config: 
+        elif huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
         elif organization == "openai":
             if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
