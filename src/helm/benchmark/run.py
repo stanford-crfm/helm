@@ -236,7 +236,7 @@ def main():
     parser.add_argument(
         "--use-slurm-runner",
         action="store_true",
-        help="Experimental: If set, each RunSpec will be run in a separate Slurm worker job. "
+        help="Experimental: If set, each RunSpec will be run in a separate worker Slurm job. "
         "Currently only works on the Stanford NLP cluster.",
     )
     add_run_args(parser)
