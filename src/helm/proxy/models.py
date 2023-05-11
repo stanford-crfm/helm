@@ -391,14 +391,6 @@ ALL_MODELS = [
         description="", # TODO add description
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     ),
-    Model(
-        group="local",
-        creator_organization="OpenAI",
-        name="local/gpt2",
-        display_name="GPT-2",
-        description="", # TODO add description
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG]
-    ),
     # Google
     Model(
         group="together",
