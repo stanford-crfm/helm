@@ -561,7 +561,6 @@ models:
   # Nvidia
   - name: nvidia/megatron-gpt2
     display_name: Megatron GPT2
-    description: Megatron GPT2
     description: GPT-2 implemented in Megatron-LM ([paper](https://arxiv.org/abs/1909.08053)).
     creator_organization: Nvidia
     access: open
