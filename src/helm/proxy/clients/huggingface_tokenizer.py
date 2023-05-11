@@ -56,8 +56,10 @@ class HuggingFaceTokenizers:
                     # If the HuggingFace model is stored locally, the tokenizer config
                     # will be found at the defined path.
                     if model_config.path:
+                        hlog(f"Loading {tokenizer_name} from local path {model_config.path}")
                         hf_tokenizer_name = model_config.path
                     else:
+                        hlog(f"Loading {tokenizer_name} from Hugging Face Hub model {model_config.model_id}")
                         hf_tokenizer_name = model_config.model_id
                     revision = model_config.revision
                 elif tokenizer_name == "huggingface/gpt2":
