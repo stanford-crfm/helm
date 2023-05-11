@@ -105,8 +105,15 @@ class Service(ABC):
         pass
 
     @abstractmethod
+    def is_toxicity_score_available(self) -> Tuple[bool, str]:
+        """Whether toxicity score is available, i.e. whether the Perspective API key is set.
+        Return: (is_available, error_message)"""
+        pass
+
+    @abstractmethod
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
-        """Get toxicity scores for a batch of text."""
+        """Get toxicity scores for a batch of text.
+        Should only be called if `self.is_toxicity_score_available` is True."""
         pass
 
     def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:

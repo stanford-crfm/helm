@@ -1,6 +1,6 @@
 import os
 import signal
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
@@ -119,6 +119,11 @@ class ServerService(Service):
         """Decodes to text."""
         self.accounts.authenticate(auth)
         return self.client.decode(request)
+
+    def is_toxicity_score_available(self) -> Tuple[bool, str]:
+        if not self.perspective_api_client:
+            self.perspective_api_client = self.client.get_toxicity_classifier_client()
+        return self.perspective_api_client.is_toxicity_score_available()
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request

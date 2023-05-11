@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 from helm.common.authentication import Authentication
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
@@ -14,6 +14,9 @@ class MetricService(TokenizerService):
 
     def __init__(self, service: Service, auth: Authentication):
         super().__init__(service, auth)
+
+    def is_toxicity_score_available(self) -> Tuple[bool, str]:
+        return self._service.is_toxicity_score_available()
 
     def get_toxicity_scores(self, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         return self._service.get_toxicity_scores(self._auth, request)

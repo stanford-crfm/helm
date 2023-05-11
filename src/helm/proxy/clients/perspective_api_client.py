@@ -1,6 +1,6 @@
 import threading
 from dataclasses import asdict
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 from dacite import from_dict
 from googleapiclient import discovery
@@ -57,6 +57,7 @@ class PerspectiveAPIClient:
 
         # Google API client
         self.client: Optional[discovery.Resource] = None
+        self.is_available: Optional[bool] = None
 
         # Cache requests and responses from Perspective API
         self.cache = Cache(cache_config)
@@ -65,21 +66,40 @@ class PerspectiveAPIClient:
         self.request_lock: Optional[threading.RLock] = threading.RLock()
         # self.request_lock = None  # TODO: temporary hack to get multiprocessing to work for now
 
+    def _initialize_client(self):
+        """Initialize the client."""
+        self.client = discovery.build(
+            "commentanalyzer",
+            "v1alpha1",
+            developerKey=self.api_key,
+            discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
+            static_discovery=False,
+        )
+
     def _get_or_initialize_client(self) -> discovery.Resource:
         if not self.client:
             try:
-                self.client = discovery.build(
-                    "commentanalyzer",
-                    "v1alpha1",
-                    developerKey=self.api_key,
-                    discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
-                    static_discovery=False,
-                )
+                self._initialize_client()
             except (HttpError, KeyError) as e:
                 raise PerspectiveAPIClientError(
                     f"An error occurred while authenticating and instantiating a client: {e}"
                 )
         return self.client
+
+    def is_toxicity_score_available(self) -> Tuple[bool, str]:
+        if self.api_key == "":  # Default empty key
+            return False, "Missing Perspective API key"
+        elif self.client is not None:  # Already initialized
+            return True, ""
+        elif self.is_available is not None:
+            return self.is_available, "Invalid Perspective API key" if not self.is_available else ""
+        try:
+            self._initialize_client()
+            self.is_available = True
+            return True, ""
+        except Exception:
+            self.is_available = False  # Cache the result in order to avoid trying to initialize again
+            return False, "Invalid Perspective API key"
 
     def get_toxicity_scores(self, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """
