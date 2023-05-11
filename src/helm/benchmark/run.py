@@ -115,26 +115,22 @@ def add_run_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--skip-instances",
         action="store_true",
-        default=None,
         help="Skip creation of instances (basically do nothing but just parse everything).",
     )
     parser.add_argument(
         "--cache-instances",
         action="store_true",
-        default=None,
         help="Save generated instances input to model to disk. If already cached, read instances from file.",
     )
     parser.add_argument(
         "--cache-instances-only",
         action="store_true",
-        default=None,
         help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
     )
     parser.add_argument(
         "-d",
         "--dry-run",
         action="store_true",
-        default=None,
         help="Skip execution, only output scenario states and estimate token usage.",
     )
     parser.add_argument(
@@ -208,13 +204,11 @@ def main():
     parser.add_argument(
         "--exit-on-error",
         action="store_true",
-        default=None,
         help="Fail and exit immediately if a particular RunSpec fails.",
     )
     parser.add_argument(
         "--skip-completed-runs",
         action="store_true",
-        default=None,
         help="Skip RunSpecs that have completed i.e. output files exists.",
     )
     parser.add_argument(
@@ -242,7 +236,6 @@ def main():
     parser.add_argument(
         "--use-slurm-runner",
         action="store_true",
-        default=None,
         help="Experimental: If set, each RunSpec will be run in a separate Slurm worker job. "
         "Currently only works on the Stanford NLP cluster.",
     )
@@ -284,18 +277,18 @@ def main():
         run_specs=run_specs,
         auth=auth,
         url=args.server_url,
-        local=bool(args.local),
+        local=args.local,
         local_path=args.local_path,
         num_threads=args.num_threads,
         output_path=args.output_path,
         suite=args.suite,
-        dry_run=bool(args.dry_run),
-        skip_instances=bool(args.skip_instances),
-        cache_instances=bool(args.cache_instances),
-        cache_instances_only=bool(args.cache_instances_only),
-        skip_completed_runs=bool(args.skip_completed_runs),
-        exit_on_error=bool(args.exit_on_error),
-        use_slurm_runner=bool(args.use_slurm_runner),
+        dry_run=args.dry_run,
+        skip_instances=args.skip_instances,
+        cache_instances=args.cache_instances,
+        cache_instances_only=args.cache_instances_only,
+        skip_completed_runs=args.skip_completed_runs,
+        exit_on_error=args.exit_on_error,
+        use_slurm_runner=args.use_slurm_runner,
         mongo_uri=args.mongo_uri,
     )
 
