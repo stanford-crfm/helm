@@ -9,7 +9,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
 MODEL_ALIASES = {
@@ -32,7 +32,7 @@ available implementations on Together."""
 
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
-    x = x.replace("▁", " ")
+    x = cleanup_str(x)
     return x
 
 

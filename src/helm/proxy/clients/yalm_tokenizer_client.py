@@ -9,7 +9,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, cleanup_tokens
 from .yalm_tokenizer.yalm_tokenizer import YaLMTokenizer
 
 
@@ -43,7 +43,7 @@ class YaLMTokenizerClient(Client):
                 return {
                     "tokens": token_ids
                     if request.encode
-                    else [token.replace("▁", " ") for token in self.tokenizer.convert_ids_to_tokens(token_ids)]
+                    else cleanup_tokens(self.tokenizer.convert_ids_to_tokens(token_ids))
                 }
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))

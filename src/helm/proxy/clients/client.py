@@ -118,3 +118,18 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
         sequence = Sequence(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
     return sequence
+
+
+def cleanup_str(token: str) -> str:
+    """
+    Certain tokenizer introduce special character to represent spaces, such as
+    "Ġ" or "▁". This function removes those characters.
+    """
+    return token.replace("Ġ", "").replace("▁", "")
+
+
+def cleanup_tokens(tokens: List[str]) -> List[str]:
+    """
+    Applies `cleanup_str` to each token in `tokens`.
+    """
+    return [cleanup_str(token) for token in tokens]

@@ -11,7 +11,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, cleanup_tokens
 
 
 class ICETokenizerClient(Client):
@@ -34,7 +34,7 @@ class ICETokenizerClient(Client):
             def do_it():
                 tokens = tokenizer.encode(request.text) if request.encode else tokenizer.tokenize(request.text)
                 if not request.encode:
-                    tokens = [t.replace("▁", " ") for t in tokens]
+                    tokens = cleanup_tokens(tokens)
                 if request.truncation:
                     tokens = tokens[: request.max_length]
                 return {"tokens": tokens}

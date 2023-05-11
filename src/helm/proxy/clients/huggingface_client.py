@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import Client, wrap_request_time, truncate_sequence, cleanup_tokens
 from .huggingface_tokenizer import HuggingFaceTokenizers
 from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config
 
@@ -245,7 +245,7 @@ class HuggingFaceClient(Client):
                         # This would be problematic as tokenize(" Hello", encode=False) would return ["Hello"]
                         # Just like tokenize("Hello", encode=False) would return ["Hello"].
                         tokens = tokenizer.tokenize(request.text)
-                        tokens = [token.replace("▁", " ") for token in tokens]
+                        tokens = cleanup_tokens(tokens)
                 return {"tokens": tokens}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
