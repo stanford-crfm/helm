@@ -84,7 +84,7 @@ class HuggingFaceModelConfig:
 
     @staticmethod
     def from_path(path: str) -> "HuggingFaceModelConfig":
-        """Genertes a HuggingFaceModelConfig from a (relative or absolute) path to a local HuggingFace model."""
+        """Generates a HuggingFaceModelConfig from a (relative or absolute) path to a local HuggingFace model."""
         pattern = r"((?P<containing_dir>.+?)/)?(?P<model_name>[^/@]+)(@(?P<revision>[^/@]+))?/?"
         match = re.fullmatch(pattern, path)
         if not match:
