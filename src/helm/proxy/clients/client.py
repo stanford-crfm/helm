@@ -125,7 +125,7 @@ def cleanup_str(token: str) -> str:
     Certain tokenizer introduce special character to represent spaces, such as
     "Ġ" or "▁". This function removes those characters.
     """
-    return token.replace("Ġ", "").replace("▁", "")
+    return token.replace("Ġ", " ").replace("▁", " ")
 
 
 def cleanup_tokens(tokens: List[str]) -> List[str]:
