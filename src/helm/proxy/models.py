@@ -380,7 +380,7 @@ ALL_MODELS = [
         creator_organization="Meta",
         name="local/llama-7b",
         display_name="LLaMA (7B)",
-        description="", # TODO add description
+        description="LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     ),
     Model(
@@ -388,7 +388,8 @@ ALL_MODELS = [
         creator_organization="CRFM",
         name="local/alpaca-7b",
         display_name="Alpaca (7B)",
-        description="", # TODO add description
+        description="Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following "
+        "demonstrations.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
     ),
     # Google
