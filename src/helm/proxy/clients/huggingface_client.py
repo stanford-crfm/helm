@@ -16,7 +16,7 @@ from helm.common.tokenization_request import (
 )
 from .client import Client, wrap_request_time, truncate_sequence
 from .huggingface_tokenizer import HuggingFaceTokenizers
-from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config, LOCAL_MODEL_DIR
+from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config, LOCAL_HUGGINGFACE_MODEL_DIR
 from threading import Lock
 
 
@@ -138,12 +138,6 @@ class HuggingFaceClient(Client):
 
     def get_model_server_instance(self, model) -> HuggingFaceServer:
         model_config = get_huggingface_model_config(model)
-        if not model_config:
-            organization = model.split("/")[0]
-            engine = model.split("/")[1]
-            #TODO avoid having to recreate this config in multiple places
-            if organization == "local":
-                model_config = HuggingFaceModelConfig.from_path(f"{LOCAL_MODEL_DIR}/{engine}")
         # Special-case some models in so that users don't have to enable them with --enable-huggingface-models
         if not model_config:
             # Other HuggingFace hub models that we'll look up for you even if you didn't enable them via the flag

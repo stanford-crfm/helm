@@ -1,6 +1,7 @@
 from typing import Dict, Optional
 from dataclasses import dataclass
 import re
+import os
 from helm.common.hierarchical_logger import hlog
 from helm.proxy.models import (
     Model,
@@ -11,7 +12,7 @@ from helm.proxy.models import (
 )
 
 # The path where local HuggingFace models should be downloaded or symlinked, e.g. ./huggingface_models/llama-7b
-LOCAL_MODEL_DIR = "./huggingface_models"
+LOCAL_HUGGINGFACE_MODEL_DIR = "./huggingface_models"
 
 @dataclass(frozen=True)
 class HuggingFaceModelConfig:
@@ -86,13 +87,32 @@ class HuggingFaceModelConfig:
         model_name = match.group("model_name")
         assert model_name
         return HuggingFaceModelConfig(
-            namespace="local",
+            namespace="huggingface",
             model_name=model_name,
             revision=match.group("revision"),
             path=path
         )
 
-_huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {}
+_huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {
+    "huggingface/llama-7b": HuggingFaceModelConfig(
+        namespace="huggingface",
+        model_name="llama-7b",
+        revision=None,
+        path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, "llama-7b")
+    ),
+    "huggingface/alpaca-7b": HuggingFaceModelConfig(
+        namespace="huggingface",
+        model_name="alpaca-7b",
+        revision=None,
+        path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, "alpaca-7b")
+    ),
+    "huggingface/gpt2": HuggingFaceModelConfig(
+        namespace="huggingface",
+        model_name="gpt2",
+        revision=None,
+        path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, "gpt2")
+    ),
+}
 
 
 def register_huggingface_model_config(model_name: str, local: bool = False) -> HuggingFaceModelConfig:
