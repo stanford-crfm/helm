@@ -5,6 +5,7 @@ from typing import Dict, List
 import argparse
 import json
 import os
+import time
 import sys
 
 import dacite
@@ -76,14 +77,14 @@ class SlurmRunner(Runner):
         # This directory will be used for coordinating with workers
         ensure_directory_exists(self.slurm_base_dir)
 
-        # Write the config to the directory
+        # Write the SlurmRunnerSpec to a file
         slurm_runner_spec_json = json.dumps(asdict_without_nones(self.slurm_runner_spec), indent=2)
         slurm_runner_spec_path = os.path.join(self.slurm_base_dir, "slurm_runner_spec.json")
         hlog(f"Writing SlurmRunnerSpec to {slurm_runner_spec_path}")
         with open(slurm_runner_spec_path, "w") as f:
             f.write(slurm_runner_spec_json)
 
-        # Write the run specs to the directory
+        # Set up directories for RunSpecs and logs
         run_specs_dir = os.path.join(self.slurm_base_dir, "run_specs")
         ensure_directory_exists(run_specs_dir)
         logs_dir = os.path.join(self.slurm_base_dir, "logs")
@@ -91,23 +92,29 @@ class SlurmRunner(Runner):
         run_name_to_slurm_job_id: Dict[str, int] = {}
         run_name_to_slurm_job_state: Dict[str, str] = {}
 
-        # Cleanup by cancelling all jobs during program termination or if an exception is raised.
+        # Callback for cleaning up Slurm worker jobs
         def cancel_all_jobs():
-            """Cancels all submitted Slurm jobs that are in a non-terminal state."""
-            for run_name, slurm_job_state in run_name_to_slurm_job_state.values():
+            """Cancels all submitted Slurm worker jobs that are in a non-terminal state."""
+            hlog("Cleaning up by cancelling all Slurm worker jobs")
+            for run_name, slurm_job_state in run_name_to_slurm_job_state.items():
                 if slurm_job_state not in TERMINAL_SLURM_JOB_STATES:
-                    cancel_slurm_job(run_name_to_slurm_job_id[run_name])
+                    slurm_job_id = run_name_to_slurm_job_id[run_name]
+                    hlog(f"Cancelling Slurm worker job run {run_name} with Slurm job ID {slurm_job_id}")
+                    cancel_slurm_job(slurm_job_id)
 
         try:
-            # Submit a Slurm job for each RunSpecs.
+            # Submit a Slurm job for each RunSpec.
+            # TODO: If skip_completed_runs is set and the run is completed, skip creating the Slurm worker job
             for run_spec in run_specs:
-                # TODO: If skip_completed_runs is set and the run is completed, skip creating the Slurm worker job
+                # Write the RunSpec to a file
                 run_name = run_spec.name
                 run_spec_json = json.dumps(asdict_without_nones(run_spec), indent=2)
                 run_spec_path = os.path.join(run_specs_dir, f"{run_spec.name}.json")
                 hlog(f"Writing RunSpec for run {run_name} to {run_spec_path}")
                 with open(run_spec_path, "w") as f:
                     f.write(run_spec_json)
+
+                # Create a Slurm worker job that reads from the SlurmRunnerSpec and RunSpec files
                 log_path = os.path.join(logs_dir, f"{run_spec.name}.log")
                 command = (
                     f"{sys.executable}"
@@ -117,6 +124,7 @@ class SlurmRunner(Runner):
                 )
                 hlog(f"Submitting Slurm worker job for run {run_name} with command: {command}")
                 slurm_job_id = submit_slurm_job(command=command, job_name=run_name, output_path=log_path)
+                time.sleep(0.1)  # Delay to avoid overwhelming Slurm
                 hlog(f"Slurm worker job submitted for run {run_name} with Slurm job ID: {slurm_job_id}")
                 run_name_to_slurm_job_id[run_name] = slurm_job_id
                 run_name_to_slurm_job_state[run_name] = SlurmJobState.PENDING
@@ -129,14 +137,18 @@ class SlurmRunner(Runner):
             with open(slurm_job_ids_path, "w") as f:
                 f.write(json.dumps(run_name_to_slurm_job_id, indent=2))
             hlog("Entering Slurm worker job monitoring loop")
+
             while True:
                 hlog("Getting states of Slurm worker jobs")
                 for run_name, slurm_job_id in run_name_to_slurm_job_id.items():
                     run_name_to_slurm_job_state[run_name] = get_slurm_job_state(slurm_job_id)
+                    time.sleep(0.1)  # Delay to avoid overwhelming Slurm
                 hlog(f"States of all Slurm worker jobs: {json.dumps(run_name_to_slurm_job_state, indent=2)}")
                 hlog(f"Writing Slurm worker job states to {slurm_job_states_path}")
                 with open(slurm_job_states_path, "w") as f:
                     f.write(json.dumps(run_name_to_slurm_job_state, indent=2))
+
+                # Check termination conditions
                 if self.exit_on_error and any(
                     [
                         slurm_job_state in FAILURE_SLURM_JOB_STATES
@@ -153,8 +165,16 @@ class SlurmRunner(Runner):
                 ):
                     hlog("All Slurm worker jobs completed, exiting Slurm job monitoring loop.")
                     break
+
+                # Refresh every minute
+                # TODO: Make this period configurable
+                time.sleep(60)
         finally:
+            # Cleanup by cancelling all jobs during program termination or if an exception is raised.
+            hlog("Exiting Slurm worker job monitoring loop")
             cancel_all_jobs()
+
+        # Raise exception for failed runs, if any.
         failed_run_names = [
             run_name
             for run_name, slurm_job_state in run_name_to_slurm_job_state.items()

@@ -63,7 +63,9 @@ _DEFAULT_SLURM_ARGS: Dict[str, Union[str, int]] = {
 def submit_slurm_job(command: str, job_name: str, output_path: str) -> int:
     """Submit a Slurm job."""
     slurm = Slurm(**_DEFAULT_SLURM_ARGS)
-    slurm.add_arguments(job_name=job_name, output=output_path, mail_user=os.getenv("USER"), chdir=os.getcwd())
+    slurm.add_arguments(job_name=job_name, output=output_path, chdir=os.getcwd())
+    # Uncomment this to get notification emails from Slurm for Slurm worker jobs.
+    # slurm.set_mail_user(os.getenv("USER"))
     return slurm.sbatch(command)
 
 
