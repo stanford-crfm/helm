@@ -94,14 +94,14 @@ def run_benchmarking(
             hlog(run_spec)
     runner_cls = SlurmRunner if use_slurm_runner else Runner
     runner: Runner = runner_cls(
-        execution_spec=execution_spec,
-        output_path=output_path,
-        suite=suite,
-        skip_instances=skip_instances,
-        cache_instances=cache_instances,
-        cache_instances_only=cache_instances_only,
-        skip_completed_runs=skip_completed_runs,
-        exit_on_error=exit_on_error,
+        execution_spec,
+        output_path,
+        suite,
+        skip_instances,
+        cache_instances,
+        cache_instances_only,
+        skip_completed_runs,
+        exit_on_error,
     )
     runner.run_all(run_specs)
     return run_specs
@@ -237,13 +237,14 @@ def main():
         nargs="+",
         default=[],
         help="Experimental: Enable remote service models that are not available on the client. "
-        "The client will use RemoteWindowService for windowing. ",
+        "The client will use RemoteWindowService for windowing.",
     )
     parser.add_argument(
         "--use-slurm-runner",
         action="store_true",
         default=None,
-        help="Use Slurm runner for running on Slurm.",
+        help="Experimental: If set, each RunSpec will be run in a separate Slurm worker job. "
+        "Currently only works on the Stanford NLP cluster.",
     )
     add_run_args(parser)
     args = parser.parse_args()
