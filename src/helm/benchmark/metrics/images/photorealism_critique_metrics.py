@@ -1,21 +1,18 @@
-from typing import List, Optional, Tuple
+from typing import Dict, List
 
 import numpy as np
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric import Metric, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
-from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.scenarios.scenario import Reference
-from helm.common.critique_request import (
-    CritiqueTaskTemplate,
-    CritiqueQuestionTemplate,
-    CritiqueRequest,
-    CritiqueRequestResult,
-)
+from helm.common.critique_request import CritiqueTaskTemplate, CritiqueQuestionTemplate, CritiqueRequest, QuestionType
 from helm.common.images_utils import encode_base64, filter_blacked_out_images
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
 from .image_metrics_utils import gather_generated_image_locations
 
@@ -25,8 +22,14 @@ class PhotorealismCritiqueMetric(Metric):
     Critique evaluation for evaluating how photorealistic the generated images are.
     """
 
-    AI_GENERATED_PHOTO_RESPONSE: str = "AI-generated photo"
-    REAL_PHOTO_RESPONSE: str = "Real photo"
+    PHOTOREALISM_NAME: str = "photorealism_human"
+    PHOTOREALISM_ANSWER_TO_SCORE: Dict[str, int] = {
+        "AI-generated photo": 1,
+        "Probably an AI-generated photo, but photorealistic": 2,
+        "Neutral": 3,
+        "Probably a real photo, but with irregular textures and shapes": 4,
+        "Real photo": 5,
+    }
 
     def __init__(self, num_examples: int, num_respondents: int) -> None:
         self._num_examples: int = num_examples
@@ -53,61 +56,71 @@ class PhotorealismCritiqueMetric(Metric):
                 )
             )
 
+        all_stats: Dict[MetricName, Stat] = {}
+        for request_state in request_states:
+            stats = self.evaluate_generation(
+                scenario_state.adapter_spec,
+                request_state,
+                metric_service,
+                eval_cache_path,
+            )
+            for stat in stats:
+                merge_stat(all_stats, stat)
+
+        return MetricResult(aggregated_stats=list(all_stats.values()), per_instance_stats=[])
+
+    def evaluate_generation(
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
+    ) -> List[Stat]:
+        assert request_state.result is not None
+        request_result: RequestResult = request_state.result
+        image_locations: List[str] = gather_generated_image_locations(request_result)
+        image_locations = filter_blacked_out_images(image_locations)
+        if len(image_locations) == 0:
+            return []
+
+        # Randomly select one of the generated images to critique and real image to compare to
+        generated_image_path: str = np.random.choice(image_locations)
+        references: List[Reference] = request_state.instance.references
+        assert len(references) > 0, "Need at least one reference image for this metric"
+        selected_reference: Reference = np.random.choice(references)  # type: ignore
+        assert selected_reference.output.file_path is not None
+        real_image_path: str = selected_reference.output.file_path
+
         template = CritiqueTaskTemplate(
-            name=f"VHELM image evaluation - photorealism,{scenario_state.adapter_spec.model}",
-            instructions="Determine if the following image is AI-generated or real."
-            '\n<img src="data:image;base64,{{image}}">',
+            # name=f"VHELM photorealism,{scenario_state.adapter_spec.model}",
+            name="vhelm_photorealism",
+            instructions="<p>Determine if the following image is AI-generated or real.</p>"
+            '<br><img src="data:image;base64,{{image}}"><br>',
             num_respondents=self._num_respondents,
             questions=[
                 CritiqueQuestionTemplate(
-                    name="photorealism_human",
-                    question_type="multiple_choice",
+                    name=self.PHOTOREALISM_NAME,
+                    question_type=QuestionType.MULTIPLE_CHOICE,
                     text="Does the image look like an AI-generated photo or a real photo?",
-                    options=[
-                        self.AI_GENERATED_PHOTO_RESPONSE,
-                        "Probably an AI-generated photo, but photorealistic",
-                        "Neutral",
-                        "Probably a real photo, but with irregular textures and shapes",
-                        self.REAL_PHOTO_RESPONSE,
-                    ],
+                    options=list(self.PHOTOREALISM_ANSWER_TO_SCORE.keys()),
                 )
             ],
         )
 
-        responses: List[Tuple[Optional[CritiqueRequestResult], str]] = []
-        for request_state in request_states:
-            assert request_state.result is not None
-            request_result: RequestResult = request_state.result
-            image_locations: List[str] = gather_generated_image_locations(request_result)
-            image_locations = filter_blacked_out_images(image_locations)
-            if len(image_locations) == 0:
-                return MetricResult(aggregated_stats=[], per_instance_stats=[])
+        generated_stat = Stat(MetricName("photorealism_generated_human"))
+        real_stat = Stat(MetricName("photorealism_real_human"))
 
-            # Randomly select one of the generated images to critique and real image to compare to
-            generated_image_path: str = np.random.choice(image_locations)
-            references: List[Reference] = request_state.instance.references
-            assert len(references) > 0, "Need at least one reference image for this metric"
-            selected_reference: Reference = np.random.choice(references)  # type: ignore
-            assert selected_reference.output.file_path is not None
-            real_image_path: str = selected_reference.output.file_path
+        for image_path, stat in [(generated_image_path, generated_stat), (real_image_path, real_stat)]:
+            request = CritiqueRequest(template, fields={"image": encode_base64(image_path)})
+            result = metric_service.make_critique_request(request)
+            if not result or len(result.responses) == 0:
+                # Skip computing metrics if there aren't any responses yet
+                hlog("Waiting for responses to be collected.")
+                return []
 
-            for image_path, correct_response in [
-                (generated_image_path, self.AI_GENERATED_PHOTO_RESPONSE),
-                (real_image_path, self.REAL_PHOTO_RESPONSE),
-            ]:
-                request = CritiqueRequest(template, fields={"image": encode_base64(image_path)})
-                result = metric_service.make_critique_request(request)
-                responses.append((result, correct_response))
+            for response in result.responses:
+                answer: str = str(response.answers[self.PHOTOREALISM_NAME])
+                score: float = self.PHOTOREALISM_ANSWER_TO_SCORE[answer]
+                stat.add(score)
 
-        # Go through all the critique responses and compute the score
-        for (result, correct_response) in responses:
-            if not result or not result.responses:
-                return MetricResult(aggregated_stats=[], per_instance_stats=[])
-
-            # Skip computing metrics if there are not enough responses.
-            if len(result.responses) < self._num_respondents:
-                return MetricResult(aggregated_stats=[], per_instance_stats=[])
-
-        # TODO: compute score -Tony
-        score: float = 0
-        return MetricResult(aggregated_stats=[Stat(MetricName("photorealism_human")).add(score)], per_instance_stats=[])
+        return [generated_stat, real_stat]
