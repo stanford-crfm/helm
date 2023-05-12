@@ -50,7 +50,8 @@ class LanguageModelingAdapter(Adapter):
         max_request_length: int = self.window_service.max_request_length
         # Handle max_sequence_and_tokens_length
         max_request_length = min(
-            max_request_length, self.window_service.max_sequence_and_tokens_length - self.adapter_spec.max_tokens
+            max_request_length,
+            self.window_service.max_sequence_and_generated_tokens_length - self.adapter_spec.max_tokens,
         )
         prefix_token: str = self.window_service.prefix_token
 

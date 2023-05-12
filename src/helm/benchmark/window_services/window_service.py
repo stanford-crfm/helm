@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from helm.common.tokenization_request import TokenizationToken
 
-INFINITY: int = 2**31 - 1
+INT_MAX: int = 2**31 - 1
 
 
 @dataclass(frozen=True)
@@ -45,15 +45,15 @@ class WindowService(ABC):
         pass
 
     @property
-    def max_sequence_and_tokens_length(self) -> int:
+    def max_sequence_and_generated_tokens_length(self) -> int:
         """
         The max length of the model input and output tokens.
         Some models (like Anthropic/Claude and Megatron) have a
         specifix limit sequence length + max_token.
 
-        Since models do not have this limit, returns infinity.
+        Since models do not have this limit, returns INT_MAX.
         """
-        return INFINITY
+        return INT_MAX
 
     @property
     @abstractmethod
