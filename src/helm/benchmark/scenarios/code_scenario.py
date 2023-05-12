@@ -128,8 +128,15 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
     Adapted from
         https://github.com/lxuechen/apps/blob/main/train/dataset_apps/APPSBaseDataset.py
     """
-    # Allow parsing long ints from JSON.
-    # Only some versions of Python has this method.
+    # Some versions of Python have a configurable maximum number of digits of integers that can be parsed
+    # from strings. This limit also applies to parsing integers in JSON. The default limit is 4300 digits.
+    #
+    # Reading APPS instances will fail with the default limit because the APPS dataset contains very large
+    # integers.
+    #
+    # The sys.set_int_max_str_digits() method can be used to increase the limit. This method exists if and
+    # only if the version of Python has a default limit.
+    #
     # See: https://docs.python.org/3/library/stdtypes.html#int-max-str-digits
     if hasattr(sys, "set_int_max_str_digits") in sys:  # type: ignore
         sys.set_int_max_str_digits(100000)  # type: ignore
