@@ -26,14 +26,18 @@ class HierarchicalLogger(object):
     def indent(self) -> str:
         return "  " * len(self.start_times)
 
-    def track_begin(self, x: Any) -> None:
-        print(self.indent() + str(x) + " {")
+    def track_begin(self, x: Any, print_bracket: bool = True) -> None:
+        to_print: str = self.indent() + str(x)
+        if print_bracket:
+            to_print += " {"
+        print(to_print)
         sys.stdout.flush()
         self.start_times.append(time.time())
 
-    def track_end(self) -> None:
+    def track_end(self, print_time: bool = True) -> None:
         t = time.time() - self.start_times.pop()
-        print(self.indent() + "} [%s]" % (format_time(t)))
+        if print_time:
+            print(self.indent() + "} [%s]" % (format_time(t)))
         sys.stdout.flush()
 
     def log(self, x: Any) -> None:
@@ -62,14 +66,15 @@ def hlog(x: Any) -> None:
 
 
 class htrack_block:
-    def __init__(self, x: Any) -> None:
+    def __init__(self, x: Any, print_time: bool = True) -> None:
         self.x = x
+        self.print_time = print_time
 
     def __enter__(self) -> None:
-        singleton.track_begin(self.x)
+        singleton.track_begin(self.x, print_bracket=self.print_time)
 
     def __exit__(self, tpe: Any, value: Any, callback: Any) -> None:
-        singleton.track_end()
+        singleton.track_end(print_time=self.print_time)
 
 
 class htrack:
