@@ -49,6 +49,9 @@ NO_NEWLINES_TAG: str = "no_newlines"
 # prompts to indicate the mode before doing inference.
 NLG_PREFIX_TAG: str = "nlg_prefix_tag"
 
+# Whether the HuggingFace model needs to be loaded locally
+LOCAL_HUGGINGFACE_MODEL_TAG: str = "local_huggingface_model"
+
 
 @dataclass
 class Model:
@@ -375,13 +378,14 @@ ALL_MODELS = [
         tags=[CODE_MODEL_TAG],
     ),
     # Local HuggingFace models
+    # Copy these models (in HuggingFace format) to ./huggingface_models
     Model(
         group="huggingface",
         creator_organization="Meta",
         name="huggingface/llama-7b",
         display_name="LLaMA (7B)",
         description="LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG]
     ),
     Model(
         group="huggingface",
@@ -390,7 +394,7 @@ ALL_MODELS = [
         display_name="Alpaca (7B)",
         description="Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following "
         "demonstrations.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG]
     ),
     # Google
     Model(

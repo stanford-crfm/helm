@@ -9,6 +9,7 @@ from helm.proxy.models import (
     MODEL_NAME_TO_MODEL,
     TEXT_MODEL_TAG,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+    LOCAL_HUGGINGFACE_MODEL_TAG,
 )
 
 # The path where local HuggingFace models should be downloaded or symlinked, e.g. ./huggingface_models/llama-7b
@@ -98,25 +99,16 @@ class HuggingFaceModelConfig:
             path=path
         )
 
+# Initialize registry with local models from models.py
 _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {
-    "huggingface/llama-7b": HuggingFaceModelConfig(
-        namespace="huggingface",
-        model_name="llama-7b",
+    model.name: HuggingFaceModelConfig(
+        namespace=model.group,
+        model_name=model.name.split("/")[1],
         revision=None,
-        path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, "llama-7b")
-    ),
-    "huggingface/alpaca-7b": HuggingFaceModelConfig(
-        namespace="huggingface",
-        model_name="alpaca-7b",
-        revision=None,
-        path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, "alpaca-7b")
-    ),
-    "huggingface/gpt2": HuggingFaceModelConfig(
-        namespace="huggingface",
-        model_name="gpt2",
-        revision=None,
-        path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, "gpt2")
-    ),
+        path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, model.name.split("/")[1])
+    )
+    for model in ALL_MODELS
+    if LOCAL_HUGGINGFACE_MODEL_TAG in model.tags
 }
 
 
