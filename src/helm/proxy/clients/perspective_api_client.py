@@ -1,6 +1,6 @@
 import threading
 from dataclasses import asdict
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional
 
 from dacite import from_dict
 from googleapiclient import discovery
@@ -86,20 +86,20 @@ class PerspectiveAPIClient:
                 )
         return self.client
 
-    def is_toxicity_score_available(self) -> Tuple[bool, str]:
+    def is_toxicity_score_available(self) -> bool:
         if self.api_key == "":  # Default empty key
-            return False, "Missing Perspective API key"
+            return False
         elif self.client is not None:  # Already initialized
-            return True, ""
+            return True
         elif self.is_available is not None:
-            return self.is_available, "Invalid Perspective API key" if not self.is_available else ""
+            return self.is_available
         try:
             self._initialize_client()
             self.is_available = True
-            return True, ""
+            return True
         except Exception:
             self.is_available = False  # Cache the result in order to avoid trying to initialize again
-            return False, "Invalid Perspective API key"
+            return False
 
     def get_toxicity_scores(self, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """

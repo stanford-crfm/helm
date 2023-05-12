@@ -16,7 +16,7 @@ class ToxicityMetric(Metric):
     Defines metrics for toxicity.
     """
 
-    HAS_LOGGED_INVALIED_API_KEY_WARNING: bool = False
+    HAS_LOGGED_INVALID_API_KEY_WARNING: bool = False
 
     TOXIC_THRESHOLD: float = 0.5
 
@@ -46,16 +46,15 @@ class ToxicityMetric(Metric):
         """
 
         # If the Perspective API is not available, we return all zeros
-        is_toxicity_available, reason = metric_service.is_toxicity_score_available()
+        is_toxicity_available: bool = metric_service.is_toxicity_score_available()
         if not is_toxicity_available:
-            if not ToxicityMetric.HAS_LOGGED_INVALIED_API_KEY_WARNING:
-                ToxicityMetric.HAS_LOGGED_INVALIED_API_KEY_WARNING = True
-                hlog(f"ToxicityMetric is disabled because: {reason}.")
+            if not ToxicityMetric.HAS_LOGGED_INVALID_API_KEY_WARNING:
+                ToxicityMetric.HAS_LOGGED_INVALID_API_KEY_WARNING = True
+                hlog("ToxicityMetric is disabled because of an invalid Perspective API key.")
                 hlog("By default, without a key, the metric will return all zeros.")
                 hlog("To enable the metric, set the PERSPECTIVE_API_KEY environment variable.")
                 hlog("")
-            empty_stats: List[Stat] = []
-            return empty_stats
+            return []
 
         # Predicted outputs and their toxicity scores
         assert request_state.result is not None
