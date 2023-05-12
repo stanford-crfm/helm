@@ -27,7 +27,7 @@ class RemoteServiceError(Exception):
 
 
 class RemoteService(Service):
-    def __init__(self, base_url="https://crfm-models.stanford.edu"):
+    def __init__(self, base_url):
         self.base_url: str = base_url
 
     @staticmethod
@@ -156,14 +156,10 @@ class RemoteService(Service):
 
 def add_service_args(parser: argparse.ArgumentParser):
     """Add command-line arguments to enable command-line utilities to specify how to connect to a remote server."""
-    parser.add_argument("--server-url", type=str, help="URL of proxy server to connect to")
+    parser.add_argument("--server-url", type=str, default=None, help="URL of proxy server to connect to")
     parser.add_argument(
         "--api-key-path", type=str, default="proxy_api_key.txt", help="Path to a file containing the API key"
     )
-
-
-def create_remote_service(args) -> RemoteService:
-    return RemoteService(args.server_url)
 
 
 def create_authentication(args) -> Authentication:

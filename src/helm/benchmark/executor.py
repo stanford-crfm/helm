@@ -53,9 +53,10 @@ class Executor:
 
         self.service: Service
         if execution_spec.url:
-            self.service = RemoteService(self.execution_spec.url)
+            hlog(f"Running using remote API proxy server: {execution_spec.url}")
+            self.service = RemoteService(execution_spec.url)
         elif execution_spec.local_path:
-            hlog(f"Running locally in root mode with local path: {execution_spec.local_path}")
+            hlog(f"Running in local mode with base path: {execution_spec.local_path}")
             self.service = ServerService(
                 base_path=execution_spec.local_path, root_mode=True, mongo_uri=execution_spec.mongo_uri
             )

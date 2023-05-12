@@ -19,7 +19,6 @@ Examples:
 helm-run \
     --run-specs boolq:model=stanford-crfm/BioMedLM \
     --enable-huggingface-models stanford-crfm/BioMedLM \
-    --local \
     --suite v1 \
     --max-eval-instances 10
 
@@ -27,7 +26,6 @@ helm-run \
 helm-run \
     --run-specs boolq:model=stanford-crfm/BioMedLM@main \
     --enable-huggingface-models stanford-crfm/BioMedLM@main \
-    --local \
     --suite v1 \
     --max-eval-instances 10
 ```

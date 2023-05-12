@@ -63,7 +63,7 @@ def run_entries_to_run_specs(
 def run_benchmarking(
     run_specs: List[RunSpec],
     auth: Authentication,
-    url: str,
+    url: Optional[str],
     local_path: str,
     num_threads: int,
     output_path: str,
@@ -152,6 +152,13 @@ def add_run_args(parser: argparse.ArgumentParser):
         type=str,
         help="Name of the suite this run belongs to (default is today's date).",
         required=True,
+    )
+    parser.add_argument(
+        "--local",
+        action="store_true",
+        help="DEPRECATED: Does nothing. Do not use. Previously enabled local mode. "
+        "Now does nothing and will be removed in the next released version. "
+        "Local mode is enabled by default, and only disabled if the --server_url flag is set.",
     )
     parser.add_argument(
         "--local-path",
@@ -281,6 +288,13 @@ def main():
         exit_on_error=args.exit_on_error,
         mongo_uri=args.mongo_uri,
     )
+
+    if args.local:
+        hlog(
+            "WARNING: The --local flag is deprecated. It now does nothing and will be removed in "
+            "the next released version. Local mode is enabled by default, and only disabled if the "
+            "--server_url flag is set. Please remove --local from your command."
+        )
 
     hlog("Done.")
 
