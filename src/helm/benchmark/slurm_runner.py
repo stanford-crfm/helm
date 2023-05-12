@@ -95,7 +95,7 @@ class SlurmRunner(Runner):
             a. If skip_completed_runs is True, terminate and cancel all the worker Slurm jobs
                if any worker Slurm job fails.
             b. If skip_completed_runs is False, terminate when all worker Slurm jobs are completed.
-        4. If the manager job is terminated or encounters an exception,
+        4. If the manager job has terminated or encounters an exception,
            cancel all the worker jobs upon exiting. (best-effort)
         """
         # This directory will be used for coordinating with workers
