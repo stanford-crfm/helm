@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from helm.common.tokenization_request import TokenizationToken
 
-INFINITY: int = 2**31 - 1
+INT_MAX: int = 2**31 - 1
 
 
 @dataclass(frozen=True)
@@ -53,7 +53,7 @@ class WindowService(ABC):
 
         Since models do not have this limit, returns infinity.
         """
-        return INFINITY
+        return INT_MAX
 
     @property
     @abstractmethod

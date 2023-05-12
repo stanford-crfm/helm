@@ -49,8 +49,9 @@ class AnthropicWindowService(GPT2WindowService):
     def max_sequence_and_tokens_length(self) -> int:
         """
         Return the max prompt length + max token length.
-        Antrhopic is one of the rare models that has a limit on this.
+        Anthropic is one of the rare models that has a limit on this.
         The official limit seems to be 9192, we limit to 9000 just to be safe.
+        #TODO #1558: Put the exact number.
         """
         return 9000
 

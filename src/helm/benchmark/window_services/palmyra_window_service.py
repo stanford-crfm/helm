@@ -16,6 +16,16 @@ class PalmyraWindowService(LocalWindowService):
         return 2048
 
     @property
+    def max_sequence_and_tokens_length(self) -> int:
+        """
+        Return the max prompt length + max token length.
+        Writer is one of the rare models that has a limit on this.
+        The official limit seems to be 4096, we limit to 4000 just to be safe.
+        #TODO #1558: Put the exact number.
+        """
+        return 4000
+
+    @property
     def max_request_length(self) -> int:
         return self.max_sequence_length
 
