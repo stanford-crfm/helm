@@ -116,7 +116,7 @@ class PhotorealismCritiqueMetric(Metric):
             if not result or len(result.responses) == 0:
                 # Skip computing metrics if there aren't any responses yet
                 hlog("Waiting for responses to be collected.")
-                return []
+                continue
 
             for response in result.responses:
                 answer: str = str(response.answers[self.PHOTOREALISM_NAME])
