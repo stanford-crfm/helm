@@ -245,7 +245,7 @@ def main():
     for huggingface_model_name in args.enable_huggingface_models:
         register_huggingface_model_config(huggingface_model_name)
 
-    if not args.local:
+    if args.server_url and args.enable_remote_models:
         check_and_register_remote_model(args.server_url, args.enable_remote_models)
 
     run_entries: List[RunEntry] = []
