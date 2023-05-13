@@ -57,7 +57,7 @@ class PerspectiveAPIClient:
 
         # Google API client
         self.client: Optional[discovery.Resource] = None
-        self.is_available: Optional[bool] = None
+        self._tried_initializing: bool = False
 
         # Cache requests and responses from Perspective API
         self.cache = Cache(cache_config)
@@ -68,6 +68,7 @@ class PerspectiveAPIClient:
 
     def _initialize_client(self):
         """Initialize the client."""
+        self._tried_initializing = True  # Cache the result in order to avoid trying to initialize again
         self.client = discovery.build(
             "commentanalyzer",
             "v1alpha1",
@@ -86,19 +87,18 @@ class PerspectiveAPIClient:
                 )
         return self.client
 
-    def is_toxicity_score_available(self) -> bool:
+    def is_toxicity_scoring_available(self) -> bool:
         if self.api_key == "":  # Default empty key
             return False
         elif self.client is not None:  # Already initialized
             return True
-        elif self.is_available is not None:
-            return self.is_available
+        elif self._tried_initializing:  # Already tried initializing and the client is still None
+            return False
+        # We night have never tried initializing the client, so try it now
         try:
             self._initialize_client()
-            self.is_available = True
             return True
         except Exception:
-            self.is_available = False  # Cache the result in order to avoid trying to initialize again
             return False
 
     def get_toxicity_scores(self, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:

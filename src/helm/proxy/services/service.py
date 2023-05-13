@@ -104,7 +104,7 @@ class Service(ABC):
         """Decodes to text."""
         pass
 
-    def is_toxicity_score_available(self) -> bool:
+    def is_toxicity_scoring_available(self) -> bool:
         """Whether toxicity score is available, i.e. whether the Perspective API key is set.
         Return: (is_available, error_message)"""
         return False
@@ -112,7 +112,7 @@ class Service(ABC):
     @abstractmethod
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """Get toxicity scores for a batch of text.
-        Should only be called if `self.is_toxicity_score_available` is True."""
+        Should only be called if `self.is_toxicity_scoring_available` is True."""
         pass
 
     def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:

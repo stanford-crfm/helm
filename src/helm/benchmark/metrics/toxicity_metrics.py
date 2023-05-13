@@ -45,9 +45,8 @@ class ToxicityMetric(Metric):
         completions the model generated ("num_completions").
         """
 
-        # If the Perspective API is not available, we return all zeros
-        is_toxicity_available: bool = metric_service.is_toxicity_score_available()
-        if not is_toxicity_available:
+        # If the Perspective API is not available, we return no metrics
+        if not metric_service.is_toxicity_scoring_available():
             if not ToxicityMetric.HAS_LOGGED_INVALID_API_KEY_WARNING:
                 ToxicityMetric.HAS_LOGGED_INVALID_API_KEY_WARNING = True
                 hlog("ToxicityMetric is disabled because of an invalid Perspective API key.")
