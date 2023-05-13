@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import json
-import random
 from typing import Dict, List, Tuple
 
 from helm.common.general import ensure_file_downloaded
@@ -9,6 +8,8 @@ from .scenario import (
     Scenario,
     Instance,
     Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
     PassageQuestionInput,
@@ -78,9 +79,6 @@ class VerifiabilityJudgementScenario(Scenario):
         "no_support": "does not support",
     }
 
-    def __init__(self):
-        super().__init__()
-
     def process_example(self, sample: dict) -> Tuple[Input, List[str]]:
         """
         Given an sample from the dataset, create the prompt and the list of
@@ -132,15 +130,21 @@ class VerifiabilityJudgementScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, "data")
-        data_url: str = (
-            "https://github.com/nelson-liu/evaluating-verifiability-in-generative-search-engines/"
-            "raw/main/verifiability_judgments.jsonl.tar.gz")
-        verifiability_path: str = os.path.join(data_path, "verifiability_judgments.jsonl")
-        ensure_file_downloaded(
-            source_url=data_url,
-            target_path=verifiability_path,
-            unpack=True)
-        assert os.path.exists(verifiability_path)
-        random.seed(0)  # randomness needed to pick question at random
-        instances: List[Instance] = self.get_file_instances(target_file=verifiability_path, split=TEST_SPLIT)
+
+        split_to_filesplit: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "dev", TEST_SPLIT: "test"}
+
+        # First, ensure all splits are downloaded
+        for _, filesplit in split_to_filesplit.items():
+            target_name = f"verifiability_judgments_{filesplit}.jsonl"
+            target_path: str = os.path.join(data_path, target_name)
+            url: str = f"https://github.com/nelson-liu/evaluating-verifiability-in-generative-search-engines/raw/40bf37e3a4eca7d82515df2c800ec9605458d637/verifiability_judgments/{target_name}.gz"
+            ensure_file_downloaded(source_url=url, target_path=target_path, unpack=True)
+            assert os.path.exists(target_path)
+
+        instances: List[Instance] = []
+        # self.get_file_instances(target_file=verifiability_path, split=TEST_SPLIT)
+        for split, filesplit in split_to_filesplit.items():
+            target_name = f"verifiability_judgments_{filesplit}.jsonl"
+            split_path: str = os.path.join(data_path, target_name)
+            instances.extend(self.get_file_instances(target_file=split_path, split=split))
         return instances
