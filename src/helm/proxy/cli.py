@@ -24,10 +24,12 @@ import sys
 from helm.common.hierarchical_logger import hlog
 from helm.common.authentication import Authentication
 from .accounts import Usage, Account
-from .services.remote_service import RemoteService, add_service_args, create_remote_service, create_authentication
+from .services.remote_service import RemoteService, add_service_args, create_authentication
 
 GRANULARITIES = ["daily", "monthly", "total"]
 UNLIMITED_QUOTA = "unlimited"
+
+DEFAULT_SERVER_URL = "https://crfm-models.stanford.edu"
 
 
 def render_usage(usage: Usage) -> str:
@@ -154,6 +156,10 @@ def do_delete_command(service: RemoteService, auth: Authentication, args):
     header = render_header(show_model_groups=args.show_model_groups)
     item = render_account(account)
     print_item(header, item)
+
+
+def create_remote_service(args) -> RemoteService:
+    return RemoteService(args.server_url or DEFAULT_SERVER_URL)
 
 
 def main():
