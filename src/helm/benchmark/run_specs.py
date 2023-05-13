@@ -580,6 +580,10 @@ def get_machine_translation_metric_specs() -> List[MetricSpec]:
     ] + get_basic_metric_specs([])
 
 
+def get_verifiability_judgment_metric_specs() -> List[MetricSpec]:
+    return get_basic_metric_specs(["exact_match", "quasi_exact_match"])
+
+
 ############################################################
 # Run specs
 
@@ -2017,6 +2021,33 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         adapter_spec=adapter_spec,
         metric_specs=get_machine_translation_metric_specs(),
         groups=["wmt_14"],
+    )
+
+
+@run_spec_function("verifiability_judgment")
+def get_verifiability_judgment_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.verifiability_judgment_scenario.VerifiabilityJudgementScenario", args={}
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=(
+            'Given the statement and its source, judge whether the source "fully supports", '
+            '"partially supports" or "does not support" the statement.'
+        ),
+        input_noun="Statement",
+        # Add another new line before the output noun, since the source might have
+        # newlines embedded in it.
+        output_noun="\nJudgment",
+        max_tokens=10,
+    )
+
+    return RunSpec(
+        name="verifiability_judgment",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_verifiability_judgment_metric_specs(),
+        groups=["verifiability_judgment"],
     )
 
 
