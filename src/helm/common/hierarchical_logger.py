@@ -67,7 +67,7 @@ class htrack_block:
         self.print_time = print_time
 
     def __enter__(self) -> None:
-        singleton.track_begin(self.x, print_bracket=self.print_time)
+        singleton.track_begin(self.x)
 
     def __exit__(self, tpe: Any, value: Any, callback: Any) -> None:
         singleton.track_end(print_time=self.print_time)
