@@ -2060,7 +2060,7 @@ def get_self_instruct_spec() -> RunSpec:
         groups=["self_instruct"],
     )
 
-  
+
 @run_spec_function("grammar")
 def get_grammar_spec(path: str, tags: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
