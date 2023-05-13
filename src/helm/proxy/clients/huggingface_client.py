@@ -175,7 +175,7 @@ class HuggingFaceClient(Client):
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:  # Do something if error is encountered.
-            error: str = f"HuggingFace error: {e}"
+            error: str = f"HuggingFace inference error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions = []
@@ -243,7 +243,7 @@ class HuggingFaceClient(Client):
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
-            error: str = f"HuggingFace error: {e}"
+            error: str = f"HuggingFace tokenize error: {e}"
             return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
 
         return TokenizationRequestResult(
@@ -269,7 +269,7 @@ class HuggingFaceClient(Client):
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
-            error: str = f"HuggingFace error: {e}"
+            error: str = f"HuggingFace decode error: {e}"
             return DecodeRequestResult(success=False, cached=False, error=error, text="")
 
         return DecodeRequestResult(

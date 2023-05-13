@@ -901,7 +901,8 @@ ALL_MODELS = [
         name="adobe/giga-gan",
         display_name="GigaGAN (1B)",
         description="GigaGAN (1B parameters)",
-        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+        # TODO: add TEXT_TO_IMAGE_MODEL_TAG later after the first batch of results
+        tags=[CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="firefly",
@@ -910,7 +911,8 @@ ALL_MODELS = [
         display_name="Firefly",
         description="Adobe Firefly was trained on the Adobe Stock dataset, along with openly licensed work and "
         "public domain content where copyright has expired.",
-        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+        # TODO: add TEXT_TO_IMAGE_MODEL_TAG later after the first batch of results
+        tags=[CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="dall_e2",
