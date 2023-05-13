@@ -1,7 +1,7 @@
 import time
 import json
 from abc import ABC, abstractmethod
-from typing import Callable, Any, Dict, List
+from typing import Callable, Any, Dict, List, Optional
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence, Token
@@ -120,16 +120,17 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
     return sequence
 
 
-def cleanup_str(token: str) -> str:
+def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:
     """
-    Certain tokenizer introduce special character to represent spaces, such as
+    Certain tokenizers introduce special characters to represent spaces, such as
     "Ġ" or "▁". This function removes those characters.
     """
+    # TODO: tokenizer_name is here in case some models need special handling.
     return token.replace("Ġ", " ").replace("▁", " ")
 
 
-def cleanup_tokens(tokens: List[str]) -> List[str]:
+def cleanup_tokens(tokens: List[str], tokenizer_name: Optional[str] = None) -> List[str]:
     """
     Applies `cleanup_str` to each token in `tokens`.
     """
-    return [cleanup_str(token) for token in tokens]
+    return [cleanup_str(token, tokenizer_name) for token in tokens]

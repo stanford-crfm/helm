@@ -30,12 +30,6 @@ This also allows future migration of results in the case of changes of
 available implementations on Together."""
 
 
-def fix_text(x: str, model: str) -> str:
-    """Fix text that comes back from the API."""
-    x = cleanup_str(x)
-    return x
-
-
 class TogetherClient(Client):
     """
     Client for the models where we evaluate offline. Since the queries are handled offline, the `TogetherClient` just
@@ -102,16 +96,16 @@ class TogetherClient(Client):
                 for text, logprob, top_logprobs in zip(
                     raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
                 ):
-                    text = fix_text(text, request.model)
+                    text = cleanup_str(text, request.model)
                     tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                     sequence_logprob += logprob or 0
             else:
                 # hack: just make the entire text one token so that something shows up in the frontend
-                text = fix_text(raw_completion["text"], request.model)
+                text = cleanup_str(raw_completion["text"], request.model)
                 tokens.append(Token(text=text, logprob=0, top_logprobs={}))
 
             completion = Sequence(
-                text=fix_text(raw_completion["text"], request.model),
+                text=cleanup_str(raw_completion["text"], request.model),
                 logprob=sequence_logprob,
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
