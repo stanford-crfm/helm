@@ -2080,6 +2080,7 @@ def get_grammar_spec(path: str, tags: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
         groups=["grammar"],
+    )
 
 
 @run_spec_function("verifiability_judgment")
