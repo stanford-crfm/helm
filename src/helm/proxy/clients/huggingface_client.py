@@ -16,7 +16,12 @@ from helm.common.tokenization_request import (
 )
 from .client import Client, wrap_request_time, truncate_sequence
 from .huggingface_tokenizer import HuggingFaceTokenizers
-from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config, LOCAL_HUGGINGFACE_MODEL_DIR
+from helm.proxy.clients.huggingface_model_registry import (
+    get_huggingface_model_config,
+    HuggingFaceModelConfig,
+    HuggingFaceHubModelConfig,
+    LOCAL_HUGGINGFACE_MODEL_DIR
+)
 from threading import Lock
 
 
@@ -28,7 +33,7 @@ class HuggingFaceServer:
         else:
             self.device = "cpu"
         model_kwargs = {}
-        if model_config.revision:
+        if isinstance(model_config, HuggingFaceHubModelConfig) and model_config.revision:
             model_kwargs["revision"] = model_config.revision
         # If the HuggingFace model is stored locally, it will have a path defined and we should load it from there.
         # Otherwise, download it from the HuggingFace hub by passing in its identifier.

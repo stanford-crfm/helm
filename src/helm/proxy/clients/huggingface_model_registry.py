@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 from dataclasses import dataclass
 import re
 import os
@@ -16,7 +16,7 @@ from helm.proxy.models import (
 LOCAL_HUGGINGFACE_MODEL_DIR = "./huggingface_models"
 
 @dataclass(frozen=True)
-class HuggingFaceModelConfig:
+class HuggingFaceHubModelConfig:
     namespace: Optional[str]
     """Name of the group or user that owns the model. e.g. 'stanford-crfm'
 
@@ -66,8 +66,8 @@ class HuggingFaceModelConfig:
         return result
 
     @staticmethod
-    def from_string(raw: str) -> "HuggingFaceModelConfig":
-        """Parses a string in the format "[namespace/]model_name[@revision]" to a HuggingFaceModelConfig.
+    def from_string(raw: str) -> "HuggingHubFaceModelConfig":
+        """Parses a string in the format "[namespace/]model_name[@revision]" to a HuggingFaceHubModelConfig.
 
         Examples:
         - 'gpt2'
@@ -79,32 +79,59 @@ class HuggingFaceModelConfig:
             raise ValueError(f"Could not parse model name: '{raw}'; Expected format: [namespace/]model_name[@revision]")
         model_name = match.group("model_name")
         assert model_name
-        return HuggingFaceModelConfig(
+        return HuggingFaceHubModelConfig(
             namespace=match.group("namespace"), model_name=model_name, revision=match.group("revision")
         )
 
+
+@dataclass(frozen=True)
+class HuggingFaceLocalModelConfig:
+    model_name: str
+    """Name of the model. e.g. 'llama-7b'"""
+
+    path: str
+    """Local path to the Hugging Face model weights. 
+    For pre-registered local models that are already in _huggingface_model_registry below,
+    this will get set to LOCAL_HUGGINGFACE_MODEL_DIR by default.
+    Otherwise, this is specified using the flag --enable-local-huggingface-models <path>."""
+
+    @property
+    def model_id(self) -> str:
+        """Return the model ID.
+
+        Examples:
+        - 'huggingface/llama-7b'"""
+        return f"huggingface/{self.model_name}"
+
+    def __str__(self) -> str:
+        """Return the full model name used by HELM in the format "[namespace/]model_name[@revision]".
+        Local models don't have a revision and the namespace is set to huggingface.
+
+        Examples:
+        - 'huggingface/llama-7b'"""
+        return f"huggingface/{self.model_name}"
+
     @staticmethod
-    def from_path(path: str) -> "HuggingFaceModelConfig":
-        """Generates a HuggingFaceModelConfig from a (relative or absolute) path to a local HuggingFace model."""
-        pattern = r"((?P<containing_dir>.+?)/)?(?P<model_name>[^/@]+)(@(?P<revision>[^/@]+))?/?"
+    def from_path(path: str) -> "HuggingFaceLocalModelConfig":
+        """Generates a HuggingFaceHubModelConfig from a (relative or absolute) path to a local HuggingFace model."""
+        pattern = r"((?P<containing_dir>.+?)/)?(?P<model_name>[^/]+)/?"
         match = re.fullmatch(pattern, path)
         if not match:
-            raise ValueError(f"Could not parse model path: '{path}'; Expected format: /path/to/model_name[@revision]")
+            raise ValueError(f"Could not parse model path: '{path}'; Expected format: /path/to/model_name")
         model_name = match.group("model_name")
         assert model_name
-        return HuggingFaceModelConfig(
-            namespace="huggingface",
+        return HuggingFaceHubModelConfig(
             model_name=model_name,
-            revision=match.group("revision"),
             path=path
         )
 
+HuggingFaceModelConfig = Union[HuggingFaceHubModelConfig, HuggingFaceLocalModelConfig]
+
+
 # Initialize registry with local models from models.py
 _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {
-    model.name: HuggingFaceModelConfig(
-        namespace=model.group,
+    model.name: HuggingFaceLocalModelConfig(
         model_name=model.name.split("/")[1],
-        revision=None,
         path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, model.name.split("/")[1])
     )
     for model in ALL_MODELS
@@ -112,14 +139,11 @@ _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {
 }
 
 
-def register_huggingface_model_config(model_name: str, local: bool = False) -> HuggingFaceModelConfig:
-    """Register a AutoModelForCausalLM model from Hugging Face Model Hub or a local directory for later use.
+def register_huggingface_model_config(model_name: str) -> HuggingFaceHubModelConfig:
+    """Register a AutoModelForCausalLM model from Hugging Face Model Hub for later use.
 
-    model_name format: namespace/model_name[@revision] OR just a path to your HF model"""
-    if local:
-        config = HuggingFaceModelConfig.from_path(model_name)
-    else:
-        config = HuggingFaceModelConfig.from_string(model_name)
+    model_name format: namespace/model_name[@revision]"""
+    config = HuggingFaceHubModelConfig.from_string(model_name)
     if config.model_id in _huggingface_model_registry:
         raise ValueError(f"A Hugging Face model is already registered for model_id {model_name}")
     _huggingface_model_registry[config.model_id] = config
@@ -145,6 +169,30 @@ def register_huggingface_model_config(model_name: str, local: bool = False) -> H
     hlog(f"Registered Hugging Face model: {model} config: {config}")
     return config
 
+def register_huggingface_local_model_config(path: str) -> HuggingFaceLocalModelConfig:
+    """Register a AutoModelForCausalLM model from a local directory for later use.
+
+    path: a path to your HF model"""
+    config = HuggingFaceLocalModelConfig.from_path(model_name)
+    if config.model_id in _huggingface_model_registry:
+        raise ValueError(f"A Hugging Face model is already registered for model_id {model_name}")
+    _huggingface_model_registry[config.model_id] = config
+
+    if config.model_name in MODEL_NAME_TO_MODEL:
+        raise ValueError(f"A HELM model is already registered for model name: {model_name}")
+    description = f"HuggingFace model {config.model_id}"
+    model = Model(
+        group="huggingface",
+        name=config.model_id,
+        display_name=config.model_id,
+        creator_organization="unknown",
+        description=description,
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
+    )
+    MODEL_NAME_TO_MODEL[config.model_id] = model
+    ALL_MODELS.append(model)
+    hlog(f"Registered Hugging Face model: {model} config: {config}")
+    return config
 
 def get_huggingface_model_config(model_name: str) -> Optional[HuggingFaceModelConfig]:
     """Returns a HuggingFaceModelConfig for the model_id."""

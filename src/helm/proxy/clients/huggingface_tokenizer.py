@@ -5,7 +5,13 @@ from transformers import AutoTokenizer
 
 from helm.common.hierarchical_logger import htrack_block, hlog
 
-from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config, HuggingFaceModelConfig, LOCAL_HUGGINGFACE_MODEL_DIR
+from helm.proxy.clients.huggingface_model_registry import (
+    get_huggingface_model_config,
+    HuggingFaceModelConfig,
+    HuggingFaceHubModelConfig,
+    HuggingFaceLocalModelConfig,
+    LOCAL_HUGGINGFACE_MODEL_DIR
+)
 
 
 class HuggingFaceTokenizers:
@@ -55,13 +61,15 @@ class HuggingFaceTokenizers:
                 if model_config:
                     # If the HuggingFace model is stored locally, the tokenizer config
                     # will be found at the defined path.
-                    if model_config.path:
+                    if isinstance(model_config, HuggingFaceLocalModelConfig):
                         hlog(f"Loading {tokenizer_name} from local path {model_config.path}")
                         hf_tokenizer_name = model_config.path
-                    else:
+                    elif isinstance(model_config, HuggingFaceHubModelConfig):
                         hlog(f"Loading {tokenizer_name} from Hugging Face Hub model {model_config.model_id}")
                         hf_tokenizer_name = model_config.model_id
-                    revision = model_config.revision
+                        revision = model_config.revision
+                    else:
+                        raise ValueError(f"Unrecognized Hugging Face model config: {type(model_config)})")
                 elif tokenizer_name == "huggingface/gpt2":
                     hf_tokenizer_name = "gpt2"
                 elif tokenizer_name == "EleutherAI/gpt-j-6B":
