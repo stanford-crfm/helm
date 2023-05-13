@@ -104,10 +104,12 @@ from .metrics.images import fid_metric  # noqa
 from .metrics.images import fidelity_metrics  # noqa
 from .metrics.images import fractal_dimension_metric  # noqa
 from .metrics.images import gender_metrics  # noqa
+from .metrics.images import image_critique_metrics  # noqa
 from .metrics.images import lpips_metrics  # noqa
 from .metrics.images import multi_scale_ssim_metrics  # noqa
 from .metrics.images import nsfw_metrics  # noqa
 from .metrics.images import nudity_metrics  # noqa
+from .metrics.images import photorealism_critique_metrics  # noqa
 from .metrics.images import psnr_metrics  # noqa
 from .metrics.images import q16_toxicity_metrics  # noqa
 from .metrics.images import skin_tone_metrics  # noqa

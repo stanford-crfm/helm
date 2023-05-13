@@ -561,7 +561,6 @@ models:
   # Nvidia
   - name: nvidia/megatron-gpt2
     display_name: Megatron GPT2
-    description: Megatron GPT2
     description: GPT-2 implemented in Megatron-LM ([paper](https://arxiv.org/abs/1909.08053)).
     creator_organization: Nvidia
     access: open
@@ -1219,6 +1218,35 @@ metrics:
     short_display_name: Max aesthetics score
     description: TODO
     lower_is_better: false
+  - name: aesthetics_human
+    display_name: Aesthetics (human)
+    short_display_name: Aesthetics (human)
+    description: TODO
+    lower_is_better: false
+
+  # Image quality
+  - name: image_text_alignment_human
+    display_name: Image text alignment (human)
+    short_display_name: Image text alignment (human)
+    description: TODO
+    lower_is_better: false
+  - name: clear_subject_human
+    display_name: Clear subject (human)
+    short_display_name: Clear subject (human)
+    description: TODO
+    lower_is_better: false
+
+  # Originality
+  - name: originality_human
+    display_name: Originality (human)
+    short_display_name: Originality (human)
+    description: TODO
+    lower_is_better: false
+  - name: copyright_human
+    display_name: Copyright (human)
+    short_display_name: Copyright (human)
+    description: TODO
+    lower_is_better: true
 
   # NSFW
   - name: toxic_prompt_perspective_api
@@ -1313,6 +1341,18 @@ metrics:
     short_display_name: Expected max watermark prob
     description: TODO
     lower_is_better: true
+
+  # Photorealism
+  - name: photorealism_generated_human
+    display_name: Photorealism w/ generated images (human)
+    short_display_name: Photorealism - generated (human)
+    description: TODO
+    lower_is_better: false
+  - name: photorealism_real_human
+    display_name: Photorealism w/ real images (human)
+    short_display_name: Photorealism - real (human)
+    description: TODO
+    lower_is_better: false
 
   # Efficiency for image generation
   - name: denoised_runtime
@@ -1638,6 +1678,30 @@ metric_groups:
 #      - name: max_clip_score_multilingual
 #        split: ${main_split}
 
+  - name: vhelm_image_text_alignment_human
+    display_name: VHELM image-text alignment metric (human)
+    metrics:
+      - name: image_text_alignment_human
+        split: ${main_split}
+
+  - name: vhelm_clear_subject_human
+    display_name: VHELM clear subject (human)
+    metrics:
+      - name: clear_subject_human
+        split: ${main_split}
+
+  - name: vhelm_originality_human
+    display_name: VHELM originality (human)
+    metrics:
+      - name: originality_human
+        split: ${main_split}
+
+  - name: vhelm_copyright_human
+    display_name: VHELM copyright (human)
+    metrics:
+      - name: copyright_human
+        split: ${main_split}
+
   # Aesthetics
   - name: vhelm_aesthetics
     display_name: VHELM aesthetics metrics
@@ -1646,6 +1710,12 @@ metric_groups:
         split: ${main_split}
 #      - name: max_aesthetics_score
 #        split: ${main_split}
+
+  - name: vhelm_aesthetics_human
+    display_name: VHELM aesthetics (human)
+    metrics:
+      - name: aesthetics_human
+        split: ${main_split}
 
   - name: vhelm_detection
     display_name: VHELM detection metrics
@@ -1713,6 +1783,14 @@ metric_groups:
         split: ${main_split}
 #      - name: expected_max_watermark_prob
 #        split: ${main_split}
+
+  - name: vhelm_photorealism
+    display_name: VHELM photorealism metrics
+    metrics:
+      - name: photorealism_generated_human
+        split: ${main_split}
+      - name: photorealism_real_human
+        split: ${main_split}
 
   - name: vhelm_efficiency
     display_name: VHELM efficiency metrics
@@ -2076,12 +2154,17 @@ run_groups:
     metric_groups:
       - vhelm_fidelity
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_photorealism
+      - vhelm_copyright_human
       - vhelm_efficiency
 #      - robustness
 #      - fairness
@@ -2105,12 +2188,16 @@ run_groups:
     metric_groups:
       - vhelm_fidelity
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
 #      - robustness
 #      - fairness
@@ -2124,12 +2211,16 @@ run_groups:
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2141,12 +2232,16 @@ run_groups:
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2158,12 +2253,17 @@ run_groups:
     description: DALL-E 2 prompts from [Chad Nelson's Instagram](https://www.instagram.com/dailydall.e/)
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
+      - vhelm_originality_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2175,12 +2275,17 @@ run_groups:
     description: Prompts to generate landing pages for mobile or web applications.
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
+      - vhelm_originality_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2192,12 +2297,17 @@ run_groups:
     description: Prompts to generate logos for brands and companies
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
+      - vhelm_originality_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2209,12 +2319,17 @@ run_groups:
     description: Prompts to generate magazine cover photos
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
+      - vhelm_originality_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2226,12 +2341,16 @@ run_groups:
     description: Prompts from 8 different grammatical phenomena ([paper](https://arxiv.org/abs/2210.12889)).
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2243,12 +2362,16 @@ run_groups:
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2260,12 +2383,16 @@ run_groups:
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2277,12 +2404,16 @@ run_groups:
     description: Based on existing cognitive, linguistic, and developmental literature, the authors created a set of 15 relations (8 physical, 7 agentic) and a set of 12 entities (6 objects, 6 agents)
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2295,12 +2426,16 @@ run_groups:
     metric_groups:
       - vhelm_detection
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2312,12 +2447,16 @@ run_groups:
     description: Winoground is a novel task and dataset for evaluating the ability of vision and language models to conduct visio-linguistic compositional reasoning ([paper](https://arxiv.org/abs/2204.03162)).
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2329,12 +2468,16 @@ run_groups:
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2346,12 +2489,16 @@ run_groups:
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2363,12 +2510,16 @@ run_groups:
     description: People from TIME's "The 100 Most Significant Figures in History" list
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2381,12 +2532,16 @@ run_groups:
     metric_groups:
       - vhelm_bias
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2399,12 +2554,16 @@ run_groups:
     metric_groups:
       - vhelm_bias
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2416,12 +2575,16 @@ run_groups:
     description: Contains real user prompts for generative text-to-image prompts that are likely to produce inappropriate images ([paper](https://arxiv.org/abs/2211.05105)).
     metric_groups:
       - vhelm_image_text_alignment
+      - vhelm_image_text_alignment_human
+      - vhelm_clear_subject_human
       - vhelm_aesthetics
+      - vhelm_aesthetics_human
       - vhelm_fractal_dimension
       - vhelm_nsfw
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
+      - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:

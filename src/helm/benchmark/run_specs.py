@@ -656,6 +656,40 @@ def get_vhelm_reference_required_metric_specs(include_fidelity: bool = False) ->
     return metrics
 
 
+def get_vhelm_critique_metric_specs(
+    run_spec_name: str,
+    include_aesthetics: bool = False,
+    include_originality: bool = False,
+    include_copyright: bool = False,
+    num_examples: int = 10,
+    num_respondents: int = 5,
+) -> List[MetricSpec]:
+    study_title: str = f"VHELM image evaluation - {run_spec_name}"
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.image_critique_metrics.ImageCritiqueMetric",
+            args={
+                "study_title": study_title,
+                "include_alignment": True,  # Always ask about image-text alignment
+                "include_aesthetics": include_aesthetics,
+                "include_originality": include_originality,
+                "include_copyright": include_copyright,
+                "num_examples": num_examples,
+                "num_respondents": num_respondents,
+            },
+        ),
+    ]
+
+
+def get_vhelm_photorealism_critique_metric_specs(num_examples: int = 100, num_respondents: int = 5) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.photorealism_critique_metrics.PhotorealismCritiqueMetric",
+            args={"num_examples": num_examples, "num_respondents": num_respondents},
+        ),
+    ]
+
+
 ############################################################
 # Run specs
 
@@ -2058,7 +2092,7 @@ def get_opinions_qa_spec(
 # vHELM run specs
 
 
-def get_common_syntactic_processes_spec(phenomenon: str) -> RunSpec:
+def get_common_syntactic_processes_spec(phenomenon: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.common_syntactic_processes_scenario.CommonSyntacticProcessesScenario",
         args={"phenomenon": phenomenon},
@@ -2066,39 +2100,58 @@ def get_common_syntactic_processes_spec(phenomenon: str) -> RunSpec:
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
+    run_spec_name: str = f"common_syntactic_processes:phenomenon={phenomenon}"
+    metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs(run_spec_name, num_examples=10)
+
     return RunSpec(
-        name=f"common_syntactic_processes:phenomenon={phenomenon}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["common_syntactic_processes"],
     )
 
 
-def get_cub200_spec() -> RunSpec:
+def get_cub200_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.cub200_scenario.CUB200Scenario", args={})
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+
+    metric_specs: List[MetricSpec] = (
+        get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs()
+    )
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs(
+            "cub200", include_aesthetics=True, include_copyright=True, num_examples=10
+        )
 
     return RunSpec(
         name="cub200",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["cub200"],
     )
 
 
-def get_daily_dalle_spec() -> RunSpec:
+def get_daily_dalle_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.daily_dalle_scenario.DailyDallEScenario", args={})
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs(
+            "daily_dalle", include_aesthetics=True, include_copyright=True, include_originality=True, num_examples=25
+        )
 
     return RunSpec(
         name="daily_dalle",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["daily_dalle"],
     )
 
@@ -2140,7 +2193,7 @@ def get_detection_spec(skill: str) -> RunSpec:
     )
 
 
-def get_draw_bench_spec(category: str) -> RunSpec:
+def get_draw_bench_spec(category: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.draw_bench_scenario.DrawBenchScenario", args={"category": category}
     )
@@ -2157,11 +2210,24 @@ def get_draw_bench_spec(category: str) -> RunSpec:
     else:
         group = "reasoning"
 
+    metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
+    run_spec_name: str = f"draw_bench:category={category}"
+
+    if run_human_eval:
+        if category == "Reddit":
+            metric_specs += get_vhelm_critique_metric_specs(run_spec_name, include_copyright=True, num_examples=50)
+        elif category in ["Colors", "DALL-E", "Text", "Rare"]:
+            metric_specs += get_vhelm_critique_metric_specs(
+                run_spec_name, include_aesthetics=True, include_copyright=True, num_examples=10
+            )
+        else:
+            metric_specs += get_vhelm_critique_metric_specs(run_spec_name, num_examples=10)
+
     return RunSpec(
-        name=f"draw_bench:category={category}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=[f"draw_bench_{group}"],
     )
 
@@ -2182,48 +2248,70 @@ def get_i2p_spec(category: str) -> RunSpec:
     )
 
 
-def get_landing_page_spec() -> RunSpec:
+def get_landing_page_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.landing_page_scenario.LandingPageScenario", args={}
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
+    metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs(
+            "landing_page", include_aesthetics=True, include_copyright=True, include_originality=True, num_examples=25
+        )
+
     return RunSpec(
         name="landing_page",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["landing_page"],
     )
 
 
-def get_logos_spec() -> RunSpec:
+def get_logos_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.logos_scenario.LogosScenario", args={})
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs(
+            "logos", include_aesthetics=True, include_copyright=True, include_originality=True, num_examples=25
+        )
 
     return RunSpec(
         name="logos",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["logos"],
     )
 
 
-def get_magazine_cover_spec() -> RunSpec:
+def get_magazine_cover_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.magazine_cover_scenario.MagazineCoverScenario", args={}
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
+    metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs(
+            "magazine_cover",
+            include_aesthetics=True,
+            include_originality=True,
+            include_copyright=True,
+            num_examples=25,
+        )
+
     return RunSpec(
         name="magazine_cover",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["magazine_cover"],
     )
 
@@ -2244,22 +2332,28 @@ def get_mental_disorders_spec() -> RunSpec:
     )
 
 
-def get_mscoco_spec(for_efficiency: bool = False) -> RunSpec:
+def get_mscoco_spec(for_efficiency: bool = False, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
 
     metric_specs: List[MetricSpec]
+    run_spec_name: str
     group: str
     if for_efficiency:
         metric_specs = [MetricSpec(class_name="helm.benchmark.denoised_runtime_metric.DenoisedRuntimeMetric", args={})]
+        run_spec_name = "mscoco_efficiency"
         group = "mscoco_efficiency"
     else:
         metric_specs = get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs()
+        if run_human_eval:
+            # TODO: increase to 100 after the pilot
+            metric_specs += get_vhelm_photorealism_critique_metric_specs(num_examples=25)
+        run_spec_name = "mscoco"
         group = "mscoco"
 
     return RunSpec(
-        name="mscoco",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -2267,23 +2361,28 @@ def get_mscoco_spec(for_efficiency: bool = False) -> RunSpec:
     )
 
 
-def get_paint_skills_spec(skill: str) -> RunSpec:
+def get_paint_skills_spec(skill: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.paint_skills_scenario.PaintSkillsScenario", args={"skill": skill}
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
+    run_spec_name: str = f"paint_skills:skill={skill}"
+    metric_specs: List[MetricSpec] = get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs(run_spec_name, num_examples=10)
+
     return RunSpec(
-        name=f"paint_skills:skill={skill}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["paint_skills"],
     )
 
 
-def get_parti_prompts_spec(category: str) -> RunSpec:
+def get_parti_prompts_spec(category: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.parti_prompts_scenario.PartiPromptsScenario", args={"category": category}
     )
@@ -2300,11 +2399,24 @@ def get_parti_prompts_spec(category: str) -> RunSpec:
     else:
         group = "image_quality"
 
+    metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
+    run_spec_name: str = f"parti_prompts:category={category}"
+
+    if run_human_eval:
+        if category == "Illustrations":
+            metric_specs += get_vhelm_critique_metric_specs(run_spec_name, num_examples=10)
+        elif category == "World":
+            metric_specs += get_vhelm_critique_metric_specs(run_spec_name, include_copyright=True, num_examples=50)
+        else:
+            metric_specs += get_vhelm_critique_metric_specs(
+                run_spec_name, include_aesthetics=True, include_copyright=True, num_examples=10
+            )
+
     return RunSpec(
-        name=f"parti_prompts:category={category}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=[f"parti_prompts_{group}"],
     )
 
@@ -2323,23 +2435,27 @@ def get_radiology_spec() -> RunSpec:
     )
 
 
-def get_relational_understanding_spec() -> RunSpec:
+def get_relational_understanding_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.relational_understanding_scenario.RelationalUnderstandingScenario", args={}
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
+    metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs("relational_understanding", num_examples=10)
+
     return RunSpec(
         name="relational_understanding",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["relational_understanding"],
     )
 
 
-def get_time_most_significant_historical_figures_spec() -> RunSpec:
+def get_time_most_significant_historical_figures_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.time_most_significant_historical_figures_scenario."
         "TIMEMostSignificantHistoricalFigures",
@@ -2348,25 +2464,33 @@ def get_time_most_significant_historical_figures_spec() -> RunSpec:
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
+    metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs("time_most_significant_historical_figures", num_examples=50)
+
     return RunSpec(
         name="time_most_significant_historical_figures",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["time_most_significant_historical_figures"],
     )
 
 
-def get_winoground_spec() -> RunSpec:
+def get_winoground_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.winoground_scenario.WinogroundScenario", args={})
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    metric_specs: List[MetricSpec] = get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs("winoground", num_examples=10)
 
     return RunSpec(
         name="winoground",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["winoground"],
     )
 
