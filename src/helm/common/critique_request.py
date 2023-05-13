@@ -1,5 +1,14 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Union
+
+
+class QuestionType:
+    """String enum of question types."""
+
+    # TODO: Make this a StrEnum after upgrading to Python 3.11
+    MULTIPLE_CHOICE: str = "multiple_choice"
+    CHECKBOX: str = "checkbox"
+    FREE_RESPONSE: str = "free_response"
 
 
 @dataclass(frozen=True)
@@ -16,12 +25,12 @@ class CritiqueQuestionTemplate:
     """Type of the question. One of 'multiple_choice', 'checkbox' or 'free_response'."""
 
     text: str
-    """Text of the options.
+    """HTML-formatted instructions text of the question.
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
     options: List[str]
-    """Only used when question_type is 'multiple_choice' or 'checkbox'. List of text for the options.
+    """Only used when question_type is 'multiple_choice' or 'checkbox'. List of HTML-formatted text for the options.
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
@@ -34,7 +43,7 @@ class CritiqueTaskTemplate:
     """Name of the template."""
 
     instructions: str
-    """Instructions that will be displayed before all the questions.
+    """HTML-formatted instructions that will be displayed before all the questions.
 
     Can contain placeholders like {{placeholder}} that will be interpolated using the fields in CritiqueRequest."""
 
@@ -70,7 +79,7 @@ class CritiqueResponse:
     respondent_id: str
     """A string that identifies the respondent. Implementation-dependent."""
 
-    answers: Dict[str, str]
+    answers: Dict[str, Union[str, List[str]]]
     """Map of question names to the respondent's answer."""
 
 

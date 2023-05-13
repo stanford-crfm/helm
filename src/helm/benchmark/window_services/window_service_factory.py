@@ -31,10 +31,11 @@ from .bloom_window_service import BloomWindowService
 from .huggingface_window_service import HuggingFaceWindowService
 from .ice_window_service import ICEWindowService
 from .santacoder_window_service import SantaCoderWindowService
-from .bigcode_large_model_window_service import BigCodeLargeModelWindowService
+from .starcoder_window_service import StarCoderWindowService
 from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
+from .megatron_window_service import MegatronWindowService
 from .opt_window_service import OPTWindowService
 from .palmyra_window_service import PalmyraWindowService, SilkRoadWindowService
 from .remote_window_service import get_remote_window_service
@@ -107,8 +108,8 @@ class WindowServiceFactory:
                 raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":
             window_service = SantaCoderWindowService(service)
-        elif engine == "large-model":
-            window_service = BigCodeLargeModelWindowService(service)
+        elif engine == "starcoder":
+            window_service = StarCoderWindowService(service)
         elif model_name == "huggingface/gpt2":
             window_service = GPT2WindowService(service)
         elif model_name == "together/bloom":
@@ -117,7 +118,7 @@ class WindowServiceFactory:
             # From https://github.com/THUDM/GLM-130B, "the tokenizer is implemented based on
             # icetk---a unified multimodal tokenizer for images, Chinese, and English."
             window_service = ICEWindowService(service)
-        elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "gooseai/gpt-j-6b"]:
+        elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "together/gpt-jt-6b-v1", "gooseai/gpt-j-6b"]:
             window_service = GPTJWindowService(service)
         elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b", "together/gpt-neoxt-chat-base-20b"]:
             window_service = GPTNeoXWindowService(service)
@@ -135,6 +136,8 @@ class WindowServiceFactory:
             window_service = UL2WindowService(service)
         elif model_name == "together/yalm":
             window_service = YaLMWindowService(service)
+        elif model_name == "nvidia/megatron-gpt2":
+            window_service = MegatronWindowService(service)
         elif organization == "cohere":
             if "command" in engine:
                 window_service = CohereCommandWindowService(service)

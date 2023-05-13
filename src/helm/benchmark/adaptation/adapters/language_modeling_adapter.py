@@ -48,6 +48,11 @@ class LanguageModelingAdapter(Adapter):
         """
         max_sequence_length: int = self.window_service.max_sequence_length
         max_request_length: int = self.window_service.max_request_length
+        # Handle max_sequence_and_tokens_length
+        max_request_length = min(
+            max_request_length,
+            self.window_service.max_sequence_and_generated_tokens_length - self.adapter_spec.max_tokens,
+        )
         prefix_token: str = self.window_service.prefix_token
 
         encode_result: EncodeResult = self.window_service.encode(eval_instance.input.text)
