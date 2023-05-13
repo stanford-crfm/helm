@@ -29,11 +29,11 @@ class HuggingFaceServer:
         model_kwargs = {}
         if model_config.revision:
             model_kwargs["revision"] = model_config.revision
-        with htrack_block("Loading model"):
-            self.model = AutoModelForCausalLM.from_pretrained(model_config.model_id, trust_remote_code=True).to(
-                self.device
-            )
-        with htrack_block("Loading tokenizer"):
+        with htrack_block(f"Loading Hugging Face model for config {model_config}"):
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_config.model_id, trust_remote_code=True, **model_kwargs
+            ).to(self.device)
+        with htrack_block(f"Loading Hugging Face tokenizer model for config {model_config}"):
             self.tokenizer = AutoTokenizer.from_pretrained(model_config.model_id, **model_kwargs)
 
     def serve_request(self, raw_request: Dict[str, Any]):
@@ -133,6 +133,10 @@ class HuggingFaceClient(Client):
                 self.model_server_instances[model] = HuggingFaceServer(
                     HuggingFaceModelConfig.from_string("bigcode/santacoder")
                 )
+            elif model == "huggingface/starcoder":
+                self.model_server_instances[model] = HuggingFaceServer(
+                    HuggingFaceModelConfig.from_string("bigcode/starcoder")
+                )
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")
 
@@ -225,7 +229,16 @@ class HuggingFaceClient(Client):
                     else:
                         tokens = tokenizer.encode(request.text, add_special_tokens=False)
                 else:
-                    tokens = tokenizer.tokenize(request.text)
+                    if "gpt" in request.tokenizer or request.tokenizer in [
+                        "bigscience/bloom",
+                        "Writer/palmyra-base",
+                        "facebook/opt-66b",
+                    ]:
+                        tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
+                    else:
+                        tokens = tokenizer.tokenize(request.text)
+                        # TODO(1522): Reenable this to revove "▁"
+                        # tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
                 return {"tokens": tokens}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))

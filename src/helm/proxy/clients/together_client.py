@@ -15,6 +15,8 @@ from .client import Client, wrap_request_time, truncate_sequence
 MODEL_ALIASES = {
     "flan-t5-xxl": "flan-t5-xxl-hf",
     "h3-2.7b": "h3-2.7b-h3",
+    "opt-1.3b": "opt-1.3b-ft-tp1",
+    "opt-6.7b": "opt-6.7b-ft-tp1",
 }
 """Together model name aliases.
 
@@ -30,6 +32,7 @@ available implementations on Together."""
 
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
+    # TODO(#1522): check if with #1519 this is still needed. This is similar to #1516.
     x = x.replace("▁", " ")
     return x
 
@@ -40,7 +43,7 @@ class TogetherClient(Client):
     checks if the request/result is cached. We return the result if it's in the cache. Otherwise, we return an error.
     """
 
-    INFERENCE_ENDPOINT: str = "https://staging.together.xyz/api/inference"
+    INFERENCE_ENDPOINT: str = "https://api.together.xyz/api/inference"
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:

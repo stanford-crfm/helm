@@ -21,10 +21,6 @@ from .remote_service import RemoteService
 from .service import ACCOUNTS_FILE
 
 
-SERVER_EXECUTABLE: str = "venv/bin/crfm-proxy-server"
-SERVER_TIMEOUT_SECONDS: int = 60
-
-
 @dataclass(frozen=True)
 class TempServerInfo:
     url: str
@@ -39,7 +35,7 @@ class TestRemoteServerService:
     """
 
     _ADMIN_API_KEY: str = "admin"
-    _SERVER_EXECUTABLE: str = "venv/bin/crfm-proxy-server"
+    _SERVER_EXECUTABLE: str = "crfm-proxy-server"
     _SERVER_TIMEOUT_SECONDS: int = 60
 
     @staticmethod

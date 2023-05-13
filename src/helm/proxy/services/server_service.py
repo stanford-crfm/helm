@@ -1,11 +1,13 @@
 import os
 import signal
-from typing import List
+from typing import List, Optional
 
+from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
+    WindowServiceInfo,
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
@@ -15,6 +17,7 @@ from helm.common.request import Request, RequestResult
 from helm.common.hierarchical_logger import hlog
 from helm.proxy.accounts import Accounts, Account
 from helm.proxy.clients.auto_client import AutoClient
+from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 from helm.proxy.example_queries import example_queries
 from helm.proxy.models import ALL_MODELS, get_model_group
 from helm.proxy.query import Query, QueryResult
@@ -52,10 +55,27 @@ class ServerService(Service):
         self.client = AutoClient(credentials, cache_path, mongo_uri)
         self.token_counter = AutoTokenCounter(self.client.huggingface_client)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
-        self.perspective_api_client = self.client.get_toxicity_classifier_client()
+        # Lazily instantiated by get_toxicity_scores()
+        self.perspective_api_client: Optional[PerspectiveAPIClient] = None
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
+
+    def get_window_service_info(self, model_name) -> WindowServiceInfo:
+        # The import statement is placed here to avoid two problems, please refer to the link for details
+        # https://github.com/stanford-crfm/helm/pull/1430#discussion_r1156686624
+        from helm.benchmark.window_services.tokenizer_service import TokenizerService
+        from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
+
+        token_service = TokenizerService(self, Authentication(""))
+        window_service = WindowServiceFactory.get_window_service(model_name, token_service)
+        return WindowServiceInfo(
+            tokenizer_name=window_service.tokenizer_name,
+            max_sequence_length=window_service.max_sequence_length,
+            max_request_length=window_service.max_request_length,
+            end_of_text_token=window_service.end_of_text_token,
+            prefix_token=window_service.prefix_token,
+        )
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
@@ -103,10 +123,16 @@ class ServerService(Service):
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request
         def get_toxicity_scores_with_retry(request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+            if not self.perspective_api_client:
+                self.perspective_api_client = self.client.get_toxicity_classifier_client()
             return self.perspective_api_client.get_toxicity_scores(request)
 
         self.accounts.authenticate(auth)
         return get_toxicity_scores_with_retry(request)
+
+    def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
+        self.accounts.authenticate(auth)
+        return self.client.get_critique_client().make_critique_request(request)
 
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""

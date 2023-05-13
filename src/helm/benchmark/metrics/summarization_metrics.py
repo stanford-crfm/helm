@@ -21,7 +21,6 @@ from .statistic import Stat
 from .summac.model_summac import SummaCZS
 from bert_score import BERTScorer
 
-
 QAFACTEVAL_CODALAB_LINK: str = (
     "https://worksheets.codalab.org/rest/bundles/0xf4de83c1f0d34d7999480223e8f5ab87/contents/blob/"
 )
@@ -184,6 +183,8 @@ class SummarizationMetric(Metric):
                 result.append(Stat(MetricName(f"HumanEval-{metric_name}")).add(float(val)))
         except KeyError:
             pass
+        except ValueError:
+            pass  # HumanEval not available for this task
 
         try:
             # get qafacteval scores if they exist
@@ -195,6 +196,8 @@ class SummarizationMetric(Metric):
             result.append(Stat(MetricName("QAFactEval")).add(float(val)))
         except KeyError:
             pass
+        except ValueError:
+            pass  # QAFactEval not available for this task
 
         # Compute rouge metrics
         result.extend([Stat(MetricName(name)).add(float(val)) for name, val in self._compute_rouge(refs, pred).items()])

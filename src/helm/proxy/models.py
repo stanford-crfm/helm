@@ -14,8 +14,24 @@ LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 # ChatML format
 CHATML_MODEL_TAG: str = "chatml"
 
+# OpenAI Chat format
+OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
+
+# For Anthropic models
+ANTHROPIC_MODEL_TAG: str = "anthropic"
+
 # For OpenAI models with wider context windows
-WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"  # 4000 tokens
+# TODO(#1455): Simplify context window tags.
+WIDER_CONTEXT_WINDOW_TAG: str = "openai_wider_context_window"  # 4000 tokens
+GPT4_CONTEXT_WINDOW_TAG: str = "gpt4_context_window"  # 8192 tokens
+GPT4_32K_CONTEXT_WINDOW_TAG: str = "gpt4_32k_context_window"  # 32768 tokens
+
+# For AI21 Jurassic-2 models with wider context windows
+AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
+
+# For AI21 Jurassic-2 Jumbo
+# AI21 has recommended using a sequence length of 6000 tokens to avoid OOMs.
+AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG: str = "ai21_jurassic_2_jumbo_context_window"  # 6000
 
 # To fetch models that use these tokenizers
 GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
@@ -23,7 +39,11 @@ AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
 COHERE_TOKENIZER_TAG: str = "cohere_tokenizer"
 OPT_TOKENIZER_TAG: str = "opt_tokenizer"
 GPTJ_TOKENIZER_TAG: str = "gptj_tokenizer"
+GPT4_TOKENIZER_TAG: str = "gpt4_tokenizer"
 GPTNEO_TOKENIZER_TAG: str = "gptneo_tokenizer"
+
+# Models which emit garbage tokens when temperature=0.
+BUGGY_TEMP_0_TAG: str = "buggy_temp_0"
 
 # Models that are used for ablations and fine-grained analyses.
 # These models are selected specifically because of their low marginal cost to evaluate.
@@ -132,7 +152,12 @@ ALL_MODELS = [
         name="ai21/j2-jumbo",
         display_name="Jurassic-2 Jumbo (178B)",
         description="Jurassic-2 Jumbo (178B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            AI21_TOKENIZER_TAG,
+        ],
     ),
     Model(
         group="jurassic",
@@ -140,7 +165,7 @@ ALL_MODELS = [
         name="ai21/j2-grande",
         display_name="Jurassic-2 Grande (17B)",
         description="Jurassic-2 Grande (17B parameters) with a few tweaks to the training process.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
         group="jurassic",
@@ -148,7 +173,7 @@ ALL_MODELS = [
         name="ai21/j2-large",
         display_name="Jurassic-2 Large (7.5B)",
         description="Jurassic-2 Large (7.5B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, AI21_WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
     Model(
@@ -196,6 +221,34 @@ ALL_MODELS = [
         display_name="Anthropic-LM (52B)",
         description="Anthropic model (52B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
+    ),
+    Model(
+        group="anthropic",
+        creator_organization="Anthropic",
+        name="anthropic/claude-v1.3",
+        display_name="Anthropic Claude (52B)",
+        description="Anthropic Claude V1.3 (52B parameters)",
+        tags=[
+            ANTHROPIC_MODEL_TAG,
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            ABLATION_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="anthropic",
+        creator_organization="Anthropic",
+        name="anthropic/claude-instant-v1",
+        display_name="Anthropic Claude Instant (TBD)",
+        description="Anthropic Claude Instant (TBD parameters)",
+        tags=[
+            ANTHROPIC_MODEL_TAG,
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            ABLATION_MODEL_TAG,
+        ],
     ),
     # BigScience
     Model(
@@ -303,7 +356,13 @@ ALL_MODELS = [
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            GPTJ_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
     ),
     Model(
         group="together",
@@ -354,6 +413,14 @@ ALL_MODELS = [
         display_name="SantaCoder (1.1B)",
         description="SantaCoder (1.1B parameters) model trained on the Python, Java, and "
         "JavaScript subset of The Stack (v1.1).",
+        tags=[CODE_MODEL_TAG],
+    ),
+    Model(
+        group="huggingface",
+        creator_organization="BigCode",
+        name="huggingface/starcoder",
+        display_name="StarCoder (15.5B)",
+        description="StarCoder (15.5B parameter) model trained on 80+ programming languages from The Stack (v1.2)",
         tags=[CODE_MODEL_TAG],
     ),
     # Google
@@ -424,6 +491,38 @@ ALL_MODELS = [
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-6.7b",
+        display_name="OPT (6.7B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained "
+        "transformers that are fully and responsibly shared with interested researchers.",
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            OPT_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
+    ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-1.3b",
+        display_name="OPT (1.3B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained "
+        "transformers that are fully and responsibly shared with interested researchers.",
+        tags=[
+            TEXT_MODEL_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            OPT_TOKENIZER_TAG,
+            BUGGY_TEMP_0_TAG,
+        ],
     ),
     # Microsoft/NVIDIA
     Model(
@@ -553,6 +652,41 @@ ALL_MODELS = [
         description="Code model that is a stronger, multilingual version of the Codex (12B) model in the paper.",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
+    # GPT-4
+    Model(
+        group="gpt4",
+        creator_organization="OpenAI",
+        name="openai/gpt-4-0314",
+        display_name="gpt-4-0314",
+        # https://platform.openai.com/docs/models/gpt-4
+        description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
+        "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
+        "from March 14th 2023.",
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT4_CONTEXT_WINDOW_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+        ],
+    ),
+    Model(
+        group="gpt4",
+        creator_organization="OpenAI",
+        name="openai/gpt-4-32k-0314",
+        display_name="gpt-4-32k-0314",
+        # https://platform.openai.com/docs/models/gpt-4
+        description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
+        "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
+        "with a longer context length of 32,768 tokens from March 14th 2023.",
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT4_32K_CONTEXT_WINDOW_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+        ],
+    ),
     # ChatGPT: https://openai.com/blog/chatgpt
     Model(
         group="gpt3",
@@ -566,7 +700,13 @@ ALL_MODELS = [
         # sequence length is smaller at 4087 with one user input message and one assistant
         # output message because ChatGPT uses special tokens for message roles and boundaries.
         # We use a rounded-down sequence length of 4000 to account for these special tokens.
-        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            WIDER_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+        ],
     ),
     Model(
         group="gpt3",
@@ -575,7 +715,7 @@ ALL_MODELS = [
         display_name="ChatGPT",
         description="Sibling model to InstructGPT which interacts in a conversational way",
         # TODO: The max context length is unknown. Assume it's the same length as Davinci Instruct for now.
-        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, GPT2_TOKENIZER_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
     Model(
@@ -640,6 +780,70 @@ ALL_MODELS = [
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
+    # Writer
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-base",
+        display_name="Palmyra Base (5B)",
+        description="Autoregressive language model (5B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-large",
+        display_name="Palmyra Large (20B)",
+        description="Autoregressive language model (20B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-r",
+        display_name="Palmyra R (30B)",
+        description="Autoregressive language model with Retrieval-Augmented Generation (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/camel",
+        display_name="Camel (5B)",
+        description="Training language models to follow instructions with human feedback (5B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-instruct-30",
+        display_name="InstructPalmyra (30B)",
+        description="Training language models to follow instructions with human feedback (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/palmyra-e",
+        display_name="Palmyra E (30B)",
+        description="Training language models to follow instructions with human feedback (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="palmyra",
+        creator_organization="Writer",
+        name="writer/silk-road",
+        display_name="Silk Road (35B)",
+        description="Autoregressive language mode with multi-scale Attention in parallel (35B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # Yandex
     Model(
         group="together",
@@ -661,6 +865,15 @@ ALL_MODELS = [
         description="Pathways Language Model (540B parameters) is trained using 6144 TPU v4 chips "
         "([paper](https://arxiv.org/pdf/2204.02311.pdf)).",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # Nvidia
+    Model(
+        group="nvidia",
+        creator_organization="Nvidia",
+        name="nvidia/megatron-gpt2",
+        display_name="Megatron GPT-2",
+        description="GPT-2 implemented in Megatron-LM ([paper](https://arxiv.org/abs/1909.08053)).",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, BUGGY_TEMP_0_TAG],
     ),
     # For debugging
     Model(

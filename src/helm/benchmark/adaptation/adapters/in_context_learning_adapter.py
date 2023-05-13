@@ -65,7 +65,9 @@ class InContextLearningAdapter(Adapter, ABC):
         parallelism: int,
     ) -> List[RequestState]:
         self.train_trial_index: int = train_trial_index
-        self.train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
+        self.train_instances: List[Instance] = self.sample_examples(
+            all_train_instances, seed=train_trial_index, sample_train=self.adapter_spec.sample_train
+        )
         hlog(f"Sampled {len(self.train_instances)} examples for trial #{self.train_trial_index}.")
 
         # Generate request_states
@@ -93,7 +95,9 @@ class InContextLearningAdapter(Adapter, ABC):
 
         return [request_state for result in results for request_state in result]
 
-    def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
+    def sample_examples(
+        self, all_train_instances: List[Instance], seed: int, sample_train: bool = True
+    ) -> List[Instance]:
         """
         Sample a random set of train instances to use as examples by following the steps below:
         1. Sort the class labels (i.e., correct References) by the number of Instances that belong to the
@@ -121,9 +125,14 @@ class InContextLearningAdapter(Adapter, ABC):
         random.seed(seed)
         num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
 
+        examples: List[Instance] = []
+        if not sample_train:
+            # Select sequentially from the train set
+            examples = all_train_instances[num_instances_to_sample * seed : num_instances_to_sample * (seed + 1)]
+            return examples
+
         unlabeled_instances: List[Instance] = []
         label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
-
         for instance in all_train_instances:
             if instance.first_correct_reference:
                 label_to_instances[instance.first_correct_reference.output.text].append(instance)
@@ -145,7 +154,6 @@ class InContextLearningAdapter(Adapter, ABC):
             sorted_labels.extend(labels)
 
         labels_iterable = cycle(sorted_labels)
-        examples: List[Instance] = []
         while num_instances_to_sample > 0:
             next_label: Optional[str] = next(labels_iterable, None)
             if not next_label:
@@ -214,7 +222,7 @@ class InContextLearningAdapter(Adapter, ABC):
         Returns a single example of the prompt. `include_output` controls whether the gold output is included.
         """
         # Input
-        result: str = self.adapter_spec.input_prefix + instance.input.text + self.adapter_spec.input_suffix
+        result: str = self.adapter_spec.input_prefix + (instance.input.text or "") + self.adapter_spec.input_suffix
 
         # References (optionally) and output
         output: str

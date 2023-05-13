@@ -15,10 +15,11 @@ from helm.proxy.models import (
     OPT_TOKENIZER_TAG,
     GPTJ_TOKENIZER_TAG,
     GPTNEO_TOKENIZER_TAG,
+    GPT4_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
-from helm.benchmark.adaptation.adapter_spec import Substitution
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 
@@ -237,6 +238,32 @@ class StopRunExpander(RunExpander):
         ]
 
 
+class AddToStopRunExpander(RunExpander):
+    """
+    Add a stop sequence to the stop sequences. (Not like StopRunExpander, which replaces the stop sequences.)
+    """
+
+    name = "add_to_stop"
+
+    def __init__(self, value):
+        """
+        Args:
+            value(str): Either the actual value to use or a lookup into the values dict.
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec, stop_sequences=run_spec.adapter_spec.stop_sequences + [self.value]
+                ),
+            ),
+        ]
+
+
 class GlobalPrefixRunExpander(RunExpander):
     """For overriding global prefix for specific models."""
 
@@ -257,6 +284,29 @@ class GlobalPrefixRunExpander(RunExpander):
                 name=f"{run_spec.name},{self.name}={self.value}",
                 adapter_spec=replace(run_spec.adapter_spec, global_prefix=prefix),
             )
+        ]
+
+
+class FormatPromptRunExpander(RunExpander):
+    """Adds a prefix and suffix to the prompt."""
+
+    name = "format_prompt"
+
+    def __init__(self, prefix: str = "", suffix: str = ""):
+        self.prefix = prefix
+        self.suffix = suffix
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=self.prefix,
+                    output_prefix=self.suffix,
+                ),
+            ),
         ]
 
 
@@ -302,36 +352,58 @@ class ModelRunExpander(ReplaceValueRunExpander):
     """
 
     name = "model"
-    values_dict = {
-        "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
-        "ai21/j1-jumbo": ["ai21/j1-jumbo"],
-        "openai/curie": ["openai/curie"],
-        "chat_run": ["openai/chat-gpt", "openai/text-davinci-003"],  # Compare ChatGPT to text-davinci-003
-        "all": get_all_models(),
-        "text_code": get_all_text_models() + get_all_code_models(),
-        "text": get_all_text_models(),
-        "code": get_all_code_models(),
-        "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
-        "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
-        "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
-        "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
-        "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
-        "summarization_zs": ["openai/davinci", "openai/curie", "openai/text-davinci-002", "openai/text-curie-001"],
-        "biomedical": ["openai/text-davinci-003"],  # TODO: add https://huggingface.co/stanford-crfm/BioMedLM
-        "interactive_qa": ["openai/text-davinci-001", "openai/davinci", "ai21/j1-jumbo", "openai/text-babbage-001"],
-    }
 
-    # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
-    # which contains the subset of models with the ablation tag.
-    ablation_models = set(get_model_names_with_tag(ABLATION_MODEL_TAG))
-    ablation_values_dict = {}
-    for family_name, models in values_dict.items():
-        ablation_values_dict["ablation_" + family_name] = list(ablation_models & set(models))
-    for family_name, models in ablation_values_dict.items():
-        if family_name == "ablation_all":
-            values_dict["ablation"] = models
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        if value in self.values_dict:
+            self.values = self.values_dict[value]
         else:
-            values_dict[family_name] = models
+            self.values = [value]
+
+    @property
+    def values_dict(self):
+        values_dict = {
+            "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
+            "ai21/j1-jumbo": ["ai21/j1-jumbo"],
+            "openai/curie": ["openai/curie"],
+            "chat_run": ["openai/chat-gpt", "openai/text-davinci-003"],  # Compare ChatGPT to text-davinci-003
+            "all": get_all_models(),
+            "text_code": get_all_text_models() + get_all_code_models(),
+            "text": get_all_text_models(),
+            "code": get_all_code_models(),
+            "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
+            "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
+            "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
+            "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
+            "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
+            "summarization_zs": ["openai/davinci", "openai/curie", "openai/text-davinci-002", "openai/text-curie-001"],
+            "biomedical": ["openai/text-davinci-003"],  # TODO: add https://huggingface.co/stanford-crfm/BioMedLM
+            "interactive_qa": ["openai/text-davinci-001", "openai/davinci", "ai21/j1-jumbo", "openai/text-babbage-001"],
+            "opinions_qa_openai": [
+                "openai/ada",
+                "openai/davinci",
+                "openai/text-ada-001",
+                "openai/text-davinci-001",
+                "openai/text-davinci-002",
+                "openai/text-davinci-003",
+            ],
+            "opinions_qa_ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
+        }
+
+        # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
+        # which contains the subset of models with the ablation tag.
+        ablation_models = set(get_model_names_with_tag(ABLATION_MODEL_TAG))
+        ablation_values_dict = {}
+        for family_name, models in values_dict.items():
+            ablation_values_dict["ablation_" + family_name] = list(ablation_models & set(models))
+        for family_name, models in ablation_values_dict.items():
+            if family_name == "ablation_all":
+                values_dict["ablation"] = models
+            else:
+                values_dict[family_name] = models
+        return values_dict
 
 
 ############################################################
@@ -741,6 +813,7 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
         "AlephAlpha/luminous-supreme": ["AlephAlpha/luminous-supreme"],
         "AlephAlpha/luminous-world": ["AlephAlpha/luminous-world"],
         "huggingface/santacoder": ["bigcode/santacoder"],
+        "huggingface/starcoder": ["bigcode/starcoder"],
     }
     model_tags_and_tokenizers = [
         (GPT2_TOKENIZER_TAG, "huggingface/gpt2"),
@@ -748,6 +821,7 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
         (COHERE_TOKENIZER_TAG, "cohere/cohere"),
         (OPT_TOKENIZER_TAG, "meta/opt"),
         (GPTJ_TOKENIZER_TAG, "eleutherai/gptj"),
+        (GPT4_TOKENIZER_TAG, "openai/cl100k_base"),
         (GPTNEO_TOKENIZER_TAG, "eleutherai/gptneox"),
     ]
     for model_tag, tokenizer in model_tags_and_tokenizers:
@@ -818,6 +892,56 @@ class NumOutputTokensRunExpander(RunExpander):
                 adapter_spec=replace(run_spec.adapter_spec, **{self.adapter_spec_name: value}),
             )
             for value in self.values
+        ]
+
+
+class IncreaseMaxTokensRunExpander(RunExpander):
+    """
+    Run expander for increasing the number of max tokens.
+    """
+
+    name = "increase_max_tokens"
+
+    def __init__(self, value: int):
+        """
+        Args:
+            value (int): The number of tokens to increase max tokens by
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec: AdapterSpec = run_spec.adapter_spec
+        adapter_spec = replace(adapter_spec, max_tokens=adapter_spec.max_tokens + self.value)
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
+class IncreaseTemperatureRunExpander(RunExpander):
+    """
+    Run expander for increasing the temperature.
+    """
+
+    name = "increase_temperature"
+
+    def __init__(self, value: float):
+        """
+        Args:
+            value (float): The amount to increase temperature by
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec: AdapterSpec = run_spec.adapter_spec
+        adapter_spec = replace(adapter_spec, temperature=adapter_spec.temperature + self.value)
+        return [
+            replace(
+                run_spec,
+                adapter_spec=adapter_spec,
+            ),
         ]
 
 
@@ -917,6 +1041,8 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     PromptRunExpander,
     NewlineRunExpander,
     StopRunExpander,
+    FormatPromptRunExpander,
+    AddToStopRunExpander,
     GlobalPrefixRunExpander,
     NumTrainTrialsRunExpander,
     MaxTrainInstancesRunExpander,

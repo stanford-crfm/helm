@@ -1,6 +1,5 @@
 import argparse
 from dataclasses import replace
-import os
 from typing import List, Optional
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
@@ -8,15 +7,14 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
 from helm.proxy.clients.huggingface_model_registry import register_huggingface_model_config
+from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
-from .runner import Runner, RunSpec
+from .runner import Runner, RunSpec, LATEST_SYMLINK
+from .slurm_runner import SlurmRunner
 from .run_specs import construct_run_specs
-
-
-LATEST_SYMLINK: str = "latest"
 
 
 def run_entries_to_run_specs(
@@ -74,8 +72,11 @@ def run_benchmarking(
     suite: str,
     dry_run: bool,
     skip_instances: bool,
+    cache_instances: bool,
+    cache_instances_only: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
+    use_slurm_runner: bool,
     mongo_uri: str = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
@@ -91,23 +92,19 @@ def run_benchmarking(
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec)
-
-    runner = Runner(execution_spec, output_path, suite, skip_instances, skip_completed_runs, exit_on_error)
+    runner_cls = SlurmRunner if use_slurm_runner else Runner
+    runner: Runner = runner_cls(
+        execution_spec,
+        output_path,
+        suite,
+        skip_instances,
+        cache_instances,
+        cache_instances_only,
+        skip_completed_runs,
+        exit_on_error,
+    )
     runner.run_all(run_specs)
     return run_specs
-
-
-def symlink_latest(output_path: str, suite: str) -> None:
-    # Create a symlink runs/latest -> runs/<name_of_suite>,
-    # so runs/latest always points to the latest run suite.
-    runs_dir: str = os.path.join(output_path, "runs")
-    suite_dir: str = os.path.join(runs_dir, suite)
-    symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
-    hlog(f"Symlinking {suite_dir} to {LATEST_SYMLINK}.")
-    if os.path.islink(symlink_path):
-        # Remove the previous symlink if it exists.
-        os.unlink(symlink_path)
-    os.symlink(os.path.abspath(suite_dir), symlink_path)
 
 
 def add_run_args(parser: argparse.ArgumentParser):
@@ -118,14 +115,22 @@ def add_run_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--skip-instances",
         action="store_true",
-        default=None,
         help="Skip creation of instances (basically do nothing but just parse everything).",
+    )
+    parser.add_argument(
+        "--cache-instances",
+        action="store_true",
+        help="Save generated instances input to model to disk. If already cached, read instances from file.",
+    )
+    parser.add_argument(
+        "--cache-instances-only",
+        action="store_true",
+        help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
     )
     parser.add_argument(
         "-d",
         "--dry-run",
         action="store_true",
-        default=None,
         help="Skip execution, only output scenario states and estimate token usage.",
     )
     parser.add_argument(
@@ -169,6 +174,8 @@ def add_run_args(parser: argparse.ArgumentParser):
 
 def validate_args(args):
     assert args.suite != LATEST_SYMLINK, f"Suite name can't be '{LATEST_SYMLINK}'"
+    if args.cache_instances_only:
+        assert args.cache_instances, "If --cache-instances-only is set, --cache-instances must also be set."
 
 
 @htrack(None)
@@ -197,13 +204,11 @@ def main():
     parser.add_argument(
         "--exit-on-error",
         action="store_true",
-        default=None,
         help="Fail and exit immediately if a particular RunSpec fails.",
     )
     parser.add_argument(
         "--skip-completed-runs",
         action="store_true",
-        default=None,
         help="Skip RunSpecs that have completed i.e. output files exists.",
     )
     parser.add_argument(
@@ -219,14 +224,30 @@ def main():
         nargs="+",
         default=[],
         help="Experimental: Enable using AutoModelForCausalLM models from Hugging Face Model Hub. "
-        "Format: namespace/model_name[#revision]",
+        "Format: namespace/model_name[@revision]",
+    )
+    parser.add_argument(
+        "--enable-remote-models",
+        nargs="+",
+        default=[],
+        help="Experimental: Enable remote service models that are not available on the client. "
+        "The client will use RemoteWindowService for windowing.",
+    )
+    parser.add_argument(
+        "--use-slurm-runner",
+        action="store_true",
+        help="Experimental: If set, each RunSpec will be run in a separate worker Slurm job. "
+        "Currently only works on the Stanford NLP cluster.",
     )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
 
-    for raw_huggingface_model_config in args.enable_huggingface_models:
-        register_huggingface_model_config(raw_huggingface_model_config)
+    for huggingface_model_name in args.enable_huggingface_models:
+        register_huggingface_model_config(huggingface_model_name)
+
+    if not args.local:
+        check_and_register_remote_model(args.server_url, args.enable_remote_models)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
@@ -251,6 +272,7 @@ def main():
         return
 
     auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
+
     run_benchmarking(
         run_specs=run_specs,
         auth=auth,
@@ -262,12 +284,13 @@ def main():
         suite=args.suite,
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
+        cache_instances=args.cache_instances,
+        cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
+        use_slurm_runner=args.use_slurm_runner,
         mongo_uri=args.mongo_uri,
     )
-
-    symlink_latest(output_path=args.output_path, suite=args.suite)
 
     hlog("Done.")
 
