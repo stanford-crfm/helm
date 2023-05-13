@@ -13,6 +13,7 @@ from helm.proxy.services.remote_service import create_authentication, add_servic
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
+from .slurm_runner import SlurmRunner
 from .run_specs import construct_run_specs
 
 
@@ -75,6 +76,7 @@ def run_benchmarking(
     cache_instances_only: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
+    use_slurm_runner: bool,
     mongo_uri: str = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
@@ -90,8 +92,8 @@ def run_benchmarking(
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec)
-
-    runner = Runner(
+    runner_cls = SlurmRunner if use_slurm_runner else Runner
+    runner: Runner = runner_cls(
         execution_spec,
         output_path,
         suite,
@@ -113,26 +115,22 @@ def add_run_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--skip-instances",
         action="store_true",
-        default=None,
         help="Skip creation of instances (basically do nothing but just parse everything).",
     )
     parser.add_argument(
         "--cache-instances",
         action="store_true",
-        default=None,
         help="Save generated instances input to model to disk. If already cached, read instances from file.",
     )
     parser.add_argument(
         "--cache-instances-only",
         action="store_true",
-        default=None,
         help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
     )
     parser.add_argument(
         "-d",
         "--dry-run",
         action="store_true",
-        default=None,
         help="Skip execution, only output scenario states and estimate token usage.",
     )
     parser.add_argument(
@@ -206,13 +204,11 @@ def main():
     parser.add_argument(
         "--exit-on-error",
         action="store_true",
-        default=None,
         help="Fail and exit immediately if a particular RunSpec fails.",
     )
     parser.add_argument(
         "--skip-completed-runs",
         action="store_true",
-        default=None,
         help="Skip RunSpecs that have completed i.e. output files exists.",
     )
     parser.add_argument(
@@ -235,8 +231,13 @@ def main():
         nargs="+",
         default=[],
         help="Experimental: Enable remote service models that are not available on the client. "
-        "The client will use RemoteWindowService for windowing. "
-        "Format: namespace/model_name[@revision]",
+        "The client will use RemoteWindowService for windowing.",
+    )
+    parser.add_argument(
+        "--use-slurm-runner",
+        action="store_true",
+        help="Experimental: If set, each RunSpec will be run in a separate worker Slurm job. "
+        "Currently only works on the Stanford NLP cluster.",
     )
     add_run_args(parser)
     args = parser.parse_args()
@@ -287,6 +288,7 @@ def main():
         cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
+        use_slurm_runner=args.use_slurm_runner,
         mongo_uri=args.mongo_uri,
     )
 
