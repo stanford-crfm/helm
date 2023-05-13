@@ -112,7 +112,7 @@ def queue_jobs(
 
             swiss_army_port: str = ""
             if model.name == "thudm/cogview2":
-                swiss_army_port = f"MASTER_PORT={70_000 + i} "
+                swiss_army_port = f"MASTER_PORT={65_000 + i} "
 
             command: str = (
                 f"{NLP_RUN} {nlp_run_gpu_args} --job-name {job_name} '{swiss_army_port}helm-run {DEFAULT_HELM_ARGS} "

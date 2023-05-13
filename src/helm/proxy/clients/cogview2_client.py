@@ -26,6 +26,7 @@ from .cogview2.coglm_utils import get_masks_and_position_ids_coglm, get_recipe, 
 from icetk import icetk as tokenizer
 
 tokenizer.add_special_tokens(["<start_of_image>", "<start_of_english>", "<start_of_chinese>"])
+MAX_SEQ_LEN = 95
 
 
 class CogView2Client(Client):
@@ -78,7 +79,8 @@ class CogView2Client(Client):
         with torch.no_grad():
             text = getattr(self._args, "query_template").format(prompt)
             seq = tokenizer.encode(text)
-            seq = seq[:110]
+            if len(seq) > MAX_SEQ_LEN:
+                seq = seq[: MAX_SEQ_LEN - 2] + seq[-2:]
             txt_len = len(seq) - 1
             device = getattr(self._args, "device")
             seq = torch.tensor(seq + [-1] * 400, device=device)

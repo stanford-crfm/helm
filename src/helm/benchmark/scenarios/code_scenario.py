@@ -56,6 +56,7 @@ from typing import List, Dict, Iterable, Optional, cast
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
 from .code_scenario_helper import run as run_reindent
+from .code_scenario_apps_pinned_file_order import apps_listdir_with_pinned_order
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
@@ -135,7 +136,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
 
         num_problems = 0
         skipped_problems = []
-        for problem_name in os.listdir(split_dir):
+        for problem_name in apps_listdir_with_pinned_order(target_path, split_tag):
             problem_dir = os.path.join(split_dir, problem_name)
 
             question_fname = os.path.join(problem_dir, "question.txt")

@@ -28,7 +28,7 @@ class TestHuggingFaceClient:
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         result: TokenizationRequestResult = self.client.tokenize(request)
         assert result.cached, "Result should be cached"
-        assert result.raw_tokens == ["I", "Ġam", "Ġa", "Ġcomputer", "Ġscientist", "."]
+        assert result.raw_tokens == ["I", " am", " a", " computer", " scientist", "."]
 
     def test_encode(self):
         request = TokenizationRequest(text="I am a computer scientist.", encode=True, truncation=True, max_length=1)
