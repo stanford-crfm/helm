@@ -2347,8 +2347,7 @@ def get_mscoco_spec(for_efficiency: bool = False, run_human_eval: bool = False) 
     else:
         metric_specs = get_vhelm_reference_required_metric_specs(include_fidelity=True) + get_core_vhelm_metric_specs()
         if run_human_eval:
-            # TODO: increase to 100 after the pilot
-            metric_specs += get_vhelm_photorealism_critique_metric_specs(num_examples=25)
+            metric_specs += get_vhelm_photorealism_critique_metric_specs(num_examples=100)
         run_spec_name = "mscoco"
         group = "mscoco"
 
