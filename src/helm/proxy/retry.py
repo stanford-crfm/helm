@@ -4,7 +4,7 @@ from retrying import Retrying
 
 from helm.common.request import RequestResult
 from helm.common.tokenization_request import TokenizationRequestResult
-from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.hierarchical_logger import hlog
 import traceback
 import threading
 
@@ -39,16 +39,9 @@ def get_retry_decorator(
         """
         hlog(
             f"{operation} failed. Retrying (attempt #{attempts + 1}) in {delay // 1000} seconds... "
-            "(See above for details)"
+            "(See above for error details)"
         )
         return _retrying.exponential_sleep(attempts, delay)
-
-    def stops_on_keyboard_interrupt(exception: Exception) -> bool:
-        """
-        This function always return True, as the exception should always be retried.
-        It is used to stop retrying on keyboard interrupt.
-        """
-        return isinstance(exception, KeyboardInterrupt)
 
     def print_exception_and_traceback(exception: Exception) -> bool:
         """
@@ -58,8 +51,9 @@ def get_retry_decorator(
         """
         with print_lock:
             hlog("")
-            hlog_exception(exception)
-        return not stops_on_keyboard_interrupt(exception)
+            hlog("".join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
+        # TODO: Should not retry on keyboard interrupt. (right now it is inconsistent)
+        return not isinstance(exception, KeyboardInterrupt)
 
     _retrying = Retrying(
         retry_on_result=retry_on_result,
@@ -72,21 +66,6 @@ def get_retry_decorator(
     )
 
     return lambda f: lambda *args, **kwargs: _retrying.call(f, *args, **kwargs)
-
-
-def hlog_exception(exception: Exception):
-    with htrack_block("Exception:", print_time=False):
-        hlog(exception)
-    with htrack_block("Traceback:", print_time=False):
-        hlog_traceback_of_exception(exception)
-
-
-def hlog_traceback_of_exception(exception: Exception):
-    traceback_list = traceback.extract_tb(exception.__traceback__)
-    for item in traceback.StackSummary.from_list(traceback_list).format():
-        items = item.split("\n")
-        with htrack_block(items[0], print_time=False):
-            hlog(items[1])
 
 
 def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResult]) -> bool:
