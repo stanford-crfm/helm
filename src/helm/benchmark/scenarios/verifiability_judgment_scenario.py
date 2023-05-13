@@ -90,8 +90,8 @@ class VerifiabilityJudgementScenario(Scenario):
         # Add the title, byline, and date if they exist
         if (sample.get("source_title") or "").strip():
             source_texts.append(sample["source_title"])
-        if (sample.get("source_byline") or "").strip():
-            source_texts.append(sample["source_byline"])
+        if (sample.get("source_author") or "").strip():
+            source_texts.append(sample["source_author"])
         if (sample.get("source_date") or "").strip():
             source_texts.append(sample["source_date"])
         source_texts.extend(sample["source_text"])
