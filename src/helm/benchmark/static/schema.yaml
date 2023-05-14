@@ -89,7 +89,7 @@ models:
     num_parameters: 52000000000
     release_date: 2021-12-01
   - name: anthropic/claude-v1.3
-    display_name: Anthropic Claude V1.3
+    display_name: Anthropic Claude v1.3
     description: A model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
     creator_organization: Anthropic
     access: limited
