@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 # Different modalities
 TEXT_MODEL_TAG: str = "text"
