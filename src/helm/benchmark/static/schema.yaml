@@ -527,7 +527,7 @@ models:
     description: MPT-7B is a transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
-    num_parameters: 7000000000
+    num_parameters: 6700000000
     release_date: 2023-05-05
     todo: true
 
