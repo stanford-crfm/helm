@@ -282,6 +282,56 @@ ALL_MODELS = [
         name="together/gpt-neox-20b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
+    Model(
+        group="together",
+        creator_organization="EleutherAI",
+        name="together/pythia-7b",
+        display_name="Pythia (7B)",
+        description="Pythia (7B parameters). The Pythia project combines interpretability analysis and "
+        "scaling laws to understand how knowledge develops and evolves during training in autoregressive "
+        "transformers.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # Meta
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/llama-7b",
+        display_name="LLaMA (7B)",
+        description="LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # Stanford
+    Model(
+        group="together",
+        creator_organization="Stanford",
+        name="together/alpaca-7b",
+        display_name="Alpaca (7B)",
+        description="Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following "
+        "demonstrations",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # LMSYS
+    Model(
+        group="together",
+        creator_organization="LMSYS",
+        name="together/vicuna-13b",
+        display_name="Vicuna (13B)",
+        # From https://lmsys.org/blog/2023-03-30-vicuna/
+        description="Vicuna-13B is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations "
+        "collected from ShareGPT.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # MosaicML
+    Model(
+        group="togethger",
+        creator_organization="MosaicML",
+        name="together/mpt-7b",
+        display_name="MPT (7B)",
+        # From https://www.mosaicml.com/blog/mpt-7b
+        description="MPT-7B is a transformer trained from scratch on 1T tokens of text and code.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # GooseAI supported models
     Model(
         group="gooseai",
@@ -533,6 +583,16 @@ ALL_MODELS = [
         group="together",
         name="together/gpt-neoxt-chat-base-20b",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Together",
+        name="together/redpajama-incite-base-3b-v1",
+        display_name="RedPajama-Incite-Base (3B)",
+        # From https://www.together.xyz/blog/redpajama-models-v1
+        description="RedPajama-Incite-Base (3B parameters) is a 3 billion base model that aims to "
+        "replicate the LLaMA recipe as closely as possible.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Tsinghua
     Model(
