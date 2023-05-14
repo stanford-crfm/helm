@@ -68,6 +68,8 @@ class PerspectiveAPIClient:
 
     def _initialize_client(self):
         """Initialize the client."""
+        if self._tried_initializing:
+            return
         self._tried_initializing = True  # Cache the result in order to avoid trying to initialize again
         self.client = discovery.build(
             "commentanalyzer",
@@ -92,12 +94,10 @@ class PerspectiveAPIClient:
             return False
         elif self.client is not None:  # Already initialized
             return True
-        elif self._tried_initializing:  # Already tried initializing and the client is still None
-            return False
         # We night have never tried initializing the client, so try it now
         try:
             self._initialize_client()
-            return True
+            return self.client is not None
         except Exception:
             return False
 
