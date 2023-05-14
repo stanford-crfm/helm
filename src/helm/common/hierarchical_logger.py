@@ -31,7 +31,7 @@ class HierarchicalLogger(object):
         sys.stdout.flush()
         self.start_times.append(time.time())
 
-    def track_end(self, print_time) -> None:
+    def track_end(self) -> None:
         t = time.time() - self.start_times.pop()
         print(self.indent() + "} [%s]" % (format_time(t)))
         sys.stdout.flush()
