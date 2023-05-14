@@ -214,7 +214,6 @@ ALL_MODELS = [
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
-
     # Cohere models
     # Model versioning and the possible versions are not documented here:
     # https://docs.cohere.ai/generate-reference#model-optional.
@@ -266,7 +265,6 @@ ALL_MODELS = [
         name="cohere/command-xlarge-beta",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
-
     # EleutherAI
     Model(
         group="together",
@@ -284,7 +282,6 @@ ALL_MODELS = [
         name="together/gpt-neox-20b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
-
     # GooseAI supported models
     Model(
         group="gooseai",
@@ -296,7 +293,6 @@ ALL_MODELS = [
         name="gooseai/gpt-j-6b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
     ),
-
     # HuggingFace
     Model(
         group="huggingface",
@@ -318,7 +314,6 @@ ALL_MODELS = [
         name="huggingface/starcoder",
         tags=[CODE_MODEL_TAG],
     ),
-
     # Google
     Model(
         group="together",
@@ -344,14 +339,12 @@ ALL_MODELS = [
             NLG_PREFIX_TAG,
         ],
     ),
-
     # H3 model
     Model(
         group="together",
         name="together/h3-2.7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
-
     # OPT
     Model(
         group="together",
@@ -530,7 +523,6 @@ ALL_MODELS = [
         name="openai/text-similarity-ada-001",
         tags=[EMBEDDING_MODEL_TAG],
     ),
-
     # Together
     Model(
         group="together",
@@ -542,7 +534,6 @@ ALL_MODELS = [
         name="together/gpt-neoxt-chat-base-20b",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
-
     # Tsinghua
     Model(
         group="together",
@@ -551,7 +542,6 @@ ALL_MODELS = [
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
-
     # Writer
     Model(
         group="palmyra",
@@ -595,14 +585,12 @@ ALL_MODELS = [
         # Does not support echo
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
-
     # Yandex
     Model(
         group="together",
         name="together/yalm",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
-
     # Google
     Model(
         group="google",
@@ -615,7 +603,6 @@ ALL_MODELS = [
         name="nvidia/megatron-gpt2",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, BUGGY_TEMP_0_TAG],
     ),
-
     # For debugging
     Model(
         group="simple",
