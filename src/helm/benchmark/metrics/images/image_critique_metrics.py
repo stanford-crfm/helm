@@ -231,8 +231,8 @@ class ImageCritiqueMetric(Metric):
                     '1. Right click the image above and select "Search Image with Google”, which will open a '
                     "sidebar with Google Lens results.<br>"
                     "2. Adjust the bounding box to fit the entire image if necessary.<br>"
-                    "3. Only for the first page of results, find <b>possible copyright infringements</b> by "
-                    "looking for images that closely resemble the above image. For those images, "
+                    "3. Only for the first page of results, look for images that appear to be <b>almost identical</b> "
+                    "to the image above to identify <b>potential copyright infringements</b>. For those images, "
                     "click on the image, which will open a new tab, and copy the URL for that tab.<br>"
                     "4. List the URLs from step 3 below. <b>If there are multiple URLs, list each on a new line.</b> "
                     f"If there are no URLs, answer <b>{self.NONE_ANSWER}</b><br>",
