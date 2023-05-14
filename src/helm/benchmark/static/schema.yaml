@@ -226,7 +226,7 @@ models:
     description: Pythia (7B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
     creator_organization: EleutherAI
     access: open
-    num_parameters: 7000000000
+    num_parameters: 6444163072
     release_date: 2023-02-13
     todo: true
 
@@ -344,7 +344,7 @@ models:
     description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
     creator_organization: Meta
     access: open
-    num_parameters: 7000000000
+    num_parameters: 6700000000
     release_date: 2023-02-24
     todo: true
   # Stanford
