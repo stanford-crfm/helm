@@ -95,9 +95,6 @@ def register_huggingface_model_config(model_name: str) -> HuggingFaceModelConfig
     model = Model(
         group=config.namespace,
         name=model_name,
-        display_name=model_name,
-        creator_organization=config.namespace,
-        description=description,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     )
     MODEL_NAME_TO_MODEL[model_name] = model
