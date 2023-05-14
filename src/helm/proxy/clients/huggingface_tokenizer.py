@@ -80,6 +80,8 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name = "Writer/palmyra-base"
                 elif tokenizer_name == "bigcode/starcoder":
                     hf_tokenizer_name = "bigcode/starcoder"
+                elif tokenizer_name == "tatsu-lab/alpaca-7b-wdiff":
+                    hf_tokenizer_name = "tatsu-lab/alpaca-7b-wdiff"
                 else:
                     raise ValueError(f"Unsupported HuggingFace tokenizer: {tokenizer_name}")
 
