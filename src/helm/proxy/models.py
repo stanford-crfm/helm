@@ -214,6 +214,7 @@ ALL_MODELS = [
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
+
     # Cohere models
     # Model versioning and the possible versions are not documented here:
     # https://docs.cohere.ai/generate-reference#model-optional.
@@ -265,6 +266,7 @@ ALL_MODELS = [
         name="cohere/command-xlarge-beta",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
+
     # EleutherAI
     Model(
         group="together",
@@ -284,52 +286,31 @@ ALL_MODELS = [
     ),
     Model(
         group="together",
-        creator_organization="EleutherAI",
         name="together/pythia-7b",
-        display_name="Pythia (7B)",
-        description="Pythia (7B parameters). The Pythia project combines interpretability analysis and "
-        "scaling laws to understand how knowledge develops and evolves during training in autoregressive "
-        "transformers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Meta
     Model(
         group="together",
-        creator_organization="Meta",
         name="together/llama-7b",
-        display_name="LLaMA (7B)",
-        description="LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Stanford
     Model(
         group="together",
-        creator_organization="Stanford",
         name="together/alpaca-7b",
-        display_name="Alpaca (7B)",
-        description="Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following "
-        "demonstrations",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # LMSYS
     Model(
         group="together",
-        creator_organization="LMSYS",
         name="together/vicuna-13b",
-        display_name="Vicuna (13B)",
-        # From https://lmsys.org/blog/2023-03-30-vicuna/
-        description="Vicuna-13B is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations "
-        "collected from ShareGPT.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # MosaicML
     Model(
         group="togethger",
-        creator_organization="MosaicML",
         name="together/mpt-7b",
-        display_name="MPT (7B)",
-        # From https://www.mosaicml.com/blog/mpt-7b
-        description="MPT-7B is a transformer trained from scratch on 1T tokens of text and code.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # GooseAI supported models
@@ -343,6 +324,7 @@ ALL_MODELS = [
         name="gooseai/gpt-j-6b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
     ),
+
     # HuggingFace
     Model(
         group="huggingface",
@@ -364,6 +346,7 @@ ALL_MODELS = [
         name="huggingface/starcoder",
         tags=[CODE_MODEL_TAG],
     ),
+
     # Google
     Model(
         group="together",
@@ -389,12 +372,14 @@ ALL_MODELS = [
             NLG_PREFIX_TAG,
         ],
     ),
+
     # H3 model
     Model(
         group="together",
         name="together/h3-2.7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
+
     # OPT
     Model(
         group="together",
@@ -573,6 +558,7 @@ ALL_MODELS = [
         name="openai/text-similarity-ada-001",
         tags=[EMBEDDING_MODEL_TAG],
     ),
+
     # Together
     Model(
         group="together",
@@ -584,6 +570,7 @@ ALL_MODELS = [
         name="together/gpt-neoxt-chat-base-20b",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
+<<<<<<< HEAD
     Model(
         group="together",
         creator_organization="Together",
@@ -594,6 +581,9 @@ ALL_MODELS = [
         "replicate the LLaMA recipe as closely as possible.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+=======
+
+>>>>>>> remove redundant model fields
     # Tsinghua
     Model(
         group="together",
@@ -602,6 +592,7 @@ ALL_MODELS = [
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
+
     # Writer
     Model(
         group="palmyra",
@@ -645,12 +636,17 @@ ALL_MODELS = [
         # Does not support echo
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+
     # Yandex
     Model(
         group="together",
         name="together/yalm",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
+<<<<<<< HEAD
+=======
+
+>>>>>>> remove redundant model fields
     # Google
     Model(
         group="google",
@@ -663,6 +659,7 @@ ALL_MODELS = [
         name="nvidia/megatron-gpt2",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, BUGGY_TEMP_0_TAG],
     ),
+
     # For debugging
     Model(
         group="simple",
