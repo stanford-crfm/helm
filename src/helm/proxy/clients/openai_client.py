@@ -6,6 +6,7 @@ import tiktoken
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.hierarchical_logger import hlog
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -62,6 +63,8 @@ class OpenAIClient(Client):
                 # Checks that the last role is "user"
                 if request.messages[-1]["role"] != "user":
                     raise ValueError("Last message must have role 'user'")
+                if request.prompt != "":
+                    hlog("WARNING: Since message is set, prompt will be ignored")
             else:
                 # Convert prompt into a single message
                 # For now, put the whole prompt in a single user message, and expect the response
