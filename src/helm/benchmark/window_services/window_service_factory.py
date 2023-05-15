@@ -125,7 +125,14 @@ class WindowServiceFactory:
             window_service = GPTNeoXWindowService(service)
         elif model_name == "together/h3-2.7b":
             window_service = GPT2WindowService(service)
-        elif model_name in ["together/opt-1.3b", "together/opt-6.7b", "together/opt-66b", "together/opt-175b", "together/pythia-7b", "together/mpt-7b"]:
+        elif model_name in [
+            "together/opt-1.3b",
+            "together/opt-6.7b",
+            "together/opt-66b",
+            "together/opt-175b",
+            "together/pythia-7b",
+            "together/mpt-7b",
+        ]:
             window_service = OPTWindowService(service)
         elif model_name == "together/t0pp":
             window_service = T0ppWindowService(service)
@@ -139,7 +146,12 @@ class WindowServiceFactory:
             window_service = YaLMWindowService(service)
         elif model_name == "nvidia/megatron-gpt2":
             window_service = MegatronWindowService(service)
-        elif model_name in ["together/llama-7b", "together/alpaca-7b", "together/vicuna-13b", "together/redpajama-incite-base-3b-v1"]:
+        elif model_name in [
+            "together/llama-7b",
+            "together/alpaca-7b",
+            "together/vicuna-13b",
+            "together/redpajama-incite-base-3b-v1",
+        ]:
             window_service = LlamaWindowService(service)
         elif organization == "cohere":
             if "command" in engine:
