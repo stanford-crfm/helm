@@ -228,7 +228,6 @@ models:
     access: open
     num_parameters: 6444163072
     release_date: 2023-02-13
-    todo: true
 
   # Google
   - name: together/t5-11b
@@ -338,6 +337,7 @@ models:
     num_parameters: 30000000000
     release_date: 2022-11-15
     todo: true
+
   # Meta
   - name: together/llama-7b
     display_name: LLaMA (7B)
@@ -346,7 +346,7 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2023-02-24
-    todo: true
+
   # Stanford
   - name: together/alpaca-7b
     display_name: Alpaca (7B)
@@ -355,7 +355,7 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-13
-    todo: true
+
   # LMSYS
   - name: together/vicuna-13b
     display_name: Vicuna (13B)
@@ -364,7 +364,7 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2023-03-30
-    todo: true
+
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
     display_name: TNLG v2 (530B)
@@ -519,7 +519,6 @@ models:
     access: open
     num_parameters: 3000000000
     release_date: 2023-05-05
-    todo: true
 
   # MosaicML
   - name: together/mpt-7b
@@ -529,7 +528,6 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
-    todo: true
 
   # Salesforce
   - name: together/codegen
