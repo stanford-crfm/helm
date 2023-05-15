@@ -161,7 +161,8 @@ class HuggingFaceClient(Client):
                 )
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")
-        return _get_singleton_server(model_config)
+        else:
+            return _get_singleton_server(model_config)
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
