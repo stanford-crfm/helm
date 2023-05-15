@@ -49,8 +49,6 @@ TERMINAL_SLURM_JOB_STATES: Set[str] = set([SlurmJobState.COMPLETED]) | FAILURE_S
 def submit_slurm_job(command: str, slurm_args: Mapping[str, Union[str, int]]) -> int:
     """Submit a Slurm job."""
     slurm = Slurm(**slurm_args)
-    # Uncomment this to get notification emails from Slurm for Slurm worker jobs.
-    # slurm.set_mail_user(os.getenv("USER"))
     return slurm.sbatch(command)
 
 

@@ -192,14 +192,12 @@ class SlurmRunner(Runner):
         """Create a Slurm job for the RunSpec and return the Slurm job ID."""
         # Create a worker Slurm job that reads from the SlurmRunnerSpec and RunSpec files
         run_name = run_spec.name
-
         run_spec_json = json.dumps(asdict_without_nones(run_spec), indent=2)
         run_spec_path = os.path.join(self.run_specs_dir, f"{run_name}.json")
         hlog(f"Writing RunSpec for run {run_name} to {run_spec_path}")
         write(file_path=run_spec_path, content=run_spec_json)
 
         log_path = os.path.join(self.logs_dir, f"{run_name}.log")
-
         # Requires that SlurmRunnerSpec has already been written to self.slurm_runner_spec_path.
         # It should have been written at the start of self.run_all()
         command = (
@@ -227,7 +225,8 @@ class SlurmRunner(Runner):
         if "device=cuda" in run_spec.name:
             slurm_args["gres"] = "gpu:1"
             slurm_args["partition"] = "jag-hi"
-
+        # Uncomment this to get notification emails from Slurm for Slurm worker jobs.
+        # slurm.set_mail_user(os.getenv("USER"))
         hlog(f"Submitting worker Slurm job for run {run_name} with command: {command}")
         time.sleep(1)  # Delay to avoid overwhelming Slurm
         slurm_job_id = submit_slurm_job(command, slurm_args)
