@@ -1,7 +1,7 @@
 import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Union
 import argparse
 import json
 import os
@@ -79,6 +79,9 @@ class SlurmRunner(Runner):
         # Extra validation: Check that SlurmRunnerSpec can be used to initialize Runner.
         super().__init__(**self.slurm_runner_spec.to_kwargs())
         self.slurm_base_dir = os.path.join("slurm", datetime.now().isoformat(timespec="seconds"))
+        self.run_specs_dir = os.path.join(self.slurm_base_dir, "run_specs")
+        self.logs_dir = os.path.join(self.slurm_base_dir, "logs")
+        self.slurm_runner_spec_path = os.path.join(self.slurm_base_dir, "slurm_runner_spec.json")
 
     def run_all(self, run_specs: List[RunSpec]):
         """Run the entire benchmark on Slurm, where each RunSpec is run in its own Slurm job.
@@ -100,6 +103,8 @@ class SlurmRunner(Runner):
         """
         # This directory will be used for coordinating with workers
         ensure_directory_exists(self.slurm_base_dir)
+        ensure_directory_exists(self.run_specs_dir)
+        ensure_directory_exists(self.logs_dir)
 
         # Write the SlurmRunnerSpec to a file
         slurm_runner_spec_json = json.dumps(asdict_without_nones(self.slurm_runner_spec), indent=2)
@@ -107,11 +112,7 @@ class SlurmRunner(Runner):
         hlog(f"Writing SlurmRunnerSpec to {slurm_runner_spec_path}")
         write(file_path=slurm_runner_spec_path, content=slurm_runner_spec_json)
 
-        # Set up directories for RunSpecs and logs
-        run_specs_dir = os.path.join(self.slurm_base_dir, "run_specs")
-        ensure_directory_exists(run_specs_dir)
-        logs_dir = os.path.join(self.slurm_base_dir, "logs")
-        ensure_directory_exists(logs_dir)
+        # Info for all worker Slurm jobs
         run_name_to_slurm_job_info: Dict[str, _SlurmJobInfo] = {}
 
         # Callback for cleaning up worker Slurm jobs
@@ -129,26 +130,10 @@ class SlurmRunner(Runner):
             # TODO: If skip_completed_runs is set and the run is completed, skip creating the worker Slurm job
             with htrack_block("Submitting worker Slurm jobs"):
                 for run_spec in run_specs:
-                    # Write the RunSpec to a file
-                    run_name = run_spec.name
-                    run_spec_json = json.dumps(asdict_without_nones(run_spec), indent=2)
-                    run_spec_path = os.path.join(run_specs_dir, f"{run_spec.name}.json")
-                    hlog(f"Writing RunSpec for run {run_name} to {run_spec_path}")
-                    write(file_path=run_spec_path, content=run_spec_json)
-
-                    # Create a worker Slurm job that reads from the SlurmRunnerSpec and RunSpec files
-                    log_path = os.path.join(logs_dir, f"{run_spec.name}.log")
-                    command = (
-                        f"{sys.executable}"
-                        f" -m {SlurmRunner.__module__}"
-                        f" --slurm-runner-spec-path {slurm_runner_spec_path}"
-                        f" --run-spec-path {run_spec_path}"
+                    slurm_job_id = self._submit_slurm_job_for_run_spec(run_spec)
+                    run_name_to_slurm_job_info[run_spec.name] = _SlurmJobInfo(
+                        id=slurm_job_id, state=SlurmJobState.PENDING
                     )
-                    hlog(f"Submitting worker Slurm job for run {run_name} with command: {command}")
-                    time.sleep(1)  # Delay to avoid overwhelming Slurm
-                    slurm_job_id = submit_slurm_job(command=command, job_name=run_name, output_path=log_path)
-                    hlog(f"Worker Slurm job submitted for run {run_name} with Slurm job ID: {slurm_job_id}")
-                    run_name_to_slurm_job_info[run_name] = _SlurmJobInfo(id=slurm_job_id, state=SlurmJobState.PENDING)
 
             worker_slurm_jobs_path = os.path.join(self.slurm_base_dir, "worker_slurm_jobs.json")
             run_name_to_slurm_job_info_json = json.dumps(run_name_to_slurm_job_info, indent=2)
@@ -159,10 +144,10 @@ class SlurmRunner(Runner):
             # Monitor submitted Slurm jobs for RunSpecs until an exit condition is triggered.
             with htrack_block("Monitoring worker Slurm jobs"):
                 while True:
-                    hlog("Getting states of worker Slurm jobs")
+                    hlog("Fetching states of worker Slurm jobs from Slurm")
                     # TODO: Get the states of multiple jobs in a single call to Slurm
-                    for run_name, slurm_job_info in run_name_to_slurm_job_info.items():
-                        slurm_job_info.state = get_slurm_job_state(slurm_job_id)
+                    for slurm_job_info in run_name_to_slurm_job_info.values():
+                        slurm_job_info.state = get_slurm_job_state(slurm_job_info.id)
                     run_name_to_slurm_job_info_json = json.dumps(run_name_to_slurm_job_info, indent=2)
                     hlog(f"Worker Slurm jobs: {run_name_to_slurm_job_info_json}")
                     hlog(f"Writing worker Slurm job states to {worker_slurm_jobs_path}")
@@ -203,6 +188,52 @@ class SlurmRunner(Runner):
             failed_runs_str = ", ".join([f'"{run_name}"' for run_name in failed_run_names])
             raise RunnerError(f"Failed runs: [{failed_runs_str}]")
 
+    def _submit_slurm_job_for_run_spec(self, run_spec: RunSpec) -> int:
+        """Create a Slurm job for the RunSpec and return the Slurm job ID."""
+        # Create a worker Slurm job that reads from the SlurmRunnerSpec and RunSpec files
+        run_name = run_spec.name
+
+        run_spec_json = json.dumps(asdict_without_nones(run_spec), indent=2)
+        run_spec_path = os.path.join(self.run_specs_dir, f"{run_name}.json")
+        hlog(f"Writing RunSpec for run {run_name} to {run_spec_path}")
+        write(file_path=run_spec_path, content=run_spec_json)
+
+        log_path = os.path.join(self.logs_dir, f"{run_name}.log")
+
+        # Requires that SlurmRunnerSpec has already been written to self.slurm_runner_spec_path.
+        # It should have been written at the start of self.run_all()
+        command = (
+            f"{sys.executable}"
+            f" -m {SlurmRunner.__module__}"
+            f" --slurm-runner-spec-path {self.slurm_runner_spec_path}"
+            f" --run-spec-path {run_spec_path}"
+        )
+        # TODO: Make default Slurm arguments configurable.
+        slurm_args: Dict[str, Union[str, int]] = {
+            "account": "nlp",
+            "cpus_per_task": 4,
+            "mem": "32G",
+            "gres": "gpu:0",
+            "open_mode": "append",
+            "partition": "john",
+            "time": "14-0",
+            "mail_type": "END",
+            "job_name": run_name,
+            "output_path": log_path,
+        }
+        # TODO: Move resource requirements into RunSpec.
+        if run_spec.name.startswith("msmarco:"):
+            slurm_args["mem"] = "64G"
+        if "device=cuda" in run_spec.name:
+            slurm_args["gres"] = "gpu:1"
+            slurm_args["partition"] = "jag-hi"
+
+        hlog(f"Submitting worker Slurm job for run {run_name} with command: {command}")
+        time.sleep(1)  # Delay to avoid overwhelming Slurm
+        slurm_job_id = submit_slurm_job(command, slurm_args)
+        hlog(f"Worker Slurm job submitted for run {run_name} with Slurm job ID: {slurm_job_id}")
+        return slurm_job_id
+
 
 def run_as_worker(slurm_runner_spec_path: str, run_spec_path: str):
     """Deserialize SlurmRunner and RunSpec from the given files, then run the RunSpec with the SlurmRunner.
@@ -217,7 +248,14 @@ def run_as_worker(slurm_runner_spec_path: str, run_spec_path: str):
 
 
 def main():
-    """Entry point for the worker Slurm jobs that run a single RunSpec."""
+    """Entry point for the SlurmRunner's worker Slurm jobs that run a single RunSpec.
+
+    This entry point should only be used by SlurmRunner. Users should use `helm-run` instead.
+    SlurmRunner has to use this entry point instead of helm-run because there is no way to
+    specify the worker Slurm job parameters through `helm-run`. In particular, there is no way
+    to run a specific `RunSpec` using the `--run-specs` parameter of `helm-run`, because the
+    `run-specs` argument is a `RunSpec` description (not a `RunSpec`), and there is no way to
+    convert a `RunSpec` into a `RunSpec` description."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--slurm-runner-spec-path",
