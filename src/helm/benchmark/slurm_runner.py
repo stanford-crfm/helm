@@ -3,13 +3,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, List, Union
 import argparse
-import json
 import os
 import time
 import sys
 
-import dacite
-
+from helm.common.codec import from_json, to_json
 from helm.common.general import write
 from helm.benchmark.executor import ExecutionSpec
 from helm.benchmark.runner import Runner, RunSpec, RunnerError
@@ -21,7 +19,7 @@ from helm.benchmark.slurm_jobs import (
     TERMINAL_SLURM_JOB_STATES,
     FAILURE_SLURM_JOB_STATES,
 )
-from helm.common.general import ensure_directory_exists, asdict_without_nones
+from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack_block
 
 
@@ -107,7 +105,7 @@ class SlurmRunner(Runner):
         ensure_directory_exists(self.logs_dir)
 
         # Write the SlurmRunnerSpec to a file
-        slurm_runner_spec_json = json.dumps(asdict_without_nones(self.slurm_runner_spec), indent=2)
+        slurm_runner_spec_json = to_json(self.slurm_runner_spec)
         slurm_runner_spec_path = os.path.join(self.slurm_base_dir, "slurm_runner_spec.json")
         hlog(f"Writing SlurmRunnerSpec to {slurm_runner_spec_path}")
         write(file_path=slurm_runner_spec_path, content=slurm_runner_spec_json)
@@ -136,7 +134,7 @@ class SlurmRunner(Runner):
                     )
 
             worker_slurm_jobs_path = os.path.join(self.slurm_base_dir, "worker_slurm_jobs.json")
-            run_name_to_slurm_job_info_json = json.dumps(run_name_to_slurm_job_info, indent=2)
+            run_name_to_slurm_job_info_json = to_json(run_name_to_slurm_job_info)
             hlog(f"Worker Slurm jobs: {run_name_to_slurm_job_info_json}")
             hlog(f"Writing worker Slurm job IDs to {worker_slurm_jobs_path}")
             write(file_path=worker_slurm_jobs_path, content=run_name_to_slurm_job_info_json)
@@ -148,7 +146,7 @@ class SlurmRunner(Runner):
                     # TODO: Get the states of multiple jobs in a single call to Slurm
                     for slurm_job_info in run_name_to_slurm_job_info.values():
                         slurm_job_info.state = get_slurm_job_state(slurm_job_info.id)
-                    run_name_to_slurm_job_info_json = json.dumps(run_name_to_slurm_job_info, indent=2)
+                    run_name_to_slurm_job_info_json = to_json(run_name_to_slurm_job_info)
                     hlog(f"Worker Slurm jobs: {run_name_to_slurm_job_info_json}")
                     hlog(f"Writing worker Slurm job states to {worker_slurm_jobs_path}")
                     write(file_path=worker_slurm_jobs_path, content=run_name_to_slurm_job_info_json)
@@ -192,7 +190,7 @@ class SlurmRunner(Runner):
         """Create a Slurm job for the RunSpec and return the Slurm job ID."""
         # Create a worker Slurm job that reads from the SlurmRunnerSpec and RunSpec files
         run_name = run_spec.name
-        run_spec_json = json.dumps(asdict_without_nones(run_spec), indent=2)
+        run_spec_json = to_json(run_spec)
         run_spec_path = os.path.join(self.run_specs_dir, f"{run_name}.json")
         hlog(f"Writing RunSpec for run {run_name} to {run_spec_path}")
         write(file_path=run_spec_path, content=run_spec_json)
@@ -217,7 +215,8 @@ class SlurmRunner(Runner):
             "time": "14-0",
             "mail_type": "END",
             "job_name": run_name,
-            "output_path": log_path,
+            "output": log_path,
+            "chdir": os.getcwd(),
         }
         # TODO: Move resource requirements into RunSpec.
         if run_spec.name.startswith("msmarco:"):
@@ -239,9 +238,9 @@ def run_as_worker(slurm_runner_spec_path: str, run_spec_path: str):
 
     Used by the worker Slurm jobs only."""
     with open(slurm_runner_spec_path, "r") as f:
-        slurm_runner_spec = dacite.from_dict(SlurmRunnerSpec, json.load(f))
+        slurm_runner_spec = from_json(f.read(), SlurmRunnerSpec)
     with open(run_spec_path, "r") as f:
-        run_spec = dacite.from_dict(RunSpec, json.load(f))
+        run_spec = from_json(f.read(), RunSpec)
     slurm_runner = SlurmRunner(**slurm_runner_spec.to_kwargs())
     slurm_runner.run_one(run_spec)
 
