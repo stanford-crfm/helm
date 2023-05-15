@@ -67,8 +67,8 @@ spacy~=3.2.4
 summ-eval~=0.892
 surge-api~=1.1.0
 # End users should install a CUDA version of PyTorch manually if needed
-torch~=1.12.1  # Summarization metrics
-torchvision~=0.13.1
+# torch~=1.12.1  # Summarization metrics
+# torchvision~=0.13.1
 
 # plotting
 colorcet~=3.0.1

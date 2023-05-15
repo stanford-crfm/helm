@@ -26,7 +26,7 @@ class HuggingFaceServer:
             self.device: str = "cuda:0"
         else:
             self.device = "cpu"
-        model_kwargs = {}
+        model_kwargs = {"torch_dtype":torch.float16}
         if model_config.revision:
             model_kwargs["revision"] = model_config.revision
         with htrack_block(f"Loading Hugging Face model for config {model_config}"):
@@ -49,7 +49,7 @@ class HuggingFaceServer:
             # Total number of stop words should be 1.
             assert len(stop_sequence_ids.input_ids) == 1
             # Total number of tokens in each stop word should be 1.
-            assert len(stop_sequence_ids.input_ids[0]) == 1
+            assert len(stop_sequence_ids.input_ids[0]) == 1, f"len(stop_sequence_ids.input_ids[0]) != 0, since raw_request['stop_sequences'] = {raw_request['stop_sequences']} and its stop_sequence_ids.input_ids[0] = {stop_sequence_ids.input_ids[0]}"
             del raw_request["stop_sequences"]
             raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
 
@@ -61,6 +61,8 @@ class HuggingFaceServer:
         }
 
         # Use HuggingFace's `generate` method.
+        if "token_type_ids" in encoded_input:
+            del encoded_input["token_type_ids"]
         output = self.model.generate(**encoded_input, **relevant_raw_request)
         sequences = output.sequences
         scores = output.scores
@@ -154,7 +156,7 @@ class HuggingFaceClient(Client):
         raw_request = {
             "engine": request.model_engine,
             "prompt": request.prompt,
-            "temperature": 1e-7 if request.temperature == 0 else request.temperature,
+            "temperature": 1e-2 if request.temperature == 0 else request.temperature,
             "num_return_sequences": request.num_completions,
             "max_new_tokens": request.max_tokens,
             "top_p": request.top_p,

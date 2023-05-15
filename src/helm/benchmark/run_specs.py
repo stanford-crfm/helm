@@ -98,7 +98,7 @@ def get_multiple_choice_joint_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=format_instructions(instructions),
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
-        input_suffix="\n" if input_noun is not None else "",
+        input_suffix="\n",
         output_prefix=f"{output_noun}: ",
         output_suffix="\n",
         max_train_instances=max_train_instances,
@@ -732,7 +732,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
         instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
-        input_noun="Question",
+        input_noun=None,
         output_noun="Answer",
     )
 

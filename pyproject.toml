@@ -5,3 +5,7 @@ build-backend = "setuptools.build_meta"
 # Settings for Black: The Uncompromising Code Formatter
 [tool.black]
 line-length = 120
+
+[project]
+name = "crfm-helm"
+version = "0.2.2"
