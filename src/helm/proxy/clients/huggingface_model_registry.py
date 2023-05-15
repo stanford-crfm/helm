@@ -158,10 +158,7 @@ def register_huggingface_model_config(model_name: str) -> HuggingFaceHubModelCon
         description += f" at revision {config.revision}"
     model = Model(
         group=config.namespace,
-        name=config.model_id,
-        display_name=config.model_id,
-        creator_organization=config.namespace,
-        description=description,
+        name=model_name,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     )
     MODEL_NAME_TO_MODEL[config.model_id] = model

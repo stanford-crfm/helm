@@ -62,7 +62,6 @@ models:
     num_parameters: 13000000000
     # TODO: get exact release date
     release_date: 2022-01-01
-    todo: true
   - name: AlephAlpha/luminous-extended
     display_name: Luminous Extended (30B)
     description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
@@ -70,7 +69,6 @@ models:
     access: limited
     num_parameters: 30000000000
     release_date: 2022-01-01
-    todo: true
   - name: AlephAlpha/luminous-supreme
     display_name: Luminous Supreme (70B)
     description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
@@ -78,7 +76,6 @@ models:
     access: limited
     num_parameters: 70000000000
     release_date: 2022-01-01
-    todo: true
 
   # Anthropic
   - name: anthropic/stanford-online-all-v4-s3
@@ -89,7 +86,7 @@ models:
     num_parameters: 52000000000
     release_date: 2021-12-01
   - name: anthropic/claude-v1.3
-    display_name: Anthropic Claude V1.3
+    display_name: Anthropic Claude v1.3
     description: A model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
     creator_organization: Anthropic
     access: limited
@@ -187,7 +184,6 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    todo: true
   - name: cohere/command-xlarge-beta
     display_name: Cohere Command beta (52.4B)
     description: Cohere Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
@@ -195,7 +191,6 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    todo: true
 
   # DeepMind
   - name: deepmind/gopher
@@ -536,6 +531,7 @@ models:
     access: limited
     num_parameters: 5000000000
     release_date: 2022-10-13
+    todo: true
   - name: writer/palmyra-large
     display_name: Palmyra Large (20B)
     description: Palmyra Large (20B)
@@ -543,6 +539,7 @@ models:
     access: limited
     num_parameters: 20000000000
     release_date: 2022-12-23
+    todo: true
   - name: writer/palmyra-instruct-30
     display_name: InstructPalmyra (30B)
     description: InstructPalmyra (30B)
@@ -550,6 +547,7 @@ models:
     access: limited
     num_parameters: 30000000000
     release_date: 2023-02-16
+    todo: true
   - name: writer/palmyra-e
     display_name: Palmyra E (30B)
     description: Palmyra E (30B)
@@ -557,6 +555,7 @@ models:
     access: limited
     num_parameters: 30000000000
     release_date: 2023-03-03
+    todo: true
   - name: writer/silk-road
     display_name: Silk Road (35B)
     description: Silk Road (35B)
@@ -564,6 +563,7 @@ models:
     access: limited
     num_parameters: 35000000000
     release_date: 2023-04-13
+    todo: true
 
   # Yandex
   - name: together/yalm
@@ -574,12 +574,13 @@ models:
     num_parameters: 100000000000
     release_date: 2022-06-23
 
-  # Nvidia
+  # NVIDIA
   - name: nvidia/megatron-gpt2
     display_name: Megatron GPT2
     description: GPT-2 implemented in Megatron-LM ([paper](https://arxiv.org/abs/1909.08053)).
-    creator_organization: Nvidia
+    creator_organization: NVIDIA
     access: open
+    todo: true
 
 ############################################################
 adapter:

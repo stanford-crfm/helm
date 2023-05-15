@@ -62,15 +62,14 @@ def hlog(x: Any) -> None:
 
 
 class htrack_block:
-    def __init__(self, x: Any, print_time: bool = True) -> None:
+    def __init__(self, x: Any) -> None:
         self.x = x
-        self.print_time = print_time
 
     def __enter__(self) -> None:
         singleton.track_begin(self.x)
 
     def __exit__(self, tpe: Any, value: Any, callback: Any) -> None:
-        singleton.track_end(print_time=self.print_time)
+        singleton.track_end()
 
 
 class htrack:
