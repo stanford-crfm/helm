@@ -75,7 +75,6 @@ class Model:
 
     # Name of the specific model (e.g. "huggingface/gpt-j-6b")
     # Currently, the name is <hosting_organization>/<model_name>,
-    # There is also `creator_organization>` (see `ModelField`).
     name: str
 
     # Tags corresponding to the properties of the model.
