@@ -321,19 +321,12 @@ ALL_MODELS = [
     # Copy these models (in HuggingFace format) to ./huggingface_models
     Model(
         group="huggingface",
-        creator_organization="Meta",
         name="huggingface/llama-7b",
-        display_name="LLaMA (7B)",
-        description="LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
     ),
     Model(
         group="huggingface",
-        creator_organization="CRFM",
         name="huggingface/alpaca-7b",
-        display_name="Alpaca (7B)",
-        description="Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following "
-        "demonstrations.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
     ),
     # Google
