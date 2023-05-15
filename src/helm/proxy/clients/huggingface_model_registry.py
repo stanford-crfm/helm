@@ -121,7 +121,7 @@ class HuggingFaceLocalModelConfig:
             raise ValueError(f"Could not parse model path: '{path}'; Expected format: /path/to/model_name")
         model_name = match.group("model_name")
         assert model_name
-        return HuggingFaceHubModelConfig(model_name=model_name, path=path)
+        return HuggingFaceLocalModelConfig(model_name=model_name, path=path)
 
 
 HuggingFaceModelConfig = Union[HuggingFaceHubModelConfig, HuggingFaceLocalModelConfig]
@@ -180,9 +180,6 @@ def register_huggingface_local_model_config(path: str) -> HuggingFaceLocalModelC
     model = Model(
         group="huggingface",
         name=config.model_id,
-        display_name=config.model_id,
-        creator_organization="unknown",
-        description=description,
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
     )
     MODEL_NAME_TO_MODEL[config.model_id] = model
