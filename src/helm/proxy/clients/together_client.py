@@ -32,8 +32,13 @@ available implementations on Together."""
 
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
+    # TODO(#1522): check if with #1519 this is still needed. This is similar to #1516.
     x = x.replace("▁", " ")
     return x
+
+
+class TogetherClientError(Exception):
+    pass
 
 
 class TogetherClient(Client):
@@ -71,22 +76,24 @@ class TogetherClient(Client):
         raw_request = TogetherClient.convert_to_raw_request(request)
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
-        try:
+        def do_it():
+            if not self.api_key:
+                raise TogetherClientError("togetherApiKey not set in credentials.conf")
+            headers: Dict[str, str] = {"Authorization": f"Bearer {self.api_key}"}
+            response = requests.post(TogetherClient.INFERENCE_ENDPOINT, headers=headers, json=raw_request)
+            try:
+                response.raise_for_status()
+            except Exception as e:
+                raise TogetherClientError(
+                    f"Together request failed with {response.status_code}: {response.text}"
+                ) from e
+            result = response.json()
+            return result["output"]
 
-            def do_it():
-                result = requests.post(TogetherClient.INFERENCE_ENDPOINT, json=raw_request).json()
-                assert "output" in result, f"Invalid response: {result}"
-                return result["output"]
+        def fail():
+            raise RuntimeError(f"The result has not been uploaded to the cache for the following request: {cache_key}")
 
-            def fail():
-                raise RuntimeError(
-                    f"The result has not been uploaded to the cache for the following request: {cache_key}"
-                )
-
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it if self.api_key else fail))
-        except RuntimeError as e:
-            error: str = f"TogetherClient error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+        response, cached = self.cache.get(cache_key, wrap_request_time(do_it if self.api_key else fail))
 
         # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[Sequence] = []

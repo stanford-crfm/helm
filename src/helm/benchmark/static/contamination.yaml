@@ -42,6 +42,8 @@ points:
 
   - models:
     - anthropic/stanford-online-all-v4-s3
+    - anthropic/claude-v1.3
+    - anthropic/claude-instant-v1
     groups:
     - the_pile
     level: strong

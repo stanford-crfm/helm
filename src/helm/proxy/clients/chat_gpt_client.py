@@ -44,9 +44,6 @@ class ChatGPTClient(Client):
         return self.chat_bot
 
     def make_request(self, request: Request) -> RequestResult:
-        def fix_token_text(text: str):
-            return text.replace("Ġ", " ")
-
         completions: List[Sequence] = []
         all_cached = True
         request_time = 0
@@ -92,8 +89,7 @@ class ChatGPTClient(Client):
 
             # Log probs are not currently not supported by the ChatGPT, so set to 0 for now.
             tokens: List[Token] = [
-                Token(text=fix_token_text(str(text)), logprob=0, top_logprobs={})
-                for text in tokenization_result.raw_tokens
+                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
             ]
             completion = Sequence(text=response["message"], logprob=0, tokens=tokens)
             completions.append(truncate_sequence(completion, request))  # Truncate the text by stop sequences

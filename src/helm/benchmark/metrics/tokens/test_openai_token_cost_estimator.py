@@ -23,7 +23,7 @@ class TestOpenAITokenCostEstimator:
 
     def setup_method(self, method):
         self._token_cost_estimator = OpenAITokenCostEstimator()
-        self._mock_metric_service = MetricService(RemoteService(), Authentication(api_key="test"))
+        self._mock_metric_service = MetricService(RemoteService("DUMMY_URL"), Authentication(api_key="test"))
         gpt2_tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
         tokenization_request_result = TokenizationRequestResult(
             success=True,

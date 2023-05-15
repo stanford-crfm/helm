@@ -3,7 +3,7 @@ from dataclasses import dataclass, replace
 
 from helm.common.general import parallel_map
 from helm.common.hierarchical_logger import htrack, hlog
-from helm.common.request import RequestResult
+from helm.common.request import RequestResult, Sequence
 from helm.common.authentication import Authentication
 from helm.proxy.services.remote_service import RemoteService
 from helm.proxy.services.server_service import ServerService
@@ -18,19 +18,15 @@ class ExecutorError(Exception):
 
 @dataclass(frozen=True)
 class ExecutionSpec:
-    # URL of the proxy server we send requests to (e.g., http://localhost:1959).
-    # Required when local=False.
+    # If non-empty, URL of the proxy server we send requests to (e.g., http://localhost:1959).
     url: Optional[str]
 
     # Pass into the service
     auth: Authentication
 
-    # Whether to bypass the proxy server and just run everything locally
-    local: bool
-
     # Path where API credentials and cache is stored.
     # This path is the same as `--base-path` when launching the proxy server (see server.py).
-    # Required when local=True.
+    # Required when url is not set.
     local_path: Optional[str]
 
     # How many threads to have at once
@@ -56,15 +52,16 @@ class Executor:
         self.execution_spec = execution_spec
 
         self.service: Service
-        if execution_spec.local:
-            assert execution_spec.local_path, "local=True. Need to specify a value for `local_path`."
-            hlog(f"Running locally in root mode with local path: {execution_spec.local_path}")
+        if execution_spec.url:
+            hlog(f"Running using remote API proxy server: {execution_spec.url}")
+            self.service = RemoteService(execution_spec.url)
+        elif execution_spec.local_path:
+            hlog(f"Running in local mode with base path: {execution_spec.local_path}")
             self.service = ServerService(
                 base_path=execution_spec.local_path, root_mode=True, mongo_uri=execution_spec.mongo_uri
             )
         else:
-            assert execution_spec.url, "local=False. Need to specify the URL of proxy server (`url`)."
-            self.service = RemoteService(self.execution_spec.url)
+            raise ValueError("Either the proxy server URL or the local path must be set")
 
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
@@ -85,5 +82,9 @@ class Executor:
     def process(self, state: RequestState) -> RequestState:
         result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
         if not result.success:
-            raise ExecutorError(f"{str(result.error)} Request: {state.request}")
+            if result.error_flags and not result.error_flags.is_fatal:
+                hlog(f"WARNING: Non-fatal error treated as empty completion: {result.error}")
+                result.completions = [Sequence(text="", logprob=0, tokens=[])]
+            else:
+                raise ExecutorError(f"{str(result.error)} Request: {state.request}")
         return replace(state, result=result)

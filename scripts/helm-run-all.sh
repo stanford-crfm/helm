@@ -1,13 +1,12 @@
 : '
-Run RunSpecs in parallel by models using helm-run. To bypass the proxy server
-and run in root mode, append --local.
+Run RunSpecs in parallel by models using helm-run.
 
 Usage:
 
   bash scripts/helm-run-all.sh <Any additional CLI arguments for helm-run>
 
   e.g.,
-  bash scripts/helm-run-all.sh --suite <Name of suite> --max-eval-instances 1000 --num-threads 1 --priority 2 --local
+  bash scripts/helm-run-all.sh --suite <Name of suite> --max-eval-instances 1000 --num-threads 1 --priority 2
 
 To kill a running process:
 

@@ -45,14 +45,19 @@ class Request:
     """Same from tokens that occupy this probability mass (nucleus sampling)"""
 
     presence_penalty: float = 0
-    """Penalize repetition (OpenAI only)"""
+    """Penalize repetition (OpenAI & Writer only)"""
 
     frequency_penalty: float = 0
-    """Penalize repetition (OpenAI only)"""
+    """Penalize repetition (OpenAI & Writer only)"""
 
     random: Optional[str] = None
     """Used to control randomness. Expect different responses for the same
     request but with different values for `random`."""
+
+    messages: Optional[List[Dict[str, str]]] = None
+    """Used for chat models. (OpenAI only for now).
+    if messages is specified for a chat model, the prompt is ignored.
+    Otherwise, the client should convert the prompt into a message."""
 
     @property
     def model_organization(self) -> str:
@@ -129,6 +134,19 @@ class Sequence:
 
 
 @dataclass(frozen=True)
+class ErrorFlags:
+    """Describes how to treat errors in the request."""
+
+    is_retriable: Optional[bool] = None
+    """Whether the request is retriable or whether the error is permanent.
+    If None, the error is treated as retriable."""
+
+    is_fatal: Optional[bool] = None
+    """Whether the error is fatal, i.e. the run should be discarded.
+    If None, the error is treated as fatal."""
+
+
+@dataclass(frozen=False)
 class RequestResult:
     """What comes back due to a `Request`."""
 
@@ -154,6 +172,9 @@ class RequestResult:
 
     error: Optional[str] = None
     """If `success` is false, what was the error?"""
+
+    error_flags: Optional[ErrorFlags] = None
+    """Describes how to treat errors in the request."""
 
     batch_size: Optional[int] = None
     """Batch size (`TogetherClient` only)"""
