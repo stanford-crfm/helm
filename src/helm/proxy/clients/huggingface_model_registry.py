@@ -15,6 +15,7 @@ from helm.proxy.models import (
 # The path where local HuggingFace models should be downloaded or symlinked, e.g. ./huggingface_models/llama-7b
 LOCAL_HUGGINGFACE_MODEL_DIR = "./huggingface_models"
 
+
 @dataclass(frozen=True)
 class HuggingFaceHubModelConfig:
     namespace: Optional[str]
@@ -120,10 +121,8 @@ class HuggingFaceLocalModelConfig:
             raise ValueError(f"Could not parse model path: '{path}'; Expected format: /path/to/model_name")
         model_name = match.group("model_name")
         assert model_name
-        return HuggingFaceHubModelConfig(
-            model_name=model_name,
-            path=path
-        )
+        return HuggingFaceHubModelConfig(model_name=model_name, path=path)
+
 
 HuggingFaceModelConfig = Union[HuggingFaceHubModelConfig, HuggingFaceLocalModelConfig]
 
@@ -131,8 +130,7 @@ HuggingFaceModelConfig = Union[HuggingFaceHubModelConfig, HuggingFaceLocalModelC
 # Initialize registry with local models from models.py
 _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {
     model.name: HuggingFaceLocalModelConfig(
-        model_name=model.name.split("/")[1],
-        path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, model.name.split("/")[1])
+        model_name=model.name.split("/")[1], path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, model.name.split("/")[1])
     )
     for model in ALL_MODELS
     if LOCAL_HUGGINGFACE_MODEL_TAG in model.tags
@@ -166,6 +164,7 @@ def register_huggingface_model_config(model_name: str) -> HuggingFaceHubModelCon
     hlog(f"Registered Hugging Face model: {model} config: {config}")
     return config
 
+
 def register_huggingface_local_model_config(path: str) -> HuggingFaceLocalModelConfig:
     """Register a AutoModelForCausalLM model from a local directory for later use.
 
@@ -190,6 +189,7 @@ def register_huggingface_local_model_config(path: str) -> HuggingFaceLocalModelC
     ALL_MODELS.append(model)
     hlog(f"Registered Hugging Face model: {model} config: {config}")
     return config
+
 
 def get_huggingface_model_config(model_name: str) -> Optional[HuggingFaceModelConfig]:
     """Returns a HuggingFaceModelConfig for the model_id."""

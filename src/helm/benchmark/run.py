@@ -230,7 +230,7 @@ def main():
         "--enable-local-huggingface-models",
         nargs="+",
         default=[],
-        help="Experimental: Enable using AutoModelForCausalLM models from a local path."
+        help="Experimental: Enable using AutoModelForCausalLM models from a local path.",
     )
     parser.add_argument(
         "--enable-remote-models",

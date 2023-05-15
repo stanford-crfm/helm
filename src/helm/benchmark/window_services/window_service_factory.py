@@ -50,6 +50,7 @@ from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, LOCAL_HUGGINGFACE_MODEL_DIR
 from helm.proxy.clients.remote_model_registry import get_remote_model
 
+
 class WindowServiceFactory:
     @staticmethod
     def get_window_service(model_name: str, service: TokenizerService) -> WindowService:

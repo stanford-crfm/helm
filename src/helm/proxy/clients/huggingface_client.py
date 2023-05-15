@@ -20,7 +20,7 @@ from helm.proxy.clients.huggingface_model_registry import (
     get_huggingface_model_config,
     HuggingFaceModelConfig,
     HuggingFaceHubModelConfig,
-    LOCAL_HUGGINGFACE_MODEL_DIR
+    LOCAL_HUGGINGFACE_MODEL_DIR,
 )
 from threading import Lock
 
@@ -43,14 +43,16 @@ class HuggingFaceServer:
             model_name = model_config.model_id
         with htrack_block(f"Loading Hugging Face model for config {model_config}"):
             # WARNING this may fail if your GPU does not have enough memory
-            self.model = AutoModelForCausalLM.from_pretrained(
-                model_name, trust_remote_code=True, **model_kwargs
-            ).to(self.device)
+            self.model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, **model_kwargs).to(
+                self.device
+            )
         with htrack_block(f"Loading Hugging Face tokenizer model for config {model_config}"):
             self.tokenizer = AutoTokenizer.from_pretrained(model_name, **model_kwargs)
 
     def serve_request(self, raw_request: Dict[str, Any]):
-        encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(self.device)
+        encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
+            self.device
+        )
         raw_request = deepcopy(raw_request)
         raw_request["do_sample"] = True
         raw_request["return_dict_in_generate"] = True
@@ -103,14 +105,11 @@ class HuggingFaceServer:
         if not raw_request["echo_prompt"]:
             sequences = [sequence[len(encoded_input.input_ids[0]) :] for sequence in sequences]
 
-        all_tokens = [
-            [self.tokenizer.decode(token) for token in sequence_tokens] 
-            for sequence_tokens in sequences
-        ]
+        all_tokens = [[self.tokenizer.decode(token) for token in sequence_tokens] for sequence_tokens in sequences]
         all_decoded_text = self.tokenizer.batch_decode(sequences)
 
         completions = []
-        for (decoded_text, tokens, logprobs_of_chosen_tokens, top_logprobs_dicts) in zip(
+        for decoded_text, tokens, logprobs_of_chosen_tokens, top_logprobs_dicts in zip(
             all_decoded_text, all_tokens, all_logprobs_of_chosen_tokens, all_top_logprobs_dicts
         ):
             completions.append(
@@ -124,8 +123,10 @@ class HuggingFaceServer:
 
         return {"completions": completions, "input_length": len(encoded_input.input_ids[0])}
 
+
 _servers_lock: Lock = Lock()
 _servers: Dict[str, HuggingFaceServer] = {}
+
 
 def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceServer:
     global _servers_lock
@@ -134,6 +135,7 @@ def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceSe
         if model_config.model_id not in _servers:
             _servers[model_config.model_id] = HuggingFaceServer(model_config)
     return _servers[model_config.model_id]
+
 
 class HuggingFaceClient(Client):
     def __init__(self, cache_config: CacheConfig):

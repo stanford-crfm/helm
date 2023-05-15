@@ -317,7 +317,6 @@ ALL_MODELS = [
         name="huggingface/starcoder",
         tags=[CODE_MODEL_TAG],
     ),
-
     # Local HuggingFace models
     # Copy these models (in HuggingFace format) to ./huggingface_models
     Model(
@@ -326,7 +325,7 @@ ALL_MODELS = [
         name="huggingface/llama-7b",
         display_name="LLaMA (7B)",
         description="LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG]
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
     ),
     Model(
         group="huggingface",
@@ -335,9 +334,8 @@ ALL_MODELS = [
         display_name="Alpaca (7B)",
         description="Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following "
         "demonstrations.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG]
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
     ),
-
     # Google
     Model(
         group="together",

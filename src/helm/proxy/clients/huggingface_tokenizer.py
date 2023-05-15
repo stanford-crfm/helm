@@ -10,12 +10,11 @@ from helm.proxy.clients.huggingface_model_registry import (
     HuggingFaceModelConfig,
     HuggingFaceHubModelConfig,
     HuggingFaceLocalModelConfig,
-    LOCAL_HUGGINGFACE_MODEL_DIR
+    LOCAL_HUGGINGFACE_MODEL_DIR,
 )
 
 
 class HuggingFaceTokenizers:
-
     tokenizers: Dict[str, Any] = {}
 
     @staticmethod
