@@ -113,6 +113,25 @@ class SlurmRunner(Runner):
         # Info for all worker Slurm jobs
         run_name_to_slurm_job_info: Dict[str, _SlurmJobInfo] = {}
 
+        skipped_run_specs: List[RunSpec] = []
+        queued_run_specs: List[RunSpec] = []
+        for run_spec in sorted(run_specs, key=lambda run_spec: run_spec.name):
+            if self.skip_completed_runs and self._is_run_completed(run_spec):
+                skipped_run_specs.append(run_spec)
+            else:
+                queued_run_specs.append(run_spec)
+
+        skipped_run_specs_json = to_json([run_spec.name for run_spec in skipped_run_specs])
+        if skipped_run_specs:
+            hlog(
+                f"Skipped run specs with completed runs because --skip-completed-runs is set: {skipped_run_specs_json}"
+            )
+        skipped_run_specs_path = os.path.join(self.slurm_base_dir, "skipped_run_specs.json")
+        # Write skipped run specs file anyway even if empty.
+        # This makes things more convenient for downstream status monitoring tools.
+        hlog(f"Writing skipped run specs to {skipped_run_specs_path}")
+        write(file_path=skipped_run_specs_path, content=skipped_run_specs_json)
+
         # Callback for cleaning up worker Slurm jobs
         def cancel_all_jobs():
             """Cancels all submitted worker Slurm jobs that are in a non-terminal state."""
@@ -127,7 +146,7 @@ class SlurmRunner(Runner):
             # Submit a Slurm job for each RunSpec.
             # TODO: If skip_completed_runs is set and the run is completed, skip creating the worker Slurm job
             with htrack_block("Submitting worker Slurm jobs"):
-                for run_spec in run_specs:
+                for run_spec in queued_run_specs:
                     slurm_job_id = self._submit_slurm_job_for_run_spec(run_spec)
                     run_name_to_slurm_job_info[run_spec.name] = _SlurmJobInfo(
                         id=slurm_job_id, state=SlurmJobState.PENDING
