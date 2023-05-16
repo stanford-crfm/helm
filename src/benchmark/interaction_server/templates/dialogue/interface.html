@@ -122,6 +122,12 @@
 							</div>
 						</div>
 						<div class="form-row">
+							<select class="form-select" v-if="currentQuestion.type=='likert'"
+																					v-model="currentQuestion.rating" id="{{currentQuestion.tag}}"
+																																					 name="{{currentQuestion.tag}}">
+								<option disabled value="">Please select one</option>
+								<option v-for="option in currentQuestion.options">{{option}}</option>
+							</select>
 							<div class="form-check" v-else-if="currentQuestion.type=='turn-binary' || currentQuestion.type=='turn-ternary'">
 								<input class="form-check-input" type="checkbox" id="{{currentQuestion.tag}}"
 																																name="{{currentQuestion.tag}}" :checked="currentQuestion.notaUtterance"
@@ -137,10 +143,6 @@
 							<div class="combo" v-else-if="currentQuestion.type=='combo'">
 								<div>
 									<label class='instruction' for="{{currentQuestion.tag}}-likert" id="{{currentQuestion.tag}}-likert"> {{currentQuestion.likert.text}} </label>
-									<select class="form-select" name="{{currentQuestion.tag}}-likert" v-model="currentQuestion.rating" id="{{currentQuestion.tag}}-likert">
-									<option disabled value="">Please select one</option>
-									<option v-for="option in currentQuestion.likert.options">{{option}}</option>
-									</select>
 								</div>
 								<div v-if="currentQuestion.turn !== null && typeof(currentQuestion.turn) !== 'undefined'" style="margin-top:15px">
 									<header class='instruction' for="{{currentQuestion.tag}}-turn">Please check the box for the responses from the bot that influenced your rating.</header>
@@ -167,14 +169,12 @@
 									<input v-model='currentQuestion.why.somethingElseValue' id="{{currentQuestion.tag}}-why-{{somethingelse}}-reason" name="{{currentQuestion.tag}}-why-{{somethingelse}}-reason" rows="5" cols="33" placeholder="Something else"></textarea></input>
 									</span>
 									</div>
-									<div>
-										<select class="form-select" v-if="currentQuestion.type=='likert'"
-																					v-model="currentQuestion.rating" id="{{currentQuestion.tag}}"
-																																					 name="{{currentQuestion.tag}}">
-								<option disabled value="">Please select one</option>
-								<option v-for="option in currentQuestion.options">{{option}}</option>
-							</select>
-									</div>
+								</div>
+								<div>
+									<select class="form-select" name="{{currentQuestion.tag}}-likert" v-model="currentQuestion.rating" id="{{currentQuestion.tag}}-likert">
+										<option disabled value="">Please select one</option>
+										<option v-for="option in currentQuestion.likert.options">{{option}}</option>
+										</select>
 								</div>
 							</div>
 						</div>
