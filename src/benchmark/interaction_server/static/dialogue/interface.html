@@ -143,10 +143,6 @@
 							<div class="combo" v-else-if="currentQuestion.type=='combo'">
 								<div>
 									<label class='instruction' for="{{currentQuestion.tag}}-likert" id="{{currentQuestion.tag}}-likert"> {{currentQuestion.likert.text}} </label>
-									<select class="form-select" name="{{currentQuestion.tag}}-likert" v-model="currentQuestion.rating" id="{{currentQuestion.tag}}-likert">
-									<option disabled value="">Please select one</option>
-									<option v-for="option in currentQuestion.likert.options">{{option}}</option>
-									</select>
 								</div>
 								<div v-if="currentQuestion.turn !== null && typeof(currentQuestion.turn) !== 'undefined'" style="margin-top:15px">
 									<header class='instruction' for="{{currentQuestion.tag}}-turn">Please check the box for the responses from the bot that influenced your rating.</header>
@@ -173,6 +169,12 @@
 									@input="logSomethingElse(currentQuestion.why.somethingElseValue);"></textarea></input>
 									</span>
 									</div>
+								</div>
+								<div>
+									<select class="form-select" name="{{currentQuestion.tag}}-likert" v-model="currentQuestion.rating" id="{{currentQuestion.tag}}-likert">
+										<option disabled value="">Please select one</option>
+										<option v-for="option in currentQuestion.likert.options">{{option}}</option>
+									</select>
 								</div>
 							</div>
 						</div>
