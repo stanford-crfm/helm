@@ -212,7 +212,7 @@ class SlurmRunner(Runner):
             "gres": "gpu:0",
             "open_mode": "append",
             "partition": "john",
-            "time": "14-0",
+            "time": "14-0",  # Deadline of 14 days
             "mail_type": "END",
             "job_name": run_name,
             "output": log_path,
@@ -227,7 +227,7 @@ class SlurmRunner(Runner):
         # Uncomment this to get notification emails from Slurm for Slurm worker jobs.
         # slurm.set_mail_user(os.getenv("USER"))
         hlog(f"Submitting worker Slurm job for run {run_name} with command: {command}")
-        time.sleep(1)  # Delay to avoid overwhelming Slurm
+        time.sleep(0.1)  # Delay to avoid overwhelming Slurm
         slurm_job_id = submit_slurm_job(command, slurm_args)
         hlog(f"Worker Slurm job submitted for run {run_name} with Slurm job ID: {slurm_job_id}")
         return slurm_job_id
