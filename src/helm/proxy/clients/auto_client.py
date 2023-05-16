@@ -182,7 +182,7 @@ class AutoClient(Client):
                 "huggingface",
                 "microsoft",
                 "Writer",
-                "tatsu-lab",
+                "hf-internal-testing",
             ]:
                 client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "openai":
