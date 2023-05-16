@@ -11,6 +11,7 @@ from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_
 # Tokenizer names where the HELM tokenizer name and the Hugging Face tokenizer name
 # are identical.
 _KNOWN_TOKENIZER_NAMES: Set[str] = {
+    "EleutherAI/gpt-j-6B",  # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
     "EleutherAI/gpt-neox-20b",
     "bigscience/bloom",
     "bigscience/T0pp",
@@ -26,11 +27,8 @@ _KNOWN_TOKENIZER_NAMES: Set[str] = {
 
 # Map of HELM tokenizer name to Hugging Face tokenizer name for tokenizers where they differ.
 _KNOWN_TOKENIZER_ALIASES: Dict[str, str] = {
-    # Tokenizers with no namespace
     "huggingface/gpt2": "gpt2",
     "google/t5-11b": "t5-11b",
-    # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
-    "EleutherAI/gpt-j-6B": "EleutherAI/gpt-j-6B",
 }
 
 

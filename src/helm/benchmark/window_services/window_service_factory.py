@@ -126,7 +126,7 @@ class WindowServiceFactory:
             "gooseai/gpt-neo-20b",
             "together/gpt-neoxt-chat-base-20b",
             "together/redpajama-incite-base-3b-v1",
-            # Pythia uses the same tokenizer as GPT-NeoX- 20B.
+            # Pythia uses the same tokenizer as GPT-NeoX-20B.
             # See: https://huggingface.co/EleutherAI/pythia-6.9b#training-procedure
             "together/pythia-7b",
             # MPT-7B model was trained with the EleutherAI/gpt-neox-20b tokenizer

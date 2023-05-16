@@ -24,6 +24,7 @@ class GPTJWindowService(LocalWindowService):
     @property
     def tokenizer_name(self) -> str:
         """Name of the tokenizer to use when sending a request."""
+        # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
         return "EleutherAI/gpt-j-6B"
 
     @property
