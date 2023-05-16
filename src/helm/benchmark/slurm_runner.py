@@ -115,22 +115,22 @@ class SlurmRunner(Runner):
 
         skipped_run_specs: List[RunSpec] = []
         queued_run_specs: List[RunSpec] = []
+        # When running with multiple models, sorting by RunSpec.name is a heuristic that tries to
+        # spread out the load evenly across multiple models, in order to avoid overloading any single model.
         for run_spec in sorted(run_specs, key=lambda run_spec: run_spec.name):
             if self.skip_completed_runs and self._is_run_completed(run_spec):
                 skipped_run_specs.append(run_spec)
             else:
                 queued_run_specs.append(run_spec)
 
-        skipped_run_specs_json = to_json([run_spec.name for run_spec in skipped_run_specs])
+        skipped_runs_json = to_json([run_spec.name for run_spec in skipped_run_specs])
         if skipped_run_specs:
-            hlog(
-                f"Skipped run specs with completed runs because --skip-completed-runs is set: {skipped_run_specs_json}"
-            )
-        skipped_run_specs_path = os.path.join(self.slurm_base_dir, "skipped_run_specs.json")
+            hlog("Skipped completed runs because --skip-completed-runs was set: " f"{skipped_runs_json}")
+        skipped_runs_path = os.path.join(self.slurm_base_dir, "skipped_runs.json")
         # Write skipped run specs file anyway even if empty.
         # This makes things more convenient for downstream status monitoring tools.
-        hlog(f"Writing skipped run specs to {skipped_run_specs_path}")
-        write(file_path=skipped_run_specs_path, content=skipped_run_specs_json)
+        hlog(f"Writing skipped runs to {skipped_runs_path}")
+        write(file_path=skipped_runs_path, content=skipped_runs_json)
 
         # Callback for cleaning up worker Slurm jobs
         def cancel_all_jobs():
