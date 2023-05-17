@@ -140,7 +140,7 @@ class AnthropicClient(Client):
                     return RequestResult(
                         success=False,
                         cached=False,
-                        error=response["error"],
+                        error=str(error),
                         completions=[],
                         embedding=[],
                         error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
@@ -149,7 +149,7 @@ class AnthropicClient(Client):
                     return RequestResult(
                         success=False,
                         cached=False,
-                        error=response["error"],
+                        error=str(error),
                         completions=[],
                         embedding=[],
                         error_flags=ErrorFlags(is_retriable=False, is_fatal=False),

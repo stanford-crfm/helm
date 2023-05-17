@@ -45,8 +45,9 @@ from .scenarios import lextreme_scenario  # noqa
 from .scenarios import entity_matching_scenario  # noqa
 from .scenarios import entity_data_imputation_scenario  # noqa
 from .scenarios import big_bench_scenario  # noqa
+from .scenarios import self_instruct_scenario  # noqa
+from .scenarios import grammar_scenario  # noqa
 from .scenarios import opinions_qa_scenario  # noqa
-
 
 # Biomedical
 from .scenarios import covid_dialog_scenario  # noqa
@@ -57,7 +58,9 @@ from .scenarios import med_paragraph_simplification_scenario  # noqa
 from .scenarios import med_qa_scenario  # noqa
 from .scenarios import pubmed_qa_scenario  # noqa
 from .scenarios import wmt_14_scenario  # noqa
+from .scenarios import verifiability_judgment_scenario  # noqa
 
+#
 # Metrics
 from .metrics import basic_metrics  # noqa
 from .metrics import bbq_metrics  # noqa

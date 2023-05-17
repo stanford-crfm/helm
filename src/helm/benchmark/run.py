@@ -13,6 +13,7 @@ from helm.proxy.services.remote_service import create_authentication, add_servic
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
+from .slurm_runner import SlurmRunner
 from .run_specs import construct_run_specs
 
 
@@ -63,8 +64,7 @@ def run_entries_to_run_specs(
 def run_benchmarking(
     run_specs: List[RunSpec],
     auth: Authentication,
-    url: str,
-    local: bool,
+    url: Optional[str],
     local_path: str,
     num_threads: int,
     output_path: str,
@@ -75,13 +75,13 @@ def run_benchmarking(
     cache_instances_only: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
+    use_slurm_runner: bool,
     mongo_uri: str = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     execution_spec = ExecutionSpec(
         auth=auth,
         url=url,
-        local=local,
         local_path=local_path,
         parallelism=num_threads,
         dry_run=dry_run,
@@ -90,8 +90,8 @@ def run_benchmarking(
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec)
-
-    runner = Runner(
+    runner_cls = SlurmRunner if use_slurm_runner else Runner
+    runner: Runner = runner_cls(
         execution_spec,
         output_path,
         suite,
@@ -113,26 +113,22 @@ def add_run_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--skip-instances",
         action="store_true",
-        default=None,
         help="Skip creation of instances (basically do nothing but just parse everything).",
     )
     parser.add_argument(
         "--cache-instances",
         action="store_true",
-        default=None,
         help="Save generated instances input to model to disk. If already cached, read instances from file.",
     )
     parser.add_argument(
         "--cache-instances-only",
         action="store_true",
-        default=None,
         help="Generate and save instances for scenario ONLY (i.e. do not evaluate models on instances).",
     )
     parser.add_argument(
         "-d",
         "--dry-run",
         action="store_true",
-        default=None,
         help="Skip execution, only output scenario states and estimate token usage.",
     )
     parser.add_argument(
@@ -158,7 +154,9 @@ def add_run_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--local",
         action="store_true",
-        help="If true, bypasses the proxy server and runs everything locally",
+        help="DEPRECATED: Does nothing. Do not use. Previously enabled local mode. "
+        "Now does nothing and will be removed in the next released version. "
+        "Local mode is enabled by default, and only disabled if the --server_url flag is set.",
     )
     parser.add_argument(
         "--local-path",
@@ -206,13 +204,11 @@ def main():
     parser.add_argument(
         "--exit-on-error",
         action="store_true",
-        default=None,
         help="Fail and exit immediately if a particular RunSpec fails.",
     )
     parser.add_argument(
         "--skip-completed-runs",
         action="store_true",
-        default=None,
         help="Skip RunSpecs that have completed i.e. output files exists.",
     )
     parser.add_argument(
@@ -235,8 +231,13 @@ def main():
         nargs="+",
         default=[],
         help="Experimental: Enable remote service models that are not available on the client. "
-        "The client will use RemoteWindowService for windowing. "
-        "Format: namespace/model_name[@revision]",
+        "The client will use RemoteWindowService for windowing.",
+    )
+    parser.add_argument(
+        "--use-slurm-runner",
+        action="store_true",
+        help="Experimental: If set, each RunSpec will be run in a separate worker Slurm job. "
+        "Currently only works on the Stanford NLP cluster.",
     )
     add_run_args(parser)
     args = parser.parse_args()
@@ -245,7 +246,7 @@ def main():
     for huggingface_model_name in args.enable_huggingface_models:
         register_huggingface_model_config(huggingface_model_name)
 
-    if not args.local:
+    if args.server_url and args.enable_remote_models:
         check_and_register_remote_model(args.server_url, args.enable_remote_models)
 
     run_entries: List[RunEntry] = []
@@ -276,7 +277,6 @@ def main():
         run_specs=run_specs,
         auth=auth,
         url=args.server_url,
-        local=args.local,
         local_path=args.local_path,
         num_threads=args.num_threads,
         output_path=args.output_path,
@@ -287,8 +287,16 @@ def main():
         cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
+        use_slurm_runner=args.use_slurm_runner,
         mongo_uri=args.mongo_uri,
     )
+
+    if args.local:
+        hlog(
+            "WARNING: The --local flag is deprecated. It now does nothing and will be removed in "
+            "the next released version. Local mode is enabled by default, and only disabled if the "
+            "--server_url flag is set. Please remove --local from your command."
+        )
 
     hlog("Done.")
 
