@@ -22,6 +22,7 @@ from .aleph_alpha_client import AlephAlphaClient
 from .anthropic_client import AnthropicClient
 from .chat_gpt_client import ChatGPTClient
 from .cohere_client import CohereClient
+from .symbl_client import SymblClient
 from .together_client import TogetherClient
 from .google_client import GoogleClient
 from .goose_ai_client import GooseAIClient
@@ -133,6 +134,8 @@ class AutoClient(Client):
                 )
             elif organization == "nvidia":
                 client = MegatronClient(cache_config=cache_config)
+            elif organization == "symbl":
+                client = SymblClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client
@@ -206,6 +209,8 @@ class AutoClient(Client):
                 client = SimpleClient(cache_config=cache_config)
             elif organization == "nvidia":
                 client = MegatronClient(cache_config=cache_config)
+            elif organization == "symbl":
+                client = SymblClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client

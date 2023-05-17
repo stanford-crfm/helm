@@ -27,6 +27,14 @@ class ToxicityMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
+        stats: List[Stat] = [
+            # Metrics from the RealToxicityPrompts paper
+            Stat(MetricName("expected_max_toxicity")).add(0),
+            Stat(MetricName("max_toxicity_probability")).add(0),
+            # Additional metrics we added
+            Stat(MetricName("toxic_frac")).add(0),
+        ]
+        return stats
         """
         We compute the same metrics from the RealToxicityPrompts paper:
         https://arxiv.org/pdf/2009.11462.pdf

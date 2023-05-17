@@ -1,6 +1,14 @@
 ---
 ############################################################
 models:
+  # Symbl.ai
+  - name: symbl/neo-large
+    display_name: Symbl Neo Large (30B)
+    description: Symbl Neo Large (30B parameters)
+    creator_organization: Symbl.ai
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-06-30
   # AI21 Labs
   - name: ai21/j1-jumbo
     display_name: J1-Jumbo v1 (178B)

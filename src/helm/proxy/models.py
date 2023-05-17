@@ -109,6 +109,15 @@ class Model:
 # Over time, we should add more information there.
 
 ALL_MODELS = [
+    # Symbl.ai - Neo Models
+    Model(group="neo",
+          creator_organization="Symbl.ai",
+          name="symbl/neo-large",
+          display_name="Symbl Neo Large",
+          description="Symbl Neo Large (30B parameters)",
+          tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+          ),
+
     # AI21: https://studio.ai21.com/pricing
     Model(
         group="jurassic",
@@ -258,7 +267,7 @@ ALL_MODELS = [
         display_name="BLOOM (176B)",
         # From https://bigscience.huggingface.co/blog/bloom
         description="BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained "
-        "on 46 natural languages and 13 programming languages.",
+                    "on 46 natural languages and 13 programming languages.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
@@ -268,7 +277,7 @@ ALL_MODELS = [
         display_name="T0++ (11B)",
         # From https://huggingface.co/bigscience/T0pp
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
-        "specified in natural language prompts.",
+                    "specified in natural language prompts.",
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
@@ -337,7 +346,7 @@ ALL_MODELS = [
         name="cohere/command-medium-beta",
         display_name="Cohere Command beta (6.1B)",
         description="Cohere Command beta (6.1B parameters) is fine-tuned from the medium model "
-        "to respond well with instruction-like prompts",
+                    "to respond well with instruction-like prompts",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -346,7 +355,7 @@ ALL_MODELS = [
         name="cohere/command-xlarge-beta",
         display_name="Cohere Command beta (52.4B)",
         description="Cohere Command beta (52.4B parameters) is fine-tuned from the XL model "
-        "to respond well with instruction-like prompts",
+                    "to respond well with instruction-like prompts",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     # EleutherAI
@@ -412,7 +421,7 @@ ALL_MODELS = [
         name="huggingface/santacoder",
         display_name="SantaCoder (1.1B)",
         description="SantaCoder (1.1B parameters) model trained on the Python, Java, and "
-        "JavaScript subset of The Stack (v1.1).",
+                    "JavaScript subset of The Stack (v1.1).",
         tags=[CODE_MODEL_TAG],
     ),
     Model(
@@ -431,8 +440,8 @@ ALL_MODELS = [
         display_name="T5 (11B)",
         # From https://huggingface.co/docs/transformers/v4.20.1/en/model_doc/t5
         description="T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of "
-        "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
-        "format.",
+                    "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
+                    "format.",
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
@@ -452,7 +461,7 @@ ALL_MODELS = [
         display_name="UL2 (20B)",
         # From https://huggingface.co/google/ul2
         description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
-        "but trained with a different objective and slightly different scaling knobs.",
+                    "but trained with a different objective and slightly different scaling knobs.",
         # Does not support echo=True
         tags=[
             TEXT_MODEL_TAG,
@@ -479,7 +488,7 @@ ALL_MODELS = [
         display_name="OPT (175B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
-        "transformers that are fully and responsibly shared with interested researchers.",
+                    "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
@@ -489,7 +498,7 @@ ALL_MODELS = [
         display_name="OPT (66B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
-        "transformers that are fully and responsibly shared with interested researchers.",
+                    "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
@@ -499,7 +508,7 @@ ALL_MODELS = [
         display_name="OPT (6.7B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained "
-        "transformers that are fully and responsibly shared with interested researchers.",
+                    "transformers that are fully and responsibly shared with interested researchers.",
         tags=[
             TEXT_MODEL_TAG,
             FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
@@ -515,7 +524,7 @@ ALL_MODELS = [
         display_name="OPT (1.3B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained "
-        "transformers that are fully and responsibly shared with interested researchers.",
+                    "transformers that are fully and responsibly shared with interested researchers.",
         tags=[
             TEXT_MODEL_TAG,
             FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
@@ -531,7 +540,7 @@ ALL_MODELS = [
         name="microsoft/TNLGv2_530B",
         display_name="TNLGv2 (530B)",
         description="TNLGv2 (530B parameters) autoregressive language model. "
-        "It is trained on a filtered subset of the Pile and CommonCrawl.",
+                    "It is trained on a filtered subset of the Pile and CommonCrawl.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -540,7 +549,7 @@ ALL_MODELS = [
         name="microsoft/TNLGv2_7B",
         display_name="TNLGv2 (7B)",
         description="TNLGv2 (7B parameters) autoregressive language model. "
-        "It is trained on a filtered subset of the Pile and CommonCrawl.",
+                    "It is trained on a filtered subset of the Pile and CommonCrawl.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OpenAI: https://beta.openai.com/docs/engines/gpt-3
@@ -584,7 +593,7 @@ ALL_MODELS = [
         name="openai/text-davinci-003",
         display_name="text-davinci-003",
         description="text-davinci-003 model that involves reinforcement learning (PPO) with reward models."
-        "Derived from text-davinci-002.",
+                    "Derived from text-davinci-002.",
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -593,7 +602,7 @@ ALL_MODELS = [
         name="openai/text-davinci-002",
         display_name="text-davinci-002",
         description="text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations."
-        "Derived from code-davinci-002.",
+                    "Derived from code-davinci-002.",
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -660,8 +669,8 @@ ALL_MODELS = [
         display_name="gpt-4-0314",
         # https://platform.openai.com/docs/models/gpt-4
         description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
-        "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
-        "from March 14th 2023.",
+                    "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
+                    "from March 14th 2023.",
         tags=[
             TEXT_MODEL_TAG,
             GPT4_CONTEXT_WINDOW_TAG,
@@ -677,8 +686,8 @@ ALL_MODELS = [
         display_name="gpt-4-32k-0314",
         # https://platform.openai.com/docs/models/gpt-4
         description="GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text "
-        "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
-        "with a longer context length of 32,768 tokens from March 14th 2023.",
+                    "outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 "
+                    "with a longer context length of 32,768 tokens from March 14th 2023.",
         tags=[
             TEXT_MODEL_TAG,
             GPT4_32K_CONTEXT_WINDOW_TAG,
@@ -695,7 +704,7 @@ ALL_MODELS = [
         display_name="gpt-3.5-turbo-0301",
         # https://platform.openai.com/docs/models/gpt-3-5
         description="Sibling model of text-davinci-003 is optimized for chat but works well "
-        "for traditional completions tasks as well. Snapshot from 2023-03-01.",
+                    "for traditional completions tasks as well. Snapshot from 2023-03-01.",
         # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
         # sequence length is smaller at 4087 with one user input message and one assistant
         # output message because ChatGPT uses special tokens for message roles and boundaries.
@@ -775,7 +784,7 @@ ALL_MODELS = [
         display_name="GLM (130B)",
         # From https://github.com/THUDM/GLM-130B
         description="GLM-130B is an open bilingual (English & Chinese) bidirectional dense model with 130 billion "
-        "parameters, pre-trained using the algorithm of General Language Model (GLM).",
+                    "parameters, pre-trained using the algorithm of General Language Model (GLM).",
         # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
@@ -863,7 +872,7 @@ ALL_MODELS = [
         name="google/palm",
         display_name="PaLM (540B)",
         description="Pathways Language Model (540B parameters) is trained using 6144 TPU v4 chips "
-        "([paper](https://arxiv.org/pdf/2204.02311.pdf)).",
+                    "([paper](https://arxiv.org/pdf/2204.02311.pdf)).",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Nvidia
