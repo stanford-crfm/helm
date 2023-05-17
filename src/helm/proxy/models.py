@@ -282,6 +282,35 @@ ALL_MODELS = [
         name="together/gpt-neox-20b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
+    Model(
+        group="together",
+        name="together/pythia-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # Meta
+    Model(
+        group="together",
+        name="together/llama-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # Stanford
+    Model(
+        group="together",
+        name="together/alpaca-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # LMSYS
+    Model(
+        group="together",
+        name="together/vicuna-13b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # MosaicML
+    Model(
+        group="togethger",
+        name="together/mpt-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # GooseAI supported models
     Model(
         group="gooseai",
@@ -533,6 +562,11 @@ ALL_MODELS = [
         group="together",
         name="together/gpt-neoxt-chat-base-20b",
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        name="together/redpajama-incite-base-3b-v1",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Tsinghua
     Model(
