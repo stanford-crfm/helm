@@ -51,9 +51,9 @@ class AnthropicWindowService(GPT2WindowService):
         Return the max prompt length + max token length.
         Anthropic is one of the rare models that has a limit on this.
         The official limit seems to be 9192,but using scripts/compute_request_limits.py
-        we found that the limit is actually 9016.
+        we found that the limit is actually 9216.
         """
-        return 9016
+        return 9216
 
     @property
     def max_request_length(self) -> int:
