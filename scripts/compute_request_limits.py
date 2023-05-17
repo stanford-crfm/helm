@@ -311,6 +311,8 @@ def check_limits(
     elif try_request(
         client,
         model_name,
+        tokenizer_name,
+        tokenizer_client,
         max_prompt_length - r,
         max_prompt_length_plus_tokens - max_prompt_length + r + 1,
         prefix,
@@ -357,5 +359,5 @@ print("")
 # Print the infos
 print("========== Print the infos ==========")
 for key, value in infos.items():
-    print(f"{key}: {value}")
+    print(key, ":", value)
 print("=====================================")
