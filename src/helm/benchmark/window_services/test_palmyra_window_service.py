@@ -125,7 +125,7 @@ class TestPalmyraWindowService:
         shutil.rmtree(self.path)
 
     def test_max_request_length(self):
-        assert self.window_service.max_request_length == 2048
+        assert self.window_service.max_request_length == 2024
 
     def test_encode(self):
         assert self.window_service.encode(TEST_PROMPT).token_values == self.TEST_TOKEN_IDS

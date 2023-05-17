@@ -13,17 +13,9 @@ class PalmyraWindowService(LocalWindowService):
 
     @property
     def max_sequence_length(self) -> int:
-        return 2048
-
-    @property
-    def max_sequence_and_generated_tokens_length(self) -> int:
-        """
-        Return the max prompt length + max token length.
-        Writer is one of the rare models that has a limit on this.
-        The official limit seems to be 2048, we limit to 2000 just to be safe.
-        """
-        # TODO #1558: Replace by the exact limit here.
-        return 2000
+        # It is upposed to be 2048, but using scripts/compute_request_limits.py
+        # we found that the limit is actually 2024.
+        return 2024
 
     @property
     def max_request_length(self) -> int:
@@ -48,9 +40,6 @@ class PalmyraWindowService(LocalWindowService):
 class SilkRoadWindowService(PalmyraWindowService):
     @property
     def max_sequence_length(self) -> int:
-        return 4096
-
-    @property
-    def max_sequence_and_generated_tokens_length(self) -> int:
-        # TODO #1558: Figure out the exact number, should be 4096
-        return 4000
+        # It is upposed to be 4096, but using scripts/compute_request_limits.py
+        # we found that the limit is actually 4066.
+        return 4066
