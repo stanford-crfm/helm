@@ -358,6 +358,6 @@ print("")
 
 # Print the infos
 print("========== Print the infos ==========")
-for key, value in infos.items():
-    print(key, ":", value)
+for key in infos:
+    print(f"{key}: {infos[key]}")
 print("=====================================")
