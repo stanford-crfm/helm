@@ -48,7 +48,7 @@ class PalmyraWindowService(LocalWindowService):
 class SilkRoadWindowService(PalmyraWindowService):
     @property
     def max_sequence_length(self) -> int:
-        return 80000
+        return 4096
 
     @property
     def max_sequence_and_generated_tokens_length(self) -> int:
