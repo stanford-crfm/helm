@@ -97,6 +97,18 @@ models:
     creator_organization: Anthropic
     access: limited
     release_date: 2023-03-17
+  - name: anthropic/claude-v1.3-100k
+    display_name: Anthropic Claude v1.3-100k
+    description: Claude V1.3 with a context window of 100k
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-05-11
+  - name: anthropic/claude-instant-v1.1-100k
+    display_name: Anthropic Claude Instant V1.1-100k
+    description: Claude Instant V1.1 with a context window of 100k
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-05-11
 
   # BigScience
   - name: together/bloom

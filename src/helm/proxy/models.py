@@ -202,6 +202,28 @@ ALL_MODELS = [
             ABLATION_MODEL_TAG,
         ],
     ),
+    Model(
+        group="anthropic",
+        name="anthropic/claude-v1.3-100k",
+        tags=[
+            ANTHROPIC_MODEL_TAG,
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            ABLATION_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="anthropic",
+        name="anthropic/claude-instant-v1.1-100k",
+        tags=[
+            ANTHROPIC_MODEL_TAG,
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            ABLATION_MODEL_TAG,
+        ],
+    ),
     # BigScience
     Model(
         group="together",
