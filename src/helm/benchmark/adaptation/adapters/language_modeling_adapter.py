@@ -48,10 +48,20 @@ class LanguageModelingAdapter(Adapter):
         """
         max_sequence_length: int = self.window_service.max_sequence_length
         max_request_length: int = self.window_service.max_request_length
-        # Handle max_sequence_and_tokens_length
+        max_sequence_and_generated_tokens_length: int = self.window_service.max_sequence_and_generated_tokens_length
+        max_tokens: int = (
+            min(self.adapter_spec.max_tokens, self.window_service.max_generated_max_tokens)
+            if self.adapter_spec.max_tokens > 0
+            else self.adapter_spec.max_tokens
+        )
+        # Here we assume that there is a max_request_and_generated_tokens_length that we can
+        # compute from max_sequence_length, max_request_length, and max_sequence_and_generated_tokens_length.
         max_request_length = min(
             max_request_length,
-            self.window_service.max_sequence_and_generated_tokens_length - self.adapter_spec.max_tokens,
+            max_request_length
+            - max_sequence_length
+            + max_sequence_and_generated_tokens_length
+            - self.adapter_spec.max_tokens,
         )
         prefix_token: str = self.window_service.prefix_token
 
@@ -76,7 +86,11 @@ class LanguageModelingAdapter(Adapter):
 
         # Uses `max_sequence_length` instead of `max_request_length` here because `prefix_token` will be prepended
         # to the sequence later. This is the only place where `max_sequence_length` is used.
-        first_seq_len: int = min(max_sequence_length, len(tokens))
+
+        # Handle max_sequence_and_generated_tokens_length
+        first_seq_len: int = min(
+            max_sequence_length, len(tokens), max_sequence_and_generated_tokens_length - max_tokens
+        )
         prompt_text, num_conditioning_tokens = self.construct_language_modeling_prompt(
             self.window_service.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
         )
@@ -85,7 +99,7 @@ class LanguageModelingAdapter(Adapter):
             prompt=prompt_text,
             num_completions=1,
             temperature=0,
-            max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
+            max_tokens=max_tokens,  # usually this is zero
             stop_sequences=self.adapter_spec.stop_sequences,
             echo_prompt=True,
             random=self.adapter_spec.random,
