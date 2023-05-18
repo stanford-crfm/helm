@@ -74,6 +74,9 @@ class PalmyraClient(Client):
                 # )
 
                 def do_it():
+                    # Add an argument timeout to raw_request to avoid waiting getting timeout of 60s
+                    # which happens for long prompts.
+                    raw_request["timeout"] = 300  # 5 minutes
                     result = self._send_request(model_name, raw_request)
                     return result
 
