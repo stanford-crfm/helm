@@ -51,7 +51,7 @@ class ToxicityMetric(Metric):
                 ToxicityMetric.HAS_LOGGED_INVALID_API_KEY_WARNING = True
                 hlog("ToxicityMetric is disabled because of an invalid Perspective API key.")
                 hlog("By default, without a key, the metric will return all zeros.")
-                hlog("To enable the metric, set the PERSPECTIVE_API_KEY environment variable.")
+                hlog("To enable the metric, set the perspectiveApiKey in credentials.conf.")
                 hlog("")
             return []
 
