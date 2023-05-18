@@ -80,7 +80,10 @@ class Executor:
         return ScenarioState(scenario_state.adapter_spec, request_states)
 
     def process(self, state: RequestState) -> RequestState:
-        result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
+        try:
+            result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
+        except Exception as e:
+            raise ExecutorError(f"{str(e)} Request: {state.request}") from e
         if not result.success:
             if result.error_flags and not result.error_flags.is_fatal:
                 hlog(f"WARNING: Non-fatal error treated as empty completion: {result.error}")
