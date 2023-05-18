@@ -69,6 +69,7 @@ class ImageCritiqueMetric(Metric):
         self,
         include_alignment: bool,
         include_aesthetics: bool,
+        include_subject: bool,
         include_originality: bool,
         include_copyright: bool,
         num_examples: int,
@@ -77,6 +78,7 @@ class ImageCritiqueMetric(Metric):
     ) -> None:
         self._include_alignment: bool = include_alignment
         self._include_aesthetics: bool = include_aesthetics
+        self._include_subject: bool = include_subject
         self._include_originality: bool = include_originality
         self._include_copyright: bool = include_copyright
         self._num_examples: int = num_examples
@@ -219,23 +221,24 @@ class ImageCritiqueMetric(Metric):
                     options=list(self.ORIGINALITY_ANSWER_TO_SCORE.keys()),
                 )
             )
+        if self._include_subject:
+            questions.append(
+                CritiqueQuestionTemplate(
+                    name=self.SUBJECT_NAME,
+                    question_type=QuestionType.MULTIPLE_CHOICE,
+                    text="Is it clear who the subject(s) of the image is? The subject can be a living being "
+                    "(e.g., a dog or a person) or an inanimate body or object (e.g., a mountain).",
+                    options=list(self.SUBJECT_ANSWER_TO_SCORE.keys()),
+                )
+            )
         if self._include_aesthetics:
-            questions.extend(
-                [
-                    CritiqueQuestionTemplate(
-                        name=self.SUBJECT_NAME,
-                        question_type=QuestionType.MULTIPLE_CHOICE,
-                        text="Is it clear who the subject(s) of the image is? The subject can be a living being "
-                        "(e.g., a dog or a person) or an inanimate body or object (e.g., a mountain).",
-                        options=list(self.SUBJECT_ANSWER_TO_SCORE.keys()),
-                    ),
-                    CritiqueQuestionTemplate(
-                        name=self.AESTHETICS_NAME,
-                        question_type=QuestionType.MULTIPLE_CHOICE,
-                        text="How aesthetically pleasing is the image?",
-                        options=list(self.AESTHETICS_ANSWER_TO_SCORE.keys()),
-                    ),
-                ]
+            questions.append(
+                CritiqueQuestionTemplate(
+                    name=self.AESTHETICS_NAME,
+                    question_type=QuestionType.MULTIPLE_CHOICE,
+                    text="How aesthetically pleasing is the image?",
+                    options=list(self.AESTHETICS_ANSWER_TO_SCORE.keys()),
+                ),
             )
         if self._include_copyright:
             questions.append(

@@ -658,6 +658,7 @@ def get_vhelm_reference_required_metric_specs(include_fidelity: bool = False) ->
 
 def get_vhelm_critique_metric_specs(
     include_aesthetics: bool = False,
+    include_subject: bool = False,
     include_originality: bool = False,
     include_copyright: bool = False,
     num_examples: int = 10,
@@ -670,6 +671,7 @@ def get_vhelm_critique_metric_specs(
             args={
                 "include_alignment": True,  # Always ask about image-text alignment
                 "include_aesthetics": include_aesthetics,
+                "include_subject": include_subject,
                 "include_originality": include_originality,
                 "include_copyright": include_copyright,
                 "num_examples": num_examples,
@@ -2123,7 +2125,7 @@ def get_cub200_spec(run_human_eval: bool = False) -> RunSpec:
     metric_specs: List[MetricSpec] = get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs()
     if run_human_eval:
         metric_specs += get_vhelm_critique_metric_specs(
-            include_aesthetics=True, include_copyright=False, num_examples=10
+            include_aesthetics=True, include_subject=True, include_copyright=False, num_examples=10
         )
 
     return RunSpec(
@@ -2143,7 +2145,10 @@ def get_daily_dalle_spec(run_human_eval: bool = False) -> RunSpec:
     metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
     if run_human_eval:
         metric_specs += get_vhelm_critique_metric_specs(
-            include_aesthetics=True, include_copyright=False, include_originality=True, num_examples=25
+            include_aesthetics=True,
+            include_subject=True,
+            include_originality=True,
+            num_examples=25,
         )
 
     return RunSpec(
@@ -2214,10 +2219,10 @@ def get_draw_bench_spec(category: str, run_human_eval: bool = False) -> RunSpec:
 
     if run_human_eval:
         if category == "Reddit":
-            metric_specs += get_vhelm_critique_metric_specs(include_copyright=False, num_examples=34)
-        elif category in ["Colors", "DALL-E", "Text", "Rare"]:
+            metric_specs += get_vhelm_critique_metric_specs(num_examples=34)
+        elif category in ["Colors", "Text", "Rare"]:
             metric_specs += get_vhelm_critique_metric_specs(
-                include_aesthetics=True, include_copyright=False, num_examples=10
+                include_aesthetics=True, include_subject=True, include_copyright=False, num_examples=10
             )
         else:
             metric_specs += get_vhelm_critique_metric_specs(num_examples=10)
@@ -2257,7 +2262,10 @@ def get_landing_page_spec(run_human_eval: bool = False) -> RunSpec:
     metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
     if run_human_eval:
         metric_specs += get_vhelm_critique_metric_specs(
-            include_aesthetics=True, include_copyright=False, include_originality=True, num_examples=25
+            include_aesthetics=True,
+            include_subject=True,
+            include_originality=True,
+            num_examples=25,
         )
 
     return RunSpec(
@@ -2277,7 +2285,10 @@ def get_logos_spec(run_human_eval: bool = False) -> RunSpec:
     metric_specs: List[MetricSpec] = get_core_vhelm_metric_specs()
     if run_human_eval:
         metric_specs += get_vhelm_critique_metric_specs(
-            include_aesthetics=True, include_copyright=False, include_originality=True, num_examples=25
+            include_aesthetics=True,
+            include_subject=True,
+            include_originality=True,
+            num_examples=25,
         )
 
     return RunSpec(
@@ -2300,8 +2311,8 @@ def get_magazine_cover_spec(run_human_eval: bool = False) -> RunSpec:
     if run_human_eval:
         metric_specs += get_vhelm_critique_metric_specs(
             include_aesthetics=True,
+            include_subject=True,
             include_originality=True,
-            include_copyright=False,
             num_examples=25,
         )
 
@@ -2334,8 +2345,10 @@ def get_mscoco_spec(
     for_efficiency: bool = False,
     compute_fid: bool = False,
     run_human_eval: bool = False,
+    num_human_examples: int = 100,
     use_perturbed: bool = False,
     skip_photorealism: bool = False,
+    skip_subject: bool = False,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
@@ -2356,15 +2369,16 @@ def get_mscoco_spec(
         metric_specs = get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs()
         if run_human_eval:
             metric_specs += get_vhelm_critique_metric_specs(
-                num_examples=100,
+                num_examples=num_human_examples,
                 include_aesthetics=True,
+                include_subject=not skip_subject,
                 include_originality=False,
                 include_copyright=False,
                 use_perturbed=use_perturbed,
             )
             if not skip_photorealism:
                 metric_specs += get_vhelm_photorealism_critique_metric_specs(
-                    num_examples=100, use_perturbed=use_perturbed
+                    num_examples=num_human_examples, use_perturbed=use_perturbed
                 )
         run_spec_name = "mscoco"
 
@@ -2424,7 +2438,9 @@ def get_parti_prompts_spec(category: str, run_human_eval: bool = False) -> RunSp
         elif category == "World":
             metric_specs += get_vhelm_critique_metric_specs(num_examples=34)
         else:
-            metric_specs += get_vhelm_critique_metric_specs(include_aesthetics=True, num_examples=10)
+            metric_specs += get_vhelm_critique_metric_specs(
+                include_aesthetics=True, include_subject=True, num_examples=10
+            )
 
     return RunSpec(
         name=run_spec_name,
