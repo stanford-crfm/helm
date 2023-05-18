@@ -101,21 +101,24 @@ def queue_jobs(
             job_name: str = f"{model.engine}_{description}"
             log_path: str = os.path.join(logs_path, f"{job_name}.log")
 
-            nlp_run_gpu_args: str = DEFAULT_NLP_RUN_GPU_ARGS
-            if machine is not None:
-                nlp_run_gpu_args += f" -m {machine}"
+            nlp_run_args: str = DEFAULT_NLP_RUN_GPU_ARGS
+
+            if model.engine in ["dalle-2", "search-stable-diffusion-1.5"]:
+                nlp_run_args = DEFAULT_NLP_RUN_CPU_ARGS
+            elif machine is not None:
+                nlp_run_args += f" -m {machine}"
 
                 if "sphinx" in machine:
-                    nlp_run_gpu_args += " -p high "
+                    nlp_run_args += " -p high "
             elif use_sphinx:
-                nlp_run_gpu_args += " -q sphinx "
+                nlp_run_args += " -q sphinx "
 
             swiss_army_port: str = ""
             if model.name == "thudm/cogview2":
                 swiss_army_port = f"MASTER_PORT={65_000 + i} "
 
             command: str = (
-                f"{NLP_RUN} {nlp_run_gpu_args} --job-name {job_name} '{swiss_army_port}helm-run {DEFAULT_HELM_ARGS} "
+                f"{NLP_RUN} {nlp_run_args} --job-name {job_name} '{swiss_army_port}helm-run {DEFAULT_HELM_ARGS} "
                 f"--suite {suite} --conf-paths {conf_path} --models-to-run {model.name} --priority {priority} "
                 f"> {log_path} 2>&1'"
             )

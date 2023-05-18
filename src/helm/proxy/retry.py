@@ -57,5 +57,5 @@ def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResu
 
 
 retry_request: Callable = get_retry_decorator(
-    "Request", max_attempts=6, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
+    "Request", max_attempts=10, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
 )
