@@ -67,21 +67,21 @@ class ImageCritiqueMetric(Metric):
 
     def __init__(
         self,
-        study_title: str,
         include_alignment: bool,
         include_aesthetics: bool,
         include_originality: bool,
         include_copyright: bool,
         num_examples: int,
         num_respondents: int,
+        use_perturbed: bool = False,
     ) -> None:
-        self._study_title: str = study_title
         self._include_alignment: bool = include_alignment
         self._include_aesthetics: bool = include_aesthetics
         self._include_originality: bool = include_originality
         self._include_copyright: bool = include_copyright
         self._num_examples: int = num_examples
         self._num_respondents: int = num_respondents
+        self._use_perturbed: bool = use_perturbed
 
     def __repr__(self) -> str:
         return "ImageCritiqueMetric()"
@@ -93,7 +93,14 @@ class ImageCritiqueMetric(Metric):
         eval_cache_path: str,
         parallelism: int,
     ) -> MetricResult:
-        request_states: List[RequestState] = scenario_state.request_states
+        request_states: List[RequestState] = []
+        if self._use_perturbed:
+            for request_state in scenario_state.request_states:
+                if request_state.instance.perturbation is not None:
+                    request_states.append(request_state)
+        else:
+            request_states = scenario_state.request_states
+
         np.random.seed(0)
         if self._num_examples < len(request_states):
             request_states = list(
@@ -133,7 +140,15 @@ class ImageCritiqueMetric(Metric):
 
         # Randomly select one of the generated images to critique
         image_path: str = np.random.choice(image_locations)
+
         prompt: str = request_state.request.prompt
+        perturbation_name: str = request_state.instance.perturbation.name if request_state.instance.perturbation else ""
+        if request_state.instance.input.original_text is not None and perturbation_name in [
+            "translate",
+            "dialect",
+            "mild_mix",
+        ]:
+            prompt = request_state.instance.input.original_text
 
         # Send the critique request
         template: CritiqueTaskTemplate = self._get_critique_template(adapter_spec.model)
@@ -242,7 +257,7 @@ class ImageCritiqueMetric(Metric):
 
         return CritiqueTaskTemplate(
             # name=f"{self._study_title},{model_name}",
-            name="vhelm_image_critique",
+            name="vhelm_image_critique",  # TODO: describe set of question types? -Tony
             instructions="<p>Please answer the questions below about the following image and description.</p>"
             '<br><img src="data:image;base64,{{image}}"><br><p>Description: <b>{{prompt}}</b></p><br>',
             num_respondents=self._num_respondents,

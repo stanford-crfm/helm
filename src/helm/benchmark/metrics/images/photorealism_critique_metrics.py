@@ -31,9 +31,10 @@ class PhotorealismCritiqueMetric(Metric):
         "Real photo": 5,
     }
 
-    def __init__(self, num_examples: int, num_respondents: int) -> None:
+    def __init__(self, num_examples: int, num_respondents: int, use_perturbed: bool = False) -> None:
         self._num_examples: int = num_examples
         self._num_respondents: int = num_respondents
+        self._use_perturbed: bool = use_perturbed
 
     def __repr__(self) -> str:
         return "PhotorealismCritiqueMetric()"
@@ -45,7 +46,14 @@ class PhotorealismCritiqueMetric(Metric):
         eval_cache_path: str,
         parallelism: int,
     ) -> MetricResult:
-        request_states: List[RequestState] = scenario_state.request_states
+        request_states: List[RequestState] = []
+        if self._use_perturbed:
+            for request_state in scenario_state.request_states:
+                if request_state.instance.perturbation is not None:
+                    request_states.append(request_state)
+        else:
+            request_states = scenario_state.request_states
+
         np.random.seed(0)
         if self._num_examples < len(request_states):
             request_states = list(
