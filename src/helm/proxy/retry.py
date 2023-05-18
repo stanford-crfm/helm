@@ -62,7 +62,6 @@ def get_retry_decorator(
         # Used to calculate the wait between retries (2^r * wait_exponential_multiplier_seconds seconds)
         wait_exponential_multiplier=wait_exponential_multiplier_seconds * 1000,
         retry_on_exception=print_exception_and_traceback,
-        wrap_exception=True,
     )
 
     return lambda f: lambda *args, **kwargs: _retrying.call(f, *args, **kwargs)
