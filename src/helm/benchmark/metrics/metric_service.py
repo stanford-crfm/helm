@@ -15,6 +15,9 @@ class MetricService(TokenizerService):
     def __init__(self, service: Service, auth: Authentication):
         super().__init__(service, auth)
 
+    def is_toxicity_scoring_available(self) -> bool:
+        return self._service.is_toxicity_scoring_available()
+
     def get_toxicity_scores(self, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         return self._service.get_toxicity_scores(self._auth, request)
 
