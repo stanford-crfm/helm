@@ -56,6 +56,13 @@ class AnthropicWindowService(GPT2WindowService):
         return 9016
 
     @property
+    def max_generated_max_tokens(self) -> int:
+        """
+        Return the max generated max tokens of the Anthropic model.
+        """
+        return 8192
+
+    @property
     def max_request_length(self) -> int:
         """
         Return the max request length of the Anthropic model.
