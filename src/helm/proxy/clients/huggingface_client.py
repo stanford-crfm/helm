@@ -148,16 +148,16 @@ class HuggingFaceClient(Client):
         if not model_config:
             # Other HuggingFace hub models that we'll look up for you even if you didn't enable them via the flag
             if model == "EleutherAI/gpt-j-6B":
-                model_config = HuggingFaceModelConfig.from_string("EleutherAI/gpt-j-6B")
+                model_config = HuggingFaceHubModelConfig.from_string("EleutherAI/gpt-j-6B")
             elif model == "huggingface/gpt2":
-                model_config = HuggingFaceModelConfig.from_string("gpt2")
+                model_config = HuggingFaceHubModelConfig.from_string("gpt2")
             elif model == "bigcode/santacoder":
                 self.model_server_instances[model] = HuggingFaceServer(
-                    HuggingFaceModelConfig.from_string("bigcode/santacoder")
+                    HuggingFaceHubModelConfig.from_string("bigcode/santacoder")
                 )
             elif model == "huggingface/starcoder":
                 self.model_server_instances[model] = HuggingFaceServer(
-                    HuggingFaceModelConfig.from_string("bigcode/starcoder")
+                    HuggingFaceHubModelConfig.from_string("bigcode/starcoder")
                 )
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")
