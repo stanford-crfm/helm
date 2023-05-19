@@ -6,7 +6,7 @@ from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
-from helm.proxy.clients.huggingface_model_registry import register_huggingface_model_config
+from helm.proxy.clients.huggingface_model_registry import register_huggingface_hub_model_config, register_huggingface_local_model_config
 from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
@@ -250,9 +250,9 @@ def main():
     validate_args(args)
 
     for huggingface_model_name in args.enable_huggingface_models:
-        register_huggingface_model_config(huggingface_model_name)
+        register_huggingface_hub_model_config(huggingface_model_name)
     for huggingface_model_path in args.enable_local_huggingface_models:
-        register_huggingface_model_config(huggingface_model_path, local=True)
+        register_huggingface_local_model_config(huggingface_model_path)
 
     if args.server_url and args.enable_remote_models:
         check_and_register_remote_model(args.server_url, args.enable_remote_models)

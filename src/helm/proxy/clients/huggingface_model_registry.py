@@ -137,7 +137,7 @@ _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {
 }
 
 
-def register_huggingface_model_config(model_name: str) -> HuggingFaceHubModelConfig:
+def register_huggingface_hub_model_config(model_name: str) -> HuggingFaceHubModelConfig:
     """Register a AutoModelForCausalLM model from Hugging Face Model Hub for later use.
 
     model_name format: namespace/model_name[@revision]"""
@@ -169,7 +169,7 @@ def register_huggingface_local_model_config(path: str) -> HuggingFaceLocalModelC
     """Register a AutoModelForCausalLM model from a local directory for later use.
 
     path: a path to your HF model"""
-    config = HuggingFaceLocalModelConfig.from_path(model_name)
+    config = HuggingFaceLocalModelConfig.from_path(path)
     if config.model_id in _huggingface_model_registry:
         raise ValueError(f"A Hugging Face model is already registered for model_id {model_name}")
     _huggingface_model_registry[config.model_id] = config
