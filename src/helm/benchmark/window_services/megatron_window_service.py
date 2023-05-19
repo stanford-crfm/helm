@@ -8,6 +8,3 @@ class MegatronWindowService(GPT2WindowService):
     def max_request_length(self) -> int:
         """Return the max request length of GPT-2."""
         return self.max_sequence_length
-
-    # TODO #1558: Add max_sequence_and_generated_tokens_length.
-    # See #1531 for more details.

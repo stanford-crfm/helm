@@ -57,6 +57,7 @@ class PerspectiveAPIClient:
 
         # Google API client
         self.client: Optional[discovery.Resource] = None
+        self._tried_initializing: bool = False
 
         # Cache requests and responses from Perspective API
         self.cache = Cache(cache_config)
@@ -65,21 +66,40 @@ class PerspectiveAPIClient:
         self.request_lock: Optional[threading.RLock] = threading.RLock()
         # self.request_lock = None  # TODO: temporary hack to get multiprocessing to work for now
 
+    def _initialize_client(self):
+        """Initialize the client."""
+        if self._tried_initializing:
+            return
+        self._tried_initializing = True  # Cache the result in order to avoid trying to initialize again
+        self.client = discovery.build(
+            "commentanalyzer",
+            "v1alpha1",
+            developerKey=self.api_key,
+            discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
+            static_discovery=False,
+        )
+
     def _get_or_initialize_client(self) -> discovery.Resource:
         if not self.client:
             try:
-                self.client = discovery.build(
-                    "commentanalyzer",
-                    "v1alpha1",
-                    developerKey=self.api_key,
-                    discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
-                    static_discovery=False,
-                )
+                self._initialize_client()
             except (HttpError, KeyError) as e:
                 raise PerspectiveAPIClientError(
                     f"An error occurred while authenticating and instantiating a client: {e}"
                 )
         return self.client
+
+    def is_toxicity_scoring_available(self) -> bool:
+        if self.api_key == "":  # Default empty key
+            return False
+        elif self.client is not None:  # Already initialized
+            return True
+        # We night have never tried initializing the client, so try it now
+        try:
+            self._initialize_client()
+            return self.client is not None
+        except Exception:
+            return False
 
     def get_toxicity_scores(self, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """

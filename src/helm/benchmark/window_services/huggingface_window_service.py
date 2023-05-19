@@ -11,12 +11,12 @@ class HuggingFaceWindowService(LocalWindowService):
         tokenizer = HuggingFaceTokenizers.get_tokenizer(self._tokenizer_name)
         self._prefix_token = tokenizer.bos_token
         self._end_of_text_token = tokenizer.eos_token
-        self._max_request_length = tokenizer.model_max_length
+        self._max_sequence_length = tokenizer.model_max_length
 
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length of this tokenizer."""
-        return self._max_request_length
+        return self._max_sequence_length
 
     @property
     def max_request_length(self) -> int:

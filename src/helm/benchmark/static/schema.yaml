@@ -221,6 +221,13 @@ models:
     access: open
     num_parameters: 20000000000
     release_date: 2022-02-02
+  - name: together/pythia-7b
+    display_name: Pythia (7B)
+    description: Pythia (7B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization: EleutherAI
+    access: open
+    num_parameters: 6444163072
+    release_date: 2023-02-13
 
   # Google
   - name: together/t5-11b
@@ -346,6 +353,33 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-13
+
+  # Meta
+  - name: together/llama-7b
+    display_name: LLaMA (7B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-02-24
+
+  # Stanford
+  - name: together/alpaca-7b
+    display_name: Alpaca (7B)
+    description: Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following demonstrations
+    creator_organization: Stanford
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-13
+
+  # LMSYS
+  - name: together/vicuna-13b
+    display_name: Vicuna (13B)
+    description: Vicuna-13B is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
+    creator_organization: LMSYS
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-03-30
 
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
@@ -494,6 +528,22 @@ models:
     num_parameters: 20000000000
     release_date: 2023-03-08
     todo: true
+  - name: together/redpajama-incite-base-3b-v1
+    display_name: RedPajama-INCITE-Base-v1 (3B)
+    description: RedPajama-INCITE-Base-v1 (3B parameters) is a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+
+  # MosaicML
+  - name: together/mpt-7b
+    display_name: MPT (7B)
+    description: MPT-7B is a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
 
   # Salesforce
   - name: together/codegen

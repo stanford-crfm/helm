@@ -1,7 +1,6 @@
-import os
 import re
 import subprocess
-from typing import Dict, Set, Union
+from typing import Mapping, Set, Union
 
 from simple_slurm import Slurm
 
@@ -46,26 +45,10 @@ FAILURE_SLURM_JOB_STATES: Set[str] = set(
 TERMINAL_SLURM_JOB_STATES: Set[str] = set([SlurmJobState.COMPLETED]) | FAILURE_SLURM_JOB_STATES
 """Slurm job terminal states."""
 
-# TODO: Make default Slurm arguments configurable.
-# TODO: Request more memory for MSMARCO runs and request GPUs for CUDA runs.
-_DEFAULT_SLURM_ARGS: Dict[str, Union[str, int]] = {
-    "account": "nlp",
-    "cpus_per_task": 2,
-    "mem": "8G",
-    "gres": "gpu:0",
-    "open_mode": "append",
-    "partition": "john",
-    "time": "14-0",
-    "mail_type": "END",
-}
 
-
-def submit_slurm_job(command: str, job_name: str, output_path: str) -> int:
+def submit_slurm_job(command: str, slurm_args: Mapping[str, Union[str, int]]) -> int:
     """Submit a Slurm job."""
-    slurm = Slurm(**_DEFAULT_SLURM_ARGS)
-    slurm.add_arguments(job_name=job_name, output=output_path, chdir=os.getcwd())
-    # Uncomment this to get notification emails from Slurm for Slurm worker jobs.
-    # slurm.set_mail_user(os.getenv("USER"))
+    slurm = Slurm(**slurm_args)
     return slurm.sbatch(command)
 
 

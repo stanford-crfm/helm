@@ -279,7 +279,9 @@ def main():
         hlog("There were no RunSpecs or they got filtered out.")
         return
 
-    auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
+    auth: Authentication = (
+        Authentication("") if args.skip_instances or not args.server_url else create_authentication(args)
+    )
 
     run_benchmarking(
         run_specs=run_specs,
