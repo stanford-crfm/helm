@@ -201,6 +201,7 @@ class ImageCritiqueMetric(Metric):
 
     def _get_critique_template(self, model_name: str) -> CritiqueTaskTemplate:
         hlog(f"Generating critique template for model: {model_name}")
+        task_name: str = "vhelm_image_critique"
         questions: List[CritiqueQuestionTemplate] = []
 
         if self._include_alignment:
@@ -221,6 +222,7 @@ class ImageCritiqueMetric(Metric):
                     options=list(self.ORIGINALITY_ANSWER_TO_SCORE.keys()),
                 )
             )
+            task_name += "_originality"
         if self._include_subject:
             questions.append(
                 CritiqueQuestionTemplate(
@@ -231,6 +233,7 @@ class ImageCritiqueMetric(Metric):
                     options=list(self.SUBJECT_ANSWER_TO_SCORE.keys()),
                 )
             )
+            task_name += "_subject"
         if self._include_aesthetics:
             questions.append(
                 CritiqueQuestionTemplate(
@@ -240,6 +243,7 @@ class ImageCritiqueMetric(Metric):
                     options=list(self.AESTHETICS_ANSWER_TO_SCORE.keys()),
                 ),
             )
+            task_name += "_aesthetics"
         if self._include_copyright:
             questions.append(
                 CritiqueQuestionTemplate(
@@ -259,8 +263,7 @@ class ImageCritiqueMetric(Metric):
             )
 
         return CritiqueTaskTemplate(
-            # name=f"{self._study_title},{model_name}",
-            name="vhelm_image_critique",  # TODO: describe set of question types? -Tony
+            name=task_name,
             instructions="<p>Please answer the questions below about the following image and description.</p>"
             '<br><img src="data:image;base64,{{image}}"><br><p>Description: <b>{{prompt}}</b></p><br>',
             num_respondents=self._num_respondents,
