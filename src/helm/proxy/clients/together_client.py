@@ -138,6 +138,10 @@ class TogetherClient(Client):
                         f"Together job did not finish in {TogetherClient.RETRIEVE_JOB_MAX_WAIT_SECONDS} seconds: "
                         f"{job_id}"
                     )
+                if "output" not in retrieve_response_json:
+                    raise TogetherClientError(
+                        f"Could not get output from Together job {job_id}: {retrieve_response_json}"
+                    )
                 return retrieve_response_json["output"]
 
             def do_it_async() -> Dict[Any, Any]:
@@ -156,6 +160,8 @@ class TogetherClient(Client):
                         f"Together request failed with {response.status_code}: {response.text}"
                     ) from e
                 result = response.json()
+                if "output" not in result:
+                    raise TogetherClientError(f"Could not get output from Together response: {result}")
                 return result["output"]
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
