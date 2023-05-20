@@ -45,7 +45,7 @@ Each output sub-directory will contain several JSON files that were generated du
 - `per_instance_stats.json` contains a serialized list of `PerInstanceStats`, which contains the statistics produced for the metrics for each instance (i.e. input).
 - `stats.json` contains a serialized list of `PerInstanceStats`, which contains the statistics produced for the metrics, aggregated across all instances (i.e. inputs).
 
-`helm-run` provides additional arguments that can be used to filter out `--models-to-run`, `--groups-to-run` and `--priority`. It can be convenient to create a large `run_specs.conf` file containing every run spec description of interest, and then use these flags to filter down the RunSpecs to actually run. As an example, the main `run_specs.conf` file used for the HELM benchmarking paper can be found [here](https://github.com/stanford-crfm/helm/blob/main/src/benchmark/presentation/run_specs.conf).
+`helm-run` provides additional arguments that can be used to filter out `--models-to-run`, `--groups-to-run` and `--priority`. It can be convenient to create a large `run_specs.conf` file containing every run spec description of interest, and then use these flags to filter down the RunSpecs to actually run. As an example, the main `run_specs.conf` file used for the HELM benchmarking paper can be found [here](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_specs.conf).
 
 ## Using `helm-summarize`
 
