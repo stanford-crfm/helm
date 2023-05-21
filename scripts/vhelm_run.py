@@ -103,9 +103,7 @@ def queue_jobs(
 
             nlp_run_args: str = DEFAULT_NLP_RUN_GPU_ARGS
 
-            if model.engine in ["dalle-2", "search-stable-diffusion-1.5"]:
-                nlp_run_args = DEFAULT_NLP_RUN_CPU_ARGS
-            elif machine is not None:
+            if machine is not None:
                 nlp_run_args += f" -m {machine}"
 
                 if "sphinx" in machine:

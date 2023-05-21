@@ -39,12 +39,21 @@ efficient model that outperforms current state-of-the-art models, achieving a ze
 COCO dataset. Our work underscores the potential of larger UNet architectures in the first stage of cascaded
 diffusion models and depicts a promising future for text-to-image synthesis.
 
-Dependencies:
-diffusers[torch]~=0.16.1
+conda activate deepfloyd
+
+Minimum set of dependencies:
 accelerate~=0.19.0
-transformers~=4.29.2
+dacite~=1.6.0
+diffusers[torch]~=0.16.1
+pyhocon~=0.3.59
+pymongo~=4.2.0
+retrying~=1.3.3
 safetensors~=0.3.1
 sentencepiece~=0.1.97
+sqlitedict~=1.7.0
+tqdm~=4.64.1
+transformers~=4.29.2
+zstandard~=0.18.0
 
 Example usage (after a dryrun with run suite deepfloyd):
 
@@ -64,30 +73,26 @@ class DeepFloyd:
 
     @staticmethod
     def initialize_model(stage1_model_name: str, stage2_model_name: str):
-        start_time: float = time.time()
+        with htrack_block(f"Initializing the three stages of the IF model: {stage1_model_name}"):
+            # stage 1
+            stage_1 = DiffusionPipeline.from_pretrained(stage1_model_name, torch_dtype=torch.float16)
+            stage_1.enable_model_cpu_offload()
 
-        # stage 1
-        stage_1 = DiffusionPipeline.from_pretrained(stage1_model_name, torch_dtype=torch.float16)
-        stage_1.enable_model_cpu_offload()
+            # stage 2
+            stage_2 = DiffusionPipeline.from_pretrained(stage2_model_name, text_encoder=None, torch_dtype=torch.float16)
+            stage_2.enable_model_cpu_offload()
 
-        # stage 2
-        stage_2 = DiffusionPipeline.from_pretrained(stage2_model_name, text_encoder=None, torch_dtype=torch.float16)
-        stage_2.enable_model_cpu_offload()
-
-        # stage 3
-        safety_modules = {
-            "feature_extractor": stage_1.feature_extractor,
-            "safety_checker": stage_1.safety_checker,
-            "watermarker": stage_1.watermarker,
-        }
-        stage_3 = DiffusionPipeline.from_pretrained(
-            "stabilityai/stable-diffusion-x4-upscaler", **safety_modules, torch_dtype=torch.float16
-        )
-        stage_3.enable_model_cpu_offload()
-        initialization_time: float = time.time() - start_time
-        print(f"Initialization time: {initialization_time:.2f} seconds")
-
-        return stage_1, stage_2, stage_3
+            # stage 3
+            safety_modules = {
+                "feature_extractor": stage_1.feature_extractor,
+                "safety_checker": stage_1.safety_checker,
+                "watermarker": stage_1.watermarker,
+            }
+            stage_3 = DiffusionPipeline.from_pretrained(
+                "stabilityai/stable-diffusion-x4-upscaler", **safety_modules, torch_dtype=torch.float16
+            )
+            stage_3.enable_model_cpu_offload()
+            return stage_1, stage_2, stage_3
 
     def __init__(self, model_name: str, file_cache_path: str, key_value_cache_config: KeyValueStoreCacheConfig):
         stage1_model, stage2_model = self.MODEL_NAME_TO_MODELS[model_name]
@@ -166,7 +171,7 @@ class DeepFloyd:
                         current_model_engine: str = model_name.split("/")[-1]
 
                         if current_model_engine == self._model_engine:
-                            hlog(f"Not generating requests for {current_model_engine}.")
+                            hlog(f"Not running inference for {current_model_engine}.")
                             continue
 
                         for request_state in tqdm(scenario_state["request_states"]):
@@ -199,6 +204,7 @@ if __name__ == "__main__":
         hlog(f"Initialized MongoDB cache with URI: {args.mongo_uri}")
         cache_config = MongoCacheConfig(args.mongo_uri, args.organization)
     elif args.cache_dir:
+        hlog(f"WARNING: Initialized SQLite cache at path: {args.cache_dir}. Are you debugging??")
         cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{ORGANIZATION}.sqlite"))
     else:
         raise ValueError("Either --cache-dir or --mongo-uri should be specified")
