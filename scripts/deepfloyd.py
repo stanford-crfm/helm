@@ -10,17 +10,17 @@ import time
 from diffusers import DiffusionPipeline
 import torch
 
-from helm.common.cache import (
+from src.helm.common.cache import (
     KeyValueStore,
     KeyValueStoreCacheConfig,
     MongoCacheConfig,
     SqliteCacheConfig,
     create_key_value_store,
 )
-from helm.common.request import Request
-from helm.common.file_caches.local_file_cache import LocalFileCache
-from helm.common.hierarchical_logger import hlog, htrack_block
-from helm.proxy.clients.deep_floyd_client import DeepFloydClient
+from src.helm.common.request import Request
+from src.helm.common.file_caches.local_file_cache import LocalFileCache
+from src.helm.common.hierarchical_logger import hlog, htrack_block
+from src.helm.proxy.clients.deep_floyd_client import DeepFloydClient
 
 
 """
