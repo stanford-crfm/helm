@@ -202,7 +202,7 @@ if __name__ == "__main__":
     cache_config: KeyValueStoreCacheConfig
     if args.mongo_uri:
         hlog(f"Initialized MongoDB cache with URI: {args.mongo_uri}")
-        cache_config = MongoCacheConfig(args.mongo_uri, args.organization)
+        cache_config = MongoCacheConfig(args.mongo_uri, ORGANIZATION)
     elif args.cache_dir:
         hlog(f"WARNING: Initialized SQLite cache at path: {args.cache_dir}. Are you debugging??")
         cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{ORGANIZATION}.sqlite"))
