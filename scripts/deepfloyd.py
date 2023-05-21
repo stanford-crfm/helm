@@ -179,7 +179,7 @@ class DeepFloyd:
                             counts["cached_count" if cached else "inference_count"] += 1
 
         hlog(
-            f"Processed{counts['inference_count']} requests. "
+            f"Processed {counts['inference_count']} requests. "
             f"{counts['cached_count']} requests already had entries in the cache."
         )
 
