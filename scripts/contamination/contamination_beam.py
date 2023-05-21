@@ -66,9 +66,10 @@ class ComputeContaminationStatsFn(beam.CombineFn):
 
     def merge_accumulators(self, accumulators: Iterable[AllContaminationStats]) -> AllContaminationStats:
         assert accumulators
-        merged_accumulator = accumulators[0]
-        for accumulator in accumulators[1:]:
-            for contamination_stats_key, contamination_stats in accumulator:
+        accumulators_iter = iter(accumulators)
+        merged_accumulator = next(accumulators_iter)
+        for accumulator in accumulators_iter:
+            for contamination_stats_key, contamination_stats in accumulator.items():
                 merged_accumulator[contamination_stats_key].merge(contamination_stats)
         return merged_accumulator
 
