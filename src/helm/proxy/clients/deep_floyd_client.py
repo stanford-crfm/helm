@@ -40,7 +40,7 @@ class DeepFloydClient(Client):
         if not isinstance(request, TextToImageRequest):
             raise ValueError(f"Wrong type of request: {request}")
 
-        if request.model_engine in self.SUPPORTED_MODELS:
+        if request.model_engine not in self.SUPPORTED_MODELS:
             raise ValueError(f"Unsupported model: {request.model_engine}")
 
         raw_request = DeepFloydClient.convert_to_raw_request(request)
