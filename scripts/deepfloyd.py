@@ -195,10 +195,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     cache_config: KeyValueStoreCacheConfig
-    if args.cache_dir:
-        cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{ORGANIZATION}.sqlite"))
-    elif args.mongo_uri:
+    if args.mongo_uri:
+        hlog(f"Initialized MongoDB cache with URI: {args.mongo_uri}")
         cache_config = MongoCacheConfig(args.mongo_uri, args.organization)
+    elif args.cache_dir:
+        cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{ORGANIZATION}.sqlite"))
     else:
         raise ValueError("Either --cache-dir or --mongo-uri should be specified")
 
