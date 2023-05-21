@@ -170,7 +170,7 @@ class DeepFloyd:
                         model_name: str = scenario_state["adapter_spec"]["model"]
                         current_model_engine: str = model_name.split("/")[-1]
 
-                        if current_model_engine == self._model_engine:
+                        if current_model_engine != self._model_engine:
                             hlog(f"Not running inference for {current_model_engine}.")
                             continue
 
