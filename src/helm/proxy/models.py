@@ -932,6 +932,33 @@ ALL_MODELS = [
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
+        group="deepfloyd_if",
+        creator_organization="DeepFloyd",
+        name="DeepFloyd/IF-I-M-v1.0",
+        display_name="DeepFloyd IF (medium)",
+        description="DeepFloyd IF is a novel state-of-the-art open-source text-to-image model "
+        "with a high degree of photorealism and language understanding.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="deepfloyd_if",
+        creator_organization="DeepFloyd",
+        name="DeepFloyd/IF-I-L-v1.0",
+        display_name="DeepFloyd IF (large)",
+        description="DeepFloyd IF is a novel state-of-the-art open-source text-to-image model "
+        "with a high degree of photorealism and language understanding.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="deepfloyd_if",
+        creator_organization="DeepFloyd",
+        name="DeepFloyd/IF-I-XL-v1.0",
+        display_name="DeepFloyd IF (XL)",
+        description="DeepFloyd IF is a novel state-of-the-art open-source text-to-image model "
+        "with a high degree of photorealism and language understanding.",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
         group="mindall-e",
         creator_organization="kakaobrain",
         name="kakaobrain/mindall-e",

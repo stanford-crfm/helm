@@ -46,6 +46,8 @@ from .dalle_mini_client import DALLEMiniClient
 from .cogview2_client import CogView2Client
 from .huggingface_diffusers_client import HuggingFaceDiffusersClient
 from .together_vision_client import TogetherVisionClient
+from .adobe_vision_client import AdobeVisionClient
+from .deep_floyd_client import DeepFloydClient
 from .lexica_client import LexicaClient
 
 
@@ -170,6 +172,10 @@ class AutoClient(Client):
                     client = TogetherClient(cache_config, api_key=together_api_key)
             elif organization == "lexica":
                 client = LexicaClient(cache_config, file_cache)
+            elif organization == "adobe":
+                client = AdobeVisionClient(cache_config)
+            elif organization == "DeepFloyd":
+                client = DeepFloydClient(cache_config)
             elif organization == "kakaobrain":
                 client = MinDALLEClient(cache_config, file_cache)
             elif organization == "craiyon":
