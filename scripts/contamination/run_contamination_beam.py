@@ -1,7 +1,7 @@
 import json
 import apache_beam as beam
 
-from typing import Callable, Dict, List
+from typing import Callable, List
 
 from helm.benchmark.contamination.contamination_parser import create_parser
 from contamination_beam import ComputeAndWriteContaminationStats
