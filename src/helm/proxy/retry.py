@@ -25,6 +25,10 @@ Example usage:
 print_lock: threading.Lock = threading.Lock()
 
 
+class NonRetriableException(Exception):
+    pass
+
+
 def get_retry_decorator(
     operation: str, max_attempts: int, wait_exponential_multiplier_seconds: int, retry_on_result: Callable
 ) -> Callable:
@@ -52,8 +56,7 @@ def get_retry_decorator(
         with print_lock:
             hlog("")
             hlog("".join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
-        # TODO: Should not retry on keyboard interrupt. (right now it is inconsistent)
-        return not isinstance(exception, KeyboardInterrupt)
+        return not isinstance(exception, KeyboardInterrupt) and not isinstance(exception, NonRetriableException)
 
     _retrying = Retrying(
         retry_on_result=retry_on_result,
@@ -80,5 +83,5 @@ def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResu
 
 
 retry_request: Callable = get_retry_decorator(
-    "Request", max_attempts=8, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
+    "Request", max_attempts=2, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
 )

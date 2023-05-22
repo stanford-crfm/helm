@@ -7,12 +7,14 @@ from googleapiclient import discovery
 from googleapiclient.errors import BatchError, HttpError
 from googleapiclient.http import BatchHttpRequest
 from httplib2 import HttpLib2Error
+from helm.proxy.retry import NonRetriableException
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.perspective_api_request import ToxicityAttributes, PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from google.auth.exceptions import DefaultCredentialsError
 
 
-class PerspectiveAPIClientError(Exception):
+class PerspectiveAPIClientCredentialsError(NonRetriableException):
     pass
 
 
@@ -55,58 +57,42 @@ class PerspectiveAPIClient:
         # API key obtained from GCP that works with PerspectiveAPI
         self.api_key = api_key
 
-        # Google API client
-        self.client: Optional[discovery.Resource] = None
-        self._tried_initializing: bool = False
-
         # Cache requests and responses from Perspective API
         self.cache = Cache(cache_config)
 
         # httplib2 is not thread-safe. Acquire this lock when sending requests to PerspectiveAPI
-        self.request_lock: Optional[threading.RLock] = threading.RLock()
-        # self.request_lock = None  # TODO: temporary hack to get multiprocessing to work for now
+        self._client_lock: threading.Lock = threading.Lock()
 
-    def _initialize_client(self):
+        # Google Perspective API client.
+        # The _client_lock must be held when creating or using the client.
+        self._client: Optional[discovery.Resource] = None
+
+    def _create_client(self) -> discovery.Resource:
         """Initialize the client."""
-        if self._tried_initializing:
-            return
-        self._tried_initializing = True  # Cache the result in order to avoid trying to initialize again
-        self.client = discovery.build(
-            "commentanalyzer",
-            "v1alpha1",
-            developerKey=self.api_key,
-            discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
-            static_discovery=False,
-        )
-
-    def _get_or_initialize_client(self) -> discovery.Resource:
-        if not self.client:
-            try:
-                self._initialize_client()
-            except (HttpError, KeyError) as e:
-                raise PerspectiveAPIClientError(
-                    f"An error occurred while authenticating and instantiating a client: {e}"
-                )
-        return self.client
-
-    def is_toxicity_scoring_available(self) -> bool:
-        if self.api_key == "":  # Default empty key
-            return False
-        elif self.client is not None:  # Already initialized
-            return True
-        # We night have never tried initializing the client, so try it now
+        if not self.api_key:
+            raise PerspectiveAPIClientCredentialsError("API key was not set in credentials.conf")
         try:
-            self._initialize_client()
-            return self.client is not None
-        except Exception:
-            return False
+            return discovery.build(
+                "commentanalyzer",
+                "v1alpha1",
+                developerKey=self.api_key,
+                discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
+                static_discovery=False,
+            )
+        except DefaultCredentialsError as e:
+            raise PerspectiveAPIClientCredentialsError(
+                f"Credentials error when creating Perspective API client: {e}"
+            ) from e
 
     def get_toxicity_scores(self, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """
         Batch several requests into a single API request and get the toxicity attributes and scores.
         For more information, see https://googleapis.github.io/google-api-python-client/docs/batch.html.
         """
-        client = self._get_or_initialize_client()
+
+        with self._client_lock:
+            if not self._client:
+                self._client = self._create_client()
 
         try:
 
@@ -119,12 +105,12 @@ class PerspectiveAPIClient:
                     text_to_response[request_id] = response
 
                 # Create a batch request. We will add a request to the batch request for each text string
-                batch_request: BatchHttpRequest = client.new_batch_http_request()
+                batch_request: BatchHttpRequest = self._client.new_batch_http_request()
 
                 # Add individual request to the batch request. Deduplicate since we use the text as request keys.
                 for text in set(request.text_batch):
                     batch_request.add(
-                        request=client.comments().analyze(
+                        request=self._client.comments().analyze(
                             body=PerspectiveAPIClient.create_request_body(
                                 text[: PerspectiveAPIClient.MAX_TEXT_LENGTH], request.attributes, request.languages
                             )
@@ -133,7 +119,7 @@ class PerspectiveAPIClient:
                         callback=callback,
                     )
 
-                with self.request_lock:
+                with self._client_lock:
                     batch_request.execute()
                 return text_to_response
 
