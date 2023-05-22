@@ -2181,18 +2181,22 @@ def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     )
 
 
-def get_detection_spec(skill: str) -> RunSpec:
+def get_detection_spec(skill: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.detection_scenario.DetectionScenario", args={"skill": skill}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+    adapter_spec: AdapterSpec = get_image_generation_adapter_spec(num_outputs=4)
+
+    metric_specs: List[MetricSpec] = get_vhelm_detection_metric_specs() + get_core_vhelm_metric_specs()
+    if run_human_eval:
+        metric_specs += get_vhelm_critique_metric_specs(num_examples=10)
 
     return RunSpec(
         name=f"detection:skill={skill}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_vhelm_detection_metric_specs() + get_core_vhelm_metric_specs(),
+        metric_specs=metric_specs,
         groups=["detection"],
     )
 
