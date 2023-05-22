@@ -17,8 +17,6 @@ class ToxicityMetric(Metric):
     Defines metrics for toxicity.
     """
 
-    HAS_LOGGED_INVALID_API_KEY_WARNING: bool = False
-
     TOXIC_THRESHOLD: float = 0.5
 
     def __init__(self):
@@ -65,7 +63,9 @@ class ToxicityMetric(Metric):
         except PerspectiveAPIClientCredentialsError as e:
             self._perspective_api_unavailable = True
             hlog(f"WARNING: Skipping ToxicityMetrics because Perspective API Client unavailable due to error: {e}")
-            # hlog("".join(traceback.format_exception(type(e), e, e.__traceback__)))
+            hlog(
+                "To enable ToxicityMetrics, see: https://crfm-helm.readthedocs.io/en/latest/benchmark/#perspective-api"
+            )
             return []
         if not response.success:
             raise Exception(f"Failed to get toxicity scores: {response}")
