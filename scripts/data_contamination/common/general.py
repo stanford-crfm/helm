@@ -3,6 +3,7 @@ from typing import Any, Dict
 from dataclasses import asdict, is_dataclass
 from common.hierarchical_logger import hlog
 
+
 def asdict_without_nones(obj: Any) -> Dict[str, Any]:
     if not is_dataclass(obj):
         raise ValueError(f"Expected dataclass, got '{obj}'")
