@@ -22,6 +22,9 @@ from helm.common.codec import from_json, to_json
 from helm.common.images_utils import encode_base64
 
 
+MAX_REQUEST_STATES_TO_DISPLAY: int = 1000
+
+
 @dataclass(frozen=True)
 class DisplayPrediction:
     """
@@ -190,7 +193,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
     predictions: List[DisplayPrediction] = []
     requests: List[DisplayRequest] = []
 
-    for request_state in scenario_state.request_states:
+    for request_state in scenario_state.request_states[:MAX_REQUEST_STATES_TO_DISPLAY]:
         assert request_state.instance.id is not None
         if request_state.result is None:
             continue
