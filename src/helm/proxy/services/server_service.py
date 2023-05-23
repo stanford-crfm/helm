@@ -7,6 +7,7 @@ from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.tokenization_request import (
     WindowServiceInfo,
@@ -21,6 +22,7 @@ from helm.proxy.accounts import Accounts, Account
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 from helm.proxy.clients.nudity_check_client import NudityCheckClient
+from helm.proxy.clients.clip_score_client import CLIPScoreClient
 from helm.proxy.example_queries import example_queries
 from helm.proxy.models import (
     ALL_MODELS,
@@ -71,6 +73,7 @@ class ServerService(Service):
         # Lazily instantiated by get_toxicity_scores()
         self.perspective_api_client: Optional[PerspectiveAPIClient] = None
         self.nudity_check_client: Optional[NudityCheckClient] = None
+        self.clip_score_client: Optional[CLIPScoreClient] = None
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(
@@ -147,6 +150,14 @@ class ServerService(Service):
         if not self.nudity_check_client:
             self.nudity_check_client = self.client.get_nudity_check_client()
         return self.nudity_check_client.check_nudity(request)
+
+    def compute_clip_score(self, auth: Authentication, request: CLIPScoreRequest) -> CLIPScoreResult:
+        """Computes CLIPScore for a given caption and image."""
+        self.accounts.authenticate(auth)
+
+        if not self.clip_score_client:
+            self.clip_score_client = self.client.get_clip_score_client()
+        return self.clip_score_client.compute_score(request)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request

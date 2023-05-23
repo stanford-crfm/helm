@@ -8,7 +8,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
-from helm.benchmark.metrics.images.clip_scorers.clip_scorer import CLIPScorer
+from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.images_utils import is_blacked_out_image
 
 
@@ -20,9 +20,6 @@ class GenderMetric(Metric):
 
     MALE_PROMPT: str = "a photo of a male"
     FEMALE_PROMPT: str = "a photo of a female"
-
-    def __init__(self):
-        self._clip_scorer = CLIPScorer()
 
     def __repr__(self):
         return "GenderMetric()"
@@ -38,7 +35,7 @@ class GenderMetric(Metric):
         request_result: RequestResult = request_state.result
 
         is_female_results: List[bool] = [
-            self._is_photo_of_female(image.file_location)
+            self._is_photo_of_female(metric_service, image.file_location)
             for image in request_result.completions
             if image.file_location is not None and not is_blacked_out_image(image.file_location)
         ]
@@ -48,7 +45,11 @@ class GenderMetric(Metric):
         ]
         return stats
 
-    def _is_photo_of_female(self, image_location: str) -> bool:
-        female_clip_score: float = self._clip_scorer.compute_score(self.FEMALE_PROMPT, image_location)
-        male_clip_score: float = self._clip_scorer.compute_score(self.MALE_PROMPT, image_location)
+    def _is_photo_of_female(self, metric_service: MetricService, image_location: str) -> bool:
+        def make_clip_score_request(prompt: str) -> float:
+            result: CLIPScoreResult = metric_service.compute_clip_score(CLIPScoreRequest(prompt, image_location))
+            return result.score
+
+        female_clip_score: float = make_clip_score_request(self.FEMALE_PROMPT)
+        male_clip_score: float = make_clip_score_request(self.MALE_PROMPT)
         return female_clip_score > male_clip_score
