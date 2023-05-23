@@ -5,6 +5,7 @@ from typing import Dict, List, Tuple, Any
 
 from helm.common.general import parse_hocon
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
+from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
@@ -115,6 +116,11 @@ class Service(ABC):
     @abstractmethod
     def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
         """Check for nudity for a batch of images."""
+        pass
+
+    @abstractmethod
+    def compute_clip_score(self, auth: Authentication, request: CLIPScoreRequest) -> CLIPScoreResult:
+        """Computes CLIPScore for a given caption and image."""
         pass
 
     @abstractmethod

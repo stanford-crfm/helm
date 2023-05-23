@@ -35,6 +35,7 @@ from .openai_client import OpenAIClient
 from .moderation_api_client import ModerationAPIClient
 from .microsoft_client import MicrosoftClient
 from .nudity_check_client import NudityCheckClient
+from .clip_score_client import CLIPScoreClient
 from .perspective_api_client import PerspectiveAPIClient
 from .palmyra_client import PalmyraClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
@@ -294,7 +295,7 @@ class AutoClient(Client):
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
+        """Decodes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
 
         @retry_request
         def decode_with_retry(client: Client, request: DecodeRequest) -> DecodeRequestResult:
@@ -313,6 +314,10 @@ class AutoClient(Client):
     def get_nudity_check_client(self) -> NudityCheckClient:
         cache_config: CacheConfig = self._build_cache_config("nudity")
         return NudityCheckClient(cache_config)
+
+    def get_clip_score_client(self) -> CLIPScoreClient:
+        cache_config: CacheConfig = self._build_cache_config("clip_score")
+        return CLIPScoreClient(cache_config)
 
     def get_toxicity_classifier_client(self) -> PerspectiveAPIClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""

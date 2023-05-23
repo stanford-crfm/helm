@@ -10,6 +10,7 @@ from helm.common.moderations_api_request import ModerationAPIRequest, Moderation
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.tokenization_request import (
     WindowServiceInfo,
     TokenizationRequest,
@@ -29,6 +30,9 @@ class RemoteServiceError(Exception):
 
 
 class RemoteService(Service):
+
+    NOT_SUPPORTED_ERROR: str = "Not supported through the remote service."
+
     def __init__(self, base_url="https://crfm-models.stanford.edu"):
         self.base_url: str = base_url
 
@@ -87,7 +91,10 @@ class RemoteService(Service):
         return from_dict(DecodeRequestResult, response)
 
     def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
-        raise NotImplementedError("Not supported through RemoteService")
+        raise NotImplementedError(self.NOT_SUPPORTED_ERROR)
+
+    def compute_clip_score(self, auth: Authentication, request: CLIPScoreRequest) -> CLIPScoreResult:
+        raise NotImplementedError(self.NOT_SUPPORTED_ERROR)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         request_json: str = json.dumps(asdict(request))

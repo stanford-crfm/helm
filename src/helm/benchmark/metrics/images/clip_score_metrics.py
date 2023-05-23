@@ -1,7 +1,8 @@
 from statistics import mean
-from typing import List, Optional
+from typing import List
 
 from helm.common.request import RequestResult
+from helm.common.clip_score_request import CLIPScoreResult, CLIPScoreRequest
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
@@ -10,9 +11,6 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.window_services.clip_window_service import CLIPWindowService
 from helm.common.images_utils import is_blacked_out_image
-from .clip_scorers.base_clip_scorer import BaseCLIPScorer
-from .clip_scorers.clip_scorer import CLIPScorer
-from .clip_scorers.multilingual_clip_scorer import MultilingualCLIPScorer
 
 
 class CLIPScoreMetric(Metric):
@@ -24,7 +22,6 @@ class CLIPScoreMetric(Metric):
 
     def __init__(self, multilingual: bool = False):
         self._multilingual: bool = multilingual
-        self._clip_scorer: Optional[BaseCLIPScorer] = None
 
     def __repr__(self):
         return f"CLIPScoreMetric(multilingual={self._multilingual})"
@@ -44,9 +41,6 @@ class CLIPScoreMetric(Metric):
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
 
-        if self._clip_scorer is None:
-            self._clip_scorer = CLIPScorer() if not self._multilingual else MultilingualCLIPScorer()
-
         prompt: str = request_state.request.prompt
         perturbation_name: str = request_state.instance.perturbation.name if request_state.instance.perturbation else ""
         if request_state.instance.input.original_text is not None and perturbation_name in [
@@ -63,8 +57,10 @@ class CLIPScoreMetric(Metric):
         scores: List[float] = []
         for image in request_result.completions:
             if image.file_location is not None and not is_blacked_out_image(image.file_location):
-                clip_score: float = self._clip_scorer.compute_score(prompt, image.file_location)
-                scores.append(clip_score)
+                result: CLIPScoreResult = metric_service.compute_clip_score(
+                    CLIPScoreRequest(prompt, image.file_location, multilingual=self._multilingual)
+                )
+                scores.append(result.score)
 
         stats: List[Stat] = [
             Stat(MetricName(get_metric_name("expected_clip_score"))).add(mean(scores) if len(scores) > 0 else 0),
