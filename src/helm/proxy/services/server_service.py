@@ -120,11 +120,6 @@ class ServerService(Service):
         self.accounts.authenticate(auth)
         return self.client.decode(request)
 
-    def is_toxicity_scoring_available(self) -> bool:
-        if not self.perspective_api_client:
-            self.perspective_api_client = self.client.get_toxicity_classifier_client()
-        return self.perspective_api_client.is_toxicity_scoring_available()
-
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request
         def get_toxicity_scores_with_retry(request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
