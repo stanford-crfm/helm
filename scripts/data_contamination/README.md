@@ -21,6 +21,8 @@ pip install -r requirements.txt
 
 ```bash
 
+This needs to be run from the data contamination directory; i.e. cd scripts/data_contamination if you are at the top level HELM folder
+
 Usage:
 
 python [compute_contamination_metrics.py OR run_contamination_beam.py] --input-data <input_data> --scenario-data <scenario_data> --output-stats <output_stats> --input-format <input_format>
