@@ -240,5 +240,5 @@ def test_style_perturbation():
 
     print(instances)
     assert len(instances) == 2
-    assert instances[1].perturbation.modifications == ["pixel art"]
+    assert instances[1].perturbation.modifications == "pixel art"
     assert instances[1].input.text == "A blue dog, pixel art"
