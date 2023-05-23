@@ -3,8 +3,7 @@ import os
 import shlex
 import subprocess
 import uuid
-import zstandard
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Callable, Dict, List, TypeVar
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from tqdm import tqdm
 
