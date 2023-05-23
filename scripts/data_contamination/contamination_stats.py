@@ -2,8 +2,8 @@ from bitarray import bitarray
 from typing import Optional, Dict, Any, Hashable
 from dataclasses import dataclass
 
-from scripts.data_contamination.light_scenario import LightScenario, LightScenarioKey
-from scripts.data_contamination.common.general import asdict_without_nones
+from light_scenario import LightScenario, LightScenarioKey
+from common.general import asdict_without_nones
 
 
 PART_INPUT: str = "input"

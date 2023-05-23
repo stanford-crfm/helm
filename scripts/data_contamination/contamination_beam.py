@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from apache_beam.utils.shared import Shared
 
 
-from scripts.data_contamination.compute_contamination_metrics import (
+from compute_contamination_metrics import (
     load_light_scenarios_from_jsonl,
     create_ngram_index,
     create_all_contamination_stats,
@@ -16,7 +16,7 @@ from scripts.data_contamination.compute_contamination_metrics import (
     AllContaminationStats,
     NgramIndex,
 )
-from scripts.data_contamination.light_tokenizer import LightTokenizer
+from light_tokenizer import LightTokenizer
 
 
 @dataclass(frozen=True)
