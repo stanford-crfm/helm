@@ -18,16 +18,17 @@ scenario2GoalPrefix = {
 file_path = "benchmark_output/runs/"
 
 
-def construct_url(task_name, trace_id, user_id):
+def construct_url(task_name, trace_id, user_id, survey):
     base_url = "http://35.202.162.13:80/dialogue/interface?"
-    # base_url = "http://localhost:5001/static/dialogue/interface.html?"
+    # base_url = "http://localhost:8000/static/dialogue/interface.html?"
     base_url = base_url + "run_name=" + task_name  # Add parameters from task
     base_url = base_url + "&interaction_trace_id=" + trace_id  # Add trace_id
-    final_url = base_url + "&user_id=" + str(user_id) 
+    base_url = base_url + "&user_id=" + str(user_id) 
+    final_url = base_url + "&survey=" + survey # Add survey
     return final_url
 
 
-def write_csv(in_fname, out_fname):
+def write_csv(in_fname, out_fname, survey):
     """
     In benchmark output
     Open scenario_state.json
@@ -59,7 +60,7 @@ def write_csv(in_fname, out_fname):
             goal = scenario2GoalPrefix[scenario] + trace["instance"]["input"]
             trace_id = trace["_id"]
             user_id = uuid.uuid4()
-            url = construct_url(in_fname, trace_id, user_id)
+            url = construct_url(in_fname, trace_id, user_id, survey)
             print(url) # Display in terminal for easy testing
             writer.writerow([goal, instructions, url])
     return
@@ -69,8 +70,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dir_name", type=str, help="Directory where scenario_state.json is located")
     parser.add_argument("-o", "--out_fname", type=str, default="mturk_out_file.csv", help="File to write output to")
+    parser.add_argument("-s", "--survey", type=str, default="crfm-all", help="which survey to use")
     args = parser.parse_args()
-    write_csv(args.dir_name, args.out_fname)
+    write_csv(args.dir_name, args.out_fname, args.survey)
     return
 
 
