@@ -2205,7 +2205,7 @@ def get_draw_bench_spec(category: str, run_human_eval: bool = False) -> RunSpec:
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     group: str
-    if category in ["Colors", "DALL-E", "Text", "Rare"]:
+    if category in ["Colors", "Text", "Rare"]:
         group = "image_quality"
     elif category == "Reddit":
         group = "knowledge"
