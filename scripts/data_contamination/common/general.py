@@ -11,7 +11,7 @@ from tqdm import tqdm
 import pyhocon
 from dataclasses import asdict, is_dataclass
 
-from common.hierarchical_logger import hlog, htrack, htrack_block
+from common.hierarchical_logger import hlog, htrack_block
 
 
 def singleton(items: List):
