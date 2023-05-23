@@ -4,7 +4,7 @@ import argparse
 
 from typing import Callable, List
 
-from contamination_beam import ComputeAndWriteContaminationStats
+from scripts.data_contamination.contamination_beam import ComputeAndWriteContaminationStats
 
 
 def get_extract_text_function(input_format: str):

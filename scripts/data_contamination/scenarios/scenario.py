@@ -1,4 +1,4 @@
-from common.object_spec import ObjectSpec
+from scripts.data_contamination.common.object_spec import ObjectSpec
 
 
 class ScenarioSpec(ObjectSpec):
