@@ -167,4 +167,3 @@ def get_file_name(path: str) -> str:
     Get the file name from a path (e.g., /path/to/image.png => image.png).
     """
     return os.path.split(path)[-1]
-

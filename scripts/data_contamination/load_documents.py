@@ -23,6 +23,7 @@ def get_document_iterator(file_path: str, file_format: str) -> Iterator[str]:
     else:
         raise NotImplementedError()
 
+
 def get_hh_document_iterator(file_path: str) -> Iterator[str]:
     """
     This method reads input files with similar file formats with Anthropic/hh-rlhh jsonl format.
@@ -38,7 +39,6 @@ def get_hh_document_iterator(file_path: str) -> Iterator[str]:
             yield json.loads(line)["rejected"]
 
 
-
 def get_natural_document_iterator(file_path: str) -> Iterator[str]:
     """
     This method reads input files with similar file formats with natural instructions json format.
@@ -46,14 +46,14 @@ def get_natural_document_iterator(file_path: str) -> Iterator[str]:
     """
     with open(file_path) as f:
         json_dict = json.load(f)
-        for example in json_dict['Positive Examples']:
-            yield example['input']
-            yield example['output']
-            yield example['explanation']
-        for example in json_dict['Negative Examples']:
-            yield example['input']
-            yield example['output']
-            yield example['explanation']
+        for example in json_dict["Positive Examples"]:
+            yield example["input"]
+            yield example["output"]
+            yield example["explanation"]
+        for example in json_dict["Negative Examples"]:
+            yield example["input"]
+            yield example["output"]
+            yield example["explanation"]
 
 
 def get_root_document_iterator(file_path: str) -> Iterator[str]:
@@ -70,7 +70,6 @@ def get_root_document_iterator(file_path: str) -> Iterator[str]:
             yield row[1].tolist()[0]
 
 
-
 def get_xp3_document_iterator(file_path: str) -> Iterator[str]:
     """
     This method reads input files with similar file formats with xp3's jsonl format.
@@ -82,9 +81,8 @@ def get_xp3_document_iterator(file_path: str) -> Iterator[str]:
     with open(file_path, "r") as f:
         for line in f:
             json_dict = json.loads(line)
-            yield json_dict['inputs']
-            yield json_dict['targets']
-
+            yield json_dict["inputs"]
+            yield json_dict["targets"]
 
 
 def get_flan_document_iterator(file_path: str) -> Iterator[str]:
@@ -100,9 +98,9 @@ def get_flan_document_iterator(file_path: str) -> Iterator[str]:
     with open(file_path, "r") as f:
         for line in f:
             json_dict = json.loads(line)
-            for sample in json_dict['sample']:
-                yield sample['input']
-                yield sample['output']
+            for sample in json_dict["sample"]:
+                yield sample["input"]
+                yield sample["output"]
 
 
 def get_the_pile_document_iterator(file_path: str) -> Iterator[str]:
