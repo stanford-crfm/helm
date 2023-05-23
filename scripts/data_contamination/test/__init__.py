@@ -1,3 +1,3 @@
 import sys
 
-sys.path.append(".")
+sys.path.append("./scripts/data_contamination")
