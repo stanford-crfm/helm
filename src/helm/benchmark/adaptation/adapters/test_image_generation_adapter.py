@@ -12,26 +12,7 @@ class TestImageGenerationAdapter(TestAdapter):
         adapter_spec = TextToImageAdapterSpec(
             model=self.MODEL,
             method=ADAPT_GENERATION,
-            modifications=["8K", "photorealistic"],
         )
-        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        eval_instance = Instance(Input(text="a blue dog"), references=[])
-        prompt: Prompt = adapter.construct_prompt([], eval_instance, include_output=False, reference_index=None)
-
-        assert adapter.window_service.fits_within_context_window(prompt.text)
-        assert prompt.text == "a blue dog, 8K, photorealistic"
-
-    def test_construct_prompt_no_medium(self):
-        adapter_spec = TextToImageAdapterSpec(model=self.MODEL, method=ADAPT_GENERATION, modifications=["8K"])
-        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        eval_instance = Instance(Input(text="a blue dog"), references=[])
-        prompt: Prompt = adapter.construct_prompt([], eval_instance, include_output=False, reference_index=None)
-
-        assert adapter.window_service.fits_within_context_window(prompt.text)
-        assert prompt.text == "a blue dog, 8K"
-
-    def test_construct_prompt_no_modifications(self):
-        adapter_spec = TextToImageAdapterSpec(model=self.MODEL, method=ADAPT_GENERATION)
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         eval_instance = Instance(Input(text="a blue dog"), references=[])
         prompt: Prompt = adapter.construct_prompt([], eval_instance, include_output=False, reference_index=None)

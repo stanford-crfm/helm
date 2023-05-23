@@ -12,7 +12,7 @@ class ImageGenerationAdapter(GenerationAdapter):
     """
     For image generation, the text-to-image model will generate the output for prompt:
 
-        a <medium> of <input>, <modifications[0]>, <modifications[1]>,..., <modifications[n]>
+        <input>
     """
 
     def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
@@ -47,7 +47,4 @@ class ImageGenerationAdapter(GenerationAdapter):
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Returns a single example of the text-to-image prompt"""
         assert isinstance(self.adapter_spec, TextToImageAdapterSpec)
-        modifications: str = (
-            "" if len(self.adapter_spec.modifications) == 0 else f", {', '.join(self.adapter_spec.modifications)}"
-        )
-        return instance.input.text + modifications
+        return instance.input.text

@@ -20,7 +20,7 @@ from helm.proxy.models import (
     TEXT_TO_IMAGE_MODEL_TAG,
 )
 from .runner import RunSpec
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution, TextToImageAdapterSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 
@@ -163,35 +163,6 @@ class PromptRunExpander(RunExpander):
             adapter_spec = replace(adapter_spec, input_prefix="Input: ", output_prefix="Output: ")
         elif self.value == "i_o":
             adapter_spec = replace(adapter_spec, input_prefix="I: ", output_prefix="O: ")
-        elif self.value == "lexica":
-            assert isinstance(adapter_spec, TextToImageAdapterSpec)
-            adapter_spec = replace(
-                adapter_spec,
-                modifications=[
-                    "hyperrealistic",
-                    "intricate",
-                    "detailed",
-                    "8K",
-                    "high resolution",
-                    "trending on artstation",
-                ],
-            )
-        elif self.value == "better_image_quality":
-            assert isinstance(adapter_spec, TextToImageAdapterSpec)
-            # Use the top descriptors from "Underlying Elements of Image Quality Assessment: Preference andTerminology
-            # for Communicating Image Quality Characteristics" (https://psycnet.apa.org/fulltext/2020-24398-001.pdf)
-            adapter_spec = replace(
-                adapter_spec,
-                modifications=[
-                    "sharp",
-                    "natural",
-                    "bright",
-                    "good colors",
-                ],
-            )
-        elif self.value in ["oil_painting", "watercolor", "pencil_sketch", "animation", "vector_graphics", "pixel_art"]:
-            assert isinstance(adapter_spec, TextToImageAdapterSpec)
-            adapter_spec = replace(adapter_spec, modifications=[self.value.replace("_", " ")])
         else:
             raise Exception(f"Unknown value: {self.value}")
         return [
@@ -360,6 +331,7 @@ class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
     values_dict = {
         "vhelm_default": [100],
         "vhelm_fid": [30_000],
+        "vhelm_art_styles": [17],
     }
 
 

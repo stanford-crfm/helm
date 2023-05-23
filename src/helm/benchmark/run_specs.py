@@ -359,7 +359,6 @@ def get_summarization_adapter_spec(num_sents: Optional[int], max_train_instances
 
 def get_image_generation_adapter_spec(
     num_outputs: int = 1,
-    modifications: Optional[List[str]] = None,
     image_width: Optional[int] = None,
     image_height: Optional[int] = None,
     guidance_scale: Optional[float] = None,
@@ -375,7 +374,6 @@ def get_image_generation_adapter_spec(
         max_train_instances=0,
         num_outputs=num_outputs,
         max_tokens=0,
-        modifications=[] if modifications is None else modifications,
         width=image_width,
         height=image_height,
         guidance_scale=guidance_scale,
@@ -2124,9 +2122,7 @@ def get_cub200_spec(run_human_eval: bool = False) -> RunSpec:
 
     metric_specs: List[MetricSpec] = get_vhelm_reference_required_metric_specs() + get_core_vhelm_metric_specs()
     if run_human_eval:
-        metric_specs += get_vhelm_critique_metric_specs(
-            include_aesthetics=True, include_subject=True, include_copyright=False, num_examples=10
-        )
+        metric_specs += get_vhelm_critique_metric_specs(include_aesthetics=True, include_subject=True, num_examples=10)
 
     return RunSpec(
         name="cub200",
@@ -2226,7 +2222,7 @@ def get_draw_bench_spec(category: str, run_human_eval: bool = False) -> RunSpec:
             metric_specs += get_vhelm_critique_metric_specs(num_examples=34)
         elif category in ["Colors", "Text", "Rare"]:
             metric_specs += get_vhelm_critique_metric_specs(
-                include_aesthetics=True, include_subject=True, include_copyright=False, num_examples=10
+                include_aesthetics=True, include_subject=True, num_examples=10
             )
         else:
             metric_specs += get_vhelm_critique_metric_specs(num_examples=10)
@@ -2376,8 +2372,6 @@ def get_mscoco_spec(
                 num_examples=num_human_examples,
                 include_aesthetics=True,
                 include_subject=not skip_subject,
-                include_originality=False,
-                include_copyright=False,
                 use_perturbed=use_perturbed,
             )
             if not skip_photorealism:
