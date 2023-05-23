@@ -572,6 +572,13 @@ def translate(language_code: str) -> PerturbationSpec:
     )
 
 
+def style(modifications: List[str]) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.style_perturbation.StylePerturbation",
+        args={"modifications": modifications},
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -739,6 +746,17 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "chinese": {"chinese": [translate(language_code="zh-CN")]},
     "hindi": {"hindi": [translate(language_code="hi")]},
     "spanish": {"spanish": [translate(language_code="es")]},
+    # Styles
+    "art": {
+        "art": [
+            style(modifications=["oil painting"]),
+            style(modifications=["watercolor"]),
+            style(modifications=["pencil sketch"]),
+            style(modifications=["animation"]),
+            style(modifications=["vector graphics"]),
+            style(modifications=["pixel art"]),
+        ]
+    },
 }
 
 

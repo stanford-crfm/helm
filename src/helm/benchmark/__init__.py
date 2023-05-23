@@ -133,3 +133,4 @@ from .augmentations.dialect_perturbation import DialectPerturbation  # noqa
 from .augmentations.person_name_perturbation import PersonNamePerturbation  # noqa
 from .augmentations.gender_perturbation import GenderPerturbation  # noqa
 from .augmentations.translate_perturbation import TranslatePerturbation  # noqa
+from .augmentations.style_perturbation import StylePerturbation  # noqa
