@@ -269,9 +269,9 @@ class ScaleCritiqueClient(CritiqueClient):
                         f"Project {template.name} already exists with different instructions: "
                         f"{project.params['instructions']}"
                     ) from err
-                elif project.type != TaskType.TextCollection:
+                elif project.type != TaskType.TextCollection.value:
                     raise RuntimeError(
-                        f"Project {template.name} already exists with different task_type: {project.type}"
+                        f"Project {template.name} already exists with different task_type: '{project.type}' instead of '{TaskType.TextCollection.value}'"
                     ) from err
             return {"name": project.name}
 
@@ -329,13 +329,13 @@ class ScaleCritiqueClient(CritiqueClient):
             instructions: str = self._interpolate_fields(template.instructions, fields)
             payload = dict(
                 project=project_name,
-                instruction=instructions,
                 unique_id=unique_id,
+                instruction="The instructions are described in the attachments.",
                 attachment_type="text",
                 attachments=[
                     {
                         "type": "text",
-                        "content": "The content is in the project instructions",
+                        "content": instructions,
                     }
                 ],
                 response_required=template.num_respondents,
