@@ -329,7 +329,7 @@ class ScaleCritiqueClient(CritiqueClient):
             instructions: str = self._interpolate_fields(template.instructions, fields)
             payload = dict(
                 project=project_name,
-                unique_id=unique_id,
+                # unique_id=unique_id,
                 instruction="The instructions are described in the attachments.",
                 attachment_type="text",
                 attachments=[
@@ -371,11 +371,54 @@ class ScaleCritiqueClient(CritiqueClient):
 
     def _get_worker_responses(self, task_id: str) -> List[CritiqueResponse]:
         task: scaleapi.tasks.Task = self.client.get_task(task_id)
-        if task.status != TaskStatus.Completed:
-            return None
+        if task.status != TaskStatus.Completed.value:
+            return []
         else:
-            # TODO: Figure out what goes into task.response
-            return task.response
+            annotations: Dict[List[str, str]] = task.response["annotations"]
+
+            # The format of annotations is:
+            # {
+            #   "category_field_1": [
+            #      answer_1_respondent_1,
+            #      answer_1_respondent_2,
+            #      ...
+            #   ]
+            # ...
+            # }
+            # We want to convert it to:
+            # [
+            #   {
+            #     "id": "respondent_1",
+            #     "answers": {
+            #       "category_field_1": answer_1_respondent_1
+            #       "category_field_2": answer_2_respondent_1
+            #       ...
+            #     }
+            #   },
+            #   {
+            #     "id": "respondent_2",
+            #     "answers": {
+            #       "category_field_1": answer_1_respondent_2
+            #       "category_field_2": answer_2_respondent_2
+            #       ...
+            #     }
+            #   },
+            #   ...
+            # ]
+
+            # First, we get the list of respondents
+            num_respondents: int = len(annotations[list(annotations.keys())[0]])
+
+            # Then, we create the list of responses
+            responses: List[CritiqueResponse] = []
+            for respondent_index in range(num_respondents):
+                answers: Dict[str, Union[str, List[str]]] = {}
+                for field_name, field_answers in annotations.items():
+                    answers[field_name] = field_answers[respondent_index]
+                responses.append(
+                    CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
+                )
+            return responses
 
     def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
         """
