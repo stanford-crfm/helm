@@ -3,9 +3,15 @@ import random
 import threading
 from typing import Dict, List, Union
 
+# Surge AI
 from cattrs import unstructure
 import surge
 from surge import questions as surge_questions
+
+# Scale
+import scaleapi
+from scaleapi.tasks import TaskType, TaskStatus
+from scaleapi.exceptions import ScaleDuplicateResource
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.cache import Cache, CacheConfig
@@ -17,9 +23,11 @@ from helm.common.critique_request import (
     CritiqueResponse,
     QuestionType,
 )
+from executing.executing import assert_linenos
 
 
 _surge_cache_lock = threading.Lock()
+_scale_cache_lock = threading.Lock()
 
 
 class CritiqueClient(ABC):
@@ -208,4 +216,185 @@ class SurgeAICritiqueClient(CritiqueClient):
         project_id = self._get_or_create_surge_project(request.template)
         task_id = self._get_or_create_task(project_id, request.fields)
         worker_responses = self._get_worker_responses(task_id, request.template.questions)
+        return CritiqueRequestResult(worker_responses)
+
+
+class ScaleCritiqueClient(CritiqueClient):
+    """A CritiqueClient that creates tasks for workers on Scale.
+
+    Scale concepts:
+
+    - A **project** contains **tasks** and an **instruction**.
+    - A **task** is created in a project and contains **fields** that are interpolated into the
+      placeholders in the project's instructions and questions templates to instantiate the actual instructions
+      and questions in the task.
+    - A **task response** is a response to a task by a single worker and contains answers to all the questions
+      in the task.
+
+    Mapping of HELM concepts to Surge AI concepts:
+
+    - A `CritiqueTaskTemplate` maps to a **project**.
+    - A `CritiqueQuestionTemplate` maps to a **question** template in a project.
+    - A `CritiqueRequest` maps to a **task**
+        - `CritiqueRequest.template` indicates which **project** the task should be created in.
+        - `CritiqueRequest.fields` provides the fields that are interpolated into the placeholders in the
+          projects' instructions and questions templates.
+    - A `CritiqueResponse` maps to a **task response**.
+    - A `CritiqueRequestResult` maps to a list of **task responses** across multiple workers for a task.
+    """
+
+    def __init__(self, api_key: str, cache_config: CacheConfig, api_key: str):
+        surge.api_key = api_key
+        self._cache = Cache(cache_config)
+        self.client = scaleapi.ScaleClient(api_key)
+
+    def _get_or_create_scale_project(self, template: CritiqueTaskTemplate) -> str:
+        """Get or create a project on Scale and return the Scale project name.
+
+        Attempt to find a Scale project for the template. If one exists, reuse that project.
+        Otherwise, create a new project using the template. Return the Scale project name."""
+
+        def create_scale_project():
+            project = self.client.create_project(
+                project_name=template.name,
+                task_type=TaskType.TextCollection,
+                params={
+                    "instructions": template.instructions,
+                },
+            )
+            return {"name": project.name}
+
+        with _scale_cache_lock:
+            # Example cache key:
+            # {
+            #   "template": {
+            #     # See CritiqueQuestionTemplate for complete schema
+            #     "name": "some_name",
+            #     "instructions": "some_instructions",
+            #     "num_respondents": 1,
+            #     "questions": []
+            #   }
+            # }
+            #
+            # Example cache value:
+            # {"name": "some_name"}
+            project_response, is_cached = self._cache.get({"template": unstructure(template)}, create_scale_project)
+        project_name = project_response["name"]
+        if is_cached:
+            hlog(f"Reusing existing Scale project: {project_name}")
+        else:
+            hlog(f"Creating new Scale project: {project_name}")
+        return project_name
+
+    def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
+        for field_name, field_value in fields.items():
+            text = text.replace(f"{{{field_name}}}", field_value)
+        return text
+
+    def get_or_create_scale_task(
+        self, project_name: str, question: CritiqueQuestionTemplate, num_respondents: str, fields: Dict[str, str]
+    ) -> str:
+        """Get or create a task on Scale and return the Scale task ID."""
+
+        def create_scale_task() -> Dict[str, str]:
+            """
+            Creates a Scale Task (which is one single question from a CritiqueQuestionTemplate)
+            Returns the Scale Task ID.
+            """
+            payload: Dict[str, str] = {}
+            if question.question_type == "multiple_choice" or question.question_type == "checkbox":
+                payload = dict(
+                    project=project_name,
+                    instruction=self._interpolate_fields(question.text, fields),
+                    attachment_type="text",
+                    response_required=num_respondents,
+                    fields=[
+                        {
+                            "type": "category",
+                            "field_id": "category_field",
+                            "choices": [{"label": option, "value": option} for option in question.options],
+                        }
+                    ],
+                )
+            else:
+                raise ValueError(f"Unsupported question type {question.question_type}")
+
+            try:
+                task = self.client.create_task(TaskType.TextCollection, **payload)
+                return {"id": task.id}
+            except ScaleDuplicateResource as err:
+                hlog(f"Scale Error: {err.message}")  # If unique_id is already used for a different task
+
+        with _scale_cache_lock:
+            task_response, is_cached = self._cache.get(
+                {"project": project_name, "question": unstructure(question), "fields": fields}, create_scale_task
+            )
+        task_id: str = task_response["id"]
+        if is_cached:
+            hlog(f"Reusing existing Scale task: {task_id}")
+        else:
+            hlog(f"Creating new Scale task: {task_id}")
+        return task_id
+
+    def _get_or_create_scale_tasks_from_task_template(
+        self, project_name: str, template: CritiqueTaskTemplate, fields: Dict[str, str]
+    ) -> List[str]:
+        """
+        Get or create a task on Scale all the tasks for a CritiqueTaskTemplate.
+        Returns the Scale Task IDs.
+        """
+        task_ids: List[str] = []
+        for question in template.questions:
+            task_id: str = self.get_or_create_scale_task(project_name, question, template.num_respondents, fields)
+            task_ids.append(task_id)
+        return task_ids
+
+    def _get_worker_response_single_task(self, task_id: str):
+        task: scaleapi.tasks.Task = self.client.get_task(task_id)
+        if task.status != TaskStatus.Completed:
+            return None
+        else:
+            # TODO: Figure out what goes into task.response
+            return task.response
+
+    def _get_worker_responses(
+        self, project_name: str, questions: List[CritiqueQuestionTemplate], task_ids: List[str]
+    ) -> List[CritiqueResponse]:
+        assert len(task_ids) == len(questions), "Number of tasks must be equal to number of questions"
+
+        responses = []
+        for task_id in task_ids:
+            response = self._get_worker_response_single_task(task_id)
+            responses.append(response)
+        return responses
+
+    def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
+        """Create a task on Surge AI and fetch responses from Surge AI if available.
+
+        Returns CritiqueRequestResult if worker answers are complete, or None otherwise.
+        The intended use is to call it once to create the task, wait a while, and then call it
+        later to fetch answers.
+
+        First, attempt to find a Surge AI project for the template. If one exists, reuse that project.
+        Otherwise, create a new project using the template.
+
+        Second, attempt to find a Surge AI task inside this project for the fields. If one exists,
+        reuse that task. Otherwise, create a new task inside the project using the fields.
+
+        Finally, check if responses are available by checking if the number of workers who have responded
+        is equal to the requested number of workers. If so, return those responses.
+
+        This method is idempotent, because projects and tasks are not created if they already exist.
+
+        The cache will store the mappings from template to Surge AI Project ID and from fields to Surge AI
+        question ID. If the cache is deleted, the mappings will be lost, and this method will not be able
+        to fetch results from the previous projects and tasks, and will have to create new projects and tasks.
+        Note that worker responses are currently not cached."""
+        project_name: str = self._get_or_create_scale_project(request.template)
+        task_ids: List[str] = self._get_or_create_scale_tasks_from_task_template(
+            project_name, request.template, request.fields
+        )
+        worker_responses: List[CritiqueResponse] = self._get_worker_responses(
+            project_name, request.template.questions, task_ids
+        )
         return CritiqueRequestResult(worker_responses)
