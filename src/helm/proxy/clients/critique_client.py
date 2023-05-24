@@ -221,7 +221,22 @@ class SurgeAICritiqueClient(CritiqueClient):
 class ScaleCritiqueClient(CritiqueClient):
     """A CritiqueClient that creates tasks for workers on Scale.
 
-    TODO
+    Scale AI concepts:
+
+    - A **project** contains **tasks** which can be in **batches** (not used here)
+    - A **task** is created in a project. It represents an individual unit of work to be done by a Tasker
+      It contains **attachments** which is the data to be annotated, and **fields** which are the
+        instructions and questions to be displayed to the Tasker. A task has also a general **instruction**
+        which is displayed before the fields.
+    - A **task response**: TODO
+
+    Mapping of HELM concepts to Scale AI concepts:
+
+    - A `CritiqueRequest` maps to a **task**
+        - `CritiqueRequest.template` indicates which **project** the task should be created in.
+    - A `CritiqueTaskTemplate` maps to a **task**
+    - A `CritiqueQuestionTemplate` maps to a **field** in a task.
+    - A `CritiqueResponse` maps to TODO
     """
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
@@ -235,30 +250,43 @@ class ScaleCritiqueClient(CritiqueClient):
         Otherwise, create a new project using the template. Return the Scale project name."""
 
         def create_scale_project():
-            project = self.client.create_project(
-                project_name=template.name,
-                task_type=TaskType.TextCollection,
-                params={
-                    "instructions": template.instructions,
-                },
-            )
+            try:
+                project = self.client.create_project(
+                    project_name=template.name,
+                    task_type=TaskType.TextCollection,
+                    params={
+                        "instructions": template.instructions,
+                    },
+                )
+            except ScaleDuplicateResource as err:
+                hlog(f"ScaleDuplicateResource when creating project: {template.name}. Error: {err.message}")
+                # Get the existing project and checks that it has the same instructions
+                # NOTE: This should not happen with the cache but in case the cache is deleted
+                # we want to make sure we don't create a new project with the same name
+                project = self.client.get_project(template.name)
+                if project.params["instructions"] != template.instructions:
+                    raise RuntimeError(
+                        f"Project {template.name} already exists with different instructions: "
+                        f"{project.params['instructions']}"
+                    ) from err
+                elif project.type != TaskType.TextCollection:
+                    raise RuntimeError(
+                        f"Project {template.name} already exists with different task_type: {project.type}"
+                    ) from err
             return {"name": project.name}
 
         with _scale_cache_lock:
             # Example cache key:
             # {
-            #   "template": {
-            #     # See CritiqueQuestionTemplate for complete schema
-            #     "name": "some_name",
-            #     "instructions": "some_instructions",
-            #     "num_respondents": 1,
-            #     "questions": []
-            #   }
+            #   "name": "some_name",
+            #   "instructions": "some_instructions"
             # }
             #
             # Example cache value:
             # {"name": "some_name"}
-            project_response, is_cached = self._cache.get({"template": unstructure(template)}, create_scale_project)
+            project_response, is_cached = self._cache.get(
+                {"name": template.name, "instructions": template.instructions}, create_scale_project
+            )
         project_name = project_response["name"]
         if is_cached:
             hlog(f"Reusing existing Scale project: {project_name}")
@@ -293,12 +321,16 @@ class ScaleCritiqueClient(CritiqueClient):
             Creates a Scale Task (which is one single question from a CritiqueQuestionTemplate)
             Returns the Scale Task ID.
             """
-            from toolbox.printing import sdebug
 
-            sdebug(template)
+            # We create a unique_id for the task so that we can reuse it if it already exists
+            # It contains the same information as the task itself (like the cache key)
+            # This is redundant with the cache but it's a good safety net
+            unique_id: str = str({"project": project_name, "task": unstructure(template), "fields": fields})
+            instructions: str = self._interpolate_fields(template.instructions, fields)
             payload = dict(
                 project=project_name,
-                instruction=self._interpolate_fields(template.instructions, fields),
+                instruction=instructions,
+                unique_id=unique_id,
                 attachment_type="text",
                 attachments=[
                     {
@@ -314,7 +346,17 @@ class ScaleCritiqueClient(CritiqueClient):
                 task = self.client.create_task(TaskType.TextCollection, **payload)
                 return {"id": task.id}
             except ScaleDuplicateResource as err:
-                hlog(f"Scale Error: {err.message}")  # If unique_id is already used for a different task
+                hlog(f"ScaleDuplicateResource when creating task: {unique_id}. Error: {err.message}")
+                # Get the existing task and checks that it has the same content (attachments and fields)
+                # NOTE: This should not happen with the cache but in case the cache is deleted
+                # we want to make sure we don't create a new task with the same content
+                task = self.client.get_task(unique_id)
+                if task.params["attachments"] != payload["attachments"]:
+                    raise RuntimeError(
+                        f"Task {unique_id} already exists with different attachments: " f"{task.params['attachments']}"
+                    ) from err
+                # No need to check for fields, project_name and instructions because they are part of the unique_id
+                return {"id": task.id}
 
         with _scale_cache_lock:
             task_response, is_cached = self._cache.get(
@@ -337,11 +379,29 @@ class ScaleCritiqueClient(CritiqueClient):
 
     def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
         """
-        TODO
-        """
-        from toolbox.printing import sdebug
+        Create a task on Scale AI and fetch responses from Scale AI if available.
 
-        sdebug(request)
+        Returns CritiqueRequestResult if worker answers are complete, or None otherwise.
+        The intended use is to call it once to create the task, wait a while, and then call it
+        later to fetch answers.
+
+        First, attempt to find a Scale AI project for the template. If one exists, reuse that project.
+        Otherwise, create a new project using the template.
+
+        Second, attempt to find a Scale AI task inside this project for the fields. If one exists,
+        reuse that task. Otherwise, create a new task inside the project using the fields.
+
+        Finally, check if responses are available by checking if the number of workers who have responded
+        is equal to the requested number of workers. If so, return those responses.
+
+        This method is idempotent, because projects and tasks are not created if they already exist.
+
+        The cache will store the mappings from template to Scale AI Project ID and from questions to Scale AI
+        task ID. If the cache is deleted, the mappings should be conserved on Scale AI side and the API calls
+        should return a ScaleDuplicateResource error which is handled by the method. We still prefer to use
+        the cache to avoid unnecessary API calls and to not depend on Scale AI side.
+        Note that worker responses are currently not cached.
+        """
         project_name: str = self._get_or_create_scale_project(request.template)
         task_id: str = self._get_or_create_scale_task(project_name, request.template, request.fields)
         worker_responses: List[CritiqueResponse] = self._get_worker_responses(task_id)
