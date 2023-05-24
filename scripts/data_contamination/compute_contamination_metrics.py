@@ -175,9 +175,7 @@ def compute_scenario_file_contamination(
     The outer dict maps from n to the inner dict, which maps from ngram to count.
     """
     document_iterator = get_document_iterator(file_path=training_file_path, file_format=file_format)
-    document_index: int = 0
     for document in document_iterator:
-        document_index += 1
         compute_scenario_document_contamination(
             document=document,
             ngram_index=ngram_index,
