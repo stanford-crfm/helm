@@ -221,25 +221,7 @@ class SurgeAICritiqueClient(CritiqueClient):
 class ScaleCritiqueClient(CritiqueClient):
     """A CritiqueClient that creates tasks for workers on Scale.
 
-    Scale concepts:
-
-    - A **project** contains **tasks** and an **instruction**.
-    - A **task** is created in a project and contains **fields** that are interpolated into the
-      placeholders in the project's instructions and questions templates to instantiate the actual instructions
-      and questions in the task.
-    - A **task response** is a response to a task by a single worker and contains answers to all the questions
-      in the task.
-
-    Mapping of HELM concepts to Surge AI concepts:
-
-    - A `CritiqueTaskTemplate` maps to a **project**.
-    - A `CritiqueQuestionTemplate` maps to a **question** template in a project.
-    - A `CritiqueRequest` maps to a **task**
-        - `CritiqueRequest.template` indicates which **project** the task should be created in.
-        - `CritiqueRequest.fields` provides the fields that are interpolated into the placeholders in the
-          projects' instructions and questions templates.
-    - A `CritiqueResponse` maps to a **task response**.
-    - A `CritiqueRequestResult` maps to a list of **task responses** across multiple workers for a task.
+    TODO
     """
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
@@ -289,8 +271,20 @@ class ScaleCritiqueClient(CritiqueClient):
             text = text.replace(f"{{{field_name}}}", field_value)
         return text
 
-    def get_or_create_scale_task(
-        self, project_name: str, question: CritiqueQuestionTemplate, num_respondents: str, fields: Dict[str, str]
+    def _critique_question_to_scale_field(self, question: CritiqueQuestionTemplate, fields: Dict[str, str]):
+        if question.question_type == "multiple_choice" or question.question_type == "checkbox":
+            return {
+                "type": "category",
+                "field_id": question.name,  # This must be unique, so we use the question name
+                "title": question.name,
+                "description": self._interpolate_fields(question.text, fields),
+                "choices": [{"label": option, "value": option} for option in question.options],
+            }
+        else:
+            raise ValueError(f"Unsupported question type {question.question_type}")
+
+    def _get_or_create_scale_task(
+        self, project_name: str, template: CritiqueTaskTemplate, fields: Dict[str, str]
     ) -> str:
         """Get or create a task on Scale and return the Scale task ID."""
 
@@ -299,32 +293,22 @@ class ScaleCritiqueClient(CritiqueClient):
             Creates a Scale Task (which is one single question from a CritiqueQuestionTemplate)
             Returns the Scale Task ID.
             """
-            payload: Dict[str, str] = {}
-            if question.question_type == "multiple_choice" or question.question_type == "checkbox":
-                from toolbox.printing import sdebug
+            from toolbox.printing import sdebug
 
-                sdebug(question)
-                payload = dict(
-                    project=project_name,
-                    instruction=self._interpolate_fields(question.text, fields),
-                    attachment_type="text",
-                    attachments=[
-                        {
-                            "type": "text",
-                            "content": "The content is in the project instructions",
-                        }
-                    ],
-                    response_required=num_respondents,
-                    fields=[
-                        {
-                            "type": "category",
-                            "field_id": "category_field",
-                            "choices": [{"label": option, "value": option} for option in question.options],
-                        }
-                    ],
-                )
-            else:
-                raise ValueError(f"Unsupported question type {question.question_type}")
+            sdebug(template)
+            payload = dict(
+                project=project_name,
+                instruction=self._interpolate_fields(template.instructions, fields),
+                attachment_type="text",
+                attachments=[
+                    {
+                        "type": "text",
+                        "content": "The content is in the project instructions",
+                    }
+                ],
+                response_required=template.num_respondents,
+                fields=[self._critique_question_to_scale_field(question, fields) for question in template.questions],
+            )
 
             try:
                 task = self.client.create_task(TaskType.TextCollection, **payload)
@@ -334,7 +318,7 @@ class ScaleCritiqueClient(CritiqueClient):
 
         with _scale_cache_lock:
             task_response, is_cached = self._cache.get(
-                {"project": project_name, "question": unstructure(question), "fields": fields}, create_scale_task
+                {"project": project_name, "task": unstructure(template), "fields": fields}, create_scale_task
             )
         task_id: str = task_response["id"]
         if is_cached:
@@ -343,20 +327,7 @@ class ScaleCritiqueClient(CritiqueClient):
             hlog(f"Creating new Scale task: {task_id}")
         return task_id
 
-    def _get_or_create_scale_tasks_from_task_template(
-        self, project_name: str, template: CritiqueTaskTemplate, fields: Dict[str, str]
-    ) -> List[str]:
-        """
-        Get or create a task on Scale all the tasks for a CritiqueTaskTemplate.
-        Returns the Scale Task IDs.
-        """
-        task_ids: List[str] = []
-        for question in template.questions:
-            task_id: str = self.get_or_create_scale_task(project_name, question, template.num_respondents, fields)
-            task_ids.append(task_id)
-        return task_ids
-
-    def _get_worker_response_single_task(self, task_id: str):
+    def _get_worker_responses(self, task_id: str) -> List[CritiqueResponse]:
         task: scaleapi.tasks.Task = self.client.get_task(task_id)
         if task.status != TaskStatus.Completed:
             return None
@@ -364,47 +335,14 @@ class ScaleCritiqueClient(CritiqueClient):
             # TODO: Figure out what goes into task.response
             return task.response
 
-    def _get_worker_responses(
-        self, project_name: str, questions: List[CritiqueQuestionTemplate], task_ids: List[str]
-    ) -> List[CritiqueResponse]:
-        assert len(task_ids) == len(questions), "Number of tasks must be equal to number of questions"
-
-        responses = []
-        for task_id in task_ids:
-            response = self._get_worker_response_single_task(task_id)
-            responses.append(response)
-        return responses
-
     def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
-        """Create a task on Surge AI and fetch responses from Surge AI if available.
-
-        Returns CritiqueRequestResult if worker answers are complete, or None otherwise.
-        The intended use is to call it once to create the task, wait a while, and then call it
-        later to fetch answers.
-
-        First, attempt to find a Surge AI project for the template. If one exists, reuse that project.
-        Otherwise, create a new project using the template.
-
-        Second, attempt to find a Surge AI task inside this project for the fields. If one exists,
-        reuse that task. Otherwise, create a new task inside the project using the fields.
-
-        Finally, check if responses are available by checking if the number of workers who have responded
-        is equal to the requested number of workers. If so, return those responses.
-
-        This method is idempotent, because projects and tasks are not created if they already exist.
-
-        The cache will store the mappings from template to Surge AI Project ID and from fields to Surge AI
-        question ID. If the cache is deleted, the mappings will be lost, and this method will not be able
-        to fetch results from the previous projects and tasks, and will have to create new projects and tasks.
-        Note that worker responses are currently not cached."""
+        """
+        TODO
+        """
         from toolbox.printing import sdebug
 
         sdebug(request)
         project_name: str = self._get_or_create_scale_project(request.template)
-        task_ids: List[str] = self._get_or_create_scale_tasks_from_task_template(
-            project_name, request.template, request.fields
-        )
-        worker_responses: List[CritiqueResponse] = self._get_worker_responses(
-            project_name, request.template.questions, task_ids
-        )
+        task_id: str = self._get_or_create_scale_task(project_name, request.template, request.fields)
+        worker_responses: List[CritiqueResponse] = self._get_worker_responses(task_id)
         return CritiqueRequestResult(worker_responses)
