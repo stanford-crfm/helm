@@ -23,7 +23,6 @@ from helm.common.critique_request import (
     CritiqueResponse,
     QuestionType,
 )
-from executing.executing import assert_linenos
 
 
 _surge_cache_lock = threading.Lock()
@@ -243,8 +242,7 @@ class ScaleCritiqueClient(CritiqueClient):
     - A `CritiqueRequestResult` maps to a list of **task responses** across multiple workers for a task.
     """
 
-    def __init__(self, api_key: str, cache_config: CacheConfig, api_key: str):
-        surge.api_key = api_key
+    def __init__(self, api_key: str, cache_config: CacheConfig):
         self._cache = Cache(cache_config)
         self.client = scaleapi.ScaleClient(api_key)
 
@@ -303,10 +301,19 @@ class ScaleCritiqueClient(CritiqueClient):
             """
             payload: Dict[str, str] = {}
             if question.question_type == "multiple_choice" or question.question_type == "checkbox":
+                from toolbox.printing import sdebug
+
+                sdebug(question)
                 payload = dict(
                     project=project_name,
                     instruction=self._interpolate_fields(question.text, fields),
                     attachment_type="text",
+                    attachments=[
+                        {
+                            "type": "text",
+                            "content": "The content is in the project instructions",
+                        }
+                    ],
                     response_required=num_respondents,
                     fields=[
                         {
@@ -390,6 +397,9 @@ class ScaleCritiqueClient(CritiqueClient):
         question ID. If the cache is deleted, the mappings will be lost, and this method will not be able
         to fetch results from the previous projects and tasks, and will have to create new projects and tasks.
         Note that worker responses are currently not cached."""
+        from toolbox.printing import sdebug
+
+        sdebug(request)
         project_name: str = self._get_or_create_scale_project(request.template)
         task_ids: List[str] = self._get_or_create_scale_tasks_from_task_template(
             project_name, request.template, request.fields
