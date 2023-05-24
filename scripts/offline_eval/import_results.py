@@ -70,6 +70,7 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                         images_path: str = os.path.join(os.path.dirname(request_results_path), "images")
                         assert os.path.exists(images_path), f"Images directory does not exist at {images_path}."
 
+                        request["prompt"] = str(request["prompt"])
                         request["request_type"] = "image-model-inference"
                         if store.contains(request):
                             hlog(f"Skipping request {request} because it already exists in the cache.")
