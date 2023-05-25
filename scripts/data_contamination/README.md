@@ -77,3 +77,5 @@ To create and run docker image:
 example with values:
     
     docker run  --rm -it  contamination_script:latest  --input_path="input.json" --scenario_data="scenario_data" --output_stats="output_stats" --input_format="the_pile"
+
+You'll need some way of providing access to your files for the computation, such as [bind mounts](https://docs.docker.com/storage/bind-mounts/) or [volumes](https://docs.docker.com/storage/volumes/)
