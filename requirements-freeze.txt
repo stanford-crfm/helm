@@ -161,6 +161,8 @@ tls-client==0.1.8
 tokenizers==0.13.3
 toml==0.10.2
 tomli==2.0.1
+torch==1.12.1
+torchvision==0.13.1
 tqdm==4.64.1
 transformers==4.28.1
 trio==0.22.0
