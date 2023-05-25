@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from hashlib import sha512
 import random
 import threading
 from typing import Dict, List, Union
@@ -325,11 +326,14 @@ class ScaleCritiqueClient(CritiqueClient):
             # We create a unique_id for the task so that we can reuse it if it already exists
             # It contains the same information as the task itself (like the cache key)
             # This is redundant with the cache but it's a good safety net
-            unique_id: str = str({"project": project_name, "task": unstructure(template), "fields": fields})
+            # NOTE: Technically, sha512 could have collisions but it's unlikely.
+            unique_id: str = sha512(
+                str({"project": project_name, "task": unstructure(template), "fields": fields}).encode()
+            ).hexdigest()
             instructions: str = self._interpolate_fields(template.instructions, fields)
             payload = dict(
                 project=project_name,
-                # unique_id=unique_id,
+                unique_id=unique_id,
                 instruction="The instructions are described in the attachments.",
                 attachment_type="text",
                 attachments=[
