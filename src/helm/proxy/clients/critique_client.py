@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from hashlib import sha512
+import json
 import random
 import threading
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Tuple
 
 # Surge AI
 from cattrs import unstructure
@@ -63,6 +64,7 @@ class RandomCritiqueClient(CritiqueClient):
 
 
 class SurgeAICritiqueClient(CritiqueClient):
+    # TODO #1614: Move this to its own file
     """A CritiqueClient that creates tasks for workers on Surge AI.
 
     Surge AI concepts:
@@ -220,6 +222,7 @@ class SurgeAICritiqueClient(CritiqueClient):
 
 
 class ScaleCritiqueClient(CritiqueClient):
+    # TODO #1614: Move this to its own file
     """A CritiqueClient that creates tasks for workers on Scale.
 
     Scale AI concepts:
@@ -242,40 +245,57 @@ class ScaleCritiqueClient(CritiqueClient):
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
         self._cache = Cache(cache_config)
-        self.client = scaleapi.ScaleClient(api_key)
+        self._client = scaleapi.ScaleClient(api_key)
 
-    def _get_or_create_scale_project(self, template: CritiqueTaskTemplate) -> str:
-        """Get or create a project on Scale and return the Scale project name.
+    def _get_or_create_scale_project_and_batch(self, template: CritiqueTaskTemplate) -> Tuple[str, str]:
+        """Get or create a project and a btach associated to it on Scale and return the
+        Scale project name and batch name.
+
+        This is using Scale Rapid.
 
         Attempt to find a Scale project for the template. If one exists, reuse that project.
-        Otherwise, create a new project using the template. Return the Scale project name."""
+        Otherwise, create a new project using the template. Return the Scale project name.
+        Same for the batch."""
 
-        def create_scale_project():
+        def create_scale_project_and_batch():
             try:
-                project = self.client.create_project(
+                project = self._client.create_project(
                     project_name=template.name,
                     task_type=TaskType.TextCollection,
-                    params={
-                        "instructions": template.instructions,
-                    },
+                    rapid=True,
+                    params={},
                 )
             except ScaleDuplicateResource as err:
                 hlog(f"ScaleDuplicateResource when creating project: {template.name}. Error: {err.message}")
-                # Get the existing project and checks that it has the same instructions
+                # Get the existing project and checks that it has the same params
                 # NOTE: This should not happen with the cache but in case the cache is deleted
                 # we want to make sure we don't create a new project with the same name
-                project = self.client.get_project(template.name)
-                if project.params["instructions"] != template.instructions:
-                    raise RuntimeError(
-                        f"Project {template.name} already exists with different instructions: "
-                        f"{project.params['instructions']}"
-                    ) from err
-                elif project.type != TaskType.TextCollection.value:
+                project = self._client.get_project(template.name)
+                if project.type != TaskType.TextCollection.value:
                     raise RuntimeError(
                         f"Project {template.name} already exists with different task_type: "
                         f"'{project.type}' instead of '{TaskType.TextCollection.value}'"
                     ) from err
-            return {"name": project.name}
+            try:
+                batch_name: str = f"{project.name}-HELMBatch"
+                batch = self._client.create_batch(
+                    project=project.name,
+                    batch_name=batch_name,
+                    calibration_batch=False,
+                )
+            except ScaleDuplicateResource as err:
+                hlog(
+                    f"ScaleDuplicateResource when creating batch: '{batch_name}' in project: {project.name}. Error: {err.message}"
+                )
+                # Get the existing batch and checks that it has the same project
+                # NOTE: This should not happen with the cache but in case the cache is deleted
+                # we want to make sure we don't create a new batch with the same name
+                batch = self._client.get_batch(batch_name)
+                if batch.project != project.name:
+                    raise RuntimeError(
+                        f"Batch {batch_name} already exists with different project: " f"{batch.project}"
+                    ) from err
+            return {"project_name": project.name, "batch_name": batch.name}
 
         with _scale_cache_lock:
             # Example cache key:
@@ -287,14 +307,15 @@ class ScaleCritiqueClient(CritiqueClient):
             # Example cache value:
             # {"name": "some_name"}
             project_response, is_cached = self._cache.get(
-                {"name": template.name, "instructions": template.instructions}, create_scale_project
+                {"name": template.name, "instructions": template.instructions}, create_scale_project_and_batch
             )
-        project_name = project_response["name"]
+        project_name = project_response["project_name"]
+        batch_name = project_response["batch_name"]
         if is_cached:
-            hlog(f"Reusing existing Scale project: {project_name}")
+            hlog(f"Reusing existing Scale project: {project_name} and batch: {batch_name}")
         else:
-            hlog(f"Creating new Scale project: {project_name}")
-        return project_name
+            hlog(f"Creating new Scale project: {project_name} and batch: {batch_name}")
+        return project_name, batch_name
 
     def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
         for field_name, field_value in fields.items():
@@ -309,14 +330,19 @@ class ScaleCritiqueClient(CritiqueClient):
                 "title": question.name,
                 "description": self._interpolate_fields(question.text, fields),
                 "choices": [{"label": option, "value": option} for option in question.options],
+                "min_choices": 1,
+                "max_choices": len(question.options) if question.question_type == "checkbox" else 1,
             }
         else:
             raise ValueError(f"Unsupported question type {question.question_type}")
 
     def _get_or_create_scale_task(
-        self, project_name: str, template: CritiqueTaskTemplate, fields: Dict[str, str]
+        self, project_name: str, batch_name: str, template: CritiqueTaskTemplate, fields: Dict[str, str]
     ) -> str:
         """Get or create a task on Scale and return the Scale task ID."""
+
+        # Used both for the cache key and the task unique_id
+        cache_key = {"project": project_name, "batch": batch_name, "task": unstructure(template), "fields": fields}
 
         def create_scale_task() -> Dict[str, str]:
             """
@@ -328,14 +354,13 @@ class ScaleCritiqueClient(CritiqueClient):
             # It contains the same information as the task itself (like the cache key)
             # This is redundant with the cache but it's a good safety net
             # NOTE: Technically, sha512 could have collisions but it's unlikely.
-            unique_id: str = sha512(
-                str({"project": project_name, "task": unstructure(template), "fields": fields}).encode()
-            ).hexdigest()
+            unique_id: str = sha512(str(json.dumps(cache_key, sort_keys=True)).encode()).hexdigest()
             instructions: str = self._interpolate_fields(template.instructions, fields)
             payload = dict(
                 project=project_name,
+                batch=batch_name,
                 unique_id=unique_id,
-                instruction="The instructions are described in the attachments.",
+                instruction="Evaluate the AI model generated output following the instructions below",
                 attachment_type="text",
                 attachments=[
                     {
@@ -348,14 +373,14 @@ class ScaleCritiqueClient(CritiqueClient):
             )
 
             try:
-                task = self.client.create_task(TaskType.TextCollection, **payload)
+                task = self._client.create_task(TaskType.TextCollection, **payload)
                 return {"id": task.id}
             except ScaleDuplicateResource as err:
                 hlog(f"ScaleDuplicateResource when creating task: {unique_id}. Error: {err.message}")
                 # Get the existing task and checks that it has the same content (attachments and fields)
                 # NOTE: This should not happen with the cache but in case the cache is deleted
                 # we want to make sure we don't create a new task with the same content
-                task = self.client.get_task(unique_id)
+                task = self._client.get_task(unique_id)
                 if task.params["attachments"] != payload["attachments"]:
                     raise RuntimeError(
                         f"Task {unique_id} already exists with different attachments: " f"{task.params['attachments']}"
@@ -365,7 +390,8 @@ class ScaleCritiqueClient(CritiqueClient):
 
         with _scale_cache_lock:
             task_response, is_cached = self._cache.get(
-                {"project": project_name, "task": unstructure(template), "fields": fields}, create_scale_task
+                cache_key,
+                create_scale_task,
             )
         task_id: str = task_response["id"]
         if is_cached:
@@ -374,8 +400,11 @@ class ScaleCritiqueClient(CritiqueClient):
             hlog(f"Creating new Scale task: {task_id}")
         return task_id
 
+    def _finalize_batch(self, batch_name: str):
+        self._client.finalize_batch(batch_name=batch_name)
+
     def _get_worker_responses(self, task_id: str) -> List[CritiqueResponse]:
-        task: scaleapi.tasks.Task = self.client.get_task(task_id)
+        task: scaleapi.tasks.Task = self._client.get_task(task_id)
         if task.status != TaskStatus.Completed.value:
             return []
         else:
@@ -455,7 +484,8 @@ class ScaleCritiqueClient(CritiqueClient):
         the cache to avoid unnecessary API calls and to not depend on Scale AI side.
         Note that worker responses are currently not cached.
         """
-        project_name: str = self._get_or_create_scale_project(request.template)
-        task_id: str = self._get_or_create_scale_task(project_name, request.template, request.fields)
+        project_name, batch_name = self._get_or_create_scale_project_and_batch(request.template)
+        task_id: str = self._get_or_create_scale_task(project_name, batch_name, request.template, request.fields)
         worker_responses: List[CritiqueResponse] = self._get_worker_responses(task_id)
+        self._finalize_batch(batch_name)
         return CritiqueRequestResult(worker_responses)
