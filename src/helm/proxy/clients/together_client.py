@@ -55,6 +55,12 @@ class TogetherClientError(Exception):
     pass
 
 
+class JobNotFinishedError(TogetherClientError):
+    """Exception raised when trying to get a response for a Together async job that has not finished"""
+
+    pass
+
+
 class TogetherClient(Client):
     """
     Client for the models where we evaluate offline. Since the queries are handled offline, the `TogetherClient` just
@@ -119,9 +125,18 @@ class TogetherClient(Client):
                     )
                 return job_id
 
+            def retry_if_job_not_finished(exception: Exception) -> bool:
+                return isinstance(exception, JobNotFinishedError)
+
             # Retry with a 1 second delay that doubles every retry until a maximum of delay of 15 seconds.
             # Stop retrying after 1 minute.
-            @retry(wait_exponential_multiplier=1000, wait_exponential_max=15000, stop_max_delay=60000)
+            @retry(
+                retry_on_exception=retry_if_job_not_finished,
+                wait_incrementing_start=5 * 1000,  # 5 seconds
+                wait_incrementing_increment=5 * 1000,  # 5 seconds
+                wait_incrementing_max=30 * 1000,  # 30 seconds
+                stop_max_delay=5 * 60 * 1000,  # 5 minutes
+            )
             def retrieve_job(job_id: str) -> Dict[Any, Any]:
                 job_url = self._get_job_url(job_id)
                 retrieve_response = requests.get(job_url, headers=headers)
@@ -134,10 +149,7 @@ class TogetherClient(Client):
                     ) from e
                 retrieve_response_json = retrieve_response.json()
                 if retrieve_response_json["status"] != "finished":
-                    raise TogetherClientError(
-                        f"Together job did not finish in {TogetherClient.RETRIEVE_JOB_MAX_WAIT_SECONDS} seconds: "
-                        f"{job_id}"
-                    )
+                    raise JobNotFinishedError(f"Together job not finished: {job_id}")
                 if "output" not in retrieve_response_json:
                     raise TogetherClientError(
                         f"Could not get output from Together job {job_id}: {retrieve_response_json}"
