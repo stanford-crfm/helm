@@ -272,7 +272,8 @@ class ScaleCritiqueClient(CritiqueClient):
                     ) from err
                 elif project.type != TaskType.TextCollection.value:
                     raise RuntimeError(
-                        f"Project {template.name} already exists with different task_type: '{project.type}' instead of '{TaskType.TextCollection.value}'"
+                        f"Project {template.name} already exists with different task_type: "
+                        f"'{project.type}' instead of '{TaskType.TextCollection.value}'"
                     ) from err
             return {"name": project.name}
 

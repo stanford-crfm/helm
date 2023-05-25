@@ -271,6 +271,7 @@ class AutoClient(Client):
             self.critique_client = ScaleCritiqueClient(scale_credentials, self._build_cache_config("scale"))
         else:
             raise ValueError(
-                "CritiqueClient is not configured; set critiqueType to 'mturk', 'mturk-sandbox', 'surgeai', 'scale' or 'random'"
+                "CritiqueClient is not configured; set critiqueType to 'mturk',"
+                "'mturk-sandbox', 'surgeai', 'scale' or 'random'"
             )
         return self.critique_client
