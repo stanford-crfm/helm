@@ -28,6 +28,8 @@ class AdobeVisionClient(Client):
             "prompt": request.prompt,
             "n": request.num_completions,
         }
+        if request.random is not None:
+            raw_request["random"] = request.random
         return raw_request
 
     def __init__(self, cache_config: CacheConfig):

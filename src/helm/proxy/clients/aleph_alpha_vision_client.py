@@ -35,6 +35,8 @@ class AlephAlphaVisionClient(Client):
             "width": AlephAlphaVisionClient.DEFAULT_IMAGE_WIDTH,
             "height": AlephAlphaVisionClient.DEFAULT_IMAGE_HEIGHT,
         }
+        if request.random is not None:
+            raw_request["random"] = request.random
 
         if isinstance(request, TextToImageRequest):
             if request.guidance_scale is not None:
