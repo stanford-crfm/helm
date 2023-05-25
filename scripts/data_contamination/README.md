@@ -82,15 +82,7 @@ example with values:
 You'll need some way of providing access to your files for the computation, such as [bind mounts](https://docs.docker.com/storage/bind-mounts/) or [volumes](https://docs.docker.com/storage/volumes/)
 =======
 docker build  . -t contamination_script
-docker run -e INPUT_PATH=<input_path>... SCENARIO_DATA... OUTPUT_STATS... INPUT_FORMAT --rm -it  contamination_script:latest 
-
-where defaults are set as:
-
-ENV INPUT_PATH=input.json
-ENV SCENARIO_PATH=scenario_data
-ENV OUTPUT_PATH=output_stats
-ENV INPUT_FORMAT=the_pile
-
+docker run --rm -it  contamination_script:latest 
 
 
 >>>>>>> 45730a54 (Update readme)
