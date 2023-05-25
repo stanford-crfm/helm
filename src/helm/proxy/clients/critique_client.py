@@ -282,6 +282,7 @@ class ScaleCritiqueClient(CritiqueClient):
                     project=project.name,
                     batch_name=batch_name,
                     calibration_batch=False,
+                    self_label_batch=True,
                 )
             except ScaleDuplicateResource as err:
                 hlog(
@@ -487,5 +488,5 @@ class ScaleCritiqueClient(CritiqueClient):
         project_name, batch_name = self._get_or_create_scale_project_and_batch(request.template)
         task_id: str = self._get_or_create_scale_task(project_name, batch_name, request.template, request.fields)
         worker_responses: List[CritiqueResponse] = self._get_worker_responses(task_id)
-        self._finalize_batch(batch_name)
+        # self._finalize_batch(batch_name)
         return CritiqueRequestResult(worker_responses)
