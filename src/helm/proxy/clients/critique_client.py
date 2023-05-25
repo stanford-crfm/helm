@@ -379,7 +379,7 @@ class ScaleCritiqueClient(CritiqueClient):
         if task.status != TaskStatus.Completed.value:
             return []
         else:
-            annotations: Dict[List[str, str]] = task.response["annotations"]
+            annotations: Dict[str, List[str]] = task.response["annotations"]
 
             # The format of annotations is:
             # {
@@ -387,8 +387,13 @@ class ScaleCritiqueClient(CritiqueClient):
             #      answer_1_respondent_1,
             #      answer_1_respondent_2,
             #      ...
-            #   ]
-            # ...
+            #   ],
+            #   "category_field_2": [
+            #      answer_2_respondent_1,
+            #      answer_2_respondent_2,
+            #      ...
+            #   ],
+            #   ...
             # }
             # We want to convert it to:
             # [
