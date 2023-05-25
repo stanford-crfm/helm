@@ -297,7 +297,7 @@ class ScaleCritiqueClient(CritiqueClient):
 
     def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
         for field_name, field_value in fields.items():
-            text = text.replace(f"{{{field_name}}}", field_value)
+            text = text.replace("{{" + field_name + "}}", field_value)
         return text
 
     def _critique_question_to_scale_field(self, question: CritiqueQuestionTemplate, fields: Dict[str, str]):
