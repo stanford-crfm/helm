@@ -266,9 +266,13 @@ class AutoClient(Client):
 
         elif critique_type == "scale":
             scale_credentials = self.credentials.get("scaleApiKey")
+            scale_project = self.credentials.get("scaleProject", None)
+            scale_batch = self.credentials.get("scaleBatch", None)
             if not scale_credentials:
                 raise ValueError("scaleApiKey credentials are required for ScaleCritiqueClient")
-            self.critique_client = ScaleCritiqueClient(scale_credentials, self._build_cache_config("scale"))
+            self.critique_client = ScaleCritiqueClient(
+                scale_credentials, self._build_cache_config("scale"), scale_project, scale_batch
+            )
         else:
             raise ValueError(
                 "CritiqueClient is not configured; set critiqueType to 'mturk',"
