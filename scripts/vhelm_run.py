@@ -67,7 +67,35 @@ def queue_jobs(
     dry_run: bool = False,
     use_sphinx: bool = False,
     machine: Optional[str] = None,
+    only_rerun_failed: bool = False,
 ):
+    def should_skip(log_file_path: str) -> bool:
+        """
+        Returns True if we should skip the run.
+        We skip a run if one of the following conditions are met:
+
+        1. `only_rerun_failed` is False
+        2. A log file for the run does not exist.
+        3. The run did not complete i.e., "Done." is not found in the log.
+        4. Have trouble reading content from the log file.
+
+        Otherwise, skip the run.
+        """
+        if not only_rerun_failed or not os.path.exists(log_file_path):
+            return False
+
+        with open(log_file_path, "r") as log_file:
+            try:
+                log_content: str = log_file.read()
+
+                if "Done.\n" not in log_content:
+                    return False
+            except UnicodeDecodeError:
+                return False
+
+        # Skip the run
+        return True
+
     # Create a run directory at benchmark_output/runs/<suite>
     suite_path: str = os.path.join("benchmark_output", "runs", suite)
     ensure_directory_exists(suite_path)
@@ -100,6 +128,10 @@ def queue_jobs(
             # Construct command here
             job_name: str = f"{model.engine}_{description}"
             log_path: str = os.path.join(logs_path, f"{job_name}.log")
+
+            if should_skip(log_path):
+                hlog(f"Skipping - found results for {job_name}.")
+                continue
 
             nlp_run_args: str = DEFAULT_NLP_RUN_GPU_ARGS
 
@@ -197,6 +229,12 @@ if __name__ == "__main__":
         help="Uses Sphinx machines if set.",
     )
     parser.add_argument(
+        "--rerun",
+        action="store_true",
+        default=None,
+        help="Reruns only failed runs only.",
+    )
+    parser.add_argument(
         "--check",
         action="store_true",
         default=None,
@@ -221,4 +259,5 @@ if __name__ == "__main__":
             dry_run=args.dry_run,
             use_sphinx=args.use_sphinx,
             machine=args.machine,
+            only_rerun_failed=args.rerun,
         )
