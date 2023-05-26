@@ -310,7 +310,7 @@ class ScaleCritiqueClient(CritiqueClient):
                     calibration_batch=False,
                     # If the project was created, there is no calibration batch so we set it as self-labeling
                     # otherwise the API will return an error.
-                    self_label_batch=project_was_created,
+                    self_label_batch=True,  # project_was_created,
                 )
             except ScaleDuplicateResource as err:
                 hlog(
