@@ -359,7 +359,7 @@ class ScaleCritiqueClient(CritiqueClient):
             # Create a new batch using the template name
             with _scale_cache_lock:
                 batch_response, is_cached = self._cache.get(
-                    {"project": project_name, "template": template.name}, create_scale_batch
+                    {"testing": True, "project": project_name, "template": template.name}, create_scale_batch
                 )
             batch_name = batch_response["batch_name"]
         else:
@@ -377,7 +377,7 @@ class ScaleCritiqueClient(CritiqueClient):
 
             with _scale_cache_lock:
                 batch_response, is_cached = self._cache.get(
-                    {"project": project_name, "template": template.name}, create_scale_batch
+                    {"testing": True, "project": project_name, "template": template.name}, create_scale_batch
                 )
             batch_name = batch_response["batch_name"]
 
@@ -413,7 +413,13 @@ class ScaleCritiqueClient(CritiqueClient):
         """Get or create a task on Scale and return the Scale task ID."""
 
         # Used both for the cache key and the task unique_id
-        cache_key = {"project": project_name, "batch": batch_name, "task": unstructure(template), "fields": fields}
+        cache_key = {
+            "testing": True,
+            "project": project_name,
+            "batch": batch_name,
+            "task": unstructure(template),
+            "fields": fields,
+        }
 
         def create_scale_task() -> Dict[str, str]:
             """
