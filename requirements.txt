@@ -13,6 +13,8 @@
 #
 # Check that everything works because the versions might be upgraded.
 
+pyarrow==6.0.1
+
 # Common
 zstandard~=0.18.0
 tqdm~=4.64.1
