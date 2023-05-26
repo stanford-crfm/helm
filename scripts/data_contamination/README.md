@@ -72,10 +72,10 @@ The beam script does not support outputting contaminated ngrams yet.
 To create and run docker image:
 
     docker build  . -t contamination_script
-    docker run --input_path=<input_path> --scenario_data=<scenario_data> --output_stats=<output_stats> --input_format=<input_format> --rm -it  contamination_script:latest 
+    docker run --input-path=<input-path> --scenario-data=<scenario-data> --output-stats=<output-stats> --input-format=<input-format> --rm -it  contamination_script:latest 
 
 example with values:
     
-    docker run  --rm -it  contamination_script:latest  --input_path="input.json" --scenario_data="scenario_data" --output_stats="output_stats" --input_format="the_pile"
+    docker run  --rm -it  contamination_script:latest  --input-path="input.json" --scenario-data="scenario_data" --output-stats="output_stats" --input-format="the_pile"
 
 You'll need some way of providing access to your files for the computation, such as [bind mounts](https://docs.docker.com/storage/bind-mounts/) or [volumes](https://docs.docker.com/storage/volumes/)
