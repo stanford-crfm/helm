@@ -24,7 +24,8 @@ jobs:
           restore-keys: |
             pip-
       - run: pip install -e .
-      - run: crfm-helm -h
+      - run: helm-run -h
+      - run: helm-summarize -h
       - run: echo "Finished installation."
 
   test:
