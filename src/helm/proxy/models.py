@@ -647,244 +647,138 @@ ALL_MODELS = [
     # Text-to-image models
     Model(
         group="magma",
-        creator_organization="Aleph Alpha",
         name="AlephAlpha/m-vader",
-        display_name="M-VADER",
-        description="M-VADER is similar to Stable Diffusion, but it supports multimodal inputs and the text encoder "
-        "is a Luminous model.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="giga_gan",
-        creator_organization="Adobe",
         name="adobe/giga-gan",
-        display_name="GigaGAN (1B)",
-        description="GigaGAN (1B parameters)",
-        # TODO: add TEXT_TO_IMAGE_MODEL_TAG later after the first batch of results
         tags=[CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="firefly",
-        creator_organization="Adobe",
         name="adobe/firefly",
-        display_name="Firefly",
-        description="Adobe Firefly was trained on the Adobe Stock dataset, along with openly licensed work and "
-        "public domain content where copyright has expired.",
         # TODO: add TEXT_TO_IMAGE_MODEL_TAG later after the first batch of results
         tags=[CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="dall_e2",
-        creator_organization="OpenAI",
         name="openai/dalle-2",
-        display_name="DALL-E 2 (3.5B)",
-        description="DALL-E 2 (3.5B parameters) is a model that can create realistic images and art "
-        "from a description in natural language.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
         group="lexica",
-        creator_organization="Lexica",
         name="lexica/search-stable-diffusion-1.5",
-        display_name="Lexica Search with Stable Diffusion v1.5",
-        description="Searches Stable Diffusion v1.5 images Lexica users generated.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
         group="deepfloyd_if",
-        creator_organization="DeepFloyd",
         name="DeepFloyd/IF-I-M-v1.0",
-        display_name="DeepFloyd IF (medium)",
-        description="DeepFloyd IF is a novel state-of-the-art open-source text-to-image model "
-        "with a high degree of photorealism and language understanding.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="deepfloyd_if",
-        creator_organization="DeepFloyd",
         name="DeepFloyd/IF-I-L-v1.0",
-        display_name="DeepFloyd IF (large)",
-        description="DeepFloyd IF is a novel state-of-the-art open-source text-to-image model "
-        "with a high degree of photorealism and language understanding.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="deepfloyd_if",
-        creator_organization="DeepFloyd",
         name="DeepFloyd/IF-I-XL-v1.0",
-        display_name="DeepFloyd IF (XL)",
-        description="DeepFloyd IF is a novel state-of-the-art open-source text-to-image model "
-        "with a high degree of photorealism and language understanding.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="mindall-e",
-        creator_organization="kakaobrain",
         name="kakaobrain/mindall-e",
-        display_name="minDALL-E (1.3B)",
-        description="minDALL-E, named after minGPT, is a 1.3B text-to-image generation model trained "
-        "on 14 million image-text pairs for non-commercial purposes.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="dall_e",
-        creator_organization="craiyon",
         name="craiyon/dalle-mini",
-        display_name="DALL-E mini (0.4B)",
-        description="DALL-E mini (0.4B parameters) is an open-source text-to-image model that "
-        "attempt to reproduce OpenAI DALL-E 1.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="dall_e",
-        creator_organization="craiyon",
         name="craiyon/dalle-mega",
-        display_name="DALL-E mega (2.6B)",
-        description="DALL-E mega (2.6B parameters) is an open-source text-to-image model that "
-        "attempt to reproduce OpenAI DALL-E 1.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="cogview",
-        creator_organization="THUDM",
         name="thudm/cogview2",
-        display_name="CogView2",
-        description="CogView2 is a hierarchical transformer (6B-9B-9B parameters) for text-to-"
-        "image generation in general domain.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="dreamlike.art",
         name="huggingface/dreamlike-photoreal-v2-0",
-        display_name="Dreamlike Photoreal v2.0",
-        description="Dreamlike Photoreal v2.0 is a photorealistic model based on Stable Diffusion v1.5.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="dreamlike.art",
         name="huggingface/dreamlike-diffusion-v1-0",
-        display_name="Dreamlike Diffusion v1.0",
-        description="Dreamlike Diffusion v1.0 is Stable Diffusion v1.5 fine tuned on high quality art.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="PromptHero",
         name="huggingface/openjourney-v1-0",
-        display_name="Openjourney v1.0",
-        description="Openjourney is an open source Stable Diffusion fine tuned model on Midjourney images",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="PromptHero",
         name="huggingface/openjourney-v2-0",
-        display_name="Openjourney v2.0",
-        description="Openjourney v2 is an open source Stable Diffusion fine tuned model on +60k Midjourney images",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="nitrosocke",
         name="huggingface/redshift-diffusion",
-        display_name="Redshift Diffusion",
-        description="Redshift Diffusion is an open source Stable Diffusion fine tuned on high resolution 3D artworks.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="Microsoft",
         name="huggingface/promptist-stable-diffusion-v1-4",
-        display_name="Promptist + Stable Diffusion v1.4",
-        description="Promptist optimizes user input into model-preferred prompts for Stable Diffusion v1.4.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="Ludwig Maximilian University of Munich CompVis",
         name="huggingface/stable-diffusion-v1-4",
-        display_name="Stable Diffusion v1.4",
-        description="Stable Diffusion v1.4 is a latent text-to-image diffusion model capable of generating "
-        "photo-realistic images given any text input.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="Runway",
         name="huggingface/stable-diffusion-v1-5",
-        display_name="Stable Diffusion v1.5",
-        description="The Stable-Diffusion-v1-5 checkpoint was initialized with the weights of the "
-        "Stable-Diffusion-v1-2 checkpoint and subsequently fine-tuned on 595k steps at "
-        "resolution 512x512 on laion-aesthetics v2 5+ and 10% dropping of the text-conditioning "
-        "to improve classifier-free guidance sampling.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="Stability AI",
         name="huggingface/stable-diffusion-v2-base",
-        display_name="Stable Diffusion v2 base",
-        description="The model is trained from scratch 550k steps at resolution 256x256 on a subset of LAION-5B "
-        "filtered for explicit pornographic material, using the LAION-NSFW classifier with punsafe=0.1 "
-        "and an aesthetic score >= 4.5. Then it is further trained for 850k steps at resolution 512x512 "
-        "on the same dataset on images with resolution >= 512x512.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="Stability AI",
         name="huggingface/stable-diffusion-v2-1-base",
-        display_name="Stable Diffusion v2.1 base",
-        description="This stable-diffusion-2-1-base model fine-tunes stable-diffusion-2-base "
-        "with 220k extra steps taken, with punsafe=0.98 on the same dataset.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="TU Darmstadt",
         name="huggingface/stable-diffusion-safe-weak",
-        display_name="Safe Stable Diffusion weak",
-        description="Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces "
-        "inappropriate content.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="TU Darmstadt",
         name="huggingface/stable-diffusion-safe-medium",
-        display_name="Safe Stable Diffusion medium",
-        description="Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces "
-        "inappropriate content.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="TU Darmstadt",
         name="huggingface/stable-diffusion-safe-strong",
-        display_name="Safe Stable Diffusion strong",
-        description="Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces "
-        "inappropriate content.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="TU Darmstadt",
         name="huggingface/stable-diffusion-safe-max",
-        display_name="Safe Stable Diffusion max",
-        description="Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces "
-        "inappropriate content.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface_diffusers",
-        creator_organization="22 Hours",
         name="huggingface/vintedois-diffusion-v0-1",
-        display_name="Vintedois (22h) Diffusion model v0.1",
-        description="Vintedois (22h) Diffusion model v0.1 is Stable Diffusion v1.5 that was finetuned on a "
-        "large amount of high quality images with simple prompts to generate beautiful images "
-        "without a lot of prompt engineering.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
 ]

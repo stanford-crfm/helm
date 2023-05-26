@@ -277,9 +277,9 @@ class ScaleCritiqueClient(CritiqueClient):
         Otherwise, create a new project using the template. Return the Scale project name.
         Same for the batch."""
 
-        project_was_created: bool = self._project_name is None
+        # project_was_created: bool = self._project_name is None
         project_name: Optional[str] = None
-        batch_name: Optional[str] = None
+        # batch_name: Optional[str] = None
 
         def create_scale_project():
             try:
