@@ -23,6 +23,8 @@ jobs:
           key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
           restore-keys: |
             pip-
+      - run: pip install -e .
+      - run: crfm-helm -h
       - run: echo "Finished installation."
 
   test:
