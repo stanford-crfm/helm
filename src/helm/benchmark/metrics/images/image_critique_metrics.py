@@ -10,7 +10,8 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.common.critique_request import CritiqueTaskTemplate, CritiqueQuestionTemplate, CritiqueRequest, QuestionType
-from helm.common.images_utils import encode_base64, filter_blacked_out_images
+from helm.common.file_upload_request import FileUploadResult, FileUploadRequest
+from helm.common.images_utils import filter_blacked_out_images
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
 from .image_metrics_utils import gather_generated_image_locations
@@ -141,7 +142,10 @@ class ImageCritiqueMetric(Metric):
             return []
 
         # Randomly select one of the generated images to critique
-        image_path: str = np.random.choice(image_locations)
+        selected_image_path: str = np.random.choice(image_locations)
+        # Upload the file to a remote host
+        upload_result: FileUploadResult = metric_service.upload(FileUploadRequest(selected_image_path))
+        assert upload_result.success, f"Upload {selected_image_path} was not successful: {upload_result.error}"
 
         prompt: str = request_state.request.prompt
         perturbation_name: str = request_state.instance.perturbation.name if request_state.instance.perturbation else ""
@@ -154,7 +158,7 @@ class ImageCritiqueMetric(Metric):
 
         # Send the critique request
         template: CritiqueTaskTemplate = self._get_critique_template(adapter_spec.model)
-        request = CritiqueRequest(template, fields={"prompt": prompt, "image": encode_base64(image_path)})
+        request = CritiqueRequest(template=template, fields={"prompt": prompt, "image": upload_result.url})
         result = metric_service.make_critique_request(request)
         if not result or not result.responses:
             return []
@@ -265,7 +269,7 @@ class ImageCritiqueMetric(Metric):
         return CritiqueTaskTemplate(
             name=task_name,
             instructions="<p>Please answer the questions below about the following image and description.</p>"
-            '<br><img src="data:image;base64,{{image}}"><br><p>Description: <b>{{prompt}}</b></p><br>',
+            '<br><img src="{{image}}"><br><p>Description: <b>{{prompt}}</b></p><br>',
             num_respondents=self._num_respondents,
             questions=questions,
         )

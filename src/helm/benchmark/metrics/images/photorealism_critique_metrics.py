@@ -11,7 +11,8 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.critique_request import CritiqueTaskTemplate, CritiqueQuestionTemplate, CritiqueRequest, QuestionType
-from helm.common.images_utils import encode_base64, filter_blacked_out_images
+from helm.common.file_upload_request import FileUploadResult, FileUploadRequest
+from helm.common.images_utils import filter_blacked_out_images
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
 from .image_metrics_utils import gather_generated_image_locations
@@ -103,7 +104,7 @@ class PhotorealismCritiqueMetric(Metric):
             # name=f"VHELM photorealism,{scenario_state.adapter_spec.model}",
             name="vhelm_photorealism",
             instructions="<p>Determine if the following image is AI-generated or real.</p>"
-            '<br><img src="data:image;base64,{{image}}"><br>',
+            '<br><img src="{{image}}"><br>',
             num_respondents=self._num_respondents,
             questions=[
                 CritiqueQuestionTemplate(
@@ -119,7 +120,11 @@ class PhotorealismCritiqueMetric(Metric):
         real_stat = Stat(MetricName("photorealism_real_human"))
 
         for image_path, stat in [(generated_image_path, generated_stat), (real_image_path, real_stat)]:
-            request = CritiqueRequest(template, fields={"image": encode_base64(image_path)})
+            # Upload the file to a remote host
+            upload_result: FileUploadResult = metric_service.upload(FileUploadRequest(image_path))
+            assert upload_result.success, f"Upload {image_path} was not successful: {upload_result.error}"
+
+            request = CritiqueRequest(template, fields={"image": upload_result.url})
             result = metric_service.make_critique_request(request)
             if not result or len(result.responses) == 0:
                 # Skip computing metrics if there aren't any responses yet

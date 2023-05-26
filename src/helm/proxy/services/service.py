@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple, Any
 from helm.common.general import parse_hocon
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
+from helm.common.file_upload_request import FileUploadResult, FileUploadRequest
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
@@ -111,6 +112,11 @@ class Service(ABC):
     @abstractmethod
     def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes to text."""
+        pass
+
+    @abstractmethod
+    def upload(self, auth: Authentication, request: FileUploadRequest) -> FileUploadResult:
+        """Uploads a file to external storage."""
         pass
 
     @abstractmethod

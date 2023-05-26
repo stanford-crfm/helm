@@ -68,6 +68,7 @@ google-auth==2.16.0
 google-auth-httplib2==0.1.0
 google-auth-oauthlib==0.4.6
 google-cloud-core==1.5.0
+google-cloud-storage==2.9.0
 google-cloud-translate==3.0.2
 google-pasta==0.2.0
 googleapis-common-protos==1.56.4

@@ -9,6 +9,7 @@ from helm.common.authentication import Authentication
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
+from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.tokenization_request import (
@@ -89,6 +90,9 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/decode?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response, request_json)
         return from_dict(DecodeRequestResult, response)
+
+    def upload(self, auth: Authentication, request: FileUploadRequest) -> FileUploadResult:
+        raise NotImplementedError(self.NOT_SUPPORTED_ERROR)
 
     def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
         raise NotImplementedError(self.NOT_SUPPORTED_ERROR)

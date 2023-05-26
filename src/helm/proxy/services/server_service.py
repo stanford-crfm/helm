@@ -9,6 +9,7 @@ from helm.common.moderations_api_request import ModerationAPIRequest, Moderation
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
+from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 from helm.common.tokenization_request import (
     WindowServiceInfo,
     TokenizationRequest,
@@ -22,6 +23,7 @@ from helm.proxy.accounts import Accounts, Account
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 from helm.proxy.clients.nudity_check_client import NudityCheckClient
+from helm.proxy.clients.gcs_client import GCSClient
 from helm.proxy.clients.clip_score_client import CLIPScoreClient
 from helm.proxy.example_queries import example_queries
 from helm.proxy.models import (
@@ -74,6 +76,7 @@ class ServerService(Service):
         self.perspective_api_client: Optional[PerspectiveAPIClient] = None
         self.nudity_check_client: Optional[NudityCheckClient] = None
         self.clip_score_client: Optional[CLIPScoreClient] = None
+        self.gcs_client: Optional[GCSClient] = None
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(
@@ -142,6 +145,14 @@ class ServerService(Service):
         """Decodes to text."""
         self.accounts.authenticate(auth)
         return self.client.decode(request)
+
+    def upload(self, auth: Authentication, request: FileUploadRequest) -> FileUploadResult:
+        """Uploads a file to external storage."""
+        self.accounts.authenticate(auth)
+
+        if not self.gcs_client:
+            self.gcs_client = self.client.get_gcs_client()
+        return self.gcs_client.upload(request)
 
     def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
         """Check for nudity."""

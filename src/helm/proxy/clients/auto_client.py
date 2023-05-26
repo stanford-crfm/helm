@@ -35,6 +35,7 @@ from .openai_client import OpenAIClient
 from .moderation_api_client import ModerationAPIClient
 from .microsoft_client import MicrosoftClient
 from .nudity_check_client import NudityCheckClient
+from .gcs_client import GCSClient
 from .clip_score_client import CLIPScoreClient
 from .perspective_api_client import PerspectiveAPIClient
 from .palmyra_client import PalmyraClient
@@ -311,6 +312,11 @@ class AutoClient(Client):
             retry_error: str = f"Failed to decode after retrying {last_attempt.attempt_number} times"
             hlog(retry_error)
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
+
+    def get_gcs_client(self) -> GCSClient:
+        bucket_name: str = self.credentials["gcsBucketName"]
+        cache_config: CacheConfig = self._build_cache_config("gcs")
+        return GCSClient(bucket_name, cache_config)
 
     def get_nudity_check_client(self) -> NudityCheckClient:
         cache_config: CacheConfig = self._build_cache_config("nudity")
