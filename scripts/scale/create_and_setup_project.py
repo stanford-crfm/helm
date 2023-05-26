@@ -20,7 +20,7 @@ try:
     )
     print("Project created.")
 except ScaleDuplicateResource as err:
-    print(f"Project {project_name} already exists. Using existing project.")
+    print(f"Project {project_name} already exists. Using existing project. Error: {err}")
     project = client.get_project(project_name)
 
 
@@ -62,7 +62,7 @@ try:
     client.finalize_batch(calib_batch_name)
     print("Calibration batch finalized.")
 except ScaleDuplicateResource as err:
-    print(f"Calibration batch {calib_batch_name} already exists. It will not be recreated.")
+    print(f"Calibration batch {calib_batch_name} already exists. It will not be recreated. Error: {err}")
 
 
 # Create evaluation tasks
@@ -110,7 +110,7 @@ try:
     )
     print("Test batch created.")
 except ScaleDuplicateResource as err:
-    print(f"Test batch {test_batch_name} already exists. It will not be recreated.")
+    print(f"Test batch {test_batch_name} already exists. It will not be recreated. Error: {err}")
 # Try to create a single task in the test batch
 payload = dict(
     project=project_name,

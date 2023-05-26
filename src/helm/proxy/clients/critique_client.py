@@ -25,7 +25,6 @@ from helm.common.critique_request import (
     CritiqueResponse,
     QuestionType,
 )
-from gymnasium.vector.utils.spaces import batch_space
 
 
 _surge_cache_lock = threading.Lock()
@@ -275,7 +274,7 @@ class ScaleCritiqueClient(CritiqueClient):
         Otherwise, create a new project using the template. Return the Scale project name.
         Same for the batch."""
 
-        project_was_created: bool = False
+        project_was_created: bool = self._project_name is None
         project_name: Optional[str] = None
         batch_name: Optional[str] = None
 
@@ -287,8 +286,6 @@ class ScaleCritiqueClient(CritiqueClient):
                     rapid=True,
                     params={},
                 )
-                project_name = project.name
-                project_was_created = True
             except ScaleDuplicateResource as err:
                 hlog(f"ScaleDuplicateResource when creating project: {template.name}. Error: {err.message}")
                 # Get the existing project and checks that it has the same params
@@ -317,7 +314,8 @@ class ScaleCritiqueClient(CritiqueClient):
                 )
             except ScaleDuplicateResource as err:
                 hlog(
-                    f"ScaleDuplicateResource when creating batch: '{batch_name}' in project: {project_name}. Error: {err.message}"
+                    f"ScaleDuplicateResource when creating batch: '{batch_name}' in project: "
+                    f"{project_name}. Error: {err.message}"
                 )
                 # Get the existing batch and checks that it has the same project
                 # NOTE: This should not happen with the cache but in case the cache is deleted
@@ -336,6 +334,7 @@ class ScaleCritiqueClient(CritiqueClient):
             # Checks that the project exists
             try:
                 project = self._client.get_project(project_name)
+                project_name = project.name
             except Exception as err:
                 raise RuntimeError(f"Project {project_name} does not exist") from err
 
