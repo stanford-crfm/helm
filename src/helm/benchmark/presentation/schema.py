@@ -43,10 +43,17 @@ class Field:
         return name
 
 
-# Note: also see Model from `models.py` (in the future, possibly unify).
+# Note: also see Model from `models.py`.
 @dataclass(frozen=True)
 class ModelField(Field):
-    # Who created it (e.g., OpenAI)
+    # Organization that originally created the model (e.g. "EleutherAI")
+    #   Note that this may be different from group or the prefix of the model `name`
+    #   ("together" in "together/gpt-j-6b") as the hosting organization
+    #   may be different from the creator organization. We also capitalize
+    #   this field properly to later display in the UI.
+    # TODO: in the future, we want to cleanup the naming in the following ways:
+    # - make the creator_organization an identifier with a separate display name
+    # - have a convention like <hosting_organization><creator_organization>/<model_name>
     creator_organization: Optional[str] = None
 
     # How this model is available (e.g., limited)

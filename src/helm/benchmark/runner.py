@@ -112,6 +112,25 @@ class Runner:
         self.eval_cache_path: str = os.path.join(self.runs_path, "eval_cache")
         ensure_directory_exists(self.eval_cache_path)
 
+    def _is_run_completed(self, run_spec: RunSpec):
+        """Return whether the run was previously completed.
+
+        A run is completed if all of the expected output files exist."""
+        run_path: str = os.path.join(self.runs_path, run_spec.name)
+        if not os.path.isdir(run_path):
+            return False
+        output_paths = [
+            os.path.join(run_path, "run_spec.json"),
+            os.path.join(run_path, "scenario.json"),
+            os.path.join(run_path, "scenario_state.json"),
+            os.path.join(run_path, "stats.json"),
+            os.path.join(run_path, "per_instance_stats.json"),
+        ]
+        for output_path in output_paths:
+            if not os.path.exists(output_path):
+                return False
+        return True
+
     def run_all(self, run_specs: List[RunSpec]):
         failed_run_specs: List[RunSpec] = []
 
@@ -146,7 +165,7 @@ class Runner:
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
 
-        if self.skip_completed_runs and os.path.exists(os.path.join(run_path, "scenario_state.json")):
+        if self.skip_completed_runs and self._is_run_completed(run_spec):
             # If scenario_state.json exists, assume that all other output files exist
             # because scenario_state.json is the last output file to be written.
             hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")

@@ -5,6 +5,8 @@ from retrying import Retrying
 from helm.common.request import RequestResult
 from helm.common.tokenization_request import TokenizationRequestResult
 from helm.common.hierarchical_logger import hlog
+import traceback
+import threading
 
 """
 Decorator that will retry after a failure with exponential backoff.
@@ -16,6 +18,15 @@ Example usage:
     def make_request(request: Request) -> RequestResult:
         ...
 """
+
+# The lock is used to prevent multiple threads from printing at the same time.
+# This can cause issues when printing the stack trace.
+# (The stack traces can get mixed up and become unreadable.)
+print_lock: threading.Lock = threading.Lock()
+
+
+class NonRetriableException(Exception):
+    pass
 
 
 def get_retry_decorator(
@@ -30,8 +41,22 @@ def get_retry_decorator(
         Wait function to pass into `Retrying` that logs and returns the amount of time to sleep
         depending on the number of attempts and delay (in milliseconds).
         """
-        hlog(f"{operation} failed. Retrying (attempt #{attempts + 1}) in {delay // 1000} seconds...")
+        hlog(
+            f"{operation} failed. Retrying (attempt #{attempts + 1}) in {delay // 1000} seconds... "
+            "(See above for error details)"
+        )
         return _retrying.exponential_sleep(attempts, delay)
+
+    def print_exception_and_traceback(exception: Exception) -> bool:
+        """
+        This function always return True, as the exception should always be retried.
+        It is used to print the exception and traceback (HACK).
+        TODO: Should not retry on keyboard interrupt. (right now it is inconsistent)
+        """
+        with print_lock:
+            hlog("")
+            hlog("".join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
+        return not isinstance(exception, KeyboardInterrupt) and not isinstance(exception, NonRetriableException)
 
     _retrying = Retrying(
         retry_on_result=retry_on_result,
@@ -39,6 +64,7 @@ def get_retry_decorator(
         stop_max_attempt_number=max_attempts,
         # Used to calculate the wait between retries (2^r * wait_exponential_multiplier_seconds seconds)
         wait_exponential_multiplier=wait_exponential_multiplier_seconds * 1000,
+        retry_on_exception=print_exception_and_traceback,
     )
 
     return lambda f: lambda *args, **kwargs: _retrying.call(f, *args, **kwargs)

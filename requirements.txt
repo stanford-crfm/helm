@@ -18,6 +18,7 @@ zstandard~=0.18.0
 tqdm~=4.64.1
 pyhocon~=0.3.59
 dacite~=1.6.0
+simple-slurm~=0.2.6
 
 # Proxy
 aleph-alpha-client~=2.14.0
@@ -84,6 +85,7 @@ opencv-python~=4.7.0.68
 pyext~=0.7
 pytrec_eval==0.5
 sacrebleu~=2.2.1
+scaleapi~=2.13.0
 # Work around https://github.com/p-lambda/verified_calibration/issues/11
 # TODO: Remove after this issue is resolved
 scikit-learn~=1.1.2

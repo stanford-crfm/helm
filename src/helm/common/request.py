@@ -54,6 +54,11 @@ class Request:
     """Used to control randomness. Expect different responses for the same
     request but with different values for `random`."""
 
+    messages: Optional[List[Dict[str, str]]] = None
+    """Used for chat models. (OpenAI only for now).
+    if messages is specified for a chat model, the prompt is ignored.
+    Otherwise, the client should convert the prompt into a message."""
+
     @property
     def model_organization(self) -> str:
         """Example: 'openai/davinci' => 'openai'"""

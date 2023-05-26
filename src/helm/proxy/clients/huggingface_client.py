@@ -133,9 +133,9 @@ class HuggingFaceClient(Client):
                 self.model_server_instances[model] = HuggingFaceServer(
                     HuggingFaceModelConfig.from_string("bigcode/santacoder")
                 )
-            elif model == "huggingface/large-model":
+            elif model == "huggingface/starcoder":
                 self.model_server_instances[model] = HuggingFaceServer(
-                    HuggingFaceModelConfig.from_string("bigcode/large-model")
+                    HuggingFaceModelConfig.from_string("bigcode/starcoder")
                 )
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")

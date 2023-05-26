@@ -6,6 +6,7 @@ import urllib.parse
 
 import websocket
 import anthropic
+import threading
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
@@ -54,11 +55,15 @@ class AnthropicClient(Client):
     )
     ADDITIONAL_TOKENS: int = 5
     PROMPT_ANSWER_START: str = "The answer is "
+    LOCK: threading.Lock = threading.Lock()
 
     def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
         self.api_key: Optional[str] = api_key
         self.cache = Cache(cache_config)
-        self.tokenizer: PreTrainedTokenizerBase = PreTrainedTokenizerFast(tokenizer_object=anthropic.get_tokenizer())
+        with AnthropicClient.LOCK:
+            self.tokenizer: PreTrainedTokenizerBase = PreTrainedTokenizerFast(
+                tokenizer_object=anthropic.get_tokenizer()
+            )
         self._client = anthropic.Client(api_key) if api_key else None
 
     def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
@@ -140,7 +145,7 @@ class AnthropicClient(Client):
                     return RequestResult(
                         success=False,
                         cached=False,
-                        error=response["error"],
+                        error=str(error),
                         completions=[],
                         embedding=[],
                         error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
@@ -149,7 +154,7 @@ class AnthropicClient(Client):
                     return RequestResult(
                         success=False,
                         cached=False,
-                        error=response["error"],
+                        error=str(error),
                         completions=[],
                         embedding=[],
                         error_flags=ErrorFlags(is_retriable=False, is_fatal=False),

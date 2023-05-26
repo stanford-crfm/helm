@@ -13,7 +13,9 @@ class PalmyraWindowService(LocalWindowService):
 
     @property
     def max_sequence_length(self) -> int:
-        return 2048
+        # It is upposed to be 2048, but using scripts/compute_request_limits.py
+        # we found that the limit is actually 2024.
+        return 2024
 
     @property
     def max_request_length(self) -> int:
@@ -35,13 +37,9 @@ class PalmyraWindowService(LocalWindowService):
         return self.end_of_text_token
 
 
-class PalmyraRWindowService(PalmyraWindowService):
-    @property
-    def max_sequence_length(self) -> int:
-        return 3048
-
-
 class SilkRoadWindowService(PalmyraWindowService):
     @property
     def max_sequence_length(self) -> int:
-        return 80000
+        # It is upposed to be 4096, but using scripts/compute_request_limits.py
+        # we found that the limit is actually 4066.
+        return 4066
