@@ -63,7 +63,9 @@ sacrebleu~=2.2.1
 # Work around https://github.com/p-lambda/verified_calibration/issues/11
 # TODO: Remove after this issue is resolved
 scikit-learn~=1.1.2
-spacy~=3.2.4
+spacy==3.2.4
+spacy-legacy==3.0.10
+spacy-loggers==1.0.3
 summ-eval~=0.892
 surge-api~=1.1.0
 # End users should install a CUDA version of PyTorch manually if needed
