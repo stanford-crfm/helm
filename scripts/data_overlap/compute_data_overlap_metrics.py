@@ -136,7 +136,7 @@ def create_ngram_index(
     return ngram_index
 
 
-def create_all_overlap_stats(light_scenarios: List[LightScenario], n_values: List[int]) -> AllDataOverlapStats:
+def create_all_data_overlap_stats(light_scenarios: List[LightScenario], n_values: List[int]) -> AllDataOverlapStats:
     """Given a list of scenarios and n values, initialize all_overlap_stats"""
     hlog("Initializing all data overlap stats")
     all_overlap_stats: AllDataOverlapStats = {}
@@ -299,7 +299,7 @@ if __name__ == "__main__":
     with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
         all_overlap_stats: AllDataOverlapStats
         ngram_index: NgramIndex
-        all_overlap_stats = create_all_overlap_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
+        all_overlap_stats = create_all_data_overlap_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
         ngram_index = create_ngram_index(light_scenarios=light_scenarios, n_values=N_VALUES, tokenizer=tokenizer)
         ngram_counter: NgramCounter = {}
 

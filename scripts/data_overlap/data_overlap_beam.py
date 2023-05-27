@@ -11,7 +11,7 @@ from apache_beam.utils.shared import Shared
 from compute_data_overlap_metrics import (
     load_light_scenarios_from_jsonl,
     create_ngram_index,
-    create_all_overlap_stats,
+    create_all_data_overlap_stats,
     compute_scenario_document_overlap,
     AllDataOverlapStats,
     NgramIndex,
@@ -51,7 +51,7 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
         return super().setup(*args, **kwargs)
 
     def create_accumulator(self) -> AllDataOverlapStats:
-        return create_all_overlap_stats(light_scenarios=self.scenarios, n_values=self.n_values)
+        return create_all_data_overlap_stats(light_scenarios=self.scenarios, n_values=self.n_values)
 
     def add_input(self, all_overlap_stats: AllDataOverlapStats, document: str) -> AllDataOverlapStats:
         # update all_overlap_stats in-place

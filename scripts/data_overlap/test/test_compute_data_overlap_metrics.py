@@ -2,7 +2,7 @@ from typing import List
 
 from compute_data_overlap_metrics import (
     compute_scenario_document_overlap,
-    create_all_overlap_stats,
+    create_all_data_overlap_stats,
     create_ngram_index,
     EntryDataOverlapKey,
     Ngram,
@@ -149,7 +149,7 @@ def test_light_tokenizer():
 def test_create_overlap_stats():
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
     all_overlap_stats: AllDataOverlapStats
-    all_overlap_stats = create_all_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
+    all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
 
     stats_1_key, stats_2_key, stats_3_key = (
         DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
@@ -219,7 +219,7 @@ def test_compute_scenario_document_overlap():
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
     all_overlap_stats: AllDataOverlapStats
     ngram_index: NgramIndex
-    all_overlap_stats = create_all_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
+    all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
     ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
 
     compute_scenario_document_overlap(
