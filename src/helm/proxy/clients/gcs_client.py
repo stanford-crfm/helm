@@ -1,5 +1,6 @@
 from dataclasses import asdict
 from typing import Optional, Dict
+import requests
 
 from google.cloud import storage
 
@@ -17,6 +18,8 @@ class GCSClient:
     Uploads files to GCS. Ensure the GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
     environment variable is set.
     """
+
+    MAX_CHECK_ATTEMPTS: int = 10
 
     def __init__(self, bucket_name: str, cache_config: CacheConfig):
         self._bucket_name: str = bucket_name
@@ -45,6 +48,16 @@ class GCSClient:
 
                 blob.upload_from_filename(file_path, if_generation_match=generation_match_precondition)
                 url: str = self._get_url(file_path)
+
+                # Ensure the file was uploaded successfully
+                uploaded: bool = False
+                for _ in range(0, self.MAX_CHECK_ATTEMPTS):
+                    check_response = requests.head(url)
+                    if check_response.status_code == 200:
+                        uploaded = True
+                        break
+                assert uploaded, f"File {file_path} was not uploaded successfully."
+
                 hlog(f"File {file_path} uploaded and is available at {url}.")
                 return {"url": url}
 
