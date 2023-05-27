@@ -41,7 +41,7 @@ There are additional optional args:
 
 ## Beam API
 
-Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteOverlapStats()` with the appropriate arguments.
+Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteDataOverlapStats()` with the appropriate arguments.
 
 Note: Each record in the `PCollection[str]` should contain an _entire_ document, not a single line from a document.
 
