@@ -64,7 +64,7 @@ with beam.Pipeline() as pipeline:
 
 ## Notes
 
-The beam script does not support outputting contaminated ngrams yet.
+The beam script does not support outputting overlapping ngrams yet.
 
 
 ## Docker

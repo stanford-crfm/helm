@@ -242,17 +242,17 @@ def test_compute_scenario_document_overlap():
 
     assert (
         stats_1._input_bits[0] == 1
-        and stats_1.contaminated_input_fraction == 0.5
-        and stats_1.contaminated_reference_fraction == 0
+        and stats_1.overlapping_input_fraction == 0.5
+        and stats_1.overlapping_reference_fraction == 0
     )
-    assert stats_2.contaminated_input_fraction == 1 and stats_2.contaminated_reference_fraction == 1
-    assert stats_3.contaminated_input_fraction == 1 and stats_3.contaminated_reference_fraction == 1
+    assert stats_2.overlapping_input_fraction == 1 and stats_2.overlapping_reference_fraction == 1
+    assert stats_3.overlapping_input_fraction == 1 and stats_3.overlapping_reference_fraction == 1
 
     assert stats_1.generate_summary() == {
         "setting": {"stats_key": asdict_without_nones(stats_1_key)},
         "num_instances": 2,
-        "num_instances_with_contaminated_input": 1,
-        "num_instances_with_contaminated_reference": 0,
-        "contaminated_input_fraction": 0.5,
-        "contaminated_reference_fraction": 0,
+        "num_instances_with_overlapping_input": 1,
+        "num_instances_with_overlapping_reference": 0,
+        "overlapping_input_fraction": 0.5,
+        "overlapping_reference_fraction": 0,
     }
