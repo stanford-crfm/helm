@@ -11,7 +11,7 @@ PART_REF: str = "reference"
 
 
 @dataclass(frozen=True)
-class OverlapStatsKey:
+class DataOverlapStatsKey:
     """Unique key representing a `OverlapStats` instance."""
 
     metadata: Dict[str, Hashable]
@@ -20,7 +20,7 @@ class OverlapStatsKey:
         return hash(tuple((k, self.metadata[k]) for k in sorted(self.metadata.keys())))
 
 
-class OverlapStats:
+class DataOverlapStats:
     """
     A memory-efficient class for overlap stats. The core data structures are bit arrays where
     every bit records whether an instance is contaminated or not.
@@ -29,7 +29,7 @@ class OverlapStats:
     def __init__(
         self, light_scenario_key: LightScenarioKey, num_instances: int, stats_tags: Optional[Dict[str, Any]] = None
     ):
-        self.stats_key = OverlapStatsKey(metadata={"light_scenario_key": light_scenario_key})
+        self.stats_key = DataOverlapStatsKey(metadata={"light_scenario_key": light_scenario_key})
         self.num_instances = num_instances
         if stats_tags is not None:
             self.stats_key.metadata.update(stats_tags)

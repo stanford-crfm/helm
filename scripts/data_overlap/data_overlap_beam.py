@@ -8,12 +8,12 @@ from dataclasses import dataclass
 from apache_beam.utils.shared import Shared
 
 
-from compute_overlap_metrics import (
+from compute_data_overlap_metrics import (
     load_light_scenarios_from_jsonl,
     create_ngram_index,
     create_all_overlap_stats,
     compute_scenario_document_overlap,
-    AllOverlapStats,
+    DataAllOverlapStats,
     NgramIndex,
 )
 from light_tokenizer import LightTokenizer
@@ -26,7 +26,7 @@ class NgramIndexWrapper:
     ngram_index: NgramIndex
 
 
-class ComputeOverlapStatsFn(beam.CombineFn):
+class ComputeDataOverlapStatsFn(beam.CombineFn):
     def __init__(
         self,
         scenario_data_path: str,
@@ -50,10 +50,10 @@ class ComputeOverlapStatsFn(beam.CombineFn):
         self.ngram_index_wrapper = self.shared_ngram_index.acquire(init_shared_ngram_index)
         return super().setup(*args, **kwargs)
 
-    def create_accumulator(self) -> AllOverlapStats:
+    def create_accumulator(self) -> DataAllOverlapStats:
         return create_all_overlap_stats(light_scenarios=self.scenarios, n_values=self.n_values)
 
-    def add_input(self, all_overlap_stats: AllOverlapStats, document: str) -> AllOverlapStats:
+    def add_input(self, all_overlap_stats: DataAllOverlapStats, document: str) -> DataAllOverlapStats:
         # update all_overlap_stats in-place
         compute_scenario_document_overlap(
             document=document,
@@ -63,7 +63,7 @@ class ComputeOverlapStatsFn(beam.CombineFn):
         )
         return all_overlap_stats
 
-    def merge_accumulators(self, accumulators: Iterable[AllOverlapStats]) -> AllOverlapStats:
+    def merge_accumulators(self, accumulators: Iterable[DataAllOverlapStats]) -> DataAllOverlapStats:
         assert accumulators
         accumulators_iter = iter(accumulators)
         merged_accumulator = next(accumulators_iter)
@@ -72,15 +72,15 @@ class ComputeOverlapStatsFn(beam.CombineFn):
                 merged_accumulator[overlap_stats_key].merge(overlap_stats)
         return merged_accumulator
 
-    def extract_output(self, accumulator: AllOverlapStats) -> AllOverlapStats:
+    def extract_output(self, accumulator: DataAllOverlapStats) -> DataAllOverlapStats:
         return accumulator
 
 
-def extract_summary_from_all_overlap_stats(all_overlap_stats: AllOverlapStats, tags: Dict[str, Any]) -> str:
+def extract_summary_from_all_data_overlap_stats(all_overlap_stats: DataAllOverlapStats, tags: Dict[str, Any]) -> str:
     return "\n".join(json.dumps(overlap_stats.generate_summary(tags)) for overlap_stats in all_overlap_stats.values())
 
 
-class ComputeAndWriteOverlapStats(beam.PTransform):
+class ComputeAndWriteDataOverlapStats(beam.PTransform):
     def __init__(
         self, scenario_data_path: str, n_values: List[int], normalization: str, tags: Dict[str, Any], output_stats: str
     ):
@@ -96,13 +96,14 @@ class ComputeAndWriteOverlapStats(beam.PTransform):
             pcollection
             | "ComputeOverlapStats"
             >> beam.CombineGlobally(
-                ComputeOverlapStatsFn(
+                ComputeDataOverlapStatsFn(
                     scenario_data_path=self.scenario_data_path,
                     n_values=self.n_values,
                     normalization=self.normalization,
                     shared_ngram_index=shared_ngram_index,
                 )
             )
-            | "ExtractSummaryFromAllOverlapStats" >> beam.Map(extract_summary_from_all_overlap_stats, tags=self.tags)
+            | "ExtractSummaryFromAllOverlapStats"
+            >> beam.Map(extract_summary_from_all_data_overlap_stats, tags=self.tags)
             | "WriteSummaries" >> beam.io.WriteToText(self.output_stats)
         )

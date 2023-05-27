@@ -4,7 +4,7 @@ import argparse
 
 from typing import Callable, List
 
-from overlap_beam import ComputeAndWriteOverlapStats
+from data_overlap_beam import ComputeAndWriteDataOverlapStats
 
 
 def get_extract_text_function(input_format: str):
@@ -71,7 +71,7 @@ def main():
             | "ExtractTextFromDocument" >> beam.Map(extract_text_from_document)
             # Call the HELM Overlap Apache Beam API.
             | "ComputeAndWriteOverlapStats"
-            >> ComputeAndWriteOverlapStats(
+            >> ComputeAndWriteDataOverlapStats(
                 scenario_data_path=args.scenario_data,
                 n_values=n_values,
                 normalization=args.normalization,
