@@ -28,7 +28,7 @@ N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
 
 
 @dataclass(frozen=True)
-class DataEntryOverlapKey:
+class EntryDataOverlapKey:
     """Unique key representing either the input or references of a single instance in a scenario."""
 
     stats_key: DataOverlapStatsKey
@@ -39,9 +39,9 @@ class DataEntryOverlapKey:
 
 # type alias for overlap-related data structures
 Ngram = Tuple[str, ...]
-NgramIndex = Dict[int, Dict[Ngram, Set[DataEntryOverlapKey]]]
+NgramIndex = Dict[int, Dict[Ngram, Set[EntryDataOverlapKey]]]
 DataAllOverlapStats = Dict[DataOverlapStatsKey, DataOverlapStats]
-NgramCounter = Dict[DataEntryOverlapKey, Dict[Ngram, int]]
+NgramCounter = Dict[EntryDataOverlapKey, Dict[Ngram, int]]
 
 
 def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
@@ -121,7 +121,7 @@ def create_ngram_index(
                     if input_ngram not in ngram_index[n]:
                         ngram_index[n][input_ngram] = set()
                     ngram_index[n][input_ngram].add(
-                        DataEntryOverlapKey(stats_key=stats_key, instance_id=i, part=PART_INPUT)
+                        EntryDataOverlapKey(stats_key=stats_key, instance_id=i, part=PART_INPUT)
                     )
 
                 # compute reference ngrams
@@ -131,7 +131,7 @@ def create_ngram_index(
                         if reference_ngram not in ngram_index[n]:
                             ngram_index[n][reference_ngram] = set()
                         ngram_index[n][reference_ngram].add(
-                            DataEntryOverlapKey(stats_key=stats_key, instance_id=i, part=PART_REF)
+                            EntryDataOverlapKey(stats_key=stats_key, instance_id=i, part=PART_REF)
                         )
     return ngram_index
 
