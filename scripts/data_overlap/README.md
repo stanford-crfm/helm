@@ -52,7 +52,7 @@ with beam.Pipeline() as pipeline:
         # The model developer should modify these lines to read from the actual training set.
         | "Read" >> beam.io.ReadFromText(input_data)
         | "ExtractTextFromDocument" >> beam.Map(extract_text_from_document)
-        # Call the HELM Overlap Apache Beam API.
+        # Call the HELM Data Overlap Apache Beam API.
         | "ComputeAndWriteDataOverlapStats" >> ComputeAndWriteDataOverlapStats(
             scenario_data_path=scenario_data,
             n_values=n_values,
