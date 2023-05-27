@@ -12,7 +12,7 @@ from compute_data_overlap_metrics import (
     load_light_scenarios_from_jsonl,
     create_ngram_index,
     create_all_data_overlap_stats,
-    compute_scenario_document_overlap,
+    compute_scenario_document_data_overlap,
     AllDataOverlapStats,
     NgramIndex,
 )
@@ -55,7 +55,7 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
 
     def add_input(self, all_overlap_stats: AllDataOverlapStats, document: str) -> AllDataOverlapStats:
         # update all_overlap_stats in-place
-        compute_scenario_document_overlap(
+        compute_scenario_document_data_overlap(
             document=document,
             ngram_index=self.ngram_index_wrapper.ngram_index,
             all_overlap_stats=all_overlap_stats,
