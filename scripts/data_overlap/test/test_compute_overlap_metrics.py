@@ -157,11 +157,7 @@ def test_create_overlap_stats():
         OverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
     )
 
-    assert (
-        stats_1_key in all_overlap_stats
-        and stats_2_key in all_overlap_stats
-        and stats_3_key in all_overlap_stats
-    )
+    assert stats_1_key in all_overlap_stats and stats_2_key in all_overlap_stats and stats_3_key in all_overlap_stats
 
     stats_1: OverlapStats
     stats_2: OverlapStats

@@ -76,13 +76,8 @@ class ComputeOverlapStatsFn(beam.CombineFn):
         return accumulator
 
 
-def extract_summary_from_all_overlap_stats(
-    all_overlap_stats: AllOverlapStats, tags: Dict[str, Any]
-) -> str:
-    return "\n".join(
-        json.dumps(overlap_stats.generate_summary(tags))
-        for overlap_stats in all_overlap_stats.values()
-    )
+def extract_summary_from_all_overlap_stats(all_overlap_stats: AllOverlapStats, tags: Dict[str, Any]) -> str:
+    return "\n".join(json.dumps(overlap_stats.generate_summary(tags)) for overlap_stats in all_overlap_stats.values())
 
 
 class ComputeAndWriteOverlapStats(beam.PTransform):
@@ -108,7 +103,6 @@ class ComputeAndWriteOverlapStats(beam.PTransform):
                     shared_ngram_index=shared_ngram_index,
                 )
             )
-            | "ExtractSummaryFromAllOverlapStats"
-            >> beam.Map(extract_summary_from_all_overlap_stats, tags=self.tags)
+            | "ExtractSummaryFromAllOverlapStats" >> beam.Map(extract_summary_from_all_overlap_stats, tags=self.tags)
             | "WriteSummaries" >> beam.io.WriteToText(self.output_stats)
         )
