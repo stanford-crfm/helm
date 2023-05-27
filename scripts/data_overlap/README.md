@@ -25,7 +25,7 @@ This needs to be run from the data overlap directory; i.e. cd scripts/data_overl
 
 Usage:
 
-python [compute_data_overlap_metrics.py OR run_data_overlap_beam.py] --input-data <input_data> --scenario-data <scenario_data> --output-stats <output_stats> --input-format <input_format>
+python [compute_overlap_metrics.py OR run_overlap_beam.py] --input-data <input_data> --scenario-data <scenario_data> --output-stats <output_stats> --input-format <input_format>
 
 For instance, you can call this with The Pile, e.g. have:
     input_data  = 00.jsonl (download https://pile.eleuther.ai/)
@@ -41,7 +41,7 @@ There are additional optional args:
 
 ## Beam API
 
-Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteDataOverlapStats()` with the appropriate arguments.
+Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteOverlapStats()` with the appropriate arguments.
 
 Note: Each record in the `PCollection[str]` should contain an _entire_ document, not a single line from a document.
 
@@ -71,8 +71,11 @@ The beam script does not support outputting contaminated ngrams yet.
 
 To create and run docker image:
 
-docker build  . -t overlap_script
-docker run -e INPUT_PATH=<input_path> -e SCENARIO_DATA=<scenario_data> -e OUTPUT_STATS=<output_stats> -e INPUT_FORMAT=<input_format> --rm -it  overlap_script:latest 
+    docker build  . -t data_overlap_script
+    docker run --input-path=<input-path> --scenario-data=<scenario-data> --output-stats=<output-stats> --input-format=<input-format> --rm -it data_overlap_script:latest 
 
 example with values:
-docker run -e INPUT_PATH="input.json" -e SCENARIO_DATA="scenario_data" -e OUTPUT_STATS="output_stats" -e INPUT_FORMAT="the_pile" --rm -it  overlap_script:latest 
+    
+    docker run  --rm -it  data_overlap_script:latest  --input-path="input.json" --scenario-data="scenario_data" --output-stats="output_stats" --input-format="the_pile"
+
+You'll need some way of providing access to your files for the computation, such as [bind mounts](https://docs.docker.com/storage/bind-mounts/) or [volumes](https://docs.docker.com/storage/volumes/)
