@@ -41,7 +41,7 @@ There are additional optional args:
 
 ## Beam API
 
-Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteOverlapStats()` with the appropriate arguments.
+Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteDataOverlapStats()` with the appropriate arguments.
 
 Note: Each record in the `PCollection[str]` should contain an _entire_ document, not a single line from a document.
 
@@ -53,7 +53,7 @@ with beam.Pipeline() as pipeline:
         | "Read" >> beam.io.ReadFromText(input_data)
         | "ExtractTextFromDocument" >> beam.Map(extract_text_from_document)
         # Call the HELM Overlap Apache Beam API.
-        | "ComputeAndWriteOverlapStats" >> ComputeAndWriteOverlapStats(
+        | "ComputeAndWriteDataOverlapStats" >> ComputeAndWriteDataOverlapStats(
             scenario_data_path=scenario_data,
             n_values=n_values,
             normalization=normalization,

@@ -70,7 +70,7 @@ def main():
             | "Read" >> beam.io.ReadFromText(args.input_data)
             | "ExtractTextFromDocument" >> beam.Map(extract_text_from_document)
             # Call the HELM Overlap Apache Beam API.
-            | "ComputeAndWriteOverlapStats"
+            | "ComputeAndWriteDataOverlapStats"
             >> ComputeAndWriteDataOverlapStats(
                 scenario_data_path=args.scenario_data,
                 n_values=n_values,
