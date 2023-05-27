@@ -13,7 +13,7 @@ from compute_data_overlap_metrics import (
     create_ngram_index,
     create_all_overlap_stats,
     compute_scenario_document_overlap,
-    DataAllOverlapStats,
+    AllDataOverlapStats,
     NgramIndex,
 )
 from light_tokenizer import LightTokenizer
@@ -50,10 +50,10 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
         self.ngram_index_wrapper = self.shared_ngram_index.acquire(init_shared_ngram_index)
         return super().setup(*args, **kwargs)
 
-    def create_accumulator(self) -> DataAllOverlapStats:
+    def create_accumulator(self) -> AllDataOverlapStats:
         return create_all_overlap_stats(light_scenarios=self.scenarios, n_values=self.n_values)
 
-    def add_input(self, all_overlap_stats: DataAllOverlapStats, document: str) -> DataAllOverlapStats:
+    def add_input(self, all_overlap_stats: AllDataOverlapStats, document: str) -> AllDataOverlapStats:
         # update all_overlap_stats in-place
         compute_scenario_document_overlap(
             document=document,
@@ -63,7 +63,7 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
         )
         return all_overlap_stats
 
-    def merge_accumulators(self, accumulators: Iterable[DataAllOverlapStats]) -> DataAllOverlapStats:
+    def merge_accumulators(self, accumulators: Iterable[AllDataOverlapStats]) -> AllDataOverlapStats:
         assert accumulators
         accumulators_iter = iter(accumulators)
         merged_accumulator = next(accumulators_iter)
@@ -72,11 +72,11 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
                 merged_accumulator[overlap_stats_key].merge(overlap_stats)
         return merged_accumulator
 
-    def extract_output(self, accumulator: DataAllOverlapStats) -> DataAllOverlapStats:
+    def extract_output(self, accumulator: AllDataOverlapStats) -> AllDataOverlapStats:
         return accumulator
 
 
-def extract_summary_from_all_data_overlap_stats(all_overlap_stats: DataAllOverlapStats, tags: Dict[str, Any]) -> str:
+def extract_summary_from_all_data_overlap_stats(all_overlap_stats: AllDataOverlapStats, tags: Dict[str, Any]) -> str:
     return "\n".join(json.dumps(overlap_stats.generate_summary(tags)) for overlap_stats in all_overlap_stats.values())
 
 

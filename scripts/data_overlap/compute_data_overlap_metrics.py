@@ -40,7 +40,7 @@ class EntryDataOverlapKey:
 # type alias for overlap-related data structures
 Ngram = Tuple[str, ...]
 NgramIndex = Dict[int, Dict[Ngram, Set[EntryDataOverlapKey]]]
-DataAllOverlapStats = Dict[DataOverlapStatsKey, DataOverlapStats]
+AllDataOverlapStats = Dict[DataOverlapStatsKey, DataOverlapStats]
 NgramCounter = Dict[EntryDataOverlapKey, Dict[Ngram, int]]
 
 
@@ -136,10 +136,10 @@ def create_ngram_index(
     return ngram_index
 
 
-def create_all_overlap_stats(light_scenarios: List[LightScenario], n_values: List[int]) -> DataAllOverlapStats:
+def create_all_overlap_stats(light_scenarios: List[LightScenario], n_values: List[int]) -> AllDataOverlapStats:
     """Given a list of scenarios and n values, initialize all_overlap_stats"""
     hlog("Initializing all data overlap stats")
-    all_overlap_stats: DataAllOverlapStats = {}
+    all_overlap_stats: AllDataOverlapStats = {}
     for scenario in light_scenarios:
         for n in n_values:
             # Initialize a stats instance for every pair of <scenario, n>
@@ -154,7 +154,7 @@ def compute_scenario_file_overlap(
     training_file_path: str,
     file_format: str,
     ngram_index: NgramIndex,
-    all_overlap_stats: DataAllOverlapStats,
+    all_overlap_stats: AllDataOverlapStats,
     tokenizer: LightTokenizer,
     ngram_counter: Optional[NgramCounter] = None,
     max_contaminated_ngrams: int = 0,
@@ -189,7 +189,7 @@ def compute_scenario_file_overlap(
 def compute_scenario_document_overlap(
     document: str,
     ngram_index: NgramIndex,
-    all_overlap_stats: DataAllOverlapStats,
+    all_overlap_stats: AllDataOverlapStats,
     tokenizer: LightTokenizer,
     ngram_counter: Optional[NgramCounter] = None,
     max_contaminated_ngrams: int = 0,
@@ -297,7 +297,7 @@ if __name__ == "__main__":
     light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
     with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
-        all_overlap_stats: DataAllOverlapStats
+        all_overlap_stats: AllDataOverlapStats
         ngram_index: NgramIndex
         all_overlap_stats = create_all_overlap_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
         ngram_index = create_ngram_index(light_scenarios=light_scenarios, n_values=N_VALUES, tokenizer=tokenizer)

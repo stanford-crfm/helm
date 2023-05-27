@@ -7,7 +7,7 @@ from compute_data_overlap_metrics import (
     EntryDataOverlapKey,
     Ngram,
     NgramIndex,
-    DataAllOverlapStats,
+    AllDataOverlapStats,
 )
 from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
@@ -148,7 +148,7 @@ def test_light_tokenizer():
 
 def test_create_overlap_stats():
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_overlap_stats: DataAllOverlapStats
+    all_overlap_stats: AllDataOverlapStats
     all_overlap_stats = create_all_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
 
     stats_1_key, stats_2_key, stats_3_key = (
@@ -217,7 +217,7 @@ def test_create_ngram_index():
 def test_compute_scenario_document_overlap():
     tokenizer = LightTokenizer()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_overlap_stats: DataAllOverlapStats
+    all_overlap_stats: AllDataOverlapStats
     ngram_index: NgramIndex
     all_overlap_stats = create_all_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
     ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
