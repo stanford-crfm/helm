@@ -8,5 +8,5 @@ COPY . .
 
 RUN pip install -r ./requirements-freeze.txt
 
-ENTRYPOINT ["python", "compute_contamination_metrics.py"] 
+ENTRYPOINT ["python", "compute_overlap_metrics.py"] 
 
