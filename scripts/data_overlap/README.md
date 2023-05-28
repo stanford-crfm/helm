@@ -71,11 +71,11 @@ The beam script does not support outputting overlapping ngrams yet.
 
 To create and run docker image:
 
-    docker build  . -t data_overlap_script
+    docker build . -t data_overlap_script
     docker run --input-path=<input-path> --scenario-data=<scenario-data> --output-stats=<output-stats> --input-format=<input-format> --rm -it data_overlap_script:latest 
 
 example with values:
     
-    docker run  --rm -it  data_overlap_script:latest  --input-path="input.json" --scenario-data="scenario_data" --output-stats="output_stats" --input-format="the_pile"
+    docker run --rm -it data_overlap_script:latest --input-path="input.json" --scenario-data="scenario_data" --output-stats="output_stats" --input-format="the_pile"
 
 You'll need some way of providing access to your files for the computation, such as [bind mounts](https://docs.docker.com/storage/bind-mounts/) or [volumes](https://docs.docker.com/storage/volumes/)
