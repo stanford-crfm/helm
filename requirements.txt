@@ -19,6 +19,7 @@ tqdm~=4.64.1
 pyhocon~=0.3.59
 dacite~=1.6.0
 simple-slurm~=0.2.6
+typing_extensions<4.6.0  # Workaround for https://github.com/explosion/spaCy/issues/12659
 
 # Proxy
 aleph-alpha-client~=2.14.0
@@ -63,9 +64,7 @@ sacrebleu~=2.2.1
 # Work around https://github.com/p-lambda/verified_calibration/issues/11
 # TODO: Remove after this issue is resolved
 scikit-learn~=1.1.2
-spacy==3.2.4
-spacy-legacy==3.0.10
-spacy-loggers==1.0.3
+spacy~=3.2.4
 summ-eval~=0.892
 surge-api~=1.1.0
 # End users should install a CUDA version of PyTorch manually if needed
