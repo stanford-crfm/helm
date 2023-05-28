@@ -88,8 +88,8 @@ if __name__ == "__main__":
     light_scenarios: List[LightScenario] = []
     for run_spec in run_specs:
         try:
-            get_light_scenarios_from_run_spec(run_spec)
-            light_scenarios.extend()
+            scenario = get_light_scenarios_from_run_spec(run_spec)
+            light_scenarios.extend(scenario)
         except Exception as e:
             hlog(f"Error when writing to cache: {str(e)}")
 
