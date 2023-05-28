@@ -40,7 +40,6 @@ def get_light_scenarios_from_run_spec(
     with htrack_block("scenario.get_instances"):
         instances = scenario.get_instances()
 
-
     # Classify instances into splits
     splits: List[str] = [TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT]
     split_mapping: DefaultDict[str, list] = defaultdict(list)
