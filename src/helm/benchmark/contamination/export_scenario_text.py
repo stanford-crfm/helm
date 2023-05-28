@@ -40,6 +40,7 @@ def get_light_scenarios_from_run_spec(
     with htrack_block("scenario.get_instances"):
         instances = scenario.get_instances()
 
+
     # Classify instances into splits
     splits: List[str] = [TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT]
     split_mapping: DefaultDict[str, list] = defaultdict(list)
@@ -86,6 +87,10 @@ if __name__ == "__main__":
     hlog("Generating light scenarios from scenarios")
     light_scenarios: List[LightScenario] = []
     for run_spec in run_specs:
-        light_scenarios.extend(get_light_scenarios_from_run_spec(run_spec))
+        try:
+            get_light_scenarios_from_run_spec(run_spec)
+            light_scenarios.extend()
+        except Exception as e:
+            hlog(f"Error when writing to cache: {str(e)}")
 
     save_scenarios_to_jsonl(light_scenarios, args.output_data)
