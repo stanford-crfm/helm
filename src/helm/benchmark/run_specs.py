@@ -380,6 +380,31 @@ def get_summarization_adapter_spec(num_sents: Optional[int], max_train_instances
     )
 
 
+def get_konko_summarization_adapter_spec(num_sents: Optional[int], **kwargs) -> AdapterSpec:
+    """
+    Used for konko summarization.
+    """
+
+    if num_sents == 1:
+        out_pref = "Summarize the above article in 1 sentence.\n"
+    elif num_sents is None:
+        out_pref = "Summarize the above article.\n"
+    else:
+        out_pref = f"Summarize the above article in {num_sents} sentences.\n"
+
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        input_prefix="###\nArticle: ",
+        input_suffix="\n\n",
+        output_prefix=out_pref,
+        output_suffix="\n",
+        num_outputs=1,
+        stop_sequences=["###"],  # Separator between few-shot instances.
+        **kwargs,
+    )
+
+
 def get_machine_translation_adapter_spec(
     source_language, target_language, max_train_instances, **kwargs
 ) -> AdapterSpec:
@@ -1526,6 +1551,34 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
         metric_specs=get_summarization_metric_specs({"task": "summarization_cnndm", "device": device})
         + get_generative_harms_metric_specs(),
         groups=["summarization_cnndm"],
+    )
+
+
+@run_spec_function("konko_summarization_cnndm_sampled")
+def get_konko_cnndm_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.konko_summarization_scenario.KonkoSummarizationScenario",
+        args={
+            "dataset_name": "cnn-dm",
+            "sampling_min_length": 50,
+            "sampling_max_length": 1024,
+        },
+    )
+
+    adapter_spec = get_konko_summarization_adapter_spec(
+        num_sents=1,
+        max_train_instances=0,
+        max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
+        temperature=temperature,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
+    )
+
+    return RunSpec(
+        name=f"konko_summarization_cnndm_sampled:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "summarization", "device": device}),
+        # + get_generative_harms_metric_specs(), leave out gen harms for now
+        groups=["konko_summarization"],
     )
 
 
