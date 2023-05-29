@@ -2145,6 +2145,24 @@ def get_opinions_qa_spec(
     )
 
 
+@run_spec_function("oasst1")
+def get_oasst1_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.oasst1_scenario.Oasst1Scenario",
+        args={},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name="oasst1",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["oasst1"],
+    )
+
+
 ############################################################
 
 
