@@ -11,8 +11,8 @@ PART_REF: str = "reference"
 
 
 @dataclass(frozen=True)
-class ContaminationStatsKey:
-    """Unique key representing a `ContaminationStats` instance."""
+class DataOverlapStatsKey:
+    """Unique key representing a `OverlapStats` instance."""
 
     metadata: Dict[str, Hashable]
 
@@ -20,16 +20,16 @@ class ContaminationStatsKey:
         return hash(tuple((k, self.metadata[k]) for k in sorted(self.metadata.keys())))
 
 
-class ContaminationStats:
+class DataOverlapStats:
     """
-    A memory-efficient class for contamination stats. The core data structures are bit arrays where
-    every bit records whether an instance is contaminated or not.
+    A memory-efficient class for overlap stats. The core data structures are bit arrays where
+    every bit records whether an instance is overlapping or not.
     """
 
     def __init__(
         self, light_scenario_key: LightScenarioKey, num_instances: int, stats_tags: Optional[Dict[str, Any]] = None
     ):
-        self.stats_key = ContaminationStatsKey(metadata={"light_scenario_key": light_scenario_key})
+        self.stats_key = DataOverlapStatsKey(metadata={"light_scenario_key": light_scenario_key})
         self.num_instances = num_instances
         if stats_tags is not None:
             self.stats_key.metadata.update(stats_tags)
@@ -73,19 +73,19 @@ class ContaminationStats:
         self._reference_bits |= stats._reference_bits
 
     @property
-    def num_instances_with_contaminated_input(self):
+    def num_instances_with_overlapping_input(self):
         return self._input_bits.count()
 
     @property
-    def num_instances_with_contaminated_reference(self):
+    def num_instances_with_overlapping_reference(self):
         return self._reference_bits.count()
 
     @property
-    def contaminated_input_fraction(self):
+    def overlapping_input_fraction(self):
         return self._input_bits.count() / self.num_instances
 
     @property
-    def contaminated_reference_fraction(self):
+    def overlapping_reference_fraction(self):
         return self._reference_bits.count() / self.num_instances
 
     def generate_summary(self, summary_tags: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -95,9 +95,9 @@ class ContaminationStats:
         summary = {
             "setting": {"stats_key": asdict_without_nones(self.stats_key), **summary_tags},
             "num_instances": self.num_instances,
-            "num_instances_with_contaminated_input": self.num_instances_with_contaminated_input,
-            "num_instances_with_contaminated_reference": self.num_instances_with_contaminated_reference,
-            "contaminated_input_fraction": self.contaminated_input_fraction,
-            "contaminated_reference_fraction": self.contaminated_reference_fraction,
+            "num_instances_with_overlapping_input": self.num_instances_with_overlapping_input,
+            "num_instances_with_overlapping_reference": self.num_instances_with_overlapping_reference,
+            "overlapping_input_fraction": self.overlapping_input_fraction,
+            "overlapping_reference_fraction": self.overlapping_reference_fraction,
         }
         return summary

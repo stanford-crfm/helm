@@ -1,19 +1,19 @@
 from typing import List
 
-from compute_contamination_metrics import (
-    compute_scenario_document_contamination,
-    create_all_contamination_stats,
+from compute_data_overlap_metrics import (
+    compute_scenario_document_data_overlap,
+    create_all_data_overlap_stats,
     create_ngram_index,
-    EntryContaminationKey,
+    EntryDataOverlapKey,
     Ngram,
     NgramIndex,
-    AllContaminationStats,
+    AllDataOverlapStats,
 )
 from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
-from contamination_stats import (
-    ContaminationStats,
-    ContaminationStatsKey,
+from data_overlap_stats import (
+    DataOverlapStats,
+    DataOverlapStatsKey,
     PART_INPUT,
     PART_REF,
 )
@@ -146,30 +146,26 @@ def test_light_tokenizer():
     ]
 
 
-def test_create_contamination_stats():
+def test_create_overlap_stats():
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_contamination_stats: AllContaminationStats
-    all_contamination_stats = create_all_contamination_stats(light_scenarios=scenarios, n_values=N_VALUES)
+    all_overlap_stats: AllDataOverlapStats
+    all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
 
     stats_1_key, stats_2_key, stats_3_key = (
-        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
-        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
-        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
+        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
+        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
+        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
     )
 
-    assert (
-        stats_1_key in all_contamination_stats
-        and stats_2_key in all_contamination_stats
-        and stats_3_key in all_contamination_stats
-    )
+    assert stats_1_key in all_overlap_stats and stats_2_key in all_overlap_stats and stats_3_key in all_overlap_stats
 
-    stats_1: ContaminationStats
-    stats_2: ContaminationStats
-    stats_3: ContaminationStats
+    stats_1: DataOverlapStats
+    stats_2: DataOverlapStats
+    stats_3: DataOverlapStats
     stats_1, stats_2, stats_3 = (
-        all_contamination_stats[stats_1_key],
-        all_contamination_stats[stats_2_key],
-        all_contamination_stats[stats_3_key],
+        all_overlap_stats[stats_1_key],
+        all_overlap_stats[stats_2_key],
+        all_overlap_stats[stats_3_key],
     )
     assert stats_1.num_instances == 2 and stats_2.num_instances == 1 and stats_3.num_instances == 1
 
@@ -181,9 +177,9 @@ def test_create_ngram_index():
     ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
 
     stats_1_key, stats_2_key, stats_3_key = (
-        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
-        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
-        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
+        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
+        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
+        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
     )
 
     test_5_gram: Ngram = ("Center", "for", "Research", "on", "Foundation")
@@ -205,58 +201,58 @@ def test_create_ngram_index():
 
     assert ngram_index[5][test_5_gram] == set(
         [
-            EntryContaminationKey(stats_key=stats_1_key, instance_id=0, part=PART_INPUT),
-            EntryContaminationKey(stats_key=stats_2_key, instance_id=0, part=PART_INPUT),
-            EntryContaminationKey(stats_key=stats_2_key, instance_id=0, part=PART_REF),
+            EntryDataOverlapKey(stats_key=stats_1_key, instance_id=0, part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_2_key, instance_id=0, part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_2_key, instance_id=0, part=PART_REF),
         ]
     )
     assert ngram_index[13][test_13_gram] == set(
         [
-            EntryContaminationKey(stats_key=stats_3_key, instance_id=0, part=PART_INPUT),
-            EntryContaminationKey(stats_key=stats_3_key, instance_id=0, part=PART_REF),
+            EntryDataOverlapKey(stats_key=stats_3_key, instance_id=0, part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_3_key, instance_id=0, part=PART_REF),
         ]
     )
 
 
-def test_compute_scenario_document_contamination():
+def test_compute_scenario_document_overlap():
     tokenizer = LightTokenizer()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_contamination_stats: AllContaminationStats
+    all_overlap_stats: AllDataOverlapStats
     ngram_index: NgramIndex
-    all_contamination_stats = create_all_contamination_stats(light_scenarios=scenarios, n_values=N_VALUES)
+    all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
     ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
 
-    compute_scenario_document_contamination(
+    compute_scenario_document_data_overlap(
         document=TEST_DOCUMENT,
         ngram_index=ngram_index,
-        all_contamination_stats=all_contamination_stats,
+        all_overlap_stats=all_overlap_stats,
         tokenizer=tokenizer,
     )
 
     stats_1_key, stats_2_key, stats_3_key = (
-        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
-        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
-        ContaminationStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
+        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
+        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
+        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
     )
     stats_1, stats_2, stats_3 = (
-        all_contamination_stats[stats_1_key],
-        all_contamination_stats[stats_2_key],
-        all_contamination_stats[stats_3_key],
+        all_overlap_stats[stats_1_key],
+        all_overlap_stats[stats_2_key],
+        all_overlap_stats[stats_3_key],
     )
 
     assert (
         stats_1._input_bits[0] == 1
-        and stats_1.contaminated_input_fraction == 0.5
-        and stats_1.contaminated_reference_fraction == 0
+        and stats_1.overlapping_input_fraction == 0.5
+        and stats_1.overlapping_reference_fraction == 0
     )
-    assert stats_2.contaminated_input_fraction == 1 and stats_2.contaminated_reference_fraction == 1
-    assert stats_3.contaminated_input_fraction == 1 and stats_3.contaminated_reference_fraction == 1
+    assert stats_2.overlapping_input_fraction == 1 and stats_2.overlapping_reference_fraction == 1
+    assert stats_3.overlapping_input_fraction == 1 and stats_3.overlapping_reference_fraction == 1
 
     assert stats_1.generate_summary() == {
         "setting": {"stats_key": asdict_without_nones(stats_1_key)},
         "num_instances": 2,
-        "num_instances_with_contaminated_input": 1,
-        "num_instances_with_contaminated_reference": 0,
-        "contaminated_input_fraction": 0.5,
-        "contaminated_reference_fraction": 0,
+        "num_instances_with_overlapping_input": 1,
+        "num_instances_with_overlapping_reference": 0,
+        "overlapping_input_fraction": 0.5,
+        "overlapping_reference_fraction": 0,
     }

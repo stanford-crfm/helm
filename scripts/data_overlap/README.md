@@ -1,4 +1,4 @@
-# Data Contamination Script (no dependencies on HELM)
+# Data Overlap Script (no dependencies on HELM)
 
 There are 2 scripts, one with and one without Apache Beam.
 
@@ -21,11 +21,11 @@ pip install -r requirements.txt
 
 ```bash
 
-This needs to be run from the data contamination directory; i.e. cd scripts/data_contamination if you are at the top level HELM folder
+This needs to be run from the data overlap directory; i.e. cd scripts/data_overlap if you are at the top level HELM folder
 
 Usage:
 
-python [compute_contamination_metrics.py OR run_contamination_beam.py] --input-data <input_data> --scenario-data <scenario_data> --output-stats <output_stats> --input-format <input_format>
+python [compute_data_overlap_metrics.py OR run_data_overlap_beam.py] --input-data <input_data> --scenario-data <scenario_data> --output-stats <output_stats> --input-format <input_format>
 
 For instance, you can call this with The Pile, e.g. have:
     input_data  = 00.jsonl (download https://pile.eleuther.ai/)
@@ -41,7 +41,7 @@ There are additional optional args:
 
 ## Beam API
 
-Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteContaminationStats()` with the appropriate arguments.
+Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteDataOverlapStats()` with the appropriate arguments.
 
 Note: Each record in the `PCollection[str]` should contain an _entire_ document, not a single line from a document.
 
@@ -52,8 +52,8 @@ with beam.Pipeline() as pipeline:
         # The model developer should modify these lines to read from the actual training set.
         | "Read" >> beam.io.ReadFromText(input_data)
         | "ExtractTextFromDocument" >> beam.Map(extract_text_from_document)
-        # Call the HELM Contamination Apache Beam API.
-        | "ComputeAndWriteContaminationStats" >> ComputeAndWriteContaminationStats(
+        # Call the HELM Data Overlap Apache Beam API.
+        | "ComputeAndWriteDataOverlapStats" >> ComputeAndWriteDataOverlapStats(
             scenario_data_path=scenario_data,
             n_values=n_values,
             normalization=normalization,
@@ -64,18 +64,18 @@ with beam.Pipeline() as pipeline:
 
 ## Notes
 
-The beam script does not support outputting contaminated ngrams yet.
+The beam script does not support outputting overlapping ngrams yet.
 
 
 ## Docker
 
 To create and run docker image:
 
-    docker build  . -t contamination_script
-    docker run --input-path=<input-path> --scenario-data=<scenario-data> --output-stats=<output-stats> --input-format=<input-format> --rm -it  contamination_script:latest 
+    docker build . -t data_overlap_script
+    docker run --input-path=<input-path> --scenario-data=<scenario-data> --output-stats=<output-stats> --input-format=<input-format> --rm -it data_overlap_script:latest 
 
 example with values:
     
-    docker run  --rm -it  contamination_script:latest  --input-path="input.json" --scenario-data="scenario_data" --output-stats="output_stats" --input-format="the_pile"
+    docker run --rm -it data_overlap_script:latest --input-path="input.json" --scenario-data="scenario_data" --output-stats="output_stats" --input-format="the_pile"
 
 You'll need some way of providing access to your files for the computation, such as [bind mounts](https://docs.docker.com/storage/bind-mounts/) or [volumes](https://docs.docker.com/storage/volumes/)

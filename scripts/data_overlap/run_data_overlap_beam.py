@@ -4,7 +4,7 @@ import argparse
 
 from typing import Callable, List
 
-from contamination_beam import ComputeAndWriteContaminationStats
+from data_overlap_beam import ComputeAndWriteDataOverlapStats
 
 
 def get_extract_text_function(input_format: str):
@@ -46,14 +46,14 @@ def main():
         "--output-ngrams",
         type=str,
         default=None,
-        help="Path to the file of contaminated ngrams. To output the ngrams, you must also specify --max-output-ngrams",
+        help="Path to the file of overlapping ngrams. To output the ngrams, you must also specify --max-output-ngrams",
     )
     parser.add_argument(
         "--max-output-ngrams",
         type=int,
         default=0,
         help=(
-            "The max number of contaminated ngrams to be stored for each (n, light_instance, part)."
+            "The max number of overlapping ngrams to be stored for each (n, light_instance, part)."
             "Set to -1 to store all"
         ),
     )
@@ -69,9 +69,9 @@ def main():
             # The model developer should modify these lines to read from the actual training set.
             | "Read" >> beam.io.ReadFromText(args.input_data)
             | "ExtractTextFromDocument" >> beam.Map(extract_text_from_document)
-            # Call the HELM Contamination Apache Beam API.
-            | "ComputeAndWriteContaminationStats"
-            >> ComputeAndWriteContaminationStats(
+            # Call the HELM Overlap Apache Beam API.
+            | "ComputeAndWriteDataOverlapStats"
+            >> ComputeAndWriteDataOverlapStats(
                 scenario_data_path=args.scenario_data,
                 n_values=n_values,
                 normalization=args.normalization,
