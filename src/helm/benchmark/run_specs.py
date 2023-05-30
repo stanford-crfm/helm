@@ -2200,9 +2200,21 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if ANTHROPIC_MODEL_TAG in model.tags:
             add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
             increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
-            format_expander = FormatPromptRunExpander(
-                prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
-            )
+            # Get scenario tags
+            components = run_spec.scenario_spec.class_name.split(".")
+            module: Any = __import__(components[0])
+            for component in components[1:]:
+                module = getattr(module, component)
+            scenario_tags: List[str] = module.tags
+            # If the scenario is instruction, do not use PROMPT_ANSWER_START
+            if "instructions" in scenario_tags:
+                format_expander = FormatPromptRunExpander(
+                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}"
+                )
+            else:
+                format_expander = FormatPromptRunExpander(
+                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
+                )
             run_spec = singleton(add_to_stop_expander.expand(run_spec))
             run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
             run_spec = singleton(format_expander.expand(run_spec))
