@@ -15,14 +15,18 @@ from .client import Client, wrap_request_time, truncate_sequence
 
 
 _ASYNC_MODELS: Set[str] = {
+    "alpaca-7b",
     "mpt-7b",
+    "pythia-7b",
     "redpajama-incite-base-3b-v1",
     "vicuna-13b",
 }
 """Together models to use async requests for.
 
 Currently async requests are only used for models that are timing out,
-because async requests are slower than sync requests."""
+because async requests are slower than sync requests.
+
+Note: These should be HELM model names, not Together model name aliases."""
 # TODO: Eventually delete this and switch every model to async requests.
 
 
@@ -31,6 +35,14 @@ MODEL_ALIASES: Dict[str, str] = {
     "h3-2.7b": "h3-2.7b-h3",
     "opt-1.3b": "opt-1.3b-ft-tp1",
     "opt-6.7b": "opt-6.7b-ft-tp1",
+    # Together's models are half-precision are default,
+    # and the full-precision models are suffixed e.g.
+    # alpaca-7b is half-precision
+    # alpaca-7b-full-precision is full-precision
+    "alpaca-7b": "alpaca-7b-full-precision",
+    "llama-7b": "llama-7b-full-precision",
+    "pythia-7b": "pythia-7b-full-precision",
+    "vicuna-13b": "vicuna-13b-full-precision",
 }
 """Together model name aliases.
 
@@ -153,6 +165,9 @@ class TogetherClient(Client):
                     raise TogetherClientError(
                         f"Could not get output from Together job {job_id}: {retrieve_response_json}"
                     )
+                if "error" in retrieve_response_json["output"]:
+                    error_message = retrieve_response_json["output"]["error"]
+                    raise TogetherClientError(f"Together request failed with error: {error_message}")
                 return retrieve_response_json["output"]
 
             def do_it_async() -> Dict[Any, Any]:
@@ -173,9 +188,21 @@ class TogetherClient(Client):
                 result = response.json()
                 if "output" not in result:
                     raise TogetherClientError(f"Could not get output from Together response: {result}")
+                if "error" in result["output"]:
+                    error_message = result["output"]["error"]
+                    raise TogetherClientError(f"Together request failed with error: {error_message}")
                 return result["output"]
 
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
+            try:
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
+            except Exception as error:
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error=str(error),
+                    completions=[],
+                    embedding=[],
+                )
 
         # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[Sequence] = []
