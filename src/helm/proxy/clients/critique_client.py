@@ -5,6 +5,7 @@ from typing import Dict, List, Union
 import string
 
 from cattrs import unstructure
+import dataclasses
 import surge
 from surge import questions as surge_questions
 
@@ -268,13 +269,7 @@ class LLMCritiqueClient(CritiqueClient):
         for request in requests:
             responses.append([])
             for i in range(num_respondents):
-                request_with_random: Request = Request(
-                    model=request.model,
-                    prompt=request.prompt,
-                    max_tokens=request.max_tokens,
-                    echo_prompt=request.echo_prompt,
-                    random=str(i),
-                )
+                request_with_random = dataclasses.replace(request, random=str(i))
                 response: RequestResult = self._client.make_request(request_with_random)
                 responses[-1].append(response)
         return responses
