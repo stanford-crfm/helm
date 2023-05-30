@@ -169,7 +169,7 @@ class TogetherClient(Client):
                     )
                 if "error" in retrieve_response_json["output"]:
                     error_message = retrieve_response_json["output"]["error"]
-                    raise TogetherClientError(f"Together request failed with error: {error_message}")
+                    raise TogetherClientError(f"Together request (job_id={job_id}) failed with error: {error_message}")
                 return retrieve_response_json["output"]
 
             def do_it_async() -> Dict[Any, Any]:
