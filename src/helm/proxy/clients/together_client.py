@@ -107,8 +107,7 @@ class TogetherClient(Client):
         if request.model_engine in _ASYNC_MODELS:
 
             def submit_job() -> str:
-                submit_request = raw_request.copy()
-                submit_request["async"] = True
+                submit_request = {**raw_request, "async": True}
                 submit_response = requests.post(TogetherClient.INFERENCE_ENDPOINT, headers=headers, json=submit_request)
                 try:
                     submit_response.raise_for_status()
