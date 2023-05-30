@@ -265,11 +265,17 @@ class LLMCritiqueClient(CritiqueClient):
 
     def _execute_requests(self, requests: List[Request], num_respondents: int) -> List[List[RequestResult]]:
         """Execute a list of requests and return the responses."""
-        responses: List[List[Sequence]] = []
+        responses: List[List[RequestResult]] = []
         for request in requests:
             responses.append([])
             for i in range(num_respondents):
-                request_with_random = {"random": i, **request}
+                request_with_random: Request = Request(
+                    model=request.model,
+                    prompt=request.prompt,
+                    max_tokens=request.max_tokens,
+                    echo_prompt=request.echo_prompt,
+                    random=str(i),
+                )
                 response: RequestResult = self._client.make_request(request_with_random)
                 responses[-1].append(response)
         return responses
@@ -314,20 +320,17 @@ class LLMCritiqueClient(CritiqueClient):
         responses: List[CritiqueResponse] = []
         for respondent_id in range(len(results[0])):
             answers: Dict[str, Union[str, List[str]]] = {}
-            for question_index, question in enumerate(results):
+            for question_index, result in enumerate(results):
+                question = questions[question_index]
                 answer: Union[str, List[str]] = ""
+                if not result[respondent_id].success:
+                    raise RuntimeError(f"Request failed: {result[respondent_id]}.")
                 if question.question_type == "multiple_choice":
-                    answer = self._multiple_choice_completion_to_answer(
-                        question, results[question_index][respondent_id].sequences[0]
-                    )
+                    answer = self._multiple_choice_completion_to_answer(question, result[respondent_id].completions[0])
                 elif question.question_type == "checkbox":
-                    answer = self._checkbox_completion_to_answer(
-                        question, results[question_index][respondent_id].sequences[0]
-                    )
+                    answer = self._checkbox_completion_to_answer(question, result[respondent_id].completions[0])
                 elif question.question_type == "free_response":
-                    answer = self._free_response_completion_to_answer(
-                        question, results[question_index][respondent_id].sequences[0]
-                    )
+                    answer = self._free_response_completion_to_answer(question, result[respondent_id].completions[0])
                 else:
                     raise ValueError(f"Unknown question type: {question.question_type}")
                 answers[question.name] = answer

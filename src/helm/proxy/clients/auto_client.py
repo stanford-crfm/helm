@@ -264,7 +264,9 @@ class AutoClient(Client):
                 raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
             self.critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
         elif critique_type == "llm":
-            model_name: str = self.credentials.get("critiqueModelName")
+            model_name: Optional[str] = self.credentials.get("critiqueModelName")
+            if model_name is None:
+                raise ValueError("critiqueModelName is required for LLMCritiqueClient")
             client: Client = self._get_client(model_name)
             self.critique_client = LLMCritiqueClient(client, model_name, self._build_cache_config("citiqueLLM"))
         else:
