@@ -232,7 +232,7 @@ class ScaleCritiqueClient(CritiqueClient):
       It contains **attachments** which is the data to be annotated, and **fields** which are the
         instructions and questions to be displayed to the Tasker. A task has also a general **instruction**
         which is displayed before the fields.
-    - A **task response**: TODO
+    - A **task response**: represents for each question a list of answers from different workers.
 
     Mapping of HELM concepts to Scale AI concepts:
 
@@ -240,153 +240,151 @@ class ScaleCritiqueClient(CritiqueClient):
         - `CritiqueRequest.template` indicates which **project** the task should be created in.
     - A `CritiqueTaskTemplate` maps to a **task**
     - A `CritiqueQuestionTemplate` maps to a **field** in a task.
-    - A `CritiqueResponse` maps to TODO
+    - A `CritiqueResponse` maps to a **task response**.
     """
 
     def __init__(
         self,
         api_key: str,
         cache_config: CacheConfig,
-        project_name: Optional[str] = None,
         batch_name: Optional[str] = None,
     ):
         self._cache = Cache(cache_config)
         self._client = scaleapi.ScaleClient(api_key)
-        self._project_name = project_name
         self._batch_name = batch_name
 
-    def _get_or_create_scale_project_and_batch(self, template: CritiqueTaskTemplate) -> Tuple[str, str]:
-        """Get or create a project and a batch associated to it on Scale and return the
-        Scale project name and batch name.
+    # def _get_or_create_scale_project_and_batch(self, template: CritiqueTaskTemplate) -> Tuple[str, str]:
+    #     """Get or create a project and a batch associated to it on Scale and return the
+    #     Scale project name and batch name.
 
-        If the project_name was specified in the credentials, use it (should already exist).
-        In order to send tasks, the project needs to already have a calibration batch.
-        Otherwise, create a new project using the template name.
-        If the project is created, there will be no calibration batch so the batch will be set
-        as self-labeling.
+    #     If the project_name was specified in the credentials, use it (should already exist).
+    #     In order to send tasks, the project needs to already have a calibration batch.
+    #     Otherwise, create a new project using the template name.
+    #     If the project is created, there will be no calibration batch so the batch will be set
+    #     as self-labeling.
 
-        If the batch_name was specified in the credentials, use it (does not necessarily need to exist).
-        Otherwise, create a new batch using the project name and the template name.
+    #     If the batch_name was specified in the credentials, use it (does not necessarily need to exist).
+    #     Otherwise, create a new batch using the project name and the template name.
 
-        This is using Scale Rapid.
+    #     This is using Scale Rapid.
 
-        Attempt to find a Scale project for the template. If one exists, reuse that project.
-        Otherwise, create a new project using the template. Return the Scale project name.
-        Same for the batch."""
+    #     Attempt to find a Scale project for the template. If one exists, reuse that project.
+    #     Otherwise, create a new project using the template. Return the Scale project name.
+    #     Same for the batch."""
 
-        project_was_created: bool = self._project_name is None
-        project_name: Optional[str] = None
-        batch_name: Optional[str] = None
+    #     project_was_created: bool = self._project_name is None
+    #     project_name: Optional[str] = None
+    #     batch_name: Optional[str] = None
 
-        def create_scale_project():
-            try:
-                project = self._client.create_project(
-                    project_name=template.name,
-                    task_type=TaskType.TextCollection,
-                    rapid=True,
-                    params={},
-                )
-            except ScaleDuplicateResource as err:
-                hlog(f"ScaleDuplicateResource when creating project: {template.name}. Error: {err.message}")
-                # Get the existing project and checks that it has the same params
-                # NOTE: This should not happen with the cache but in case the cache is deleted
-                # we want to make sure we don't create a new project with the same name
-                project = self._client.get_project(template.name)
-                if project.type != TaskType.TextCollection.value:
-                    raise RuntimeError(
-                        f"Project {template.name} already exists with different task_type: "
-                        f"'{project.type}' instead of '{TaskType.TextCollection.value}'"
-                    ) from err
-            return {"project_name": project.name}
+    #     def create_scale_project():
+    #         try:
+    #             project = self._client.create_project(
+    #                 project_name=template.name,
+    #                 task_type=TaskType.TextCollection,
+    #                 rapid=True,
+    #                 params={},
+    #             )
+    #         except ScaleDuplicateResource as err:
+    #             hlog(f"ScaleDuplicateResource when creating project: {template.name}. Error: {err.message}")
+    #             # Get the existing project and checks that it has the same params
+    #             # NOTE: This should not happen with the cache but in case the cache is deleted
+    #             # we want to make sure we don't create a new project with the same name
+    #             project = self._client.get_project(template.name)
+    #             if project.type != TaskType.TextCollection.value:
+    #                 raise RuntimeError(
+    #                     f"Project {template.name} already exists with different task_type: "
+    #                     f"'{project.type}' instead of '{TaskType.TextCollection.value}'"
+    #                 ) from err
+    #         return {"project_name": project.name}
 
-        def create_scale_batch():
-            if project_name is None:
-                raise RuntimeError("Trying to create a batch without a project name.")
-            try:
-                batch_name: str = f"{project_name}-HELMBatch"
-                batch = self._client.create_batch(
-                    project=project_name,
-                    batch_name=batch_name,
-                    calibration_batch=False,
-                    # If the project was created, there is no calibration batch so we set it as self-labeling
-                    # otherwise the API will return an error.
-                    self_label_batch=True,  # project_was_created,
-                )
-            except ScaleDuplicateResource as err:
-                hlog(
-                    f"ScaleDuplicateResource when creating batch: '{batch_name}' in project: "
-                    f"{project_name}. Error: {err.message}"
-                )
-                # Get the existing batch and checks that it has the same project
-                # NOTE: This should not happen with the cache but in case the cache is deleted
-                # we want to make sure we don't create a new batch with the same name
-                batch = self._client.get_batch(batch_name)
-                if batch.project != project.name:
-                    raise RuntimeError(
-                        f"Batch {batch_name} already exists with different project: " f"{batch.project}"
-                    ) from err
-            return {"batch_name": batch.name}
+    #     def create_scale_batch():
+    #         if project_name is None:
+    #             raise RuntimeError("Trying to create a batch without a project name.")
+    #         try:
+    #             batch_name: str = f"{project_name}-HELMBatch"
+    #             batch = self._client.create_batch(
+    #                 project=project_name,
+    #                 batch_name=batch_name,
+    #                 calibration_batch=False,
+    #                 # If the project was created, there is no calibration batch so we set it as self-labeling
+    #                 # otherwise the API will return an error.
+    #                 self_label_batch=True,  # project_was_created,
+    #             )
+    #         except ScaleDuplicateResource as err:
+    #             hlog(
+    #                 f"ScaleDuplicateResource when creating batch: '{batch_name}' in project: "
+    #                 f"{project_name}. Error: {err.message}"
+    #             )
+    #             # Get the existing batch and checks that it has the same project
+    #             # NOTE: This should not happen with the cache but in case the cache is deleted
+    #             # we want to make sure we don't create a new batch with the same name
+    #             batch = self._client.get_batch(batch_name)
+    #             if batch.project != project.name:
+    #                 raise RuntimeError(
+    #                     f"Batch {batch_name} already exists with different project: " f"{batch.project}"
+    #                 ) from err
+    #         return {"batch_name": batch.name}
 
-        # Check if a project_name was specified in the credentials
-        if self._project_name is not None:
-            project_name = self._project_name
-            hlog(f"Using existing Scale project: {project_name} (defined in credentials)")
-            # Checks that the project exists
-            try:
-                project = self._client.get_project(project_name)
-                project_name = project.name
-            except Exception as err:
-                raise RuntimeError(f"Project {project_name} does not exist") from err
+    #     # Check if a project_name was specified in the credentials
+    #     if self._project_name is not None:
+    #         project_name = self._project_name
+    #         hlog(f"Using existing Scale project: {project_name} (defined in credentials)")
+    #         # Checks that the project exists
+    #         try:
+    #             project = self._client.get_project(project_name)
+    #             project_name = project.name
+    #         except Exception as err:
+    #             raise RuntimeError(f"Project {project_name} does not exist") from err
 
-            # Check if a batch_name was specified in the credentials
-            if self._batch_name is not None:
-                batch_name = self._batch_name
-                hlog(f"Using existing Scale batch: {batch_name} (defined in credentials)")
-                # Checks that the batch exists
-                try:
-                    batch = self._client.get_batch(batch_name)
-                except Exception as err:
-                    raise RuntimeError(f"Batch {batch_name} does not exist") from err
-                # Checks that the batch is in the project
-                if batch.project != project_name:
-                    raise RuntimeError(
-                        f"Batch {batch_name} is not in project {project_name}. "
-                        f"It is in project {batch.project} instead."
-                    )
-                return project_name, batch_name
+    #         # Check if a batch_name was specified in the credentials
+    #         if self._batch_name is not None:
+    #             batch_name = self._batch_name
+    #             hlog(f"Using existing Scale batch: {batch_name} (defined in credentials)")
+    #             # Checks that the batch exists
+    #             try:
+    #                 batch = self._client.get_batch(batch_name)
+    #             except Exception as err:
+    #                 raise RuntimeError(f"Batch {batch_name} does not exist") from err
+    #             # Checks that the batch is in the project
+    #             if batch.project != project_name:
+    #                 raise RuntimeError(
+    #                     f"Batch {batch_name} is not in project {project_name}. "
+    #                     f"It is in project {batch.project} instead."
+    #                 )
+    #             return project_name, batch_name
 
-            # If we reach here it means that a project_name was specified but not a batch_name
-            # Create a new batch using the template name
-            with _scale_cache_lock:
-                batch_response, is_cached = self._cache.get(
-                    {"testing": True, "project": project_name, "template": template.name}, create_scale_batch
-                )
-            batch_name = batch_response["batch_name"]
-        else:
-            # If we reach here it means that no project_name was specified
-            # Create a new project using the template name
-            # Create a new batch using the project name and the template name
+    #         # If we reach here it means that a project_name was specified but not a batch_name
+    #         # Create a new batch using the template name
+    #         with _scale_cache_lock:
+    #             batch_response, is_cached = self._cache.get(
+    #                 {"testing": True, "project": project_name, "template": template.name}, create_scale_batch
+    #             )
+    #         batch_name = batch_response["batch_name"]
+    #     else:
+    #         # If we reach here it means that no project_name was specified
+    #         # Create a new project using the template name
+    #         # Create a new batch using the project name and the template name
 
-            with _scale_cache_lock:
-                project_response, is_cached = self._cache.get({"template": template.name}, create_scale_project)
-            project_name = project_response["project_name"]
-            if is_cached:
-                hlog(f"Reusing existing Scale project: {project_name}")
-            else:
-                hlog(f"Creating new Scale project: {project_name}")
+    #         with _scale_cache_lock:
+    #             project_response, is_cached = self._cache.get({"template": template.name}, create_scale_project)
+    #         project_name = project_response["project_name"]
+    #         if is_cached:
+    #             hlog(f"Reusing existing Scale project: {project_name}")
+    #         else:
+    #             hlog(f"Creating new Scale project: {project_name}")
 
-            with _scale_cache_lock:
-                batch_response, is_cached = self._cache.get(
-                    {"testing": True, "project": project_name, "template": template.name}, create_scale_batch
-                )
-            batch_name = batch_response["batch_name"]
+    #         with _scale_cache_lock:
+    #             batch_response, is_cached = self._cache.get(
+    #                 {"testing": True, "project": project_name, "template": template.name}, create_scale_batch
+    #             )
+    #         batch_name = batch_response["batch_name"]
 
-        if is_cached:
-            hlog(f"Reusing existing Scale batch: {batch_name}")
-        else:
-            hlog(f"Creating new Scale batch: {batch_name}")
+    #     if is_cached:
+    #         hlog(f"Reusing existing Scale batch: {batch_name}")
+    #     else:
+    #         hlog(f"Creating new Scale batch: {batch_name}")
 
-        return project_name, batch_name
+    #     return project_name, batch_name
 
     def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
         for field_name, field_value in fields.items():
@@ -401,21 +399,18 @@ class ScaleCritiqueClient(CritiqueClient):
                 "title": question.name,
                 "description": self._interpolate_fields(question.text, fields),
                 "choices": [{"label": option, "value": option} for option in question.options],
-                "min_choices": 1,
+                "min_choices": 0 if question.question_type == "checkbox" else 1,
                 "max_choices": len(question.options) if question.question_type == "checkbox" else 1,
             }
         else:
             raise ValueError(f"Unsupported question type {question.question_type}")
 
-    def _get_or_create_scale_task(
-        self, project_name: str, batch_name: str, template: CritiqueTaskTemplate, fields: Dict[str, str]
-    ) -> str:
+    def _get_or_create_scale_task(self, batch_name: str, template: CritiqueTaskTemplate, fields: Dict[str, str]) -> str:
         """Get or create a task on Scale and return the Scale task ID."""
 
         # Used both for the cache key and the task unique_id
         cache_key = {
             "testing": True,
-            "project": project_name,
             "batch": batch_name,
             "task": unstructure(template),
             "fields": fields,
@@ -434,7 +429,6 @@ class ScaleCritiqueClient(CritiqueClient):
             unique_id: str = sha512(str(json.dumps(cache_key, sort_keys=True)).encode()).hexdigest()
             instructions: str = self._interpolate_fields(template.instructions, fields)
             payload = dict(
-                project=project_name,
                 batch=batch_name,
                 unique_id=unique_id,
                 instruction="Evaluate the AI model generated output following the instructions below",
@@ -477,7 +471,7 @@ class ScaleCritiqueClient(CritiqueClient):
             hlog(f"Creating new Scale task: {task_id}")
         return task_id
 
-    def _finalize_batch(self, batch_name: str):
+    def finalize_batch(self, batch_name: str):
         self._client.finalize_batch(batch_name=batch_name)
 
     def _get_worker_responses(self, task_id: str) -> List[CritiqueResponse]:
@@ -561,8 +555,11 @@ class ScaleCritiqueClient(CritiqueClient):
         the cache to avoid unnecessary API calls and to not depend on Scale AI side.
         Note that worker responses are currently not cached.
         """
-        project_name, batch_name = self._get_or_create_scale_project_and_batch(request.template)
-        task_id: str = self._get_or_create_scale_task(project_name, batch_name, request.template, request.fields)
+        # TODO: Remove/fix _get_or_create_scale_project_and_batch().
+        # For now we are forcing the user to provide a batch_name in the credentials.
+
+        # _, batch_name = self._get_or_create_scale_project_and_batch(request.template)
+        # self._batch_name = batch_name
+        task_id: str = self._get_or_create_scale_task(self._batch_name, request.template, request.fields)
         worker_responses: List[CritiqueResponse] = self._get_worker_responses(task_id)
-        # self._finalize_batch(batch_name)
         return CritiqueRequestResult(worker_responses)
