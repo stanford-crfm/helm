@@ -21,7 +21,6 @@ from helm.common.critique_request import (
 from helm.common.request import Request, RequestResult, Sequence
 from helm.proxy.clients.client import Client
 
-
 _surge_cache_lock = threading.Lock()
 
 
@@ -311,8 +310,26 @@ class LLMCritiqueClient(CritiqueClient):
         assert question.question_type == "free_response"
         return completion.text
 
+    def _letter_answer_to_actual_answer(
+        self, letter_answer: Union[str, List[str]], question: CritiqueQuestionTemplate, fields: Dict[str, str]
+    ) -> Union[str, List[str]]:
+        """Convert a letter answer to an actual answer."""
+        if question.question_type == "multiple_choice":
+            assert isinstance(letter_answer, str)
+            return self._interpolate_fields(question.options[string.ascii_uppercase.index(letter_answer)], fields)
+        elif question.question_type == "checkbox":
+            assert isinstance(letter_answer, str)
+            return [
+                self._interpolate_fields(question.options[string.ascii_uppercase.index(letter)], fields)
+                for letter in letter_answer
+            ]
+        else:
+            # Free response should be returned as is.
+            assert isinstance(letter_answer, str)
+            return letter_answer
+
     def _get_responses(
-        self, questions: List[CritiqueQuestionTemplate], results: List[List[RequestResult]]
+        self, questions: List[CritiqueQuestionTemplate], results: List[List[RequestResult]], fields: Dict[str, str]
     ) -> List[CritiqueResponse]:
         """Convert a list of request results to a list of CritiqueResponses."""
         assert len(questions) == len(results)
@@ -333,7 +350,8 @@ class LLMCritiqueClient(CritiqueClient):
                     answer = self._free_response_completion_to_answer(question, result[respondent_id].completions[0])
                 else:
                     raise ValueError(f"Unknown question type: {question.question_type}")
-                answers[question.name] = answer
+                actuals_answer: Union[str, List[str]] = self._letter_answer_to_actual_answer(answer, question, fields)
+                answers[question.name] = actuals_answer
             responses.append(CritiqueResponse(id=str(respondent_id), respondent_id=str(respondent_id), answers=answers))
         return responses
 
@@ -348,6 +366,6 @@ class LLMCritiqueClient(CritiqueClient):
         results: List[List[RequestResult]] = self._execute_requests(requests, request.template.num_respondents)
 
         # Parse the completions into CritiqueResponses.
-        responses: List[CritiqueResponse] = self._get_responses(request.template.questions, results)
+        responses: List[CritiqueResponse] = self._get_responses(request.template.questions, results, request.fields)
 
         return CritiqueRequestResult(responses)
