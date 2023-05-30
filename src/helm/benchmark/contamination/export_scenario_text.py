@@ -62,13 +62,12 @@ def get_light_scenarios_from_run_spec(
     return light_scenarios
 
 
-def save_scenarios_to_jsonl(light_scenarios: List[LightScenario], filename: str):
+def save_scenarios_to_jsonl(light_scenario: LightScenario, filename: str):
     """
     Save a list of LightInstance to a jsonl file where each line represents a LightScenario object.
     """
-    with open(filename, "w") as f:
-        for light_scenario in light_scenarios:
-            f.write(json.dumps(asdict_without_nones(light_scenario), ensure_ascii=False) + "\n")
+    with open(filename, "w", "a") as f:
+        f.write(json.dumps(asdict_without_nones(light_scenario), ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":
@@ -84,12 +83,10 @@ if __name__ == "__main__":
     )
 
     hlog("Generating light scenarios from scenarios")
-    light_scenarios: List[LightScenario] = []
     for run_spec in run_specs:
         try:
             scenario = get_light_scenarios_from_run_spec(run_spec)
-            light_scenarios.extend(scenario)
+            save_scenarios_to_jsonl(scenario, args.output_data)
         except Exception as e:
             hlog(f"Error when writing to cache: {str(e)}")
 
-    save_scenarios_to_jsonl(light_scenarios, args.output_data)
