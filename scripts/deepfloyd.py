@@ -102,11 +102,11 @@ class DeepFloyd:
         self._file_cache = LocalFileCache(file_cache_path, "png")
         self._key_value_cache_config: KeyValueStoreCacheConfig = key_value_cache_config
 
-    def _run_inference_single_image(self, prompt: str, file_path: str) -> None:
+    def _run_inference_single_image(self, prompt: str, file_path: str, seed: int) -> None:
         # Generating text embeddings
         prompt_embeds, negative_embeds = self._stage_1.encode_prompt(prompt)
 
-        generator = torch.manual_seed(0)
+        generator = torch.manual_seed(seed)
         image = self._stage_1(
             prompt_embeds=prompt_embeds, negative_prompt_embeds=negative_embeds, generator=generator, output_type="pt"
         ).images
@@ -131,9 +131,9 @@ class DeepFloyd:
 
         image_paths: List[str] = []
         start_time: float = time.time()
-        for _ in range(request.num_completions):
+        for i in range(request.num_completions):
             file_path: str = self._file_cache.get_unique_file_location()
-            self._run_inference_single_image(request.prompt, file_path)
+            self._run_inference_single_image(request.prompt, file_path, i)
             image_paths.append(file_path)
         total_inference_time: float = time.time() - start_time
 
