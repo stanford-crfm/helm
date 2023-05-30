@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import random
 import threading
 from typing import Dict, List, Union
+import string
 
 from cattrs import unstructure
 import surge
@@ -17,6 +18,8 @@ from helm.common.critique_request import (
     CritiqueResponse,
     QuestionType,
 )
+from helm.common.request import Request, RequestResult, Sequence
+from helm.proxy.clients.client import Client
 
 
 _surge_cache_lock = threading.Lock()
@@ -209,3 +212,139 @@ class SurgeAICritiqueClient(CritiqueClient):
         task_id = self._get_or_create_task(project_id, request.fields)
         worker_responses = self._get_worker_responses(task_id, request.template.questions)
         return CritiqueRequestResult(worker_responses)
+
+
+class LLMCritiqueClient(CritiqueClient):
+    """A CritiqueClient that queries a LLM to answer CritiqueRequests."""
+
+    def __init__(self, client: Client, model_name: str, cache_config: CacheConfig):
+        self._client = client
+        self._model_name = model_name
+        self._cache = Cache(cache_config)
+
+    def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
+        for key, value in fields.items():
+            text = text.replace("{{" + key + "}}", value)
+        return text
+
+    def _question_to_prompt(self, question: CritiqueQuestionTemplate, fields: Dict[str, str]) -> str:
+        prompt: str = self._interpolate_fields(question.text, fields)
+        if question.question_type == "free_response":
+            prompt += "\nAnswer: "
+        else:
+            prompt += "\nAnswer options: "
+            for i, letter in enumerate(string.ascii_uppercase[: len(question.options)]):
+                prompt += f"\n{letter}. {question.options[i]}"
+            if question.question_type == "multiple_choice":
+                prompt += "\nAnswer with a single letter corresponding to the option.\nAnswer: "
+            elif question.question_type == "checkbox":
+                prompt += (
+                    "\nAnswer with all letters seperated by commas, corresponding to the selected options.\nAnswer: "
+                )
+        return prompt
+
+    def _task_to_requests(self, task: CritiqueTaskTemplate, fields: Dict[str, str]) -> List[Request]:
+        base_prompt: str = self._interpolate_fields(task.instructions, fields)
+
+        requests: List[Request] = []
+        for question in task.questions:
+            prompt: str = base_prompt + "\n\n" + self._question_to_prompt(question, fields)
+            max_tokens = 1
+            if question.question_type == "free_response":
+                max_tokens = 100
+            if question.question_type == "checkbox":
+                max_tokens = len(question.options) * 2
+            request = Request(
+                model=self._model_name,
+                prompt=prompt,
+                max_tokens=max_tokens,
+                echo_prompt=False,
+            )
+            requests.append(request)
+        return requests
+
+    def _execute_requests(self, requests: List[Request], num_respondents: int) -> List[List[RequestResult]]:
+        """Execute a list of requests and return the responses."""
+        responses: List[List[Sequence]] = []
+        for request in requests:
+            responses.append([])
+            for i in range(num_respondents):
+                request_with_random = {"random": i, **request}
+                response: RequestResult = self._client.make_request(request_with_random)
+                responses[-1].append(response)
+        return responses
+
+    def _parse_completion_to_question_choice(self, completion: str) -> List[str]:
+        """Convert a completion to a list of answer represented by a list of capital letters."""
+        completion_parsed = completion.replace(" ", "").replace("\n", "").replace(".", "").upper()
+        answers = completion_parsed.split(",")
+        assert len(answers) >= 1, f"Invalid answer: {completion}. There are no answers once parsed: {answers}."
+        assert all(
+            [answer in string.ascii_uppercase for answer in answers]
+        ), f"Invalid answer: {completion}. Some answers are not capital letters, once parsed: {answers}."
+        return answers
+
+    def _multiple_choice_completion_to_answer(self, question: CritiqueQuestionTemplate, completion: Sequence) -> str:
+        """Convert a multiple choice completion to an answer."""
+        assert question.question_type == "multiple_choice"
+        answers: List[str] = self._parse_completion_to_question_choice(completion.text)
+        assert len(answers) == 1, f"Invalid answer: {completion}. Multiple choice questions should have one answer."
+        return answers[0]
+
+    def _checkbox_completion_to_answer(self, question: CritiqueQuestionTemplate, completion: Sequence) -> List[str]:
+        """Convert a checkbox completion to an answer."""
+        assert question.question_type == "checkbox"
+        answers: List[str] = self._parse_completion_to_question_choice(completion.text)
+        assert len(answers) <= len(
+            question.options
+        ), f"Invalid answer: {completion}. Checkbox questions should have at most one answer per option."
+        return answers
+
+    def _free_response_completion_to_answer(self, question: CritiqueQuestionTemplate, completion: Sequence) -> str:
+        """Convert a free response completion to an answer."""
+        assert question.question_type == "free_response"
+        return completion.text
+
+    def _get_responses(
+        self, questions: List[CritiqueQuestionTemplate], results: List[List[RequestResult]]
+    ) -> List[CritiqueResponse]:
+        """Convert a list of request results to a list of CritiqueResponses."""
+        assert len(questions) == len(results)
+
+        responses: List[CritiqueResponse] = []
+        for respondent_id in range(len(results[0])):
+            answers: Dict[str, Union[str, List[str]]] = {}
+            for question_index, question in enumerate(results):
+                answer: Union[str, List[str]] = ""
+                if question.question_type == "multiple_choice":
+                    answer = self._multiple_choice_completion_to_answer(
+                        question, results[question_index][respondent_id].sequences[0]
+                    )
+                elif question.question_type == "checkbox":
+                    answer = self._checkbox_completion_to_answer(
+                        question, results[question_index][respondent_id].sequences[0]
+                    )
+                elif question.question_type == "free_response":
+                    answer = self._free_response_completion_to_answer(
+                        question, results[question_index][respondent_id].sequences[0]
+                    )
+                else:
+                    raise ValueError(f"Unknown question type: {question.question_type}")
+                answers[question.name] = answer
+            responses.append(CritiqueResponse(id=str(respondent_id), respondent_id=str(respondent_id), answers=answers))
+        return responses
+
+    def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
+        """Queries the LLM specified in the constructor to answer a CritiqueRequest."""
+
+        # This returns one request per question. We still need to duplicate each request
+        # for the number of respondents.
+        requests: List[Request] = self._task_to_requests(request.template, request.fields)
+
+        # This returns a list (for each question) of lists (for each respondent) of RequestResults.
+        results: List[List[RequestResult]] = self._execute_requests(requests, request.template.num_respondents)
+
+        # Parse the completions into CritiqueResponses.
+        responses: List[CritiqueResponse] = self._get_responses(request.template.questions, results)
+
+        return CritiqueRequestResult(responses)
