@@ -66,7 +66,7 @@ def save_scenarios_to_jsonl(light_scenario: LightScenario, filename: str):
     """
     Save a list of LightInstance to a jsonl file where each line represents a LightScenario object.
     """
-    with open(filename, "w", "a") as f:
+    with open(filename, "a") as f:
         f.write(json.dumps(asdict_without_nones(light_scenario), ensure_ascii=False) + "\n")
 
 
