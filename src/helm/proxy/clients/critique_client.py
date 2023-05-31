@@ -3,7 +3,7 @@ from hashlib import sha512
 import json
 import random
 import threading
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Union
 
 # Surge AI
 from cattrs import unstructure
