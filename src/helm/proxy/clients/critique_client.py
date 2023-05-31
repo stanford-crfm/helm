@@ -113,14 +113,14 @@ def _ensure_batch_exists(client: scaleapi.ScaleClient, project_name: str, batch_
             except ScaleDuplicateResource:
                 existing_batch = client.get_batch(batch_name=batch_name)
                 if existing_batch.project != project_name:
-                    raise Exception(
+                    raise ScaleCritiqueClientError(
                         f"A batch named '{batch_name}' already exists in a project '{existing_batch.project}' "
                         f"but credentials.conf has scaleProject set to a different project '{project_name}'. "
                         "Either rename the existing batch to a different name to allow HELM to create a new batch, or "
                         f"change scaleProject in credentials.conf to '{existing_batch.project}'. {existing_batch}"
                     )
                 if existing_batch.status != "staging":
-                    raise Exception(
+                    raise ScaleCritiqueClientError(
                         f"New tasks cannot be added to the existing batch named '{batch_name}' because "
                         f"its status is '{existing_batch.status}' instead of 'staging'. "
                         "Rename the existing batch to a different name to allow HELM to create a new batch."
@@ -235,9 +235,16 @@ class ScaleCritiqueClient(CritiqueClient):
             try:
                 task = self._client.create_task(TaskType.TextCollection, **payload)
                 return {"id": task.id}
-            except ScaleDuplicateResource as err:
-                hlog(f"ScaleDuplicateResource when creating task: {unique_id}. Error: {err.message}")
+            except ScaleDuplicateResource:
+                # Get the existing task and checks that it has the same content (attachments and fields)
+                # NOTE: This should not happen with the cache but in case the cache is deleted
+                # we want to make sure we don't create a new task with the same content
                 task = self._client.get_task(unique_id)
+                if task.params["attachments"] != payload["attachments"]:
+                    raise ScaleCritiqueClientError(
+                        f"Task {unique_id} already exists with different attachments: " f"{task.params['attachments']}"
+                    )
+                # No need to check for fields, project_name and instructions because they are part of the unique_id
                 return {"id": task.id}
 
         with _scale_cache_lock:
