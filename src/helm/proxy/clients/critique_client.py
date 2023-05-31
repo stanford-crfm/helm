@@ -428,17 +428,24 @@ class ScaleCritiqueClient(CritiqueClient):
             # NOTE: Technically, sha512 could have collisions but it's unlikely.
             unique_id: str = sha512(str(json.dumps(cache_key, sort_keys=True)).encode()).hexdigest()
             instructions: str = self._interpolate_fields(template.instructions, fields)
+            attachments: List[Dict[str, str]] = [
+                {
+                    "type": "text",
+                    "content": instructions,
+                }
+            ]
+            if "image" in fields:
+                attachments = [
+                    {
+                        "type": "image",
+                        "content": fields["image"],
+                    }
+                ] + attachments
             payload = dict(
                 batch=batch_name,
                 unique_id=unique_id,
                 instruction="Evaluate the AI model generated output following the instructions below",
-                attachment_type="text",
-                attachments=[
-                    {
-                        "type": "text",
-                        "content": instructions,
-                    }
-                ],
+                attachments=attachments,
                 response_required=template.num_respondents,
                 fields=[self._critique_question_to_scale_field(question, fields) for question in template.questions],
             )
