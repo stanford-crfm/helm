@@ -435,6 +435,8 @@ class ScaleCritiqueClient(CritiqueClient):
                 }
             ]
             if "image" in fields:
+                # We add the image as the first attachment so that it is displayed first
+                # (Usually the instructions are not as important when an image is present)
                 attachments = [
                     {
                         "type": "image",
