@@ -1,5 +1,15 @@
 # Tutorial
 
+## Available Resources
+
+We provide several resources to help you get started with HELM:
+- This tutorial, which explains **how to run benchmarks and visualize results**.
+- This [notebook](https://colab.research.google.com/drive/1zbgbrOyTpzTRKNMWL4HDBq7OlCATQ-03?usp=sharing) which covers this material with a working installation of HELM. In addition it explains how to use HELM **to query models for completion or tokenization**.
+- This [demo file](https://github.com/stanford-crfm/helm/blob/main/demo.py) which shows hot o use HELM **if you have an API key**. it covers additional details such as randomness, toxicity, and more.
+- The GitHub [repo](https://github.com/stanford-crfm/helm) which **contains the code for HELM** as well as **a list of [issues](https://github.com/stanford-crfm/helm/issues)** that contains a lot of user questions and answers. If you have a problem try to search for it there.
+
+## Introduction
+
 This tutorial will explain how to use the HELM command line tools to run benchmarks, aggregate statistics, and visualize results.
 
 We will run two runs using the `mmlu` scenario on the `huggingface/gpt-2` model. The `mmlu` scenario implements the **Massive Multitask Language (MMLU)** benchmark from [this paper](https://arxiv.org/pdf/2009.03300.pdf), and consists of a Question Answering (QA) task using a dataset with questions from 57 subjects such as elementary mathematics, US history, computer science, law, and more. Note that GPT-2 performs poorly on MMLU, so this is just a proof of concept. We will run two runs: the first using questions about anatomy, and the second using questions about philosophy.
