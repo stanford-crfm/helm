@@ -1,5 +1,7 @@
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, Union, Set
+
 import requests
+from retrying import retry
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
@@ -12,7 +14,19 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 
 
-MODEL_ALIASES = {
+_ASYNC_MODELS: Set[str] = {
+    "mpt-7b",
+    "redpajama-incite-base-3b-v1",
+    "vicuna-13b",
+}
+"""Together models to use async requests for.
+
+Currently async requests are only used for models that are timing out,
+because async requests are slower than sync requests."""
+# TODO: Eventually delete this and switch every model to async requests.
+
+
+MODEL_ALIASES: Dict[str, str] = {
     "flan-t5-xxl": "flan-t5-xxl-hf",
     "h3-2.7b": "h3-2.7b-h3",
     "opt-1.3b": "opt-1.3b-ft-tp1",
@@ -41,6 +55,12 @@ class TogetherClientError(Exception):
     pass
 
 
+class JobNotFinishedError(TogetherClientError):
+    """Exception raised when trying to get a response for a Together async job that has not finished"""
+
+    pass
+
+
 class TogetherClient(Client):
     """
     Client for the models where we evaluate offline. Since the queries are handled offline, the `TogetherClient` just
@@ -48,6 +68,7 @@ class TogetherClient(Client):
     """
 
     INFERENCE_ENDPOINT: str = "https://api.together.xyz/api/inference"
+    RETRIEVE_JOB_MAX_WAIT_SECONDS: int = 60
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
@@ -72,28 +93,89 @@ class TogetherClient(Client):
         self.api_key: Optional[str] = api_key
         self.cache = Cache(cache_config)
 
+    def _get_job_url(self, job_id: str) -> str:
+        return f"https://api.together.xyz/jobs/job/{job_id}"
+
     def make_request(self, request: Request) -> RequestResult:
         raw_request = TogetherClient.convert_to_raw_request(request)
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
-        def do_it():
-            if not self.api_key:
-                raise TogetherClientError("togetherApiKey not set in credentials.conf")
-            headers: Dict[str, str] = {"Authorization": f"Bearer {self.api_key}"}
-            response = requests.post(TogetherClient.INFERENCE_ENDPOINT, headers=headers, json=raw_request)
-            try:
-                response.raise_for_status()
-            except Exception as e:
-                raise TogetherClientError(
-                    f"Together request failed with {response.status_code}: {response.text}"
-                ) from e
-            result = response.json()
-            return result["output"]
+        if not self.api_key:
+            raise TogetherClientError("togetherApiKey not set in credentials.conf")
+        headers: Dict[str, str] = {"Authorization": f"Bearer {self.api_key}"}
 
-        def fail():
-            raise RuntimeError(f"The result has not been uploaded to the cache for the following request: {cache_key}")
+        if request.model_engine in _ASYNC_MODELS:
 
-        response, cached = self.cache.get(cache_key, wrap_request_time(do_it if self.api_key else fail))
+            def submit_job() -> str:
+                submit_request = {**raw_request, "async": True}
+                submit_response = requests.post(TogetherClient.INFERENCE_ENDPOINT, headers=headers, json=submit_request)
+                try:
+                    submit_response.raise_for_status()
+                except Exception as e:
+                    raise TogetherClientError(
+                        f"Together job submission request failed with {submit_response.status_code}: "
+                        f"{submit_response.text}"
+                    ) from e
+                submit_response_json = submit_response.json()
+                job_id = submit_response_json.get("id")
+                if not job_id:
+                    raise TogetherClientError(
+                        f"Could not get job_id from job submission response {submit_response_json}"
+                    )
+                return job_id
+
+            def retry_if_job_not_finished(exception: Exception) -> bool:
+                return isinstance(exception, JobNotFinishedError)
+
+            # Retry with a 1 second delay that doubles every retry until a maximum of delay of 15 seconds.
+            # Stop retrying after 1 minute.
+            @retry(
+                retry_on_exception=retry_if_job_not_finished,
+                wait_incrementing_start=5 * 1000,  # 5 seconds
+                wait_incrementing_increment=5 * 1000,  # 5 seconds
+                wait_incrementing_max=30 * 1000,  # 30 seconds
+                stop_max_delay=5 * 60 * 1000,  # 5 minutes
+            )
+            def retrieve_job(job_id: str) -> Dict[Any, Any]:
+                job_url = self._get_job_url(job_id)
+                retrieve_response = requests.get(job_url, headers=headers)
+                try:
+                    retrieve_response.raise_for_status()
+                except Exception as e:
+                    raise TogetherClientError(
+                        f"Together job retrieval request failed with {retrieve_response.status_code}: "
+                        f"{retrieve_response.text}"
+                    ) from e
+                retrieve_response_json = retrieve_response.json()
+                if retrieve_response_json["status"] != "finished":
+                    raise JobNotFinishedError(f"Together job not finished: {job_id}")
+                if "output" not in retrieve_response_json:
+                    raise TogetherClientError(
+                        f"Could not get output from Together job {job_id}: {retrieve_response_json}"
+                    )
+                return retrieve_response_json["output"]
+
+            def do_it_async() -> Dict[Any, Any]:
+                job_id = submit_job()
+                return retrieve_job(job_id)
+
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it_async))
+        else:
+
+            def do_it_sync() -> Dict[Any, Any]:
+                response = requests.post(TogetherClient.INFERENCE_ENDPOINT, headers=headers, json=raw_request)
+                try:
+                    response.raise_for_status()
+                except Exception as e:
+                    raise TogetherClientError(
+                        f"Together request failed with {response.status_code}: {response.text}"
+                    ) from e
+                result = response.json()
+                if "output" not in result:
+                    raise TogetherClientError(f"Could not get output from Together response: {result}")
+                return result["output"]
+
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
 
         # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[Sequence] = []

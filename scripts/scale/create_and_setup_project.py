@@ -5,9 +5,12 @@ from scaleapi.exceptions import ScaleDuplicateResource
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--project_name", type=str, help="Name of the project to create")
+parser.add_argument(
+    "--credentials_path", type=str, default="prod_env/credentials.conf", help="Path to the credentials file"
+)
 args = parser.parse_args()
 project_name = args.project_name
-client = get_scale_client()
+client = get_scale_client(args.credentials_path)
 
 print("\nGetting project...")
 try:

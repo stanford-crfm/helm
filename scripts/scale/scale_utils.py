@@ -16,8 +16,7 @@ def get_credentials(path: str) -> Dict[str, str]:
         return credentials
 
 
-def get_scale_client() -> ScaleClient:
-    relative_credentials_path = "../../prod_env/credentials.conf"
+def get_scale_client(relative_credentials_path: str) -> ScaleClient:
     credentials_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), relative_credentials_path)
     print(f"Reading credentials from {credentials_path}")
     credentials = get_credentials(credentials_path)
