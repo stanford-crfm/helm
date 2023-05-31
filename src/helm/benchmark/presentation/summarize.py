@@ -939,9 +939,9 @@ class Summarizer:
                 json.dumps(list(map(asdict_without_nones, tables)), indent=2),
             )
 
-    def write_run_display_json(self) -> None:
+    def write_run_display_json(self, skip_completed: bool) -> None:
         def process(run: Run) -> None:
-            write_run_display_json(run.run_path, run.run_spec, self.schema)
+            write_run_display_json(run.run_path, run.run_spec, self.schema, skip_completed)
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
@@ -978,9 +978,9 @@ def main():
         help="Display debugging information.",
     )
     parser.add_argument(
-        "--skip-write-run-display-json",
+        "--skip-completed-run-display-json",
         action="store_true",
-        help="Skip write_run_display_json",
+        help="Skip write_run_display_json() for runs which already have all output display JSON files",
     )
     args = parser.parse_args()
 
@@ -997,8 +997,7 @@ def main():
     summarizer.write_groups()
     summarizer.write_cost_report()
 
-    if not args.skip_write_run_display_json:
-        summarizer.write_run_display_json()
+    summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
 
     symlink_latest(args.output_path, args.suite)
     hlog("Done.")
