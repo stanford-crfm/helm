@@ -1,10 +1,11 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, DefaultDict
 from datasets import load_dataset, Dataset
+from collections import defaultdict
 
 from .scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TRAIN_SPLIT, VALID_SPLIT, Output
 
 
-class Oasst1Scenario(Scenario):
+class OpenAssistantScenario(Scenario):
     """
     This scenario is based on the OpenAssistant Conversations Dataset (OASST1) released by LAION.
     The dataset includes 66,497 human-generated, human-annotated assistant-style conversation trees
@@ -14,10 +15,11 @@ class Oasst1Scenario(Scenario):
     https://arxiv.org/pdf/2304.07327.pdf
 
     Note that we are only using the initial prompt messages and their direct responses in this scenario.
+    We are not including the subsequent turns of the chat.
     """
 
-    name = "oasst1"
-    description = "The Oasst1 dataset released by LAION's Open Assistant project."
+    name = "open_assistant"
+    description = "The conversation dataset released by LAION's Open Assistant project."
     tags = ["instructions"]
 
     def get_instances(self) -> List[Instance]:
@@ -65,23 +67,21 @@ class Oasst1Scenario(Scenario):
 
         def get_split_instances(split: Dataset, split_tag: str):
             """Get instances from a split (e.g. train) of the dataset"""
-            # First pass: get all initial prompts (roots of the conversation trees) and messages with role "assistant"
+            # First pass: get all initial prompts (roots of the conversation trees)
             initial_prompts: Dict[str, str] = {}
-            assistant_messages: List[dict] = []
+
             for msg in split:
                 assert msg["model_name"] is None
                 if msg["parent_id"] is None:
                     assert msg["role"] == "prompter"
                     assert msg["message_id"] not in initial_prompts
                     initial_prompts[msg["message_id"]] = msg["text"]
-                if msg["role"] == "assistant":
-                    assistant_messages.append(msg)
 
             # Second pass: for each initial prompt, find the corresponding assistant messages
-            prompt_responses: Dict[str, List[str]] = {}
-            for msg in assistant_messages:
-                if msg["parent_id"] in initial_prompts:
-                    prompt_responses.setdefault(msg["parent_id"], []).append(msg["text"])
+            prompt_responses: DefaultDict[str, List[str]] = defaultdict(list)
+            for msg in split:
+                if msg["role"] == "assistant" and msg["parent_id"] in initial_prompts:
+                    prompt_responses[msg["parent_id"]].append(msg["text"])
 
             # Final pass: for each initial prompt, create an instance
             instances: List[Instance] = []
@@ -101,6 +101,7 @@ class Oasst1Scenario(Scenario):
         dataset: Any = load_dataset("OpenAssistant/oasst1")
 
         # Get the instances for each split
-        return get_split_instances(dataset["train"], TRAIN_SPLIT) + get_split_instances(
-            dataset["validation"], VALID_SPLIT
-        )
+        train_instances = get_split_instances(dataset["train"], TRAIN_SPLIT)
+        valid_instances = get_split_instances(dataset["validation"], VALID_SPLIT)
+
+        return train_instances + valid_instances
