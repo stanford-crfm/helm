@@ -14,7 +14,8 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.retry import retry_request
-from .critique_client import CritiqueClient, RandomCritiqueClient, SurgeAICritiqueClient, ScaleCritiqueClient
+from .critique_client import CritiqueClient, RandomCritiqueClient, ScaleCritiqueClient
+from .surge_ai_critique_client import SurgeAICritiqueClient
 from .mechanical_turk_critique_client import MechanicalTurkCritiqueClient
 from .client import Client
 from .ai21_client import AI21Client
@@ -266,13 +267,13 @@ class AutoClient(Client):
 
         elif critique_type == "scale":
             scale_credentials = self.credentials.get("scaleApiKey")
-            scale_batch = self.credentials.get("scaleBatch", None)
-            if scale_batch is None:
-                raise ValueError("scaleBatch is required for ScaleCritiqueClient for now.")
+            scale_project = self.credentials.get("scaleProject", None)
+            if not scale_project:
+                raise ValueError("scaleProject is required for ScaleCritiqueClient.")
             if not scale_credentials:
-                raise ValueError("scaleApiKey credentials are required for ScaleCritiqueClient")
+                raise ValueError("scaleApiKey is required for ScaleCritiqueClient")
             self.critique_client = ScaleCritiqueClient(
-                scale_credentials, self._build_cache_config("scale"), scale_batch
+                scale_credentials, self._build_cache_config("scale"), scale_project
             )
         else:
             raise ValueError(
