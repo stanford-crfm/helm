@@ -267,6 +267,8 @@ class AutoClient(Client):
         elif critique_type == "scale":
             scale_credentials = self.credentials.get("scaleApiKey")
             scale_batch = self.credentials.get("scaleBatch", None)
+            if scale_batch is None:
+                raise ValueError("scaleBatch is required for ScaleCritiqueClient for now.")
             if not scale_credentials:
                 raise ValueError("scaleApiKey credentials are required for ScaleCritiqueClient")
             self.critique_client = ScaleCritiqueClient(

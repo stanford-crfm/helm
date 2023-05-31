@@ -247,7 +247,7 @@ class ScaleCritiqueClient(CritiqueClient):
         self,
         api_key: str,
         cache_config: CacheConfig,
-        batch_name: Optional[str] = None,
+        batch_name: str,
     ):
         self._cache = Cache(cache_config)
         self._client = scaleapi.ScaleClient(api_key)
