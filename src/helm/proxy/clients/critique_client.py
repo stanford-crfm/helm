@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from hashlib import sha512
 import json
 import random
@@ -59,17 +58,13 @@ class ScaleCritiqueClientError(Exception):
     pass
 
 
-@dataclass(frozen=True)
-class _ScaleBatchKey:
-    project_name: str
-    batch_name: str
-
-
+# Set of existing projects in Scale.
 _scale_projects_lock: threading.Lock = threading.Lock()
 _scale_projects: Set[str] = set()
 
 
 def _ensure_project_exists(client: scaleapi.ScaleClient, project_name: str):
+    """Ensure that the Scale project exists, creating it if necessary."""
     with _scale_projects_lock:
         if project_name not in _scale_projects:
             try:
@@ -97,15 +92,16 @@ def _ensure_project_exists(client: scaleapi.ScaleClient, project_name: str):
             _scale_projects.add(project_name)
 
 
+# Set of existing batches in Scale.
+_scale_batches: Set[str] = set()
 _scale_batches_lock: threading.Lock = threading.Lock()
-_scale_batches: Set[_ScaleBatchKey] = set()
 
 
 def _ensure_batch_exists(client: scaleapi.ScaleClient, project_name: str, batch_name: str) -> None:
+    """Ensure that the Scale batch exists, creating it if necessary."""
     _ensure_project_exists(client, project_name)
     with _scale_batches_lock:
-        batch_key = _ScaleBatchKey(project_name, batch_name)
-        if batch_key not in _scale_batches:
+        if batch_name not in _scale_batches:
             try:
                 client.create_batch(
                     project=project_name,
@@ -126,11 +122,11 @@ def _ensure_batch_exists(client: scaleapi.ScaleClient, project_name: str, batch_
                 if existing_batch.status != "staging":
                     raise Exception(
                         f"New tasks cannot be added to the existing batch named '{batch_name}' because "
-                        "its status is '{existing_batch.status}' instead of 'staging'. "
+                        f"its status is '{existing_batch.status}' instead of 'staging'. "
                         "Rename the existing batch to a different name to allow HELM to create a new batch."
                     )
                 hlog(f"Reusing existing Scale batch: {batch_name}")
-            _scale_batches.add(batch_key)
+            _scale_batches.add(batch_name)
 
 
 _scale_cache_lock: threading.Lock = threading.Lock()
