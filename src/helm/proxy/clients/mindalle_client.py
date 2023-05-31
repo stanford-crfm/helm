@@ -47,7 +47,7 @@ class MinDALLEClient(Client):
             "softmax_temperature": 1.0,
             "top_k": 256,  # It is recommended that top_k is set lower than 256.
             "top_p": None,
-            "device": get_torch_device_name(),
+            "device": "cuda",
         }
 
         try:
