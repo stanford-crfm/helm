@@ -2148,7 +2148,7 @@ def get_opinions_qa_spec(
 @run_spec_function("open_assistant")
 def get_open_assistant_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.oasst1_scenario.OpenAssistantScenario",
+        class_name="helm.benchmark.scenarios.open_assistant_scenario.OpenAssistantScenario",
         args={},
     )
 
