@@ -309,11 +309,6 @@ class ScaleCritiqueClient(CritiqueClient):
         the cache to avoid unnecessary API calls and to not depend on Scale AI side.
         Note that worker responses are currently not cached.
         """
-        # TODO: Remove/fix _get_or_create_scale_project_and_batch().
-        # For now we are forcing the user to provide a batch_name in the credentials.
-
-        # _, batch_name = self._get_or_create_scale_project_and_batch(request.template)
-        # self._batch_name = batch_name
         task_id: str = self._get_or_create_scale_task(request.template, request.fields)
         worker_responses: List[CritiqueResponse] = self._get_worker_responses(task_id)
         return CritiqueRequestResult(worker_responses)
