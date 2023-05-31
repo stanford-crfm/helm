@@ -25,7 +25,7 @@ class _MechanicalTurkRequestImporter:
     """Exports critique request results.
 
     The request results will be imported from all files matching
-    turk/{template.name}/Batch_{batch_number}_batch_results.csv"""
+    mturk/{template.name}/Batch_{batch_number}_batch_results.csv"""
 
     def __init__(self, template: CritiqueTaskTemplate):
         self._template: CritiqueTaskTemplate = template
