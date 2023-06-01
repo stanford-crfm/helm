@@ -14,7 +14,8 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.retry import retry_request
-from .critique_client import CritiqueClient, RandomCritiqueClient, ScaleCritiqueClient
+from .critique_client import CritiqueClient, RandomCritiqueClient
+from .scale_critique_client import ScaleCritiqueClient
 from .surge_ai_critique_client import SurgeAICritiqueClient
 from .mechanical_turk_critique_client import MechanicalTurkCritiqueClient
 from .client import Client
