@@ -244,7 +244,7 @@ def output_instance_level_data_overlap(
     ngram_index: The ngram index that maps from ngrams to overlap stats
     outfile_name: name of output
     """
-    instance_index: Dict[int, Dict]= dict()
+    instance_index: Dict[int, Dict] = dict()
     for n in ngram_index.keys():  # these are the n, say [5, 9, 13]
         instance_index[n] = defaultdict(int)
         curr_index = instance_index[n]

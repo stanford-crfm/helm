@@ -201,15 +201,15 @@ def test_create_ngram_index():
 
     assert ngram_index[5][test_5_gram] == set(
         [
-            EntryDataOverlapKey(stats_key=stats_1_key, instance_id='0', part=PART_INPUT),
-            EntryDataOverlapKey(stats_key=stats_2_key, instance_id='0', part=PART_INPUT),
-            EntryDataOverlapKey(stats_key=stats_2_key, instance_id='0', part=PART_REF),
+            EntryDataOverlapKey(stats_key=stats_1_key, instance_id="0", part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_2_key, instance_id="0", part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_2_key, instance_id="0", part=PART_REF),
         ]
     )
     assert ngram_index[13][test_13_gram] == set(
         [
-            EntryDataOverlapKey(stats_key=stats_3_key, instance_id='0', part=PART_INPUT),
-            EntryDataOverlapKey(stats_key=stats_3_key, instance_id='0', part=PART_REF),
+            EntryDataOverlapKey(stats_key=stats_3_key, instance_id="0", part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_3_key, instance_id="0", part=PART_REF),
         ]
     )
 
