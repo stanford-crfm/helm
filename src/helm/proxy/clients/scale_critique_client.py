@@ -100,7 +100,6 @@ _SCALE_IMAGE_ATTACHMENT_KEY = "image_attachment"
 
 
 class ScaleCritiqueClient(CritiqueClient):
-    # TODO #1614: Move this to its own file
     """A CritiqueClient that creates tasks for workers on Scale.
 
     Scale AI concepts:
