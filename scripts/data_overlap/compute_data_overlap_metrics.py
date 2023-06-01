@@ -122,7 +122,7 @@ def create_ngram_index(
                     if input_ngram not in ngram_index[n]:
                         ngram_index[n][input_ngram] = set()
                     ngram_index[n][input_ngram].add(
-                        EntryDataOverlapKey(stats_key=stats_key, instance_id=i, part=PART_INPUT)
+                        EntryDataOverlapKey(stats_key=stats_key, instance_id=str(i), part=PART_INPUT)
                     )
 
                 # compute reference ngrams
@@ -132,7 +132,7 @@ def create_ngram_index(
                         if reference_ngram not in ngram_index[n]:
                             ngram_index[n][reference_ngram] = set()
                         ngram_index[n][reference_ngram].add(
-                            EntryDataOverlapKey(stats_key=stats_key, instance_id=i, part=PART_REF)
+                            EntryDataOverlapKey(stats_key=stats_key, instance_id=str(i), part=PART_REF)
                         )
     return ngram_index
 
@@ -216,7 +216,7 @@ def compute_scenario_document_data_overlap(
                 for entry_overlap_key in ngram_index[n][document_ngram]:
                     # update overlap_stats
                     stats: DataOverlapStats = all_overlap_stats[entry_overlap_key.stats_key]
-                    stats.write_one_to_bit(entry_overlap_key.instance_id, entry_overlap_key.part)
+                    stats.write_one_to_bit(int(entry_overlap_key.instance_id), entry_overlap_key.part)
                     # skip the rest if max_overlapping_ngrams is 0
                     if max_overlapping_ngrams != 0:
                         if ngram_counter is None:
@@ -244,7 +244,7 @@ def output_instance_level_data_overlap(
     ngram_index: The ngram index that maps from ngrams to overlap stats
     outfile_name: name of output
     """
-    instance_index: Dict[int, Dict] = dict()
+    instance_index: Dict[int, Dict]= dict()
     for n in ngram_index.keys():  # these are the n, say [5, 9, 13]
         instance_index[n] = defaultdict(int)
         curr_index = instance_index[n]
