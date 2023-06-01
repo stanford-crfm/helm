@@ -22,6 +22,10 @@ class OpenAssistantScenario(Scenario):
     description = "The conversation dataset released by LAION's Open Assistant project."
     tags = ["instructions"]
 
+    def __init__(self, language: str):
+        super().__init__()
+        self.language: str = language
+
     def get_instances(self) -> List[Instance]:
         """An example of a message in the dataset:
         {
@@ -65,6 +69,13 @@ class OpenAssistantScenario(Scenario):
         }
         """
 
+        def matches_target_language(msg):
+            """Check if the message is in the target language"""
+            if self.language == "all":
+                return True
+            else:
+                return msg["lang"] == self.language
+
         def get_split_instances(split: Dataset, split_tag: str):
             """Get instances from a split (e.g. train) of the dataset"""
             # First pass: get all initial prompts (roots of the conversation trees)
@@ -72,7 +83,7 @@ class OpenAssistantScenario(Scenario):
 
             for msg in split:
                 assert msg["model_name"] is None
-                if msg["parent_id"] is None:
+                if msg["parent_id"] is None and matches_target_language(msg):
                     assert msg["role"] == "prompter"
                     assert msg["message_id"] not in initial_prompts
                     initial_prompts[msg["message_id"]] = msg["text"]
@@ -80,7 +91,7 @@ class OpenAssistantScenario(Scenario):
             # Second pass: for each initial prompt, find the corresponding assistant messages
             prompt_responses: DefaultDict[str, List[str]] = defaultdict(list)
             for msg in split:
-                if msg["role"] == "assistant" and msg["parent_id"] in initial_prompts:
+                if msg["role"] == "assistant" and msg["parent_id"] in initial_prompts and matches_target_language(msg):
                     prompt_responses[msg["parent_id"]].append(msg["text"])
 
             # Final pass: for each initial prompt, create an instance
