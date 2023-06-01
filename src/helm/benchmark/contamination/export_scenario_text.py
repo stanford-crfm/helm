@@ -94,4 +94,4 @@ if __name__ == "__main__":
             light_scenarios: List[LightScenario] = get_light_scenarios_from_run_spec(run_spec)
             save_scenarios_to_jsonl(light_scenarios, args.output_data)
         except Exception as e:
-            hlog(f"Error when writing to cache: {str(e)}")
+            hlog(f"Error when writing scenario: {str(e)}")
