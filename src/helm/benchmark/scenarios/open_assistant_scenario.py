@@ -78,7 +78,7 @@ class OpenAssistantScenario(Scenario):
 
         def get_split_instances(split: Dataset, split_tag: str):
             """Get instances from a split (e.g. train) of the dataset"""
-            # First pass: get all initial prompts (roots of the conversation trees)
+            # Step 1: get all initial prompts (roots of the conversation trees)
             initial_prompts: Dict[str, str] = {}
 
             for msg in split:
@@ -88,13 +88,14 @@ class OpenAssistantScenario(Scenario):
                     assert msg["message_id"] not in initial_prompts
                     initial_prompts[msg["message_id"]] = msg["text"]
 
-            # Second pass: for each initial prompt, find the corresponding assistant messages
+            # Step 2: for each initial prompt, find the corresponding assistant messages.
+            # Each initial prompt can have multiple assistant responses.
             prompt_responses: DefaultDict[str, List[str]] = defaultdict(list)
             for msg in split:
                 if msg["role"] == "assistant" and msg["parent_id"] in initial_prompts and matches_target_language(msg):
                     prompt_responses[msg["parent_id"]].append(msg["text"])
 
-            # Final pass: for each initial prompt, create an instance
+            # Step 3: for each initial prompt, create an instance
             instances: List[Instance] = []
             for msg_id, prompt in initial_prompts.items():
                 reference_texts: List[str] = []
@@ -115,4 +116,10 @@ class OpenAssistantScenario(Scenario):
         train_instances = get_split_instances(dataset["train"], TRAIN_SPLIT)
         valid_instances = get_split_instances(dataset["validation"], VALID_SPLIT)
 
+        total = 0; postive = 0
+        for instance in train_instances + valid_instances:
+            total += 1
+            if len(instance.references) > 1:
+                postive += 1
+        print("result:", postive, total, postive/total)
         return train_instances + valid_instances
