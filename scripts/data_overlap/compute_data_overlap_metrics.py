@@ -232,30 +232,31 @@ def compute_scenario_document_data_overlap(
                         ):
                             ngram_counter[entry_overlap_key][document_ngram] = 1
 
+
 def output_instance_level_data_overlap(
     ngram_index: NgramIndex,
     outfile_name: str,
 ):
     """
-    Given ngram_index, we create a new dictionary that maps classname -> instance ids. 
+    Given ngram_index, we create a new dictionary that maps classname -> instance ids.
     Each instance is uniquely identified by (classname, split, instance_id)
 
     ngram_index: The ngram index that maps from ngrams to overlap stats
     outfile_name: name of output
     """
     instance_index = dict()
-    for n in ngram_index.keys(): # these are the n, say [5, 9, 13]
+    for n in ngram_index.keys():  # these are the n, say [5, 9, 13]
         instance_index[n] = defaultdict(int)
         curr_index = instance_index[n]
-        for _ , overlap_keys in ngram_index[n].items():
+        for _, overlap_keys in ngram_index[n].items():
             for overlap_key in overlap_keys:
                 curr_index[overlap_key] += 1
     with open(outfile_name, "w") as f:
         for n in instance_index.keys():
             curr_index = instance_index[n]
             for overlap_key, count in curr_index.items():
-                f.write(str(overlap_key) + '\n')
-                f.write(str(count) + '\n\n')
+                f.write(json.dumps(asdict_without_nones((overlap_key))) + "\n")
+                f.write(str(count) + "\n\n")
 
     hlog(f"Written instance overlaps results to {outfile_name}")
 
@@ -355,7 +356,7 @@ if __name__ == "__main__":
         f.writelines(f"{json.dumps(stats_summary)}\n" for stats_summary in stats_summaries)
     hlog(f"Written {len(stats_summaries)} results to {args.output_stats}")
 
-    output_instance_level_data_overlap(ngram_index, args.output_stats + '_instance')
+    output_instance_level_data_overlap(ngram_index, args.output_stats + "_instance")
 
     if args.output_ngrams is not None:
         # convert the ngram counter to json format
