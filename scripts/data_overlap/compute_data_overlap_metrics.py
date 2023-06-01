@@ -35,7 +35,7 @@ class EntryDataOverlapKey:
     stats_key: DataOverlapStatsKey
     part: str
     """Either PART_INPUT or PART_REF"""
-    instance_id: int
+    instance_id: str
 
 
 # type alias for overlap-related data structures
