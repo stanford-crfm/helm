@@ -5,6 +5,7 @@ from typing import Dict, List, Union
 import argparse
 import os
 import time
+import shlex
 import sys
 
 from helm.common.codec import from_json, to_json
@@ -241,10 +242,10 @@ class SlurmRunner(Runner):
         # Requires that SlurmRunnerSpec has already been written to self.slurm_runner_spec_path.
         # It should have been written at the start of self.run_all()
         command = (
-            f"{sys.executable}"
+            f"{shlex.quote(sys.executable)}"
             f" -m {SlurmRunner.__module__}"
-            f" --slurm-runner-spec-path {self.slurm_runner_spec_path}"
-            f" --run-spec-path {run_spec_path}"
+            f" --slurm-runner-spec-path {shlex.quote(self.slurm_runner_spec_path)}"
+            f" --run-spec-path {shlex.quote(run_spec_path)}"
         )
         # TODO: Make default Slurm arguments configurable.
         slurm_args: Dict[str, Union[str, int]] = {
@@ -255,10 +256,10 @@ class SlurmRunner(Runner):
             "open_mode": "append",
             "partition": "john",
             "time": "14-0",  # Deadline of 14 days
-            "mail_type": "END",
-            "job_name": run_name,
-            "output": log_path,
-            "chdir": os.getcwd(),
+            "mail_type": "FAIL",
+            "job_name": shlex.quote(run_name),
+            "output": shlex.quote(log_path),
+            "chdir": shlex.quote(os.getcwd()),
         }
         # TODO: Move resource requirements into RunSpec.
         if run_spec.name.startswith("msmarco:"):
