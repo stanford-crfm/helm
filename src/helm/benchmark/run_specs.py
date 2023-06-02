@@ -2065,6 +2065,24 @@ def get_self_instruct_spec() -> RunSpec:
     )
 
 
+@run_spec_function("vicuna")
+def get_vicuna_spec(category: str = "all") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vicuna_scenario.VicunaScenario",
+        args={"category": category},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"vicuna:category={category}",  # TODO: add args
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["vicuna"],
+    )
+
+
 @run_spec_function("grammar")
 def get_grammar_spec(path: str, tags: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
