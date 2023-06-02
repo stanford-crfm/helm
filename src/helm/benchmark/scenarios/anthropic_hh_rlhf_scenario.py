@@ -8,13 +8,13 @@ from .scenario import Scenario, Instance, Input, TRAIN_SPLIT, TEST_SPLIT
 class AnthropicHHRLHFScenario(Scenario):
     """
     This scenario is based on the dialogue datasets released by Anthropic to facilitate research in
-    model helpfulness and harmlesness.
+    model helpfulness and harmlessness.
 
     https://arxiv.org/pdf/2204.05862.pdf
 
     https://arxiv.org/pdf/2209.07858.pdf
 
-    Note that we are only using the first utterance of each dialogue, which is written by human.
+    Note that we are only using the first utterance of each dialogue, which is written by a human.
     We are not including any subsequent turns in the dialogue.
     """
 
