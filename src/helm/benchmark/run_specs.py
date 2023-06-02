@@ -2199,6 +2199,24 @@ def get_koala_spec() -> RunSpec:
     )
 
 
+@run_spec_function("anthropic_hh_rlhf")
+def get_anthropic_hh_rlhf_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.anthropic_hh_rlhf_scenario.AnthropicHHRLHFScenario",
+        args={"subset": subset},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"anthropic_hh_rlhf:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["anthropic_hh_rlhf"],
+    )
+
+
 ############################################################
 
 
