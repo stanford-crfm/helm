@@ -2163,6 +2163,24 @@ def get_open_assistant_spec(language: str) -> RunSpec:
     )
 
 
+@run_spec_function("anthropic")
+def get_anthropic_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.anthropic_scenario.AnthropicScenario",
+        args={"subset": subset},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"anthropic:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["anthropic"],
+    )
+
+
 ############################################################
 
 
