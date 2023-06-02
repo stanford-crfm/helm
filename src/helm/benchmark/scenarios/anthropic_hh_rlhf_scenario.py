@@ -69,7 +69,7 @@ class AnthropicHHRLHFScenario(Scenario):
             #     'rating': 4.0
             # }
             dataset = load_dataset("Anthropic/hh-rlhf", data_dir="red-team-attempts")
-            # Note the we are using the original "train" split as our test split.
+            # Note that we are using the original "train" split as our test split.
             dialogue_splits["test"] = []
             for example in dataset["train"]:
                 dialogue_splits["test"].append(example["transcript"])
