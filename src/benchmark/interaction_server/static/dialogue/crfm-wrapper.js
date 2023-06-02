@@ -20,7 +20,7 @@ const ChatBox = {
 				turn: true,
 				why: {
 							options: ["the bot was responsive to me", "the bot shared information", "the bot asked the right questions",
-										"the bot was unresponsive to me", "the bot gave close-ended answers", "the bot did <b> not </b> ask enough questions", 
+										"the bot was unresponsive to me", "the bot gave close-ended answers", "the bot did not ask enough questions", 
 										 "the bot asked the wrong questions"]
 						}
 			},			
@@ -148,7 +148,7 @@ const ChatBox = {
 							},
 					why: {
 								options: ["the bot was responsive to me", "the bot shared information", "the bot asked the right questions",
-											"the bot was unresponsive to me", "the bot gave close-ended answers", "the bot did <b> not </b> ask enough questions", 
+											"the bot was unresponsive to me", "the bot gave close-ended answers", "the bot did not ask enough questions", 
 											 "the bot asked the wrong questions"]
 							}
 				},			
@@ -360,7 +360,7 @@ const ChatBox = {
 								},
 				{
 					tag: "initiative-1",
-					type: "combo",
+					type: "likert",
 					text: "",
 					likert: {   
 								text: "How much do you agree with the following statement: \n\n 'The chatbot did enough to keep the conversation going'",
@@ -369,7 +369,7 @@ const ChatBox = {
 				},			
 				{
 					tag: "initiative-2",
-					type: "combo",
+					type: "likert",
 					text: "",
 					likert: {	
 						text: "How much do agree with the following statement: 'I had enough opportunities to drive the conversation/choose topics'",
@@ -378,7 +378,7 @@ const ChatBox = {
 				},
 				{
 					tag: "interested",
-					type: "combo",
+					type: "likert",
 					text: "",
 					likert: {	
 						text: "Did the chatbot seem interested in you?",
@@ -387,7 +387,7 @@ const ChatBox = {
 				},
 				{
 					tag: "sharing",
-					type: "combo",
+					type: "likert",
 	
 					text: "",
 					likert: {	
@@ -397,7 +397,7 @@ const ChatBox = {
 				},
 				{
 					tag: "fun",
-					type: "combo",
+					type: "likert",
 					text: "",
 					likert: {
 						text: "How much do you agree with the following statement: 'Talking to the chatbot was fun.'",
@@ -406,7 +406,7 @@ const ChatBox = {
 				},
 				{
 					tag: "emotional-connection",
-					type: "combo",
+					type: "likert",
 					text: "",
 					likert: {
 						text: "How much do you agree with the following statement: “I felt an emotional connection to the chatbot.”  For example, the chatbot understood how you were feeling, or made you feel less lonely.",
@@ -415,7 +415,7 @@ const ChatBox = {
 				},
 				{
 					tag: "communication-skills",
-					type: "combo",
+					type: "likert",
 					text: "",
 					likert: {
 						text: "How much do you agree with the following statement: “The chatbot displayed good communication skills” For example, the bot was coherent, did not repeat itself, understood what I was saying, and was logically correct.",
@@ -424,7 +424,7 @@ const ChatBox = {
 				},
 				{
 					tag: "social-skills",
-					type: "combo",
+					type: "likert",
 					text: "",
 					likert: {
 						text: "How much do you agree with the following statement: “The chatbot responded in a way that was socially appropriate” For example, the bot was polite or the bot understood social situations.",
