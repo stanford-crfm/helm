@@ -5,7 +5,7 @@ from datasets import load_dataset
 from .scenario import Scenario, Instance, Input, TRAIN_SPLIT, TEST_SPLIT
 
 
-class AnthropicScenario(Scenario):
+class AnthropicHHRLHFScenario(Scenario):
     """
     This scenario is based on the dialogue datasets released by Anthropic to facilitate research in
     model helpfulness and harmlesness.
@@ -18,7 +18,7 @@ class AnthropicScenario(Scenario):
     We are not including any subsequent turns in the dialogue.
     """
 
-    name = "anthropic"
+    name = "anthropic_hh_rlhf"
     description = "Anthropic HH-RLHF dataset"
     tags = ["instructions"]
 
