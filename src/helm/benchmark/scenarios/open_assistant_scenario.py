@@ -116,10 +116,4 @@ class OpenAssistantScenario(Scenario):
         train_instances = get_split_instances(dataset["train"], TRAIN_SPLIT)
         valid_instances = get_split_instances(dataset["validation"], VALID_SPLIT)
 
-        total = 0; postive = 0
-        for instance in train_instances + valid_instances:
-            total += 1
-            if len(instance.references) > 1:
-                postive += 1
-        print("result:", postive, total, postive/total)
         return train_instances + valid_instances
