@@ -2163,6 +2163,24 @@ def get_opinions_qa_spec(
     )
 
 
+@run_spec_function("open_assistant")
+def get_open_assistant_spec(language: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.open_assistant_scenario.OpenAssistantScenario",
+        args={"language": language},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"open_assistant:language={language}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["open_assistant"],
+    )
+
+
 ############################################################
 
 
