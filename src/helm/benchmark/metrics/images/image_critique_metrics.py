@@ -161,9 +161,6 @@ class ImageCritiqueMetric(Metric):
         request = CritiqueRequest(template=template, fields={"prompt": prompt, "image": upload_result.url})
         result = metric_service.make_critique_request(request)
         if not result or not result.responses:
-            return []
-
-        if len(result.responses) == 0:
             # Skip computing metrics if there aren't any responses yet
             hlog("Waiting for responses to be collected.")
             return []
