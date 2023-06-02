@@ -534,9 +534,15 @@ class BasicMetric(Metric):
         number of generated output tokens.
         For training, we report the estimated total metric tons of CO2 emitted to train the
         model. This is the same for each request."""
-        assert request_state.result is not None
         # Compute efficiency metrics for inference.
-        assert request_state.result.request_time is not None
+        assert request_state.result is not None
+
+        # There may be no request time in some special cases
+        # e.g. the API has a content filter that causes a null generation to be returned.
+        # If there is no request time, skip computing stats for the request.
+        if not request_state.result.request_time:
+            return []
+
         runtime: float = request_state.result.request_time
         batch_size: int = 1
         # For models that perform offline batch inference, effective runtime is batch_request_time, but also
