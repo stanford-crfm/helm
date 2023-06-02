@@ -360,76 +360,51 @@ const ChatBox = {
 								},
 				{
 					tag: "initiative-1",
-					type: "likert",
-					text: "",
-					likert: {   
-								text: "How much do you agree with the following statement: \n\n 'The chatbot did enough to keep the conversation going'",
-								options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
-							},
+					type: "likert", 
+					text: "How much do you agree with the following statement: \n\n 'The chatbot did enough to keep the conversation going'",
+					options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
 				},			
 				{
 					tag: "initiative-2",
-					type: "likert",
-					text: "",
-					likert: {	
-						text: "How much do agree with the following statement: 'I had enough opportunities to drive the conversation/choose topics'",
-						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
-					},
+					type: "likert",	
+					text: "How much do agree with the following statement: 'I had enough opportunities to drive the conversation/choose topics'",
+					options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
 				},
 				{
 					tag: "interested",
 					type: "likert",
-					text: "",
-					likert: {	
-						text: "Did the chatbot seem interested in you?",
-						options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
-					},
+					text: "Did the chatbot seem interested in you?",
+					options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
 				},
 				{
 					tag: "sharing",
 					type: "likert",
-	
-					text: "",
-					likert: {	
-						text: "Did the chatbot share about itself?",
-						options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
-					},
+					text: "Did the chatbot share about itself?",
+					options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
 				},
 				{
 					tag: "fun",
 					type: "likert",
-					text: "",
-					likert: {
-						text: "How much do you agree with the following statement: 'Talking to the chatbot was fun.'",
-						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"],
-					},
+					text: "How much do you agree with the following statement: 'Talking to the chatbot was fun.'",
+					options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"],
 				},
 				{
 					tag: "emotional-connection",
 					type: "likert",
-					text: "",
-					likert: {
-						text: "How much do you agree with the following statement: “I felt an emotional connection to the chatbot.”  For example, the chatbot understood how you were feeling, or made you feel less lonely.",
-						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
-					},
+					text: "How much do you agree with the following statement: “I felt an emotional connection to the chatbot.”  For example, the chatbot understood how you were feeling, or made you feel less lonely.",
+					options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
 				},
 				{
 					tag: "communication-skills",
 					type: "likert",
-					text: "",
-					likert: {
-						text: "How much do you agree with the following statement: “The chatbot displayed good communication skills” For example, the bot was coherent, did not repeat itself, understood what I was saying, and was logically correct.",
-						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
-					},
+					text: "How much do you agree with the following statement: “The chatbot displayed good communication skills” For example, the bot was coherent, did not repeat itself, understood what I was saying, and was logically correct.",
+					options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
 				},
 				{
 					tag: "social-skills",
 					type: "likert",
-					text: "",
-					likert: {
-						text: "How much do you agree with the following statement: “The chatbot responded in a way that was socially appropriate” For example, the bot was polite or the bot understood social situations.",
-						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
-					},
+					text: "How much do you agree with the following statement: “The chatbot responded in a way that was socially appropriate” For example, the bot was polite or the bot understood social situations.",
+					options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
 				},
 				{
 										tag: "feedback-bot",
