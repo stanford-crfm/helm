@@ -156,11 +156,8 @@
 								<div class="multi-select" v-if="currentQuestion.why !== null && typeof(currentQuestion.why) !== 'undefined'" style="margin-top:15px">
 									<header class='instruction' for="{{currentQuestion.tag}}-why">Which of the following was the most important factor in your rating?</header>
 									<div v-for="option in currentQuestion.why.options">
-									<span>
-									<input class="form-check-input" id="{{currentQuestion.tag}}-why-{{option}}" type="checkbox" name="{{currentQuestion.tag}}-why"margin-right=10px
-									@click="toggleSelectedReason(option);" :checked="this.currentQuestion.selectedReasons.includes(option)">
-                    				<label class="form-check-label" id="{{currentQuestion.tag}}-why-{{option}}" margin-left=10px>{{option}}</label>
-									</span>
+                    				<label class="form-check-label" id="{{currentQuestion.tag}}-why-{{option}}" margin-left=10px>{{option}} <input class="form-check-input" id="{{currentQuestion.tag}}-why-{{option}}" type="checkbox" name="{{currentQuestion.tag}}-why"margin-right=10px
+										@click="toggleSelectedReason(option);" :checked="this.currentQuestion.selectedReasons.includes(option)"> </label>
 									</div>
 									<div>
 									<span>
@@ -179,7 +176,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="error" v-if="error">{{error}}</div>
+						<div class="error" v-if="error">Answers successfully submitted. Survey completion code: dinosaur</div>
 						<div class="success" v-if="success && !optedout">Answers successfully submitted. Survey completion
 							code: {{code}}</div>
 						<div class="success" v-if="success && optedout">You have successfully opted out. Survey completion
