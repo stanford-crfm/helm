@@ -156,8 +156,8 @@
 								<div class="multi-select" v-if="currentQuestion.why !== null && typeof(currentQuestion.why) !== 'undefined'" style="margin-top:15px">
 									<header class='instruction' for="{{currentQuestion.tag}}-why">Which of the following was the most important factor in your rating?</header>
 									<div v-for="option in currentQuestion.why.options">
-                    				<label class="form-check-label" id="{{currentQuestion.tag}}-why-{{option}}" margin-left=10px>{{option}} <input class="form-check-input" id="{{currentQuestion.tag}}-why-{{option}}" type="checkbox" name="{{currentQuestion.tag}}-why"margin-right=10px
-										@click="toggleSelectedReason(option);" :checked="this.currentQuestion.selectedReasons.includes(option)"> </label>
+                    				<label class="form-check-label" id="{{currentQuestion.tag}}-why-{{option}}" margin-left=10px> <input class="form-check-input" id="{{currentQuestion.tag}}-why-{{option}}" type="checkbox" name="{{currentQuestion.tag}}-why"margin-right=10px
+										@click="toggleSelectedReason(option);" :checked="this.currentQuestion.selectedReasons.includes(option)"> {{option}} </label>
 									</div>
 									<div>
 									<span>
