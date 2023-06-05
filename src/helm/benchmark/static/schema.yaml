@@ -101,8 +101,8 @@ models:
   # Berkeley
   - name: together/koala-13b
     display_name: Koala (13B)
-    description: ([blog post](https://bair.berkeley.edu/blog/2023/04/03/koala/))
-    creator_organization: Koala (13B) is a chatbot fine-tuned from Llama (13B) on dialogue data gathered from the web.
+    description: Koala (13B) is a chatbot fine-tuned from Llama (13B) on dialogue data gathered from the web. ([blog post](https://bair.berkeley.edu/blog/2023/04/03/koala/))
+    creator_organization: UC Berkeley
     access: open
     num_parameters: 13000000000
     release_date: 2022-04-03
@@ -146,17 +146,17 @@ models:
 
   # Cerebras Systems
   - name: together/cerebras-gpt-6.7b
-    display_name: Cerebras  GPT (6.7B)
+    display_name: Cerebras GPT (6.7B)
     description: Cerebras GPT is a family of open compute-optimal language models scaled from 111M to 13B parameters trained on the Eleuther Pile. ([paper](https://arxiv.org/pdf/2304.03208.pdf))
-    creator_organization: Cohere
+    creator_organization: Cerebras
     access: limited
     num_parameters: 6700000000
     release_date: 2023-04-06
     todo: true
   - name: together/cerebras-gpt-13b
-    display_name: Cerebras  GPT (13B)
+    display_name: Cerebras GPT (13B)
     description: Cerebras GPT is a family of open compute-optimal language models scaled from 111M to 13B parameters trained on the Eleuther Pile. ([paper](https://arxiv.org/pdf/2304.03208.pdf))
-    creator_organization: Cohere
+    creator_organization: Cerebras
     access: limited
     num_parameters: 13000000000
     release_date: 2023-04-06
