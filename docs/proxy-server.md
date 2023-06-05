@@ -1,7 +1,7 @@
 # Proxy Access to Language Models
 
 We provide a single unified entry point into accessing large language models
-(e.g., GPT-3, Jurassic).  This provides both a web interface and a REST API. 
+(e.g., GPT-3, Jurassic).  This provides both a web interface and a REST API.
 
 ## Using (for most people)
 

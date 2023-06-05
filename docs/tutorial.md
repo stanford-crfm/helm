@@ -3,6 +3,7 @@
 ## Available Resources
 
 We provide several resources to help you get started with HELM:
+
 - This tutorial, which explains **how to run benchmarks and visualize results**.
 - This [notebook](https://colab.research.google.com/drive/1zbgbrOyTpzTRKNMWL4HDBq7OlCATQ-03?usp=sharing) which covers this material with a working installation of HELM. In addition it explains how to use HELM **to query models for completion or tokenization**.
 - This [demo file](https://github.com/stanford-crfm/helm/blob/main/demo.py) which shows hot o use HELM **if you have an API key**. it covers additional details such as randomness, toxicity, and more.
@@ -100,6 +101,15 @@ Open a browser and go to http://localhost:8000/ to view the visualization. You s
 - **Scenarios** contains a list of available scenarios.
 - **Results** contains results from the runs, organized into groups and categories of groups.
 - **Raw Runs** contains a searchable list of runs.
+
+## Adding model credentials
+
+Many of the models supported by HELM **require an API key of their provider**. This section explains how to add credentials for these models. Your credentials file should be located at `prod_env/credentials.conf` by default. If it does not exist create it. Each entry in the file should be following this format:
+```bash
+myApiKey: "<API key>"
+```
+
+Here is a quick list of 
 
 ## Other Tips
 

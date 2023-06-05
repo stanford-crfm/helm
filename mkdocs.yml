@@ -36,6 +36,7 @@ nav:
     - 'installation.md'
     - 'quick_start.md'
     - 'tutorial.md'
+    - 'understanding_the_code.md'
     - 'benchmark.md'
     - 'huggingface_models.md'
     - 'proxy-server.md'
