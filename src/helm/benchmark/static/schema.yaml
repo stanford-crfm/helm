@@ -1299,7 +1299,7 @@ metrics:
     description: TODO
     lower_is_better: false
   - name: expected_psnr_score
-    display_name: Expected Peak Siganl-to-Noise Ratio (PSNR)
+    display_name: Expected Peak Signal-to-Noise Ratio (PSNR)
     short_display_name: Expected PSNR
     description: TODO
     lower_is_better: false
