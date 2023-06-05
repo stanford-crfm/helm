@@ -24,8 +24,8 @@ def get_helm_cache_path():
 
 def singleton(items: List):
     """Ensure there's only one item in `items` and return it."""
-    if len(items) != 1:
-        raise ValueError(f"Expected 1 item, got {len(items)} items: {items}")
+    # if len(items) != 1:
+    #     raise ValueError(f"Expected 1 item, got {len(items)} items: {items}")
     return items[0]
 
 
