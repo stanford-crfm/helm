@@ -3,11 +3,13 @@ from typing import Dict, List, Set, Optional
 import math
 import os
 import shutil
+import tempfile
 
 import torch
+from helm.benchmark.adaptation.request_state import RequestState
 import torch_fidelity
 
-from helm.common.general import ensure_directory_exists, generate_unique_id, get_file_name, hlog
+from helm.common.general import get_file_name, hlog
 from helm.common.request import RequestResult
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.scenarios.scenario import Instance
@@ -45,91 +47,75 @@ class FidelityMetric(Metric):
     def __repr__(self):
         return "FidelityMetric()"
 
-    def evaluate(
-        self,
-        scenario_state: ScenarioState,
-        metric_service: MetricService,
-        eval_cache_path: str,
-        parallelism: int,
-    ) -> MetricResult:
+    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         dest_path: str
         unique_perturbations: Set[Optional[PerturbationDescription]] = set()
+        with tempfile.TemporaryDirectory() as gold_images_path, tempfile.TemporaryDirectory() as generated_images_path:
+            # The library requires the gold and generated images to be in two separate directories.
+            # Gather the gold images and the unique perturbations
+            for request_state in tqdm(request_states):
+                instance: Instance = request_state.instance
+                unique_perturbations.add(instance.perturbation)
 
-        gold_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
-        ensure_directory_exists(gold_images_path)
+                for reference in instance.references:
+                    if not reference.is_correct:
+                        continue
 
-        # The library requires the gold and generated images to be in two separate directories.
-        # Gather the gold images and the unique perturbations
-        for request_state in tqdm(scenario_state.request_states):
-            instance: Instance = request_state.instance
-            unique_perturbations.add(instance.perturbation)
+                    assert reference.output.file_path is not None
+                    file_path: str = reference.output.file_path
+                    dest_path = os.path.join(gold_images_path, get_file_name(file_path))
+                    copy_image(file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
 
-            for reference in instance.references:
-                if not reference.is_correct:
-                    continue
+            # Compute the FID for each perturbation group
+            stats: List[Stat] = []
+            for perturbation in unique_perturbations:
+                perturbation_name: str = "" if perturbation is None else str(perturbation)
 
-                assert reference.output.file_path is not None
-                file_path: str = reference.output.file_path
-                dest_path = os.path.join(gold_images_path, get_file_name(file_path))
-                copy_image(file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
+                num_generated_images: int = 0
+                for request_state in tqdm(request_states):
+                    if request_state.instance.perturbation != perturbation:
+                        continue
 
-        # Compute the FID for each perturbation group
-        stats: List[Stat] = []
-        for perturbation in unique_perturbations:
-            perturbation_name: str = "" if perturbation is None else str(perturbation)
-            generated_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
-            ensure_directory_exists(generated_images_path)
+                    assert request_state.result is not None
+                    request_result: RequestResult = request_state.result
 
-            num_generated_images: int = 0
-            for request_state in tqdm(scenario_state.request_states):
-                if request_state.instance.perturbation != perturbation:
-                    continue
+                    # Gather the model-generated images
+                    for image in request_result.completions:
+                        if image.file_location is not None and not is_blacked_out_image(image.file_location):
+                            dest_path = os.path.join(generated_images_path, get_file_name(image.file_location))
+                            copy_image(image.file_location, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
+                            num_generated_images += 1
 
-                assert request_state.result is not None
-                request_result: RequestResult = request_state.result
+                compute_kid: bool = num_generated_images >= 1000
 
-                # Gather the model-generated images
-                for image in request_result.completions:
-                    if image.file_location is not None and not is_blacked_out_image(image.file_location):
-                        dest_path = os.path.join(generated_images_path, get_file_name(image.file_location))
-                        copy_image(image.file_location, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
-                        num_generated_images += 1
+                # The torch_fidelity library fails when there are too few images (i.e., `max_eval_instances` is small).
+                try:
+                    metrics_dict: Dict[str, float] = torch_fidelity.calculate_metrics(
+                        input1=generated_images_path,
+                        input2=gold_images_path,
+                        isc=True,
+                        fid=True,
+                        kid=compute_kid,
+                        ppl=False,  # Requires `GenerativeModel`
+                        cuda=torch.cuda.is_available(),
+                        save_cpu_ram=not torch.cuda.is_available(),
+                    )
+                    hlog(f"Computing metrics for perturbation: {perturbation_name if perturbation_name else 'none'}")
+                    fid: float = metrics_dict["frechet_inception_distance"]
+                    inception_score: float = metrics_dict["inception_score_mean"]
+                    if math.isnan(inception_score):
+                        inception_score = 0
 
-            compute_kid: bool = num_generated_images >= 1000
+                    stats.extend(
+                        [
+                            Stat(MetricName("fid", perturbation=perturbation)).add(fid),
+                            Stat(MetricName("inception_score", perturbation=perturbation)).add(inception_score),
+                        ]
+                    )
+                    if compute_kid:
+                        kid: float = metrics_dict["kernel_inception_distance_mean"]
+                        stats.append(Stat(MetricName("kernel_inception_distance", perturbation=perturbation)).add(kid))
+                except AssertionError as e:
+                    hlog(f"Error occurred when computing fidelity metrics for perturbation: {perturbation_name} Error: {e}")
 
-            # The torch_fidelity library fails when there are too few images (i.e., `max_eval_instances` is small).
-            try:
-                metrics_dict: Dict[str, float] = torch_fidelity.calculate_metrics(
-                    input1=generated_images_path,
-                    input2=gold_images_path,
-                    isc=True,
-                    fid=True,
-                    kid=compute_kid,
-                    ppl=False,  # Requires `GenerativeModel`
-                    cuda=torch.cuda.is_available(),
-                    save_cpu_ram=not torch.cuda.is_available(),
-                )
-                hlog(f"Computing metrics for perturbation: {perturbation_name if perturbation_name else 'none'}")
-                fid: float = metrics_dict["frechet_inception_distance"]
-                inception_score: float = metrics_dict["inception_score_mean"]
-                if math.isnan(inception_score):
-                    inception_score = 0
-
-                stats.extend(
-                    [
-                        Stat(MetricName("fid", perturbation=perturbation)).add(fid),
-                        Stat(MetricName("inception_score", perturbation=perturbation)).add(inception_score),
-                    ]
-                )
-                if compute_kid:
-                    kid: float = metrics_dict["kernel_inception_distance_mean"]
-                    stats.append(Stat(MetricName("kernel_inception_distance", perturbation=perturbation)).add(kid))
-            except AssertionError as e:
-                hlog(f"Error occurred when computing fidelity metrics for perturbation: {perturbation_name} Error: {e}")
-
-            shutil.rmtree(generated_images_path)
-
-        # Delete the gold images directory
-        shutil.rmtree(gold_images_path)
-
-        return MetricResult(aggregated_stats=stats, per_instance_stats=[])
+        return stats

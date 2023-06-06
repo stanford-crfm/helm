@@ -1,8 +1,11 @@
 from tqdm import tqdm
 import os
 import shutil
+import tempfile
+from typing import List
 
 from cleanfid import fid
+from helm.benchmark.adaptation.request_state import RequestState
 
 from helm.common.general import ensure_directory_exists, generate_unique_id, get_file_name, safe_symlink
 from helm.common.gpu_utils import get_torch_device
@@ -41,53 +44,44 @@ class FIDMetric(Metric):
     def __repr__(self):
         return "FIDMetric()"
 
-    def evaluate(
-        self,
-        scenario_state: ScenarioState,
-        metric_service: MetricService,
-        eval_cache_path: str,
-        parallelism: int,
-    ) -> MetricResult:
+    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         # pytorch_fid requires the two sets of images to be in two separate directories.
         # Gather the images by relying on symlinks.
-        generated_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
-        ensure_directory_exists(generated_images_path)
-        gold_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
-        ensure_directory_exists(gold_images_path)
+        with tempfile.TemporaryDirectory() as gold_images_path, tempfile.TemporaryDirectory() as generated_images_path:
 
-        for request_state in tqdm(scenario_state.request_states):
-            assert request_state.result is not None
-            request_result: RequestResult = request_state.result
+            for request_state in tqdm(request_states):
+                assert request_state.result is not None
+                request_result: RequestResult = request_state.result
 
-            # Gather the model-generated images
-            # TODO: use CLIP to pick the best generated image when `num_completions` > 1
-            for image in request_result.completions:
-                assert image.file_location is not None
-                safe_symlink(
-                    src=image.file_location,
-                    dest=os.path.join(generated_images_path, get_file_name(image.file_location)),
-                )
+                # Gather the model-generated images
+                # TODO: use CLIP to pick the best generated image when `num_completions` > 1
+                for image in request_result.completions:
+                    assert image.file_location is not None
+                    safe_symlink(
+                        src=image.file_location,
+                        dest=os.path.join(generated_images_path, get_file_name(image.file_location)),
+                    )
 
-            # Gather the gold images
-            instance: Instance = request_state.instance
-            for reference in instance.references:
-                if not reference.is_correct:
-                    continue
+                # Gather the gold images
+                instance: Instance = request_state.instance
+                for reference in instance.references:
+                    if not reference.is_correct:
+                        continue
 
-                assert reference.output.file_path is not None
-                file_path: str = reference.output.file_path
-                safe_symlink(src=file_path, dest=os.path.join(gold_images_path, get_file_name(file_path)))
+                    assert reference.output.file_path is not None
+                    file_path: str = reference.output.file_path
+                    safe_symlink(src=file_path, dest=os.path.join(gold_images_path, get_file_name(file_path)))
 
-        # Calculate the FID score between model-generated and gold images
-        fid_score: float = fid.compute_fid(
-            generated_images_path,
-            gold_images_path,
-            device=get_torch_device(),
-            num_workers=0,  # Have to set to 0 (see https://github.com/GaParmar/clean-fid/issues/17)
-        )
+            # Calculate the FID score between model-generated and gold images
+            fid_score: float = fid.compute_fid(
+                generated_images_path,
+                gold_images_path,
+                device=get_torch_device(),
+                num_workers=0,  # Have to set to 0 (see https://github.com/GaParmar/clean-fid/issues/17)
+            )
 
-        # Clean up the symlinks and delete the temp directories
-        shutil.rmtree(generated_images_path)
-        shutil.rmtree(gold_images_path)
+            # Clean up the symlinks and delete the temp directories
+            shutil.rmtree(generated_images_path)
+            shutil.rmtree(gold_images_path)
 
-        return MetricResult(aggregated_stats=[Stat(MetricName("fid_alternate")).add(fid_score)], per_instance_stats=[])
+            return [Stat(MetricName("fid_alternate")).add(fid_score)]
