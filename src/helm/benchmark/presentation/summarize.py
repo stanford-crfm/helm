@@ -993,7 +993,6 @@ def main():
         "--release",
         type=str,
         help="Name of the release this summarization should go under.",
-        required=True,
     )
     parser.add_argument(
         "--suites",
@@ -1015,9 +1014,16 @@ def main():
     )
     args = parser.parse_args()
 
+    if not args.release:
+        if len(args.suites) > 1:
+            raise ValueError("If --release is not specified, then length of --suites must be 1.")
+        release = args.suites[0]
+    else:
+        release = args.release
+
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
-        release=args.release, suites=args.suites, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
+        release=release, suites=args.suites, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
     summarizer.read_runs()
     summarizer.check_metrics_defined()
