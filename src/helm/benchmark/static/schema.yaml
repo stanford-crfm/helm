@@ -1310,66 +1310,16 @@ metrics:
     lower_is_better: false
 
   # Bias
-  - name: female_frac
-    display_name: Female frac
-    short_display_name: Female frac
+  - name: gender_imbalance
+    display_name: Gender imbalance
+    short_display_name: Gender imbalance
     description: TODO
-    lower_is_better: false
-  - name: monk_unknown_frac
-    display_name: Monk unknown
-    short_display_name: Monk unknown
+    lower_is_better: True
+  - name: skin_tone_imbalance
+    display_name: Skin tone imbalance
+    short_display_name: Skin tone imbalance
     description: TODO
-    lower_is_better: false
-  - name: monk1_frac
-    display_name: Monk 01 frac
-    short_display_name: Monk 01 frac
-    description: TODO
-    lower_is_better: false
-  - name: monk2_frac
-    display_name: Monk 02 frac
-    short_display_name: Monk 02 frac
-    description: TODO
-    lower_is_better: false
-  - name: monk3_frac
-    display_name: Monk 03 frac
-    short_display_name: Monk 03 frac
-    description: TODO
-    lower_is_better: false
-  - name: monk4_frac
-    display_name: Monk 04 frac
-    short_display_name: Monk 04 frac
-    description: TODO
-    lower_is_better: false
-  - name: monk5_frac
-    display_name: Monk 05 frac
-    short_display_name: Monk 05 frac
-    description: TODO
-    lower_is_better: false
-  - name: monk6_frac
-    display_name: Monk 06 frac
-    short_display_name: Monk 06 frac
-    description: TODO
-    lower_is_better: false
-  - name: monk7_frac
-    display_name: Monk 07 frac
-    short_display_name: Monk 07 frac
-    description: TODO
-    lower_is_better: false
-  - name: monk8_frac
-    display_name: Monk 08 frac
-    short_display_name: Monk 08 frac
-    description: TODO
-    lower_is_better: false
-  - name: monk9_frac
-    display_name: Monk 09 frac
-    short_display_name: Monk 09 frac
-    description: TODO
-    lower_is_better: false
-  - name: monk10_frac
-    display_name: Monk 10 frac
-    short_display_name: Monk 10 frac
-    description: TODO
-    lower_is_better: false
+    lower_is_better: True
 
   # CLIP score
   - name: expected_clip_score
@@ -1829,32 +1779,16 @@ metric_groups:
       - name: expected_uiqi_score
         split: ${main_split}
 
-  - name: vhelm_bias
-    display_name: VHELM bias metrics
+  - name: vhelm_gender
+    display_name: VHELM gender metrics
     metrics:
-      - name: female_frac
+      - name: gender_imbalance
         split: ${main_split}
-      - name: monk_unknown_frac
-        split: ${main_split}
-      - name: monk1_frac
-        split: ${main_split}
-      - name: monk2_frac
-        split: ${main_split}
-      - name: monk3_frac
-        split: ${main_split}
-      - name: monk4_frac
-        split: ${main_split}
-      - name: monk5_frac
-        split: ${main_split}
-      - name: monk6_frac
-        split: ${main_split}
-      - name: monk7_frac
-        split: ${main_split}
-      - name: monk8_frac
-        split: ${main_split}
-      - name: monk9_frac
-        split: ${main_split}
-      - name: monk10_frac
+
+  - name: vhelm_skin_tone
+    display_name: VHELM skin tone metrics
+    metrics:
+      - name: skin_tone_imbalance
         split: ${main_split}
 
   # VHELM core metrics
@@ -2723,7 +2657,8 @@ run_groups:
     display_name: Demographic Stereotypes
     description: Simple user prompts ("A photo of the face of...") generate images perpetuating dangerous racial, ethnic, gendered, class, and intersectional stereotypes.
     metric_groups:
-      - vhelm_bias
+      - vhelm_gender
+      - vhelm_skin_tone
       - vhelm_image_text_alignment
       - vhelm_image_text_alignment_human
       - vhelm_clear_subject_human
@@ -2745,7 +2680,8 @@ run_groups:
     display_name: Mental Disorders
     description: Prompt text-to-image models with mental disorders listed by the World Health Organization
     metric_groups:
-      - vhelm_bias
+      - vhelm_gender
+      - vhelm_skin_tone
       - vhelm_image_text_alignment
       - vhelm_image_text_alignment_human
       - vhelm_clear_subject_human

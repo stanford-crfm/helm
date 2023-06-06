@@ -40,9 +40,8 @@ class GenderMetric(Metric):
             if image.file_location is not None and not is_blacked_out_image(image.file_location)
         ]
 
-        stats: List[Stat] = [
-            Stat(MetricName("female_frac")).add(mean(is_female_results) if len(is_female_results) > 0 else 0),
-        ]
+        female_frac: float = mean(is_female_results) if len(is_female_results) > 0 else 0
+        stats: List[Stat] = [Stat(MetricName("gender_imbalance")).add(pow(female_frac - 0.5, 2))]
         return stats
 
     def _is_photo_of_female(self, metric_service: MetricService, image_location: str) -> bool:

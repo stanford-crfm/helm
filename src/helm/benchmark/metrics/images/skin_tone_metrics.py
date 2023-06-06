@@ -142,8 +142,14 @@ class SkinToneMetric(Metric):
             mst_counts[mst_key] += 1
             num_images += 1
 
-        stats: List[Stat] = []
+        imbalance_loss: float = 0
         if num_images > 0:
             # For each MST, compute the fraction of images that has a person with that skin tone
-            stats = [Stat(MetricName(f"{mst}_frac")).add(count / num_images) for mst, count in mst_counts.items()]
-        return stats
+            for mst, count in mst_counts.items():
+                mst_fraction: float = count / num_images
+                if mst == self.MST_UNKNOWN_KEY:
+                    continue
+
+                imbalance_loss += pow(mst_fraction - 0.1, 2)
+
+        return [Stat(MetricName("skin_tone_imbalance")).add(imbalance_loss / 10)]
