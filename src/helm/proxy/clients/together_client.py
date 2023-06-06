@@ -45,6 +45,7 @@ MODEL_ALIASES: Dict[str, str] = {
     "mpt-7b": "mpt-7b-full-precision",
     "pythia-7b": "pythia-7b-full-precision",
     "vicuna-13b": "vicuna-13b-full-precision",
+    "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
 }
 """Together model name aliases.
 
@@ -141,8 +142,8 @@ class TogetherClient(Client):
             def retry_if_job_not_finished(exception: Exception) -> bool:
                 return isinstance(exception, JobNotFinishedError)
 
-            # Retry with a 1 second delay that doubles every retry until a maximum of delay of 15 seconds.
-            # Stop retrying after 1 minute.
+            # Retry with a 5 second delay that increases by 5 seconds each attempt with a maximum delay of 30 seconds.
+            # Stop retrying after 5 minutes.
             @retry(
                 retry_on_exception=retry_if_job_not_finished,
                 wait_incrementing_start=5 * 1000,  # 5 seconds
