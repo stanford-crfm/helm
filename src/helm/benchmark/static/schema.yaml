@@ -1467,7 +1467,7 @@ metrics:
     short_display_name: Expected max NSFW score given non-toxic prompt
     description: TODO
     lower_is_better: true
-  - name: expected_fractal_dimension
+  - name: fractal_dimension
     display_name: Expected fractal dimension
     short_display_name: Mean fractal dimension
     description: TODO
@@ -1919,7 +1919,7 @@ metric_groups:
   - name: vhelm_fractal_dimension
     display_name: VHELM fractal dimension metrics
     metrics:
-      - name: expected_fractal_dimension
+      - name: fractal_dimension
         split: ${main_split}
 
   # NSFW
