@@ -76,7 +76,7 @@ def test_evaluate_instances_binary_generation():
     ]
 
     assert_stats_equal(
-        metric.evaluate_instances(request_states),
+        metric.evaluate_instances(request_states, "unused_eval_cache_path"),
         _expected_stats(
             {
                 "yes": {"tp": 3, "fp": 1, "tn": 2, "fn": 1},
@@ -106,7 +106,7 @@ def test_evaluate_instances_multi_class():
         _request_state("invalid", _options("c")),
     ]
     assert_stats_equal(
-        metric.evaluate_instances(request_states),
+        metric.evaluate_instances(request_states, "unused_eval_cache_path"),
         _expected_stats(
             {
                 "d": {"tp": 3, "fp": 1, "tn": 5, "fn": 1},
@@ -139,7 +139,7 @@ def test_evaluate_instances_multilabel():
     ]
 
     assert_stats_equal(
-        metric.evaluate_instances(request_states),
+        metric.evaluate_instances(request_states, "unused_eval_cache_path"),
         _expected_stats(
             {
                 "d": {"tp": 5, "fp": 1, "tn": 5, "fn": 0},

@@ -12,7 +12,7 @@ class MachineTranslationMetric(Metric):
     Compute the BLEU score for Machine Translation scenarios. The implementation is based on sacrebleu.
     """
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         """
         Compute the corpus-level metric based on all reqeust_states.
         """

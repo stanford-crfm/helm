@@ -214,7 +214,7 @@ class BiasMetric(Metric):
 
         return tv_distance
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         """Compute the bias score on the request_states."""
 
         # Get completion texts from the request_results

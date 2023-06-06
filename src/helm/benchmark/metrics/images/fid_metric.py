@@ -1,8 +1,10 @@
 from tqdm import tqdm
 import os
 import shutil
+from typing import List
 
 from cleanfid import fid
+from helm.benchmark.adaptation.request_state import RequestState
 
 from helm.common.general import ensure_directory_exists, generate_unique_id, get_file_name, safe_symlink
 from helm.common.gpu_utils import get_torch_device
@@ -41,12 +43,10 @@ class FIDMetric(Metric):
     def __repr__(self):
         return "FIDMetric()"
 
-    def evaluate(
+    def evaluate_instances(
         self,
-        scenario_state: ScenarioState,
-        metric_service: MetricService,
+        request_states: List[RequestState],
         eval_cache_path: str,
-        parallelism: int,
     ) -> MetricResult:
         # pytorch_fid requires the two sets of images to be in two separate directories.
         # Gather the images by relying on symlinks.
@@ -55,7 +55,7 @@ class FIDMetric(Metric):
         gold_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
         ensure_directory_exists(gold_images_path)
 
-        for request_state in tqdm(scenario_state.request_states):
+        for request_state in tqdm(request_states):
             assert request_state.result is not None
             request_result: RequestResult = request_state.result
 

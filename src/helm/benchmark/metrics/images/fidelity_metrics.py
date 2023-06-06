@@ -5,7 +5,8 @@ import os
 import shutil
 
 import torch
-import torch_fidelity
+from helm.benchmark.adaptation.request_state import RequestState
+# import torch_fidelity
 
 from helm.common.general import ensure_directory_exists, generate_unique_id, get_file_name, hlog
 from helm.common.request import RequestResult
@@ -45,12 +46,10 @@ class FidelityMetric(Metric):
     def __repr__(self):
         return "FidelityMetric()"
 
-    def evaluate(
+    def evaluate_instances(
         self,
-        scenario_state: ScenarioState,
-        metric_service: MetricService,
+        request_states: List[RequestState],
         eval_cache_path: str,
-        parallelism: int,
     ) -> MetricResult:
         dest_path: str
         unique_perturbations: Set[Optional[PerturbationDescription]] = set()
@@ -60,7 +59,7 @@ class FidelityMetric(Metric):
 
         # The library requires the gold and generated images to be in two separate directories.
         # Gather the gold images and the unique perturbations
-        for request_state in tqdm(scenario_state.request_states):
+        for request_state in tqdm(request_states):
             instance: Instance = request_state.instance
             unique_perturbations.add(instance.perturbation)
 
@@ -81,7 +80,7 @@ class FidelityMetric(Metric):
             ensure_directory_exists(generated_images_path)
 
             num_generated_images: int = 0
-            for request_state in tqdm(scenario_state.request_states):
+            for request_state in tqdm(request_states):
                 if request_state.instance.perturbation != perturbation:
                     continue
 

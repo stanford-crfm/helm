@@ -35,7 +35,7 @@ class ClassificationMetric(Metric):
     def is_multi_label(self) -> bool:
         return bool(self.delimiter)
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         y_pred: List[List[str]] = []
         y_true: List[List[str]] = []
         for request_state in request_states:  # one request state per instance

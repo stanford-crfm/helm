@@ -203,7 +203,7 @@ class Metric(ABC):
                     scenario_state.get_request_states(train_trial_index, instance, None)
                 )
             for context, request_states in grouped_request_states.items():
-                for stat in self.evaluate_instances(request_states):
+                for stat in self.evaluate_instances(request_states, eval_cache_path):
                     merge_stat(trial_stats, add_context(stat, context))
 
             # Compute worst-case metrics.
@@ -242,7 +242,7 @@ class Metric(ABC):
         """Evaluate the references.  Override me!"""
         return []
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         """Evaluate all request states directly. Use only if nothing else works.  Override me!"""
         return []
 
