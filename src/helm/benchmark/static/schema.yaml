@@ -1919,7 +1919,7 @@ metric_groups:
   - name: vhelm_fractal_dimension
     display_name: VHELM fractal dimension metrics
     metrics:
-      - name: expected_fractal_dimension
+      - name: fractal_dimension
         split: ${main_split}
 
   # NSFW
