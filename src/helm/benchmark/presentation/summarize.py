@@ -56,8 +56,8 @@ class ExecutiveSummary:
     Summary of the output of benchmarking.
     This is always loaded by the frontend, so keep this small
     """
-
-    suite: str
+    release: str
+    suites: List[str]
     date: str
 
     # TODO: later, put model rankings, etc. here
@@ -232,11 +232,15 @@ class Summarizer:
         "selective_acc@10",
     }
 
-    def __init__(self, suite: str, output_path: str, verbose: bool, num_threads: int):
-        self.suite: str = suite
-        self.run_suite_path: str = os.path.join(output_path, "runs", suite)
+    def __init__(self, release: str, suites: List[str], output_path: str, verbose: bool, num_threads: int):
+        self.release: str = release
+        self.suites: List[str] = suites
+        self.run_release_path: str = os.path.join(output_path, "releases", release)
+        self.run_suite_paths: str = [os.path.join(output_path, "runs", suite) for suite in suites]
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
+
+        ensure_directory_exists(self.run_release_path)
 
         self.schema = read_schema()
         self.contamination = read_contamination()
@@ -284,20 +288,19 @@ class Summarizer:
             if included:
                 filtered_runs.append(run)
         return filtered_runs
-
-    def read_runs(self):
+    
+    def read_runs_for_suite(self, suite, run_suite_path):
         """Load the runs in the run suite path."""
-        self.runs: List[Run] = []
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
         # so filter them out.
-        run_dir_names = sorted([p for p in os.listdir(self.run_suite_path) if p != "eval_cache" and p != "groups"])
+        run_dir_names = sorted([p for p in os.listdir(run_suite_path) if p != "eval_cache" and p != "groups"])
         for run_dir_name in tqdm(run_dir_names, disable=None):
-            run_spec_path: str = os.path.join(self.run_suite_path, run_dir_name, "run_spec.json")
-            stats_path: str = os.path.join(self.run_suite_path, run_dir_name, "stats.json")
+            run_spec_path: str = os.path.join(run_suite_path, run_dir_name, "run_spec.json")
+            stats_path: str = os.path.join(run_suite_path, run_dir_name, "stats.json")
             if not os.path.exists(run_spec_path) or not os.path.exists(stats_path):
                 hlog(f"WARNING: {run_dir_name} doesn't have run_spec.json or stats.json, skipping")
                 continue
-            run_path: str = os.path.join(self.run_suite_path, run_dir_name)
+            run_path: str = os.path.join(run_suite_path, run_dir_name)
             self.runs.append(self.read_run(run_path))
 
         # For each group (e.g., natural_qa), map
@@ -309,11 +312,25 @@ class Summarizer:
             lambda: defaultdict(lambda: defaultdict(list))
         )
         for run in self.runs:
+            if run.run_spec.name in self.run_manifest:
+                hlog(
+                    f"WARNING: Run entry {run.run_spec.name} is present in two different Run Suites. "
+                    f"Defaulting to the earliest assigned suite: {self.run_manifest[run.run_spec.name]}"
+                    )
+            else:
+                self.run_manifest[run.run_spec.name] = suite
+
             scenario_spec = run.run_spec.scenario_spec
             adapter_spec = run.run_spec.adapter_spec
             for group_name in run.run_spec.groups:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
+
+    def read_runs(self):
+        self.runs: List[Run] = []
+        self.run_manifest: Dict[str, str] = dict()
+        for suite, run_suite_path in zip(self.suites, self.run_suite_paths):
+            self.read_runs_for_suite(suite, run_suite_path)
 
     @htrack(None)
     def check_metrics_defined(self):
@@ -339,11 +356,12 @@ class Summarizer:
         date = datetime.date.today().strftime("%Y-%m-%d")
 
         summary = ExecutiveSummary(
-            suite=self.suite,
+            release=self.release,
+            suites=self.suites,
             date=date,
         )
         write(
-            os.path.join(self.run_suite_path, "summary.json"),
+            os.path.join(self.run_release_path, "summary.json"),
             json.dumps(asdict_without_nones(summary), indent=2),
         )
 
@@ -365,20 +383,26 @@ class Summarizer:
             costs["total_tokens"] = costs["num_prompt_tokens"] + costs["num_completion_tokens"]
 
         write(
-            os.path.join(self.run_suite_path, "costs.json"),
+            os.path.join(self.run_release_path, "costs.json"),
             json.dumps(models_to_costs, indent=2),
         )
 
     def write_runs(self):
         write(
-            os.path.join(self.run_suite_path, "runs.json"),
+            os.path.join(self.run_release_path, "runs.json"),
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
         )
 
     def write_run_specs(self):
         write(
-            os.path.join(self.run_suite_path, "run_specs.json"),
+            os.path.join(self.run_release_path, "run_specs.json"),
             json.dumps(list(map(asdict_without_nones, [run.run_spec for run in self.runs])), indent=2),
+        )
+    
+    def write_run_manifest(self):
+        write(
+            os.path.join(self.run_release_path, "run_manifest.json"),
+            json.dumps(self.run_manifest, indent=2)
         )
 
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
@@ -896,18 +920,18 @@ class Summarizer:
 
         # Write out index file with all the groups and basic stats
         write(
-            os.path.join(self.run_suite_path, "groups.json"),
+            os.path.join(self.run_release_path, "groups.json"),
             json.dumps(list(map(asdict_without_nones, self.create_index_tables())), indent=2),
         )
 
         # Write out metadata file for all groups
         write(
-            os.path.join(self.run_suite_path, "groups_metadata.json"),
+            os.path.join(self.run_release_path, "groups_metadata.json"),
             json.dumps(self.create_groups_metadata(), indent=2),
         )
 
         # Write out a separate JSON for each group
-        groups_path = os.path.join(self.run_suite_path, "groups")
+        groups_path = os.path.join(self.run_release_path, "groups")
         ensure_directory_exists(groups_path)
         for group in self.schema.run_groups:
             if group.subgroup_display_mode == BY_GROUP or len(self.expand_subgroups(group)) == 1:
@@ -966,9 +990,16 @@ def main():
         "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
     )
     parser.add_argument(
-        "--suite",
+        "--release",
         type=str,
-        help="Name of the suite this run belongs to (default is today's date).",
+        help="Name of the release this summarization should go under.",
+        required=True,
+    )
+    parser.add_argument(
+        "--suites",
+        type=str,
+        nargs="+",
+        help="Name of the suite(s) you want to summarize",
         required=True,
     )
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
@@ -986,7 +1017,7 @@ def main():
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
-        suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
+        release=args.release, suites=args.suites, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
     summarizer.read_runs()
     summarizer.check_metrics_defined()
@@ -994,12 +1025,13 @@ def main():
     summarizer.write_executive_summary()
     summarizer.write_runs()
     summarizer.write_run_specs()
+    summarizer.write_run_manifest()
     summarizer.write_groups()
     summarizer.write_cost_report()
 
     summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
 
-    symlink_latest(args.output_path, args.suite)
+    #symlink_latest(args.output_path, args.suite)
     hlog("Done.")
 
 
