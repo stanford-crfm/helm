@@ -43,6 +43,7 @@ revChatGPT~=0.1.1
 
 # Scenarios
 datasets~=2.5.2  # For math scenarios
+pyarrow~=11.0.0  # Pinned transitive dependency for datasets; workaround for #1026
 gdown~=4.4.0
 jsonlines~=3.1.0  # Not really needed
 sympy~=1.11.1  # For math scenarios
