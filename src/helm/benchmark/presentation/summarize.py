@@ -236,7 +236,7 @@ class Summarizer:
         self.release: str = release
         self.suites: List[str] = suites
         self.run_release_path: str = os.path.join(output_path, "releases", release)
-        self.run_suite_paths: str = [os.path.join(output_path, "runs", suite) for suite in suites]
+        self.run_suite_paths: str = {suite:os.path.join(output_path, "runs", suite) for suite in suites}
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
 
@@ -289,8 +289,9 @@ class Summarizer:
                 filtered_runs.append(run)
         return filtered_runs
     
-    def read_runs_for_suite(self, suite, run_suite_path):
+    def read_runs(self, suite):
         """Load the runs in the run suite path."""
+        run_suite_path = self.run_suite_paths[suite]
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
         # so filter them out.
         run_dir_names = sorted([p for p in os.listdir(run_suite_path) if p != "eval_cache" and p != "groups"])
@@ -326,12 +327,6 @@ class Summarizer:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
 
-    def read_runs(self):
-        self.runs: List[Run] = []
-        self.run_manifest: Dict[str, str] = dict()
-        for suite, run_suite_path in zip(self.suites, self.run_suite_paths):
-            self.read_runs_for_suite(suite, run_suite_path)
-
     @htrack(None)
     def check_metrics_defined(self):
         """Check that all the metrics that appear in stats are defined."""
@@ -366,7 +361,7 @@ class Summarizer:
         )
 
     @htrack(None)
-    def write_cost_report(self):
+    def write_cost_report(self, suite):
         """Write out the information we need to calculate costs per model."""
         # TODO: move to write_executive_summary()
         models_to_costs: Dict[str, Dict[str]] = defaultdict(lambda: defaultdict(int))
@@ -383,19 +378,19 @@ class Summarizer:
             costs["total_tokens"] = costs["num_prompt_tokens"] + costs["num_completion_tokens"]
 
         write(
-            os.path.join(self.run_release_path, "costs.json"),
+            os.path.join(self.run_suite_paths[suite], "costs.json"),
             json.dumps(models_to_costs, indent=2),
         )
 
-    def write_runs(self):
+    def write_runs(self, suite):
         write(
-            os.path.join(self.run_release_path, "runs.json"),
+            os.path.join(self.run_suite_paths[suite], "runs.json"),
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
         )
 
-    def write_run_specs(self):
+    def write_run_specs(self, suite):
         write(
-            os.path.join(self.run_release_path, "run_specs.json"),
+            os.path.join(self.run_suite_paths[suite], "run_specs.json"),
             json.dumps(list(map(asdict_without_nones, [run.run_spec for run in self.runs])), indent=2),
         )
     
@@ -909,7 +904,7 @@ class Summarizer:
 
         return all_tables
 
-    def write_groups(self):
+    def write_groups(self, suite):
         """
         Each group selects out a set of runs.
 
@@ -920,18 +915,18 @@ class Summarizer:
 
         # Write out index file with all the groups and basic stats
         write(
-            os.path.join(self.run_release_path, "groups.json"),
+            os.path.join(self.run_suite_paths[suite], "groups.json"),
             json.dumps(list(map(asdict_without_nones, self.create_index_tables())), indent=2),
         )
 
         # Write out metadata file for all groups
         write(
-            os.path.join(self.run_release_path, "groups_metadata.json"),
+            os.path.join(self.run_suite_paths[suite], "groups_metadata.json"),
             json.dumps(self.create_groups_metadata(), indent=2),
         )
 
         # Write out a separate JSON for each group
-        groups_path = os.path.join(self.run_release_path, "groups")
+        groups_path = os.path.join(self.run_suite_paths[suite], "groups")
         ensure_directory_exists(groups_path)
         for group in self.schema.run_groups:
             if group.subgroup_display_mode == BY_GROUP or len(self.expand_subgroups(group)) == 1:
@@ -1025,17 +1020,20 @@ def main():
     summarizer = Summarizer(
         release=release, suites=args.suites, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
-    summarizer.read_runs()
-    summarizer.check_metrics_defined()
+    summarizer.run_manifest: Dict[str, str] = dict()
+    for suite in summarizer.suites:
+        summarizer.runs: List[Run] = []  # Reset runs list.
+        summarizer.read_runs(suite)
+        summarizer.check_metrics_defined()
+
+        summarizer.write_runs(suite)
+        summarizer.write_run_specs(suite)
+        summarizer.write_groups(suite)
+        summarizer.write_cost_report(suite)
+        summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
 
     summarizer.write_executive_summary()
-    summarizer.write_runs()
-    summarizer.write_run_specs()
     summarizer.write_run_manifest()
-    summarizer.write_groups()
-    summarizer.write_cost_report()
-
-    summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
 
     #symlink_latest(args.output_path, args.suite)
     hlog("Done.")
