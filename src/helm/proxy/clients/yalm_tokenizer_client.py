@@ -43,7 +43,7 @@ class YaLMTokenizerClient(Client):
                 return {
                     "tokens": token_ids
                     if request.encode
-                    else cleanup_tokens(self.tokenizer.convert_ids_to_tokens(token_ids))
+                    else cleanup_tokens(self.tokenizer.convert_ids_to_tokens(token_ids), request.tokenizer)
                 }
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))

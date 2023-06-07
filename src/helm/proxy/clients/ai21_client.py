@@ -86,7 +86,7 @@ class AI21Client(Client):
 
         def fix_text(x: str, first: bool) -> str:
             # TODO(#1522): check if with #1519 this is still needed. This is similar to #1516.
-            x = cleanup_str(x)
+            x = cleanup_str(x, "ai21/j1")
             x = x.replace("<|newline|>", "\n")
             # For some reason, the first token sometimes starts with a space, so get rid of it
             if first and x.startswith(" "):

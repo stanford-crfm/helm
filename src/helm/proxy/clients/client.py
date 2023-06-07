@@ -125,8 +125,18 @@ def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:
     Certain tokenizers introduce special characters to represent spaces, such as
     "Ġ" or "▁". This function removes those characters.
     """
-    # TODO: tokenizer_name is here in case some models need special handling.
-    return token.replace("Ġ", " ").replace("▁", " ")
+    if tokenizer_name in [
+        "TsinghuaKEG/ice",
+        "bigscience/T0pp",
+        "google/t5-11b",
+        "google/ul2",
+        "Yandex/yalm",
+        "ai21/j1",
+        "together",
+    ]:
+        return token.replace("▁", " ")
+    elif tokenizer_name.startswith("huggingface"):
+        return token.replace("Ġ", " ")
 
 
 def cleanup_tokens(tokens: List[str], tokenizer_name: Optional[str] = None) -> List[str]:

@@ -34,7 +34,7 @@ class ICETokenizerClient(Client):
             def do_it():
                 tokens = tokenizer.encode(request.text) if request.encode else tokenizer.tokenize(request.text)
                 if not request.encode:
-                    tokens = cleanup_tokens(tokens)
+                    tokens = cleanup_tokens(tokens, request.tokenizer)
                 if request.truncation:
                     tokens = tokens[: request.max_length]
                 return {"tokens": tokens}
