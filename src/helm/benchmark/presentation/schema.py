@@ -97,7 +97,8 @@ class MetricNameMatcher:
         if self.name != metric_name.name:
             return False
 
-        if self.split != metric_name.split:
+        # Temporary workaround: when split is "__all__", it matches all splits
+        if self.split != metric_name.split and self.split != "__all__":
             return False
 
         # Optional
