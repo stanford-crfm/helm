@@ -263,12 +263,12 @@ class AutoClient(Client):
             if not surgeai_credentials:
                 raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
             self.critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
-        elif critique_type == "llm":
+        elif critique_type == "model":
             model_name: Optional[str] = self.credentials.get("critiqueModelName")
             if model_name is None:
-                raise ValueError("critiqueModelName is required for LLMCritiqueClient")
+                raise ValueError("critiqueModelName is required for ModelCritiqueClient")
             client: Client = self._get_client(model_name)
-            self.critique_client = LLMCritiqueClient(client, model_name, self._build_cache_config("citiqueLLM"))
+            self.critique_client = ModelCritiqueClient(client, model_name)
         else:
             raise ValueError(
                 "CritiqueClient is not configured; set critiqueType to 'mturk', 'mturk-sandbox', 'surgeai' or 'random'"

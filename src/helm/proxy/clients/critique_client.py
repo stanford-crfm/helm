@@ -214,13 +214,16 @@ class SurgeAICritiqueClient(CritiqueClient):
         return CritiqueRequestResult(worker_responses)
 
 
-class LLMCritiqueClient(CritiqueClient):
-    """A CritiqueClient that queries a LLM to answer CritiqueRequests."""
+class CritiqueParseError(Exception):
+    pass
 
-    def __init__(self, client: Client, model_name: str, cache_config: CacheConfig):
+
+class ModelCritiqueClient(CritiqueClient):
+    """A CritiqueClient that queries a Model to answer CritiqueRequests."""
+
+    def __init__(self, client: Client, model_name):
         self._client = client
         self._model_name = model_name
-        self._cache = Cache(cache_config)
 
     def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
         for key, value in fields.items():
@@ -232,7 +235,7 @@ class LLMCritiqueClient(CritiqueClient):
         if question.question_type == "free_response":
             prompt += "\nAnswer: "
         else:
-            prompt += "\nAnswer options: "
+            prompt += "\nOptions: "
             for i, letter in enumerate(string.ascii_uppercase[: len(question.options)]):
                 prompt += f"\n{letter}. {question.options[i]}"
             if question.question_type == "multiple_choice":
@@ -249,11 +252,14 @@ class LLMCritiqueClient(CritiqueClient):
         requests: List[Request] = []
         for question in task.questions:
             prompt: str = base_prompt + "\n\n" + self._question_to_prompt(question, fields)
-            max_tokens = 1
             if question.question_type == "free_response":
+                # TODO: Make max_tokens configurable
                 max_tokens = 100
-            if question.question_type == "checkbox":
+            elif question.question_type == "checkbox":
+                # We multiply by 2 because the model will generate a comma after each option.
                 max_tokens = len(question.options) * 2
+            else:
+                max_tokens = 1
             request = Request(
                 model=self._model_name,
                 prompt=prompt,
@@ -305,10 +311,10 @@ class LLMCritiqueClient(CritiqueClient):
         assert question.question_type == "free_response"
         return completion.text
 
-    def _letter_answer_to_actual_answer(
+    def _letter_answer_to_mapped_answer(
         self, letter_answer: Union[str, List[str]], question: CritiqueQuestionTemplate, fields: Dict[str, str]
     ) -> Union[str, List[str]]:
-        """Convert a letter answer to an actual answer."""
+        """Convert a letter answer to a mapped answer."""
         if question.question_type == "multiple_choice":
             assert isinstance(letter_answer, str)
             return self._interpolate_fields(question.options[string.ascii_uppercase.index(letter_answer)], fields)
@@ -345,13 +351,13 @@ class LLMCritiqueClient(CritiqueClient):
                     answer = self._free_response_completion_to_answer(question, result[respondent_id].completions[0])
                 else:
                     raise ValueError(f"Unknown question type: {question.question_type}")
-                actuals_answer: Union[str, List[str]] = self._letter_answer_to_actual_answer(answer, question, fields)
-                answers[question.name] = actuals_answer
+                mapped_answer: Union[str, List[str]] = self._letter_answer_to_mapped_answer(answer, question, fields)
+                answers[question.name] = mapped_answer
             responses.append(CritiqueResponse(id=str(respondent_id), respondent_id=str(respondent_id), answers=answers))
         return responses
 
     def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
-        """Queries the LLM specified in the constructor to answer a CritiqueRequest."""
+        """Queries the model specified in the constructor to answer a CritiqueRequest."""
 
         # This returns one request per question. We still need to duplicate each request
         # for the number of respondents.
