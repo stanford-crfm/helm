@@ -1767,7 +1767,7 @@ metric_groups:
         split: __all__
       - name: inception_score
         split: __all__
-      - name: kernel_inception_distance_mean
+      - name: kernel_inception_distance
         split: __all__
 
   - name: vhelm_fidelity
