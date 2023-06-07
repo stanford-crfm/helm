@@ -66,7 +66,7 @@ def save_scenarios_to_jsonl(light_scenarios: List[LightScenario], filename: str)
     """
     Save a list of LightInstance to a jsonl file where each line represents a LightScenario object.
     """
-    with open(filename, "w") as f:
+    with open(filename, "a") as f:
         for light_scenario in light_scenarios:
             f.write(json.dumps(asdict_without_nones(light_scenario), ensure_ascii=False) + "\n")
 
@@ -83,9 +83,15 @@ if __name__ == "__main__":
         run_entries=run_entries,
     )
 
-    hlog("Generating light scenarios from scenarios")
-    light_scenarios: List[LightScenario] = []
-    for run_spec in run_specs:
-        light_scenarios.extend(get_light_scenarios_from_run_spec(run_spec))
+    try:
+        os.remove(args.output_data)
+    except OSError:
+        pass
 
-    save_scenarios_to_jsonl(light_scenarios, args.output_data)
+    hlog("Generating light scenarios from scenarios")
+    for run_spec in run_specs:
+        try:
+            light_scenarios: List[LightScenario] = get_light_scenarios_from_run_spec(run_spec)
+            save_scenarios_to_jsonl(light_scenarios, args.output_data)
+        except Exception as e:
+            hlog(f"Error when writing scenario: {str(e)}")

@@ -2065,6 +2065,24 @@ def get_self_instruct_spec() -> RunSpec:
     )
 
 
+@run_spec_function("vicuna")
+def get_vicuna_spec(category: str = "all") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vicuna_scenario.VicunaScenario",
+        args={"category": category},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"vicuna:category={category}",  # TODO: add args
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["vicuna"],
+    )
+
+
 @run_spec_function("grammar")
 def get_grammar_spec(path: str, tags: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -2145,6 +2163,60 @@ def get_opinions_qa_spec(
     )
 
 
+@run_spec_function("open_assistant")
+def get_open_assistant_spec(language: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.open_assistant_scenario.OpenAssistantScenario",
+        args={"language": language},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"open_assistant:language={language}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["open_assistant"],
+    )
+
+
+@run_spec_function("koala")
+def get_koala_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.koala_scenario.KoalaScenario",
+        args={},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name="koala",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["koala"],
+    )
+
+
+@run_spec_function("anthropic_hh_rlhf")
+def get_anthropic_hh_rlhf_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.anthropic_hh_rlhf_scenario.AnthropicHHRLHFScenario",
+        args={"subset": subset},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"anthropic_hh_rlhf:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        groups=["anthropic_hh_rlhf"],
+    )
+
+
 ############################################################
 
 
@@ -2200,9 +2272,21 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if ANTHROPIC_MODEL_TAG in model.tags:
             add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
             increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
-            format_expander = FormatPromptRunExpander(
-                prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
-            )
+            # Get scenario tags
+            components = run_spec.scenario_spec.class_name.split(".")
+            module: Any = __import__(components[0])
+            for component in components[1:]:
+                module = getattr(module, component)
+            scenario_tags: List[str] = module.tags
+            # If the scenario is instruction, do not use PROMPT_ANSWER_START
+            if "instructions" in scenario_tags:
+                format_expander = FormatPromptRunExpander(
+                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}"
+                )
+            else:
+                format_expander = FormatPromptRunExpander(
+                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
+                )
             run_spec = singleton(add_to_stop_expander.expand(run_spec))
             run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
             run_spec = singleton(format_expander.expand(run_spec))

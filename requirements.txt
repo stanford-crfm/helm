@@ -43,6 +43,7 @@ revChatGPT~=0.1.1
 
 # Scenarios
 datasets~=2.5.2  # For math scenarios
+pyarrow~=11.0.0  # Pinned transitive dependency for datasets; workaround for #1026
 gdown~=4.4.0
 jsonlines~=3.1.0  # Not really needed
 sympy~=1.11.1  # For math scenarios
@@ -60,10 +61,11 @@ rouge-score~=0.1.2
 pyext~=0.7
 pytrec_eval==0.5
 sacrebleu~=2.2.1
+scaleapi~=2.13.0
 # Work around https://github.com/p-lambda/verified_calibration/issues/11
 # TODO: Remove after this issue is resolved
 scikit-learn~=1.1.2
-spacy~=3.2.4
+spacy~=3.5.3
 summ-eval~=0.892
 surge-api~=1.1.0
 # End users should install a CUDA version of PyTorch manually if needed
