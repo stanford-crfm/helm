@@ -1,7 +1,7 @@
 import json
 import os
 import argparse
-from typing import List, DefaultDict, Dict
+from typing import List, DefaultDict, Set
 from collections import defaultdict
 
 from helm.common.general import asdict_without_nones, ensure_directory_exists
@@ -21,7 +21,7 @@ def create_light_instance_from_instance(instance: Instance) -> LightInstance:
     return LightInstance(input=input_text, references=reference_texts)
 
 
-def deduplicate_instances(instances: List[Instance], input_set: set[str]):
+def deduplicate_instances(instances: List[Instance], input_set: Set[str]):
     filtered_instances = []
     for instance in instances:
         input = instance.input.text
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         pass
 
     hlog("Generating light scenarios from scenarios")
-    input_set: set[str] = set()
+    input_set: Set[str] = set()
     for run_spec in run_specs:
         try:
             light_scenarios: List[LightScenario] = get_light_scenarios_from_run_spec(run_spec, input_set)
