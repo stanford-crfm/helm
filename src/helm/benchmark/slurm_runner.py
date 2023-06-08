@@ -187,7 +187,8 @@ class SlurmRunner(Runner):
                     hlog("Fetching states of worker Slurm jobs from Slurm")
                     # TODO: Get the states of multiple jobs in a single call to Slurm
                     for slurm_job_info in run_name_to_slurm_job_info.values():
-                        slurm_job_info.state = get_slurm_job_state(slurm_job_info.id)
+                        if slurm_job_info.state not in TERMINAL_SLURM_JOB_STATES:
+                            slurm_job_info.state = get_slurm_job_state(slurm_job_info.id)
                     worker_slurm_jobs_path = os.path.join(self.slurm_base_dir, "worker_slurm_jobs.json")
                     run_name_to_slurm_job_info_json = to_json(run_name_to_slurm_job_info)
                     hlog(f"Worker Slurm jobs: {run_name_to_slurm_job_info_json}")
