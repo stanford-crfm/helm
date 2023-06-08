@@ -18,7 +18,6 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
-from helm.benchmark.runner import RunSpec
 from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario, LightScenarioKey
 
 
@@ -43,7 +42,7 @@ def get_light_scenarios_from_scenario_spec(
     scenario_spec: ScenarioSpec, scenario_download_path: str = "exported_scenarios"
 ) -> List[LightScenario]:
     """
-    Create a list of LightInstances given a RunSpec. Only keep the text of the input and references.
+    Create a list of LightInstances given a ScenarioSpec. Only keep the text of the input and references.
     Note that one LightScenario object is created for each split of the Scenario for simplification.
     """
 
