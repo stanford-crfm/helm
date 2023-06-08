@@ -106,7 +106,7 @@ if __name__ == "__main__":
     input_set: set[str] = set()
     for run_spec in run_specs:
         try:
-            light_scenarios = get_light_scenarios_from_run_spec(run_spec, input_set)
+            light_scenarios: List[LightScenario] = get_light_scenarios_from_run_spec(run_spec, input_set)
             save_scenarios_to_jsonl(light_scenarios, args.output_data)
         except Exception as e:
             hlog(f"Error when writing scenario: {str(e)}")
