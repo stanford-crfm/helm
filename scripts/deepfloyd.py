@@ -151,7 +151,7 @@ class DeepFloyd:
         # Go through all the valid run folders, pull requests from the scenario_state.json
         # files and run inference for each request.
         with create_key_value_store(self._key_value_cache_config) as store:
-            for run_dir in os.listdir(run_suite_path):
+            for run_dir in tqdm(os.listdir(run_suite_path)):
                 run_path: str = os.path.join(run_suite_path, run_dir)
 
                 if not os.path.isdir(run_path):
