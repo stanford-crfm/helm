@@ -46,9 +46,9 @@ class Schema {
 $(function () {
   const urlParams = decodeUrlParams(window.location.search);
 
-  // Extract the name of the suite from the URL parameters. Default to "latest" if none is specified.
-  const suite = "suite" in urlParams ? urlParams.suite : "latest";
-  console.log(`Suite: ${suite}`);
+  // Extract the name of the release from the URL parameters. Default to "latest" if none is specified.
+  const release = "release" in urlParams ? urlParams.release : "latest";
+  console.log(`Release: ${release}`);
 
   // Array of String containing RunSpec names for which
   // the JSON for displaying requests has been loaded.
@@ -136,7 +136,7 @@ $(function () {
 
         plot.append($('<h3>').append($('<a>', {id: title}).append(title)));
         plot.append(caption);
-        plot.append($('<img>', {src: plotUrl(suite, name), class: "img-fluid"}));
+        plot.append($('<img>', {src: plotUrl(release, name), class: "img-fluid"}));
         container.append(plot);
         tableLinks.push($('<a>', {href: '#' + title}).append(title));
     }
@@ -358,7 +358,7 @@ $(function () {
 
   function renderGroupHeader() {
     const $output = $('<div>');
-    $.getJSON(groupsMetadataJsonUrl(suite), {}, (response) => {
+    $.getJSON(groupsMetadataJsonUrl(release), {}, (response) => {
       const group = response[urlParams.group];
       if (group) {
         let groupName = group.display_name;
@@ -503,7 +503,7 @@ $(function () {
     return instanceKeyToDiv;
   }
 
-  function loadAndRenderRequests(runSpec, instanceKeyToDiv, predictedIndex) {
+  function loadAndRenderRequests(runSpec, suite, instanceKeyToDiv, predictedIndex) {
     if (runSpecsNamesWithLoadedRequests.includes(runSpec.name)) {
       return;
     }
@@ -580,7 +580,7 @@ $(function () {
     <div class="request" style="display: none">Loading...</div>
   `);
 
-  function renderPredictions(runSpec, runDisplayName, predictions, instanceKeyToDiv, $instances) {
+  function renderPredictions(runSpec, runSuite, runDisplayName, predictions, instanceKeyToDiv, $instances) {
     // Add the predictions and statistics from `scenarioState` and `perInstanceStats` to the appropriate divs for each instance.
     // Each instance give rises to multiple requests (whose results are in `scenarioState`):
     //
@@ -673,12 +673,12 @@ $(function () {
     });
     $instances.find("a.load-requests").click((event) => {
       $(event.target).closest('.prediction').next('.request').slideToggle();
-      loadAndRenderRequests(runSpec, instanceKeyToDiv);
+      loadAndRenderRequests(runSpec, runSuite, instanceKeyToDiv);
       return false;
     });
   }
 
-  function renderRunsDetailed(runSpecs) {
+  function renderRunsDetailed(runSpecs, runManifest) {
     // Render all the `runSpecs`:
     // 1. Adapter specification
     // 2. Instances + predictions
@@ -693,16 +693,16 @@ $(function () {
 
     // Paths (parallel arrays corresponding to `runSpecs`)
     const statsPaths = runSpecs.map((runSpec) => {
-      return statsJsonUrl(suite, runSpec.name);
+      return statsJsonUrl(runManifest[runSpec.name], runSpec.name);
     });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
-      return scenarioStateJsonUrl(suite, runSpec.name);
+      return scenarioStateJsonUrl(runManifest[runSpec.name], runSpec.name);
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
-      return runSpecJsonUrl(suite, runSpec.name);
+      return runSpecJsonUrl(runManifest[runSpec.name], runSpec.name);
     });
     const predictionsPaths = runSpecs.map((runSpec) => {
-      return predictionsJsonUrl(suite, runSpec.name);
+      return predictionsJsonUrl(runManifest[runSpec.name], runSpec.name);
     });
 
     // Figure out short names for the runs based on where they differ
@@ -786,14 +786,14 @@ $(function () {
     }, []);
 
     // Render scenario header
-    const scenarioPath = scenarioJsonUrl(suite, runSpecs[0].name);
+    const scenarioPath = scenarioJsonUrl(runManifest[runSpecs[0].name], runSpecs[0].name);
     $.get(scenarioPath, {}, (scenario) => {
       console.log('scenario', scenario);
       $scenarioInfo.empty().append(renderRunsHeader(scenario, scenarioPath, runSpecs[0].scenario_spec));
     });
 
     // Render scenario instances and predictions
-    const instancesPath = instancesJsonUrl(suite, runSpecs[0].name);
+    const instancesPath = instancesJsonUrl(runManifest[runSpecs[0].name], runSpecs[0].name);
     const instancesPromise = $.getJSON(instancesPath, {});
     const predictionsPromise = getJSONList(predictionsPaths);
     $.when(instancesPromise, predictionsPromise).then((instancesResult, predictions) => {
@@ -804,7 +804,7 @@ $(function () {
       const instanceKeyToDiv = renderScenarioInstances(instances, $instances);
       // For each run / model...
       runSpecs.forEach((runSpec, index) => {
-        renderPredictions(runSpec, runDisplayNames[index], predictions[index], instanceKeyToDiv, $instances);
+        renderPredictions(runSpec, runManifest[runSpec.name], runDisplayNames[index], predictions[index], instanceKeyToDiv, $instances);
       });
       $instancesContainer.empty().append($instances);
     });
@@ -1186,17 +1186,21 @@ $(function () {
   //////////////////////////////////////////////////////////////////////////////
   const $main = $('#main');
   const $summary = $('#summary');
+  var runManifest;
   $.when(
     $.get('schema.yaml', {}, (response) => {
       const raw = jsyaml.load(response);
       console.log('schema', raw);
       schema = new Schema(raw);
     }),
-    $.get(summaryJsonUrl(suite), {}, (response) => {
+    $.get(summaryJsonUrl(release), {}, (response) => {
       console.log('summary', response);
       summary = response;
-      $summary.append(`${summary.suite} (last updated ${summary.date})`);
+      $summary.append(`${summary.release} (last updated ${summary.date})`);
     }),
+    $.getJSON(runManifestJsonUrl(release), {}, (response) => {
+      runManifest = response;
+    })
   ).then(() => {
     if (urlParams.models) {
       // Models
@@ -1216,7 +1220,7 @@ $(function () {
     } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
       // Predictions for a set of run specs (matching a regular expression)
       $main.text('Loading runs...');
-      $.getJSON(runSpecsJsonUrl(suite), {}, (response) => {
+      $.getJSON(runSpecsJsonUrl(release), {}, (response) => {
         $main.empty();
         const runSpecs = response;
         console.log('runSpecs', runSpecs);
@@ -1239,14 +1243,14 @@ $(function () {
         if (matchedRunSpecs.length === 0) {
           $main.append(renderError('No matching runs'));
         } else {
-          $main.append(renderRunsDetailed(matchedRunSpecs));
+          $main.append(renderRunsDetailed(matchedRunSpecs, runManifest));
         }
         refreshHashLocation();
       });
     } else if (urlParams.runs) {
       // All runs (with search)
       $main.text('Loading runs...');
-      $.getJSON(runSpecsJsonUrl(suite), {}, (runSpecs) => {
+      $.getJSON(runSpecsJsonUrl(release), {}, (runSpecs) => {
         $main.empty();
         console.log('runSpecs', runSpecs);
         $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
@@ -1254,7 +1258,7 @@ $(function () {
     } else if (urlParams.groups) {
       // All groups
       $main.text('Loading groups...');
-      const path = groupsJsonUrl(suite);
+      const path = groupsJsonUrl(release);
       $.getJSON(path, {}, (tables) => {
         $main.empty();
         console.log('groups', tables);
@@ -1264,7 +1268,7 @@ $(function () {
     } else if (urlParams.group) {
       // Specific group
       $main.text('Loading group...');
-      const path = groupJsonUrl(suite, urlParams.group);
+      const path = groupJsonUrl(release, urlParams.group);
       $.getJSON(path, {}, (tables) => {
         $main.empty();
         console.log('group', tables);

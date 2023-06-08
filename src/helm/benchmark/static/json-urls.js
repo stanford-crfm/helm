@@ -1,24 +1,28 @@
 ////////////////////////////////////////////////////////////
 // Helper functions for getting URLs of JSON files
 
-function summaryJsonUrl(suite) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/summary.json`;
+function runManifestJsonUrl(release) {
+
 }
 
-function runSpecsJsonUrl(suite) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/run_specs.json`;
+function summaryJsonUrl(release) {
+  return `${BENCHMARK_OUTPUT_BASE_URL}/releases/${release}/summary.json`;
 }
 
-function groupsMetadataJsonUrl(suite) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/groups_metadata.json`;
+function runSpecsJsonUrl(release) {
+  return `${BENCHMARK_OUTPUT_BASE_URL}/releases/${release}/run_specs.json`;
 }
 
-function groupsJsonUrl(suite) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/groups.json`;
+function groupsMetadataJsonUrl(release) {
+  return `${BENCHMARK_OUTPUT_BASE_URL}/releases/${release}/groups_metadata.json`;
 }
 
-function groupJsonUrl(suite, groupName) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/groups/${groupName}.json`;
+function groupsJsonUrl(release) {
+  return `${BENCHMARK_OUTPUT_BASE_URL}/releases/${release}/groups.json`;
+}
+
+function groupJsonUrl(release, groupName) {
+  return `${BENCHMARK_OUTPUT_BASE_URL}/releases/${release}/groups/${groupName}.json`;
 }
 
 function runSpecJsonUrl(suite, runSpecName) {
