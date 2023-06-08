@@ -1760,16 +1760,19 @@ metric_groups:
         split: ${main_split}
 
 ## VHELM metric groups
+  - name: vhelm_inception
+    display_name: VHELM inception metrics
+    metrics:
+      - name: fid
+        split: __all__
+      - name: inception_score
+        split: __all__
+      - name: kernel_inception_distance
+        split: __all__
 
   - name: vhelm_fidelity
     display_name: VHELM Image fidelity metrics
     metrics:
-      - name: fid
-        split: ${main_split}
-      - name: inception_score
-        split: ${main_split}
-      - name: kernel_inception_distance_mean
-        split: ${main_split}
       - name: expected_lpips_score
         split: ${main_split}
       - name: expected_multi_scale_ssim_score
@@ -1809,25 +1812,25 @@ metric_groups:
     display_name: VHELM image-text alignment metric (human)
     metrics:
       - name: image_text_alignment_human
-        split: ${main_split}
+        split: __all__
 
   - name: vhelm_clear_subject_human
     display_name: VHELM clear subject (human)
     metrics:
       - name: clear_subject_human
-        split: ${main_split}
+        split: __all__
 
   - name: vhelm_originality_human
     display_name: VHELM originality (human)
     metrics:
       - name: originality_human
-        split: ${main_split}
+        split: __all__
 
-  - name: vhelm_copyright_human
-    display_name: VHELM copyright (human)
-    metrics:
-      - name: copyright_human
-        split: ${main_split}
+  # - name: vhelm_copyright_human
+  #   display_name: VHELM copyright (human)
+  #   metrics:
+  #     - name: copyright_human
+  #       split: __all__
 
   # Aesthetics
   - name: vhelm_aesthetics
@@ -1842,7 +1845,7 @@ metric_groups:
     display_name: VHELM aesthetics (human)
     metrics:
       - name: aesthetics_human
-        split: ${main_split}
+        split: __all__
 
   - name: vhelm_detection
     display_name: VHELM detection metrics
@@ -1915,9 +1918,9 @@ metric_groups:
     display_name: VHELM photorealism metrics
     metrics:
       - name: photorealism_generated_human
-        split: ${main_split}
+        split: __all__
       - name: photorealism_real_human
-        split: ${main_split}
+        split: __all__
 
   - name: vhelm_efficiency
     display_name: VHELM efficiency metrics
@@ -1925,7 +1928,7 @@ metric_groups:
 #      - name: prompt_length
 #        split: ${main_split}
       - name: denoised_runtime
-        split: ${main_split}
+        split: __all__
 #      - name: num_generated_images
 #        split: ${main_split}
 
@@ -2128,6 +2131,8 @@ run_groups:
     category: Core scenarios
     subgroups:
       - mscoco
+      - mscoco_fid
+      - mscoco_efficiency
       - cub200
       - draw_bench_image_quality
       - parti_prompts_image_quality
@@ -2291,8 +2296,8 @@ run_groups:
       - vhelm_toxicity
       - vhelm_watermark
       - vhelm_photorealism
-      - vhelm_copyright_human
-      - vhelm_efficiency
+      # - vhelm_copyright_human
+      # - vhelm_efficiency
 #      - robustness
 #      - fairness
       - general_information
@@ -2300,6 +2305,17 @@ run_groups:
       main_split: valid
     taxonomy:
       task: Image quality
+  # TODO: Merge mscoco_fid with mscoco
+  - name: mscoco_fid
+    display_name: MS COCO
+    description: Fidelity for MSCOCO
+    metric_groups:
+      - vhelm_inception
+    environment:
+      main_split: valid
+    taxonomy:
+      task: Image quality
+  # TODO: Merge mscoco_efficiency with mscoco
   - name: mscoco_efficiency
     display_name: MS COCO
     description: Efficiency for MSCOCO
@@ -2324,7 +2340,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
 #      - robustness
 #      - fairness
@@ -2347,7 +2363,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2368,7 +2384,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2390,7 +2406,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2412,7 +2428,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2434,7 +2450,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2456,7 +2472,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2477,7 +2493,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2498,7 +2514,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2519,7 +2535,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2540,7 +2556,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2562,7 +2578,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2583,7 +2599,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2604,7 +2620,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2625,7 +2641,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2646,7 +2662,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2669,7 +2685,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2692,7 +2708,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:
@@ -2713,7 +2729,7 @@ run_groups:
       - vhelm_nudity
       - vhelm_toxicity
       - vhelm_watermark
-      - vhelm_copyright_human
+      # - vhelm_copyright_human
       - vhelm_efficiency
       - general_information
     environment:

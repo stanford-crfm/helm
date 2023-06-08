@@ -5,8 +5,8 @@ import numpy as np
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.metric import Metric, MetricResult
-from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric import Metric, MetricResult, add_context
+from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.scenarios.scenario import Reference
@@ -67,6 +67,7 @@ class PhotorealismCritiqueMetric(Metric):
 
         all_stats: Dict[MetricName, Stat] = {}
         for request_state in request_states:
+            context = MetricContext.from_instance(request_state.instance)
             stats = self.evaluate_generation(
                 scenario_state.adapter_spec,
                 request_state,
@@ -74,7 +75,7 @@ class PhotorealismCritiqueMetric(Metric):
                 eval_cache_path,
             )
             for stat in stats:
-                merge_stat(all_stats, stat)
+                merge_stat(all_stats, add_context(stat, context))
 
         return MetricResult(aggregated_stats=list(all_stats.values()), per_instance_stats=[])
 
