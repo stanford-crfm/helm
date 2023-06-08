@@ -315,10 +315,9 @@ class Summarizer:
             if run.run_spec.name in self.run_manifest:
                 hlog(
                     f"WARNING: Run entry {run.run_spec.name} is present in two different Run Suites. "
-                    f"Defaulting to the earliest assigned suite: {self.run_manifest[run.run_spec.name]}"
+                    f"Defaulting to the latest assigned suite: {self.run_manifest[run.run_spec.name]}"
                     )
-            else:
-                self.run_manifest[run.run_spec.name] = suite
+            self.run_manifest[run.run_spec.name] = suite
 
             scenario_spec = run.run_spec.scenario_spec
             adapter_spec = run.run_spec.adapter_spec
