@@ -50,7 +50,6 @@ def get_light_scenarios_from_scenario_spec(
     # Classify instances into splits
     splits: List[str] = [TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT]
     split_mapping: DefaultDict[str, list] = defaultdict(list)
-
     for instance in instances:
         if instance.split is None or instance.split not in splits:
             raise ValueError(
