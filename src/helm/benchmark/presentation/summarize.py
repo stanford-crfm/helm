@@ -969,17 +969,17 @@ class Summarizer:
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
 
-def symlink_latest(output_path: str, suite: str) -> None:
+def symlink_latest(output_path: str, release: str) -> None:
     # Create a symlink runs/latest -> runs/<name_of_suite>,
     # so runs/latest always points to the latest run suite.
-    runs_dir: str = os.path.join(output_path, "runs")
-    suite_dir: str = os.path.join(runs_dir, suite)
-    symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
-    hlog(f"Symlinking {suite_dir} to {LATEST_SYMLINK}.")
+    releases_dir: str = os.path.join(output_path, "releases")
+    release_dir: str = os.path.join(releases_dir, release)
+    symlink_path: str = os.path.abspath(os.path.join(releases_dir, LATEST_SYMLINK))
+    hlog(f"Symlinking {release_dir} to {LATEST_SYMLINK}.")
     if os.path.islink(symlink_path):
         # Remove the previous symlink if it exists.
         os.unlink(symlink_path)
-    os.symlink(os.path.abspath(suite_dir), symlink_path)
+    os.symlink(os.path.abspath(release_dir), symlink_path)
 
 
 @htrack(None)
@@ -1036,7 +1036,7 @@ def main():
 
     summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
 
-    #symlink_latest(args.output_path, args.suite)
+    symlink_latest(args.output_path, args.release)
     hlog("Done.")
 
 

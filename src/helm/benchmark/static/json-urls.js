@@ -2,7 +2,7 @@
 // Helper functions for getting URLs of JSON files
 
 function runManifestJsonUrl(release) {
-
+  return `${BENCHMARK_OUTPUT_BASE_URL}/releases/${release}/run_manifest.json`;
 }
 
 function summaryJsonUrl(release) {
