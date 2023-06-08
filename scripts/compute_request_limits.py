@@ -8,7 +8,7 @@ from helm.proxy.clients.auto_client import AutoClient
 from helm.common.request import Request
 from helm.common.tokenization_request import TokenizationRequest
 
-# Only used for typing and slow to import, so removed
+# TODO #1592: reenable this once the imports are faster
 # from helm.proxy.clients.client import Client
 
 import os
@@ -16,27 +16,7 @@ import math
 import random
 from tqdm import tqdm
 import argparse
-
-print("Imports Done\n")
-
-# model_name, tokenizer_name, prefix and suffix are passed as arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("--model_name", type=str, default="writer/palmyra-base")
-parser.add_argument("--tokenizer_name", type=str, default="Writer/palmyra-base")
-parser.add_argument("--prefix", type=str, default="")
-parser.add_argument("--suffix", type=str, default="")
-parser.add_argument("--relative_credentials_path", type=str, default="../prod_env/credentials.conf")
-parser.add_argument("--relative_cache_path", type=str, default="../prod_env/cache")
-args = parser.parse_args()
-
-
-print("========== Model infos ==========")
-print(f"model_name: {args.model_name}")
-print(f"tokenizer_name: {args.tokenizer_name}")
-print(f"prefix: {args.prefix}")
-print(f"suffix: {args.suffix}")
-print("=================================")
-print("")
+from attr import dataclass
 
 
 def get_credentials(path: str) -> Dict[str, str]:
@@ -52,45 +32,6 @@ def get_credentials(path: str) -> Dict[str, str]:
         return credentials
 
 
-credentials_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.relative_credentials_path)
-credentials = get_credentials(credentials_path)
-print("========== Credentials ==========")
-for key, value in credentials.items():
-    print(f"{key}: {value}")
-print("=================================")
-print("")
-
-print("=========== Initial setup ===========")
-current_path = os.path.dirname(os.path.realpath(__file__))
-cache_path = os.path.join(current_path, args.relative_cache_path)
-print(f"cache_path: {cache_path}")
-
-client = AutoClient(credentials=credentials, cache_path=cache_path)
-print("client successfully created")
-
-print("Making short request...")
-request = Request(model=args.model_name, prompt=args.prefix + "hello" + args.suffix, max_tokens=1)
-response = client.make_request(request)
-if not response.success:
-    raise ValueError("Request failed")
-print("Request successful")
-print("=====================================")
-print("")
-
-
-def get_client():
-    current_path = os.path.dirname(os.path.realpath(__file__))
-    cache_path = os.path.join(current_path, args.relative_cache_path)
-    client = AutoClient(credentials=credentials, cache_path=cache_path)
-    return client
-
-
-def get_clients(tokenizer_name: str):  # -> Tuple[Client, Client]:
-    client = get_client()
-    client_tokenizer = client._get_tokenizer_client(tokenizer_name)
-    return client, client_tokenizer
-
-
 def get_number_of_tokens(prompt: str, tokenizer_client: Any, tokenizer_name: str) -> int:
     tokenization_request = TokenizationRequest(tokenizer=tokenizer_name, text=prompt, encode=True)
     tokenization_response = tokenizer_client.tokenize(tokenization_request)
@@ -104,24 +45,20 @@ def try_request(
     tokenizer_client: Any,
     sequence_length: int,
     num_tokens: int,
-    prefix: Optional[str] = None,
-    suffix: Optional[str] = None,
+    prefix: str = "",
+    suffix: str = "",
 ) -> bool:
     """
     Try to make a request with the given sequence_length and num_tokens.
     Return True if the request was successful, False otherwise.
     """
-    if prefix is None:
-        prefix = ""
-    if suffix is None:
-        suffix = ""
-    nb_tokens_prefix = get_number_of_tokens(prefix, tokenizer_client, tokenizer_name)
-    nb_tokens_suffix = get_number_of_tokens(suffix, tokenizer_client, tokenizer_name)
+    num_tokens_prefix = get_number_of_tokens(prefix, tokenizer_client, tokenizer_name)
+    num_tokens_suffix = get_number_of_tokens(suffix, tokenizer_client, tokenizer_name)
 
     try:
         request = Request(
             model=model_name,
-            prompt=prefix + " ".join(["hello"] * (sequence_length - nb_tokens_prefix - nb_tokens_suffix)) + suffix,
+            prompt=prefix + " ".join(["hello"] * (sequence_length - num_tokens_prefix - num_tokens_suffix)) + suffix,
             max_tokens=num_tokens,
         )
         response = client.make_request(request)
@@ -130,59 +67,62 @@ def try_request(
         return False
 
 
+@dataclass
+class RequestLimits:
+    max_prompt_length: int
+    num_tokens_prefix: int
+    num_tokens_suffix: int
+    usable_max_prompt_length: int
+    max_prompt_length_plus_tokens: Optional[int] = None
+
+
 def figure_out_max_prompt_length(
+    client: Any,  # Client,
     model_name: str,
     tokenizer_name: str,
     upper_bound: int = 9500,
     lower_bound: int = 450,
-    prefix: Optional[str] = None,
-    suffix: Optional[str] = None,
-) -> Dict[str, int]:
-    client, tokenizer_client = get_clients(tokenizer_name)
-    if prefix is None:
-        prefix = ""
-    if suffix is None:
-        suffix = ""
-    nb_tokens_prefix = get_number_of_tokens(prefix, tokenizer_client, tokenizer_name)
-    nb_tokens_suffix = get_number_of_tokens(suffix, tokenizer_client, tokenizer_name)
+    prefix: str = "",
+    suffix: str = "",
+) -> RequestLimits:
+    tokenizer_client = client._get_tokenizer_client(tokenizer_name)
+    num_tokens_prefix = get_number_of_tokens(prefix, tokenizer_client, tokenizer_name)
+    num_tokens_suffix = get_number_of_tokens(suffix, tokenizer_client, tokenizer_name)
 
-    # Perform a dichotomy search to find the max tokens betzeen lower_bound and upper_bound
-    lower_bound += nb_tokens_prefix + nb_tokens_suffix
+    # Perform a binary search to find the max tokens between lower_bound and upper_bound
+    lower_bound += num_tokens_prefix + num_tokens_suffix
     with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
         while lower_bound < upper_bound:
             middle = math.ceil((lower_bound + upper_bound) / 2)
-            if try_request(client, model_name, tokenizer_name, tokenizer_client, middle, 1, prefix, suffix):
+            if try_request(client, model_name, tokenizer_name, tokenizer_client, middle, 0, prefix, suffix):
                 lower_bound = middle
             else:
                 upper_bound = middle - 1
             pbar.update(1)
 
-    # Just in case the number of tokens does not match the number of words, check number fo tokens with tokenizer
+    # Just in case the number of tokens does not match the number of words, check number of tokens with tokenizer
     max_prompt_length = get_number_of_tokens(
-        prefix + " ".join(["hello"] * (lower_bound - nb_tokens_prefix - nb_tokens_suffix)) + suffix,
+        prefix + " ".join(["hello"] * (lower_bound - num_tokens_prefix - num_tokens_suffix)) + suffix,
         tokenizer_client,
         tokenizer_name,
     )
-    return {
-        "max_prompt_length": max_prompt_length,
-        "nb_tokens_prefix": nb_tokens_prefix,
-        "nb_tokens_suffix": nb_tokens_suffix,
-        "usable_max_prompt_length": max_prompt_length - nb_tokens_prefix - nb_tokens_suffix,
-    }
+    return RequestLimits(
+        max_prompt_length=max_prompt_length,
+        num_tokens_prefix=num_tokens_prefix,
+        num_tokens_suffix=num_tokens_suffix,
+        usable_max_prompt_length=lower_bound,
+    )
 
 
 def figure_out_max_prompt_length_plus_tokens(
+    client: Any,  # Client,
     model_name: str,
     tokenizer_name: str,
     max_prompt_length: int,
-    prefix: Optional[str] = None,
-    suffix: Optional[str] = None,
+    prefix: str = "",
+    suffix: str = "",
 ) -> int:
-    client, tokenizer_client = get_clients(tokenizer_name)
-    if prefix is None:
-        prefix = ""
-    if suffix is None:
-        suffix = ""
+    tokenizer_client = client._get_tokenizer_client(tokenizer_name)
     lower_bound = 1
     upper_bound = 2 * max_prompt_length + 1
 
@@ -202,7 +142,7 @@ def figure_out_max_prompt_length_plus_tokens(
     else:
         print("The model has a limit on the number of tokens")
 
-    # Perform a dichotomy search to find the max tokens betzeen lower_bound and upper_bound
+    # Perform a binary search to find the max tokens between lower_bound and upper_bound
     with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
         while lower_bound < upper_bound:
             middle = math.ceil((lower_bound + upper_bound) / 2)
@@ -218,23 +158,18 @@ def figure_out_max_prompt_length_plus_tokens(
 
 
 def check_limits(
+    client: Any,  # Client,
     model_name: str,
     tokenizer_name: str,
-    infos: Dict[str, int],
-    prefix: Optional[str] = None,
-    suffix: Optional[str] = None,
+    limits: RequestLimits,
+    prefix: str = "",
+    suffix: str = "",
 ) -> bool:
-    client, tokenizer_client = get_clients(tokenizer_name)
-    if prefix is None:
-        prefix = ""
-    if suffix is None:
-        suffix = ""
+    tokenizer_client = client._get_tokenizer_client(tokenizer_name)
     result: bool = True
 
     # Check the max_prompt_length
-    if "max_prompt_length" not in infos:
-        raise ValueError("infos should contain max_prompt_length")
-    max_prompt_length = infos["max_prompt_length"]
+    max_prompt_length = limits.max_prompt_length
     if max_prompt_length < 0:
         print("No limit on the number of tokens")
         if not try_request(client, model_name, tokenizer_name, tokenizer_client, 2**32 - 2, 1, prefix, suffix):
@@ -248,10 +183,11 @@ def check_limits(
         result = False
 
     # Check the max_prompt_length_plus_tokens
-    if "max_prompt_length_plus_tokens" not in infos:
-        raise ValueError("infos should contain max_prompt_length_plus_tokens")
-    max_prompt_length_plus_tokens = infos["max_prompt_length_plus_tokens"]
-    # Generate r a raqndom number between 1 and max_prompt_length - 1
+    max_prompt_length_plus_tokens = limits.max_prompt_length_plus_tokens
+    if max_prompt_length_plus_tokens is None:
+        print("Setting max_prompt_length_plus_tokens max_prompt_length as it was not provided")
+        max_prompt_length_plus_tokens = max_prompt_length
+    # Generate r a random number between 1 and max_prompt_length - 1
     r = random.randint(1, max_prompt_length - 1)
     if max_prompt_length_plus_tokens < 0:
         print("No limit on the number of tokens")
@@ -327,37 +263,101 @@ def check_limits(
     return result
 
 
-print("========== Figure out max_prompt_length ==========")
-infos = figure_out_max_prompt_length(args.model_name, args.tokenizer_name, prefix=args.prefix, suffix=args.suffix)
-print(f"max_prompt_length: {infos['max_prompt_length']}")
-print("===================================================")
-print("")
+def get_args():
+    # model_name, tokenizer_name, prefix and suffix are passed as arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model_name", type=str, default="writer/palmyra-base")
+    parser.add_argument("--tokenizer_name", type=str, default="Writer/palmyra-base")
+    parser.add_argument(
+        "--prefix",
+        type=str,
+        default="",
+        help='The prefix to use before the prompt. For example for anthropic, use "Human: "',
+    )
+    parser.add_argument(
+        "--suffix",
+        type=str,
+        default="",
+        help='The suffix to use after the prompt. For example for anthropic, use "Assistant: "',
+    )
+    parser.add_argument("--credentials_path", type=str, default="../prod_env/credentials.conf")
+    parser.add_argument("--cache_path", type=str, default="../prod_env/cache")
+    args = parser.parse_args()
+    return args
 
-print("========== Figure out max_prompt_length_plus_tokens ==========")
-max_prompt_length_plus_tokens = figure_out_max_prompt_length_plus_tokens(
-    args.model_name,
-    args.tokenizer_name,
-    max_prompt_length=infos["max_prompt_length"],
-    prefix=args.prefix,
-    suffix=args.suffix,
-)
-infos["max_prompt_length_plus_tokens"] = max_prompt_length_plus_tokens
-print(f"max_prompt_length_plus_tokens: {infos['max_prompt_length_plus_tokens']}")
-print("==============================================================")
-print("")
 
-# Check the limits
-print("========== Check the limits ==========")
-result = check_limits(args.model_name, args.tokenizer_name, infos, prefix=args.prefix, suffix=args.suffix)
-if result:
-    print("All limits are respected")
-else:
-    print("Some limits are not respected")
-print("======================================")
-print("")
+def main():
+    print("Imports Done\n")
+    args = get_args()
 
-# Print the infos
-print("========== Print the infos ==========")
-for key in infos:
-    print(f"{key}: {infos[key]}")
-print("=====================================")
+    credentials_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.credentials_path)
+    credentials = get_credentials(credentials_path)
+
+    print("=========== Initial setup ===========")
+    current_path = os.path.dirname(os.path.realpath(__file__))
+    cache_path = os.path.join(current_path, args.cache_path)
+    print(f"cache_path: {cache_path}")
+
+    client = AutoClient(credentials=credentials, cache_path=cache_path)
+    print("client successfully created")
+
+    print("Making short request...")
+    request = Request(model=args.model_name, prompt=args.prefix + "hello" + args.suffix, max_tokens=1)
+    response = client.make_request(request)
+    if not response.success:
+        raise ValueError("Request failed")
+    print("Request successful")
+    print("=====================================")
+    print("")
+
+    print("========== Model infos ==========")
+    print(f"model_name: {args.model_name}")
+    print(f"tokenizer_name: {args.tokenizer_name}")
+    print(f"prefix: {args.prefix}")
+    print(f"suffix: {args.suffix}")
+    print("=================================")
+    print("")
+
+    print("========== Figure out max_prompt_length ==========")
+    limits: RequestLimits = figure_out_max_prompt_length(
+        client, args.model_name, args.tokenizer_name, prefix=args.prefix, suffix=args.suffix
+    )
+    print(f"max_prompt_length: {limits.max_prompt_length}")
+    print("===================================================")
+    print("")
+
+    print("========== Figure out max_prompt_length_plus_tokens ==========")
+    max_prompt_length_plus_tokens: int = figure_out_max_prompt_length_plus_tokens(
+        client,
+        args.model_name,
+        args.tokenizer_name,
+        max_prompt_length=limits.max_prompt_length,
+        prefix=args.prefix,
+        suffix=args.suffix,
+    )
+    limits.max_prompt_length_plus_tokens = max_prompt_length_plus_tokens
+    print(f"max_prompt_length_plus_tokens: {limits.max_prompt_length_plus_tokens}")
+    print("==============================================================")
+    print("")
+
+    # Check the limits
+    print("========== Check the limits ==========")
+    result: bool = check_limits(
+        client, args.model_name, args.tokenizer_name, limits, prefix=args.prefix, suffix=args.suffix
+    )
+    if result:
+        print("All limits are respected")
+    else:
+        print("Some limits are not respected")
+    print("======================================")
+    print("")
+
+    # Print the infos
+    print("========== Print the limits ==========")
+    for key, value in limits.__dict__.items():
+        print(f"{key}: {value}")
+    print("=====================================")
+
+
+if __name__ == "__main__":
+    main()
