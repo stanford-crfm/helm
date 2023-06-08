@@ -1,7 +1,7 @@
 import json
 import os
 import argparse
-from typing import List, DefaultDict
+from typing import List, DefaultDict, Dict
 from collections import defaultdict
 
 from helm.common.general import asdict_without_nones, ensure_directory_exists
@@ -21,8 +21,18 @@ def create_light_instance_from_instance(instance: Instance) -> LightInstance:
     return LightInstance(input=input_text, references=reference_texts)
 
 
+def deduplicate_instances(instances: List[Instance], input_set: set[str]):
+    filtered_instances = []
+    for instance in instances:
+        input = instance.input.text
+        if input not in input_set:
+            input_set.add(input)
+            filtered_instances.append(instance)
+    return filtered_instances
+
+
 def get_light_scenarios_from_run_spec(
-    run_spec: RunSpec, scenario_download_path: str = "exported_scenarios"
+    run_spec: RunSpec, input_set, scenario_download_path: str = "exported_scenarios"
 ) -> List[LightScenario]:
     """
     Create a list of LightInstances given a RunSpec. Only keep the text of the input and references.
@@ -43,6 +53,9 @@ def get_light_scenarios_from_run_spec(
     # Classify instances into splits
     splits: List[str] = [TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT]
     split_mapping: DefaultDict[str, list] = defaultdict(list)
+
+    instances = deduplicate_instances(instances, input_set)
+
     for instance in instances:
         if instance.split is None or instance.split not in splits:
             raise ValueError(
@@ -81,6 +94,7 @@ if __name__ == "__main__":
     run_entries = read_run_entries(args.run_specs).entries
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
+        priority=4,
     )
 
     try:
@@ -89,9 +103,11 @@ if __name__ == "__main__":
         pass
 
     hlog("Generating light scenarios from scenarios")
+    input_set: set[str] = set()
+    light_scenarios: List[LightScenario] = []
     for run_spec in run_specs:
         try:
-            light_scenarios: List[LightScenario] = get_light_scenarios_from_run_spec(run_spec)
+            get_light_scenarios_from_run_spec(run_spec, input_set)
             save_scenarios_to_jsonl(light_scenarios, args.output_data)
         except Exception as e:
             hlog(f"Error when writing scenario: {str(e)}")
