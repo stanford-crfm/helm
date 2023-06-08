@@ -28,16 +28,6 @@ def create_light_instance_from_instance(instance: Instance) -> LightInstance:
     return LightInstance(input=input_text, references=reference_texts)
 
 
-def deduplicate_instances(instances: List[Instance], input_set: Set[str]):
-    filtered_instances = []
-    for instance in instances:
-        input = instance.input.text
-        if input not in input_set:
-            input_set.add(input)
-            filtered_instances.append(instance)
-    return filtered_instances
-
-
 def get_light_scenarios_from_scenario_spec(
     scenario_spec: ScenarioSpec, scenario_download_path: str = "exported_scenarios"
 ) -> List[LightScenario]:
