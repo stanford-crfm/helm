@@ -7,7 +7,15 @@ from collections import defaultdict
 from helm.common.general import asdict_without_nones, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack_block
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, create_scenario, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    create_scenario,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    ScenarioSpec,
+)
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
 from helm.benchmark.runner import RunSpec
@@ -31,15 +39,15 @@ def deduplicate_instances(instances: List[Instance], input_set: Set[str]):
     return filtered_instances
 
 
-def get_light_scenarios_from_run_spec(
-    run_spec: RunSpec, input_set, scenario_download_path: str = "exported_scenarios"
+def get_light_scenarios_from_scenario_spec(
+    scenario_spec: ScenarioSpec, scenario_download_path: str = "exported_scenarios"
 ) -> List[LightScenario]:
     """
     Create a list of LightInstances given a RunSpec. Only keep the text of the input and references.
     Note that one LightScenario object is created for each split of the Scenario for simplification.
     """
 
-    scenario: Scenario = create_scenario(run_spec.scenario_spec)
+    scenario: Scenario = create_scenario(scenario_spec)
 
     ensure_directory_exists(scenario_download_path)
     scenario.output_path = os.path.join(scenario_download_path, scenario.name)
@@ -54,8 +62,6 @@ def get_light_scenarios_from_run_spec(
     splits: List[str] = [TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT]
     split_mapping: DefaultDict[str, list] = defaultdict(list)
 
-    instances = deduplicate_instances(instances, input_set)
-
     for instance in instances:
         if instance.split is None or instance.split not in splits:
             raise ValueError(
@@ -68,7 +74,7 @@ def get_light_scenarios_from_run_spec(
     for split, instances in split_mapping.items():
         light_instances: List[LightInstance] = [create_light_instance_from_instance(instance) for instance in instances]
         light_scenario = LightScenario(
-            light_scenario_key=LightScenarioKey(metadata={"scenario_spec": run_spec.scenario_spec, "split": split}),
+            light_scenario_key=LightScenarioKey(metadata={"scenario_spec": scenario_spec, "split": split}),
             light_instances=light_instances,
         )
         light_scenarios.append(light_scenario)
@@ -102,11 +108,12 @@ if __name__ == "__main__":
     except OSError:
         pass
 
+    scenario_specs: Set = set([run_spec.scenario_spec for run_spec in run_specs])
+
     hlog("Generating light scenarios from scenarios")
-    input_set: Set[str] = set()
-    for run_spec in run_specs:
+    for scenario_spec in scenario_specs:
         try:
-            light_scenarios: List[LightScenario] = get_light_scenarios_from_run_spec(run_spec, input_set)
+            light_scenarios: List[LightScenario] = get_light_scenarios_from_scenario_spec(scenario_spec)
             save_scenarios_to_jsonl(light_scenarios, args.output_data)
         except Exception as e:
             hlog(f"Error when writing scenario: {str(e)}")
