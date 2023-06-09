@@ -30,6 +30,8 @@ Usage:
         python3 scripts/offline_eval/import_results.py together results.jsonl
 """
 
+OFFLINE_TEXT_TO_IMAGE_ORGS: List[str] = ["AlephAlphaVision", "adobe"]
+
 
 @htrack("Updating cache with requests and results")
 def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, request_results_path: str, dry_run: bool):
@@ -63,9 +65,15 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                     cache_key: dict = {"completion_index": completion_index, **request}
                     store.put(cache_key, result)
                 else:
-                    if organization == "AlephAlphaVision":
-                        output_cache_path: str = os.path.join(args.cache_dir, "output", "AlephAlpha")
-                        file_cache = LocalFileCache(output_cache_path, "jpg")
+                    if organization in OFFLINE_TEXT_TO_IMAGE_ORGS:
+                        output_cache_path: str = os.path.join(args.cache_dir, "output")
+
+                        if organization == "AlephAlphaVision":
+                            output_cache_path = os.path.join(output_cache_path, "AlephAlpha")
+                            file_cache = LocalFileCache(output_cache_path, "jpg")
+                        elif organization == "adobe":
+                            output_cache_path = os.path.join(output_cache_path, "adobe")
+                            file_cache = LocalFileCache(output_cache_path, "png")
 
                         images_path: str = os.path.join(os.path.dirname(request_results_path), "images")
                         assert os.path.exists(images_path), f"Images directory does not exist at {images_path}."
