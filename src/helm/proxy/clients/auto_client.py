@@ -53,7 +53,7 @@ class AutoClient(Client):
         huggingface_cache_config = self._build_cache_config("huggingface")
         self.huggingface_client = HuggingFaceClient(huggingface_cache_config)
         hlog(f"AutoClient: cache_path = {cache_path}")
-        hlog(f"AutoClient: mongo_uri = {mongo_uri}")
+        hlog(f"AutoClient: mongo_uri (without credentials) = {mongo_uri}")
 
     def _build_cache_config(self, organization: str) -> CacheConfig:
         if self.mongo_uri:

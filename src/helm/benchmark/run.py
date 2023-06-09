@@ -1,6 +1,8 @@
 import argparse
 from dataclasses import replace
-from typing import List, Optional
+import os
+from pymongo import uri_parser
+from typing import Any, Dict, List, Optional
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
@@ -167,15 +169,28 @@ def add_run_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--mongo-uri",
         type=str,
-        help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite",
+        help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite. "
+        "Note: Username and password (if necessary) should be provided in the HELM_MONGODB_USERNAME and "
+        "HELM_MONGODB_PASSWORD environment variables. The connection string specified in this argument "
+        "should not include the credentials. For instance, if the full connection string is "
+        "mongodb://username:password@host:port/?options, you should supply mongodb://host:port/?options to this arg.",
         default="",
     )
 
 
 def validate_args(args):
     assert args.suite != LATEST_SYMLINK, f"Suite name can't be '{LATEST_SYMLINK}'"
+
     if args.cache_instances_only:
         assert args.cache_instances, "If --cache-instances-only is set, --cache-instances must also be set."
+
+    parsed_mongo_uri: Dict[str, Any] = uri_parser.parse_uri(args.mongo_uri)
+    assert (
+        not parsed_mongo_uri["username"] and not parsed_mongo_uri["password"]
+    ), "MongoDB username and password should not be supplied in connection string."
+    assert ("HELM_MONGODB_USERNAME" in os.environ and "HELM_MONGODB_PASSWORD" in os.environ) or (
+        "HELM_MONGODB_USERNAME" not in os.environ and "HELM_MONGODB_PASSWORD" not in os.environ
+    ), "If HELM_MONGODB_USERNAME is non-empty, then HELM_MONGODB_PASSWORD must also be non-empty."
 
 
 @htrack(None)

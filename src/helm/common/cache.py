@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
+import os
 from typing import Dict, Callable, Generator, Iterable, Optional, Tuple
 from collections import defaultdict
 import sqlite3
@@ -197,7 +198,14 @@ class _MongoKeyValueStore(KeyValueStore):
 
     def __init__(self, uri: str, collection_name: str):
         # TODO: Create client in __enter__ and clean up client in __exit__
-        self._mongodb_client: MongoClient = MongoClient(uri)
+        self._mongodb_client: MongoClient
+        if "HELM_MONGODB_USERNAME" in os.environ:
+            self._mongodb_client = MongoClient(
+                uri, username=os.environ["HELM_MONGODB_USERNAME"], password=os.environ["HELM_MONGODB_PASSWORD"]
+            )
+        else:
+            hlog("WARNING: Connecting to MongoDB without username/password credentials")
+            self._mongodb_client = MongoClient(uri)
         self._database = self._mongodb_client.get_default_database()
         self._collection = self._database.get_collection(collection_name)
         super().__init__()
