@@ -80,6 +80,7 @@ from .metrics import toxicity_metrics  # noqa
 from .metrics import dry_run_metrics  # noqa
 from .metrics import machine_translation_metrics  # noqa
 from .metrics import summarization_critique_metrics  # noqa
+from .metrics import instruction_following_critique_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa

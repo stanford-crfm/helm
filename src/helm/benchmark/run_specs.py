@@ -607,6 +607,15 @@ def get_verifiability_judgment_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match"])
 
 
+def get_instruction_following_critique_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.instruction_following_critique_metrics.InstructionFollowingCritiqueMetric",  # noqa E501
+            args={},
+        )
+    ]
+
+
 ############################################################
 # Run specs
 
