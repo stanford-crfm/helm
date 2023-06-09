@@ -238,3 +238,7 @@ function renderItems(items) {
   $result.append(' ]');
   return $result;
 }
+
+function getRunSuite(release, runManifest, runSpecName) {
+  return (runManifest === undefined) ? release : runManifest[runSpecName];
+}
