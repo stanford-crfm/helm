@@ -144,6 +144,13 @@ class InstructionFollowingCritiqueMetric(Metric):
                     # Note: Options can contain HTML.
                     options=list(self.FACTUALITY_ANSWER_TO_SCORE.keys()),
                 ),
+                CritiqueQuestionTemplate(
+                    name="Keyword Feedback",
+                    question_type=QuestionType.FREE_RESPONSE,
+                    # Note: Text can contain HTML.
+                    text="Provide a comma-separated list of keywords that capture what's wrong with the response (e.g., typos, swear words, too long)",  # noqa: E501
+                    options=[],
+                ),
             ],
         )
 
