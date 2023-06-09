@@ -56,6 +56,7 @@ class ExecutiveSummary:
     Summary of the output of benchmarking.
     This is always loaded by the frontend, so keep this small
     """
+
     release: str
     suites: List[str]
     date: str
@@ -236,7 +237,7 @@ class Summarizer:
         self.release: str = release
         self.suites: List[str] = suites
         self.run_release_path: str = os.path.join(output_path, "releases", release)
-        self.run_suite_paths: str = [os.path.join(output_path, "runs", suite) for suite in suites]
+        self.run_suite_paths: List[str] = [os.path.join(output_path, "runs", suite) for suite in suites]
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
 
@@ -288,7 +289,7 @@ class Summarizer:
             if included:
                 filtered_runs.append(run)
         return filtered_runs
-    
+
     def read_runs_for_suite(self, suite, run_suite_path):
         """Load the runs in the run suite path."""
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
@@ -315,8 +316,8 @@ class Summarizer:
             if run.run_spec.name in self.run_manifest:
                 hlog(
                     f"WARNING: Run entry {run.run_spec.name} is present in two different Run Suites. "
-                    f"Defaulting to the latest assigned suite: {self.run_manifest[run.run_spec.name]}"
-                    )
+                    f"Defaulting to the latest assigned suite: {suite}"
+                )
             self.run_manifest[run.run_spec.name] = suite
 
             scenario_spec = run.run_spec.scenario_spec
@@ -397,12 +398,9 @@ class Summarizer:
             os.path.join(self.run_release_path, "run_specs.json"),
             json.dumps(list(map(asdict_without_nones, [run.run_spec for run in self.runs])), indent=2),
         )
-    
+
     def write_run_manifest(self):
-        write(
-            os.path.join(self.run_release_path, "run_manifest.json"),
-            json.dumps(self.run_manifest, indent=2)
-        )
+        write(os.path.join(self.run_release_path, "run_manifest.json"), json.dumps(self.run_manifest, indent=2))
 
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
         """Given a RunGroup, collect a list of its subgroups by traversing the subgroup tree."""
@@ -1013,16 +1011,20 @@ def main():
     )
     args = parser.parse_args()
 
-    if not args.release:
+    if args.release:
+        release = args.release
+    else:
         if len(args.suites) > 1:
             raise ValueError("If --release is not specified, then length of --suites must be 1.")
         release = args.suites[0]
-    else:
-        release = args.release
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
-        release=release, suites=args.suites, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
+        release=release,
+        suites=args.suites,
+        output_path=args.output_path,
+        verbose=args.debug,
+        num_threads=args.num_threads,
     )
     summarizer.read_runs()
     summarizer.check_metrics_defined()
