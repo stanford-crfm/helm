@@ -607,11 +607,11 @@ def get_verifiability_judgment_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match"])
 
 
-def get_instruction_following_critique_metric_specs() -> List[MetricSpec]:
+def get_instruction_following_critique_metric_specs(num_respondents: int) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.instruction_following_critique_metrics.InstructionFollowingCritiqueMetric",  # noqa E501
-            args={},
+            args={"num_respondents": num_respondents},
         )
     ]
 
@@ -2057,7 +2057,7 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
 
 
 @run_spec_function("self_instruct")
-def get_self_instruct_spec() -> RunSpec:
+def get_self_instruct_spec(num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.self_instruct_scenario.SelfInstructScenario",
         args={},
@@ -2069,7 +2069,7 @@ def get_self_instruct_spec() -> RunSpec:
         name="self_instruct",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
         groups=["self_instruct"],
     )
 
