@@ -146,6 +146,15 @@ class ScaleCritiqueClient(CritiqueClient):
                 "min_choices": 0 if question.question_type == "checkbox" else 1,
                 "max_choices": len(question.options) if question.question_type == "checkbox" else 1,
             }
+        elif question.question_type == "free_response":
+            return {
+                "type": "text",
+                "field_id": question.name,
+                "title": question.name,
+                "description": question.text,
+                "max_characters": 500,
+                "required": True,
+            }
         else:
             raise ValueError(f"Unsupported question type {question.question_type}")
 
