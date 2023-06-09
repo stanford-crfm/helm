@@ -184,13 +184,14 @@ def validate_args(args):
     if args.cache_instances_only:
         assert args.cache_instances, "If --cache-instances-only is set, --cache-instances must also be set."
 
-    parsed_mongo_uri: Dict[str, Any] = uri_parser.parse_uri(args.mongo_uri)
-    assert (
-        not parsed_mongo_uri["username"] and not parsed_mongo_uri["password"]
-    ), "MongoDB username and password should not be supplied in connection string."
-    assert ("HELM_MONGODB_USERNAME" in os.environ and "HELM_MONGODB_PASSWORD" in os.environ) or (
-        "HELM_MONGODB_USERNAME" not in os.environ and "HELM_MONGODB_PASSWORD" not in os.environ
-    ), "If HELM_MONGODB_USERNAME is non-empty, then HELM_MONGODB_PASSWORD must also be non-empty."
+    if args.mongo_uri:
+        parsed_mongo_uri: Dict[str, Any] = uri_parser.parse_uri(args.mongo_uri)
+        assert (
+            not parsed_mongo_uri["username"] and not parsed_mongo_uri["password"]
+        ), "MongoDB username and password should not be supplied in connection string."
+        assert ("HELM_MONGODB_USERNAME" in os.environ and "HELM_MONGODB_PASSWORD" in os.environ) or (
+            "HELM_MONGODB_USERNAME" not in os.environ and "HELM_MONGODB_PASSWORD" not in os.environ
+        ), "If HELM_MONGODB_USERNAME is non-empty, then HELM_MONGODB_PASSWORD must also be non-empty."
 
 
 @htrack(None)
