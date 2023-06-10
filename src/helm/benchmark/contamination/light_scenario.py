@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Dict, Hashable
-
+from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 @dataclass(frozen=True, eq=False)
 class LightInstance:
@@ -8,21 +8,14 @@ class LightInstance:
     A lighter `Instance` with only text fields.
     """
 
-    input: str
     """The input"""
+    input: str
 
-    references: List[str]
     """References that help us evaluate"""
+    references: List[str]
 
-
-@dataclass(frozen=True)
-class LightScenarioKey:
-    """Unique key representing a `LightScenario` instance."""
-
-    metadata: Dict[str, Hashable]
-
-    def __hash__(self):
-        return hash(tuple((k, self.metadata[k]) for k in sorted(self.metadata.keys())))
+    """Helm instance id"""
+    id: str
 
 
 @dataclass(frozen=True, eq=False)
@@ -31,7 +24,9 @@ class LightScenario:
     A lighter `Scenario`.
     """
 
-    light_scenario_key: LightScenarioKey
+    scenario_spec: ScenarioSpec
+
+    split: str
 
     light_instances: List[LightInstance]
     """Instances of this scenario"""
