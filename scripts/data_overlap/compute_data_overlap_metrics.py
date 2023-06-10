@@ -10,6 +10,7 @@ from tqdm import tqdm
 from dataclasses import dataclass
 
 from light_scenario import LightInstance, LightScenario, LightScenarioKey
+from data_overlap_spec import OutputDataOverlapStats
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from load_documents import get_document_iterator
 from data_overlap_stats import (
@@ -204,28 +205,23 @@ def compute_scenario_document_data_overlap(
                             ngram_counter[entry_overlap_key][document_ngram] = 1
 
 
-def data_overlap(
+def get_data_overlap(
     ngram_index: NgramIndex,
+    all_output_data_overlap_stats: Set[OutputDataOverlapStats],
 ):
     """
     ngram_index: The ngram index that maps from ngrams to overlap stats
-    outfile_name: name of output
     """
-    instance_index: Dict[int, Dict] = dict()
     for n in ngram_index.keys():  # these are the n, say [5, 9, 13]
         instance_index[n] = defaultdict(int)
         curr_index = instance_index[n]
         for _, overlap_keys in ngram_index[n].items():
             for overlap_key in overlap_keys:
+                light_scenario_key = overlap_key.stats_key.metadata['light_scenario_key']
+                output_data_overlap_stats = OutputDataOverlapStats(
+                    scenario_spec
+                )
                 curr_index[overlap_key] += 1
-    with open(outfile_name, "w") as f:
-        for n in instance_index.keys():
-            curr_index = instance_index[n]
-            for overlap_key, count in curr_index.items():
-                f.write(json.dumps(asdict_without_nones((overlap_key))) + "\n")
-                f.write(str(count) + "\n\n")
-
-    hlog(f"Written instance overlaps results to {outfile_name}")
 
 
 if __name__ == "__main__":
