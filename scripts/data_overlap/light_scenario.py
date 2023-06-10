@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from typing import List, Dict, Hashable
+from typing import List
 from helm.benchmark.scenarios.scenario import ScenarioSpec
+
 
 @dataclass(frozen=True, eq=False)
 class LightInstance:

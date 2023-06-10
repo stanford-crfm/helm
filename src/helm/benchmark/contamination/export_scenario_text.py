@@ -15,7 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     VALID_SPLIT,
     TEST_SPLIT,
     ScenarioSpec,
-    with_instance_ids
+    with_instance_ids,
 )
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
