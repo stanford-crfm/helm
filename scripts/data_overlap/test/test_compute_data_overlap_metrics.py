@@ -13,11 +13,11 @@ from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from data_overlap_stats import (
     DataOverlapStats,
-    DataOverlapStatsKey,
     PART_INPUT,
     PART_REF,
 )
 from common.general import asdict_without_nones
+from scenarios.scenario import ScenarioSpec
 
 N_VALUES = [5, 13]
 
@@ -114,14 +114,14 @@ TEST_TOKENS_BY_DEFAULT_TOKENIZER: List[str] = [
 ]
 
 TEST_SCENARIO_1 = LightScenario(
-    light_scenario_key=LightScenarioKey(metadata={"name": "TEST_SCENARIO_1"}),
+    light_scenario_key=LightScenarioKey(scenario_spec=ScenarioSpec(class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario"), split="test"),
     light_instances=[
         LightInstance(input="Center for Research on Foundation", references=["bar", "baz"]),
         LightInstance(input="bar bar", references=["foo", "baz"]),
     ],
 )
 TEST_SCENARIO_2 = LightScenario(
-    light_scenario_key=LightScenarioKey(metadata={"name": "TEST_SCENARIO_2"}),
+    light_scenario_key=LightScenarioKey(scenario_spec=ScenarioSpec(class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2"), split="test"),
     light_instances=[LightInstance(input=TEST_DOCUMENT, references=[TEST_DOCUMENT, TEST_DOCUMENT])],
 )
 

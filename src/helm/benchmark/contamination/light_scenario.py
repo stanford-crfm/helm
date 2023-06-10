@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from typing import List, Optional
-from helm.benchmark.scenarios.scenario import ScenarioSpec
 
+try:
+    from scenarios.scenario import ScenarioSpec
+except Exception:
+    from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 @dataclass(frozen=True, eq=False)
 class LightInstance:
@@ -20,7 +23,7 @@ class LightInstance:
 
 
 @dataclass(frozen=True, eq=False)
-class LightScenario:
+class LightScenarioKey:
     """
     A lighter `Scenario`.
     """
@@ -28,6 +31,15 @@ class LightScenario:
     scenario_spec: ScenarioSpec
 
     split: str
+
+
+@dataclass(frozen=True, eq=False)
+class LightScenario:
+    """
+    A lighter `Scenario`.
+    """
+
+    scenario_key: LightScenarioKey
 
     instances: List[LightInstance]
     """Instances of this scenario"""

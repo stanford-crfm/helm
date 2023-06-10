@@ -19,7 +19,7 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
-from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario
+from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario, LightScenarioKey
 
 
 def create_light_instance_from_instance(instance: Instance) -> LightInstance:
@@ -65,9 +65,12 @@ def get_light_scenarios_from_scenario_spec(
     light_scenarios: List[LightScenario] = []
     for split, instances in split_mapping.items():
         light_instances: List[LightInstance] = [create_light_instance_from_instance(instance) for instance in instances]
-        light_scenario = LightScenario(
+        light_scenario_key: LightScenarioKey = LightScenarioKey(
             scenario_spec=scenario_spec,
             split=split,
+        )
+        light_scenario = LightScenario(
+            scenario_key=light_scenario_key,
             instances=light_instances,
         )
         light_scenarios.append(light_scenario)

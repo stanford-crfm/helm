@@ -64,11 +64,10 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     for light_scenario_json in light_scenario_jsons:
         light_scenario_dict: dict = json.loads(light_scenario_json)
 
-        light_scenario_metadata: dict = light_scenario_dict["light_scenario_key"]["metadata"]
+        light_scenario_key_dict: dict = light_scenario_dict["light_scenario_key"]
         # if the light_scenarios are exported from helm, they will have a scenario_spec field
-        if "scenario_spec" in light_scenario_metadata:
-            light_scenario_metadata["scenario_spec"] = ScenarioSpec(**light_scenario_metadata["scenario_spec"])
-        light_scenario_key = LightScenarioKey(metadata=light_scenario_metadata)
+        scenario_spec = ScenarioSpec(**light_scenario_key_dict["scenario_spec"])
+        light_scenario_key = LightScenarioKey(scenario_spec=scenario_spec, split=light_scenario_key_dict["split"])
         light_instances: List[LightInstance] = [
             create_light_instance_from_dict(instance_dict) for instance_dict in light_scenario_dict["light_instances"]
         ]
