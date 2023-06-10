@@ -3,6 +3,7 @@ from dataclasses import replace
 from typing import List, Dict, Optional, Tuple, Type
 
 from helm.proxy.models import (
+    get_all_instruction_following_models,
     get_all_code_models,
     get_all_models,
     get_all_text_models,
@@ -373,6 +374,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "text_code": get_all_text_models() + get_all_code_models(),
             "text": get_all_text_models(),
             "code": get_all_code_models(),
+            "instruction_following": get_all_instruction_following_models(),
             "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
             "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
             "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
