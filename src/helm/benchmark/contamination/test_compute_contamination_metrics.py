@@ -9,7 +9,7 @@ from helm.benchmark.contamination.compute_contamination_metrics import (
     NgramIndex,
     AllContaminationStats,
 )
-from helm.benchmark.contamination.light_scenario import LightScenario, LightInstance, LightScenarioKey
+from helm.benchmark.contamination.light_scenario import LightScenario, LightInstance
 from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
 from helm.benchmark.contamination.contamination_stats import (
     ContaminationStats,
@@ -18,6 +18,7 @@ from helm.benchmark.contamination.contamination_stats import (
     PART_REF,
 )
 from helm.common.general import asdict_without_nones
+from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 N_VALUES = [5, 13]
 
@@ -114,15 +115,17 @@ TEST_TOKENS_BY_DEFAULT_TOKENIZER: List[str] = [
 ]
 
 TEST_SCENARIO_1 = LightScenario(
-    light_scenario_key=LightScenarioKey(metadata={"name": "TEST_SCENARIO_1"}),
-    light_instances=[
+    scenario_spec=ScenarioSpec(class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario"),
+    split='test',
+    instances=[
         LightInstance(input="Center for Research on Foundation", references=["bar", "baz"]),
         LightInstance(input="bar bar", references=["foo", "baz"]),
     ],
 )
 TEST_SCENARIO_2 = LightScenario(
-    light_scenario_key=LightScenarioKey(metadata={"name": "TEST_SCENARIO_2"}),
-    light_instances=[LightInstance(input=TEST_DOCUMENT, references=[TEST_DOCUMENT, TEST_DOCUMENT])],
+    scenario_spec=ScenarioSpec(class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2"),
+    split='test',
+    instances=[LightInstance(input=TEST_DOCUMENT, references=[TEST_DOCUMENT, TEST_DOCUMENT])],
 )
 
 

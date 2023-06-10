@@ -68,7 +68,7 @@ def get_light_scenarios_from_scenario_spec(
         light_scenario = LightScenario(
             scenario_spec=scenario_spec,
             split=split,
-            light_instances=light_instances,
+            instances=light_instances,
         )
         light_scenarios.append(light_scenario)
     return light_scenarios

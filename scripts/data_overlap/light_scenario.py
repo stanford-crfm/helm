@@ -29,5 +29,5 @@ class LightScenario:
 
     split: str
 
-    light_instances: List[LightInstance]
+    instances: List[LightInstance]
     """Instances of this scenario"""

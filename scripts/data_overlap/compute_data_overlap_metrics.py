@@ -9,7 +9,7 @@ from typing import Dict
 from tqdm import tqdm
 from dataclasses import dataclass
 
-from light_scenario import LightInstance, LightScenario, LightScenarioKey
+from light_scenario import LightInstance, LightScenario
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from load_documents import get_document_iterator
 from data_overlap_stats import (
@@ -54,39 +54,10 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     Instance JSON 2
     Instance JSON 3
     ...
-
-    Each line is a json and each json looks like:
-    {
-        "light_scenario_key": {
-            "metadata":{
-                "split": "SPLIT",
-                "scenario_attribute_1": "ATTRIBUTE1",
-                "scenario_attribute_2": "ATTRIBUTE2",
-            }
-        },
-        "light_instances": [
-            {
-                "input": "INPUT_TEXT1",
-                "references": [
-                    "REFERENCE_TEXT_1",
-                    "REFERENCE_TEXT_2"
-                ]
-            },
-            {
-                "input": "INPUT_TEXT2",
-                "references": [
-                    "REFERENCE_TEXT_3",
-                    "REFERENCE_TEXT_4"
-                ]
-            }
-        ]
-    }
-
-    Note that the values of light_scenario_key.metadata need to be hashable.
     """
 
     def create_light_instance_from_dict(instance_dict: dict) -> LightInstance:
-        return LightInstance(input=instance_dict["input"], references=instance_dict["references"])
+        return LightInstance(input=instance_dict["input"], references=instance_dict["references"], id=instance_dict["id"])
 
     light_scenarios: List[LightScenario] = []
     light_scenario_jsons = open(path, "r").readlines()

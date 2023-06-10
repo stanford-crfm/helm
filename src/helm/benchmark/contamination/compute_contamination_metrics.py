@@ -9,12 +9,11 @@ from typing import Dict
 from tqdm import tqdm
 from dataclasses import dataclass
 
-from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario, LightScenarioKey
+from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario
 from helm.benchmark.contamination.light_tokenizer import LightTokenizer, DefaultTokenizer
 from helm.benchmark.contamination.load_documents import get_document_iterator
 from helm.benchmark.contamination.contamination_stats import (
     ContaminationStats,
-    ContaminationStatsKey,
     PART_INPUT,
     PART_REF,
 )
@@ -31,6 +30,8 @@ N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
 class EntryContaminationKey:
     """Unique key representing either the input or references of a single instance in a scenario."""
 
+    scenario_spec: ContaminationStatsKey
+    stats_key: ContaminationStatsKey
     stats_key: ContaminationStatsKey
     part: str
     """Either PART_INPUT or PART_REF"""
@@ -93,15 +94,12 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     for light_scenario_json in light_scenario_jsons:
         light_scenario_dict: dict = json.loads(light_scenario_json)
 
-        light_scenario_metadata: dict = light_scenario_dict["light_scenario_key"]["metadata"]
-        # if the light_scenarios are exported from helm, they will have a scenario_spec field
-        if "scenario_spec" in light_scenario_metadata:
-            light_scenario_metadata["scenario_spec"] = ScenarioSpec(**light_scenario_metadata["scenario_spec"])
-        light_scenario_key = LightScenarioKey(metadata=light_scenario_metadata)
+        scenario_spec = ScenarioSpec(**light_scenario_dict["scenario_spec"])
+        split = light_scenario_dict["split"]
         light_instances: List[LightInstance] = [
             create_light_instance_from_dict(instance_dict) for instance_dict in light_scenario_dict["light_instances"]
         ]
-        light_scenarios.append(LightScenario(light_scenario_key=light_scenario_key, light_instances=light_instances))
+        light_scenarios.append(LightScenario(scenario_spec=scenario_spec, split=split, instances=light_instances))
     return light_scenarios
 
 
@@ -111,11 +109,11 @@ def create_ngram_index(
     """Given a list of scenarios and n values, initialize ngram_index"""
     ngram_index: NgramIndex = {n: {} for n in n_values}
     for scenario in light_scenarios:
-        hlog(f"Building ngram indexes for {scenario.light_scenario_key}")
+        hlog(f"Building ngram indexes for {scenario.scenario_spec}")
         for n in n_values:
             stats_key = ContaminationStatsKey(metadata={"light_scenario_key": scenario.light_scenario_key, "N": n})
-            for i in range(len(scenario.light_instances)):
-                instance = scenario.light_instances[i]
+            for i in range(len(scenario.instances)):
+                instance = scenario.instances[i]
                 input_tokens = tokenizer.tokenize(instance.input)
                 for input_ngram in ngrams(input_tokens, n):
                     if input_ngram not in ngram_index[n]:
