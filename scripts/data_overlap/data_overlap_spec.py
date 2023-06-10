@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from helm.benchmark.scenarios.scenario import ScenarioSpec
-
+from light_scenario import  LightScenarioKey
 
 @dataclass(frozen=True)
 class OverlapProtocolSpec:
@@ -12,13 +11,10 @@ class OverlapProtocolSpec:
 
 
 @dataclass(frozen=True)
-class DataOverlapStats:
-    """Dataclass that represents scenario level data overlap stats"""
+class OutputDataOverlapStats:
+    """Dataclass that represents output data overlap stats"""
 
-    scenario_spec: ScenarioSpec
-
-    # e.g. train vs test
-    split: str
+    light_scenario_key: LightScenarioKey
 
     # the N of the n_grams we're running
     overlap_protocol_spec: OverlapProtocolSpec

@@ -10,6 +10,16 @@ PART_INPUT: str = "input"
 PART_REF: str = "reference"
 
 
+@dataclass(frozen=True)
+class DataOverlapStatsKey:
+    """Unique key representing a `OverlapStats` instance."""
+
+    metadata: Dict[str, Hashable]
+
+    def __hash__(self):
+        return hash(tuple((k, self.metadata[k]) for k in sorted(self.metadata.keys())))
+
+
 class DataOverlapStats:
     """
     A memory-efficient class for overlap stats. The core data structures are bit arrays where
@@ -19,7 +29,7 @@ class DataOverlapStats:
     def __init__(
         self, light_scenario_key: LightScenarioKey, num_instances: int, stats_tags: Optional[Dict[str, Any]] = None
     ):
-        self.stats_key = light_scenario_key
+        self.stats_key = DataOverlapStatsKey(metadata={"light_scenario_key": light_scenario_key})
         self.num_instances = num_instances
         if stats_tags is not None:
             self.stats_key.metadata.update(stats_tags)
@@ -30,10 +40,10 @@ class DataOverlapStats:
         self._reference_bits.setall(0)
 
     @classmethod
-    def from_scenario(cls, scenario: LightScenario, stats_tags: Optional[Dict[str, Any]] = None):
+    def from_scenario(cls, light_scenario: LightScenario, stats_tags: Optional[Dict[str, Any]] = None):
         return cls(
-            light_scenario_key=scenario.light_scenario_key,
-            num_instances=len(scenario.light_instances),
+            light_scenario_key=light_scenario.scenario_key,
+            num_instances=len(light_scenario.instances),
             stats_tags=stats_tags,
         )
 
@@ -83,7 +93,7 @@ class DataOverlapStats:
         if summary_tags is None:
             summary_tags = {}
         summary = {
-            "light_scneario_key": asdict_without_nones(self.light_scenario_key),
+            "stats_key": asdict_without_nones(self.stats_key),
             "num_instances": self.num_instances,
             "num_instances_with_overlapping_input": self.num_instances_with_overlapping_input,
             "num_instances_with_overlapping_reference": self.num_instances_with_overlapping_reference,

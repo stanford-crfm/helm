@@ -9,7 +9,7 @@ from typing import Dict
 from tqdm import tqdm
 from dataclasses import dataclass
 
-from light_scenario import LightInstance, LightScenario
+from light_scenario import LightInstance, LightScenario, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from load_documents import get_document_iterator
 from data_overlap_stats import (
@@ -34,7 +34,8 @@ class EntryDataOverlapKey:
     stats_key: DataOverlapStatsKey
     part: str
     """Either PART_INPUT or PART_REF"""
-    instance_id: int
+    instance_id: str
+    index: int
 
 
 # type alias for overlap-related data structures
@@ -64,14 +65,14 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     for light_scenario_json in light_scenario_jsons:
         light_scenario_dict: dict = json.loads(light_scenario_json)
 
-        light_scenario_key_dict: dict = light_scenario_dict["light_scenario_key"]
+        light_scenario_key_dict: dict = light_scenario_dict["scenario_key"]
         # if the light_scenarios are exported from helm, they will have a scenario_spec field
         scenario_spec = ScenarioSpec(**light_scenario_key_dict["scenario_spec"])
         light_scenario_key = LightScenarioKey(scenario_spec=scenario_spec, split=light_scenario_key_dict["split"])
         light_instances: List[LightInstance] = [
-            create_light_instance_from_dict(instance_dict) for instance_dict in light_scenario_dict["light_instances"]
+            create_light_instance_from_dict(instance_dict) for instance_dict in light_scenario_dict["instances"]
         ]
-        light_scenarios.append(LightScenario(light_scenario_key=light_scenario_key, light_instances=light_instances))
+        light_scenarios.append(LightScenario(scenario_key=light_scenario_key, instances=light_instances))
     return light_scenarios
 
 
@@ -81,17 +82,18 @@ def create_ngram_index(
     """Given a list of scenarios and n values, initialize ngram_index"""
     ngram_index: NgramIndex = {n: {} for n in n_values}
     for scenario in light_scenarios:
-        hlog(f"Building ngram indexes for {scenario.light_scenario_key}")
+        hlog(f"Building ngram indexes for {scenario.scenario_key}")
         for n in n_values:
-            stats_key = DataOverlapStatsKey(metadata={"light_scenario_key": scenario.light_scenario_key, "N": n})
-            for i in range(len(scenario.light_instances)):
-                instance = scenario.light_instances[i]
+            stats_key = DataOverlapStatsKey(metadata={"light_scenario_key": scenario.scenario_key, "N": n})
+            for i in range(len(scenario.instances)):
+                instance = scenario.instances[i]
                 input_tokens = tokenizer.tokenize(instance.input)
                 for input_ngram in ngrams(input_tokens, n):
                     if input_ngram not in ngram_index[n]:
                         ngram_index[n][input_ngram] = set()
+                    id = instance.id if instance.id else f"id{i}"
                     ngram_index[n][input_ngram].add(
-                        EntryDataOverlapKey(stats_key=stats_key, instance_id=i, part=PART_INPUT)
+                        EntryDataOverlapKey(stats_key=stats_key, instance_id=id, index=i, part=PART_INPUT)
                     )
 
                 # compute reference ngrams
@@ -101,7 +103,7 @@ def create_ngram_index(
                         if reference_ngram not in ngram_index[n]:
                             ngram_index[n][reference_ngram] = set()
                         ngram_index[n][reference_ngram].add(
-                            EntryDataOverlapKey(stats_key=stats_key, instance_id=i, part=PART_REF)
+                            EntryDataOverlapKey(stats_key=stats_key, instance_id=id, index=i, part=PART_REF)
                         )
     return ngram_index
 
@@ -185,7 +187,7 @@ def compute_scenario_document_data_overlap(
                 for entry_overlap_key in ngram_index[n][document_ngram]:
                     # update overlap_stats
                     stats: DataOverlapStats = all_overlap_stats[entry_overlap_key.stats_key]
-                    stats.write_one_to_bit(entry_overlap_key.instance_id, entry_overlap_key.part)
+                    stats.write_one_to_bit(entry_overlap_key.index, entry_overlap_key.part)
                     # skip the rest if max_overlapping_ngrams is 0
                     if max_overlapping_ngrams != 0:
                         if ngram_counter is None:
@@ -200,6 +202,30 @@ def compute_scenario_document_data_overlap(
                             or len(ngram_counter[entry_overlap_key]) < max_overlapping_ngrams
                         ):
                             ngram_counter[entry_overlap_key][document_ngram] = 1
+
+
+def data_overlap(
+    ngram_index: NgramIndex,
+):
+    """
+    ngram_index: The ngram index that maps from ngrams to overlap stats
+    outfile_name: name of output
+    """
+    instance_index: Dict[int, Dict] = dict()
+    for n in ngram_index.keys():  # these are the n, say [5, 9, 13]
+        instance_index[n] = defaultdict(int)
+        curr_index = instance_index[n]
+        for _, overlap_keys in ngram_index[n].items():
+            for overlap_key in overlap_keys:
+                curr_index[overlap_key] += 1
+    with open(outfile_name, "w") as f:
+        for n in instance_index.keys():
+            curr_index = instance_index[n]
+            for overlap_key, count in curr_index.items():
+                f.write(json.dumps(asdict_without_nones((overlap_key))) + "\n")
+                f.write(str(count) + "\n\n")
+
+    hlog(f"Written instance overlaps results to {outfile_name}")
 
 
 if __name__ == "__main__":
@@ -273,29 +299,29 @@ if __name__ == "__main__":
         ngram_index = create_ngram_index(light_scenarios=light_scenarios, n_values=N_VALUES, tokenizer=tokenizer)
         ngram_counter: NgramCounter = {}
 
-    # commpute the stats
-    with htrack_block("Computing overlap stats"):
-        for input_file_index in tqdm(
-            range(len(input_file_paths)), desc="Computing overlap stats for input files", disable=None
-        ):
-            input_file_path: str = input_file_paths[input_file_index]
-            compute_scenario_file_data_overlap(
-                training_file_path=input_file_path,
-                file_format=args.input_format,
-                ngram_index=ngram_index,
-                all_overlap_stats=all_overlap_stats,
-                tokenizer=tokenizer,
-                ngram_counter=ngram_counter,
-                max_overlapping_ngrams=args.max_output_ngrams,
-            )
+    # # commpute the stats
+    # with htrack_block("Computing overlap stats"):
+    #     for input_file_index in tqdm(
+    #         range(len(input_file_paths)), desc="Computing overlap stats for input files", disable=None
+    #     ):
+    #         input_file_path: str = input_file_paths[input_file_index]
+    #         compute_scenario_file_data_overlap(
+    #             training_file_path=input_file_path,
+    #             file_format=args.input_format,
+    #             ngram_index=ngram_index,
+    #             all_overlap_stats=all_overlap_stats,
+    #             tokenizer=tokenizer,
+    #             ngram_counter=ngram_counter,
+    #             max_overlapping_ngrams=args.max_output_ngrams,
+    #         )
 
-    stats_summaries: List[Dict[str, Any]] = []
-    for overlap_stats in all_overlap_stats.values():
-        stats_summaries.append(overlap_stats.generate_summary({"tags:": args.tags}))
+    # stats_summaries: List[Dict[str, Any]] = []
+    # for overlap_stats in all_overlap_stats.values():
+    #     stats_summaries.append(overlap_stats.generate_summary({"tags:": args.tags}))
 
-    with open(args.output_stats, "w") as f:
-        f.writelines(f"{json.dumps(stats_summary)}\n" for stats_summary in stats_summaries)
-    hlog(f"Written {len(stats_summaries)} results to {args.output_stats}")
+    # with open(args.output_stats, "w") as f:
+    #     f.writelines(f"{json.dumps(stats_summary)}\n" for stats_summary in stats_summaries)
+    # hlog(f"Written {len(stats_summaries)} results to {args.output_stats}")
 
     if args.output_ngrams is not None:
         # convert the ngram counter to json format
