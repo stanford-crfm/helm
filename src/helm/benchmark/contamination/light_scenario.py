@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
@@ -16,7 +16,7 @@ class LightInstance:
     references: List[str]
 
     """Helm instance id"""
-    id: str
+    id: Optional[str] = None
 
 
 @dataclass(frozen=True, eq=False)
