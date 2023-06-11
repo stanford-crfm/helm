@@ -8,9 +8,10 @@ from nltk import ngrams
 from typing import Dict
 from tqdm import tqdm
 from dataclasses import dataclass
+from collections import defaultdict
 
 from light_scenario import LightInstance, LightScenario, LightScenarioKey
-from data_overlap_spec import OutputDataOverlapStats
+from data_overlap_spec import OutputDataOverlapStats, OutputDataOverlapStatsKey, OverlapProtocolSpec
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from load_documents import get_document_iterator
 from data_overlap_stats import (
@@ -59,7 +60,9 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     """
 
     def create_light_instance_from_dict(instance_dict: dict) -> LightInstance:
-        return LightInstance(input=instance_dict["input"], references=instance_dict["references"], id=instance_dict["id"])
+        return LightInstance(
+            input=instance_dict["input"], references=instance_dict["references"], id=instance_dict["id"]
+        )
 
     light_scenarios: List[LightScenario] = []
     light_scenario_jsons = open(path, "r").readlines()
@@ -109,18 +112,20 @@ def create_ngram_index(
     return ngram_index
 
 
-def create_all_data_overlap_stats(light_scenarios: List[LightScenario], n_values: List[int]) -> AllDataOverlapStats:
-    """Given a list of scenarios and n values, initialize all_overlap_stats"""
-    hlog("Initializing all data overlap stats")
-    all_overlap_stats: AllDataOverlapStats = {}
-    for scenario in light_scenarios:
-        for n in n_values:
-            # Initialize a stats instance for every pair of <scenario, n>
-            stats: DataOverlapStats = DataOverlapStats.from_scenario(scenario, stats_tags={"N": n})
-            if stats.stats_key in all_overlap_stats:
-                raise ValueError("Duplicated settings detected.")
-            all_overlap_stats[stats.stats_key] = stats
-    return all_overlap_stats
+# def create_all_data_overlap_stats(light_scenarios: List[LightScenario], n_values: List[int]) -> AllDataOverlapStats:
+#     """Given a list of scenarios and n values, initialize all_overlap_stats"""
+#     hlog("Initializing all data overlap stats")
+#     all_overlap_stats: AllDataOverlapStats = {}
+#     for scenario in light_scenarios:
+#         for n in n_values:
+#             # Initialize a stats instance for every pair of <scenario, n>
+#             stats: DataOverlapStats = DataOverlapStats.from_scenario(scenario, stats_tags={"N": n})
+#             if stats.stats_key in all_overlap_stats:
+#                 print(all_overlap_stats)
+#                 print(stats.stats_key)
+#                 raise ValueError("Duplicated settings detected.")
+#             all_overlap_stats[stats.stats_key] = stats
+#     return all_overlap_stats
 
 
 def compute_scenario_file_data_overlap(
@@ -205,23 +210,42 @@ def compute_scenario_document_data_overlap(
                             ngram_counter[entry_overlap_key][document_ngram] = 1
 
 
-def get_data_overlap(
+def get_all_data_overlap_stats(
     ngram_index: NgramIndex,
-    all_output_data_overlap_stats: Set[OutputDataOverlapStats],
 ):
     """
     ngram_index: The ngram index that maps from ngrams to overlap stats
     """
+    stats_keys = set()
+    stats_key_to_input_ids = defaultdict(set)
+    stats_key_to_reference_ids = defaultdict(set)
     for n in ngram_index.keys():  # these are the n, say [5, 9, 13]
-        instance_index[n] = defaultdict(int)
-        curr_index = instance_index[n]
         for _, overlap_keys in ngram_index[n].items():
             for overlap_key in overlap_keys:
-                light_scenario_key = overlap_key.stats_key.metadata['light_scenario_key']
-                output_data_overlap_stats = OutputDataOverlapStats(
-                    scenario_spec
+                light_scenario_key = overlap_key.stats_key.metadata["light_scenario_key"]
+                overlap_protocol_spec = OverlapProtocolSpec(N=n)
+                output_data_overlap_stats_key = OutputDataOverlapStatsKey(
+                    light_scenario_key=light_scenario_key,
+                    overlap_protocol_spec=overlap_protocol_spec,
                 )
-                curr_index[overlap_key] += 1
+                stats_keys.add(output_data_overlap_stats_key)
+                id = overlap_key.instance_id
+                part = overlap_key.part
+                if part == "input":
+                    stats_key_to_input_ids[output_data_overlap_stats_key].add(id)
+                elif part == "reference":
+                    stats_key_to_reference_ids[output_data_overlap_stats_key].add(id)
+                else:
+                    hlog("Part neither input nor reference, hence not recording")
+    all_output_data_overlap_stats = []
+    for stats_key in stats_keys:
+        output_data_overlap_stats = OutputDataOverlapStats(
+            output_data_overlap_stats_key=stats_key,
+            instance_ids_with_overlapping_input=sorted(stats_key_to_input_ids[output_data_overlap_stats_key]),
+            instance_ids_with_overlapping_reference=sorted(stats_key_to_reference_ids[output_data_overlap_stats_key]),
+        )
+        all_output_data_overlap_stats.append(output_data_overlap_stats)
+    return all_output_data_overlap_stats
 
 
 if __name__ == "__main__":
@@ -289,11 +313,11 @@ if __name__ == "__main__":
     light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
     with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
-        all_overlap_stats: AllDataOverlapStats
+        # all_overlap_stats: AllDataOverlapStats
         ngram_index: NgramIndex
-        all_overlap_stats = create_all_data_overlap_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
+        # all_overlap_stats = create_all_data_overlap_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
         ngram_index = create_ngram_index(light_scenarios=light_scenarios, n_values=N_VALUES, tokenizer=tokenizer)
-        ngram_counter: NgramCounter = {}
+        # ngram_counter: NgramCounter = {}
 
     # # commpute the stats
     # with htrack_block("Computing overlap stats"):

@@ -1,13 +1,13 @@
 from typing import List
 
 from compute_data_overlap_metrics import (
-    compute_scenario_document_data_overlap,
-    create_all_data_overlap_stats,
+    get_all_data_overlap_stats,
+    # create_all_data_overlap_stats,
     create_ngram_index,
     EntryDataOverlapKey,
     Ngram,
     NgramIndex,
-    AllDataOverlapStats,
+    # AllDataOverlapStats,
 )
 from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
@@ -115,15 +115,25 @@ TEST_TOKENS_BY_DEFAULT_TOKENIZER: List[str] = [
 ]
 
 TEST_SCENARIO_1 = LightScenario(
-    scenario_key=LightScenarioKey(scenario_spec=ScenarioSpec(class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}), split="test"),
+    scenario_key=LightScenarioKey(
+        scenario_spec=ScenarioSpec(
+            class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
+        ),
+        split="test",
+    ),
     instances=[
-        LightInstance(input="Center for Research on Foundation", references=["bar", "baz"]),
-        LightInstance(input="bar bar", references=["foo", "baz"]),
+        LightInstance(input="Center for Research on Foundation", references=["bar", "baz"], id="id1"),
+        LightInstance(input="bar bar", references=["foo", "baz"], id="id2"),
     ],
 )
 TEST_SCENARIO_2 = LightScenario(
-    scenario_key=LightScenarioKey(scenario_spec=ScenarioSpec(class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}), split="test"),
-    instances=[LightInstance(input=TEST_DOCUMENT, references=[TEST_DOCUMENT, TEST_DOCUMENT])],
+    scenario_key=LightScenarioKey(
+        scenario_spec=ScenarioSpec(
+            class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
+        ),
+        split="test",
+    ),
+    instances=[LightInstance(input=TEST_DOCUMENT, references=[TEST_DOCUMENT, TEST_DOCUMENT], id="id1")],
 )
 
 
@@ -147,28 +157,28 @@ def test_light_tokenizer():
     ]
 
 
-def test_create_overlap_stats():
-    scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_overlap_stats: AllDataOverlapStats
-    all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
+# def test_create_overlap_stats():
+#     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
+#     all_overlap_stats: AllDataOverlapStats
+#     all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
 
-    stats_1_key, stats_2_key, stats_3_key = (
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 13}),
-    )
+#     stats_1_key, stats_2_key, stats_3_key = (
+#         DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.scenario_key, "N": 5}),
+#         DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 5}),
+#         DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 13}),
+#     )
 
-    assert stats_1_key in all_overlap_stats and stats_2_key in all_overlap_stats and stats_3_key in all_overlap_stats
+#     assert stats_1_key in all_overlap_stats and stats_2_key in all_overlap_stats and stats_3_key in all_overlap_stats
 
-    stats_1: DataOverlapStats
-    stats_2: DataOverlapStats
-    stats_3: DataOverlapStats
-    stats_1, stats_2, stats_3 = (
-        all_overlap_stats[stats_1_key],
-        all_overlap_stats[stats_2_key],
-        all_overlap_stats[stats_3_key],
-    )
-    assert stats_1.num_instances == 2 and stats_2.num_instances == 1 and stats_3.num_instances == 1
+#     stats_1: DataOverlapStats
+#     stats_2: DataOverlapStats
+#     stats_3: DataOverlapStats
+#     stats_1, stats_2, stats_3 = (
+#         all_overlap_stats[stats_1_key],
+#         all_overlap_stats[stats_2_key],
+#         all_overlap_stats[stats_3_key],
+#     )
+#     assert stats_1.num_instances == 2 and stats_2.num_instances == 1 and stats_3.num_instances == 1
 
 
 def test_create_ngram_index():
@@ -202,58 +212,83 @@ def test_create_ngram_index():
 
     assert ngram_index[5][test_5_gram] == set(
         [
-            EntryDataOverlapKey(stats_key=stats_1_key, instance_id=0, part=PART_INPUT),
-            EntryDataOverlapKey(stats_key=stats_2_key, instance_id=0, part=PART_INPUT),
-            EntryDataOverlapKey(stats_key=stats_2_key, instance_id=0, part=PART_REF),
+            EntryDataOverlapKey(stats_key=stats_1_key, instance_id="id1", index=0, part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_2_key, instance_id="id1", index=0, part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_2_key, instance_id="id1", index=0, part=PART_REF),
         ]
     )
     assert ngram_index[13][test_13_gram] == set(
         [
-            EntryDataOverlapKey(stats_key=stats_3_key, instance_id=0, part=PART_INPUT),
-            EntryDataOverlapKey(stats_key=stats_3_key, instance_id=0, part=PART_REF),
+            EntryDataOverlapKey(stats_key=stats_3_key, instance_id="id1", index=0, part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_3_key, instance_id="id1", index=0, part=PART_REF),
         ]
     )
 
 
-# def test_compute_scenario_document_overlap():
-#     tokenizer = LightTokenizer()
-#     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-#     all_overlap_stats: AllDataOverlapStats
-#     ngram_index: NgramIndex
-#     all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
-#     ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
+def test_get_data_overlap_stats():
+    tokenizer = LightTokenizer()
+    scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
+    # all_overlap_stats: AllDataOverlapStats
+    ngram_index: NgramIndex
+    # all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
+    ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
 
-#     compute_scenario_document_data_overlap(
-#         document=TEST_DOCUMENT,
-#         ngram_index=ngram_index,
-#         all_overlap_stats=all_overlap_stats,
-#         tokenizer=tokenizer,
-#     )
+    all_data_overlap_stats = get_all_data_overlap_stats(ngram_index=ngram_index)
 
-#     stats_1_key, stats_2_key, stats_3_key = (
-#         DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.scenario_key, "N": 5}),
-#         DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 5}),
-#         DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 13}),
-#     )
-#     stats_1, stats_2, stats_3 = (
-#         all_overlap_stats[stats_1_key],
-#         all_overlap_stats[stats_2_key],
-#         all_overlap_stats[stats_3_key],
-#     )
+    print(all_data_overlap_stats)
+    assert all_data_overlap_stats == [
+        OutputDataOverlapStats(
+            output_data_overlap_stats_key=OutputDataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(N=13),
+            ),
+            instance_ids_with_overlapping_input=["id1"],
+            instance_ids_with_overlapping_reference=["id1"],
+        ),
+        OutputDataOverlapStats(
+            output_data_overlap_stats_key=OutputDataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(N=5),
+            ),
+            instance_ids_with_overlapping_input=["id1"],
+            instance_ids_with_overlapping_reference=["id1"],
+        ),
+    ]
 
-#     assert (
-#         stats_1._input_bits[0] == 1
-#         and stats_1.overlapping_input_fraction == 0.5
-#         and stats_1.overlapping_reference_fraction == 0
-#     )
-#     assert stats_2.overlapping_input_fraction == 1 and stats_2.overlapping_reference_fraction == 1
-#     assert stats_3.overlapping_input_fraction == 1 and stats_3.overlapping_reference_fraction == 1
+    # stats_1_key, stats_2_key, stats_3_key = (
+    #     DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.scenario_key, "N": 5}),
+    #     DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 5}),
+    #     DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 13}),
+    # )
+    # stats_1, stats_2, stats_3 = (
+    #     all_overlap_stats[stats_1_key],
+    #     all_overlap_stats[stats_2_key],
+    #     all_overlap_stats[stats_3_key],
+    # )
 
-#     assert stats_1.generate_summary() == {
-#         "setting": {"stats_key": asdict_without_nones(stats_1_key)},
-#         "num_instances": 2,
-#         "num_instances_with_overlapping_input": 1,
-#         "num_instances_with_overlapping_reference": 0,
-#         "overlapping_input_fraction": 0.5,
-#         "overlapping_reference_fraction": 0,
-#     }
+    # assert (
+    #     stats_1._input_bits[0] == 1
+    #     and stats_1.overlapping_input_fraction == 0.5
+    #     and stats_1.overlapping_reference_fraction == 0
+    # )
+    # assert stats_2.overlapping_input_fraction == 1 and stats_2.overlapping_reference_fraction == 1
+    # assert stats_3.overlapping_input_fraction == 1 and stats_3.overlapping_reference_fraction == 1
+
+    # assert stats_1.generate_summary() == {
+    #     "setting": {"stats_key": asdict_without_nones(stats_1_key)},
+    #     "num_instances": 2,
+    #     "num_instances_with_overlapping_input": 1,
+    #     "num_instances_with_overlapping_reference": 0,
+    #     "overlapping_input_fraction": 0.5,
+    #     "overlapping_reference_fraction": 0,
+    # }
