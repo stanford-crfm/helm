@@ -3,7 +3,7 @@ import argparse
 import os
 import glob
 
-from typing import List, Tuple, Set, Any, Optional
+from typing import List, Tuple, Set, Any, Optional, DefaultDict
 from nltk import ngrams
 from typing import Dict
 from tqdm import tqdm
@@ -396,8 +396,8 @@ if __name__ == "__main__":
         )
 
     # DataOverlapStatsKey -> Set[str] for ids
-    stats_key_to_input_ids = defaultdict(set)
-    stats_key_to_reference_ids = defaultdict(set)
+    stats_key_to_input_ids: DefaultDict[Set] = defaultdict(set)
+    stats_key_to_reference_ids: DefaultDict[Set] = defaultdict(set)
 
     # commpute the stats
     with htrack_block("Computing overlap stats"):
@@ -438,7 +438,6 @@ if __name__ == "__main__":
             for input_file_index in tqdm(
                 range(len(input_file_paths)), desc="Computing overlap stats for input files", disable=None
             ):
-                input_file_path: str = input_file_paths[input_file_index]
                 compute_scenario_file_data_overlap(
                     training_file_path=input_file_path,
                     file_format=args.input_format,
