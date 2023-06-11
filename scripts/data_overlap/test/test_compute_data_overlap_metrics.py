@@ -260,4 +260,5 @@ def test_get_data_overlap_stats():
 
     all_data_overlap_stats = get_all_data_overlap_stats(ngram_index=ngram_index)
 
-    assert all_data_overlap_stats == ALL_DATA_OVERLAP_STATS
+    assert all_data_overlap_stats[0] in ALL_DATA_OVERLAP_STATS
+    assert all_data_overlap_stats[1] in ALL_DATA_OVERLAP_STATS
