@@ -378,6 +378,8 @@ if __name__ == "__main__":
         )
     hlog(f"Written {len(all_data_overlap_stats )} results to {args.output_stats}")
 
+    # Old code block; put generation under here
+    # Can remove output_ngrams and this later
     if args.output_ngrams is not None:
         all_overlap_stats = create_all_data_overlap_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
         ngram_counter: NgramCounter = {}
