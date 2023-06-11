@@ -396,8 +396,8 @@ if __name__ == "__main__":
         )
 
     # DataOverlapStatsKey -> Set[str] for ids
-    stats_key_to_input_ids: DefaultDict[Set] = defaultdict(set)
-    stats_key_to_reference_ids: DefaultDict[Set] = defaultdict(set)
+    stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
+    stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
 
     # commpute the stats
     with htrack_block("Computing overlap stats"):
