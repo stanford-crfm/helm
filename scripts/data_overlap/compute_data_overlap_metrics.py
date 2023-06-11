@@ -142,19 +142,7 @@ def compute_all_data_overlap(
     stats_key_to_reference_ids: Dict[DataOverlapStatsKey, Set[str]],
 ):
     """
-    Given an input file, compute a overlap stats for each n and each scenario by calling
-    `compute_scenario_document_overlap()` for each document in the file. The function writes
-    to the overlap stats directly and does not return anything.
-
-    ngram_index: The ngram index that maps from ngrams to overlap stats
-
-    all_overlap_stats: The overlap stats for each scenario and n. The variable to write to.
-
-    tokenizer: The tokenizer used to break documents in the file into tokens
-
-    ngram_counter: The ngrams that are overlapped between the training file and the scenario data
-    and their counts.
-    The outer dict maps from n to the inner dict, which maps from ngram to count.
+    Iterate through documents to compute overlaps
     """
     document_iterator = get_document_iterator(file_path=training_file_path, file_format=file_format)
     for document in document_iterator:
@@ -182,11 +170,10 @@ def compute_document_data_overlap(
 
     tokenizer: The tokenizer used to break the document into tokens
 
-    all_overlap_stats: The overlap stats for each scenario and n. The variable to write to.
+    stats_key_to_input_ids: Dict to keep track of input_ids that are overlapping
 
-    ngram_counter: The ngrams that are overlapped between the training file and the scenario data
-    and their counts.
-    The outer dict maps from n to the inner dict, which maps from ngram to count.
+    stats_key_to_reference_ids: Dict to keep track of reference_ids that are overlapping
+
     """
 
     document_tokens = tokenizer.tokenize(document)
