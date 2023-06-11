@@ -317,11 +317,10 @@ if __name__ == "__main__":
 
     all_data_overlap_stats = get_all_data_overlap_stats(ngram_index=ngram_index)
     with open(args.output_stats, "w") as f:
-        f.writelines(f"{json.dumps(asdict_without_nones(data_overlap_stats))}\n" for data_overlap_stats in all_data_overlap_stats)
+        f.writelines(
+            f"{json.dumps(asdict_without_nones(data_overlap_stats))}\n" for data_overlap_stats in all_data_overlap_stats
+        )
     hlog(f"Written {len(all_data_overlap_stats )} results to {args.output_stats}")
-
-
-    
 
     if args.output_ngrams is not None:
         all_overlap_stats = create_all_data_overlap_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
