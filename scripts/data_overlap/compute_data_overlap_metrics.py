@@ -388,7 +388,7 @@ if __name__ == "__main__":
     hlog(f"Loading scenario data from {args.scenario_data}")
     light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
-    stats_keys = set()
+    stats_keys: Set[DataOverlapStatsKey] = set()
     with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
         ngram_index: NgramIndex
         ngram_index = create_ngram_index(
