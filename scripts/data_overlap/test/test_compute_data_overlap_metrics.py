@@ -11,7 +11,7 @@ from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProt
 from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from data_overlap_stats import (
-    DataOverlapStatsKey,
+    OldDataOverlapStatsKey,
     PART_INPUT,
     PART_REF,
 )
@@ -21,7 +21,7 @@ N_VALUES = [5, 13]
 
 ALL_DATA_OVERLAP_STATS = [
     DataOverlapStats(
-        output_data_overlap_stats_key=DataOverlapStatsKey(
+        data_overlap_stats_key=DataOverlapStatsKey(
             light_scenario_key=LightScenarioKey(
                 scenario_spec=ScenarioSpec(
                     class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
@@ -34,7 +34,7 @@ ALL_DATA_OVERLAP_STATS = [
         instance_ids_with_overlapping_reference=["id1"],
     ),
     DataOverlapStats(
-        output_data_overlap_stats_key=DataOverlapStatsKey(
+        data_overlap_stats_key=DataOverlapStatsKey(
             light_scenario_key=LightScenarioKey(
                 scenario_spec=ScenarioSpec(
                     class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
@@ -210,14 +210,23 @@ def test_light_tokenizer():
 
 def test_create_ngram_index():
     tokenizer = LightTokenizer()
+    stats_keys = set()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
     ngram_index: NgramIndex
-    ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
+    ngram_index = create_ngram_index(
+        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_keys=stats_keys
+    )
 
     stats_1_key, stats_2_key, stats_3_key = (
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 13}),
+        DataOverlapStatsKey(
+            light_scenario_key=TEST_SCENARIO_1.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(N=5)
+        ),
+        DataOverlapStatsKey(
+            light_scenario_key=TEST_SCENARIO_2.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(N=5)
+        ),
+        DataOverlapStatsKey(
+            light_scenario_key=TEST_SCENARIO_2.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(N=13)
+        ),
     )
 
     test_5_gram: Ngram = ("Center", "for", "Research", "on", "Foundation")
@@ -250,15 +259,3 @@ def test_create_ngram_index():
             EntryDataOverlapKey(stats_key=stats_3_key, instance_id="id1", index=0, part=PART_REF),
         ]
     )
-
-
-def test_get_data_overlap_stats():
-    tokenizer = LightTokenizer()
-    scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    ngram_index: NgramIndex
-    ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
-
-    all_data_overlap_stats = get_all_data_overlap_stats(ngram_index=ngram_index)
-
-    assert all_data_overlap_stats[0] in ALL_DATA_OVERLAP_STATS
-    assert all_data_overlap_stats[1] in ALL_DATA_OVERLAP_STATS

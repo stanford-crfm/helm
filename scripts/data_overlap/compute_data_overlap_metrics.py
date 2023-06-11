@@ -15,7 +15,7 @@ from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProt
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from load_documents import get_document_iterator
 from data_overlap_stats import (
-    DataOverlapStats,
+    OldDataOverlapStats,
     OldDataOverlapStatsKey,
     PART_INPUT,
     PART_REF,
@@ -43,7 +43,7 @@ class EntryDataOverlapKey:
 # type alias for overlap-related data structures
 Ngram = Tuple[str, ...]
 NgramIndex = Dict[int, Dict[Ngram, Set[EntryDataOverlapKey]]]
-AllDataOverlapStats = Dict[OldDataOverlapStatsKey, DataOverlapStats]
+AllDataOverlapStats = Dict[OldDataOverlapStatsKey, OldDataOverlapStats]
 NgramCounter = Dict[EntryDataOverlapKey, Dict[Ngram, int]]
 
 
@@ -126,7 +126,7 @@ def create_all_data_overlap_stats(light_scenarios: List[LightScenario], n_values
     for scenario in light_scenarios:
         for n in n_values:
             # Initialize a stats instance for every pair of <scenario, n>
-            stats: DataOverlapStats = DataOverlapStats.from_scenario(scenario, stats_tags={"N": n})
+            stats: OldDataOverlapStats = OldDataOverlapStats.from_scenario(scenario, stats_tags={"N": n})
             if stats.stats_key in all_overlap_stats:
                 raise ValueError("Duplicated settings detected.")
             all_overlap_stats[stats.stats_key] = stats
@@ -161,10 +161,9 @@ def compute_all_data_overlap(
         compute_document_data_overlap(
             document=document,
             ngram_index=ngram_index,
-            all_overlap_stats=all_overlap_stats,
             tokenizer=tokenizer,
-            stats_keys_to_input_ids=stats_key_to_input_ids,
-            stats_keys_to_reference_ids=stats_key_to_reference_ids,
+            stats_key_to_input_ids=stats_key_to_input_ids,
+            stats_key_to_reference_ids=stats_key_to_reference_ids,
         )
 
 
@@ -269,7 +268,7 @@ def compute_scenario_document_data_overlap(
             if document_ngram in ngram_index[n]:
                 for entry_overlap_key in ngram_index[n][document_ngram]:
                     # update overlap_stats
-                    stats: DataOverlapStats = all_overlap_stats[entry_overlap_key.stats_key]
+                    stats: OldDataOverlapStats = all_overlap_stats[entry_overlap_key.stats_key]
                     stats.write_one_to_bit(entry_overlap_key.index, entry_overlap_key.part)
                     # skip the rest if max_overlapping_ngrams is 0
                     if max_overlapping_ngrams != 0:
@@ -301,28 +300,28 @@ def get_all_data_overlap_stats(
             for overlap_key in overlap_keys:
                 light_scenario_key = overlap_key.stats_key.metadata["light_scenario_key"]
                 overlap_protocol_spec = OverlapProtocolSpec(N=n)
-                output_data_overlap_stats_key = DataOverlapStatsKey(
+                data_overlap_stats_key = DataOverlapStatsKey(
                     light_scenario_key=light_scenario_key,
                     overlap_protocol_spec=overlap_protocol_spec,
                 )
-                stats_keys.add(output_data_overlap_stats_key)
+                stats_keys.add(data_overlap_stats_key)
                 id = overlap_key.instance_id
                 part = overlap_key.part
                 if part == "input":
-                    stats_key_to_input_ids[output_data_overlap_stats_key].add(id)
+                    stats_key_to_input_ids[data_overlap_stats_key].add(id)
                 elif part == "reference":
-                    stats_key_to_reference_ids[output_data_overlap_stats_key].add(id)
+                    stats_key_to_reference_ids[data_overlap_stats_key].add(id)
                 else:
                     hlog("Part neither input nor reference, hence not recording")
-    all_output_data_overlap_stats = []
+    all_data_overlap_stats = []
     for stats_key in stats_keys:
-        output_data_overlap_stats = DataOverlapStats(
-            output_data_overlap_stats_key=stats_key,
-            instance_ids_with_overlapping_input=sorted(stats_key_to_input_ids[output_data_overlap_stats_key]),
-            instance_ids_with_overlapping_reference=sorted(stats_key_to_reference_ids[output_data_overlap_stats_key]),
+        data_overlap_stats = OldDataOverlapStats(
+            data_overlap_stats_key=stats_key,
+            instance_ids_with_overlapping_input=sorted(stats_key_to_input_ids[data_overlap_stats_key]),
+            instance_ids_with_overlapping_reference=sorted(stats_key_to_reference_ids[data_overlap_stats_key]),
         )
-        all_output_data_overlap_stats.append(output_data_overlap_stats)
-    return all_output_data_overlap_stats
+        all_data_overlap_stats.append(data_overlap_stats)
+    return all_data_overlap_stats
 
 
 if __name__ == "__main__":
@@ -417,12 +416,12 @@ if __name__ == "__main__":
 
     all_data_overlap_stats = []
     for stats_key in stats_keys:
-        output_data_overlap_stats = DataOverlapStats(
-            output_data_overlap_stats_key=stats_key,
+        data_overlap_stats = DataOverlapStats(
+            data_overlap_stats_key=stats_key,
             instance_ids_with_overlapping_input=sorted(stats_key_to_input_ids[stats_key]),
             instance_ids_with_overlapping_reference=sorted(stats_key_to_reference_ids[stats_key]),
         )
-        all_data_overlap_stats.append(output_data_overlap_stats)
+        all_data_overlap_stats.append(data_overlap_stats)
 
     with open(args.output_stats, "w") as f:
         f.writelines(

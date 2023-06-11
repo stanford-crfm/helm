@@ -34,7 +34,7 @@ class DataOverlapStatsKey:
 class DataOverlapStats:
     """Dataclass that represents output data overlap stats"""
 
-    output_data_overlap_stats_key: DataOverlapStatsKey
+    data_overlap_stats_key: DataOverlapStatsKey
 
     instance_ids_with_overlapping_input: List[str]
 
@@ -42,7 +42,7 @@ class DataOverlapStats:
 
     def __eq__(self, other):
         return (
-            self.output_data_overlap_stats_key == other.output_data_overlap_stats_key
+            self.data_overlap_stats_key == other.data_overlap_stats_key
             and self.instance_ids_with_overlapping_input == other.instance_ids_with_overlapping_input
             and self.instance_ids_with_overlapping_reference == other.instance_ids_with_overlapping_reference
         )

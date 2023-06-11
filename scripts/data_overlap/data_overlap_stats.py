@@ -20,7 +20,7 @@ class OldDataOverlapStatsKey:
         return hash(tuple((k, self.metadata[k]) for k in sorted(self.metadata.keys())))
 
 
-class DataOverlapStats:
+class OldDataOverlapStats:
     """
     A memory-efficient class for overlap stats. The core data structures are bit arrays where
     every bit records whether an instance is overlapping or not.
