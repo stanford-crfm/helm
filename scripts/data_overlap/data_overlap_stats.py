@@ -11,7 +11,7 @@ PART_REF: str = "reference"
 
 
 @dataclass(frozen=True)
-class DataOverlapStatsKey:
+class OldDataOverlapStatsKey:
     """Unique key representing a `OverlapStats` instance."""
 
     metadata: Dict[str, Hashable]
@@ -29,7 +29,7 @@ class DataOverlapStats:
     def __init__(
         self, light_scenario_key: LightScenarioKey, num_instances: int, stats_tags: Optional[Dict[str, Any]] = None
     ):
-        self.stats_key = DataOverlapStatsKey(metadata={"light_scenario_key": light_scenario_key})
+        self.stats_key = OldDataOverlapStatsKey(metadata={"light_scenario_key": light_scenario_key})
         self.num_instances = num_instances
         if stats_tags is not None:
             self.stats_key.metadata.update(stats_tags)

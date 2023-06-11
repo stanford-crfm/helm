@@ -7,7 +7,7 @@ from compute_data_overlap_metrics import (
     Ngram,
     NgramIndex,
 )
-from data_overlap_spec import OutputDataOverlapStats, OutputDataOverlapStatsKey, OverlapProtocolSpec
+from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProtocolSpec
 from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from data_overlap_stats import (
@@ -20,8 +20,8 @@ from scenarios.scenario import ScenarioSpec
 N_VALUES = [5, 13]
 
 ALL_DATA_OVERLAP_STATS = [
-    OutputDataOverlapStats(
-        output_data_overlap_stats_key=OutputDataOverlapStatsKey(
+    DataOverlapStats(
+        output_data_overlap_stats_key=DataOverlapStatsKey(
             light_scenario_key=LightScenarioKey(
                 scenario_spec=ScenarioSpec(
                     class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
@@ -33,8 +33,8 @@ ALL_DATA_OVERLAP_STATS = [
         instance_ids_with_overlapping_input=["id1"],
         instance_ids_with_overlapping_reference=["id1"],
     ),
-    OutputDataOverlapStats(
-        output_data_overlap_stats_key=OutputDataOverlapStatsKey(
+    DataOverlapStats(
+        output_data_overlap_stats_key=DataOverlapStatsKey(
             light_scenario_key=LightScenarioKey(
                 scenario_spec=ScenarioSpec(
                     class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}

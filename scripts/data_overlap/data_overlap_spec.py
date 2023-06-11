@@ -15,7 +15,7 @@ class OverlapProtocolSpec:
 
 
 @dataclass(frozen=True)
-class OutputDataOverlapStatsKey:
+class DataOverlapStatsKey:
     """Dataclass that represents output data overlap stats"""
 
     light_scenario_key: LightScenarioKey
@@ -31,10 +31,10 @@ class OutputDataOverlapStatsKey:
 
 
 @dataclass(frozen=True)
-class OutputDataOverlapStats:
+class DataOverlapStats:
     """Dataclass that represents output data overlap stats"""
 
-    output_data_overlap_stats_key: OutputDataOverlapStatsKey
+    output_data_overlap_stats_key: DataOverlapStatsKey
 
     instance_ids_with_overlapping_input: List[str]
 
