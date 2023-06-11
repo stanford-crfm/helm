@@ -1,7 +1,6 @@
 from typing import List
 
 from compute_data_overlap_metrics import (
-    get_all_data_overlap_stats,
     create_ngram_index,
     EntryDataOverlapKey,
     Ngram,
@@ -11,7 +10,6 @@ from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProt
 from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from data_overlap_stats import (
-    OldDataOverlapStatsKey,
     PART_INPUT,
     PART_REF,
 )
