@@ -15,7 +15,6 @@ from data_overlap_stats import (
     PART_INPUT,
     PART_REF,
 )
-from common.general import asdict_without_nones
 from scenarios.scenario import ScenarioSpec
 
 N_VALUES = [5, 13]
