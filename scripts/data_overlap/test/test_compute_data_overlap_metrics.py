@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, DefaultDict, Set
 
+from collections import defaultdict
 from compute_data_overlap_metrics import (
     create_all_data_overlap_stats,
-    get_all_data_overlap_stats,
+    compute_document_data_overlap,
     create_ngram_index,
     EntryDataOverlapKey,
     Ngram,
@@ -261,4 +262,81 @@ def test_create_ngram_index():
             EntryDataOverlapKey(stats_key=stats_3_key, instance_id="id1", index=0, part=PART_INPUT),
             EntryDataOverlapKey(stats_key=stats_3_key, instance_id="id1", index=0, part=PART_REF),
         ]
+    )
+
+
+def test_compute_document_data_overlap():
+    tokenizer = LightTokenizer()
+    stats_keys = set()
+    scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
+    ngram_index: NgramIndex
+    ngram_index = create_ngram_index(
+        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_keys=stats_keys
+    )
+
+    stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
+    stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
+
+    compute_document_data_overlap(
+        document=TEST_DOCUMENT,
+        ngram_index=ngram_index,
+        tokenizer=tokenizer,
+        stats_key_to_input_ids=stats_key_to_input_ids,
+        stats_key_to_reference_ids=stats_key_to_reference_ids,
+    )
+    assert stats_key_to_input_ids == defaultdict(
+        set,
+        {
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(N=5),
+            ): {"id1"},
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(N=5),
+            ): {"id1"},
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(N=13),
+            ): {"id1"},
+        },
+    )
+
+    assert stats_key_to_reference_ids == defaultdict(
+        set,
+        {
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(N=5),
+            ): {"id1"},
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(N=13),
+            ): {"id1"},
+        },
     )
