@@ -113,6 +113,56 @@ def create_ngram_index(
     return ngram_index
 
 
+def create_all_data_overlap_stats(light_scenarios: List[LightScenario], n_values: List[int]) -> AllDataOverlapStats:
+    """Given a list of scenarios and n values, initialize all_overlap_stats"""
+    hlog("Initializing all data overlap stats")
+    all_overlap_stats: AllDataOverlapStats = {}
+    for scenario in light_scenarios:
+        for n in n_values:
+            # Initialize a stats instance for every pair of <scenario, n>
+            stats: DataOverlapStats = DataOverlapStats.from_scenario(scenario, stats_tags={"N": n})
+            if stats.stats_key in all_overlap_stats:
+                raise ValueError("Duplicated settings detected.")
+            all_overlap_stats[stats.stats_key] = stats
+    return all_overlap_stats
+
+
+def compute_scenario_file_data_overlap(
+    training_file_path: str,
+    file_format: str,
+    ngram_index: NgramIndex,
+    all_overlap_stats: AllDataOverlapStats,
+    tokenizer: LightTokenizer,
+    ngram_counter: Optional[NgramCounter] = None,
+    max_overlapping_ngrams: int = 0,
+):
+    """
+    Given an input file, compute a overlap stats for each n and each scenario by calling
+    `compute_scenario_document_overlap()` for each document in the file. The function writes
+    to the overlap stats directly and does not return anything.
+
+    ngram_index: The ngram index that maps from ngrams to overlap stats
+
+    all_overlap_stats: The overlap stats for each scenario and n. The variable to write to.
+
+    tokenizer: The tokenizer used to break documents in the file into tokens
+
+    ngram_counter: The ngrams that are overlapped between the training file and the scenario data
+    and their counts.
+    The outer dict maps from n to the inner dict, which maps from ngram to count.
+    """
+    document_iterator = get_document_iterator(file_path=training_file_path, file_format=file_format)
+    for document in document_iterator:
+        compute_scenario_document_data_overlap(
+            document=document,
+            ngram_index=ngram_index,
+            all_overlap_stats=all_overlap_stats,
+            tokenizer=tokenizer,
+            ngram_counter=ngram_counter,
+            max_overlapping_ngrams=max_overlapping_ngrams,
+        )
+
+
 def compute_scenario_document_data_overlap(
     document: str,
     ngram_index: NgramIndex,
@@ -190,8 +240,8 @@ def get_all_data_overlap_stats(
     for stats_key in stats_keys:
         output_data_overlap_stats = OutputDataOverlapStats(
             output_data_overlap_stats_key=stats_key,
-            instance_ids_with_overlapping_input=list(stats_key_to_input_ids[output_data_overlap_stats_key]),
-            instance_ids_with_overlapping_reference=list(stats_key_to_reference_ids[output_data_overlap_stats_key]),
+            instance_ids_with_overlapping_input=sorted(stats_key_to_input_ids[output_data_overlap_stats_key]),
+            instance_ids_with_overlapping_reference=sorted(stats_key_to_reference_ids[output_data_overlap_stats_key]),
         )
         all_output_data_overlap_stats.append(output_data_overlap_stats)
     return all_output_data_overlap_stats
@@ -217,6 +267,22 @@ if __name__ == "__main__":
     parser.add_argument(
         "--normalization", type=str, default="default", help="What normalization and tokenization strategy to apply"
     )
+    parser.add_argument(
+        "--output-ngrams",
+        type=str,
+        default=None,
+        help="Path to the file of overlapping ngrams. To output the ngrams, you must also specify --max-output-ngrams",
+    )
+    parser.add_argument(
+        "--max-output-ngrams",
+        type=int,
+        default=0,
+        help=(
+            "The max number of overlapping ngrams to be stored for each (n, light_instance, part)."
+            "Set to -1 to store all"
+        ),
+    )
+
     args = parser.parse_args()
 
     tokenizer: LightTokenizer
@@ -226,6 +292,11 @@ if __name__ == "__main__":
         tokenizer = DefaultTokenizer()
     else:
         raise ValueError(f"Normalization strategy {args.normalization} is not defined.")
+
+    if args.max_output_ngrams != 0 and args.output_ngrams is None:
+        raise ValueError("You must specify --output-ngrams if you want to output ngrams.")
+    if args.max_output_ngrams == 0 and args.output_ngrams is not None:
+        raise ValueError("You must specify --max-output-ngrams != 0 if you want to output ngrams.")
 
     input_file_paths: List[str]
     if os.path.isdir(args.input_data):
@@ -246,7 +317,52 @@ if __name__ == "__main__":
 
     all_data_overlap_stats = get_all_data_overlap_stats(ngram_index=ngram_index)
     with open(args.output_stats, "w") as f:
-        f.writelines(
-            f"{json.dumps(asdict_without_nones(data_overlap_stats))}\n" for data_overlap_stats in all_data_overlap_stats
-        )
+        f.writelines(f"{json.dumps(asdict_without_nones(data_overlap_stats))}\n" for data_overlap_stats in all_data_overlap_stats)
     hlog(f"Written {len(all_data_overlap_stats )} results to {args.output_stats}")
+
+
+    
+
+    if args.output_ngrams is not None:
+        all_overlap_stats = create_all_data_overlap_stats(light_scenarios=light_scenarios, n_values=N_VALUES)
+        ngram_counter: NgramCounter = {}
+
+        # commpute the stats
+        with htrack_block("Computing overlap stats"):
+            for input_file_index in tqdm(
+                range(len(input_file_paths)), desc="Computing overlap stats for input files", disable=None
+            ):
+                input_file_path: str = input_file_paths[input_file_index]
+                compute_scenario_file_data_overlap(
+                    training_file_path=input_file_path,
+                    file_format=args.input_format,
+                    ngram_index=ngram_index,
+                    all_overlap_stats=all_overlap_stats,
+                    tokenizer=tokenizer,
+                    ngram_counter=ngram_counter,
+                    max_overlapping_ngrams=args.max_output_ngrams,
+                )
+
+        stats_summaries: List[Dict[str, Any]] = []
+        for overlap_stats in all_overlap_stats.values():
+            stats_summaries.append(overlap_stats.generate_summary({"tags:": args.tags}))
+
+        with open(args.output_stats, "w") as f:
+            f.writelines(f"{json.dumps(stats_summary)}\n" for stats_summary in stats_summaries)
+        hlog(f"Written {len(stats_summaries)} results to {args.output_stats}")
+
+        # convert the ngram counter to json format
+        ngram_entries = []
+        for entry_overlap_key, overlapping_ngrams in ngram_counter.items():
+            ngram_entries.append(
+                {
+                    "entry_overlap_key": asdict_without_nones(entry_overlap_key),
+                    "overlapping_ngrams": {" ".join(ngram): count for ngram, count in overlapping_ngrams.items()},
+                }
+            )
+        write(args.output_ngrams, json.dumps(ngram_entries))
+    else:
+        hlog(
+            "Overlapping ngrams are not written to disk. "
+            "Set --output-ngrams and --max-output-ngrams if you want output the data."
+        )
