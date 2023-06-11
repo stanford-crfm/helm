@@ -33,6 +33,12 @@ class LightScenarioKey:
 
     split: str
 
+    def __eq__(self, other):
+        return self.split == other.split and self.scenario_spec.class_name == other.scenario_spec.class_name and self.scenario_spec.args == other.scenario_spec.args
+    
+    def __hash__(self):
+        return hash((self.scenario_spec, self.split))
+
 
 @dataclass(frozen=True, eq=False)
 class LightScenario:

@@ -10,6 +10,9 @@ class OverlapProtocolSpec:
     # the N of the n_grams we're running
     N: int
 
+    def __eq__(self, other):
+        return self.N == other.N
+
 
 @dataclass(frozen=True)
 class OutputDataOverlapStatsKey:
@@ -19,6 +22,9 @@ class OutputDataOverlapStatsKey:
 
     # the N of the n_grams we're running
     overlap_protocol_spec: OverlapProtocolSpec
+
+    def __eq__(self, other):
+        return self.light_scenario_key == other.light_scenario_key and self.overlap_protocol_spec == other.overlap_protocol_spec
 
 
 @dataclass(frozen=True)
@@ -30,3 +36,6 @@ class OutputDataOverlapStats:
     instance_ids_with_overlapping_input: List[str]
 
     instance_ids_with_overlapping_reference: List[str]
+
+    def __eq__(self, other):
+        return self.output_data_overlap_stats_key == other.output_data_overlap_stats_key and self.instance_ids_with_overlapping_input == other.instance_ids_with_overlapping_input and self.instance_ids_with_overlapping_reference == other.instance_ids_with_overlapping_reference
