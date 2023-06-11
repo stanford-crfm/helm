@@ -273,44 +273,6 @@ def compute_scenario_document_data_overlap(
                             ngram_counter[entry_overlap_key][document_ngram] = 1
 
 
-def get_all_data_overlap_stats(
-    ngram_index: NgramIndex,
-):
-    """
-    ngram_index: The ngram index that maps from ngrams to overlap stats
-    """
-    stats_keys = set()
-    stats_key_to_input_ids = defaultdict(set)
-    stats_key_to_reference_ids = defaultdict(set)
-    for n in ngram_index.keys():  # these are the n, say [5, 9, 13]
-        for _, overlap_keys in ngram_index[n].items():
-            for overlap_key in overlap_keys:
-                light_scenario_key = overlap_key.stats_key.metadata["light_scenario_key"]
-                overlap_protocol_spec = OverlapProtocolSpec(N=n)
-                data_overlap_stats_key = DataOverlapStatsKey(
-                    light_scenario_key=light_scenario_key,
-                    overlap_protocol_spec=overlap_protocol_spec,
-                )
-                stats_keys.add(data_overlap_stats_key)
-                id = overlap_key.instance_id
-                part = overlap_key.part
-                if part == "input":
-                    stats_key_to_input_ids[data_overlap_stats_key].add(id)
-                elif part == "reference":
-                    stats_key_to_reference_ids[data_overlap_stats_key].add(id)
-                else:
-                    hlog("Part neither input nor reference, hence not recording")
-    all_data_overlap_stats = []
-    for stats_key in stats_keys:
-        data_overlap_stats = OldDataOverlapStats(
-            data_overlap_stats_key=stats_key,
-            instance_ids_with_overlapping_input=sorted(stats_key_to_input_ids[data_overlap_stats_key]),
-            instance_ids_with_overlapping_reference=sorted(stats_key_to_reference_ids[data_overlap_stats_key]),
-        )
-        all_data_overlap_stats.append(data_overlap_stats)
-    return all_data_overlap_stats
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-data", type=str, required=True, help="Path to your training data")
