@@ -10,7 +10,7 @@ from compute_data_overlap_metrics import (
     NgramIndex,
     AllDataOverlapStats,
 )
-from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProtocolSpec
+from data_overlap_spec import DataOverlapStatsKey, OverlapProtocolSpec
 from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from data_overlap_stats import (
