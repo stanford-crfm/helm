@@ -46,14 +46,18 @@ class LanguageModelingAdapter(Adapter):
         """
         Adapted from https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py.
         """
+        # Here is a bit of context for the various limits below:
+        # - max_sequence_length: the maximum number of tokens that the model can process at once
+        # - max_request_length: is the maximum number of tokens that can be included in a prompt we send to the vendor backend in each request.
+
+        # Why those should be different ?
+        # Because some venders like OpenAI allow a longer max_request_length than max_sequence_length.
+        # This is most likely to get the logprobs of more prompt tokens since transformers do not predict the logprob of the first token in the prompt.
+
         max_sequence_length: int = self.window_service.max_sequence_length
         max_request_length: int = self.window_service.max_request_length
         max_sequence_and_generated_tokens_length: int = self.window_service.max_sequence_and_generated_tokens_length
-        max_tokens: int = (
-            min(self.adapter_spec.max_tokens, self.window_service.max_generated_max_tokens)
-            if self.adapter_spec.max_tokens > 0
-            else self.adapter_spec.max_tokens
-        )
+        max_tokens: int = min(self.adapter_spec.max_tokens, self.window_service.max_generated_max_tokens)
         # Here we assume that there is a max_request_and_generated_tokens_length that we can
         # compute from max_sequence_length, max_request_length, and max_sequence_and_generated_tokens_length.
         max_request_length = min(
