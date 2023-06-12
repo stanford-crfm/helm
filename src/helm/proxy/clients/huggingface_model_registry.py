@@ -107,12 +107,7 @@ class HuggingFaceLocalModelConfig:
     @staticmethod
     def from_path(path: str) -> "HuggingFaceLocalModelConfig":
         """Generates a HuggingFaceHubModelConfig from a (relative or absolute) path to a local HuggingFace model."""
-        pattern = r"((?P<containing_dir>.+?)/)?(?P<model_name>[^/]+)/?"
-        match = re.fullmatch(pattern, path)
-        if not match:
-            raise ValueError(f"Could not parse model path: '{path}'; Expected format: /path/to/model_name")
-        model_name = match.group("model_name")
-        assert model_name
+        model_name = os.path.split(path)[-1]
         return HuggingFaceLocalModelConfig(model_name=model_name, path=path)
 
 
