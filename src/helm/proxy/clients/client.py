@@ -137,6 +137,7 @@ def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:
         return token.replace("▁", " ")
     elif tokenizer_name is not None and tokenizer_name.startswith("huggingface"):
         return token.replace("Ġ", " ")
+    return token
 
 
 def cleanup_tokens(tokens: List[str], tokenizer_name: Optional[str] = None) -> List[str]:
