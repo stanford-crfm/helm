@@ -33,14 +33,6 @@ class HuggingFaceHubModelConfig:
 
     If None, use the default revision."""
 
-    path: Optional[str] = None
-    """Local path to the Hugging Face model weights. 
-    For pre-registered local models that are already in _huggingface_model_registry below,
-    this will get set to LOCAL_HUGGINGFACE_MODEL_DIR by default.
-    Otherwise, this is specified using the flag --enable-local-huggingface-models <path>.
-
-    If None, the model will be loaded from Hugging Face Hub using self.model_id instead."""
-
     @property
     def model_id(self) -> str:
         """Return the model ID.
