@@ -37,7 +37,7 @@ class ModelCritiqueClient(CritiqueClient):
             prompt += "\nAnswer: "
         else:
             prompt += "\nOptions: "
-            if question.options > 26:
+            if len(question.options) > 26:
                 raise CritiqueParseError("Currently, only up to 26 options are supported")
             for i, letter in enumerate(string.ascii_uppercase[: len(question.options)]):
                 prompt += f"\n{letter}. {question.options[i]}"
