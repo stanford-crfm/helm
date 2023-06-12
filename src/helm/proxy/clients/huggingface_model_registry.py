@@ -136,8 +136,8 @@ def register_huggingface_hub_model_config(model_name: str) -> HuggingFaceHubMode
     # HELM model names require a namespace
     if not config.namespace:
         raise Exception("Registration of Hugging Face models without a namespace is not supported")
-    if config.model_name in MODEL_NAME_TO_MODEL:
-        raise ValueError(f"A HELM model is already registered for model name: {model_name}")
+    if config.model_id in MODEL_NAME_TO_MODEL:
+        raise ValueError(f"A HELM model is already registered for model name: {config.model_id}")
     description = f"HuggingFace model {config.model_id}"
     if config.revision:
         description += f" at revision {config.revision}"
