@@ -48,7 +48,6 @@ from .llama_window_service import LlamaWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
-from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, LOCAL_HUGGINGFACE_MODEL_DIR
 from helm.proxy.clients.remote_model_registry import get_remote_model
 
 
