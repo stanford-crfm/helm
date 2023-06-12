@@ -160,8 +160,7 @@ class HuggingFaceClient(Client):
                 self.model_server_instances[model] = HuggingFaceServer(
                     HuggingFaceHubModelConfig.from_string("bigcode/starcoder")
                 )
-            else:
-                raise Exception(f"Unknown HuggingFace model: {model}")
+            raise Exception(f"Unknown HuggingFace model: {model}")
         else:
             return _get_singleton_server(model_config)
 
