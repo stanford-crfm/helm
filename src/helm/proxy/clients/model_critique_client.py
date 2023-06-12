@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 import string
 import dataclasses
 
@@ -9,6 +9,7 @@ from helm.common.critique_request import (
     CritiqueQuestionTemplate,
     CritiqueTaskTemplate,
 )
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence
 from helm.proxy.clients.client import Client
 from helm.proxy.clients.critique_client import CritiqueClient
@@ -36,14 +37,14 @@ class ModelCritiqueClient(CritiqueClient):
             prompt += "\nAnswer: "
         else:
             prompt += "\nOptions: "
+            if question.options > 26:
+                raise CritiqueParseError("Currently, only up to 26 options are supported")
             for i, letter in enumerate(string.ascii_uppercase[: len(question.options)]):
                 prompt += f"\n{letter}. {question.options[i]}"
             if question.question_type == "multiple_choice":
-                prompt += "\nAnswer with a single letter corresponding to the option.\nAnswer: "
+                prompt += "\nAnswer with a capital letter.\nAnswer: "
             elif question.question_type == "checkbox":
-                prompt += (
-                    "\nAnswer with all letters seperated by commas, corresponding to the selected options.\nAnswer: "
-                )
+                prompt += "\nAnswer with capital letters separated by commas. You may select several options.\nAnswer: "
         return prompt
 
     def _task_to_requests(self, task: CritiqueTaskTemplate, fields: Dict[str, str]) -> List[Request]:
@@ -84,27 +85,45 @@ class ModelCritiqueClient(CritiqueClient):
         """Convert a completion to a list of answer represented by a list of capital letters."""
         completion_parsed = completion.replace(" ", "").replace("\n", "").replace(".", "").upper()
         answers = completion_parsed.split(",")
-        assert len(answers) >= 1, f"Invalid answer: {completion}. There are no answers once parsed: {answers}."
-        assert all(
-            [answer in string.ascii_uppercase for answer in answers]
-        ), f"Invalid answer: {completion}. Some answers are not capital letters, once parsed: {answers}."
+        if len(answers) < 1:
+            raise CritiqueParseError(f"Invalid answer: {completion}. There are no answers once parsed: {answers}.")
+        for i, answer in enumerate(answers):
+            if answer not in string.ascii_uppercase:
+                raise CritiqueParseError(
+                    f"Invalid answer: {completion}. Some answers are not capital letters, once parsed: {answers}. "
+                    f"Error happened at answer {i}, which is {answer}."
+                )
         return answers
 
-    def _multiple_choice_completion_to_answer(self, question: CritiqueQuestionTemplate, completion: Sequence) -> str:
+    def _multiple_choice_completion_to_answer(
+        self, question: CritiqueQuestionTemplate, completion: Sequence
+    ) -> Optional[str]:
         """Convert a multiple choice completion to an answer."""
         assert question.question_type == "multiple_choice"
-        answers: List[str] = self._parse_completion_to_question_choice(completion.text)
-        assert len(answers) == 1, f"Invalid answer: {completion}. Multiple choice questions should have one answer."
-        return answers[0]
+        try:
+            answers: List[str] = self._parse_completion_to_question_choice(completion.text)
+            assert len(answers) == 1, f"Invalid answer: {completion}. Multiple choice questions should have one answer."
+            return answers[0]
+        except CritiqueParseError as e:
+            # If there was an error parsing the answer, we assume the user did not answer the question.
+            hlog(f"Error parsing answer: {e}. Skipping question (and so the respondent entirely)")
+            return None
 
-    def _checkbox_completion_to_answer(self, question: CritiqueQuestionTemplate, completion: Sequence) -> List[str]:
+    def _checkbox_completion_to_answer(
+        self, question: CritiqueQuestionTemplate, completion: Sequence
+    ) -> Optional[List[str]]:
         """Convert a checkbox completion to an answer."""
         assert question.question_type == "checkbox"
-        answers: List[str] = self._parse_completion_to_question_choice(completion.text)
-        assert len(answers) <= len(
-            question.options
-        ), f"Invalid answer: {completion}. Checkbox questions should have at most one answer per option."
-        return answers
+        try:
+            answers: List[str] = self._parse_completion_to_question_choice(completion.text)
+            assert len(answers) <= len(
+                question.options
+            ), f"Invalid answer: {completion}. Checkbox questions should have at most one answer per option."
+            return answers
+        except CritiqueParseError as e:
+            # If there was an error parsing the answer, we assume the user did not answer the question.
+            hlog(f"Error parsing answer: {e}. Skipping question (and so the respondent entirely)")
+            return None
 
     def _free_response_completion_to_answer(self, question: CritiqueQuestionTemplate, completion: Sequence) -> str:
         """Convert a free response completion to an answer."""
@@ -138,9 +157,10 @@ class ModelCritiqueClient(CritiqueClient):
         responses: List[CritiqueResponse] = []
         for respondent_id in range(len(results[0])):
             answers: Dict[str, Union[str, List[str]]] = {}
+            valid_response: bool = True
             for question_index, result in enumerate(results):
                 question = questions[question_index]
-                answer: Union[str, List[str]] = ""
+                answer: Optional[Union[str, List[str]]] = None
                 if not result[respondent_id].success:
                     raise RuntimeError(f"Request failed: {result[respondent_id]}.")
                 if question.question_type == "multiple_choice":
@@ -151,9 +171,20 @@ class ModelCritiqueClient(CritiqueClient):
                     answer = self._free_response_completion_to_answer(question, result[respondent_id].completions[0])
                 else:
                     raise ValueError(f"Unknown question type: {question.question_type}")
+
+                # If the answer is None, it means the user did not answer the question.
+                # Not only we will not add the answer to the response, but we will completely
+                # skip the respondent.
+                if answer is None:
+                    valid_response = False
+                    break
+
                 mapped_answer: Union[str, List[str]] = self._letter_answer_to_mapped_answer(answer, question, fields)
                 answers[question.name] = mapped_answer
-            responses.append(CritiqueResponse(id=str(respondent_id), respondent_id=str(respondent_id), answers=answers))
+            if valid_response:
+                responses.append(
+                    CritiqueResponse(id=str(respondent_id), respondent_id=str(respondent_id), answers=answers)
+                )
         return responses
 
     def make_critique_request(self, request: CritiqueRequest) -> CritiqueRequestResult:
