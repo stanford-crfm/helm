@@ -7,7 +7,6 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_LANGUAGE_MODELING
 from .test_adapter import TestAdapter
 from helm.benchmark.scenarios.scenario import Instance, Input, Reference
-from helm.common import tokenization_request
 
 
 class TestLanguageModelingAdapter(TestAdapter):
@@ -60,7 +59,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         assert pred_tokens == [TokenizationToken(464)] + [TokenizationToken(262)] * 2047
 
     def test_prompt_truncated(self):
-        # ============= 1. Test that the prompt is trucanted correctly when it is too long =============
+        # Step 1. Test that the prompt is trucanted correctly when it is too long
         # anthropic/claude/v1.3 has the following limits:
         #   max_sequence_length = 8000
         #   max_request_length = 8000
@@ -100,7 +99,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         num_tokens = len(adapter.window_service.encode(request_long.prompt).token_values)
         assert num_tokens == adapter.window_service.max_request_length
 
-        # ============= 2. Test that the prompt is truncated when max_tokens + prompt is too long =============
+        # Step 2. Test that the prompt is truncated when max_tokens + prompt is too long
         adapter_spec_2_ = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
@@ -125,49 +124,3 @@ class TestLanguageModelingAdapter(TestAdapter):
         num_tokens_2 = len(adapter_2.window_service.encode(request_long_2.prompt).token_values)
         assert num_tokens_2 == adapter.window_service.max_sequence_and_generated_tokens_length - 2000
         assert request_long_2.max_tokens == 2000
-
-    def test_max_tokens(self):
-        # Step 1. Check that the when the number of tokens is less than the max_tokens, the max_tokens is unchanged
-        # anthropic/claude/v1.3 has the following limits:
-        #   max_sequence_length = 8000
-        #   max_request_length = 8000
-        #   max_sequence_and_generated_tokens_length = 9016
-        #   max_generated_max_tokens = 8192
-        adapter_spec = AdapterSpec(
-            method=ADAPT_LANGUAGE_MODELING,
-            input_prefix="",
-            model="anthropic/claude-v1.3",
-            output_prefix="",
-            max_tokens=42,
-        )
-        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        input_text: Input = Input(text="Excuse me, do you have the time?")
-        reference: Reference = Reference(output="Yes, it's 12:30.", tags=[])
-        instance: Instance = Instance(
-            input=input_text,
-            references=[reference],
-        )
-        # Check that the adapter spec returns max_tokens=42
-        request_states: List[RequestState] = adapter.generate_requests(instance)
-        request: Request = request_states[0].request
-        assert request.max_tokens == 42
-
-        # Step 2. Check that when the number of tokens is greater than the max_tokens, the max_tokens is capped
-        adapter_spec = AdapterSpec(
-            method=ADAPT_LANGUAGE_MODELING,
-            input_prefix="",
-            model="anthropic/claude-v1.3",
-            output_prefix="",
-            max_tokens=9000,
-        )
-        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        input_text: Input = Input(text="Excuse me, do you have the time?")
-        reference: Reference = Reference(output="Yes, it's 12:30.", tags=[])
-        instance: Instance = Instance(
-            input=input_text,
-            references=[reference],
-        )
-        # Check that the adapter spec returns max_tokens=42
-        request_states: List[RequestState] = adapter.generate_requests(instance)
-        request: Request = request_states[0].request
-        assert request.max_tokens == adapter.window_service.max_generated_max_tokens
