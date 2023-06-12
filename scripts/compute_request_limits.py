@@ -191,7 +191,8 @@ def check_limits(
             client, model_name, tokenizer_name, tokenizer_client, max_prompt_length - 1, 0, prefix, suffix
         ):
             print(
-                f"max_prompt_length ssems to be inconsistent. max_prompt_length={max_prompt_length} is ok but max_prompt_length={max_prompt_length-1} is not, with max_tokens=0"
+                f"max_prompt_length ssems to be inconsistent. max_prompt_length={max_prompt_length} "
+                f"is ok but max_prompt_length={max_prompt_length-1} is not, with max_tokens=0"
             )
             result = False
 
