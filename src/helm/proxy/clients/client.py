@@ -129,6 +129,7 @@ def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:
         "TsinghuaKEG/ice",
         "bigscience/T0pp",
         "google/t5-11b",
+        "google/flan-t5-xxl",
         "google/ul2",
         "Yandex/yalm",
         "ai21/j1",
