@@ -84,7 +84,7 @@ def create_ngram_index(
     light_scenarios: List[LightScenario],
     n_values: List[int],
     tokenizer: LightTokenizer,
-    stats_keys: Set[DataOverlapStatsKey],
+    stats_key_counts: Dict[DataOverlapStatsKey, int],
 ) -> NgramIndex:
     """Given a list of scenarios and n values, initialize ngram_index"""
     ngram_index: NgramIndex = {n: {} for n in n_values}
@@ -94,8 +94,9 @@ def create_ngram_index(
             stats_key = DataOverlapStatsKey(
                 light_scenario_key=scenario.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(N=n)
             )
-            stats_keys.add(stats_key)
-            for i in range(len(scenario.instances)):
+            num_instances = len(scenario.instances)
+            stats_key_counts[stats_key] = num_instances
+            for i in range(num_instances):
                 instance = scenario.instances[i]
                 input_tokens = tokenizer.tokenize(instance.input)
                 for input_ngram in ngrams(input_tokens, n):
@@ -337,11 +338,11 @@ if __name__ == "__main__":
     hlog(f"Loading scenario data from {args.scenario_data}")
     light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
-    stats_keys: Set[DataOverlapStatsKey] = set()
+    stats_key_counts: DefaultDict[DataOverlapStatsKey, int] = defaultdict(int)
     with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
         ngram_index: NgramIndex
         ngram_index = create_ngram_index(
-            light_scenarios=light_scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_keys=stats_keys
+            light_scenarios=light_scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_key_counts=stats_key_counts
         )
 
     # DataOverlapStatsKey -> Set[str] for ids
@@ -364,11 +365,12 @@ if __name__ == "__main__":
             )
 
     all_data_overlap_stats = []
-    for stats_key in stats_keys:
+    for stats_key, count in stats_key_counts.items():
         data_overlap_stats = DataOverlapStats(
             data_overlap_stats_key=stats_key,
             instance_ids_with_overlapping_input=sorted(stats_key_to_input_ids[stats_key]),
             instance_ids_with_overlapping_reference=sorted(stats_key_to_reference_ids[stats_key]),
+            num_instances=count,
         )
         all_data_overlap_stats.append(data_overlap_stats)
 

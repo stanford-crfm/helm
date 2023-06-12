@@ -36,6 +36,8 @@ class DataOverlapStats:
 
     data_overlap_stats_key: DataOverlapStatsKey
 
+    num_instances: int
+
     instance_ids_with_overlapping_input: List[str]
 
     instance_ids_with_overlapping_reference: List[str]

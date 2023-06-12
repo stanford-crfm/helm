@@ -23,35 +23,6 @@ from scenarios.scenario import ScenarioSpec
 
 N_VALUES = [5, 13]
 
-ALL_DATA_OVERLAP_STATS = [
-    DataOverlapStats(
-        data_overlap_stats_key=DataOverlapStatsKey(
-            light_scenario_key=LightScenarioKey(
-                scenario_spec=ScenarioSpec(
-                    class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
-                ),
-                split="test",
-            ),
-            overlap_protocol_spec=OverlapProtocolSpec(N=13),
-        ),
-        instance_ids_with_overlapping_input=["id1"],
-        instance_ids_with_overlapping_reference=["id1"],
-    ),
-    DataOverlapStats(
-        data_overlap_stats_key=DataOverlapStatsKey(
-            light_scenario_key=LightScenarioKey(
-                scenario_spec=ScenarioSpec(
-                    class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
-                ),
-                split="test",
-            ),
-            overlap_protocol_spec=OverlapProtocolSpec(N=5),
-        ),
-        instance_ids_with_overlapping_input=["id1"],
-        instance_ids_with_overlapping_reference=["id1"],
-    ),
-]
-
 
 TEST_DOCUMENT: str = (
     "The Center for Research on Foundation Models (CRFM) is "
@@ -214,11 +185,11 @@ def test_create_overlap_stats():
 
 def test_create_ngram_index():
     tokenizer = LightTokenizer()
-    stats_keys = set()
+    stats_key_counts = dict()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
     ngram_index: NgramIndex
     ngram_index = create_ngram_index(
-        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_keys=stats_keys
+        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_key_counts=stats_key_counts
     )
 
     stats_1_key, stats_2_key, stats_3_key = (
@@ -267,11 +238,11 @@ def test_create_ngram_index():
 
 def test_compute_document_data_overlap():
     tokenizer = LightTokenizer()
-    stats_keys = set()
+    stats_key_counts = dict()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
     ngram_index: NgramIndex
     ngram_index = create_ngram_index(
-        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_keys=stats_keys
+        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_key_counts=stats_key_counts
     )
 
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
