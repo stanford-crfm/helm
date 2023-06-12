@@ -11,6 +11,7 @@ from helm.common.critique_request import (
 )
 from helm.common.request import Request, RequestResult, Sequence
 from helm.proxy.clients.client import Client
+from helm.proxy.clients.critique_client import CritiqueClient
 
 
 class CritiqueParseError(Exception):
