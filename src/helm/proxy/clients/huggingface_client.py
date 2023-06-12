@@ -136,8 +136,7 @@ When --num-threads > 1, multiple threads will attempt to instantiate
 `HuggingFaceServer`s simultaneously. Since we have limited GPU memory, we want to
 just share a single copy of each model we are using. So, this function uses a lock
 to make sure that for each model, only one thread creates a HuggingFaceServer.
-The other threads can share that same server in the global _servers dictionary.
-"""
+The other threads can share that same server in the global _servers dictionary."""
 def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceServer:
     global _servers_lock
     global _servers
