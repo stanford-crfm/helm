@@ -13,7 +13,6 @@ from helm.common.tokenization_request import TokenizationRequest
 
 import os
 import math
-import random
 from tqdm import tqdm
 import argparse
 from attr import dataclass
@@ -172,14 +171,22 @@ def check_limits(
     max_prompt_length = limits.max_prompt_length
     if max_prompt_length < 0:
         print("No limit on the number of tokens")
-        if not try_request(client, model_name, tokenizer_name, tokenizer_client, 2**32 - 2, 1, prefix, suffix):
+        if not try_request(client, model_name, tokenizer_name, tokenizer_client, 2**32 - 2, 0, prefix, suffix):
             print(f"There is a limit on the number of tokens. Params: max_prompt_length={2**32 - 2}, max_tokens=1")
             result = False
-    elif not try_request(client, model_name, tokenizer_name, tokenizer_client, max_prompt_length, 1, prefix, suffix):
+    # Check that max_prompt_length is ok
+    if not try_request(client, model_name, tokenizer_name, tokenizer_client, max_prompt_length, 0, prefix, suffix):
         print(f"max_prompt_length is too big. Params: max_prompt_length={max_prompt_length}, max_tokens=1")
         result = False
-    elif try_request(client, model_name, tokenizer_name, tokenizer_client, max_prompt_length + 1, 1, prefix, suffix):
+    # Check that max_prompt_length + 1 is not ok
+    if try_request(client, model_name, tokenizer_name, tokenizer_client, max_prompt_length + 1, 0, prefix, suffix):
         print(f"max_prompt_length could be bigger. Params: max_prompt_length={max_prompt_length+1}, max_tokens=1")
+        result = False
+    # Check that max_prompt_length - 1 is ok
+    if not try_request(client, model_name, tokenizer_name, tokenizer_client, max_prompt_length - 1, 0, prefix, suffix):
+        print(
+            f"max_prompt_length ssems to be inconsistent. max_prompt_length={max_prompt_length} is ok but max_prompt_length={max_prompt_length-1} is not, with max_tokens=0"
+        )
         result = False
 
     # Check the max_prompt_length_plus_tokens
@@ -187,8 +194,6 @@ def check_limits(
     if max_prompt_length_plus_tokens is None:
         print("Setting max_prompt_length_plus_tokens max_prompt_length as it was not provided")
         max_prompt_length_plus_tokens = max_prompt_length
-    # Generate r a random number between 1 and max_prompt_length - 1
-    r = random.randint(1, max_prompt_length - 1)
     if max_prompt_length_plus_tokens < 0:
         print("No limit on the number of tokens")
         if not try_request(
@@ -199,7 +204,7 @@ def check_limits(
                 f" max_tokens={2**32 - 2}"
             )
             result = False
-    elif not try_request(
+    if not try_request(
         client,
         model_name,
         tokenizer_name,
@@ -214,7 +219,7 @@ def check_limits(
             f" max_tokens={max_prompt_length_plus_tokens-max_prompt_length}"
         )
         result = False
-    elif try_request(
+    if try_request(
         client,
         model_name,
         tokenizer_name,
@@ -227,36 +232,6 @@ def check_limits(
         print(
             f"max_prompt_length_plus_tokens could be bigger. Params: max_prompt_length={max_prompt_length},"
             f" max_tokens={max_prompt_length_plus_tokens-max_prompt_length+1}"
-        )
-        result = False
-    elif not try_request(
-        client,
-        model_name,
-        tokenizer_name,
-        tokenizer_client,
-        max_prompt_length - r,
-        max_prompt_length_plus_tokens - max_prompt_length + r,
-        prefix,
-        suffix,
-    ):
-        print(
-            f"max_prompt_length_plus_tokens is too big. Params: max_prompt_length={max_prompt_length-r},"
-            f" max_tokens={max_prompt_length_plus_tokens-max_prompt_length+r}"
-        )
-        result = False
-    elif try_request(
-        client,
-        model_name,
-        tokenizer_name,
-        tokenizer_client,
-        max_prompt_length - r,
-        max_prompt_length_plus_tokens - max_prompt_length + r + 1,
-        prefix,
-        suffix,
-    ):
-        print(
-            f"max_prompt_length_plus_tokens could be bigger. Params: max_prompt_length={max_prompt_length-r},"
-            f" max_tokens={max_prompt_length_plus_tokens-max_prompt_length+r+1}"
         )
         result = False
 
