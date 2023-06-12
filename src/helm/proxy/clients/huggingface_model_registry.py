@@ -13,7 +13,7 @@ from helm.proxy.models import (
 )
 
 # The path where local HuggingFace models should be downloaded or symlinked, e.g. ./huggingface_models/llama-7b
-LOCAL_HUGGINGFACE_MODEL_DIR = "./huggingface_models"
+LOCAL_HUGGINGFACE_MODEL_DIR = "huggingface_models"
 
 
 @dataclass(frozen=True)
