@@ -26,7 +26,7 @@ class LightInstance:
 @dataclass(frozen=True, eq=False)
 class LightScenarioKey:
     """
-    A lighter `Scenario`.
+    Key for LightScenario
     """
 
     scenario_spec: ScenarioSpec
