@@ -116,8 +116,8 @@ HuggingFaceModelConfig = Union[HuggingFaceHubModelConfig, HuggingFaceLocalModelC
 
 # Initialize registry with local models from models.py
 _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {
-    model.name: HuggingFaceLocalModelConfig(
-        model_name=model.name.split("/")[1], path=os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, model.name.split("/")[1])
+    model.name: HuggingFaceLocalModelConfig.from_path(
+        os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, model.engine)
     )
     for model in ALL_MODELS
     if LOCAL_HUGGINGFACE_MODEL_TAG in model.tags
