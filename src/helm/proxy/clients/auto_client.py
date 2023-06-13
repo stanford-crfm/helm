@@ -15,6 +15,7 @@ from helm.common.tokenization_request import (
 )
 from helm.proxy.retry import retry_request
 from .critique_client import CritiqueClient, RandomCritiqueClient
+from .model_critique_client import ModelCritiqueClient
 from .scale_critique_client import ScaleCritiqueClient
 from .surge_ai_critique_client import SurgeAICritiqueClient
 from .mechanical_turk_critique_client import MechanicalTurkCritiqueClient
@@ -265,7 +266,12 @@ class AutoClient(Client):
             if not surgeai_credentials:
                 raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
             self.critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
-
+        elif critique_type == "model":
+            model_name: Optional[str] = self.credentials.get("critiqueModelName")
+            if model_name is None:
+                raise ValueError("critiqueModelName is required for ModelCritiqueClient")
+            client: Client = self._get_client(model_name)
+            self.critique_client = ModelCritiqueClient(client, model_name)
         elif critique_type == "scale":
             scale_credentials = self.credentials.get("scaleApiKey")
             scale_project = self.credentials.get("scaleProject", None)
