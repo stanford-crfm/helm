@@ -164,13 +164,13 @@ def test_create_ngram_index():
 
     stats_1_key, stats_2_key, stats_3_key = (
         DataOverlapStatsKey(
-            light_scenario_key=TEST_SCENARIO_1.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(N=5)
+            light_scenario_key=TEST_SCENARIO_1.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(n=5)
         ),
         DataOverlapStatsKey(
-            light_scenario_key=TEST_SCENARIO_2.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(N=5)
+            light_scenario_key=TEST_SCENARIO_2.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(n=5)
         ),
         DataOverlapStatsKey(
-            light_scenario_key=TEST_SCENARIO_2.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(N=13)
+            light_scenario_key=TEST_SCENARIO_2.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(n=13)
         ),
     )
 
@@ -235,7 +235,7 @@ def test_compute_document_data_overlap():
                     ),
                     split="test",
                 ),
-                overlap_protocol_spec=OverlapProtocolSpec(N=5),
+                overlap_protocol_spec=OverlapProtocolSpec(n=5),
             ): {"id1"},
             DataOverlapStatsKey(
                 light_scenario_key=LightScenarioKey(
@@ -244,7 +244,7 @@ def test_compute_document_data_overlap():
                     ),
                     split="test",
                 ),
-                overlap_protocol_spec=OverlapProtocolSpec(N=5),
+                overlap_protocol_spec=OverlapProtocolSpec(n=5),
             ): {"id1"},
             DataOverlapStatsKey(
                 light_scenario_key=LightScenarioKey(
@@ -253,7 +253,7 @@ def test_compute_document_data_overlap():
                     ),
                     split="test",
                 ),
-                overlap_protocol_spec=OverlapProtocolSpec(N=13),
+                overlap_protocol_spec=OverlapProtocolSpec(n=13),
             ): {"id1"},
         },
     )
@@ -268,7 +268,7 @@ def test_compute_document_data_overlap():
                     ),
                     split="test",
                 ),
-                overlap_protocol_spec=OverlapProtocolSpec(N=5),
+                overlap_protocol_spec=OverlapProtocolSpec(n=5),
             ): {"id1"},
             DataOverlapStatsKey(
                 light_scenario_key=LightScenarioKey(
@@ -277,7 +277,7 @@ def test_compute_document_data_overlap():
                     ),
                     split="test",
                 ),
-                overlap_protocol_spec=OverlapProtocolSpec(N=13),
+                overlap_protocol_spec=OverlapProtocolSpec(n=13),
             ): {"id1"},
         },
     )

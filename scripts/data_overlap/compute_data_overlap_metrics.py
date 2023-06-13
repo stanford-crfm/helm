@@ -88,7 +88,7 @@ def create_ngram_index(
         hlog(f"Building ngram indexes for {scenario.scenario_key}")
         for n in n_values:
             stats_key = DataOverlapStatsKey(
-                light_scenario_key=scenario.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(N=n)
+                light_scenario_key=scenario.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(n=n)
             )
             num_instances = len(scenario.instances)
             stats_key_counts[stats_key] = num_instances
