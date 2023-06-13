@@ -102,7 +102,10 @@ class ModelCritiqueClient(CritiqueClient):
         assert question.question_type == "multiple_choice"
         try:
             answers: List[str] = self._parse_completion_to_question_choice(completion.text)
-            assert len(answers) == 1, f"Invalid answer: {completion}. Multiple choice questions should have one answer."
+            if len(answers) != 1:
+                raise CritiqueParseError(
+                    f"Invalid answer: {completion}. Multiple choice questions should have one answer."
+                )
             return answers[0]
         except CritiqueParseError as e:
             # If there was an error parsing the answer, we assume the user did not answer the question.
@@ -116,9 +119,10 @@ class ModelCritiqueClient(CritiqueClient):
         assert question.question_type == "checkbox"
         try:
             answers: List[str] = self._parse_completion_to_question_choice(completion.text)
-            assert len(answers) <= len(
-                question.options
-            ), f"Invalid answer: {completion}. Checkbox questions should have at most one answer per option."
+            if len(answers) > len(question.options):
+                raise CritiqueParseError(
+                    f"Invalid answer: {completion}. Checkbox questions should have at most one answer per option."
+                )
             return answers
         except CritiqueParseError as e:
             # If there was an error parsing the answer, we assume the user did not answer the question.
