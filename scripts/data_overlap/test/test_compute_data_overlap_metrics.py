@@ -2,23 +2,15 @@ from typing import List, DefaultDict, Set
 
 from collections import defaultdict
 from compute_data_overlap_metrics import (
-    create_all_data_overlap_stats,
     compute_document_data_overlap,
     create_ngram_index,
     EntryDataOverlapKey,
     Ngram,
     NgramIndex,
-    AllDataOverlapStats,
 )
 from data_overlap_spec import DataOverlapStatsKey, OverlapProtocolSpec
 from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
-from data_overlap_stats import (
-    OldDataOverlapStatsKey,
-    OldDataOverlapStats,
-    PART_INPUT,
-    PART_REF,
-)
 from scenarios.scenario import ScenarioSpec
 
 N_VALUES = [5, 13]
@@ -157,30 +149,6 @@ def test_light_tokenizer():
         "est",
         "case",
     ]
-
-
-def test_create_overlap_stats():
-    scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_overlap_stats: AllDataOverlapStats
-    all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
-
-    stats_1_key, stats_2_key, stats_3_key = (
-        OldDataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.scenario_key, "N": 5}),
-        OldDataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 5}),
-        OldDataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.scenario_key, "N": 13}),
-    )
-
-    assert stats_1_key in all_overlap_stats and stats_2_key in all_overlap_stats and stats_3_key in all_overlap_stats
-
-    stats_1: OldDataOverlapStats
-    stats_2: OldDataOverlapStats
-    stats_3: OldDataOverlapStats
-    stats_1, stats_2, stats_3 = (
-        all_overlap_stats[stats_1_key],
-        all_overlap_stats[stats_2_key],
-        all_overlap_stats[stats_3_key],
-    )
-    assert stats_1.num_instances == 2 and stats_2.num_instances == 1 and stats_3.num_instances == 1
 
 
 def test_create_ngram_index():
