@@ -7,6 +7,8 @@ from compute_data_overlap_metrics import (
     EntryDataOverlapKey,
     Ngram,
     NgramIndex,
+    PART_INPUT,
+    PART_REF,
 )
 from data_overlap_spec import DataOverlapStatsKey, OverlapProtocolSpec
 from light_scenario import LightScenario, LightInstance, LightScenarioKey

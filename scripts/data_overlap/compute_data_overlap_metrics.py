@@ -3,7 +3,7 @@ import argparse
 import os
 import glob
 
-from typing import List, Tuple, Set, Any, Optional, DefaultDict
+from typing import List, Tuple, Set, DefaultDict
 from nltk import ngrams
 from typing import Dict
 from tqdm import tqdm
@@ -15,7 +15,7 @@ from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProt
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from load_documents import get_document_iterator
 from common.hierarchical_logger import hlog, htrack_block
-from common.general import asdict_without_nones, write
+from common.general import asdict_without_nones
 from scenarios.scenario import ScenarioSpec
 
 
