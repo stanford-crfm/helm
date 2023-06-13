@@ -28,7 +28,6 @@ extra_css:
   - docstrings.css
 markdown_extensions:
   - pymdownx.magiclink
-  - pymdownx.extra
 watch:
   - src
 nav:
