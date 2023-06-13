@@ -57,7 +57,7 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
 
     def create_light_instance_from_dict(instance_dict: dict) -> LightInstance:
         return LightInstance(
-            input=instance_dict[PART_INPUT], references=instance_dict["references"], id=instance_dict["id"]
+            input=instance_dict[PART_INPUT], references=instance_dict[PART_REF], id=instance_dict["id"]
         )
 
     light_scenarios: List[LightScenario] = []
@@ -124,9 +124,7 @@ def compute_all_data_overlap(
     stats_key_to_input_ids: Dict[DataOverlapStatsKey, Set[str]],
     stats_key_to_reference_ids: Dict[DataOverlapStatsKey, Set[str]],
 ):
-    """
-    Iterate through documents to compute overlaps
-    """
+    """Iterate through documents to compute overlaps"""
     document_iterator = get_document_iterator(file_path=training_file_path, file_format=file_format)
     for document in document_iterator:
         compute_document_data_overlap(
