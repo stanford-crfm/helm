@@ -10,6 +10,7 @@ class OverlapProtocolSpec:
     # the N of the n_grams we're running
     n: int
 
+
 @dataclass(frozen=True)
 class DataOverlapStatsKey:
     """Dataclass that represents output data overlap stats"""
