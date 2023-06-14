@@ -651,6 +651,7 @@ metric_groups:
     metrics:
       - name: image_text_alignment_human
         split: __all__
+        perturbation_name: __all__
 
   - name: vhelm_alignment_clip_metrics
     display_name: Image-text Alignment - CLIP Score
@@ -665,8 +666,10 @@ metric_groups:
     metrics:
       - name: photorealism_real_human
         split: __all__
+        perturbation_name: __all__
       - name: photorealism_generated_human
         split: __all__
+        perturbation_name: __all__
 
   - name: vhelm_quality_fid_metrics
     display_name: Quality - FID
@@ -699,8 +702,10 @@ metric_groups:
     metrics:
       - name: clear_subject_human
         split: __all__
+        perturbation_name: __all__
       - name: aesthetics_human
         split: __all__
+        perturbation_name: __all__
 
   - name: vhelm_aesthetics_automated_metrics
     display_name: Aesthetics - Automated Metrics
@@ -717,13 +722,13 @@ metric_groups:
     metrics:
       - name: originality_human
         split: __all__
+        perturbation_name: __all__
 
   - name: vhelm_originality_watermark_metrics
     display_name: Originality - Watermark
     metrics:
       - name: watermark_frac
         split: ${main_split}
-
 
   - name: vhelm_reasoning_metrics
     display_name: Reasoning
@@ -757,32 +762,6 @@ metric_groups:
       - name: nudity_frac
         split: ${main_split}
 
-  - name: vhelm_fairness_metrics
-    display_name: Fairness
-    metrics:
-      - name: expected_clip_score
-        split: __all__
-        perturbation_name: fairness
-      - name: image_text_alignment_human
-        split: __all__
-        perturbation_name: fairness
-
-  - name: vhelm_robustness_metrics
-    display_name: Robustness
-    metrics:
-      # TOOD: ugh
-      - name: expected_clip_score
-        split: __all__
-        perturbation_name: robustness
-
-  - name: vhelm_multilinguality_metrics
-    display_name: Multilinguality
-    metrics:
-      - name: expected_clip_score_multilingual
-        split: ${main_split}
-      - name: max_clip_score_multilingual
-        split: ${main_split}
-
   - name: vhelm_efficiency_metrics
     display_name: Efficiency
     metrics:
@@ -795,8 +774,10 @@ metric_groups:
     metrics:
       - name: photorealism_generated_human
         split: __all__
+        perturbation_name: __all__
       - name: photorealism_real_human
         split: __all__
+        perturbation_name: __all__
 
 
 ############################################################
@@ -921,19 +902,13 @@ run_groups:
     subgroups:
       - i2p
 
-  - name: vhelm_fairness_gender_scenarios
-    display_name: Fairness - gender
-    description: Does the model exhibit performance disparities across social groups. The gender perturbation maps male gender terms to female gender terms (e.g., son to daughter and father to mother).
-    category: Scenarios for specific aspects
-    subgroups:
-      - mscoco_gender
-
-  - name: vhelm_fairness_dialect_scenarios
-    display_name: Fairness - dialect (AAVE)
-    description: Does the model exhibit performance disparities across social groups. The African American Vernacular English (AAVE) dialect perturbation converts each word to the corresponding word in AAVE if one exists.
+  - name: vhelm_fairness_scenarios
+    display_name: Fairness
+    description: Does the model exhibit performance disparities across social groups. The African American Vernacular English (AAVE) dialect perturbation converts each word to the corresponding word in AAVE if one exists. The gender perturbation maps male gender terms to female gender terms (e.g., son to daughter and father to mother).
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_dialect
+      - mscoco_gender
 
   - name: vhelm_robustness_scenarios
     display_name: Robustness
@@ -943,24 +918,12 @@ run_groups:
       - mscoco_robustness
 
   - name: vhelm_multilinguality_chinese_scenarios
-    display_name: Multilinguality (Chinese)
+    display_name: Multilinguality
     description: Does the model support non-English languages.
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_chinese
-
-  - name: vhelm_multilinguality_hindi_scenarios
-    display_name: Multilinguality (Hindi)
-    description: Does the model support non-English languages.
-    category: Scenarios for specific aspects
-    subgroups:
       - mscoco_hindi
-
-  - name: vhelm_multilinguality_spanish_scenarios
-    display_name: Multilinguality (Spanish)
-    description: Does the model support non-English languages.
-    category: Scenarios for specific aspects
-    subgroups:
       - mscoco_spanish
 
   - name: vhelm_efficiency_scenarios
@@ -994,37 +957,11 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
-      - vhelm_multilinguality_metrics
       - general_information
     environment:
       main_split: valid
     taxonomy:
       task: Image quality
-  # TODO: Merge mscoco_fid with mscoco
-  - name: mscoco_fid
-    display_name: MS-COCO Fidelity
-    description: Fidelity for MS-COCO
-    metric_groups:
-      - vhelm_quality_fid_metrics
-      - vhelm_quality_inception_metrics
-      - general_information
-    environment:
-      main_split: valid
-    taxonomy:
-      task: Image quality
-  # TODO: Merge mscoco_efficiency with mscoco
-  - name: mscoco_efficiency
-    display_name: MS-COCO Efficiency
-    description: Efficiency for MS-COCO
-    metric_groups:
-      - vhelm_efficiency_metrics
-      - general_information
-    environment:
-      main_split: valid
-    taxonomy:
-      task: Efficiency
   - name: mscoco_base
     display_name: MS-COCO (base)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
@@ -1039,31 +976,39 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
-      - vhelm_multilinguality_metrics
       - general_information
     environment:
       main_split: valid
     taxonomy:
       task: Image quality
+  - name: mscoco_fid
+    display_name: MS-COCO Fidelity
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) for fidelity.
+    metric_groups:
+      - vhelm_quality_fid_metrics
+      - vhelm_quality_inception_metrics
+      - general_information
+    environment:
+      main_split: valid
+    taxonomy:
+      task: Image quality
+  - name: mscoco_efficiency
+    display_name: MS-COCO Efficiency
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) for efficiency.
+    metric_groups:
+      - vhelm_efficiency_metrics
+      - general_information
+    environment:
+      main_split: valid
+    taxonomy:
+      task: Efficiency
   - name: mscoco_gender
     display_name: MS-COCO (fairness - gender)
-    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with the gender perturbation maps male gender terms to female gender terms (e.g., son to daughter and father to mother).
     metric_groups:
       - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
       - vhelm_quality_human_metrics
-      - vhelm_quality_automated_metrics
       - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
-      - vhelm_multilinguality_metrics
       - general_information
     environment:
       main_split: valid
@@ -1071,21 +1016,11 @@ run_groups:
       task: Image quality
   - name: mscoco_dialect
     display_name: MS-COCO (fairness - AAVE dialect)
-    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with the African American Vernacular English (AAVE) dialect perturbation, which converts each word to the corresponding word in AAVE if one exists.
     metric_groups:
       - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
       - vhelm_quality_human_metrics
-      - vhelm_quality_automated_metrics
       - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
-      - vhelm_multilinguality_metrics
       - general_information
     environment:
       main_split: valid
@@ -1093,21 +1028,11 @@ run_groups:
       task: Image quality
   - name: mscoco_robustness
     display_name: MS-COCO (robustness)
-    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with input perturbations.
     metric_groups:
       - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
       - vhelm_quality_human_metrics
-      - vhelm_quality_automated_metrics
       - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
-      - vhelm_multilinguality_metrics
       - general_information
     environment:
       main_split: valid
@@ -1115,21 +1040,11 @@ run_groups:
       task: Image quality
   - name: mscoco_chinese
     display_name: MS-COCO (Chinese)
-    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with prompts translated to Chinese.
     metric_groups:
       - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
       - vhelm_quality_human_metrics
-      - vhelm_quality_automated_metrics
       - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
-      - vhelm_multilinguality_metrics
       - general_information
     environment:
       main_split: valid
@@ -1137,21 +1052,11 @@ run_groups:
       task: Image quality
   - name: mscoco_hindi
     display_name: MS-COCO (Hindi)
-    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with prompts translated to Hindi.
     metric_groups:
       - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
       - vhelm_quality_human_metrics
-      - vhelm_quality_automated_metrics
       - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
-      - vhelm_multilinguality_metrics
       - general_information
     environment:
       main_split: valid
@@ -1159,21 +1064,11 @@ run_groups:
       task: Image quality
   - name: mscoco_spanish
     display_name: MS-COCO (Spanish)
-    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with prompts translated to Spanish.
     metric_groups:
       - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
       - vhelm_quality_human_metrics
-      - vhelm_quality_automated_metrics
       - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
-      - vhelm_multilinguality_metrics
       - general_information
     environment:
       main_split: valid
@@ -1181,21 +1076,11 @@ run_groups:
       task: Image quality
   - name: mscoco_art_styles
     display_name: MS-COCO (Art styles)
-    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with prompts that generate images in specific art styles.
     metric_groups:
       - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
       - vhelm_quality_human_metrics
-      - vhelm_quality_automated_metrics
       - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
-      - vhelm_multilinguality_metrics
       - general_information
     environment:
       main_split: valid
@@ -1229,7 +1114,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1246,7 +1130,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1265,7 +1148,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1284,7 +1166,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1303,7 +1184,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1322,7 +1202,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1339,7 +1218,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1356,7 +1234,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1373,8 +1250,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1391,8 +1266,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1410,8 +1283,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1429,8 +1300,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1447,8 +1316,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1465,7 +1332,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1482,7 +1348,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1499,8 +1364,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1517,8 +1380,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_fairness_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test
@@ -1534,7 +1395,6 @@ run_groups:
       - vhelm_toxicity_metrics
       - vhelm_toxicity_black_metrics
       - vhelm_toxicity_nudity_metrics
-      - vhelm_robustness_metrics
       - general_information
     environment:
       main_split: test

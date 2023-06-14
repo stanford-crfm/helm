@@ -98,20 +98,22 @@ class MetricNameMatcher:
             return False
 
         # Temporary workaround: when split is "__all__", it matches all splits
-        if self.split != metric_name.split and self.split != "__all__":
-            return False
+        if self.split != "__all__":
+            if self.split != metric_name.split:
+                return False
 
-        # Optional
-        if self.sub_split is not None and self.sub_split != metric_name.sub_split:
-            return False
+            # Optional
+            if self.sub_split is not None and self.sub_split != metric_name.sub_split:
+                return False
 
-        metric_perturbation_name = metric_name.perturbation and metric_name.perturbation.name
-        if self.perturbation_name != metric_perturbation_name:
-            return False
+        if self.perturbation_name != "__all__":
+            metric_perturbation_name = metric_name.perturbation and metric_name.perturbation.name
+            if self.perturbation_name != metric_perturbation_name:
+                return False
 
-        # If there is a perturbation, only return the worst
-        if metric_name.perturbation and metric_name.perturbation.computed_on != PERTURBATION_WORST:
-            return False
+            # If there is a perturbation, only return the worst
+            if metric_name.perturbation and metric_name.perturbation.computed_on != PERTURBATION_WORST:
+                return False
 
         return True
 
