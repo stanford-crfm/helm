@@ -115,7 +115,7 @@ def queue_jobs(
         conf_path = os.path.join(confs_path, f"{description}.conf")
         with open(conf_path, "w") as f:
             if entry.groups is not None:
-                f.write(f'entries: [{{description: "{description}", priority: {priority}, groups: {entry.groups}}}]')
+                f.write(f'entries: [{{description: "{description}", priority: {priority}, groups: ["{entry.groups[0]}"]}}]')
             else:
                 f.write(f'entries: [{{description: "{description}", priority: {priority}}}]')
         confs.append((description, conf_path))
