@@ -903,14 +903,14 @@ run_groups:
       - i2p
 
   - name: vhelm_fairness_dialect_scenarios
-    display_name: Fairness (Dialect - AAVE)
+    display_name: Fairness - African American Vernacular English (AAVE)
     description: Does the model exhibit performance disparities across social groups. The African American Vernacular English (AAVE) dialect perturbation converts each word to the corresponding word in AAVE if one exists.
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_dialect
 
   - name: vhelm_fairness_gender_scenarios
-    display_name: Fairness (Gender)
+    display_name: Fairness - Gender
     description: Does the model exhibit performance disparities across social groups. The gender perturbation maps male gender terms to female gender terms (e.g., son to daughter and father to mother).
     category: Scenarios for specific aspects
     subgroups:
@@ -924,7 +924,7 @@ run_groups:
       - mscoco_robustness
 
   - name: vhelm_multilinguality_chinese_scenarios
-    display_name: Multilinguality
+    display_name: Multilinguality (Chinese)
     description: Does the model support non-English languages.
     category: Scenarios for specific aspects
     subgroups:
