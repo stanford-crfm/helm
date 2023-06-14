@@ -104,7 +104,11 @@ if __name__ == "__main__":
     except OSError:
         pass
 
-    scenario_specs: Set = set([run_spec.scenario_spec for run_spec in run_specs])
+    scenario_specs: Set = set()
+    for run_spec in run_specs:
+        scenario_spec = run_spec.scenario_spec
+        if scenario_spec.class_name != "helm.benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario":
+            scenario_specs.add(scenario_spec)
 
     hlog("Generating light scenarios from scenarios")
     for scenario_spec in scenario_specs:
