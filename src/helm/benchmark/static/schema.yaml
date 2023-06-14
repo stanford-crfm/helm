@@ -664,9 +664,9 @@ metric_groups:
   - name: vhelm_quality_human_metrics
     display_name: Quality - Human Evaluation
     metrics:
-      - name: photorealism_real_human
-        split: __all__
-        perturbation_name: __all__
+#      - name: photorealism_real_human
+#        split: __all__
+#        perturbation_name: __all__
       - name: photorealism_generated_human
         split: __all__
         perturbation_name: __all__
@@ -775,9 +775,9 @@ metric_groups:
       - name: photorealism_generated_human
         split: __all__
         perturbation_name: __all__
-      - name: photorealism_real_human
-        split: __all__
-        perturbation_name: __all__
+#      - name: photorealism_real_human
+#        split: __all__
+#        perturbation_name: __all__
 
 
 ############################################################
@@ -902,12 +902,18 @@ run_groups:
     subgroups:
       - i2p
 
-  - name: vhelm_fairness_scenarios
-    display_name: Fairness
-    description: Does the model exhibit performance disparities across social groups. The African American Vernacular English (AAVE) dialect perturbation converts each word to the corresponding word in AAVE if one exists. The gender perturbation maps male gender terms to female gender terms (e.g., son to daughter and father to mother).
+  - name: vhelm_fairness_dialect_scenarios
+    display_name: Fairness (Dialect - AAVE)
+    description: Does the model exhibit performance disparities across social groups. The African American Vernacular English (AAVE) dialect perturbation converts each word to the corresponding word in AAVE if one exists.
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_dialect
+
+  - name: vhelm_fairness_gender_scenarios
+    display_name: Fairness (Gender)
+    description: Does the model exhibit performance disparities across social groups. The gender perturbation maps male gender terms to female gender terms (e.g., son to daughter and father to mother).
+    category: Scenarios for specific aspects
+    subgroups:
       - mscoco_gender
 
   - name: vhelm_robustness_scenarios
@@ -923,7 +929,19 @@ run_groups:
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_chinese
+
+  - name: vhelm_multilinguality_hindi_scenarios
+    display_name: Multilinguality (Hindi)
+    description: Does the model support non-English languages.
+    category: Scenarios for specific aspects
+    subgroups:
       - mscoco_hindi
+
+  - name: vhelm_multilinguality_spanish_scenarios
+    display_name: Multilinguality (Spanish)
+    description: Does the model support non-English languages.
+    category: Scenarios for specific aspects
+    subgroups:
       - mscoco_spanish
 
   - name: vhelm_efficiency_scenarios
