@@ -108,8 +108,5 @@ if __name__ == "__main__":
 
     hlog("Generating light scenarios from scenarios")
     for scenario_spec in scenario_specs:
-        try:
-            light_scenarios: List[LightScenario] = get_light_scenarios_from_scenario_spec(scenario_spec)
-            save_scenarios_to_jsonl(light_scenarios, args.output_data)
-        except Exception as e:
-            hlog(f"Error when writing scenario: {str(e)}")
+        light_scenarios: List[LightScenario] = get_light_scenarios_from_scenario_spec(scenario_spec)
+        save_scenarios_to_jsonl(light_scenarios, args.output_data)
