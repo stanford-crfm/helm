@@ -114,7 +114,10 @@ def queue_jobs(
         description: str = entry.description
         conf_path = os.path.join(confs_path, f"{description}.conf")
         with open(conf_path, "w") as f:
-            f.write(f'entries: [{{description: "{description}", priority: {priority}}}]')
+            if entry.groups is not None:
+                f.write(f'entries: [{{description: "{description}", priority: {priority}, groups: {entry.groups}}}]')
+            else:
+                f.write(f'entries: [{{description: "{description}", priority: {priority}}}]')
         confs.append((description, conf_path))
 
     # Run all models on all RunSpecs if `models_to_run` is empty
