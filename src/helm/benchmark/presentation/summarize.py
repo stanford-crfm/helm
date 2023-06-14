@@ -605,7 +605,7 @@ class Summarizer:
                     header_field.display_name + ": " + header_field.description
                 )
 
-                if matcher.perturbation_name is not None and matcher.perturbation_name is not "__all__":
+                if matcher.perturbation_name is not None and matcher.perturbation_name != "__all__":
                     perturbation_field = self.schema.name_to_perturbation[matcher.perturbation_name]
                     header_name += " (" + perturbation_field.get_short_display_name() + ")"
                     description += (
