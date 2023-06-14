@@ -64,7 +64,7 @@ try:
                     "field_id": question["criterion_name"],
                     "title": question["criterion_name"],
                     "description": question["description"],
-                    "choices": question["choices"],
+                    "choices": [{"label": choice, "value": choice} for choice in question["choices"]],
                 }
                 for question in instance["multiple_choice_questions"]
             ]
