@@ -45,6 +45,7 @@ class AdobeVisionClient(Client):
             raise ValueError(f"Unsupported model: {request.model_engine}")
 
         raw_request = AdobeVisionClient.convert_to_raw_request(request)
+        raw_request.pop("random", None)
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
         try:
