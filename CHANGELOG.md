@@ -7,6 +7,7 @@
 - Added BigCode (#1506)
 - Added GPT-4 (#1457)
 - Added OPT 1.3B and 6.7B (#1468)
+- Added  OpenAI gpt-3.5-turbo-0613 (#1468)
 
 ### Scenarios
 

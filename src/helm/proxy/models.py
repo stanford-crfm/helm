@@ -547,6 +547,22 @@ ALL_MODELS = [
     ),
     Model(
         group="gpt3",
+        name="openai/gpt-3.5-turbo-0613",
+        # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
+        # sequence length is smaller at 4087 with one user input message and one assistant
+        # output message because ChatGPT uses special tokens for message roles and boundaries.
+        # We use a rounded-down sequence length of 4000 to account for these special tokens.
+        tags=[
+            TEXT_MODEL_TAG,
+            WIDER_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="gpt3",
         name="openai/chat-gpt",
         # TODO: The max context length is unknown. Assume it's the same length as Davinci Instruct for now.
         tags=[
