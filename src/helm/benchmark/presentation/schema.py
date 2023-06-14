@@ -98,10 +98,6 @@ class MetricNameMatcher:
             return False
 
         # Temporary workaround: when split is "__all__", it matches all splits
-        if self.name == "image_text_alignment_human" and metric_name.name == "image_text_alignment_human":
-            print("[debug:yifanmai] In image_text_alignment_human")
-            print(f"[debug:yifanmai] self: {self}")
-            print(f"[debug:yifanmai] metric_name: {metric_name}")
         if self.split != "__all__":
             if self.split != metric_name.split:
                 return False
