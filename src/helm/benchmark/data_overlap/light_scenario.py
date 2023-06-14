@@ -7,7 +7,7 @@ except Exception:
     from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass(frozen=True)
 class LightInstance:
     """
     A lighter `Instance` with only text fields.
@@ -23,10 +23,10 @@ class LightInstance:
     id: Optional[str] = None
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass(frozen=True)
 class LightScenarioKey:
     """
-    A lighter `Scenario`.
+    Key for LightScenario
     """
 
     scenario_spec: ScenarioSpec
@@ -44,7 +44,7 @@ class LightScenarioKey:
         return hash((self.scenario_spec, self.split))
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass(frozen=True)
 class LightScenario:
     """
     A lighter `Scenario`.
