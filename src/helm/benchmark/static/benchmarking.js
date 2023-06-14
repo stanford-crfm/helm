@@ -866,7 +866,7 @@ $(function () {
     // 2) Scenario-level groups (e.g., mmlu)
     const topGroups = schema.run_groups.filter((group) => {
       // Must have subgroups
-      return group.subgroups && ['Core scenarios', 'Targeted evaluations'].includes(group.category);
+      return group.subgroups && ['Scenarios for specific aspects'].includes(group.category);
     });
 
     const scenarioGroupNames = {};
@@ -963,9 +963,9 @@ $(function () {
     return $result;
   }
 
-  function helmLogo() {
-    return $('<a>', {href: rootUrl()}).append($('<img>', {src: 'images/helm-logo.png', width: '500px', class: 'mx-auto d-block'}));
-  };
+  // function helmLogo() {
+  //   return $('<a>', {href: rootUrl()}).append($('<img>', {src: 'images/helm-logo.png', width: '500px', class: 'mx-auto d-block'}));
+  // };
 
   function button(text, href) {
     return $('<a>', {href, class: 'main-link btn btn-lg m-5 px-5'}).append(text);
@@ -973,55 +973,59 @@ $(function () {
 
   function renderMainPage() {
     const $result = $('<div>', {class: 'row'});
+    $result.append($('<h1 class="mx-auto d-block">Holistic Evaluation of Text-To-Image Models (HEIM)</h1>'));
 
-    $result.append($('<div>', {class: 'col-sm-12'}).append(helmLogo()));
+    // $result.append($('<div>', {class: 'col-sm-12'}).append(helmLogo()));
 
-    const $blog = button('Blog post', 'https://crfm.stanford.edu/2022/11/17/helm.html');
     const $paper = button('Paper', 'https://arxiv.org/pdf/2211.09110.pdf');
-    const $code = button('GitHub', 'https://github.com/stanford-crfm/helm');
-    $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$blog, $paper, $code])));
+    const $code = button('GitHub', 'https://github.com/stanford-crfm/helm/tree/heim');
+    $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$paper, $code])));
 
     const $description = $('<div>', {class: 'col-sm-8'}).append([
-      'A language model takes in text and produces text:',
-      $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/language-model-helm.png', width: '600px', style: 'width: 600px; margin-left: 130px'})),
-      'Despite their simplicity, language models are increasingly functioning as the foundation for almost all language technologies from question answering to summarization.',
-      ' ',
-      'But their immense capabilities and risks are not well understood.',
-      ' ',
-      'Holistic Evaluation of Language Models (HELM) is a living benchmark that aims to improve the transparency of language models.'
+      '<p>Significant progress has recently been made in developing text-to-image generation models. As these models are widely used in real-world applications, there is an urgent need to comprehensively understand their capabilities and risks. However, existing evaluations primarily focus on image-text alignment and quality. To address this limitation, we introduce a new benchmark, <strong>Holistic Evaluation of Text-To-Image Models (HEIM).</strong></p>',
+      '<p>We identify <strong>12 different aspects</strong> that are important in real-world model deployment, including image-text alignment, image quality, aesthetics, originality, reasoning, knowledge, bias, toxicity, fairness, robustness, multilinguality, and efficiency. By curating scenarios encompassing these aspects, we evaluate numModels state-of-the-art text-to-image models using this benchmark. Unlike previous evaluations that focused on alignment and quality, \methodname significantly improves coverage by evaluating all models across all numAspects aspects. Our results reveal that no single model excels in all aspects, with different models demonstrating strengths in different aspects.</p>',
+      '<p>This website contains a release of all generated images and human evaluation results for full transparency.</p>',
     ]);
 
-    function organization(src, href, height) {
-      return $('<div>', {class: 'logo-item'}).append($('<a>', {href}).append($('<img>', {src, height})));
-    }
-    const defaultSize = 36;
-    const largerSize = 50;
-    const $organizations = $('<div>', {class: 'logo-container'}).append([
-      organization('images/organizations/ai21.png', 'https://www.ai21.com/', defaultSize),
-      organization('images/organizations/anthropic.png', 'https://www.anthropic.com/', defaultSize),
-      organization('images/organizations/bigscience.png', 'https://bigscience.huggingface.co/', largerSize),
-      organization('images/organizations/cohere.png', 'https://cohere.ai/', defaultSize),
-      organization('images/organizations/eleutherai.png', 'https://www.eleuther.ai/', largerSize),
-      organization('images/organizations/google.png', 'https://ai.google/', defaultSize),
-      organization('images/organizations/meta.png', 'https://ai.facebook.com/', largerSize),
-      organization('images/organizations/microsoft.png', 'https://turing.microsoft.com/', defaultSize),
-      organization('images/organizations/nvidia.png', 'https://www.nvidia.com/en-us/research/machine-learning-artificial-intelligence/', largerSize),
-      organization('images/organizations/openai.png', 'https://openai.com/', defaultSize),
-      organization('images/organizations/tsinghua-keg.png', 'https://keg.cs.tsinghua.edu.cn/', largerSize),
-      organization('images/organizations/yandex.png', 'https://yandex.com/', defaultSize),
-      organization('images/organizations/together.png', 'https://together.xyz/', defaultSize),
-    ]);
-    $result.append($organizations);
+    // function organization(src, href, height) {
+    //   return $('<div>', {class: 'logo-item'}).append($('<a>', {href}).append($('<img>', {src, height})));
+    // }
+    // const defaultSize = 36;
+    // const largerSize = 50;
+    // const $organizations = $('<div>', {class: 'logo-container'}).append([
+    //   organization('images/organizations/ai21.png', 'https://www.ai21.com/', defaultSize),
+    //   organization('images/organizations/anthropic.png', 'https://www.anthropic.com/', defaultSize),
+    //   organization('images/organizations/bigscience.png', 'https://bigscience.huggingface.co/', largerSize),
+    //   organization('images/organizations/cohere.png', 'https://cohere.ai/', defaultSize),
+    //   organization('images/organizations/eleutherai.png', 'https://www.eleuther.ai/', largerSize),
+    //   organization('images/organizations/google.png', 'https://ai.google/', defaultSize),
+    //   organization('images/organizations/meta.png', 'https://ai.facebook.com/', largerSize),
+    //   organization('images/organizations/microsoft.png', 'https://turing.microsoft.com/', defaultSize),
+    //   organization('images/organizations/nvidia.png', 'https://www.nvidia.com/en-us/research/machine-learning-artificial-intelligence/', largerSize),
+    //   organization('images/organizations/openai.png', 'https://openai.com/', defaultSize),
+    //   organization('images/organizations/tsinghua-keg.png', 'https://keg.cs.tsinghua.edu.cn/', largerSize),
+    //   organization('images/organizations/yandex.png', 'https://yandex.com/', defaultSize),
+    //   organization('images/organizations/together.png', 'https://together.xyz/', defaultSize),
+    // ]);
+    // $result.append($organizations);
 
-    $description.append($('<ol>').append([
-      $('<li>').append('<b>Broad coverage and recognition of incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to evaluate, select scenarios and metrics to cover the space and make explicit what is missing.')
-               .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/taxonomy-scenarios.png', width: '300px'}))),
-      $('<li>').append('<b>Multi-metric measurement</b>. Rather than focus on isolated metrics such as accuracy, we simultaneously measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
-               .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/scenarios-by-metrics.png', width: '300px'}))),
-      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we have access to on the same scenarios with the same adaptation strategy (e.g., prompting), allowing for controlled comparisons. Thanks to all the companies for providing API access to the limited-access and closed models and <a href="https://together.xyz">Together</a> for providing the infrastructure to run the open models.')
-               .append($organizations),
-      $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website. We invite you to click below to explore!'),
-    ]));
+    // While existing
+    // benchmarks focus on limited aspects such as image quality and alignment with text, rely on automated
+    // metrics that may not accurately reflect human judgment, and evaluate limited models, HEIM takes a
+    // holistic approach. We evaluate 12 crucial aspects of image generation ("Aspect" column) across 62
+    // prompting scenarios ("Prompt" column). Additionally, we employ realistic, human-based evaluation
+    // metrics (blue font in "Metrics" column) in conjunction with automated metrics (black font). Further-
+    // more, we conduct standardized evaluation across a diverse set of 22 models.
+
+    // $description.append($('<ol>').append([
+    //   $('<li>').append('<b>Broad coverage and recognition of incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to evaluate, select scenarios and metrics to cover the space and make explicit what is missing.')
+    //            .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/taxonomy-scenarios.png', width: '300px'}))),
+    //   $('<li>').append('<b>Multi-metric measurement</b>. Rather than focus on isolated metrics such as accuracy, we simultaneously measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
+    //            .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/scenarios-by-metrics.png', width: '300px'}))),
+    //   $('<li>').append('<b>Standardization</b>. We evaluate all the models that we have access to on the same scenarios with the same adaptation strategy (e.g., prompting), allowing for controlled comparisons. Thanks to all the companies for providing API access to the limited-access and closed models and <a href="https://together.xyz">Together</a> for providing the infrastructure to run the open models.')
+    //            .append($organizations),
+    //   $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website. We invite you to click below to explore!'),
+    // ]));
 
     $result.append([
       $('<div>', {class: 'col-sm-2'}),
