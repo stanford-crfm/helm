@@ -57,13 +57,15 @@ def _render_template_crowd_html(task_template: CritiqueTaskTemplate) -> str:
     )
 
     instructions_crowd_html = f"<div>{_format_template_tags(task_template.instructions)}</div>"
-    questions_crowd_html = "\n".join([_render_question_crowd_html(question) for question in task_template.questions])
+    instruction_question_break_html = "<br><br><br><h4>Please answer the questions below:</h4>"
+    questions_crowd_html = "<br>\n<br>\n<br>\n".join([_render_question_crowd_html(question) for question in task_template.questions])
     return textwrap.dedent(
         f"""\
         <script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
         {_indent_to_level(validation_crowd_html, 2)}
         <crowd-form answer-format="flatten-objects">
             {_indent_to_level(instructions_crowd_html, 3)}
+            {_indent_to_level(instruction_question_break_html, 3)}
             {_indent_to_level(questions_crowd_html, 3)}
         </crowd-form>"""
     )
@@ -96,7 +98,7 @@ def _render_question_crowd_html(question_template: CritiqueQuestionTemplate) -> 
 
 def _render_multiple_choice_options_crowd_html(name: str, options: List[str]) -> str:
     """Render the Crowd HTML for the options of a multiple-choice question."""
-    buttons_crowd_html = "\n".join(
+    buttons_crowd_html = "<br>\n".join(
         [
             f"""<crowd-radio-button name="{name}.{index}">{_format_template_tags(option)}</crowd-radio-button>"""
             for index, option in enumerate(options)
@@ -112,7 +114,7 @@ def _render_multiple_choice_options_crowd_html(name: str, options: List[str]) ->
 
 def _render_checkbox_options_crowd_html(name: str, options: List[str]) -> str:
     """Render the Crowd HTML for the options of a checkbox question."""
-    return "\n".join(
+    return "<br>\n".join(
         [
             f"""<crowd-checkbox name="{name}.{index}">{_format_template_tags(option)}</crowd-checkbox>"""
             for index, option in enumerate(options)
