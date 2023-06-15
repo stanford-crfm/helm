@@ -313,7 +313,7 @@ ALL_MODELS = [
     # MosaicML
     Model(
         group="togethger",
-        name="together/mpt-7b",
+        name="huggingface/mpt-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # GooseAI supported models
