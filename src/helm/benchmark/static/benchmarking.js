@@ -979,11 +979,11 @@ $(function () {
 
     const $paper = button('Paper', 'https://arxiv.org/pdf/2211.09110.pdf');
     const $code = button('GitHub', 'https://github.com/stanford-crfm/helm/tree/heim');
-    $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$paper, $code])));
+    $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$code])));
 
     const $description = $('<div>', {class: 'col-sm-8'}).append([
       '<p>Significant progress has recently been made in developing text-to-image generation models. As these models are widely used in real-world applications, there is an urgent need to comprehensively understand their capabilities and risks. However, existing evaluations primarily focus on image-text alignment and quality. To address this limitation, we introduce a new benchmark, <strong>Holistic Evaluation of Text-To-Image Models (HEIM).</strong></p>',
-      '<p>We identify <strong>12 different aspects</strong> that are important in real-world model deployment, including image-text alignment, image quality, aesthetics, originality, reasoning, knowledge, bias, toxicity, fairness, robustness, multilinguality, and efficiency. By curating scenarios encompassing these aspects, we evaluate numModels state-of-the-art text-to-image models using this benchmark. Unlike previous evaluations that focused on alignment and quality, \methodname significantly improves coverage by evaluating all models across all numAspects aspects. Our results reveal that no single model excels in all aspects, with different models demonstrating strengths in different aspects.</p>',
+      '<p>We identify 12 different aspects that are important in real-world model deployment, including image-text alignment, image quality, aesthetics, originality, reasoning, knowledge, bias, toxicity, fairness, robustness, multilinguality, and efficiency. By curating scenarios encompassing these aspects, we evaluate numModels state-of-the-art text-to-image models using this benchmark. Unlike previous evaluations that focused on alignment and quality, \methodname significantly improves coverage by evaluating all models across all 12 aspects. Our results reveal that no single model excels in all aspects, with different models demonstrating strengths in different aspects.</p>',
       '<p>This website contains a release of all generated images and human evaluation results for full transparency.</p>',
     ]);
 
