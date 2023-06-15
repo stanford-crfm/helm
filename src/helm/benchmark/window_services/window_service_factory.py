@@ -37,7 +37,7 @@ from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
 from .megatron_window_service import MegatronWindowService
 from .opt_window_service import OPTWindowService
-from .palmyra_window_service import PalmyraWindowService, SilkRoadWindowService
+from .palmyra_window_service import PalmyraWindowService, LongerPalmyraWindowService
 from .remote_window_service import get_remote_window_service
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
@@ -104,7 +104,7 @@ class WindowServiceFactory:
             if engine in ["palmyra-base", "palmyra-large", "palmyra-instruct-30", "palmyra-e"]:
                 window_service = PalmyraWindowService(service)
             elif engine == "silk-road":
-                window_service = SilkRoadWindowService(service)
+                window_service = LongerPalmyraWindowService(service)
             else:
                 raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":

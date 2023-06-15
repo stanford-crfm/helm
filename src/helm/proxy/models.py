@@ -661,6 +661,12 @@ ALL_MODELS = [
         # Does not support echo
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    Model(
+        group="palmyra",
+        name="writer/palmyra-x",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # Yandex
     Model(
         group="together",
