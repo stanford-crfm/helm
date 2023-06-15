@@ -103,7 +103,7 @@ class WindowServiceFactory:
         elif organization == "writer":
             if engine in ["palmyra-base", "palmyra-large", "palmyra-instruct-30", "palmyra-e"]:
                 window_service = PalmyraWindowService(service)
-            elif engine == "silk-road":
+            elif engine in ["palmyra-x", "silk-road"]:
                 window_service = LongerPalmyraWindowService(service)
             else:
                 raise ValueError(f"Unhandled Writer model: {engine}")
