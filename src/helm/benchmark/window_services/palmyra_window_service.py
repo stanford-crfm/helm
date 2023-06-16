@@ -13,8 +13,8 @@ class PalmyraWindowService(LocalWindowService):
 
     @property
     def max_sequence_length(self) -> int:
-        # It is upposed to be 2048, but using scripts/compute_request_limits.py
-        # we found that the limit is actually 2024.
+        # Slightly less than the advertised number of 2048,
+        # to give us a margin of safety.
         return 2000
 
     @property
@@ -40,4 +40,6 @@ class PalmyraWindowService(LocalWindowService):
 class LongerPalmyraWindowService(PalmyraWindowService):
     @property
     def max_sequence_length(self) -> int:
+        # Slightly less than the advertised number of 8192,
+        # to give us a margin of safety.
         return 8000
