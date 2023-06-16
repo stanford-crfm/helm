@@ -36,6 +36,7 @@ class SkinToneMetric(Metric):
         ]
     )
     MST_UNKNOWN_KEY: str = "monk_unknown"
+    IDEAL_FRAC: float = 0.1
 
     @staticmethod
     def skin_pixel_from_image(image_path: str) -> List:
@@ -150,6 +151,6 @@ class SkinToneMetric(Metric):
                 if mst == self.MST_UNKNOWN_KEY:
                     continue
 
-                imbalance_loss += pow(mst_fraction - 0.1, 2)
+                imbalance_loss += abs(mst_fraction - self.IDEAL_FRAC)
 
         return [Stat(MetricName("skin_tone_imbalance")).add(imbalance_loss / 10)]
