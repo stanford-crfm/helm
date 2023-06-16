@@ -23,7 +23,7 @@ from scenarios.scenario import ScenarioSpec
 N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
 
 PART_INPUT: str = "input"
-PART_REF: str = "reference"
+PART_REF: str = "references"
 
 
 @dataclass(frozen=True)
