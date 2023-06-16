@@ -51,7 +51,7 @@ try:
             attachments=[
                 {
                     "type": "text",
-                    "content": "<p>Rate the response to the instruction.</p>"
+                    "content": "<p>Rate the response to the instruction. Please read the <a href=https://docs.google.com/document/d/1tWArTQiuuM44v4Db85C638i7fkHLTP_fXpGaxiS8c5M/edit?usp=sharing>tutorial and examples</a> before starting.</p>"  # noqa: E501
                     "<h4>Instruction</h4>"
                     f'<p style="white-space: pre-wrap;">{instance["instruction"]}</p>'
                     "<h4>Response</h4>"

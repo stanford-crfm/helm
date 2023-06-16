@@ -77,7 +77,7 @@ class InstructionFollowingCritiqueMetric(Metric):
             name="instruction_following_critique",
             # Note: Instructions can contain HTML.
             # Note: To render new lines in any HTML block, you must use <p></p>, <br>, or style="white-space: pre-wrap;"
-            instructions="<p>Rate the response to the instruction.</p>"
+            instructions="<p>Rate the response to the instruction. Please read the <a href=https://docs.google.com/document/d/1tWArTQiuuM44v4Db85C638i7fkHLTP_fXpGaxiS8c5M/edit?usp=sharing>tutorial and examples</a> before starting.</p>"  # noqa: E501
             "<h4>Instruction</h4>"
             '<p style="white-space: pre-wrap;">{{instruction}}</p>'
             "<h4>Response</h4>"
