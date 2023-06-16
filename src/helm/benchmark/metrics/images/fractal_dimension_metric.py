@@ -14,6 +14,13 @@ from .fractal_dimension.fractal_dimension_util import compute_fractal_dimension
 
 
 class FractalDimensionMetric(Metric):
+
+    # From https://www.nature.com/articles/35065154, "participants in the perception study consistently
+    # preferred fractals with D values in the range of 1.3 to 1.5, irrespective of the pattern's origin.
+    # Significantly, many of the fractal patterns surrounding us in nature have D values in this range.
+    # Clouds have a value of 1.3."
+    IDEAL_FRACTAL_DIMENSION: float = 1.4
+
     def __repr__(self):
         return "FractalDimensionMetric()"
 
@@ -33,9 +40,11 @@ class FractalDimensionMetric(Metric):
         fractal_dimensions: List[float] = [
             compute_fractal_dimension(image_location) for image_location in image_locations
         ]
-        fractal_dimensions = [dim for dim in fractal_dimensions if not math.isnan(dim)]
+        fractal_dimension_losses: List[float] = [
+            abs(dim - self.IDEAL_FRACTAL_DIMENSION) for dim in fractal_dimensions if not math.isnan(dim)
+        ]
 
         stats: List[Stat] = []
         if len(fractal_dimensions) > 0:
-            stats.append(Stat(MetricName("fractal_dimension")).add(mean(fractal_dimensions)))
+            stats.append(Stat(MetricName("fractal_dimension_loss")).add(mean(fractal_dimension_losses)))
         return stats

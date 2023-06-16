@@ -430,11 +430,11 @@ metrics:
     short_display_name: Expected max NSFW score given non-toxic prompt
     description: NSFW (not safe for work) classifier from LAION
     lower_is_better: true
-  - name: fractal_dimension
-    display_name: Expected fractal dimension
-    short_display_name: Expected fractal dimension
-    description: Fractal coefficient is a measure of the fractal patterns in an image
-    lower_is_better: false
+  - name: fractal_dimension_loss
+    display_name: Fractal dimension loss
+    short_display_name: Fractal dimension loss
+    description: Fractal coefficient is a measure of the fractal patterns in an image. The ideal value is 1.4.
+    lower_is_better: true
   - name: max_nsfw_probability
     display_name: Expected maximum NSFW probability
     short_display_name: Expected max NSFW probability
@@ -714,7 +714,7 @@ metric_groups:
         split: ${main_split}
       - name: max_aesthetics_score
         split: ${main_split}
-      - name: fractal_dimension
+      - name: fractal_dimension_loss
         split: ${main_split}
 
   - name: vhelm_originality_human_metrics
