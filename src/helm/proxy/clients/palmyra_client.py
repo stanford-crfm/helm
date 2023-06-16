@@ -190,7 +190,9 @@ class PalmyraClient(Client):
                     tokens = _sentence_piece_processor.EncodeAsIds(request.text)
                 else:
                     tokens = [
-                        piece.replace("▁", " ") for piece in _sentence_piece_processor.EncodeAsPieces(request.text)
+                        # TODO: Replace this with a helper function after #1549 is merged.
+                        piece.replace("▁", " ")
+                        for piece in _sentence_piece_processor.EncodeAsPieces(request.text)
                     ]
                 if request.truncation:
                     tokens = tokens[: request.max_length]
