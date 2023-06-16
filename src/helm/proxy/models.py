@@ -653,7 +653,7 @@ ALL_MODELS = [
     Model(
         group="giga_gan",
         name="adobe/giga-gan",
-        tags=[CLIP_TOKENIZER_TAG],
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="firefly",
@@ -674,18 +674,17 @@ ALL_MODELS = [
     Model(
         group="deepfloyd_if",
         name="DeepFloyd/IF-I-M-v1.0",
-        # TODO: add TEXT_TO_IMAGE_MODEL_TAG later after the first batch of results
-        tags=[CLIP_TOKENIZER_TAG],
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="deepfloyd_if",
         name="DeepFloyd/IF-I-L-v1.0",
-        tags=[CLIP_TOKENIZER_TAG],
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="deepfloyd_if",
         name="DeepFloyd/IF-I-XL-v1.0",
-        tags=[CLIP_TOKENIZER_TAG],
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
     ),
     Model(
         group="mindall-e",
