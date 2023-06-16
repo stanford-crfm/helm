@@ -764,6 +764,14 @@ models:
     num_parameters: 35000000000
     release_date: 2023-04-13
     todo: true
+  - name: writer/palmyra-x
+    display_name: Palmyra X (43B)
+    description: Palmyra X (43B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 43000000000
+    release_date: 2023-06-11
+    todo: true
 
   # Yandex
   - name: together/yalm

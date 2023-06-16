@@ -132,7 +132,6 @@ class AutoClient(Client):
                 client = PalmyraClient(
                     api_key=self.credentials["writerApiKey"],
                     cache_config=cache_config,
-                    tokenizer_client=self._get_tokenizer_client("huggingface"),
                 )
             elif organization == "nvidia":
                 client = MegatronClient(cache_config=cache_config)
@@ -184,7 +183,6 @@ class AutoClient(Client):
                 "gooseai",
                 "huggingface",
                 "microsoft",
-                "Writer",
                 "hf-internal-testing",
             ]:
                 client = HuggingFaceClient(cache_config=cache_config)
@@ -210,6 +208,11 @@ class AutoClient(Client):
                 client = SimpleClient(cache_config=cache_config)
             elif organization == "nvidia":
                 client = MegatronClient(cache_config=cache_config)
+            elif organization == "writer":
+                client = PalmyraClient(
+                    api_key=self.credentials["writerApiKey"],
+                    cache_config=cache_config,
+                )
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client
@@ -218,7 +221,6 @@ class AutoClient(Client):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
 
-        @retry_request
         def tokenize_with_retry(client: Client, request: TokenizationRequest) -> TokenizationRequestResult:
             return client.tokenize(request)
 
@@ -235,7 +237,6 @@ class AutoClient(Client):
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
 
-        @retry_request
         def decode_with_retry(client: Client, request: DecodeRequest) -> DecodeRequestResult:
             return client.decode(request)
 
