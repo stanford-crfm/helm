@@ -210,7 +210,7 @@ if __name__ == "__main__":
         "-c",
         "--conf-path",
         help="Where to read RunSpecs to run from",
-        default="src/helm/benchmark/presentation/run_specs_vhelm.conf",
+        default="src/helm/benchmark/presentation/run_specs_heim.conf",
     )
     parser.add_argument(
         "--models-to-run",
@@ -218,7 +218,7 @@ if __name__ == "__main__":
         help="Only RunSpecs with these models specified. If no model is specified, runs with all models.",
         default=[],
     )
-    parser.add_argument("--suite", help="Name of the suite", default="vhelm")
+    parser.add_argument("--suite", help="Name of the suite", default="heim")
     parser.add_argument("--priority", default=2)
     parser.add_argument(
         "-d",
