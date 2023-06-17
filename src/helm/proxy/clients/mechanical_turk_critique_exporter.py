@@ -58,7 +58,9 @@ def _render_template_crowd_html(task_template: CritiqueTaskTemplate) -> str:
 
     instructions_crowd_html = f"<div>{_format_template_tags(task_template.instructions)}</div>"
     instruction_question_break_html = "<br><br><br><h4>Please answer the questions below:</h4>"
-    questions_crowd_html = "<br>\n<br>\n<br>\n".join([_render_question_crowd_html(question) for question in task_template.questions])
+    questions_crowd_html = "<br>\n<br>\n<br>\n".join(
+        [_render_question_crowd_html(question) for question in task_template.questions]
+    )
     return textwrap.dedent(
         f"""\
         <script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
