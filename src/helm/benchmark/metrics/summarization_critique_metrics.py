@@ -89,17 +89,26 @@ class SummarizationCritiqueMetric(Metric):
 
         for response in result.responses:
             for answer_name, answer in response.answers.items():
-                if not isinstance(answer, str):
-                    raise ValueError(f"Expected answer to {answer_name} be a string")
-                answer_value: float
+                if not isinstance(answer, (str, int)):
+                    raise ValueError(f"Expected answer to {answer_name} be str or int, got {type(answer)}")
                 if answer_name == _FAITHFULNESS_NAME:
-                    if answer == _YES_VALUE:
-                        answer_value = 1
-                    elif answer == _NO_VALUE:
-                        answer_value = 0
-                    else:
-                        raise ValueError(f"Unknown answer to {_FAITHFULNESS_NAME}: {answer}")
+                    answer_value: float
+                    if isinstance(answer, int):
+                        if answer == 1:
+                            # 1 represents the first option, `_YES_VALUE`
+                            answer_value = 1
+                        elif answer == 2:
+                            # 2 represents the second option, `_NO_VALUE`
+                            answer_value = 0
+                    elif isinstance(answer, str):
+                        if answer == _YES_VALUE:
+                            answer_value = 1
+                        elif answer == _NO_VALUE:
+                            answer_value = 0
+                        else:
+                            raise ValueError(f"Unknown answer to {_FAITHFULNESS_NAME}: {answer}")
                 else:
+                    # answer can be a string or int, e.g. "1" or 1, but the value should be the same.
                     answer_value = (int(answer) - 1) / 4
                 stats[answer_name].add(answer_value)
         return list(stats.values())
