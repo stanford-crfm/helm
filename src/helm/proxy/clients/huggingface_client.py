@@ -141,6 +141,10 @@ class HuggingFaceClient(Client):
                 self.model_server_instances[model] = HuggingFaceServer(
                     HuggingFaceModelConfig.from_string("bigcode/starcoder")
                 )
+            elif model == "mosaicml/mpt-7b":
+                self.model_server_instances[model] = HuggingFaceServer(
+                    HuggingFaceModelConfig.from_string("mosaicml/mpt-7b")
+                )
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")
 

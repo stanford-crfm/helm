@@ -671,14 +671,14 @@ models:
     todo: true
 
   # MosaicML
-  - name: huggingface/mpt-7b
+  - name: mosiacml/mpt-7b
     display_name: MPT (7B)
     description: MPT-7B is a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
-  - name: huggingface/mpt-7b-chat
+  - name: mosiacml/mpt-7b-chat
     display_name: MPT-Chat (7B)
     description: MPT-Chat (7B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT-7B, a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
@@ -686,7 +686,7 @@ models:
     num_parameters: 6700000000
     release_date: 2023-05-05
     todo: true
-  - name: huggingface/mpt-7b-instruct
+  - name: mosiacml/mpt-7b-instruct
     display_name: MPT-Instruct (7B)
     description: MPT-Instruct (7B) is a model for short-form instruction following. It is built by finetuning MPT (7B), a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
