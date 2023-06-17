@@ -142,7 +142,7 @@ class ScaleCritiqueClient(CritiqueClient):
                 "field_id": question.name,  # This must be unique, so we use the question name
                 "title": question.name,
                 "description": self._interpolate_fields(question.text, fields),
-                # Scale's consensus function requires the values to be integers.
+                # Scale's consensus function requires the values to be a number.
                 "choices": [{"label": question.options[i], "value": i + 1} for i in range(len(question.options))],
                 "min_choices": 0 if question.question_type == "checkbox" else 1,
                 "max_choices": len(question.options) if question.question_type == "checkbox" else 1,
