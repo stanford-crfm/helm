@@ -64,7 +64,9 @@ try:
                     "field_id": question["criterion_name"],
                     "title": question["criterion_name"],
                     "description": question["description"],
-                    "choices": [{"label": choice, "value": choice} for choice in question["choices"]],
+                    "choices": [
+                        {"label": question["choices"][i], "value": i + 1} for i in range(len(question["choices"]))
+                    ],
                 }
                 for question in instance["multiple_choice_questions"]
             ]

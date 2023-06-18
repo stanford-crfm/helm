@@ -165,21 +165,23 @@ class InstructionFollowingCritiqueMetric(Metric):
 
         for response in result.responses:
             for answer_name, answer in response.answers.items():
-                if not isinstance(answer, str):
-                    raise ValueError(f"Expected answer to {answer_name} be a string")
                 answer_value: float
-                if answer_name == self.HELPFULNESS_NAME:
-                    answer_value = self.HELPFULNESS_ANSWER_TO_SCORE[answer]
-                elif answer_name == self.UNDERSTANDABILITY_NAME:
-                    answer_value = self.UNDERSTANDABILITY_ANSWER_TO_SCORE[answer]
-                elif answer_name == self.COMPLETENESS_NAME:
-                    answer_value = self.COMPLETENESS_ANSWER_TO_SCORE[answer]
-                elif answer_name == self.CONCISENESS_NAME:
-                    answer_value = self.CONCISENESS_ANSWER_TO_SCORE[answer]
-                elif answer_name == self.HARMLESSNESS_NAME:
-                    answer_value = self.HARMLESSNESS_ANSWER_TO_SCORE[answer]
+                if isinstance(answer, int) or isinstance(answer, float):
+                    answer_value = answer
+                elif isinstance(answer, str):
+                    if answer_name == self.HELPFULNESS_NAME:
+                        answer_value = self.HELPFULNESS_ANSWER_TO_SCORE[answer]
+                    elif answer_name == self.UNDERSTANDABILITY_NAME:
+                        answer_value = self.UNDERSTANDABILITY_ANSWER_TO_SCORE[answer]
+                    elif answer_name == self.COMPLETENESS_NAME:
+                        answer_value = self.COMPLETENESS_ANSWER_TO_SCORE[answer]
+                    elif answer_name == self.CONCISENESS_NAME:
+                        answer_value = self.CONCISENESS_ANSWER_TO_SCORE[answer]
+                    elif answer_name == self.HARMLESSNESS_NAME:
+                        answer_value = self.HARMLESSNESS_ANSWER_TO_SCORE[answer]
+                    else:
+                        raise ValueError(f"Invalid answer type. Answer_name: {answer_name}; Answer: {answer}")
                 else:
-                    raise ValueError(f"Invalid answer type. Answer_name: {answer_name}; Answer: {answer}")
-
+                    raise ValueError(f"Invalid answer type of answer: {type(answer)}. Expected str, float, or int.")
                 stats[answer_name].add(answer_value)
         return list(stats.values())
