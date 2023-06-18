@@ -120,7 +120,9 @@ def get_the_pile_document_iterator(file_path: str) -> Iterator[str]:
         except Exception as e:
             try:
                 for line in f:
-                    yield json.loads(line)["docparas"]
+                    docparas_lines = json.loads(line)["docparas"]
+                    for docparas_line in docparas_lines:
+                        yield docparas_line
             except Exception as e:
                 print(f'Failed to load file {file_path} as there is no text key')
 
