@@ -45,6 +45,6 @@ class FractalDimensionMetric(Metric):
         ]
 
         stats: List[Stat] = []
-        if len(fractal_dimensions) > 0:
+        if len(fractal_dimension_losses) > 0:
             stats.append(Stat(MetricName("fractal_dimension_loss")).add(mean(fractal_dimension_losses)))
         return stats
