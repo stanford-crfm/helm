@@ -193,7 +193,7 @@ class ScaleCritiqueClient(CritiqueClient):
                 unique_id=unique_id,
                 instruction="Evaluate the AI model generated output following the instructions below",
                 attachments=attachments,
-                response_required=template.num_respondents,
+                responses_required=template.num_respondents,
                 fields=[self._critique_question_to_scale_field(question, fields) for question in template.questions],
             )
 
