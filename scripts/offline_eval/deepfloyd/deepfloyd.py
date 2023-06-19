@@ -57,7 +57,8 @@ zstandard~=0.18.0
 
 Example usage (after a dryrun with run suite deepfloyd):
 
-python3 scripts/deepfloyd.py IF-I-XL-v1.0 benchmark_output/runs/deepfloyd --mongo-uri <MongoDB address>
+python3 scripts/offline_eval/deepfloyd/deepfloyd.py IF-I-XL-v1.0 benchmark_output/runs/deepfloyd \
+--mongo-uri <MongoDB address>
 
 """
 
