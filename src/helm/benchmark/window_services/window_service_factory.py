@@ -131,7 +131,7 @@ class WindowServiceFactory:
             "together/pythia-7b",
             # MPT-7B model was trained with the EleutherAI/gpt-neox-20b tokenizer
             # See: https://huggingface.co/mosaicml/mpt-7b
-            "together/mpt-7b",
+            "mosaicml/mpt-7b",
         ]:
             window_service = GPTNeoXWindowService(service)
         elif model_name == "together/h3-2.7b":

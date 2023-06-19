@@ -17,7 +17,6 @@ from .client import Client, wrap_request_time, truncate_sequence
 _ASYNC_MODELS: Set[str] = {
     "alpaca-7b",
     "llama-7b",
-    "mpt-7b",
     "pythia-7b",
     "redpajama-incite-base-3b-v1",
     "vicuna-13b",
@@ -42,7 +41,6 @@ MODEL_ALIASES: Dict[str, str] = {
     # alpaca-7b-full-precision is full-precision
     "alpaca-7b": "alpaca-7b-full-precision",
     "llama-7b": "llama-7b-full-precision",
-    "mpt-7b": "mpt-7b-full-precision",
     "pythia-7b": "pythia-7b-full-precision",
     "vicuna-13b": "vicuna-13b-full-precision",
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",

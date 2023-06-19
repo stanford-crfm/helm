@@ -106,7 +106,7 @@ class AutoClient(Client):
                 client = GooseAIClient(
                     api_key=self.credentials["gooseaiApiKey"], cache_config=cache_config, org_id=org_id
                 )
-            elif organization == "huggingface":
+            elif organization == "huggingface" or organization == "mosaicml":
                 client = self.huggingface_client
             elif organization == "anthropic":
                 client = AnthropicClient(
