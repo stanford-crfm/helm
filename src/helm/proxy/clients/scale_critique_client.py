@@ -1,7 +1,7 @@
 from hashlib import sha512
 import json
 import threading
-from typing import Dict, List, Union, Set
+from typing import Dict, List, Union, Set, Tuple
 
 from cattrs import unstructure
 import scaleapi
@@ -234,6 +234,7 @@ class ScaleCritiqueClient(CritiqueClient):
             return []
         else:
             annotations: Dict[str, List[str]] = task.response["annotations"]
+            fields: List[dict] = task.response["params"]["fields"]
 
             # The format of annotations is:
             # {
@@ -277,8 +278,17 @@ class ScaleCritiqueClient(CritiqueClient):
             responses: List[CritiqueResponse] = []
             for respondent_index in range(num_respondents):
                 answers: Dict[str, Union[str, List[str]]] = {}
-                for field_name, field_answers in annotations.items():
-                    answers[field_name] = field_answers[respondent_index]
+                field_name_answers: List[Tuple[str, list]] = list(annotations.items())
+                for i in range(len(field_name_answers)):
+                    field_name, field_answers = field_name_answers[i]
+                    if fields[i]["type"] == "category":
+                        # We need to convert the answer from an index to the actual value
+                        assert isinstance(field_answers[respondent_index], int)
+                        value: int = field_answers[respondent_index]
+                        answers[field_name] = fields[i]["choices"][value - 1]["label"]
+                    else:
+                        answers[field_name] = field_answers[respondent_index]
+                    # TODO: type == "checkbox" may need special handling, too.
                 responses.append(
                     CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
                 )
