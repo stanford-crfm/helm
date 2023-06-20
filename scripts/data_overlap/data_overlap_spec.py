@@ -17,7 +17,6 @@ class DataOverlapStatsKey:
 
     light_scenario_key: LightScenarioKey
 
-    # the N of the n_grams we're running
     overlap_protocol_spec: OverlapProtocolSpec
 
 

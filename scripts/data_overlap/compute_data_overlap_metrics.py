@@ -81,7 +81,10 @@ def create_ngram_index(
     tokenizer: LightTokenizer,
     stats_key_counts: Dict[DataOverlapStatsKey, int],
 ) -> NgramIndex:
-    """Given a list of scenarios and n values, initialize ngram_index"""
+    """
+    Given a list of scenarios and n values, initialize ngram_index.
+    stats_key_counts is passed in and updated, counting the number of times a stats_key occurs
+    """
     ngram_index: NgramIndex = {n: {} for n in n_values}
     for scenario in light_scenarios:
         hlog(f"Building ngram indexes for {scenario.scenario_key}")
@@ -89,10 +92,8 @@ def create_ngram_index(
             stats_key = DataOverlapStatsKey(
                 light_scenario_key=scenario.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(n=n)
             )
-            num_instances = len(scenario.instances)
-            stats_key_counts[stats_key] = num_instances
-            for i in range(num_instances):
-                instance = scenario.instances[i]
+            stats_key_counts[stats_key] = len(scenario.instances)
+            for i, instance in enumerate(scenario.instances):
                 input_tokens = tokenizer.tokenize(instance.input)
                 for input_ngram in ngrams(input_tokens, n):
                     if input_ngram not in ngram_index[n]:
@@ -110,8 +111,7 @@ def create_ngram_index(
                             ngram_index[n][reference_ngram] = set()
                         id = instance.id if instance.id else f"id{i}"
                         ngram_index[n][reference_ngram].add(
-                            EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF)
-                        )
+                            EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF))
     return ngram_index
 
 
@@ -120,10 +120,20 @@ def compute_all_data_overlap(
     file_format: str,
     ngram_index: NgramIndex,
     tokenizer: LightTokenizer,
-    stats_key_to_input_ids: Dict[DataOverlapStatsKey, Set[str]],
-    stats_key_to_reference_ids: Dict[DataOverlapStatsKey, Set[str]],
-):
-    """Iterate through documents to compute overlaps"""
+    stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
+    stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
+) -> None:
+    """
+    Given an input file, compute a overlap stats for each n and each scenario by calling
+    `compute_document_data_overlap()` for each document in the file. The function writes
+    to the stats_key_to_input_ids and stats_key_to_reference_ids directly and does not return anything.
+    training_file_path: file path of the training data
+    file_format: format of the training file(s)
+    ngram_index: The ngram index that maps from ngrams to overlap stats
+    tokenizer: The tokenizer used to break documents in the file into tokens
+    stats_key_to_input_ids: a dict mapping the stats key to the overlapping input ids 
+    stats_key_to_reference_ids: a dict mapping the stats key to the overlapping reference ids 
+    """
     document_iterator = get_document_iterator(file_path=training_file_path, file_format=file_format)
     for document in document_iterator:
         compute_document_data_overlap(
@@ -139,9 +149,9 @@ def compute_document_data_overlap(
     document: str,
     ngram_index: NgramIndex,
     tokenizer: LightTokenizer,
-    stats_key_to_input_ids: Dict[DataOverlapStatsKey, Set[str]],
-    stats_key_to_reference_ids: Dict[DataOverlapStatsKey, Set[str]],
-):
+    stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
+    stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
+) -> None:
     """
     Given a document, compute a overlap stats for each n and each scenario. The function
     writes to the overlap stats directly and does not return anything.
@@ -167,8 +177,6 @@ def compute_document_data_overlap(
                         stats_key_to_input_ids[entry_overlap_key.stats_key].add(id)
                     elif part == PART_REF:
                         stats_key_to_reference_ids[entry_overlap_key.stats_key].add(id)
-                    else:
-                        hlog("Part neither input nor reference, hence not recording")
 
 
 if __name__ == "__main__":
@@ -261,4 +269,4 @@ if __name__ == "__main__":
         f.writelines(
             f"{json.dumps(asdict_without_nones(data_overlap_stats))}\n" for data_overlap_stats in all_data_overlap_stats
         )
-    hlog(f"Written {len(all_data_overlap_stats )} results to {args.output_stats}")
+    hlog(f"Written {len(all_data_overlap_stats)} results to {args.output_stats}")

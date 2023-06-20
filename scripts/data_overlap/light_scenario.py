@@ -13,14 +13,14 @@ class LightInstance:
     A lighter `Instance` with only text fields.
     """
 
-    """The input"""
     input: str
+    """The input"""
 
-    """References that help us evaluate"""
     references: List[str]
+    """References that help us evaluate"""
 
-    """Helm instance id"""
     id: Optional[str] = None
+    """Helm instance id"""
 
 
 @dataclass(frozen=True)
@@ -52,5 +52,5 @@ class LightScenario:
 
     scenario_key: LightScenarioKey
 
-    """Instances of this scenario"""
     instances: List[LightInstance]
+    """Instances of this scenario"""
