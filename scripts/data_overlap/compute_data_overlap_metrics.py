@@ -34,7 +34,6 @@ class EntryDataOverlapKey:
     part: str
     """Either PART_INPUT or PART_REF"""
     instance_id: str
-    index: int
 
 
 # type alias for overlap-related data structures
@@ -100,7 +99,7 @@ def create_ngram_index(
                         ngram_index[n][input_ngram] = set()
                     id = instance.id if instance.id else f"id{i}"
                     ngram_index[n][input_ngram].add(
-                        EntryDataOverlapKey(stats_key=stats_key, instance_id=id, index=i, part=PART_INPUT)
+                        EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_INPUT)
                     )
 
                 # compute reference ngrams
@@ -111,7 +110,7 @@ def create_ngram_index(
                             ngram_index[n][reference_ngram] = set()
                         id = instance.id if instance.id else f"id{i}"
                         ngram_index[n][reference_ngram].add(
-                            EntryDataOverlapKey(stats_key=stats_key, instance_id=id, index=i, part=PART_REF)
+                            EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF)
                         )
     return ngram_index
 
