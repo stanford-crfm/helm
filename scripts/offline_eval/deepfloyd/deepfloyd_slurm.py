@@ -137,9 +137,7 @@ class DeepFloyd:
         image = self._stage_3(prompt=prompt, image=image, generator=generator, noise_level=100).images
         image[0].save(file_path)
 
-    def _process_request(self, raw_request: Dict, store: KeyValueStore):
-        assert not store.contains(raw_request), "Request was found in the cache."
-
+    def _process_request(self, raw_request: Dict, store: KeyValueStore) -> None:
         image_paths: List[str] = []
         start_time: float = time.time()
         for i in range(raw_request["n"]):
@@ -151,7 +149,7 @@ class DeepFloyd:
         result: Dict = {"images": image_paths, "total_inference_time": total_inference_time}
         store.put(raw_request, result)
 
-    def run_inference(self, requests_path: str):
+    def run_inference(self, requests_path: str) -> None:
         """Runs inference for all the requests."""
         with create_key_value_store(self._key_value_cache_config) as store:
             with open(requests_path, "r") as f:
