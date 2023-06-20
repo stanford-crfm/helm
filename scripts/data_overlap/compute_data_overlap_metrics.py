@@ -94,11 +94,12 @@ def create_ngram_index(
             )
             stats_key_counts[stats_key] = len(scenario.instances)
             for i, instance in enumerate(scenario.instances):
+                id = instance.id
+                assert id
                 input_tokens = tokenizer.tokenize(instance.input)
                 for input_ngram in ngrams(input_tokens, n):
                     if input_ngram not in ngram_index[n]:
                         ngram_index[n][input_ngram] = set()
-                    id = instance.id if instance.id else f"id{i}"
                     ngram_index[n][input_ngram].add(
                         EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_INPUT)
                     )
@@ -109,7 +110,6 @@ def create_ngram_index(
                     for reference_ngram in ngrams(reference_unigrams, n):
                         if reference_ngram not in ngram_index[n]:
                             ngram_index[n][reference_ngram] = set()
-                        id = instance.id if instance.id else f"id{i}"
                         ngram_index[n][reference_ngram].add(
                             EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF)
                         )
