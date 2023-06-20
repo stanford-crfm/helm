@@ -54,4 +54,3 @@ class LightScenario:
 
     instances: List[LightInstance]
     """Instances of this scenario"""
-
