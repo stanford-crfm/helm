@@ -111,7 +111,8 @@ def create_ngram_index(
                             ngram_index[n][reference_ngram] = set()
                         id = instance.id if instance.id else f"id{i}"
                         ngram_index[n][reference_ngram].add(
-                            EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF))
+                            EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF)
+                        )
     return ngram_index
 
 
@@ -131,8 +132,8 @@ def compute_all_data_overlap(
     file_format: format of the training file(s)
     ngram_index: The ngram index that maps from ngrams to overlap stats
     tokenizer: The tokenizer used to break documents in the file into tokens
-    stats_key_to_input_ids: a dict mapping the stats key to the overlapping input ids 
-    stats_key_to_reference_ids: a dict mapping the stats key to the overlapping reference ids 
+    stats_key_to_input_ids: a dict mapping the stats key to the overlapping input ids
+    stats_key_to_reference_ids: a dict mapping the stats key to the overlapping reference ids
     """
     document_iterator = get_document_iterator(file_path=training_file_path, file_format=file_format)
     for document in document_iterator:
