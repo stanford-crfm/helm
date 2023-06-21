@@ -29,6 +29,8 @@ class DeepFloydClient(Client):
             "prompt": request.prompt,
             "request_type": "image-model-inference",
         }
+        if request.random is not None:
+            raw_request["random"] = request.random
         return raw_request
 
     def __init__(self, cache_config: CacheConfig):
