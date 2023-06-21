@@ -181,6 +181,7 @@ def check(suite: str):
     suite_path: str = os.path.join("benchmark_output", "runs", suite)
     logs_path: str = os.path.join(suite_path, "logs")
     cuda_oom_logs: List[str] = []
+    incomplete_runs_count: int = 0
 
     for log_file in os.listdir(logs_path):
         if not log_file.endswith("log"):
@@ -194,14 +195,16 @@ def check(suite: str):
                     cuda_oom_logs.append(log_path)
                 elif "Done.\n" not in log_content:
                     hlog(f"tail -f {log_path}")
+                    incomplete_runs_count += 1
             except UnicodeDecodeError as e:
                 hlog(f"Error reading {log_path}: {e}")
 
     if len(cuda_oom_logs) > 0:
-        with htrack_block(f"\nLog files with {CUDA_OOM_ERROR}:"):
+        with htrack_block(f"\nLog files with {CUDA_OOM_ERROR} ({len(cuda_oom_logs)} runs):"):
             for i, log_path in enumerate(cuda_oom_logs):
                 hlog(f"{i+1}. {log_path}")
-    hlog("\nDone.")
+
+    hlog(f"\n\nNumber of runs to rerun {incomplete_runs_count}")
 
 
 if __name__ == "__main__":
