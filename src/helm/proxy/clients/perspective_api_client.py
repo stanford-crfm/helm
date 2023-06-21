@@ -7,6 +7,7 @@ from googleapiclient import discovery
 from googleapiclient.errors import BatchError, HttpError
 from googleapiclient.http import BatchHttpRequest
 from httplib2 import HttpLib2Error
+from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException
 
 from helm.common.cache import Cache, CacheConfig
@@ -18,7 +19,7 @@ class PerspectiveAPIClientCredentialsError(NonRetriableException):
     pass
 
 
-class PerspectiveAPIClient:
+class PerspectiveAPIClient(ToxicityClassifierClient):
     """
     Perspective API predicts the perceived impact a comment may have on a conversation by evaluating that comment
     across a range of emotional concepts, called attributes. When you send a request to the API, you’ll request the
