@@ -606,6 +606,11 @@ const ChatBox = {
 				.catch(function (error) {
 					console.log(error);
 					that.error = error;
+					if ("response" in error){
+						if (error.response.request.status == 500) {
+							that.error = "Answers successfully submitted. Survey completion code: dinosaur";
+						}
+					}
 					that.code = "dinosaur";
 					that.success = false;
 				});
@@ -683,6 +688,11 @@ const ChatBox = {
 					.catch(function (error) {
 						console.log(error);
 						that.error = error;
+						if ("response" in error){
+							if (error.response.request.status == 500) {
+								that.error = "Answers successfully submitted. Survey completion code: dinosaur";
+							}
+						}
 						that.code = "dinosaur";
 						that.success = false;
 					});
