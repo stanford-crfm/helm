@@ -438,7 +438,7 @@ def get_adapter_spec1() -> AdapterSpec:
 
 
 def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.basic_metrics.BasicMetric", args={"names": names})]
+    return [MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicMetric", args={"names": names})]
 
 
 def get_exact_match_metric_specs() -> List[MetricSpec]:
@@ -454,13 +454,16 @@ def get_f1_metric_specs() -> List[MetricSpec]:
 def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.classification_metrics.ClassificationMetric", args={"delimiter": delimiter}
+            class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
+            args={"delimiter": delimiter},
         )
     ]
 
 
 def get_bbq_metric_specs() -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.bbq_metrics.BBQMetric", args={})] + get_exact_match_metric_specs()
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.bbq_metrics.BBQMetric", args={})
+    ] + get_exact_match_metric_specs()
 
 
 def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[MetricSpec]:
@@ -470,7 +473,7 @@ def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[Met
 
     return [
         MetricSpec(
-            class_name="helm.benchmark.ranking_metrics.RankingMetric",
+            class_name="helm.benchmark.metrics.ranking_metrics.RankingMetric",
             args={
                 "method": ADAPT_RANKING_BINARY,
                 "measure_names": measure_names,
@@ -485,7 +488,7 @@ def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[Met
 
 def get_toxicity_metric_specs() -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.toxicity_metrics.ToxicityMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.toxicity_metrics.ToxicityMetric", args={}),
     ]
 
 
@@ -496,13 +499,13 @@ def get_bias_metric_specs() -> List[MetricSpec]:
 
     return [
         MetricSpec(
-            class_name="helm.benchmark.bias_metrics.BiasMetric",
+            class_name="helm.benchmark.metrics.bias_metrics.BiasMetric",
             args={"mode": "associations", "demographic_category": dem, "target_category": tgt},
         )
         for dem, tgt in cross_dem_target
     ] + [
         MetricSpec(
-            class_name="helm.benchmark.bias_metrics.BiasMetric",
+            class_name="helm.benchmark.metrics.bias_metrics.BiasMetric",
             args={"mode": "representation", "demographic_category": dem},
         )
         for dem in demographic_categories
@@ -519,14 +522,14 @@ def get_generative_harms_metric_specs(include_basic_metrics: bool = False) -> Li
 
 def get_summarization_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.summarization_metrics.SummarizationMetric", args=args)
+        MetricSpec(class_name="helm.benchmark.metrics.summarization_metrics.SummarizationMetric", args=args)
     ] + get_basic_metric_specs([])
 
 
 def get_summarization_critique_metric_specs(num_respondents: int) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.summarization_critique_metrics.SummarizationCritiqueMetric",
+            class_name="helm.benchmark.metrics.summarization_critique_metrics.SummarizationCritiqueMetric",
             args={"num_respondents": num_respondents},
         )
     ]
@@ -544,7 +547,7 @@ def get_numeracy_metric_specs(run_solver: bool = False) -> List[MetricSpec]:
     # The solvers are slow to run so make them skippable
     if run_solver:
         metric_specs += [
-            MetricSpec(class_name="helm.benchmark.numeracy_metrics.DistanceMetric", args={}),
+            MetricSpec(class_name="helm.benchmark.metrics.numeracy_metrics.DistanceMetric", args={}),
         ]
     return metric_specs
 
@@ -558,15 +561,15 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
         args = {}
     return [
         MetricSpec(
-            class_name="helm.benchmark.copyright_metrics.BasicCopyrightMetric",
+            class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
             args={**args, "name": "longest_common_prefix_length"},
         ),
         MetricSpec(
-            class_name="helm.benchmark.copyright_metrics.BasicCopyrightMetric",
+            class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
             args={**args, "name": "edit_distance"},
         ),
         MetricSpec(
-            class_name="helm.benchmark.copyright_metrics.BasicCopyrightMetric",
+            class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
             args={**args, "name": "edit_similarity"},
         ),
     ] + get_basic_metric_specs([])
@@ -576,10 +579,14 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
     if args is None:
         args = {}
     return [
-        MetricSpec(class_name="helm.benchmark.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}),
-        MetricSpec(class_name="helm.benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"}),
         MetricSpec(
-            class_name="helm.benchmark.disinformation_metrics.DisinformationMetric",
+            class_name="helm.benchmark.metrics.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"}
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.disinformation_metrics.DisinformationMetric",
             args={"name": "monte_carlo_entropy"},
         ),
     ] + get_basic_metric_specs([])
@@ -590,7 +597,7 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
         return get_basic_metric_specs(["code_eval_acc", "pass"])
     else:  # APPS.
         args: Dict[str, Any] = {"names": ["test_avg", "strict_acc"], "timeout": timeout}
-        return [MetricSpec(class_name="helm.benchmark.code_metrics.APPSMetric", args=args)]
+        return [MetricSpec(class_name="helm.benchmark.metrics.code_metrics.APPSMetric", args=args)]
 
 
 def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
@@ -599,7 +606,7 @@ def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
 
 def get_machine_translation_metric_specs() -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.machine_translation_metrics.MachineTranslationMetric", args={})
+        MetricSpec(class_name="helm.benchmark.metrics.machine_translation_metrics.MachineTranslationMetric", args={})
     ] + get_basic_metric_specs([])
 
 
