@@ -204,7 +204,7 @@ def check(suite: str):
             for i, log_path in enumerate(cuda_oom_logs):
                 hlog(f"{i+1}. {log_path}")
 
-    hlog(f"\n\nNumber of runs to rerun {incomplete_runs_count}")
+    hlog(f"\n\nNumber of runs to rerun: {incomplete_runs_count}")
 
 
 if __name__ == "__main__":
