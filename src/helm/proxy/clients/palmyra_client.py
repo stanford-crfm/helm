@@ -1,11 +1,6 @@
 import json
-import os
 import requests
-from typing import Any, Dict, List, Optional
-from tempfile import TemporaryDirectory
-from threading import Lock
-
-from sentencepiece import SentencePieceProcessor
+from typing import Any, Dict, List
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.hierarchical_logger import hlog
@@ -16,7 +11,6 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.common.general import ensure_file_downloaded
 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 from .client import Client, wrap_request_time, truncate_sequence
 
@@ -24,37 +18,11 @@ from .client import Client, wrap_request_time, truncate_sequence
 _TOKENIZER_MODEL_URL = "https://huggingface.co/spaces/Writer/token-counter/resolve/92389981e4430f83383110728d954bda0f89fb30/tokenizer.model"  # noqa
 
 
-# SentencePieceProcessor is lazily initialized
-_sentence_piece_processor: Optional[SentencePieceProcessor] = None
-_sentence_piece_processor_directory: Optional[TemporaryDirectory] = None
-_sentence_piece_processor_lock = Lock()
-
-
-def _initialize_sentence_piece_processor() -> None:
-    global _sentence_piece_processor
-    global _sentence_piece_processor_directory
-    global _sentence_piece_processor_lock
-    with _sentence_piece_processor_lock:
-        if _sentence_piece_processor:
-            return
-        _sentence_piece_processor_directory = TemporaryDirectory()
-        sentence_piece_model_path = os.path.join(_sentence_piece_processor_directory.name, "palmrya_tokenizer.model")
-        ensure_file_downloaded(_TOKENIZER_MODEL_URL, sentence_piece_model_path)
-        _sentence_piece_processor = SentencePieceProcessor(sentence_piece_model_path)
-
-
 class PalmyraClient(Client):
     def __init__(self, api_key: str, cache_config: CacheConfig, huggingface_client: HuggingFaceClient):
         self.api_key: str = api_key
         self.cache = Cache(cache_config)
         self._huggingface_client = huggingface_client
-
-    def __del__(self):
-        with self._sentence_piece_processor_lock:
-            self._sentence_piece_processor = None
-            if self._sentence_piece_processor_directory:
-                self._sentence_piece_processor_directory.cleanup()
-        super.__del__()
 
     def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
