@@ -1,4 +1,3 @@
-from dataclasses import asdict
 import json
 import os
 import requests
@@ -16,9 +15,9 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationRequest,
     TokenizationRequestResult,
-    TokenizationToken,
 )
 from helm.common.general import ensure_file_downloaded
+from helm.proxy.clients.huggingface_client import HuggingFaceClient
 from .client import Client, wrap_request_time, truncate_sequence
 
 
@@ -45,9 +44,10 @@ def _initialize_sentence_piece_processor() -> None:
 
 
 class PalmyraClient(Client):
-    def __init__(self, api_key: str, cache_config: CacheConfig):
+    def __init__(self, api_key: str, cache_config: CacheConfig, huggingface_client: HuggingFaceClient):
         self.api_key: str = api_key
         self.cache = Cache(cache_config)
+        self._huggingface_client = huggingface_client
 
     def __del__(self):
         with self._sentence_piece_processor_lock:
@@ -156,9 +156,9 @@ class PalmyraClient(Client):
             # The Writer API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
             # The Writer API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenize(
+            tokenization_result: TokenizationRequestResult = self._huggingface_client.tokenize(
                 # Writer uses their own huggingface tokenizer
-                TokenizationRequest(text, tokenizer="writer/palmyra-tokenizer")
+                TokenizationRequest(text, tokenizer="writer/gpt2-tokenizer")
             )
 
             # Log probs are not currently not supported by the Writer, so set to 0 for now.
@@ -180,51 +180,7 @@ class PalmyraClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                _initialize_sentence_piece_processor()
-                if request.encode:
-                    tokens = _sentence_piece_processor.EncodeAsIds(request.text)
-                else:
-                    tokens = [
-                        # TODO: Replace this with a helper function after #1549 is merged.
-                        piece.replace("▁", " ")
-                        for piece in _sentence_piece_processor.EncodeAsPieces(request.text)
-                    ]
-                if request.truncation:
-                    tokens = tokens[: request.max_length]
-                return {"tokens": tokens}
-
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"PalmyraClient tokenize error: {e}"
-            return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
-
-        return TokenizationRequestResult(
-            success=True,
-            cached=cached,
-            text=request.text,
-            tokens=[TokenizationToken(value) for value in result["tokens"]],
-            request_time=result["request_time"],
-        )
+        raise NotImplementedError("Use HuggingFaceClient to tokenize")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                _initialize_sentence_piece_processor()
-                return {"text": _sentence_piece_processor.DecodeIds(request.tokens)}
-
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"PalmyraClient decode error: {e}"
-            return DecodeRequestResult(success=False, cached=False, error=error, text="")
-
-        return DecodeRequestResult(
-            success=True, cached=cached, text=result["text"], request_time=result["request_time"]
-        )
+        raise NotImplementedError("Use HuggingFaceClient to decode")

@@ -19,7 +19,6 @@ _KNOWN_TOKENIZER_NAMES: Set[str] = {
     "google/ul2",
     "google/flan-t5-xxl",
     "bigcode/santacoder",
-    "Writer/palmyra-base",
     "bigcode/starcoder",
     "hf-internal-testing/llama-tokenizer",
 }
@@ -29,6 +28,7 @@ _KNOWN_TOKENIZER_NAMES: Set[str] = {
 _KNOWN_TOKENIZER_ALIASES: Dict[str, str] = {
     "huggingface/gpt2": "gpt2",
     "google/t5-11b": "t5-11b",
+    "writer/gpt2-tokenizer": "kiranr/gpt2-tokenizer",
 }
 
 
