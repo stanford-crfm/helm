@@ -16,6 +16,12 @@ microsoft_client.lock
 *.jsonl
 nltk_data/
 
+# MechanicalTurkCritiqueClient
+mturk/
+
+# SlurmRunner
+slurm/
+
 # Where data lives (e.g., newsqa)
 restricted
 
