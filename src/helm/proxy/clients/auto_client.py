@@ -147,7 +147,7 @@ class AutoClient(Client):
                 client = PalmyraClient(
                     api_key=self.credentials["writerApiKey"],
                     cache_config=cache_config,
-                    huggingface_client=self.get_huggingface_client(),
+                    tokenizer_client=self._get_tokenizer_client("writer/gpt2-tokenizer"),
                 )
             elif organization == "nvidia":
                 from helm.proxy.clients.megatron_client import MegatronClient
