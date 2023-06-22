@@ -164,9 +164,12 @@ class HuggingFaceClient(Client):
                 model_config = HuggingFaceHubModelConfig.from_string("bigcode/santacoder")
             elif model == "huggingface/starcoder":
                 model_config = HuggingFaceHubModelConfig.from_string("bigcode/starcoder")
-            raise Exception(f"Unknown HuggingFace model: {model}")
-        else:
-            return _get_singleton_server(model_config)
+            elif model == "mosaicml/mpt-7b":
+                model_config = HuggingFaceHubModelConfig.from_string("mosaicml/mpt-7b")
+                )
+            else:
+                raise Exception(f"Unknown HuggingFace model: {model}")
+        return _get_singleton_server(model_config)
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model

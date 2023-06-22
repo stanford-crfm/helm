@@ -1,10 +1,11 @@
 import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Union
+from typing import Dict, List
 import argparse
 import os
 import time
+import shlex
 import sys
 
 from helm.common.codec import from_json, to_json
@@ -16,11 +17,16 @@ from helm.benchmark.slurm_jobs import (
     cancel_slurm_job,
     get_slurm_job_state,
     SlurmJobState,
+    ACTIVE_SLURM_JOB_STATES,
     TERMINAL_SLURM_JOB_STATES,
     FAILURE_SLURM_JOB_STATES,
 )
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack_block
+
+
+_DEFAULT_MAX_CONCURRENT_WORKER_SLURM_JOBS = 8
+_MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKER_SLURM_JOBS"
 
 
 @dataclass
@@ -81,6 +87,15 @@ class SlurmRunner(Runner):
         self.logs_dir = os.path.join(self.slurm_base_dir, "logs")
         self.slurm_runner_spec_path = os.path.join(self.slurm_base_dir, "slurm_runner_spec.json")
 
+        # Configure max concurrent worker Slurm jobs from the environment variable.
+        # TODO: Read from a configuration file instead
+        env_max_concurrent_worker_slurm_jobs = os.getenv(_MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME)
+        self.max_concurrent_worker_slurm_jobs = (
+            int(env_max_concurrent_worker_slurm_jobs)
+            if env_max_concurrent_worker_slurm_jobs
+            else _DEFAULT_MAX_CONCURRENT_WORKER_SLURM_JOBS
+        )
+
     def run_all(self, run_specs: List[RunSpec]):
         """Run the entire benchmark on Slurm, where each RunSpec is run in its own Slurm job.
 
@@ -110,9 +125,6 @@ class SlurmRunner(Runner):
         hlog(f"Writing SlurmRunnerSpec to {slurm_runner_spec_path}")
         write(file_path=slurm_runner_spec_path, content=slurm_runner_spec_json)
 
-        # Info for all worker Slurm jobs
-        run_name_to_slurm_job_info: Dict[str, _SlurmJobInfo] = {}
-
         skipped_run_specs: List[RunSpec] = []
         queued_run_specs: List[RunSpec] = []
         # When running with multiple models, sorting by RunSpec.name is a heuristic that tries to
@@ -122,6 +134,8 @@ class SlurmRunner(Runner):
                 skipped_run_specs.append(run_spec)
             else:
                 queued_run_specs.append(run_spec)
+        # Reverse queued runs because we pop from the end of the list.
+        queued_run_specs.reverse()
 
         skipped_runs_json = to_json([run_spec.name for run_spec in skipped_run_specs])
         if skipped_run_specs:
@@ -131,6 +145,9 @@ class SlurmRunner(Runner):
         # This makes things more convenient for downstream status monitoring tools.
         hlog(f"Writing skipped runs to {skipped_runs_path}")
         write(file_path=skipped_runs_path, content=skipped_runs_json)
+
+        # Info for all worker Slurm jobs
+        run_name_to_slurm_job_info: Dict[str, _SlurmJobInfo] = {}
 
         # Callback for cleaning up worker Slurm jobs
         def cancel_all_jobs():
@@ -143,28 +160,36 @@ class SlurmRunner(Runner):
                         cancel_slurm_job(slurm_job_info.id)
 
         try:
-            # Submit a Slurm job for each RunSpec.
-            # TODO: If skip_completed_runs is set and the run is completed, skip creating the worker Slurm job
-            with htrack_block("Submitting worker Slurm jobs"):
-                for run_spec in queued_run_specs:
-                    slurm_job_id = self._submit_slurm_job_for_run_spec(run_spec)
-                    run_name_to_slurm_job_info[run_spec.name] = _SlurmJobInfo(
-                        id=slurm_job_id, state=SlurmJobState.PENDING
-                    )
-
-            worker_slurm_jobs_path = os.path.join(self.slurm_base_dir, "worker_slurm_jobs.json")
-            run_name_to_slurm_job_info_json = to_json(run_name_to_slurm_job_info)
-            hlog(f"Worker Slurm jobs: {run_name_to_slurm_job_info_json}")
-            hlog(f"Writing worker Slurm job IDs to {worker_slurm_jobs_path}")
-            write(file_path=worker_slurm_jobs_path, content=run_name_to_slurm_job_info_json)
-
             # Monitor submitted Slurm jobs for RunSpecs until an exit condition is triggered.
-            with htrack_block("Monitoring worker Slurm jobs"):
+            with htrack_block("Managing worker Slurm jobs"):
                 while True:
+                    num_active_slurm_jobs = len(
+                        [
+                            slurm_job_info
+                            for slurm_job_info in run_name_to_slurm_job_info.values()
+                            if slurm_job_info.state in ACTIVE_SLURM_JOB_STATES
+                        ]
+                    )
+                    available_concurrency = self.max_concurrent_worker_slurm_jobs - num_active_slurm_jobs
+                    while available_concurrency > 0 and queued_run_specs:
+                        available_concurrency -= 1
+                        run_spec = queued_run_specs.pop()
+                        hlog(f"Submitting Slurm job for {run_spec.name}")
+                        slurm_job_id = self._submit_slurm_job_for_run_spec(run_spec)
+                        run_name_to_slurm_job_info[run_spec.name] = _SlurmJobInfo(
+                            id=slurm_job_id, state=SlurmJobState.PENDING
+                        )
+                    queued_runs_json = to_json([run_spec.name for run_spec in queued_run_specs])
+                    queued_runs_path = os.path.join(self.slurm_base_dir, "queued_runs.json")
+                    hlog(f"Writing queued runs to {queued_runs_path}")
+                    write(file_path=queued_runs_path, content=queued_runs_json)
+
                     hlog("Fetching states of worker Slurm jobs from Slurm")
                     # TODO: Get the states of multiple jobs in a single call to Slurm
                     for slurm_job_info in run_name_to_slurm_job_info.values():
-                        slurm_job_info.state = get_slurm_job_state(slurm_job_info.id)
+                        if slurm_job_info.state not in TERMINAL_SLURM_JOB_STATES:
+                            slurm_job_info.state = get_slurm_job_state(slurm_job_info.id)
+                    worker_slurm_jobs_path = os.path.join(self.slurm_base_dir, "worker_slurm_jobs.json")
                     run_name_to_slurm_job_info_json = to_json(run_name_to_slurm_job_info)
                     hlog(f"Worker Slurm jobs: {run_name_to_slurm_job_info_json}")
                     hlog(f"Writing worker Slurm job states to {worker_slurm_jobs_path}")
@@ -179,7 +204,7 @@ class SlurmRunner(Runner):
                     ):
                         hlog("Some worker Slurm job failed and --exit_on_error was set.")
                         break
-                    if all(
+                    if not queued_run_specs and all(
                         [
                             slurm_job_info.state in TERMINAL_SLURM_JOB_STATES
                             for slurm_job_info in run_name_to_slurm_job_info.values()
@@ -217,32 +242,38 @@ class SlurmRunner(Runner):
         log_path = os.path.join(self.logs_dir, f"{run_name}.log")
         # Requires that SlurmRunnerSpec has already been written to self.slurm_runner_spec_path.
         # It should have been written at the start of self.run_all()
-        command = (
-            f"{sys.executable}"
-            f" -m {SlurmRunner.__module__}"
-            f" --slurm-runner-spec-path {self.slurm_runner_spec_path}"
-            f" --run-spec-path {run_spec_path}"
+        command = shlex.join(
+            [
+                sys.executable,
+                "-m",
+                SlurmRunner.__module__,
+                "--slurm-runner-spec-path",
+                self.slurm_runner_spec_path,
+                "--run-spec-path",
+                run_spec_path,
+            ]
         )
         # TODO: Make default Slurm arguments configurable.
-        slurm_args: Dict[str, Union[str, int]] = {
+        raw_slurm_args: Dict[str, str] = {
             "account": "nlp",
-            "cpus_per_task": 4,
+            "cpus_per_task": "4",
             "mem": "32G",
             "gres": "gpu:0",
             "open_mode": "append",
             "partition": "john",
             "time": "14-0",  # Deadline of 14 days
-            "mail_type": "END",
+            "mail_type": "FAIL",
             "job_name": run_name,
             "output": log_path,
             "chdir": os.getcwd(),
         }
         # TODO: Move resource requirements into RunSpec.
         if run_spec.name.startswith("msmarco:"):
-            slurm_args["mem"] = "64G"
+            raw_slurm_args["mem"] = "64G"
         if "device=cuda" in run_spec.name:
-            slurm_args["gres"] = "gpu:1"
-            slurm_args["partition"] = "jag-hi"
+            raw_slurm_args["gres"] = "gpu:1"
+            raw_slurm_args["partition"] = "jag-hi"
+        slurm_args: Dict[str, str] = {key: shlex.quote(value) for key, value in raw_slurm_args.items()}
         # Uncomment this to get notification emails from Slurm for Slurm worker jobs.
         # slurm.set_mail_user(os.getenv("USER"))
         hlog(f"Submitting worker Slurm job for run {run_name} with command: {command}")

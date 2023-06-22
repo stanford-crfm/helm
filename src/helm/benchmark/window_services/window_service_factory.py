@@ -37,7 +37,7 @@ from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
 from .megatron_window_service import MegatronWindowService
 from .opt_window_service import OPTWindowService
-from .palmyra_window_service import PalmyraWindowService, SilkRoadWindowService
+from .palmyra_window_service import PalmyraWindowService, LongerPalmyraWindowService
 from .remote_window_service import get_remote_window_service
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
@@ -104,8 +104,8 @@ class WindowServiceFactory:
         elif organization == "writer":
             if engine in ["palmyra-base", "palmyra-large", "palmyra-instruct-30", "palmyra-e"]:
                 window_service = PalmyraWindowService(service)
-            elif engine == "silk-road":
-                window_service = SilkRoadWindowService(service)
+            elif engine in ["palmyra-x", "silk-road"]:
+                window_service = LongerPalmyraWindowService(service)
             else:
                 raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":
@@ -132,7 +132,7 @@ class WindowServiceFactory:
             "together/pythia-7b",
             # MPT-7B model was trained with the EleutherAI/gpt-neox-20b tokenizer
             # See: https://huggingface.co/mosaicml/mpt-7b
-            "together/mpt-7b",
+            "mosaicml/mpt-7b",
         ]:
             window_service = GPTNeoXWindowService(service)
         elif model_name == "together/h3-2.7b":
