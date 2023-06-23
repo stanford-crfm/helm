@@ -15,6 +15,7 @@ from helm.common.tokenization_request import (
 )
 from helm.proxy.retry import retry_request
 from .critique_client import CritiqueClient, RandomCritiqueClient
+from .model_critique_client import ModelCritiqueClient
 from .scale_critique_client import ScaleCritiqueClient
 from .surge_ai_critique_client import SurgeAICritiqueClient
 from .mechanical_turk_critique_client import MechanicalTurkCritiqueClient
@@ -131,7 +132,6 @@ class AutoClient(Client):
                 client = PalmyraClient(
                     api_key=self.credentials["writerApiKey"],
                     cache_config=cache_config,
-                    tokenizer_client=self._get_tokenizer_client("huggingface"),
                 )
             elif organization == "nvidia":
                 client = MegatronClient(cache_config=cache_config)
@@ -183,7 +183,6 @@ class AutoClient(Client):
                 "gooseai",
                 "huggingface",
                 "microsoft",
-                "Writer",
                 "hf-internal-testing",
             ]:
                 client = HuggingFaceClient(cache_config=cache_config)
@@ -209,6 +208,11 @@ class AutoClient(Client):
                 client = SimpleClient(cache_config=cache_config)
             elif organization == "nvidia":
                 client = MegatronClient(cache_config=cache_config)
+            elif organization == "writer":
+                client = PalmyraClient(
+                    api_key=self.credentials["writerApiKey"],
+                    cache_config=cache_config,
+                )
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client
@@ -217,7 +221,6 @@ class AutoClient(Client):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
 
-        @retry_request
         def tokenize_with_retry(client: Client, request: TokenizationRequest) -> TokenizationRequestResult:
             return client.tokenize(request)
 
@@ -234,7 +237,6 @@ class AutoClient(Client):
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
 
-        @retry_request
         def decode_with_retry(client: Client, request: DecodeRequest) -> DecodeRequestResult:
             return client.decode(request)
 
@@ -265,7 +267,12 @@ class AutoClient(Client):
             if not surgeai_credentials:
                 raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
             self.critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
-
+        elif critique_type == "model":
+            model_name: Optional[str] = self.credentials.get("critiqueModelName")
+            if model_name is None:
+                raise ValueError("critiqueModelName is required for ModelCritiqueClient")
+            client: Client = self._get_client(model_name)
+            self.critique_client = ModelCritiqueClient(client, model_name)
         elif critique_type == "scale":
             scale_credentials = self.credentials.get("scaleApiKey")
             scale_project = self.credentials.get("scaleProject", None)
