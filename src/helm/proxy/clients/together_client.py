@@ -19,7 +19,6 @@ _ASYNC_MODELS: Set[str] = {
     "llama-7b",
     "pythia-7b",
     "redpajama-incite-base-3b-v1",
-    "vicuna-13b",
 }
 """Together models to use async requests for.
 
@@ -42,7 +41,6 @@ MODEL_ALIASES: Dict[str, str] = {
     "alpaca-7b": "alpaca-7b-full-precision",
     "llama-7b": "llama-7b-full-precision",
     "pythia-7b": "pythia-7b-full-precision",
-    "vicuna-13b": "vicuna-13b-full-precision",
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
 }
 """Together model name aliases.
