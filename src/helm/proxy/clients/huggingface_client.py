@@ -147,7 +147,7 @@ class HuggingFaceClient(Client):
                 )
             elif model == "lmsys/vicuna-13b":
                 self.model_server_instances[model] = HuggingFaceServer(
-                    HuggingFaceModelConfig.from_string("lmsys/vicuna-13b")
+                    HuggingFaceModelConfig.from_string("lmsys/vicuna-13b-v1.3")
                 )
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")
