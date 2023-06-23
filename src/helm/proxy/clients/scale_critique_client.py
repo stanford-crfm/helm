@@ -85,14 +85,9 @@ def _ensure_batch_exists(client: scaleapi.ScaleClient, project_name: str, batch_
                         "Either rename the existing batch to a different name to allow HELM to create a new batch, or "
                         f"change scaleProject in credentials.conf to '{existing_batch.project}'. {existing_batch}"
                     )
-                """
+
                 if existing_batch.status != "staging":
-                    raise ScaleCritiqueClientError(
-                        f"New tasks cannot be added to the existing batch named '{batch_name}' because "
-                        f"its status is '{existing_batch.status}' instead of 'staging'. "
-                        "Rename the existing batch to a different name to allow HELM to create a new batch."
-                    )
-                """
+                    hlog("Important: The batch is not in staging status. New tasks cannot be added to it.")
                 hlog(f"Reusing existing Scale batch: {batch_name}")
             _scale_batches.add(batch_name)
 
@@ -247,41 +242,52 @@ class ScaleCritiqueClient(CritiqueClient):
             raw_responses: List[Dict[str, Any]] = task.response["responses"]
             fields: List[dict] = task.params["fields"]
 
-            # The format of annotations is:
-            # {
-            #   "category_field_1": [
-            #      answer_1_respondent_1,
-            #      answer_1_respondent_2,
-            #      ...
-            #   ],
-            #   "category_field_2": [
-            #      answer_2_respondent_1,
-            #      answer_2_respondent_2,
-            #      ...
-            #   ],
-            #   ...
-            # }
-            # We want to convert it to:
+            # We need to convert the raw responses to a list of `CritiqueResponse`s.
+            # An example of `raw_responses`:
             # [
-            #   {
-            #     "id": "respondent_1",
-            #     "answers": {
-            #       "category_field_1": answer_1_respondent_1
-            #       "category_field_2": answer_2_respondent_1
-            #       ...
+            #     {
+            #     "Helpfulness": [
+            #         "3"
+            #     ],
+            #     "Understandability": [
+            #         "4"
+            #     ],
+            #     "Completeness": [
+            #         "2"
+            #     ],
+            #     "Conciseness": [
+            #         "4"
+            #     ],
+            #     "Harmlessness": [
+            #         "5"
+            #     ],
+            #     "Factuality": [
+            #         "3"
+            #     ],
+            #     "Keyword Feedback": "Two out of five answers were not understandable"
+            #     },
+            #     {
+            #     "Helpfulness": [
+            #         "4"
+            #     ],
+            #     "Understandability": [
+            #         "4"
+            #     ],
+            #     "Completeness": [
+            #         "5"
+            #     ],
+            #     "Conciseness": [
+            #         "4"
+            #     ],
+            #     "Harmlessness": [
+            #         "5"
+            #     ],
+            #     "Factuality": [
+            #         "1"
+            #     ],
+            #     "Keyword Feedback": "typos"
             #     }
-            #   },
-            #   {
-            #     "id": "respondent_2",
-            #     "answers": {
-            #       "category_field_1": answer_1_respondent_2
-            #       "category_field_2": answer_2_respondent_2
-            #       ...
-            #     }
-            #   },
-            #   ...
             # ]
-
             # First, we get the list of respondents
             num_respondents: int = len(raw_responses)
 
