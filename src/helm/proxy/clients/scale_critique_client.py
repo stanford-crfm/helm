@@ -85,12 +85,14 @@ def _ensure_batch_exists(client: scaleapi.ScaleClient, project_name: str, batch_
                         "Either rename the existing batch to a different name to allow HELM to create a new batch, or "
                         f"change scaleProject in credentials.conf to '{existing_batch.project}'. {existing_batch}"
                     )
+                """
                 if existing_batch.status != "staging":
                     raise ScaleCritiqueClientError(
                         f"New tasks cannot be added to the existing batch named '{batch_name}' because "
                         f"its status is '{existing_batch.status}' instead of 'staging'. "
                         "Rename the existing batch to a different name to allow HELM to create a new batch."
                     )
+                """
                 hlog(f"Reusing existing Scale batch: {batch_name}")
             _scale_batches.add(batch_name)
 
@@ -242,8 +244,8 @@ class ScaleCritiqueClient(CritiqueClient):
         if task.status != TaskStatus.Completed.value:
             return []
         else:
-            annotations: Dict[str, Any] = task.response["annotations"]
-            fields: List[dict] = task.response["params"]["fields"]
+            raw_responses: List[Dict[str, Any]] = task.response["responses"]
+            fields: List[dict] = task.params["fields"]
 
             # The format of annotations is:
             # {
@@ -281,27 +283,27 @@ class ScaleCritiqueClient(CritiqueClient):
             # ]
 
             # First, we get the list of respondents
-            num_respondents: int = len(annotations[list(annotations.keys())[0]])
+            num_respondents: int = len(raw_responses)
 
             # Then, we create the list of responses
             responses: List[CritiqueResponse] = []
             for respondent_index in range(num_respondents):
                 answers: Dict[str, Union[str, List[str]]] = {}
-                for i, (field_name, field_answers) in enumerate(annotations.items()):
+                raw_response = raw_responses[respondent_index]
+                for i, (field_name, field_answers) in enumerate(raw_response.items()):
                     if fields[i]["type"] == "category":
                         # We need to convert the answer from an index to the actual value
-                        assert isinstance(field_answers[respondent_index], int)
-                        value: int = field_answers[respondent_index]
-                        answers[field_name] = fields[i]["choices"][value]["label"]
-                    elif fields[i]["type"] == "checkbox":
-                        raise NotImplementedError("Checkbox fields are not supported yet")
-                    else:
-                        hlog(
-                            "Warning: The current logic is very problematic. If the response is a string,"
-                            "the program will return a character as the answer. Also, we should"
-                            "not be using the `annatation` field. We plan to fix this soon."
+                        assert (
+                            isinstance(field_answers, list)
+                            and len(field_answers) == 1
+                            and isinstance(field_answers[0], str)
                         )
-                        answers[field_name] = field_answers[respondent_index]
+                        value: int = int(field_answers[0])
+                        answers[field_name] = fields[i]["choices"][value]["label"]
+                    elif fields[i]["type"] == "text":
+                        answers[field_name] = field_answers
+                    else:
+                        raise NotImplementedError(f"{fields[i]['type']} fields are not supported yet")
                 responses.append(
                     CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
                 )
