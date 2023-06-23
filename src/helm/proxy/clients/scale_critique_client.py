@@ -143,7 +143,7 @@ class ScaleCritiqueClient(CritiqueClient):
                 "title": question.name,
                 "description": self._interpolate_fields(question.text, fields),
                 # Scale's consensus function requires the values to be a number.
-                "choices": [{"label": question.options[i], "value": i + 1} for i in range(len(question.options))],
+                "choices": [{"label": question.options[i], "value": i} for i in range(len(question.options))],
                 "min_choices": 0 if question.question_type == "checkbox" else 1,
                 "max_choices": len(question.options) if question.question_type == "checkbox" else 1,
             }
@@ -292,13 +292,15 @@ class ScaleCritiqueClient(CritiqueClient):
                         # We need to convert the answer from an index to the actual value
                         assert isinstance(field_answers[respondent_index], int)
                         value: int = field_answers[respondent_index]
-                        answers[field_name] = fields[i]["choices"][value - 1]["label"]
+                        answers[field_name] = fields[i]["choices"][value]["label"]
                     elif fields[i]["type"] == "checkbox":
                         raise NotImplementedError("Checkbox fields are not supported yet")
                     else:
-                        hlog("Warning: The current logic is very problematic. If the response is a string,"
-                             "the program will return a character as the answer. Also, we should"
-                             "not be using the `annatation` field. We plan to fix this soon.")
+                        hlog(
+                            "Warning: The current logic is very problematic. If the response is a string,"
+                            "the program will return a character as the answer. Also, we should"
+                            "not be using the `annatation` field. We plan to fix this soon."
+                        )
                         answers[field_name] = field_answers[respondent_index]
                 responses.append(
                     CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
