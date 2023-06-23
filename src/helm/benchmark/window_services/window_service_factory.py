@@ -158,7 +158,7 @@ class WindowServiceFactory:
         elif model_name in [
             "together/llama-7b",
             "together/alpaca-7b",
-            "together/vicuna-13b",
+            "lmsys/vicuna-13b",
         ]:
             window_service = LlamaWindowService(service)
         elif organization == "cohere":

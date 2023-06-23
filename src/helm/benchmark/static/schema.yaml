@@ -477,7 +477,7 @@ models:
     todo: true
 
   # LMSYS
-  - name: together/vicuna-13b
+  - name: lmsys/vicuna-13b
     display_name: Vicuna (13B)
     description: Vicuna-13B is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
     creator_organization: LMSYS
