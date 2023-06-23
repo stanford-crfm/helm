@@ -234,7 +234,7 @@ class ScaleCritiqueClient(CritiqueClient):
             return []
         else:
             annotations: Dict[str, Any] = task.response["annotations"]
-            fields: List[dict] = task.response["params"]["fields"]
+            fields: List[dict] = task.params["fields"]
 
             # The format of annotations is:
             # {
