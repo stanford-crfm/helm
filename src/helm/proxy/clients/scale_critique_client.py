@@ -287,6 +287,9 @@ class ScaleCritiqueClient(CritiqueClient):
                     elif fields[i]["type"] == "checkbox":
                         raise NotImplementedError("Checkbox fields are not supported yet")
                     else:
+                        hlog("Warning: The current logic is very problematic. If the response is a string,"
+                             "the program will return a character as the answer. Also, we should"
+                             "not be using the `annatation` field. We plan to fix this soon.")
                         answers[field_name] = field_answers[respondent_index]
                 responses.append(
                     CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
