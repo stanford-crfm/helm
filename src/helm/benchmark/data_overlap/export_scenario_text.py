@@ -15,17 +15,18 @@ from helm.benchmark.scenarios.scenario import (
     VALID_SPLIT,
     TEST_SPLIT,
     ScenarioSpec,
+    with_instance_ids,
 )
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
-from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario, LightScenarioKey
+from helm.benchmark.data_overlap.light_scenario import LightInstance, LightScenario, LightScenarioKey
 
 
 def create_light_instance_from_instance(instance: Instance) -> LightInstance:
     """Create a LightInstance given an Instance. Only keep the text attributes."""
     input_text: str = instance.input.text
     reference_texts: List[str] = [reference.output.text for reference in instance.references]
-    return LightInstance(input=input_text, references=reference_texts)
+    return LightInstance(input=input_text, references=reference_texts, id=instance.id)
 
 
 def get_light_scenarios_from_scenario_spec(
@@ -47,6 +48,9 @@ def get_light_scenarios_from_scenario_spec(
     with htrack_block("scenario.get_instances"):
         instances = scenario.get_instances()
 
+    # Get instance ids
+    instances = with_instance_ids(instances)
+
     # Classify instances into splits
     splits: List[str] = [TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT]
     split_mapping: DefaultDict[str, list] = defaultdict(list)
@@ -61,9 +65,13 @@ def get_light_scenarios_from_scenario_spec(
     light_scenarios: List[LightScenario] = []
     for split, instances in split_mapping.items():
         light_instances: List[LightInstance] = [create_light_instance_from_instance(instance) for instance in instances]
+        light_scenario_key: LightScenarioKey = LightScenarioKey(
+            scenario_spec=scenario_spec,
+            split=split,
+        )
         light_scenario = LightScenario(
-            light_scenario_key=LightScenarioKey(metadata={"scenario_spec": scenario_spec, "split": split}),
-            light_instances=light_instances,
+            scenario_key=light_scenario_key,
+            instances=light_instances,
         )
         light_scenarios.append(light_scenario)
     return light_scenarios
@@ -96,7 +104,14 @@ if __name__ == "__main__":
     except OSError:
         pass
 
-    scenario_specs: Set = set([run_spec.scenario_spec for run_spec in run_specs])
+    scenario_specs: Set = set()
+    for run_spec in run_specs:
+        scenario_spec = run_spec.scenario_spec
+        if (
+            scenario_spec.class_name
+            != "helm.benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario"
+        ):
+            scenario_specs.add(scenario_spec)
 
     hlog("Generating light scenarios from scenarios")
     for scenario_spec in scenario_specs:
