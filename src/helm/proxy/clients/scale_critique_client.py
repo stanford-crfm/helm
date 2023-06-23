@@ -1,7 +1,7 @@
 from hashlib import sha512
 import json
 import threading
-from typing import Dict, List, Union, Set, Any
+from typing import Dict, List, Union, Set, Tuple
 
 from cattrs import unstructure
 import scaleapi
