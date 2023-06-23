@@ -1,7 +1,7 @@
 from hashlib import sha512
 import json
 import threading
-from typing import Dict, List, Union, Set
+from typing import Dict, List, Union, Set, Any
 
 from cattrs import unstructure
 import scaleapi
@@ -142,7 +142,8 @@ class ScaleCritiqueClient(CritiqueClient):
                 "field_id": question.name,  # This must be unique, so we use the question name
                 "title": question.name,
                 "description": self._interpolate_fields(question.text, fields),
-                "choices": [{"label": option, "value": option} for option in question.options],
+                # Scale's consensus function requires the values to be a number.
+                "choices": [{"label": question.options[i], "value": i} for i in range(len(question.options))],
                 "min_choices": 0 if question.question_type == "checkbox" else 1,
                 "max_choices": len(question.options) if question.question_type == "checkbox" else 1,
             }
@@ -232,7 +233,8 @@ class ScaleCritiqueClient(CritiqueClient):
         if task.status != TaskStatus.Completed.value:
             return []
         else:
-            annotations: Dict[str, List[str]] = task.response["annotations"]
+            annotations: Dict[str, Any] = task.response["annotations"]
+            fields: List[dict] = task.params["fields"]
 
             # The format of annotations is:
             # {
@@ -276,8 +278,21 @@ class ScaleCritiqueClient(CritiqueClient):
             responses: List[CritiqueResponse] = []
             for respondent_index in range(num_respondents):
                 answers: Dict[str, Union[str, List[str]]] = {}
-                for field_name, field_answers in annotations.items():
-                    answers[field_name] = field_answers[respondent_index]
+                for i, (field_name, field_answers) in enumerate(annotations.items()):
+                    if fields[i]["type"] == "category":
+                        # We need to convert the answer from an index to the actual value
+                        assert isinstance(field_answers[respondent_index], int)
+                        value: int = field_answers[respondent_index]
+                        answers[field_name] = fields[i]["choices"][value]["label"]
+                    elif fields[i]["type"] == "checkbox":
+                        raise NotImplementedError("Checkbox fields are not supported yet")
+                    else:
+                        hlog(
+                            "Warning: The current logic is very problematic. If the response is a string,"
+                            "the program will return a character as the answer. Also, we should"
+                            "not be using the `annatation` field. We plan to fix this soon."
+                        )
+                        answers[field_name] = field_answers[respondent_index]
                 responses.append(
                     CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
                 )
