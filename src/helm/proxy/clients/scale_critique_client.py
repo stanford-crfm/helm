@@ -310,6 +310,7 @@ class ScaleCritiqueClient(CritiqueClient):
                         answers[field_name] = field_answers
                     else:
                         raise NotImplementedError(f"{fields[i]['type']} fields are not supported yet")
+                # TODO: try to use the actual respondent(worker) id if possible.
                 responses.append(
                     CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
                 )
