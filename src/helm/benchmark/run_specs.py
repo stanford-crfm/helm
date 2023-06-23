@@ -1,3 +1,4 @@
+import importlib
 import itertools
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
@@ -2290,10 +2291,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
             # Get scenario tags
             components = run_spec.scenario_spec.class_name.split(".")
-            module: Any = __import__(components[0])
-            for component in components[1:]:
-                module = getattr(module, component)
-            scenario_tags: List[str] = module.tags
+            class_name = components[-1]
+            module_name = ".".join(components[:-1])
+            cls = getattr(importlib.import_module(module_name), class_name)
+            scenario_tags: List[str] = cls.tags
             # If the scenario is instruction, do not use PROMPT_ANSWER_START
             if "instructions" in scenario_tags:
                 format_expander = FormatPromptRunExpander(
