@@ -73,13 +73,15 @@ class InstructionFollowingCritiqueMetric(Metric):
     }
 
     KEYWORD_NAME: str = "Keyword Feedback"
+    KEYWORD_PROMPT: str = "Provide a comma-separated list of keywords that capture what's wrong with the response (e.g., typos, swear words, too long)"  # noqa: E501
 
     def __init__(self, num_respondents: int) -> None:
         self._template = CritiqueTaskTemplate(
             name="instruction_following_critique",
             # Note: Instructions can contain HTML.
             # Note: To render new lines in any HTML block, you must use <p></p>, <br>, or style="white-space: pre-wrap;"
-            instructions="<p>Rate the response to the instruction. Please read the <a href=https://docs.google.com/document/d/1tWArTQiuuM44v4Db85C638i7fkHLTP_fXpGaxiS8c5M/edit?usp=sharing>tutorial and examples</a> before starting.</p>"  # noqa: E501
+            instructions="<p>Please read the <a href=https://docs.google.com/document/d/1tWArTQiuuM44v4Db85C638i7fkHLTP_fXpGaxiS8c5M/edit?usp=sharing>tutorial and examples</a> before continuing.</p>"  # noqa: E501
+            "<p>The following is an instruction written by a human, and a response to the instruction written by an AI model. Please answer the following questions about the AI model's response.</p> "  # noqa: E501
             "<h4>Instruction</h4>"
             '<p style="white-space: pre-wrap;">{{instruction}}</p>'
             "<h4>Response</h4>"
@@ -130,7 +132,7 @@ class InstructionFollowingCritiqueMetric(Metric):
                     name=self.KEYWORD_NAME,
                     question_type=QuestionType.FREE_RESPONSE,
                     # Note: Text can contain HTML.
-                    text="Provide a comma-separated list of keywords that capture what's wrong with the response (e.g., typos, swear words, too long)",  # noqa: E501
+                    text=self.KEYWORD_PROMPT,
                     options=[],
                 ),
             ],
