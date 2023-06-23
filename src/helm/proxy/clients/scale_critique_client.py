@@ -286,9 +286,10 @@ class ScaleCritiqueClient(CritiqueClient):
                         assert isinstance(field_answers[respondent_index], int)
                         value: int = field_answers[respondent_index]
                         answers[field_name] = fields[i]["choices"][value - 1]["label"]
+                    elif fields[i]["type"] == "checkbox":
+                        raise NotImplementedError("Checkbox fields are not supported yet")
                     else:
                         answers[field_name] = field_answers[respondent_index]
-                    # TODO: type == "checkbox" may need special handling, too.
                 responses.append(
                     CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
                 )
