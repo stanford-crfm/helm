@@ -20,12 +20,20 @@ from .client import Client, wrap_request_time
 import requests
 
 
-class NeuripsClient(Client):
-    """Implements the client for the NeurIPS LLM Efficiency Challenge."""
+class HTTPClient(Client):
+    """Implements a simple HTTP client."""
 
-    def __init__(self, cache_config: CacheConfig, port: int = 8080):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        base_url: str = "http://localhost",
+        port: int = 8080,
+        timeout: int = 10,
+    ):
         self.cache = Cache(cache_config)
-        self.port = 8080
+        self.base_url = base_url
+        self.port = port
+        self.timeout = timeout
 
     def make_request(self, request: Request) -> RequestResult:
         cache_key = asdict(request)
@@ -51,32 +59,35 @@ class NeuripsClient(Client):
         try:
 
             def do_it():
-                url = f"http://localhost:{self.port}/process"
-                response = requests.post(url, json=raw_request)
+                url = f"{self.base_url}:{self.port}/process"
+                response = requests.post(url, json=raw_request, timeout=self.timeout)
                 response.raise_for_status()
                 response_data = response.json()
                 return response_data
-
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            response = do_it()
+            cached=False
+            # response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             completions = []
-            for completion in response["completions"]:
-                tokens = [
-                    Token(
-                        token=token["value"],
-                        score=token["score"],
-                        start=token["start"],
-                        end=token["end"],
-                    )
-                    for token in completion["tokens"]
-                ]
-                completions.append(Sequence(tokens=tokens, score=completion["score"]))
-
+            # for token in response["tokens"]:
+            #     tokens = [
+            #         Token(
+            #             token=token,
+            #             score=1,
+            #             start=1,
+            #             end=1,
+            #         )
+            #         for token in completion["tokens"]
+            #     ]
+            #     completions.append(Sequence(tokens=tokens, score=completion["score"]))
+            seq = Sequence(text=response['text'], logprob=1.0, tokens=[Token("rando", 1.0, {}) for token in response['tokens']])
+            completions.append(seq)
             return RequestResult(
                 success=True,
                 cached=cached,
                 error=None,
                 completions=completions,
                 embedding=[],
+                request_time=response["request_time"],
             )
         except requests.exceptions.RequestException as e:
             error: str = f"Request error: {e}"
@@ -117,22 +128,23 @@ class NeuripsClient(Client):
         )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        cache_key = asdict(request)
+        raise NotImplementedError("Not implemented yet.") 
+        # cache_key = asdict(request)
 
-        try:
+        # try:
 
-            def do_it():
-                url = f"http://localhost:{self.port}/decode"
-                response = requests.post(url, json={"tokens": request.tokens})
-                response.raise_for_status()
-                response_data = response.json()
-                return response_data
+        #     def do_it():
+        #         url = f"http://localhost:{self.port}/decode"
+        #         response = requests.post(url, json={"tokens": request.tokens})
+        #         response.raise_for_status()
+        #         response_data = response.json()
+        #         return response_data
 
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"Local Model error: {e}"
-            return DecodeRequestResult(success=False, cached=False, error=error, text="")
+        #     result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        # except Exception as e:
+        #     error: str = f"Local Model error: {e}"
+        #     return DecodeRequestResult(success=False, cached=False, error=error, text="")
 
-        return DecodeRequestResult(
-            success=True, cached=cached, text=result["text"], request_time=result["request_time"]
-        )
+        # return DecodeRequestResult(
+        #     success=True, cached=cached, text=result["text"], request_time=result["request_time"]
+        # )
