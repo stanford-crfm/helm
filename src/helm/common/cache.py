@@ -200,6 +200,7 @@ class _MongoKeyValueStore(KeyValueStore):
         self._mongodb_client: MongoClient = MongoClient(uri)
         self._database = self._mongodb_client.get_default_database()
         self._collection = self._database.get_collection(collection_name)
+        self._collection.create_index(self._REQUEST_KEY, unique=True)
         super().__init__()
 
     def __enter__(self) -> "_MongoKeyValueStore":
