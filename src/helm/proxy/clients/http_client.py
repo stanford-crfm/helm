@@ -29,11 +29,13 @@ class HTTPClient(Client):
         base_url: str = "http://localhost",
         port: int = 8080,
         timeout: int = 10,
+        do_cache: bool = False,
     ):
         self.cache = Cache(cache_config)
         self.base_url = base_url
         self.port = port
         self.timeout = timeout
+        self.do_cache = do_cache
 
     def make_request(self, request: Request) -> RequestResult:
         cache_key = asdict(request)
@@ -64,23 +66,22 @@ class HTTPClient(Client):
                 response.raise_for_status()
                 response_data = response.json()
                 return response_data
-            response = do_it()
-            cached=False
-            # response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            completions = []
-            # for token in response["tokens"]:
-            #     tokens = [
-            #         Token(
-            #             token=token,
-            #             score=1,
-            #             start=1,
-            #             end=1,
-            #         )
-            #         for token in completion["tokens"]
-            #     ]
-            #     completions.append(Sequence(tokens=tokens, score=completion["score"]))
-            seq = Sequence(text=response['text'], logprob=1.0, tokens=[Token("rando", 1.0, {}) for token in response['tokens']])
-            completions.append(seq)
+
+            if self.do_cache:
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            else:
+                response, cached = do_it(), False
+
+            tokens = [
+                Token(
+                    text=token["text"], logprob=token["logprob"], top_logprobs=token["top_logprob"]
+                )
+                for token in response["tokens"]
+            ]
+            completions = [
+                Sequence(text=response["text"], logprob=response["logprob"], tokens=tokens)
+            ]
+
             return RequestResult(
                 success=True,
                 cached=cached,
@@ -128,7 +129,7 @@ class HTTPClient(Client):
         )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Not implemented yet.") 
+        raise NotImplementedError("Not implemented yet.")
         # cache_key = asdict(request)
 
         # try:
