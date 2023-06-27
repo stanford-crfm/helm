@@ -737,6 +737,13 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject}
     )
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=0,
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
@@ -2223,6 +2230,51 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
         groups=["anthropic_hh_rlhf"],
+    )
+
+
+@run_spec_function("lm_entry")
+def get_lm_entry_spec(task: str, method: str = ADAPT_GENERATION) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.lm_entry_scenario.LMEntryScenario",
+        args={"task": task},
+    )
+    adapter_spec: AdapterSpec
+    metric_specs: List[MetricSpec]
+
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        if task in ["first_letter", "last_letter", "first_word", "last_word", "word_before", "word_after"]:
+            raise ValueError(f"Task {task} cannot be cast to multiple choice.")
+
+        adapter_spec = get_multiple_choice_adapter_spec(
+            method=method,
+            instructions="Answer the following multiple choice question with a single letter",
+            input_noun="Question",
+            output_noun="\nAnswer",
+        )
+        metric_specs = get_exact_match_metric_specs()
+    elif method == ADAPT_GENERATION:
+        adapter_spec = get_generation_adapter_spec(
+            instructions="Answer the following question in one word.",
+            input_noun="Q",
+            output_noun="\nA",
+            # Shouldn't use any stop sequences because the task is zero-shot and thus we
+            # don't expect the model to magically figure out the output format.
+            stop_sequences=[],
+            # Set max_tokens to save tokens. The answer is a word so 10 tokens should suffice.
+            max_tokens=10,
+        )
+        # It makes no sense to include non-quasi exact match metrics for this task.
+        metric_specs = get_basic_metric_specs(["quasi_exact_match", "quasi_prefix_exact_match", "f1_score"])
+    else:
+        raise ValueError(f"Unknown method: {method}")
+
+    return RunSpec(
+        name=f"lm_entry:task={task},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["lm_entry"],
     )
 
 
