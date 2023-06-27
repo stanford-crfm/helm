@@ -56,7 +56,10 @@ def _render_template_crowd_html(task_template: CritiqueTaskTemplate) -> str:
         </script>"""
     )
 
-    instructions_crowd_html = f"<div>{_format_template_tags(task_template.instructions)}</div>"
+    mturk_warning = "<p><b>Please make sure you do not submit more than <NUM_HITS> HITs for this project in total."
+                    " Also please do not cherrypick tasks. We will closely monitor the submissions and if we detect"
+                    " bad behaviors, we will revoke your qual.</b></p>"
+    instructions_crowd_html = f"<div>{mturk_warning}{_format_template_tags(task_template.instructions)}</div>"
     instruction_question_break_html = "<br><br><h4>Please answer the questions below:</h4>"
     questions_crowd_html = "<br>\n<br>\n".join(
         [_render_question_crowd_html(question) for question in task_template.questions]
