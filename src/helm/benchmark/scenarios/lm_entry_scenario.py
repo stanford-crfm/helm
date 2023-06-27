@@ -24,26 +24,26 @@ class LMEntryScenario(Scenario):
     url_template = "https://raw.githubusercontent.com/aviaefrat/lmentry/main/data/{subtask}.json"
     task_to_subtasks = {
         "all_words_from_category": [
-            "all_words_from_category_1_distractors",
-            "all_words_from_category_0_distractors",
-            "all_words_from_category_2_distractors",
             "all_words_from_category",
+            "all_words_from_category_0_distractors",
+            "all_words_from_category_1_distractors",
+            "all_words_from_category_2_distractors",
         ],
         "any_words_from_category": [
-            "any_words_from_category_4_distractors",
             "any_words_from_category",
-            "any_words_from_category_5_distractors",
             "any_words_from_category_3_distractors",
+            "any_words_from_category_4_distractors",
+            "any_words_from_category_5_distractors",
         ],
         "bigger_number": ["bigger_number"],
         # "ends_with_letter": ["ends_with_letter"], # HELM's metrics currently don't support this
         # "ends_with_word": ["ends_with_word"], # HELM's metrics currently don't support this
         "first_alphabetically": [
+            "first_alphabetically",
             "first_alphabetically_consecutive_first_letter",
+            "first_alphabetically_different_first_letter",
             "first_alphabetically_far_first_letter",
             "first_alphabetically_same_first_letter",
-            "first_alphabetically",
-            "first_alphabetically_different_first_letter",
         ],
         "first_letter": ["first_letter"],
         "first_word": ["first_word"],
@@ -51,13 +51,13 @@ class LMEntryScenario(Scenario):
         "last_letter": ["last_letter"],
         "last_word": ["last_word"],
         "least_associated_word": ["least_associated_word"],
-        "less_letters": ["less_letters_length_diff_3plus", "less_letters", "less_letters_length_diff_1"],
-        "more_letters": ["more_letters", "more_letters_length_diff_3plus", "more_letters_length_diff_1"],
+        "less_letters": ["less_letters", "less_letters_length_diff_1", "less_letters_length_diff_3plus"],
+        "more_letters": ["more_letters", "more_letters_length_diff_1", "more_letters_length_diff_3plus"],
         "most_associated_word": ["most_associated_word"],
         "rhyming_word": [
             "rhyming_word",
-            "rhyming_word_orthographically_similar",
             "rhyming_word_orthographically_different",
+            "rhyming_word_orthographically_similar",
         ],
         # "sentence_containing": ["sentence_containing"], # HELM's metrics currently don't support this
         # "sentence_not_containing": ["sentence_not_containing"], # HELM's metrics currently don't support this
