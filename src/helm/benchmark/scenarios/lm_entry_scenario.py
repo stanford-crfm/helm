@@ -11,6 +11,9 @@ class LMEntryScenario(Scenario):
     The LMentry Benchmark
     https://arxiv.org/pdf/2211.02069.pdf
 
+    The implementation is with reference to the original repo: https://github.com/aviaefrat/lmentry
+    The data is also downloaded from the repo.
+
     LMentry evaluates LM's abilities of performing elementary language tasks. Examples include
     finding which word is shorter, or which word is the last in a sentence.
     """
