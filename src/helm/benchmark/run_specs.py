@@ -737,13 +737,6 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject}
     )
-    adapter_spec = get_multiple_choice_adapter_spec(
-        method=method,
-        instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
-        input_noun="Question",
-        output_noun="Answer",
-        max_train_instances=0,
-    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
