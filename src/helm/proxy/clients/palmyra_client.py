@@ -14,9 +14,6 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 
 
-_TOKENIZER_MODEL_URL = "https://huggingface.co/spaces/Writer/token-counter/resolve/92389981e4430f83383110728d954bda0f89fb30/tokenizer.model"  # noqa
-
-
 class PalmyraClient(Client):
     def __init__(self, api_key: str, cache_config: CacheConfig, tokenizer_client: Client):
         self.api_key: str = api_key
