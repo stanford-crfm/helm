@@ -12,7 +12,6 @@ models:
     description: GigaGAN (1B parameters)
     creator_organization: Adobe
     access: limited
-    todo: true
   - name: adobe/firefly
     display_name: Firefly
     description: Adobe Firefly was trained on the Adobe Stock dataset, along with openly licensed work and public domain content where copyright has expired.
@@ -34,19 +33,16 @@ models:
     description: DeepFloyd IF is a novel state-of-the-art open-source text-to-image model with a high degree of photorealism and language understanding.
     creator_organization: DeepFloyd
     access: open
-    todo: true
   - name: DeepFloyd/IF-I-L-v1.0
     display_name: DeepFloyd IF Large
     description: DeepFloyd IF is a novel state-of-the-art open-source text-to-image model with a high degree of photorealism and language understanding.
     creator_organization: DeepFloyd
     access: open
-    todo: true
   - name: DeepFloyd/IF-I-XL-v1.0
     display_name: DeepFloyd IF X-Large
     description: DeepFloyd IF is a novel state-of-the-art open-source text-to-image model with a high degree of photorealism and language understanding.
     creator_organization: DeepFloyd
     access: open
-    todo: true
   - name: kakaobrain/mindall-e
     display_name: minDALL-E (1.3B)
     description: minDALL-E, named after minGPT, is a 1.3B text-to-image generation model trained on 14 million image-text pairs for non-commercial purposes.
