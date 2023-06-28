@@ -221,7 +221,7 @@ models:
     release_date: 2022-11-08
 
   # Databricks
-  - name: together/dolly-v2-3b
+  - name: databricks/dolly-v2-3b
     display_name: Dolly V2 (3B)
     description: Dolly V2 (3B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
     creator_organization: Databricks
@@ -229,7 +229,7 @@ models:
     num_parameters: 2517652480
     release_date: 2023-04-12
     todo: true
-  - name: together/dolly-v2-7b
+  - name: databricks/dolly-v2-7b
     display_name: Dolly V2 (7B)
     description: Dolly V2 (7B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
     creator_organization: Databricks
@@ -237,7 +237,7 @@ models:
     num_parameters: 6444163072
     release_date: 2023-04-12
     todo: true
-  - name: together/dolly-v2-12b
+  - name: databricks/dolly-v2-12b
     display_name: Dolly V2 (12B)
     description: Dolly V2 (12B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
     creator_organization: Databricks
@@ -442,7 +442,15 @@ models:
     todo: true
 
   # Stability AI
-  - name: together/stablelm-base-alpha-7b
+  - name: stabilityai/stablelm-base-alpha-3b
+    display_name: StableLM-Base-Alpha (3B)
+    description: StableLM-Base-Alpha is a suite of 3B and 7B parameter decoder-only language models pre-trained on a diverse collection of English datasets with a sequence length of 4096 to push beyond the context window limitations of existing open-source language models.
+    creator_organization: Stability AI
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-04-20
+    todo: true
+  - name: stabilityai/stablelm-base-alpha-7b
     display_name: StableLM-Base-Alpha (7B)
     description: StableLM-Base-Alpha is a suite of 3B and 7B parameter decoder-only language models pre-trained on a diverse collection of English datasets with a sequence length of 4096 to push beyond the context window limitations of existing open-source language models.
     creator_organization: Stability AI
