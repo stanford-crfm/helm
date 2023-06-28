@@ -7,10 +7,8 @@ from helm.common.hierarchical_logger import htrack_block, hlog
 
 from helm.proxy.clients.huggingface_model_registry import (
     get_huggingface_model_config,
-    HuggingFaceModelConfig,
     HuggingFaceHubModelConfig,
     HuggingFaceLocalModelConfig,
-    LOCAL_HUGGINGFACE_MODEL_DIR,
 )
 
 

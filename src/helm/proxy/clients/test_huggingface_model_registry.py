@@ -5,7 +5,7 @@ from typing import List, Tuple
 from helm.benchmark.run_expander import ModelRunExpander
 from helm.proxy.clients.huggingface_model_registry import (
     HuggingFaceModelConfig,
-    register_huggingface_model_config,
+    register_huggingface_hub_model_config,
     get_huggingface_model_config,
 )
 from helm.proxy.models import get_all_models, get_all_text_models
@@ -13,7 +13,7 @@ from helm.proxy.models import get_all_models, get_all_text_models
 
 @pytest.mark.parametrize("model_name", ["EleutherAI/pythia-70m"])
 def test_hf_model_register(model_name):
-    register_huggingface_model_config(model_name)
+    register_huggingface_hub_model_config(model_name)
     assert model_name in ModelRunExpander("all").values
     assert model_name in get_all_models()
     assert model_name in get_all_text_models()
@@ -48,8 +48,8 @@ class TestHuggingFaceModelRegistry(unittest.TestCase):
             actual_model_config = HuggingFaceModelConfig.from_string(expected_model_name)
             self.assertEqual(actual_model_config.model_id, expected_model_id)
 
-    def test_register_huggingface_model_config(self):
-        register_huggingface_model_config("stanford-crfm/BioMedLM@main")
+    def test_register_huggingface_hub_model_config(self):
+        register_huggingface_hub_model_config("stanford-crfm/BioMedLM@main")
         expected_model_config = HuggingFaceModelConfig(
             namespace="stanford-crfm", model_name="BioMedLM", revision="main"
         )

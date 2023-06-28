@@ -59,7 +59,7 @@ class HuggingFaceHubModelConfig:
         return result
 
     @staticmethod
-    def from_string(raw: str) -> "HuggingHubFaceModelConfig":
+    def from_string(raw: str) -> "HuggingFaceHubModelConfig":
         """Parses a string in the format "[namespace/]model_name[@revision]" to a HuggingFaceHubModelConfig.
 
         Examples:
@@ -83,7 +83,7 @@ class HuggingFaceLocalModelConfig:
     """Name of the model. e.g. 'llama-7b'"""
 
     path: str
-    """Local path to the Hugging Face model weights. 
+    """Local path to the Hugging Face model weights.
     For pre-registered local models that are already in _huggingface_model_registry below,
     this will get set to LOCAL_HUGGINGFACE_MODEL_DIR by default.
     Otherwise, this is specified using the flag --enable-local-huggingface-models <path>."""
@@ -116,9 +116,7 @@ HuggingFaceModelConfig = Union[HuggingFaceHubModelConfig, HuggingFaceLocalModelC
 
 # Initialize registry with local models from models.py
 _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {
-    model.name: HuggingFaceLocalModelConfig.from_path(
-        os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, model.engine)
-    )
+    model.name: HuggingFaceLocalModelConfig.from_path(os.path.join(LOCAL_HUGGINGFACE_MODEL_DIR, model.engine))
     for model in ALL_MODELS
     if LOCAL_HUGGINGFACE_MODEL_TAG in model.tags
 }
@@ -158,12 +156,11 @@ def register_huggingface_local_model_config(path: str) -> HuggingFaceLocalModelC
     path: a path to your HF model"""
     config = HuggingFaceLocalModelConfig.from_path(path)
     if config.model_id in _huggingface_model_registry:
-        raise ValueError(f"A Hugging Face model is already registered for model_id {model_name}")
+        raise ValueError(f"A Hugging Face model is already registered for model_id {config.model_id}")
     _huggingface_model_registry[config.model_id] = config
 
     if config.model_name in MODEL_NAME_TO_MODEL:
-        raise ValueError(f"A HELM model is already registered for model name: {model_name}")
-    description = f"HuggingFace model {config.model_id}"
+        raise ValueError(f"A HELM model is already registered for model name: {config.model_name}")
     model = Model(
         group="huggingface",
         name=config.model_id,

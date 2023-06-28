@@ -6,7 +6,10 @@ from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
-from helm.proxy.clients.huggingface_model_registry import register_huggingface_hub_model_config, register_huggingface_local_model_config
+from helm.proxy.clients.huggingface_model_registry import (
+    register_huggingface_hub_model_config,
+    register_huggingface_local_model_config,
+)
 from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 

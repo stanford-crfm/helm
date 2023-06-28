@@ -20,7 +20,7 @@ from helm.proxy.clients.huggingface_model_registry import (
     get_huggingface_model_config,
     HuggingFaceModelConfig,
     HuggingFaceHubModelConfig,
-    LOCAL_HUGGINGFACE_MODEL_DIR,
+    HuggingFaceLocalModelConfig,
 )
 from threading import Lock
 
@@ -33,14 +33,16 @@ class HuggingFaceServer:
         else:
             self.device = "cpu"
         model_kwargs = {}
-        if isinstance(model_config, HuggingFaceHubModelConfig) and model_config.revision:
-            model_kwargs["revision"] = model_config.revision
         # If the HuggingFace model is stored locally, it will have a path defined and we should load it from there.
         # Otherwise, download it from the HuggingFace hub by passing in its identifier.
-        if model_config.path:
+        if isinstance(model_config, HuggingFaceLocalModelConfig):
             model_name = model_config.path
-        else:
+        elif isinstance(model_config, HuggingFaceHubModelConfig):
             model_name = model_config.model_id
+            if model_config.revision:
+                model_kwargs["revision"] = model_config.revision
+        else:
+            raise Exception(f"Unknown type of model_config: {model_config}")
         with htrack_block(f"Loading Hugging Face model for config {model_config}"):
             # WARNING this may fail if your GPU does not have enough memory
             self.model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, **model_kwargs).to(
@@ -60,7 +62,9 @@ class HuggingFaceServer:
         top_k_per_token: int = raw_request["top_k_per_token"]
         del raw_request["top_k_per_token"]
         if len(raw_request["stop_sequences"]) > 0:
-            stop_sequence_ids = self.tokenizer(raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False)
+            stop_sequence_ids = self.tokenizer(
+                raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
+            )
             assert len(stop_sequence_ids.input_ids) == 1, "Total number of stop words should be 1."
             assert len(stop_sequence_ids.input_ids[0]) == 1, "Total number of tokens in each stop word should be 1."
             del raw_request["stop_sequences"]
@@ -137,6 +141,8 @@ When --num-threads > 1, multiple threads will attempt to instantiate
 just share a single copy of each model we are using. So, this function uses a lock
 to make sure that for each model, only one thread creates a HuggingFaceServer.
 The other threads can share that same server in the global _servers dictionary."""
+
+
 def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceServer:
     global _servers_lock
     global _servers
@@ -166,7 +172,6 @@ class HuggingFaceClient(Client):
                 model_config = HuggingFaceHubModelConfig.from_string("bigcode/starcoder")
             elif model == "mosaicml/mpt-7b":
                 model_config = HuggingFaceHubModelConfig.from_string("mosaicml/mpt-7b")
-                )
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")
         return _get_singleton_server(model_config)
