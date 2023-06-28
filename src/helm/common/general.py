@@ -14,6 +14,10 @@ from dataclasses import asdict, is_dataclass
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 
 
+_CREDENTIALS_FILE_NAME = "credentials.conf"
+_CREDENTIALS_ENV_NAME = "HELM_CREDENTIALS"
+
+
 def singleton(items: List):
     """Ensure there's only one item in `items` and return it."""
     if len(items) != 1:
@@ -37,6 +41,16 @@ def ensure_directory_exists(path: str):
 def parse_hocon(text: str):
     """Parse `text` (in HOCON format) into a dict-like object."""
     return pyhocon.ConfigFactory.parse_string(text)
+
+
+def get_credentials(base_path: str = "prod_env") -> Dict[str, str]:
+    print(f"Looking in path: {base_path}")
+    raw_credentials = os.getenv(_CREDENTIALS_ENV_NAME, "")
+    credentials_path = os.path.join(base_path, _CREDENTIALS_FILE_NAME)
+    if not raw_credentials and os.path.exists(credentials_path):
+        with open(credentials_path) as f:
+            raw_credentials = f.read()
+    return parse_hocon(raw_credentials)
 
 
 def shell(args: List[str]):
