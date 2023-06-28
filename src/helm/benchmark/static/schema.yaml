@@ -442,14 +442,6 @@ models:
     todo: true
 
   # Stability AI
-  - name: stabilityai/stablelm-base-alpha-3b
-    display_name: StableLM-Base-Alpha (3B)
-    description: StableLM-Base-Alpha is a suite of 3B and 7B parameter decoder-only language models pre-trained on a diverse collection of English datasets with a sequence length of 4096 to push beyond the context window limitations of existing open-source language models.
-    creator_organization: Stability AI
-    access: open
-    num_parameters: 3000000000
-    release_date: 2023-04-20
-    todo: true
   - name: stabilityai/stablelm-base-alpha-7b
     display_name: StableLM-Base-Alpha (7B)
     description: StableLM-Base-Alpha is a suite of 3B and 7B parameter decoder-only language models pre-trained on a diverse collection of English datasets with a sequence length of 4096 to push beyond the context window limitations of existing open-source language models.
