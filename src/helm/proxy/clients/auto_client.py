@@ -107,7 +107,7 @@ class AutoClient(Client):
                 client = GooseAIClient(
                     api_key=self.credentials["gooseaiApiKey"], cache_config=cache_config, org_id=org_id
                 )
-            elif organization == "huggingface" or organization == "mosaicml" or organization == "databricks":
+            elif organization == "huggingface" or organization == "mosaicml":
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config)
@@ -133,7 +133,7 @@ class AutoClient(Client):
                 from helm.proxy.clients.google_client import GoogleClient
 
                 client = GoogleClient(cache_config=cache_config)
-            elif organization == "together":
+            elif organization == "together" or organization == "databricks":
                 from helm.proxy.clients.together_client import TogetherClient
 
                 client = TogetherClient(api_key=self.credentials.get("togetherApiKey", None), cache_config=cache_config)

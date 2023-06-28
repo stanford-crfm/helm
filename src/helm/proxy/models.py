@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 # Different modalities
 TEXT_MODEL_TAG: str = "text"
@@ -694,12 +694,12 @@ ALL_MODELS = [
     ),
     Model(
         group="together",
-        name="databricks/dolly-v2-3b",
+        name="databricks/dolly-v2-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
-        name="databricks/dolly-v2-3b",
+        name="databricks/dolly-v2-12b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging
