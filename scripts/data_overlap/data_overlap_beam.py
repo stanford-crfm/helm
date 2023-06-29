@@ -38,17 +38,18 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
         n_values: List[int],
         normalization: str,
         shared_ngram_index: Shared,
-        stats_key_counts: DefaultDict[DataOverlapStatsKey, int],
     ) -> None:
         self.scenario_data_path = scenario_data_path
         self.n_values = n_values
         self.normalization = normalization
         self.tokenizer: LightTokenizer = LightTokenizer()
         self.shared_ngram_index = shared_ngram_index
-        self.stats_key_counts = stats_key_counts
 
     def setup(self, *args, **kwargs) -> None:
         self.scenarios = load_light_scenarios_from_jsonl(self.scenario_data_path)
+        self.stats_key_counts: DefaultDict[DataOverlapStatsKey, int] = defaultdict(int)
+        create_ngram_index(light_scenarios=self.scenarios, n_values=self.n_values, tokenizer=self.tokenizer, stats_key_counts=self.stats_key_counts)
+
 
         def init_shared_ngram_index():
             return NgramIndexWrapper(
@@ -137,7 +138,6 @@ class ComputeAndWriteDataOverlapStats(beam.PTransform):
         self.normalization = normalization
         self.tags = tags
         self.output_stats = output_stats
-        self.stats_key_counts = defaultdict(int)
 
     def expand(self, pcollection: beam.PCollection):
         shared_ngram_index = Shared()
@@ -150,7 +150,6 @@ class ComputeAndWriteDataOverlapStats(beam.PTransform):
                     n_values=self.n_values,
                     normalization=self.normalization,
                     shared_ngram_index=shared_ngram_index,
-                    stats_key_counts=self.stats_key_counts,
                 )
             )
             | "ExtractSummaryFromAllOverlapStats"
