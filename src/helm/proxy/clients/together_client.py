@@ -11,7 +11,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
 _ASYNC_MODELS: Set[str] = {
@@ -55,13 +55,6 @@ implementation was used in the cached results, since some results may
 be different depending on the implementation (e.g. efficiency metrics).
 This also allows future migration of results in the case of changes of
 available implementations on Together."""
-
-
-def fix_text(x: str, model: str) -> str:
-    """Fix text that comes back from the API."""
-    # TODO(#1522): check if with #1519 this is still needed. This is similar to #1516.
-    x = x.replace("▁", " ")
-    return x
 
 
 class TogetherClientError(Exception):
@@ -219,16 +212,17 @@ class TogetherClient(Client):
                 for text, logprob, top_logprobs in zip(
                     raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
                 ):
-                    text = fix_text(text, request.model)
+                    # TODO #1654: Check if this is still needed
+                    text = cleanup_str(text, "together")
                     tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                     sequence_logprob += logprob or 0
             else:
                 # hack: just make the entire text one token so that something shows up in the frontend
-                text = fix_text(raw_completion["text"], request.model)
+                text = cleanup_str(raw_completion["text"], "together")
                 tokens.append(Token(text=text, logprob=0, top_logprobs={}))
 
             completion = Sequence(
-                text=fix_text(raw_completion["text"], request.model),
+                text=cleanup_str(raw_completion["text"], "together"),
                 logprob=sequence_logprob,
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},

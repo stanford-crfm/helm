@@ -260,9 +260,9 @@ class LanguageModelingAdapter(Adapter):
         # of whitespaces to the same whitespace character.
         #
         # e.g. original text: ",  (", which is tokenized to:
-        # [('▁', 0, 0), (',', 0, 1), ('▁▁', 1, 3), ('(', 3, 4)]
+        # [(' ', 0, 0), (',', 0, 1), ('  ', 1, 3), ('(', 3, 4)]
         # normalized text: ",  (", which is tokenized to:
-        # [('▁', 0, 0), (',', 0, 1), ('▁', 1, 2), ('▁', 2, 3), ('(', 3, 4)]
+        # [(' ', 0, 0), (',', 0, 1), (' ', 1, 2), (' ', 2, 3), ('(', 3, 4)]
         while prompt_length > max_req_len:
             # Trims the extra (prompt_length - max_req_len) tokens
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]

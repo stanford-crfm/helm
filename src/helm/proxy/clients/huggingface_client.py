@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import Client, wrap_request_time, truncate_sequence, cleanup_tokens
 from .huggingface_tokenizer import HuggingFaceTokenizers
 from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config
 
@@ -242,11 +242,24 @@ class HuggingFaceClient(Client):
                         "Writer/palmyra-base",
                         "facebook/opt-66b",
                     ]:
-                        tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
+                        # These models already handle the "▁" character correctly with the
+                        # convert_tokens_to_string method. We prefer to use this method instead
+                        # of the hacky cleanup_tokens method below as it might handle cases
+                        # we haven't thought of in cleanup_tokens.
+                        tokens = [
+                            tokenizer.convert_tokens_to_string([token]) for token in tokenizer.tokenize(request.text)
+                        ]
                     else:
-                        tokens = tokenizer.tokenize(request.text)
-                        # TODO(1522): Reenable this to revove "▁"
+                        # Tokenizes the text and returns the tokens as a list of strings,
+                        # not a list of token objects (otherwise "Hello world" would be"
+                        # ["Hello", "▁world"] and not ["Hello", " world"])
+                        # We could do this with a simple replace like this:
                         # tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
+                        # But this replaces all the "▁" characters by "", which is not what we want.
+                        # This would be problematic as tokenize(" Hello", encode=False) would return ["Hello"]
+                        # Just like tokenize("Hello", encode=False) would return ["Hello"].
+                        tokens = tokenizer.tokenize(request.text)
+                        tokens = cleanup_tokens(tokens, request.tokenizer)
                 return {"tokens": tokens}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
