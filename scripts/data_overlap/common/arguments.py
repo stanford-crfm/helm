@@ -1,5 +1,6 @@
-import argparse 
+import argparse
 from typing import Any
+
 
 def get_data_overlap_args() -> Any:
     parser = argparse.ArgumentParser()
@@ -29,4 +30,3 @@ def get_data_overlap_args() -> Any:
     )
 
     return parser.parse_args()
-

@@ -47,12 +47,21 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
     def setup(self, *args, **kwargs) -> None:
         self.scenarios = load_light_scenarios_from_jsonl(self.scenario_data_path)
         self.stats_key_counts: DefaultDict[DataOverlapStatsKey, int] = defaultdict(int)
-        create_ngram_index(light_scenarios=self.scenarios, n_values=self.n_values, tokenizer=self.tokenizer, stats_key_counts=self.stats_key_counts)
-
+        create_ngram_index(
+            light_scenarios=self.scenarios,
+            n_values=self.n_values,
+            tokenizer=self.tokenizer,
+            stats_key_counts=self.stats_key_counts,
+        )
 
         def init_shared_ngram_index():
             return NgramIndexWrapper(
-                create_ngram_index(light_scenarios=self.scenarios, n_values=self.n_values, tokenizer=self.tokenizer, stats_key_counts=self.stats_key_counts)
+                create_ngram_index(
+                    light_scenarios=self.scenarios,
+                    n_values=self.n_values,
+                    tokenizer=self.tokenizer,
+                    stats_key_counts=self.stats_key_counts,
+                )
             )
 
         self.ngram_index_wrapper = self.shared_ngram_index.acquire(init_shared_ngram_index)

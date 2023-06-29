@@ -1,5 +1,6 @@
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 
+
 def get_tokenizer(normalization) -> LightTokenizer:
     if normalization == "none":
         return LightTokenizer()
