@@ -27,7 +27,8 @@ class NgramIndexWrapper:
     ngram_index: NgramIndex
 
 
-AllDataOverlapStats = Tuple(DefaultDict[DataOverlapStatsKey, Set], DefaultDict[DataOverlapStatsKey, Set])
+# Type alias
+AllDataOverlapStats = Tuple[DefaultDict[DataOverlapStatsKey, Set], DefaultDict[DataOverlapStatsKey, Set]]
 
 
 class ComputeDataOverlapStatsFn(beam.CombineFn):
@@ -37,20 +38,21 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
         n_values: List[int],
         normalization: str,
         shared_ngram_index: Shared,
+        stats_key_counts: DefaultDict[DataOverlapStatsKey, int],
     ) -> None:
         self.scenario_data_path = scenario_data_path
         self.n_values = n_values
         self.normalization = normalization
         self.tokenizer: LightTokenizer = LightTokenizer()
         self.shared_ngram_index = shared_ngram_index
+        self.stats_key_counts = stats_key_counts
 
     def setup(self, *args, **kwargs) -> None:
         self.scenarios = load_light_scenarios_from_jsonl(self.scenario_data_path)
-        self.stats_key_counts: DefaultDict[DataOverlapStatsKey, int] = defaultdict(int)
 
         def init_shared_ngram_index():
             return NgramIndexWrapper(
-                create_ngram_index(light_scenarios=self.scenarios, n_values=self.n_values, tokenizer=self.tokenizer)
+                create_ngram_index(light_scenarios=self.scenarios, n_values=self.n_values, tokenizer=self.tokenizer, stats_key_counts=self.stats_key_counts)
             )
 
         self.ngram_index_wrapper = self.shared_ngram_index.acquire(init_shared_ngram_index)
@@ -63,9 +65,7 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
 
     def add_input(
         self,
-        stats_key_to_ids_tuple: Tuple(
-            DefaultDict[DataOverlapStatsKey, Set[str]], DefaultDict[DataOverlapStatsKey, Set[str]]
-        ),
+        stats_key_to_ids_tuple: AllDataOverlapStats,
         document: str,
     ) -> AllDataOverlapStats:
         stats_key_to_input_ids, stats_key_to_reference_ids = stats_key_to_ids_tuple
@@ -78,6 +78,7 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
             stats_key_to_input_ids=stats_key_to_input_ids,
             stats_key_to_reference_ids=stats_key_to_reference_ids,
         )
+        return stats_key_to_input_ids, stats_key_to_reference_ids
 
     def merge_accumulators(self, accumulators: Iterable[AllDataOverlapStats]) -> AllDataOverlapStats:
         assert accumulators
@@ -97,6 +98,9 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
         return merged_stats_key_to_input_ids, merged_stats_key_to_reference_ids
 
     def extract_output(self, accumulator: AllDataOverlapStats) -> List[DataOverlapStats]:
+        print('\n\nHIIIII2\n')
+        # print(accumulator)
+        print(self.stats_key_counts)
         stats_key_to_input_ids, stats_key_to_reference_ids = accumulator
         all_data_overlap_stats = []
         for stats_key, count in self.stats_key_counts.items():
@@ -114,6 +118,11 @@ def extract_summary_from_all_data_overlap_stats(
     all_data_overlap_stats: List[DataOverlapStats], tags: Dict[str, Any]
 ) -> str:
     # return "\n".join(json.dumps(overlap_stats.generate_summary(tags)) for overlap_stats in all_data_overlap_stats)
+    print('\n\nHIIIII\n')
+    print(all_data_overlap_stats)
+    print("\n".join(
+        json.dumps(asdict_without_nones(data_overlap_stats)) for data_overlap_stats in all_data_overlap_stats
+    ))
     return "\n".join(
         json.dumps(asdict_without_nones(data_overlap_stats)) for data_overlap_stats in all_data_overlap_stats
     )
@@ -128,6 +137,7 @@ class ComputeAndWriteDataOverlapStats(beam.PTransform):
         self.normalization = normalization
         self.tags = tags
         self.output_stats = output_stats
+        self.stats_key_counts = defaultdict(int)
 
     def expand(self, pcollection: beam.PCollection):
         shared_ngram_index = Shared()
@@ -140,9 +150,11 @@ class ComputeAndWriteDataOverlapStats(beam.PTransform):
                     n_values=self.n_values,
                     normalization=self.normalization,
                     shared_ngram_index=shared_ngram_index,
+                    stats_key_counts=self.stats_key_counts,
                 )
             )
             | "ExtractSummaryFromAllOverlapStats"
+            # >> beam.io.WriteToText(self.output_stats)
             >> beam.Map(extract_summary_from_all_data_overlap_stats, tags=self.tags)
             | "WriteSummaries" >> beam.io.WriteToText(self.output_stats)
         )
