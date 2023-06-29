@@ -10,6 +10,7 @@ from apache_beam.utils.shared import Shared
 from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey
 from compute_data_overlap_metrics import compute_document_data_overlap
 from common.general import asdict_without_nones
+from common.util import get_tokenizer
 
 
 from compute_data_overlap_metrics import (
@@ -17,7 +18,6 @@ from compute_data_overlap_metrics import (
     create_ngram_index,
     NgramIndex,
 )
-from light_tokenizer import LightTokenizer
 
 
 @dataclass(frozen=True)
@@ -41,8 +41,7 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
     ) -> None:
         self.scenario_data_path = scenario_data_path
         self.n_values = n_values
-        self.normalization = normalization
-        self.tokenizer: LightTokenizer = LightTokenizer()
+        self.tokenizer = get_tokenizer(normalization)
         self.shared_ngram_index = shared_ngram_index
 
     def setup(self, *args, **kwargs) -> None:
@@ -99,9 +98,6 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
         return merged_stats_key_to_input_ids, merged_stats_key_to_reference_ids
 
     def extract_output(self, accumulator: AllDataOverlapStats) -> List[DataOverlapStats]:
-        print('\n\nHIIIII2\n')
-        # print(accumulator)
-        print(self.stats_key_counts)
         stats_key_to_input_ids, stats_key_to_reference_ids = accumulator
         all_data_overlap_stats = []
         for stats_key, count in self.stats_key_counts.items():
@@ -118,12 +114,6 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
 def extract_summary_from_all_data_overlap_stats(
     all_data_overlap_stats: List[DataOverlapStats], tags: Dict[str, Any]
 ) -> str:
-    # return "\n".join(json.dumps(overlap_stats.generate_summary(tags)) for overlap_stats in all_data_overlap_stats)
-    print('\n\nHIIIII\n')
-    print(all_data_overlap_stats)
-    print("\n".join(
-        json.dumps(asdict_without_nones(data_overlap_stats)) for data_overlap_stats in all_data_overlap_stats
-    ))
     return "\n".join(
         json.dumps(asdict_without_nones(data_overlap_stats)) for data_overlap_stats in all_data_overlap_stats
     )
@@ -153,7 +143,6 @@ class ComputeAndWriteDataOverlapStats(beam.PTransform):
                 )
             )
             | "ExtractSummaryFromAllOverlapStats"
-            # >> beam.io.WriteToText(self.output_stats)
             >> beam.Map(extract_summary_from_all_data_overlap_stats, tags=self.tags)
             | "WriteSummaries" >> beam.io.WriteToText(self.output_stats)
         )

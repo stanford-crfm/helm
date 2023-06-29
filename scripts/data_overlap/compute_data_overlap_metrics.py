@@ -1,5 +1,4 @@
 import json
-import argparse
 import os
 import glob
 
@@ -16,6 +15,8 @@ from light_tokenizer import LightTokenizer, DefaultTokenizer
 from load_documents import get_document_iterator
 from common.hierarchical_logger import hlog, htrack_block
 from common.general import asdict_without_nones
+from common.arguments import get_data_overlap_args
+from common.util import get_tokenizer
 from scenarios.scenario import ScenarioSpec
 
 
@@ -181,41 +182,9 @@ def compute_document_data_overlap(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input-data", type=str, required=True, help="Path to your training data")
-    parser.add_argument("--scenario-data", type=str, required=True, help="Path to scenario data (benchmarking data)")
-    parser.add_argument("--output-stats", type=str, required=True, help="Path to the output file")
-    parser.add_argument(
-        "--input-format",
-        type=str,
-        required=True,
-        help="The format of your input file for your training data, e.g. raw, custom, the_pile",
-    )
-    parser.add_argument(
-        "--tags",
-        type=str,
-        nargs="*",
-        help="Other tags, such as whether the input data is for pretraining or instruction tuning",
-    )
-    parser.add_argument(
-        "--normalization", type=str, default="default", help="What normalization and tokenization strategy to apply"
-    )
-    parser.add_argument(
-        "--output-ngrams",
-        type=str,
-        default=None,
-        help="Path to the file of overlapping ngrams. To output the ngrams, you must also specify --max-output-ngrams",
-    )
+    args = get_data_overlap_args()
 
-    args = parser.parse_args()
-
-    tokenizer: LightTokenizer
-    if args.normalization == "none":
-        tokenizer = LightTokenizer()
-    elif args.normalization == "default":
-        tokenizer = DefaultTokenizer()
-    else:
-        raise ValueError(f"Normalization strategy {args.normalization} is not defined.")
+    tokenizer: LightTokenizer = get_tokenizer(args.normalization)
 
     input_file_paths: List[str]
     if os.path.isdir(args.input_data):
