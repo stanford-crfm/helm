@@ -63,6 +63,7 @@ class WindowServiceFactory:
         engine: str = model.engine
 
         window_service: WindowService
+        # Catch any HuggingFace models registered via the command line flags
         huggingface_model_config = get_huggingface_model_config(model_name)
         if get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
