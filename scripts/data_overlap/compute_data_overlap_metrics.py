@@ -11,7 +11,7 @@ from collections import defaultdict
 
 from light_scenario import LightInstance, LightScenario, LightScenarioKey
 from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProtocolSpec
-from light_tokenizer import LightTokenizer, DefaultTokenizer
+from light_tokenizer import LightTokenizer
 from load_documents import get_document_iterator
 from common.hierarchical_logger import hlog, htrack_block
 from common.general import asdict_without_nones
