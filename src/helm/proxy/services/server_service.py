@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
-from helm.common.general import ensure_directory_exists, parse_hocon
+from helm.common.general import ensure_directory_exists, parse_hocon, get_credentials
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
     WindowServiceInfo,
@@ -25,7 +25,6 @@ from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
 from .service import (
     Service,
-    CREDENTIALS_FILE,
     CACHE_DIR,
     ACCOUNTS_FILE,
     GeneralInfo,
@@ -40,17 +39,11 @@ class ServerService(Service):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self, base_path: str = ".", root_mode=False, mongo_uri: str = ""):
-        credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
+    def __init__(self, base_path: str = "prod_env", root_mode=False, mongo_uri: str = ""):
+        credentials = get_credentials(base_path)
         cache_path = os.path.join(base_path, CACHE_DIR)
         ensure_directory_exists(cache_path)
         accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
-
-        if os.path.exists(credentials_path):
-            with open(credentials_path) as f:
-                credentials = parse_hocon(f.read())
-        else:
-            credentials = {}
 
         self.client = AutoClient(credentials, cache_path, mongo_uri)
         self.token_counter = AutoTokenCounter(self.client.get_huggingface_client())

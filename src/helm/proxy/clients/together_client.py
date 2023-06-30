@@ -20,6 +20,9 @@ _ASYNC_MODELS: Set[str] = {
     "pythia-7b",
     "redpajama-incite-base-3b-v1",
     "vicuna-13b",
+    "dolly-v2-3b",
+    "dolly-v2-7b",
+    "dolly-v2-12b",
 }
 """Together models to use async requests for.
 
@@ -44,6 +47,9 @@ MODEL_ALIASES: Dict[str, str] = {
     "pythia-7b": "pythia-7b-full-precision",
     "vicuna-13b": "vicuna-13b-full-precision",
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
+    "dolly-v2-3b": "databricks/dolly-v2-3b",
+    "dolly-v2-7b": "databricks/dolly-v2-7b",
+    "dolly-v2-12b": "databricks/dolly-v2-12b",
 }
 """Together model name aliases.
 

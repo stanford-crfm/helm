@@ -80,8 +80,9 @@ class Model:
     group: str
 
     # Name of the specific model (e.g. "huggingface/gpt-j-6b")
-    # Currently, the name is <hosting_organization>/<model_name>,
-    # There is also `creator_organization>` (see `ModelField`).
+    # The name is <hosting_organization>/<model_name> or
+    # <creator_organization>/<model_name>
+    # There is also `<creator_organization>` (see `ModelField`).
     name: str
 
     # Tags corresponding to the properties of the model.
@@ -699,6 +700,22 @@ ALL_MODELS = [
         group="nvidia",
         name="nvidia/megatron-gpt2",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, BUGGY_TEMP_0_TAG],
+    ),
+    # Databricks
+    Model(
+        group="together",
+        name="databricks/dolly-v2-3b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="databricks/dolly-v2-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="databricks/dolly-v2-12b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging
     Model(
