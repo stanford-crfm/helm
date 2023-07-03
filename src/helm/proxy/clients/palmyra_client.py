@@ -3,7 +3,6 @@ import requests
 from typing import Any, Dict, List
 
 from helm.common.cache import Cache, CacheConfig
-from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence, Token, ErrorFlags
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -53,25 +52,12 @@ class PalmyraClient(Client):
             # "random_seed": request.random,
         }
 
-        if request.random is not None or request.num_completions > 1:
-            hlog(
-                "WARNING: Writer does not support random_seed or num_completions. "
-                "This request will be sent to Writer multiple times."
-            )
-
         completions: List[Sequence] = []
         model_name: str = request.model_engine
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
             try:
-                # This is disabled for now. See above TODO(#1515).
-                # HACKY: Use the random seed to get different results for each completion.
-                # raw_request["random_seed"] = (
-                #     f"completion_index={completion_index}"
-                #     if request.random is None
-                #     else request.random + f":completion_index={completion_index}"
-                # )
 
                 def do_it():
                     # Add an argument timeout to raw_request to avoid waiting getting timeout of 60s
