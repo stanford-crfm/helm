@@ -100,7 +100,6 @@ class PalmyraClient(Client):
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
             if _is_content_moderation_failure(response):
-                print("[debug:yifanmai] Content moderation failure (outside)")
                 return RequestResult(
                     success=False,
                     cached=False,
