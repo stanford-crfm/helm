@@ -1,18 +1,17 @@
 """Apache Beam specific code."""
 
-import apache_beam as beam
-import json
-
-from typing import Dict, List, Iterable, Any, Set, DefaultDict, Tuple
 from collections import defaultdict
 from dataclasses import dataclass
+import json
+from typing import Dict, List, Iterable, Any, Set, DefaultDict, Tuple
+
+import apache_beam as beam
 from apache_beam.utils.shared import Shared
+
 from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey
 from compute_data_overlap_metrics import compute_document_data_overlap
 from common.general import asdict_without_nones
 from common.util import get_tokenizer
-
-
 from compute_data_overlap_metrics import (
     load_light_scenarios_from_jsonl,
     create_ngram_index,
