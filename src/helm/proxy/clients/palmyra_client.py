@@ -13,6 +13,19 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 
 
+_CONTENT_MODERATION_KEY = "fail.content.moderation.failed"
+
+
+def _is_content_moderation_failure(response: Dict) -> bool:
+    """Return whether a a response failed because of the content moderation filter."""
+    errors = response.get("errors")
+    if not errors:
+        return False
+    if len(errors) != 1:
+        return False
+    return errors[0].get("key") == _CONTENT_MODERATION_KEY
+
+
 class PalmyraClient(Client):
     def __init__(self, api_key: str, cache_config: CacheConfig, tokenizer_client: Client):
         self.api_key: str = api_key
@@ -31,8 +44,8 @@ class PalmyraClient(Client):
             data=json.dumps(raw_request),
         )
         result = json.loads(response.text)
-        if "error" in result:
-            raise ValueError(f"Request failed with error: {result['error']}")
+        if "choices" not in result and not _is_content_moderation_failure(result):
+            raise ValueError(f"Invalid response: {result}")
         return result
 
     def make_request(self, request: Request) -> RequestResult:
@@ -86,20 +99,18 @@ class PalmyraClient(Client):
                 error: str = f"PalmyraClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-            if "choices" not in response:
-                if "errors" in response and response["errors"][0]["key"] == "fail.content.moderation.failed":
-                    return RequestResult(
-                        success=False,
-                        cached=False,
-                        error=response["errors"][0]["description"],
-                        completions=[],
-                        embedding=[],
-                        error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
-                        request_time=response["request_time"],
-                        request_datetime=response["request_datetime"],
-                    )
-                else:
-                    raise ValueError(f"Invalid response: {response}")
+            if _is_content_moderation_failure(response):
+                print("[debug:yifanmai] Content moderation failure (outside)")
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error=response["errors"][0]["description"],
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    request_time=response["request_time"],
+                    request_datetime=response["request_datetime"],
+                )
 
             response_text: str = response["choices"][0]["text"]
 
