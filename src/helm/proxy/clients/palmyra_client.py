@@ -121,8 +121,8 @@ class PalmyraClient(Client):
             text: str = request.prompt + response_text if request.echo_prompt else response_text
             # The Writer API doesn't return us tokens or logprobs, so we tokenize ourselves.
             tokenization_result: TokenizationRequestResult = self._tokenizer_client.tokenize(
-                # Writer uses their own huggingface tokenizer
-                TokenizationRequest(text, tokenizer="writer/gpt2-tokenizer")
+                # Writer uses the GPT-2 tokenizer
+                TokenizationRequest(text, tokenizer="huggingface/gpt2")
             )
 
             # Log probs are not currently not supported by the Writer, so set to 0 for now.
