@@ -21,10 +21,15 @@ from compute_data_overlap_metrics import (
 
 
 @dataclass(frozen=True)
-class NgramIndexWrapper:
-    """Wraps `NgramIndex` so that it can be shared."""
+class OverlapObjects:
+    """
+    Wraps `NgramIndex` and `stats_key_counts` so that it can be shared.
+    https://beam.apache.org/releases/pydoc/2.48.0/apache_beam.utils.shared.html
+    Several built-in types such as list and dict do not directly support weak references
+    """
 
     ngram_index: NgramIndex
+    stats_key_counts: DefaultDict[DataOverlapStatsKey, int]
 
 
 # Type alias
@@ -37,34 +42,26 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
         scenario_data_path: str,
         n_values: List[int],
         normalization: str,
-        shared_ngram_index: Shared,
+        shared_overlap_objects: Shared,
     ) -> None:
         self.scenario_data_path = scenario_data_path
         self.n_values = n_values
         self.tokenizer = get_tokenizer(normalization)
-        self.shared_ngram_index = shared_ngram_index
+        self.shared_overlap_objects = shared_overlap_objects
 
     def setup(self, *args, **kwargs) -> None:
-        self.scenarios = load_light_scenarios_from_jsonl(self.scenario_data_path)
-        self.stats_key_counts: DefaultDict[DataOverlapStatsKey, int] = defaultdict(int)
-        create_ngram_index(
-            light_scenarios=self.scenarios,
-            n_values=self.n_values,
-            tokenizer=self.tokenizer,
-            stats_key_counts=self.stats_key_counts,
-        )
-
-        def init_shared_ngram_index():
-            return NgramIndexWrapper(
-                create_ngram_index(
-                    light_scenarios=self.scenarios,
-                    n_values=self.n_values,
-                    tokenizer=self.tokenizer,
-                    stats_key_counts=self.stats_key_counts,
-                )
+        def init_shared_overlap_objects():
+            scenarios = load_light_scenarios_from_jsonl(self.scenario_data_path)
+            stats_key_counts: DefaultDict[DataOverlapStatsKey, int] = defaultdict(int)
+            ngram_index = create_ngram_index(
+                light_scenarios=scenarios,
+                n_values=self.n_values,
+                tokenizer=self.tokenizer,
+                stats_key_counts=stats_key_counts,
             )
+            return OverlapObjects(ngram_index=ngram_index, stats_key_counts=stats_key_counts)
 
-        self.ngram_index_wrapper = self.shared_ngram_index.acquire(init_shared_ngram_index)
+        self.shared_overlap_objects = self.shared_overlap_objects.acquire(init_shared_overlap_objects)
         return super().setup(*args, **kwargs)
 
     def create_accumulator(self) -> AllDataOverlapStats:
@@ -77,26 +74,23 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
         stats_key_to_ids_tuple: AllDataOverlapStats,
         document: str,
     ) -> AllDataOverlapStats:
-        stats_key_to_input_ids, stats_key_to_reference_ids = stats_key_to_ids_tuple
-
         # update all_overlap_stats in-place
         compute_document_data_overlap(
             document=document,
-            ngram_index=self.ngram_index_wrapper.ngram_index,
+            ngram_index=self.shared_overlap_objects.ngram_index,
             tokenizer=self.tokenizer,
-            stats_key_to_input_ids=stats_key_to_input_ids,
-            stats_key_to_reference_ids=stats_key_to_reference_ids,
+            stats_key_to_input_ids=stats_key_to_ids_tuple[0],
+            stats_key_to_reference_ids=stats_key_to_ids_tuple[1],
         )
-        return stats_key_to_input_ids, stats_key_to_reference_ids
+        return stats_key_to_ids_tuple
 
     def merge_accumulators(self, accumulators: Iterable[AllDataOverlapStats]) -> AllDataOverlapStats:
         assert accumulators
-        accumulators_iter = iter(accumulators)
 
         merged_stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
         merged_stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
 
-        for accumulator in accumulators_iter:
+        for accumulator in accumulators:
             stats_key_to_input_ids, stats_key_to_reference_ids = accumulator
 
             for key, value in stats_key_to_input_ids.items():
@@ -109,7 +103,7 @@ class ComputeDataOverlapStatsFn(beam.CombineFn):
     def extract_output(self, accumulator: AllDataOverlapStats) -> List[DataOverlapStats]:
         stats_key_to_input_ids, stats_key_to_reference_ids = accumulator
         all_data_overlap_stats = []
-        for stats_key, count in self.stats_key_counts.items():
+        for stats_key, count in self.shared_overlap_objects.stats_key_counts.items():
             data_overlap_stats = DataOverlapStats(
                 data_overlap_stats_key=stats_key,
                 instance_ids_with_overlapping_input=sorted(stats_key_to_input_ids[stats_key]),
@@ -139,7 +133,7 @@ class ComputeAndWriteDataOverlapStats(beam.PTransform):
         self.output_stats = output_stats
 
     def expand(self, pcollection: beam.PCollection):
-        shared_ngram_index = Shared()
+        shared_overlap_objects = Shared()
         return (
             pcollection
             | "ComputeOverlapStats"
@@ -148,7 +142,7 @@ class ComputeAndWriteDataOverlapStats(beam.PTransform):
                     scenario_data_path=self.scenario_data_path,
                     n_values=self.n_values,
                     normalization=self.normalization,
-                    shared_ngram_index=shared_ngram_index,
+                    shared_overlap_objects=shared_overlap_objects,
                 )
             )
             | "ExtractSummaryFromAllOverlapStats"
