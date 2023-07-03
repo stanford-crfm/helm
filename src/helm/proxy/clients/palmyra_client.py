@@ -101,7 +101,7 @@ class PalmyraClient(Client):
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
             if _is_content_moderation_failure(response):
-                hlog(f"Returning empty request for {request.model} due to content moderation filter")
+                hlog(f"WARNING: Returning empty request for {request.model} due to content moderation filter")
                 return RequestResult(
                     success=False,
                     cached=False,
