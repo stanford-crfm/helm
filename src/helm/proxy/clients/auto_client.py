@@ -147,6 +147,7 @@ class AutoClient(Client):
                 client = PalmyraClient(
                     api_key=self.credentials["writerApiKey"],
                     cache_config=cache_config,
+                    tokenizer_client=self._get_tokenizer_client("huggingface/gpt2"),
                 )
             elif organization == "nvidia":
                 from helm.proxy.clients.megatron_client import MegatronClient
@@ -247,13 +248,6 @@ class AutoClient(Client):
                 from helm.proxy.clients.megatron_client import MegatronClient
 
                 client = MegatronClient(cache_config=cache_config)
-            elif organization == "writer":
-                from helm.proxy.clients.palmyra_client import PalmyraClient
-
-                client = PalmyraClient(
-                    api_key=self.credentials["writerApiKey"],
-                    cache_config=cache_config,
-                )
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client

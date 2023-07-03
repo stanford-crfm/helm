@@ -9,16 +9,18 @@ class PalmyraWindowService(LocalWindowService):
     @property
     def tokenizer_name(self) -> str:
         """All Palmyra models use the same tokenizer."""
-        return "writer/palmyra-tokenizer"
+        return "huggingface/gpt2"
 
     @property
     def max_sequence_length(self) -> int:
-        # Slightly less than the advertised number of 2048,
-        # to give us a margin of safety.
-        return 2000
+        return 2048
 
     @property
     def max_request_length(self) -> int:
+        return self.max_sequence_length
+
+    @property
+    def max_sequence_and_generated_tokens_length(self) -> int:
         return self.max_sequence_length
 
     @property
@@ -40,6 +42,4 @@ class PalmyraWindowService(LocalWindowService):
 class LongerPalmyraWindowService(PalmyraWindowService):
     @property
     def max_sequence_length(self) -> int:
-        # Slightly less than the advertised number of 8192,
-        # to give us a margin of safety.
-        return 8000
+        return 8192
