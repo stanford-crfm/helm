@@ -3,6 +3,7 @@ import requests
 from typing import Any, Dict, List
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence, Token, ErrorFlags
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -100,6 +101,7 @@ class PalmyraClient(Client):
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
             if _is_content_moderation_failure(response):
+                hlog(f"Returning empty request for {request.model} due to content moderation filter")
                 return RequestResult(
                     success=False,
                     cached=False,
