@@ -626,6 +626,11 @@ ALL_MODELS = [
         name="together/redpajama-incite-base-3b-v1",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    Model(
+        group="together",
+        name="together/redpajama-incite-instruct-3b-v1",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # Tsinghua
     Model(
         group="together",
@@ -715,6 +720,17 @@ ALL_MODELS = [
     Model(
         group="together",
         name="databricks/dolly-v2-12b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # Stability AI
+    Model(
+        group="together",
+        name="stabilityai/stablelm-base-alpha-3b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="stabilityai/stablelm-base-alpha-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging

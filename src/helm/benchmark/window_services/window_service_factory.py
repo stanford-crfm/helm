@@ -34,7 +34,7 @@ from .santacoder_window_service import SantaCoderWindowService
 from .starcoder_window_service import StarCoderWindowService
 from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
-from .gptneox_window_service import GPTNeoXWindowService
+from .gptneox_window_service import GPTNeoXWindowService, StableLMAlphaWindowService
 from .megatron_window_service import MegatronWindowService
 from .opt_window_service import OPTWindowService
 from .palmyra_window_service import PalmyraWindowService, LongerPalmyraWindowService
@@ -127,14 +127,25 @@ class WindowServiceFactory:
             "gooseai/gpt-neo-20b",
             "together/gpt-neoxt-chat-base-20b",
             "together/redpajama-incite-base-3b-v1",
+            "together/redpajama-incite-instruct-3b-v1",
             # Pythia uses the same tokenizer as GPT-NeoX-20B.
             # See: https://huggingface.co/EleutherAI/pythia-6.9b#training-procedure
             "together/pythia-7b",
             # MPT-7B model was trained with the EleutherAI/gpt-neox-20b tokenizer
             # See: https://huggingface.co/mosaicml/mpt-7b
             "mosaicml/mpt-7b",
+            # Dolly models are based on Pythia.
+            # See: https://github.com/databrickslabs/dolly
+            "databricks/dolly-v2-3b",
+            "databricks/dolly-v2-7b",
+            "databricks/dolly-v2-12b",
         ]:
             window_service = GPTNeoXWindowService(service)
+        elif model_name in [
+            "stabilityai/stablelm-base-alpha-3b",
+            "stabilityai/stablelm-base-alpha-7b",
+        ]:
+            window_service = StableLMAlphaWindowService(service)
         elif model_name == "together/h3-2.7b":
             window_service = GPT2WindowService(service)
         elif model_name in [
