@@ -16,13 +16,22 @@ class OpenAIChatWindowService(WiderOpenAIWindowService):
         return "openai/cl100k_base"
 
 
-class GPT3Point5TurboWindowService(OpenAIChatWindowService):
+class GPTTurboWindowService(OpenAIChatWindowService):
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length for GPT-3.5 Turbo.
 
         Source: https://platform.openai.com/docs/models"""
         return 4000
+
+
+class GPTTurbo16KWindowService(OpenAIChatWindowService):
+    @property
+    def max_sequence_length(self) -> int:
+        """Return the max sequence length for GPT-3.5 Turbo.
+
+        Source: https://platform.openai.com/docs/models"""
+        return 16000
 
 
 class GPT4WindowService(OpenAIChatWindowService):
