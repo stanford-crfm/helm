@@ -610,6 +610,11 @@ ALL_MODELS = [
         name="openai/text-similarity-ada-001",
         tags=[EMBEDDING_MODEL_TAG],
     ),
+    Model(
+        group="gpt3",
+        name="openai/text-embedding-ada-002",
+        tags=[EMBEDDING_MODEL_TAG],
+    ),
     # Together
     Model(
         group="together",
