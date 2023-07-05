@@ -601,6 +601,18 @@ models:
     creator_organization: OpenAI
     access: limited
     release_date: 2023-03-14
+  - name: openai/gpt-4-0613
+    display_name: gpt-4-0613
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-06-13.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-06-13
+  - name: openai/gpt-4-32k-0613
+    display_name: gpt-4-32k-0613
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 with a longer context length of 32,768 tokens from 2023-06-13.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-06-13
   - name: openai/code-davinci-002
     display_name: code-davinci-002
     description: Codex-style model that is designed for pure code-completion tasks ([docs](https://beta.openai.com/docs/models/codex)).
@@ -619,16 +631,22 @@ models:
     access: limited
   - name: openai/gpt-3.5-turbo-0301
     display_name: gpt-3.5-turbo-0301
-    description: Sibling model Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
+    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
     creator_organization: OpenAI
     access: limited
     release_date: 2023-03-01
   - name: openai/gpt-3.5-turbo-0613
     display_name: gpt-3.5-turbo-0613
-    description: Sibling model Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
+    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
     creator_organization: OpenAI
     access: limited
-    release_date: 2023-06-03
+    release_date: 2023-06-13
+  - name: openai/gpt-3.5-turbo-16k-0613
+    display_name: gpt-3.5-turbo-16k-0613
+    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13 with a longer context length of 16,384 tokens.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-06-13
   - name: openai/chat-gpt
     display_name: ChatGPT
     description: Sibling model to InstructGPT which interacts in a conversational way. See [OpenAI's announcement](https://openai.com/blog/chatgpt/). The size of the model is unknown.
