@@ -15,14 +15,19 @@ from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
 _ASYNC_MODELS: Set[str] = {
+    # Legacy models
     "alpaca-7b",
     "llama-7b",
     "pythia-7b",
-    "redpajama-incite-base-3b-v1",
     "vicuna-13b",
+    # Production models
+    "redpajama-incite-base-3b-v1",
+    "redpajama-incite-instruct-3b-v1",
     "dolly-v2-3b",
     "dolly-v2-7b",
     "dolly-v2-12b",
+    "stablelm-base-alpha-3b",
+    "stablelm-base-alpha-7b",
 }
 """Together models to use async requests for.
 
@@ -34,6 +39,7 @@ Note: These should be HELM model names, not Together model name aliases."""
 
 
 MODEL_ALIASES: Dict[str, str] = {
+    # Legacy models
     "flan-t5-xxl": "flan-t5-xxl-hf",
     "h3-2.7b": "h3-2.7b-h3",
     "opt-1.3b": "opt-1.3b-ft-tp1",
@@ -46,10 +52,14 @@ MODEL_ALIASES: Dict[str, str] = {
     "llama-7b": "llama-7b-full-precision",
     "pythia-7b": "pythia-7b-full-precision",
     "vicuna-13b": "vicuna-13b-full-precision",
+    # Production models
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
+    "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
     "dolly-v2-3b": "databricks/dolly-v2-3b",
     "dolly-v2-7b": "databricks/dolly-v2-7b",
     "dolly-v2-12b": "databricks/dolly-v2-12b",
+    "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
+    "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
 }
 """Together model name aliases.
 
