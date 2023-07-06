@@ -38,6 +38,29 @@ There are additional optional args:
 --tags tag1 tag2
 ```
 
+## Beam API
+
+Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteDataOverlapStats()` with the appropriate arguments.
+
+Note: Each record in the `PCollection[str]` should contain an _entire_ document, not a single line from a document.
+
+```python
+with beam.Pipeline() as pipeline:
+    _ = (
+        pipeline
+        # The model developer should modify these lines to read from the actual training set.
+        | "Read" >> beam.io.ReadFromText(input_data)
+        | "ExtractTextFromDocument" >> beam.Map(extract_text_from_document)
+        # Call the HELM Data Overlap Apache Beam API.
+        | "ComputeAndWriteDataOverlapStats" >> ComputeAndWriteDataOverlapStats(
+            scenario_data_path=scenario_data,
+            n_values=n_values,
+            normalization=normalization,
+            tags=tags
+        )
+    )
+```
+
 ## Docker
 
 To create and run docker image:
