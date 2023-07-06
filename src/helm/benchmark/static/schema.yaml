@@ -940,6 +940,13 @@ run_groups:
     subgroups:
       - mscoco_spanish
 
+  - name: vhelm_fid_scenarios
+    display_name: Fidelity
+    description: Fidelity metrics computed with MS-COCO
+    category: Scenarios for specific aspects
+    subgroups:
+      - mscoco_fid
+
   - name: vhelm_efficiency_scenarios
     display_name: Efficiency
     description: How fast is inference for the model
