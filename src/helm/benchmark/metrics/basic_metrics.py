@@ -537,14 +537,12 @@ class BasicMetric(Metric):
         # Compute efficiency metrics for inference.
         assert request_state.result is not None
 
-        # There may be no request time in some special cases
-        # e.g. the API has a content filter that causes a null generation to be returned.
-        # If there is no request time, skip computing stats for the request.
-        if not request_state.result.request_time:
-            return []
-
-        runtime: float = request_state.result.request_time
-        batch_size: int = 1
+        runtime: Optional[float] = None
+        batch_size: Optional[int] = None
+        # Compute efficiency metrics for inference.
+        if request_state.result.request_time is not None:
+            runtime = request_state.result.request_time
+            batch_size = 1
         # For models that perform offline batch inference, effective runtime is batch_request_time, but also
         # record batch_size to provide nuance.
         if request_state.result.batch_request_time is not None and request_state.result.batch_size is not None:
@@ -585,7 +583,7 @@ class BasicMetric(Metric):
         )
         # Denoised runtime for offline models is just runtime.
         # We divide by batch_size to get approximate per-input runtime.
-        if request_state.result.batch_size is not None:
+        if runtime is not None and request_state.result.batch_size is not None:
             denoised_runtime = runtime / request_state.result.batch_size
 
         # Compute efficiency metrics for training.
@@ -605,11 +603,13 @@ class BasicMetric(Metric):
             Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("num_completion_tokens")).add(num_completion_tokens),
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
-            Stat(MetricName("inference_runtime")).add(runtime),
-            Stat(MetricName("batch_size")).add(batch_size),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
             Stat(MetricName("training_energy_cost")).add(training_energy_cost),
         ]
+        if runtime is not None:
+            stats.append(Stat(MetricName("inference_runtime")).add(runtime))
+        if batch_size is not None:
+            stats.append(Stat(MetricName("batch_size")).add(batch_size))
         if denoised_runtime is not None:
             stats.append(Stat(MetricName("inference_denoised_runtime")).add(denoised_runtime))
         if idealized_runtime is not None:
