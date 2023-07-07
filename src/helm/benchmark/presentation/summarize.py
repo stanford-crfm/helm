@@ -2,7 +2,6 @@ import argparse
 import os
 import datetime
 import urllib.parse
-import dacite
 import json
 from collections import defaultdict
 from dataclasses import dataclass, replace
@@ -19,6 +18,7 @@ from helm.common.general import (
     singleton,
     unique_simplification,
 )
+from helm.common.codec import from_json
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -246,10 +246,10 @@ class Summarizer:
         """Load the `Run` object from `run_path`."""
 
         with open(os.path.join(run_path, "run_spec.json")) as f:
-            run_spec = dacite.from_dict(RunSpec, json.load(f))
+            run_spec = from_json(f.read(), RunSpec)
 
         with open(os.path.join(run_path, "stats.json")) as f:
-            stats = [dacite.from_dict(Stat, raw) for raw in json.load(f)]
+            stats = from_json(f.read(), List[Stat])
 
         return Run(
             run_path=run_path,
