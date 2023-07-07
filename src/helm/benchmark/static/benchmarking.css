@@ -1,10 +1,10 @@
 .banner {
+  background-color: #ffda29; /* darker yellow */
+  font-size: 24px;
   padding-left: 15px;
   padding-right: 15px;
   padding-top: 10px;
   padding-bottom: 10px;
-  background-color: #ffda29;
-  font-size: 24px;
   position: -webkit-sticky; /* Safari & IE */
   position: sticky;
   top: 0;
