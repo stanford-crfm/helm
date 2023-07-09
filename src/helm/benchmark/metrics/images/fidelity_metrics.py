@@ -48,9 +48,8 @@ class FidelityMetric(Metric):
     }
     """
 
-    # The Stable Diffusion paper (https://arxiv.org/abs/2112.10752) computed FID with 256x256 images
-    IMAGE_WIDTH: int = 256
-    IMAGE_HEIGHT: int = 256
+    IMAGE_WIDTH: int = 299
+    IMAGE_HEIGHT: int = 299
 
     def __repr__(self):
         return "FidelityMetric()"
