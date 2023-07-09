@@ -785,7 +785,7 @@ models:
     todo: true
   - name: writer/palmyra-instruct-30
     display_name: InstructPalmyra (30B)
-    description: InstructPalmyra (30B)
+    description: InstructPalmyra (30B parameters) is trained using reinforcement learning techniques based on feedback from humans.
     creator_organization: Writer
     access: limited
     num_parameters: 30000000000
@@ -809,7 +809,7 @@ models:
     todo: true
   - name: writer/palmyra-x
     display_name: Palmyra X (43B)
-    description: Palmyra X (43B)
+    description: Palmyra-X (43B parameters) is trained to adhere to instructions using human feedback and utilizes a technique called multiquery attention. Furthermore, a new feature called 'self-instruct' has been introduced, which includes the implementation of an early stopping criteria specifically designed for minimal instruction tuning ([paper](https://dev.writer.com/docs/becoming-self-instruct-introducing-early-stopping-criteria-for-minimal-instruct-tuning)).
     creator_organization: Writer
     access: limited
     num_parameters: 43000000000
