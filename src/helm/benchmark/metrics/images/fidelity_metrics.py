@@ -4,10 +4,11 @@ import math
 import os
 import shutil
 
-import torch
 import torch_fidelity
+from pytorch_fid.fid_score import calculate_fid_given_paths
 
 from helm.common.general import ensure_directory_exists, generate_unique_id, get_file_name, hlog
+from helm.common.gpu_utils import is_cuda_available, get_torch_device
 from helm.common.request import RequestResult
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.scenarios.scenario import Instance
@@ -24,6 +25,15 @@ class FidelityMetric(Metric):
     Frechet Inception Distance (FID) is a measure of similarity between two sets of images.
     Inception Score (IS) measures quality and diversity of images.
     Both metrics require a large number of samples to compute.
+
+    @misc{Seitzer2020FID,
+      author={Maximilian Seitzer},
+      title={{pytorch-fid: FID Score for PyTorch}},
+      month={August},
+      year={2020},
+      note={Version 0.3.0},
+      howpublished={https://github.com/mseitzer/pytorch-fid},
+    }
 
     @misc{obukhov2020torchfidelity,
       author={Anton Obukhov and Maximilian Seitzer and Po-Wei Wu and Semen Zhydenko and Jonathan Kyl
@@ -97,20 +107,31 @@ class FidelityMetric(Metric):
 
             compute_kid: bool = num_generated_images >= 1000
 
-            # The torch_fidelity library fails when there are too few images (i.e., `max_eval_instances` is small).
             try:
+                hlog(f"Computing FID between {generated_images_path} and {gold_images_path}...")
+                fid: float = calculate_fid_given_paths(
+                    paths=[generated_images_path, gold_images_path],
+                    device=get_torch_device(),
+                    # Following defaults set in
+                    # https://github.com/mseitzer/pytorch-fid/blob/master/src/pytorch_fid/fid_score.py#L54
+                    batch_size=50,
+                    dims=2048,
+                    num_workers=8,
+                )
+                hlog(f"Done. FID score: {fid}")
+
+                # The torch_fidelity library fails when there are too few images (i.e., `max_eval_instances` is small).
+                hlog("Computing the other fidelity metrics...")
                 metrics_dict: Dict[str, float] = torch_fidelity.calculate_metrics(
                     input1=generated_images_path,
                     input2=gold_images_path,
                     isc=True,
-                    fid=True,
+                    fid=False,
                     kid=compute_kid,
                     ppl=False,  # Requires `GenerativeModel`
-                    cuda=torch.cuda.is_available(),
-                    save_cpu_ram=not torch.cuda.is_available(),
+                    cuda=is_cuda_available(),
+                    save_cpu_ram=not is_cuda_available(),
                 )
-                hlog(f"Computing metrics for perturbation: {perturbation_name if perturbation_name else 'none'}")
-                fid: float = metrics_dict["frechet_inception_distance"]
                 inception_score: float = metrics_dict["inception_score_mean"]
                 if math.isnan(inception_score):
                     inception_score = 0
