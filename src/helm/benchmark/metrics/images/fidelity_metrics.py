@@ -48,8 +48,8 @@ class FidelityMetric(Metric):
     }
     """
 
-    IMAGE_WIDTH: int = 299
-    IMAGE_HEIGHT: int = 299
+    IMAGE_WIDTH: int = 512
+    IMAGE_HEIGHT: int = 512
 
     def __repr__(self):
         return "FidelityMetric()"
@@ -105,6 +105,7 @@ class FidelityMetric(Metric):
                         num_generated_images += 1
 
             compute_kid: bool = num_generated_images >= 1000
+            hlog(f"Resized {num_generated_images} images to {self.IMAGE_WIDTH}x{self.IMAGE_HEIGHT}.")
 
             try:
                 hlog(f"Computing FID between {generated_images_path} and {gold_images_path}...")

@@ -1112,7 +1112,6 @@ run_groups:
     description: Caltech-UCSD Birds-200-2011 is a challenging dataset of 200 bird species with 10 captions for each bird ([paper](https://authors.library.caltech.edu/27452/1/CUB_200_2011.pdf), [paper](https://arxiv.org/abs/1711.10485)).
     metric_groups:
       - vhelm_alignment_clip_metrics
-      - vhelm_quality_fid_metrics
       - vhelm_quality_automated_metrics
       - vhelm_aesthetics_automated_metrics
       - vhelm_originality_watermark_metrics
