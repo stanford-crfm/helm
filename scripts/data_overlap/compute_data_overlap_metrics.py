@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from collections import defaultdict
 
 from light_scenario import LightInstance, LightScenario, LightScenarioKey
-from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProtocolSpec
+from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProtocolSpec, EntryDataOverlapKey, EntryOverlapNgrams
 from light_tokenizer import LightTokenizer
 from load_documents import get_document_iterator
 from common.hierarchical_logger import hlog, htrack_block
@@ -25,16 +25,6 @@ N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
 
 PART_INPUT: str = "input"
 PART_REF: str = "references"
-
-
-@dataclass(frozen=True)
-class EntryDataOverlapKey:
-    """Unique key representing either the input or references of a single instance in a scenario."""
-
-    stats_key: DataOverlapStatsKey
-    part: str
-    """Either PART_INPUT or PART_REF"""
-    instance_id: str
 
 
 # type alias for overlap-related data structures
@@ -124,6 +114,8 @@ def compute_all_data_overlap(
     tokenizer: LightTokenizer,
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
+    entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]],
+    output_ngrams: bool
 ) -> None:
     """
     Given an input file, compute a overlap stats for each n and each scenario by calling
@@ -135,6 +127,8 @@ def compute_all_data_overlap(
     tokenizer: The tokenizer used to break documents in the file into tokens
     stats_key_to_input_ids: a dict mapping the stats key to the overlapping input ids
     stats_key_to_reference_ids: a dict mapping the stats key to the overlapping reference ids
+    entry_overlap_key_to_ngram_counts: a dict mapping the key to the overlapping ngrams
+    output_ngrams: whether we should output ngrams
     """
     document_iterator = get_document_iterator(file_path=training_file_path, file_format=file_format)
     for document in document_iterator:
@@ -144,6 +138,8 @@ def compute_all_data_overlap(
             tokenizer=tokenizer,
             stats_key_to_input_ids=stats_key_to_input_ids,
             stats_key_to_reference_ids=stats_key_to_reference_ids,
+            entry_overlap_key_to_ngram_counts=entry_overlap_key_to_ngram_counts,
+            output_ngrams=output_ngrams,
         )
 
 
@@ -153,6 +149,8 @@ def compute_document_data_overlap(
     tokenizer: LightTokenizer,
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
+    entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]],
+    output_ngrams: bool
 ) -> None:
     """
     Given a document, compute a overlap stats for each n and each scenario. The function
@@ -166,6 +164,9 @@ def compute_document_data_overlap(
 
     stats_key_to_reference_ids: Dict to keep track of reference_ids that are overlapping
 
+    entry_overlap_key_to_ngram_counts: a dict mapping the key to the overlapping ngrams
+
+    output_ngrams: whether we should output ngrams
     """
 
     document_tokens = tokenizer.tokenize(document)
@@ -179,6 +180,9 @@ def compute_document_data_overlap(
                         stats_key_to_input_ids[entry_overlap_key.stats_key].add(id)
                     elif part == PART_REF:
                         stats_key_to_reference_ids[entry_overlap_key.stats_key].add(id)
+                    if output_ngrams:
+                        entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
+
 
 
 if __name__ == "__main__":
@@ -210,6 +214,8 @@ if __name__ == "__main__":
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
 
+    entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]] = defaultdict(lambda: defaultdict(int))
+
     # commpute the stats
     with htrack_block("Computing overlap stats"):
         for input_file_index in tqdm(
@@ -223,7 +229,18 @@ if __name__ == "__main__":
                 tokenizer=tokenizer,
                 stats_key_to_input_ids=stats_key_to_input_ids,
                 stats_key_to_reference_ids=stats_key_to_reference_ids,
+                entry_overlap_key_to_ngram_counts=entry_overlap_key_to_ngram_counts,
+                output_ngrams=args.output_ngrams
             )
+
+    if args.output_ngrams:
+        all_entry_overlap_ngrams = []
+        with open(f'{args.output_stats}_ngrams', "w") as f:
+            for entry_overlap_key in entry_overlap_key_to_ngram_counts:
+                ngram_counts = [ngram_count for ngram_count in entry_overlap_key_to_ngram_counts[entry_overlap_key].items()]
+                entry_overlap_ngrams = EntryOverlapNgrams(entry_data_overlap_key=entry_overlap_key, overlapping_ngram_counts=ngram_counts)
+                all_entry_overlap_ngrams.append(entry_overlap_ngrams)
+                f.write(f"{json.dumps(asdict_without_nones(entry_overlap_ngrams))}\n")
 
     all_data_overlap_stats = []
     for stats_key, count in stats_key_counts.items():
