@@ -69,6 +69,7 @@ class FidelityMetric(Metric):
 
         # The library requires the gold and generated images to be in two separate directories.
         # Gather the gold images and the unique perturbations
+        num_gold_images: int = 0
         for request_state in tqdm(scenario_state.request_states):
             instance: Instance = request_state.instance
             unique_perturbations.add(instance.perturbation)
@@ -81,6 +82,8 @@ class FidelityMetric(Metric):
                 file_path: str = reference.output.file_path
                 dest_path = os.path.join(gold_images_path, get_file_name(file_path))
                 copy_image(file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
+                num_gold_images += 1
+        hlog(f"Resized {num_gold_images} gold images to {self.IMAGE_WIDTH}x{self.IMAGE_HEIGHT}.")
 
         # Compute the FID for each perturbation group
         stats: List[Stat] = []
