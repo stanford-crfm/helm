@@ -10,7 +10,13 @@ from dataclasses import dataclass
 from collections import defaultdict
 
 from light_scenario import LightInstance, LightScenario, LightScenarioKey
-from data_overlap_spec import DataOverlapStats, DataOverlapStatsKey, OverlapProtocolSpec, EntryDataOverlapKey, EntryOverlapNgrams
+from data_overlap_spec import (
+    DataOverlapStats,
+    DataOverlapStatsKey,
+    OverlapProtocolSpec,
+    EntryDataOverlapKey,
+    EntryOverlapNgrams,
+)
 from light_tokenizer import LightTokenizer
 from load_documents import get_document_iterator
 from common.hierarchical_logger import hlog, htrack_block
@@ -115,7 +121,7 @@ def compute_all_data_overlap(
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]],
-    output_ngrams: bool
+    output_ngrams: bool,
 ) -> None:
     """
     Given an input file, compute a overlap stats for each n and each scenario by calling
@@ -150,7 +156,7 @@ def compute_document_data_overlap(
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]],
-    output_ngrams: bool
+    output_ngrams: bool,
 ) -> None:
     """
     Given a document, compute a overlap stats for each n and each scenario. The function
@@ -184,7 +190,6 @@ def compute_document_data_overlap(
                         entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
 
 
-
 if __name__ == "__main__":
     args = get_data_overlap_args()
 
@@ -214,7 +219,9 @@ if __name__ == "__main__":
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
 
-    entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]] = defaultdict(lambda: defaultdict(int))
+    entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]] = defaultdict(
+        lambda: defaultdict(int)
+    )
 
     # commpute the stats
     with htrack_block("Computing overlap stats"):
@@ -230,15 +237,19 @@ if __name__ == "__main__":
                 stats_key_to_input_ids=stats_key_to_input_ids,
                 stats_key_to_reference_ids=stats_key_to_reference_ids,
                 entry_overlap_key_to_ngram_counts=entry_overlap_key_to_ngram_counts,
-                output_ngrams=args.output_ngrams
+                output_ngrams=args.output_ngrams,
             )
 
     if args.output_ngrams:
         all_entry_overlap_ngrams = []
-        with open(f'{args.output_stats}_ngrams', "w") as f:
+        with open(f"{args.output_stats}_ngrams", "w") as f:
             for entry_overlap_key in entry_overlap_key_to_ngram_counts:
-                ngram_counts = [ngram_count for ngram_count in entry_overlap_key_to_ngram_counts[entry_overlap_key].items()]
-                entry_overlap_ngrams = EntryOverlapNgrams(entry_data_overlap_key=entry_overlap_key, overlapping_ngram_counts=ngram_counts)
+                ngram_counts = [
+                    ngram_count for ngram_count in entry_overlap_key_to_ngram_counts[entry_overlap_key].items()
+                ]
+                entry_overlap_ngrams = EntryOverlapNgrams(
+                    entry_data_overlap_key=entry_overlap_key, overlapping_ngram_counts=ngram_counts
+                )
                 all_entry_overlap_ngrams.append(entry_overlap_ngrams)
                 f.write(f"{json.dumps(asdict_without_nones(entry_overlap_ngrams))}\n")
 
