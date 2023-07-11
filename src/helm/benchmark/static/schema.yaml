@@ -79,7 +79,7 @@ models:
     access: open
   - name: huggingface/redshift-diffusion
     display_name: Redshift Diffusion (1B)
-    description: Redshift Diffusion is an open source Stable Diffusion fine tuned on high resolution 3D artworks ([HuggingFace model card](https://huggingface.co/nitrosocke/redshift-diffusion)).
+    description: Redshift Diffusion is an open source Stable Diffusion model fine tuned on high resolution 3D artworks ([HuggingFace model card](https://huggingface.co/nitrosocke/redshift-diffusion)).
     creator_organization: nitrosocke
     access: open
   - name: huggingface/promptist-stable-diffusion-v1-4
@@ -89,7 +89,7 @@ models:
     access: open
   - name: huggingface/stable-diffusion-v1-4
     display_name: Stable Diffusion v1.4 (1B)
-    description: Stable Diffusion v1.4 is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input ([paper](https://arxiv.org/abs/2112.10752)).
+    description: Stable Diffusion v1.4 is a latent text-to-image diffusion model capable of generating photorealistic images given any text input ([paper](https://arxiv.org/abs/2112.10752)).
     creator_organization: Ludwig Maximilian University of Munich CompVis
     access: open
   - name: huggingface/stable-diffusion-v1-5
@@ -99,7 +99,7 @@ models:
     access: open
   - name: huggingface/stable-diffusion-v2-base
     display_name: Stable Diffusion v2 base (1B)
-    description: The model is trained from scratch 550k steps at resolution 256x256 on a subset of LAION-5B filtered for explicit pornographic material, using the LAION-NSFW classifier with punsafe=0.1 and an aesthetic score >= 4.5. Then it is further trained for 850k steps at resolution 512x512 on the same dataset on images with resolution >= 512x512 ([paper](https://arxiv.org/abs/2112.10752)).
+    description: The model is trained from scratch 550k steps at resolution 256x256 on a subset of LAION-5B filtered for explicit pornographic material, using the LAION-NSFW classifier with punsafe=0.1 and an aesthetic score greater than 4.5. Then it is further trained for 850k steps at resolution 512x512 on the same dataset on images with resolution greater than 512x512 ([paper](https://arxiv.org/abs/2112.10752)).
     creator_organization: Stability AI
     access: open
   - name: huggingface/stable-diffusion-v2-1-base
@@ -134,11 +134,22 @@ models:
     access: open
 
   # Models to add in the future
-  # TODO: include Midjourney and Stable Diffusion XL
   - name: adobe/firefly
     display_name: Firefly
-    description: Adobe Firefly was trained on the Adobe Stock dataset, along with openly licensed work and public domain content where copyright has expired.
+    description: Adobe Firefly was trained on the Adobe Stock dataset, along with openly licensed work and public domain content where copyright has expired ([website](https://www.adobe.com/sensei/generative-ai/firefly.html)).
     creator_organization: Adobe
+    access: limited
+    todo: true
+  - name: dreamstudio/stable-diffusion-xl
+    display_name: Stable Diffusion XL
+    description: Stable Diffusion XL allows to create descriptive images with shorter prompts and generate words within images. It is currently in beta on DreamStudio and other leading imaging applications. Like all of Stability AI’s foundation models, Stable Diffusion XL will be released as open source for optimal accessibility in the near future ([website](https://stability.ai/stablediffusion)).
+    creator_organization: Stability AI
+    access: limited
+    todo: true
+  - name: midjourney/midjourney
+    display_name: Midjourney
+    description:  Midjourney is an image generation model that produces artistic and highly imaginative images from text prompts ([website](https://www.midjourney.com/home)).
+    creator_organization: Midjourney
     access: limited
     todo: true
 
