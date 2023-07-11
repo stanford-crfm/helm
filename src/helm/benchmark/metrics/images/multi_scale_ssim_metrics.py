@@ -18,9 +18,11 @@ from .image_metrics_utils import gather_generated_image_locations, get_gold_imag
 
 class MultiScaleStructuralSimilarityIndexMeasureMetric(Metric):
     """
-    Multi-scale Structural Similarity Index Measure, which is a generalization of
-    Structural Similarity Index Measure by incorporating image details at different
-    resolution scores.
+    The Multi-scale Structural Similarity Index Measure (MS-SSIM) is measure of image quality and
+    a generalization of Structural Similarity Index Measure (SSIM) by incorporating image details
+    at different resolution scores. The SSIM is a method for predicting the perceived quality of
+    digital television and cinematic pictures, as well as other kinds of digital images and videos.
+    SSIM is used for measuring the similarity between two images.
 
     We use the TorchMetrics implementation:
     https://torchmetrics.readthedocs.io/en/stable/image/multi_scale_structural_similarity.html

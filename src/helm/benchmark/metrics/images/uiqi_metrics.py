@@ -20,6 +20,8 @@ from .image_metrics_utils import gather_generated_image_locations, get_gold_imag
 class UniversalImageQualityIndexMetric(Metric):
     """
     Universal Image Quality Index (UIQI) from https://ieeexplore.ieee.org/document/995823.
+    The UIQI is a full-reference image quality assessment method that measures the similarity
+    between two images by comparing their luminance, contrast, and structure.
     The range of UIQI is [-1, 1].
 
     We use the TorchMetrics implementation:
