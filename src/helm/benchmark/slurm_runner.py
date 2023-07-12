@@ -1,10 +1,11 @@
 import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Union
+from typing import Dict, List
 import argparse
 import os
 import time
+import shlex
 import sys
 
 from helm.common.codec import from_json, to_json
@@ -26,6 +27,7 @@ from helm.common.hierarchical_logger import hlog, htrack_block
 
 _DEFAULT_MAX_CONCURRENT_WORKER_SLURM_JOBS = 8
 _MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKER_SLURM_JOBS"
+_SLURM_NODE_NAMES_ENV_NAME = "HELM_SLURM_NODE_NAMES"
 
 
 @dataclass
@@ -186,7 +188,8 @@ class SlurmRunner(Runner):
                     hlog("Fetching states of worker Slurm jobs from Slurm")
                     # TODO: Get the states of multiple jobs in a single call to Slurm
                     for slurm_job_info in run_name_to_slurm_job_info.values():
-                        slurm_job_info.state = get_slurm_job_state(slurm_job_info.id)
+                        if slurm_job_info.state not in TERMINAL_SLURM_JOB_STATES:
+                            slurm_job_info.state = get_slurm_job_state(slurm_job_info.id)
                     worker_slurm_jobs_path = os.path.join(self.slurm_base_dir, "worker_slurm_jobs.json")
                     run_name_to_slurm_job_info_json = to_json(run_name_to_slurm_job_info)
                     hlog(f"Worker Slurm jobs: {run_name_to_slurm_job_info_json}")
@@ -240,32 +243,47 @@ class SlurmRunner(Runner):
         log_path = os.path.join(self.logs_dir, f"{run_name}.log")
         # Requires that SlurmRunnerSpec has already been written to self.slurm_runner_spec_path.
         # It should have been written at the start of self.run_all()
-        command = (
-            f"{sys.executable}"
-            f" -m {SlurmRunner.__module__}"
-            f" --slurm-runner-spec-path {self.slurm_runner_spec_path}"
-            f" --run-spec-path {run_spec_path}"
+        command = shlex.join(
+            [
+                sys.executable,
+                "-m",
+                SlurmRunner.__module__,
+                "--slurm-runner-spec-path",
+                self.slurm_runner_spec_path,
+                "--run-spec-path",
+                run_spec_path,
+            ]
         )
         # TODO: Make default Slurm arguments configurable.
-        slurm_args: Dict[str, Union[str, int]] = {
+        raw_slurm_args: Dict[str, str] = {
             "account": "nlp",
-            "cpus_per_task": 4,
+            "cpus_per_task": "4",
             "mem": "32G",
             "gres": "gpu:0",
             "open_mode": "append",
             "partition": "john",
             "time": "14-0",  # Deadline of 14 days
-            "mail_type": "END",
+            "mail_type": "FAIL",
             "job_name": run_name,
             "output": log_path,
             "chdir": os.getcwd(),
         }
         # TODO: Move resource requirements into RunSpec.
+        slurm_node_names = os.getenv(_SLURM_NODE_NAMES_ENV_NAME)
         if run_spec.name.startswith("msmarco:"):
-            slurm_args["mem"] = "64G"
+            raw_slurm_args["mem"] = "64G"
         if "device=cuda" in run_spec.name:
-            slurm_args["gres"] = "gpu:1"
-            slurm_args["partition"] = "jag-hi"
+            raw_slurm_args["gres"] = "gpu:1"
+            raw_slurm_args["partition"] = "jag-hi"
+        if "model=huggingface" in run_spec.name:
+            raw_slurm_args["gres"] = "gpu:1"
+            raw_slurm_args["partition"] = "sphinx"
+            if not slurm_node_names or "sphinx" not in slurm_node_names:
+                raise Exception(f"Environment variable {_SLURM_NODE_NAMES_ENV_NAME} must be set to sphinx node names")
+        if slurm_node_names:
+            raw_slurm_args["nodelist"] = slurm_node_names
+
+        slurm_args: Dict[str, str] = {key: shlex.quote(value) for key, value in raw_slurm_args.items()}
         # Uncomment this to get notification emails from Slurm for Slurm worker jobs.
         # slurm.set_mail_user(os.getenv("USER"))
         hlog(f"Submitting worker Slurm job for run {run_name} with command: {command}")

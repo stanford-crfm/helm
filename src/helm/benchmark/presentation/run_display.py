@@ -16,7 +16,7 @@ from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.general import write
-from helm.common.hierarchical_logger import htrack
+from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.request import Request
 from helm.common.codec import from_json, to_json
 from helm.common.images_utils import encode_base64
@@ -148,8 +148,13 @@ def _get_metric_names_for_groups(run_group_names: Iterable[str], schema: Schema)
     return result
 
 
+_INSTANCES_JSON_FILE_NAME = "instances.json"
+_DISPLAY_PREDICTIONS_JSON_FILE_NAME = "display_predictions.json"
+_DISPLAY_REQUESTS_JSON_FILE_NAME = "display_requests.json"
+
+
 @htrack(None)
-def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
+def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, skip_completed: bool) -> None:
     """Write run JSON files that are used by the web frontend.
 
     The derived JSON files that are used by the web frontend are much more compact than
@@ -166,6 +171,18 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
     - List[DisplayPrediction] to `display_predictions.json`
     - List[DisplayRequest] to `display_requests.json`
     """
+    instances_file_path = os.path.join(run_path, _INSTANCES_JSON_FILE_NAME)
+    display_predictions_file_path = os.path.join(run_path, _DISPLAY_PREDICTIONS_JSON_FILE_NAME)
+    display_requests_file_path = os.path.join(run_path, _DISPLAY_REQUESTS_JSON_FILE_NAME)
+
+    if (
+        skip_completed
+        and os.path.exists(instances_file_path)
+        and os.path.exists(display_predictions_file_path)
+        and os.path.exists(display_requests_file_path)
+    ):
+        hlog(f"Skipping writing display JSON for run {run_spec.name} because all output display JSON files exist.")
+        return
     scenario_state = _read_scenario_state(run_path)
     per_instance_stats = _read_per_instance_stats(run_path)
 
@@ -261,13 +278,12 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
                 request=request_state.request,
             )
         )
-
     write(
-        os.path.join(run_path, "instances.json"),
+        instances_file_path,
         to_json(list(instance_id_to_instance.values())),
     )
-    write(os.path.join(run_path, "display_predictions.json"), to_json(predictions))
+    write(display_predictions_file_path, to_json(predictions))
     write(
-        os.path.join(run_path, "display_requests.json"),
+        display_requests_file_path,
         to_json(requests),
     )

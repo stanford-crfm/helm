@@ -1,25 +1,22 @@
-from typing import List
+from typing import List, DefaultDict, Set
 
+from collections import defaultdict
 from compute_data_overlap_metrics import (
-    compute_scenario_document_data_overlap,
-    create_all_data_overlap_stats,
+    compute_document_data_overlap,
     create_ngram_index,
     EntryDataOverlapKey,
     Ngram,
     NgramIndex,
-    AllDataOverlapStats,
-)
-from light_scenario import LightScenario, LightInstance, LightScenarioKey
-from light_tokenizer import LightTokenizer, DefaultTokenizer
-from data_overlap_stats import (
-    DataOverlapStats,
-    DataOverlapStatsKey,
     PART_INPUT,
     PART_REF,
 )
-from common.general import asdict_without_nones
+from data_overlap_spec import DataOverlapStatsKey, OverlapProtocolSpec
+from light_scenario import LightScenario, LightInstance, LightScenarioKey
+from light_tokenizer import LightTokenizer, DefaultTokenizer
+from scenarios.scenario import ScenarioSpec
 
 N_VALUES = [5, 13]
+
 
 TEST_DOCUMENT: str = (
     "The Center for Research on Foundation Models (CRFM) is "
@@ -114,15 +111,25 @@ TEST_TOKENS_BY_DEFAULT_TOKENIZER: List[str] = [
 ]
 
 TEST_SCENARIO_1 = LightScenario(
-    light_scenario_key=LightScenarioKey(metadata={"name": "TEST_SCENARIO_1"}),
-    light_instances=[
-        LightInstance(input="Center for Research on Foundation", references=["bar", "baz"]),
-        LightInstance(input="bar bar", references=["foo", "baz"]),
+    scenario_key=LightScenarioKey(
+        scenario_spec=ScenarioSpec(
+            class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
+        ),
+        split="test",
+    ),
+    instances=[
+        LightInstance(input="Center for Research on Foundation", references=["bar", "baz"], id="id1"),
+        LightInstance(input="bar bar", references=["foo", "baz"], id="id2"),
     ],
 )
 TEST_SCENARIO_2 = LightScenario(
-    light_scenario_key=LightScenarioKey(metadata={"name": "TEST_SCENARIO_2"}),
-    light_instances=[LightInstance(input=TEST_DOCUMENT, references=[TEST_DOCUMENT, TEST_DOCUMENT])],
+    scenario_key=LightScenarioKey(
+        scenario_spec=ScenarioSpec(
+            class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
+        ),
+        split="test",
+    ),
+    instances=[LightInstance(input=TEST_DOCUMENT, references=[TEST_DOCUMENT, TEST_DOCUMENT], id="id1")],
 )
 
 
@@ -146,40 +153,25 @@ def test_light_tokenizer():
     ]
 
 
-def test_create_overlap_stats():
-    scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_overlap_stats: AllDataOverlapStats
-    all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
-
-    stats_1_key, stats_2_key, stats_3_key = (
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
-    )
-
-    assert stats_1_key in all_overlap_stats and stats_2_key in all_overlap_stats and stats_3_key in all_overlap_stats
-
-    stats_1: DataOverlapStats
-    stats_2: DataOverlapStats
-    stats_3: DataOverlapStats
-    stats_1, stats_2, stats_3 = (
-        all_overlap_stats[stats_1_key],
-        all_overlap_stats[stats_2_key],
-        all_overlap_stats[stats_3_key],
-    )
-    assert stats_1.num_instances == 2 and stats_2.num_instances == 1 and stats_3.num_instances == 1
-
-
 def test_create_ngram_index():
     tokenizer = LightTokenizer()
+    stats_key_counts = dict()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
     ngram_index: NgramIndex
-    ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
+    ngram_index = create_ngram_index(
+        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_key_counts=stats_key_counts
+    )
 
     stats_1_key, stats_2_key, stats_3_key = (
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
+        DataOverlapStatsKey(
+            light_scenario_key=TEST_SCENARIO_1.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(n=5)
+        ),
+        DataOverlapStatsKey(
+            light_scenario_key=TEST_SCENARIO_2.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(n=5)
+        ),
+        DataOverlapStatsKey(
+            light_scenario_key=TEST_SCENARIO_2.scenario_key, overlap_protocol_spec=OverlapProtocolSpec(n=13)
+        ),
     )
 
     test_5_gram: Ngram = ("Center", "for", "Research", "on", "Foundation")
@@ -201,58 +193,91 @@ def test_create_ngram_index():
 
     assert ngram_index[5][test_5_gram] == set(
         [
-            EntryDataOverlapKey(stats_key=stats_1_key, instance_id=0, part=PART_INPUT),
-            EntryDataOverlapKey(stats_key=stats_2_key, instance_id=0, part=PART_INPUT),
-            EntryDataOverlapKey(stats_key=stats_2_key, instance_id=0, part=PART_REF),
+            EntryDataOverlapKey(stats_key=stats_1_key, instance_id="id1", part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_2_key, instance_id="id1", part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_2_key, instance_id="id1", part=PART_REF),
         ]
     )
     assert ngram_index[13][test_13_gram] == set(
         [
-            EntryDataOverlapKey(stats_key=stats_3_key, instance_id=0, part=PART_INPUT),
-            EntryDataOverlapKey(stats_key=stats_3_key, instance_id=0, part=PART_REF),
+            EntryDataOverlapKey(stats_key=stats_3_key, instance_id="id1", part=PART_INPUT),
+            EntryDataOverlapKey(stats_key=stats_3_key, instance_id="id1", part=PART_REF),
         ]
     )
 
 
-def test_compute_scenario_document_overlap():
+def test_compute_document_data_overlap():
     tokenizer = LightTokenizer()
+    stats_key_counts = dict()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
-    all_overlap_stats: AllDataOverlapStats
     ngram_index: NgramIndex
-    all_overlap_stats = create_all_data_overlap_stats(light_scenarios=scenarios, n_values=N_VALUES)
-    ngram_index = create_ngram_index(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
+    ngram_index = create_ngram_index(
+        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_key_counts=stats_key_counts
+    )
 
-    compute_scenario_document_data_overlap(
+    stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
+    stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
+
+    compute_document_data_overlap(
         document=TEST_DOCUMENT,
         ngram_index=ngram_index,
-        all_overlap_stats=all_overlap_stats,
         tokenizer=tokenizer,
+        stats_key_to_input_ids=stats_key_to_input_ids,
+        stats_key_to_reference_ids=stats_key_to_reference_ids,
+    )
+    assert stats_key_to_input_ids == defaultdict(
+        set,
+        {
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(n=5),
+            ): {"id1"},
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(n=5),
+            ): {"id1"},
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(n=13),
+            ): {"id1"},
+        },
     )
 
-    stats_1_key, stats_2_key, stats_3_key = (
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_1.light_scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 5}),
-        DataOverlapStatsKey(metadata={"light_scenario_key": TEST_SCENARIO_2.light_scenario_key, "N": 13}),
+    assert stats_key_to_reference_ids == defaultdict(
+        set,
+        {
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(n=5),
+            ): {"id1"},
+            DataOverlapStatsKey(
+                light_scenario_key=LightScenarioKey(
+                    scenario_spec=ScenarioSpec(
+                        class_name="helm.benchmark.scenarios.natural_qa_scenario.NaturalQAScenario2", args={}
+                    ),
+                    split="test",
+                ),
+                overlap_protocol_spec=OverlapProtocolSpec(n=13),
+            ): {"id1"},
+        },
     )
-    stats_1, stats_2, stats_3 = (
-        all_overlap_stats[stats_1_key],
-        all_overlap_stats[stats_2_key],
-        all_overlap_stats[stats_3_key],
-    )
-
-    assert (
-        stats_1._input_bits[0] == 1
-        and stats_1.overlapping_input_fraction == 0.5
-        and stats_1.overlapping_reference_fraction == 0
-    )
-    assert stats_2.overlapping_input_fraction == 1 and stats_2.overlapping_reference_fraction == 1
-    assert stats_3.overlapping_input_fraction == 1 and stats_3.overlapping_reference_fraction == 1
-
-    assert stats_1.generate_summary() == {
-        "setting": {"stats_key": asdict_without_nones(stats_1_key)},
-        "num_instances": 2,
-        "num_instances_with_overlapping_input": 1,
-        "num_instances_with_overlapping_reference": 0,
-        "overlapping_input_fraction": 0.5,
-        "overlapping_reference_fraction": 0,
-    }

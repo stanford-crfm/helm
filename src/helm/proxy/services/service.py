@@ -23,7 +23,6 @@ from helm.proxy.query import Query, QueryResult
 from helm.proxy.accounts import Authentication, Account
 
 VERSION = "1.0"
-CREDENTIALS_FILE = "credentials.conf"
 ACCOUNTS_FILE = "accounts.sqlite"
 CACHE_DIR = "cache"
 MONGO_URI = "mongo_uri"

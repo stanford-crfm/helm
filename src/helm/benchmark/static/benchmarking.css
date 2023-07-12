@@ -163,3 +163,7 @@ tbody .table-sort-column {
   font-style: italic;
   margin: 5px;
 }
+
+.prediction-text {
+  white-space: pre-wrap;
+}

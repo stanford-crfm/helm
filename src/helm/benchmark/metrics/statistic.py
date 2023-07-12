@@ -49,10 +49,14 @@ class Stat:
         return f"{self.name}[{self.bare_str()}]"
 
     def bare_str(self) -> str:
-        def process(x: float):
+        def process(x: Optional[float]) -> str:
+            if x is None:
+                return "None"
+            if math.isnan(x):
+                return "NaN"
             if int(x) == x:
-                return int(x)
-            return round(x, 3)
+                return str(int(x))
+            return str(round(x, 3))
 
         if self.count > 0:
             assert self.min is not None

@@ -23,9 +23,11 @@ ANTHROPIC_MODEL_TAG: str = "anthropic"
 
 # For OpenAI models with wider context windows
 # TODO(#1455): Simplify context window tags.
-WIDER_CONTEXT_WINDOW_TAG: str = "openai_wider_context_window"  # 4000 tokens
-GPT4_CONTEXT_WINDOW_TAG: str = "gpt4_context_window"  # 8192 tokens
-GPT4_32K_CONTEXT_WINDOW_TAG: str = "gpt4_32k_context_window"  # 32768 tokens
+WIDER_CONTEXT_WINDOW_TAG: str = "openai_wider_context_window"  # huggingface/gpt2 tokenizer, 4000 tokens
+GPT_TURBO_CONTEXT_WINDOW_TAG: str = "gpt_turbo_context_window"  # cl100k_base tokenizer, 4000 tokens
+GPT_TURBO_16K_CONTEXT_WINDOW_TAG: str = "gpt_turbo_16k_context_window"  # cl100k_base tokenizer, 8000 tokens
+GPT4_CONTEXT_WINDOW_TAG: str = "gpt4_context_window"  # cl100k_base tokenizer, 8192 tokens
+GPT4_32K_CONTEXT_WINDOW_TAG: str = "gpt4_32k_context_window"  # cl100k_base tokenizer, 32768 tokens
 
 # For AI21 Jurassic-2 models with wider context windows
 AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
@@ -59,6 +61,12 @@ NO_NEWLINES_TAG: str = "no_newlines"
 # prompts to indicate the mode before doing inference.
 NLG_PREFIX_TAG: str = "nlg_prefix_tag"
 
+# Whether the HuggingFace model needs to be loaded locally
+LOCAL_HUGGINGFACE_MODEL_TAG: str = "local_huggingface_model"
+
+# Some models can follow instructions.
+INSTRUCTION_FOLLOWING_MODEL_TAG: str = "instruction_following"
+
 
 @dataclass
 class Model:
@@ -76,8 +84,9 @@ class Model:
     group: str
 
     # Name of the specific model (e.g. "huggingface/gpt-j-6b")
-    # Currently, the name is <hosting_organization>/<model_name>,
-    # There is also `creator_organization>` (see `ModelField`).
+    # The name is <hosting_organization>/<model_name> or
+    # <creator_organization>/<model_name>
+    # There is also `<creator_organization>` (see `ModelField`).
     name: str
 
     # Tags corresponding to the properties of the model.
@@ -191,6 +200,7 @@ ALL_MODELS = [
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
             GPT2_TOKENIZER_TAG,
             ABLATION_MODEL_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
         ],
     ),
     Model(
@@ -202,6 +212,7 @@ ALL_MODELS = [
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
             GPT2_TOKENIZER_TAG,
             ABLATION_MODEL_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
         ],
     ),
     # BigScience
@@ -260,12 +271,12 @@ ALL_MODELS = [
     Model(
         group="cohere",
         name="cohere/command-medium-beta",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     ),
     Model(
         group="cohere",
         name="cohere/command-xlarge-beta",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     ),
     # EleutherAI
     Model(
@@ -299,18 +310,18 @@ ALL_MODELS = [
     Model(
         group="together",
         name="together/alpaca-7b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     ),
     # LMSYS
     Model(
         group="together",
         name="together/vicuna-13b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     ),
     # MosaicML
     Model(
-        group="togethger",
-        name="together/mpt-7b",
+        group="huggingface",
+        name="mosaicml/mpt-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # GooseAI supported models
@@ -345,6 +356,18 @@ ALL_MODELS = [
         name="huggingface/starcoder",
         tags=[CODE_MODEL_TAG],
     ),
+    # Local HuggingFace models
+    # Copy these models (in HuggingFace format) to ./huggingface_models
+    Model(
+        group="huggingface",
+        name="huggingface/llama-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
+    ),
+    Model(
+        group="huggingface",
+        name="huggingface/alpaca-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
+    ),
     # Google
     Model(
         group="together",
@@ -356,7 +379,13 @@ ALL_MODELS = [
         group="together",
         name="together/flan-t5-xxl",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            NO_NEWLINES_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
+        ],
     ),
     Model(
         group="together",
@@ -446,7 +475,13 @@ ALL_MODELS = [
     Model(
         group="gpt3",
         name="openai/text-davinci-003",
-        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            WIDER_CONTEXT_WINDOW_TAG,
+            FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
+        ],
     ),
     Model(
         group="gpt3",
@@ -495,9 +530,10 @@ ALL_MODELS = [
         tags=[
             TEXT_MODEL_TAG,
             GPT4_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
             OPENAI_CHATGPT_MODEL_TAG,
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-            GPT2_TOKENIZER_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
         ],
     ),
     Model(
@@ -506,9 +542,34 @@ ALL_MODELS = [
         tags=[
             TEXT_MODEL_TAG,
             GPT4_32K_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
             OPENAI_CHATGPT_MODEL_TAG,
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-            GPT2_TOKENIZER_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="gpt4",
+        name="openai/gpt-4-0613",
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT4_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="gpt4",
+        name="openai/gpt-4-32k-0613",
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT4_32K_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
         ],
     ),
     # ChatGPT: https://openai.com/blog/chatgpt
@@ -521,17 +582,54 @@ ALL_MODELS = [
         # We use a rounded-down sequence length of 4000 to account for these special tokens.
         tags=[
             TEXT_MODEL_TAG,
-            WIDER_CONTEXT_WINDOW_TAG,
+            GPT_TURBO_CONTEXT_WINDOW_TAG,
             GPT4_TOKENIZER_TAG,
             OPENAI_CHATGPT_MODEL_TAG,
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="gpt3",
+        name="openai/gpt-3.5-turbo-0613",
+        # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
+        # sequence length is smaller at 4087 with one user input message and one assistant
+        # output message because ChatGPT uses special tokens for message roles and boundaries.
+        # We use a rounded-down sequence length of 4000 to account for these special tokens.
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT_TURBO_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="gpt3",
+        name="openai/gpt-3.5-turbo-16k-0613",
+        # Claimed length is 16,384; we round down to 16,000 for the same reasons as explained
+        # in the openai/gpt-3.5-turbo-0613 comment
+        tags=[
+            TEXT_MODEL_TAG,
+            GPT_TURBO_16K_CONTEXT_WINDOW_TAG,
+            GPT4_TOKENIZER_TAG,
+            OPENAI_CHATGPT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
         ],
     ),
     Model(
         group="gpt3",
         name="openai/chat-gpt",
         # TODO: The max context length is unknown. Assume it's the same length as Davinci Instruct for now.
-        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, GPT2_TOKENIZER_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            WIDER_CONTEXT_WINDOW_TAG,
+            GPT2_TOKENIZER_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
+        ],
     ),
     # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
     Model(
@@ -554,6 +652,11 @@ ALL_MODELS = [
         name="openai/text-similarity-ada-001",
         tags=[EMBEDDING_MODEL_TAG],
     ),
+    Model(
+        group="gpt3",
+        name="openai/text-embedding-ada-002",
+        tags=[EMBEDDING_MODEL_TAG],
+    ),
     # Together
     Model(
         group="together",
@@ -568,6 +671,11 @@ ALL_MODELS = [
     Model(
         group="together",
         name="together/redpajama-incite-base-3b-v1",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="together/redpajama-incite-instruct-3b-v1",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Tsinghua
@@ -621,6 +729,12 @@ ALL_MODELS = [
         # Does not support echo
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    Model(
+        group="palmyra",
+        name="writer/palmyra-x",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # Yandex
     Model(
         group="together",
@@ -638,6 +752,33 @@ ALL_MODELS = [
         group="nvidia",
         name="nvidia/megatron-gpt2",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, BUGGY_TEMP_0_TAG],
+    ),
+    # Databricks
+    Model(
+        group="together",
+        name="databricks/dolly-v2-3b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="databricks/dolly-v2-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="databricks/dolly-v2-12b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # Stability AI
+    Model(
+        group="together",
+        name="stabilityai/stablelm-base-alpha-3b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="stabilityai/stablelm-base-alpha-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging
     Model(
@@ -835,3 +976,8 @@ def get_all_code_models() -> List[str]:
 def is_text_to_image_model(model_name: str) -> bool:
     model: Model = get_model(model_name)
     return TEXT_TO_IMAGE_MODEL_TAG in model.tags
+
+
+def get_all_instruction_following_models() -> List[str]:
+    """Get all instruction-following model names."""
+    return get_model_names_with_tag(INSTRUCTION_FOLLOWING_MODEL_TAG)

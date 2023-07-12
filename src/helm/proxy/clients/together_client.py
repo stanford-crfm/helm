@@ -11,26 +11,55 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
 _ASYNC_MODELS: Set[str] = {
-    "mpt-7b",
-    "redpajama-incite-base-3b-v1",
+    # Legacy models
+    "alpaca-7b",
+    "llama-7b",
+    "pythia-7b",
     "vicuna-13b",
+    # Production models
+    "redpajama-incite-base-3b-v1",
+    "redpajama-incite-instruct-3b-v1",
+    "dolly-v2-3b",
+    "dolly-v2-7b",
+    "dolly-v2-12b",
+    "stablelm-base-alpha-3b",
+    "stablelm-base-alpha-7b",
 }
 """Together models to use async requests for.
 
 Currently async requests are only used for models that are timing out,
-because async requests are slower than sync requests."""
+because async requests are slower than sync requests.
+
+Note: These should be HELM model names, not Together model name aliases."""
 # TODO: Eventually delete this and switch every model to async requests.
 
 
 MODEL_ALIASES: Dict[str, str] = {
+    # Legacy models
     "flan-t5-xxl": "flan-t5-xxl-hf",
     "h3-2.7b": "h3-2.7b-h3",
     "opt-1.3b": "opt-1.3b-ft-tp1",
     "opt-6.7b": "opt-6.7b-ft-tp1",
+    # Together's models are half-precision are default,
+    # and the full-precision models are suffixed e.g.
+    # alpaca-7b is half-precision
+    # alpaca-7b-full-precision is full-precision
+    "alpaca-7b": "alpaca-7b-full-precision",
+    "llama-7b": "llama-7b-full-precision",
+    "pythia-7b": "pythia-7b-full-precision",
+    "vicuna-13b": "vicuna-13b-full-precision",
+    # Production models
+    "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
+    "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
+    "dolly-v2-3b": "databricks/dolly-v2-3b",
+    "dolly-v2-7b": "databricks/dolly-v2-7b",
+    "dolly-v2-12b": "databricks/dolly-v2-12b",
+    "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
+    "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
 }
 """Together model name aliases.
 
@@ -42,13 +71,6 @@ implementation was used in the cached results, since some results may
 be different depending on the implementation (e.g. efficiency metrics).
 This also allows future migration of results in the case of changes of
 available implementations on Together."""
-
-
-def fix_text(x: str, model: str) -> str:
-    """Fix text that comes back from the API."""
-    # TODO(#1522): check if with #1519 this is still needed. This is similar to #1516.
-    x = x.replace("▁", " ")
-    return x
 
 
 class TogetherClientError(Exception):
@@ -127,8 +149,8 @@ class TogetherClient(Client):
             def retry_if_job_not_finished(exception: Exception) -> bool:
                 return isinstance(exception, JobNotFinishedError)
 
-            # Retry with a 1 second delay that doubles every retry until a maximum of delay of 15 seconds.
-            # Stop retrying after 1 minute.
+            # Retry with a 5 second delay that increases by 5 seconds each attempt with a maximum delay of 30 seconds.
+            # Stop retrying after 5 minutes.
             @retry(
                 retry_on_exception=retry_if_job_not_finished,
                 wait_incrementing_start=5 * 1000,  # 5 seconds
@@ -153,6 +175,9 @@ class TogetherClient(Client):
                     raise TogetherClientError(
                         f"Could not get output from Together job {job_id}: {retrieve_response_json}"
                     )
+                if "error" in retrieve_response_json["output"]:
+                    error_message = retrieve_response_json["output"]["error"]
+                    raise TogetherClientError(f"Together request (job_id={job_id}) failed with error: {error_message}")
                 return retrieve_response_json["output"]
 
             def do_it_async() -> Dict[Any, Any]:
@@ -173,9 +198,21 @@ class TogetherClient(Client):
                 result = response.json()
                 if "output" not in result:
                     raise TogetherClientError(f"Could not get output from Together response: {result}")
+                if "error" in result["output"]:
+                    error_message = result["output"]["error"]
+                    raise TogetherClientError(f"Together request failed with error: {error_message}")
                 return result["output"]
 
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
+            try:
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
+            except Exception as error:
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error=str(error),
+                    completions=[],
+                    embedding=[],
+                )
 
         # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[Sequence] = []
@@ -191,16 +228,17 @@ class TogetherClient(Client):
                 for text, logprob, top_logprobs in zip(
                     raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
                 ):
-                    text = fix_text(text, request.model)
+                    # TODO #1654: Check if this is still needed
+                    text = cleanup_str(text, "together")
                     tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                     sequence_logprob += logprob or 0
             else:
                 # hack: just make the entire text one token so that something shows up in the frontend
-                text = fix_text(raw_completion["text"], request.model)
+                text = cleanup_str(raw_completion["text"], "together")
                 tokens.append(Token(text=text, logprob=0, top_logprobs={}))
 
             completion = Sequence(
-                text=fix_text(raw_completion["text"], request.model),
+                text=cleanup_str(raw_completion["text"], "together"),
                 logprob=sequence_logprob,
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},

@@ -22,6 +22,12 @@ __autograph_generated*.py
 tmp*/
 DeepFloyd_output/
 
+# MechanicalTurkCritiqueClient
+mturk/
+
+# SlurmRunner
+slurm/
+
 # Where data lives (e.g., newsqa)
 restricted
 

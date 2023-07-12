@@ -4,8 +4,8 @@ from typing import List, Optional
 
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
-from helm.common.general import ensure_directory_exists, parse_hocon
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
+from helm.common.general import ensure_directory_exists, parse_hocon, get_credentials
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
@@ -25,6 +25,7 @@ from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 from helm.proxy.clients.nudity_check_client import NudityCheckClient
 from helm.proxy.clients.gcs_client import GCSClient
 from helm.proxy.clients.clip_score_client import CLIPScoreClient
+from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.example_queries import example_queries
 from helm.proxy.models import (
     ALL_MODELS,
@@ -39,7 +40,6 @@ from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
 from .service import (
     Service,
-    CREDENTIALS_FILE,
     CACHE_DIR,
     ACCOUNTS_FILE,
     GeneralInfo,
@@ -54,29 +54,24 @@ class ServerService(Service):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self, base_path: str = ".", root_mode=False, mongo_uri: str = ""):
-        credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
+    def __init__(self, base_path: str = "prod_env", root_mode=False, mongo_uri: str = ""):
+        credentials = get_credentials(base_path)
         cache_path = os.path.join(base_path, CACHE_DIR)
         ensure_directory_exists(cache_path)
         accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
 
-        if os.path.exists(credentials_path):
-            with open(credentials_path) as f:
-                credentials = parse_hocon(f.read())
-        else:
-            credentials = {}
-
         self.client = AutoClient(credentials, cache_path, mongo_uri)
-        self.token_counter = AutoTokenCounter(self.client.huggingface_client)
+        self.token_counter = AutoTokenCounter(self.client.get_huggingface_client())
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
 
         self.moderation_api_client = self.client.get_moderation_api_client()
 
-        # Lazily instantiated by get_toxicity_scores()
+        # Lazily instantiate the following clients
         self.perspective_api_client: Optional[PerspectiveAPIClient] = None
         self.nudity_check_client: Optional[NudityCheckClient] = None
         self.clip_score_client: Optional[CLIPScoreClient] = None
         self.gcs_client: Optional[GCSClient] = None
+        self.toxicity_classifier_client: Optional[ToxicityClassifierClient] = None
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(
@@ -173,9 +168,9 @@ class ServerService(Service):
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request
         def get_toxicity_scores_with_retry(request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
-            if not self.perspective_api_client:
-                self.perspective_api_client = self.client.get_toxicity_classifier_client()
-            return self.perspective_api_client.get_toxicity_scores(request)
+            if not self.toxicity_classifier_client:
+                self.toxicity_classifier_client = self.client.get_toxicity_classifier_client()
+            return self.toxicity_classifier_client.get_toxicity_scores(request)
 
         self.accounts.authenticate(auth)
         return get_toxicity_scores_with_retry(request)

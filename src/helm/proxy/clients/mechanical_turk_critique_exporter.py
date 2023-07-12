@@ -57,7 +57,8 @@ def _render_template_crowd_html(task_template: CritiqueTaskTemplate) -> str:
     )
 
     instructions_crowd_html = f"<div>{_format_template_tags(task_template.instructions)}</div>"
-    questions_crowd_html = "<br>\n".join(
+    instruction_question_break_html = "<br><br><h4>Please answer the questions below:</h4>"
+    questions_crowd_html = "<br>\n<br>\n".join(
         [_render_question_crowd_html(question) for question in task_template.questions]
     )
     return textwrap.dedent(
@@ -66,6 +67,7 @@ def _render_template_crowd_html(task_template: CritiqueTaskTemplate) -> str:
         {_indent_to_level(validation_crowd_html, 2)}
         <crowd-form answer-format="flatten-objects">
             {_indent_to_level(instructions_crowd_html, 3)}
+            {_indent_to_level(instruction_question_break_html, 3)}
             {_indent_to_level(questions_crowd_html, 3)}
         </crowd-form>"""
     )

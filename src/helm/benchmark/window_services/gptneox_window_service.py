@@ -30,3 +30,12 @@ class GPTNeoXWindowService(LocalWindowService):
     def prefix_token(self) -> str:
         """The prefix token is the same as the end of text token."""
         return self.end_of_text_token
+
+
+class StableLMAlphaWindowService(GPTNeoXWindowService):
+    @property
+    def max_sequence_length(self) -> int:
+        """Return the max sequence length."""
+        # The context length for these models is 4096 tokens.
+        # See: https://github.com/Stability-AI/StableLM#stablelm-alpha
+        return 4096

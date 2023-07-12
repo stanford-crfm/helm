@@ -20,9 +20,12 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
+          key: pip-${{ hashFiles('requirements-freeze.txt') }}-${{ matrix.python-version }}
           restore-keys: |
             pip-
+      - run: pip install -e .
+      - run: helm-run -h
+      - run: helm-summarize -h
       - run: echo "Finished installation."
 
   test:
@@ -40,7 +43,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}
+          key: pip-${{ hashFiles('requirements-freeze.txt') }}
           restore-keys: |
             pip-
       # Installs dependencies and performs static code checks

@@ -5,7 +5,11 @@ from transformers import AutoTokenizer
 
 from helm.common.hierarchical_logger import htrack_block, hlog
 
-from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
+from helm.proxy.clients.huggingface_model_registry import (
+    get_huggingface_model_config,
+    HuggingFaceHubModelConfig,
+    HuggingFaceLocalModelConfig,
+)
 
 
 # Tokenizer names where the HELM tokenizer name and the Hugging Face tokenizer name
@@ -19,7 +23,6 @@ _KNOWN_TOKENIZER_NAMES: Set[str] = {
     "google/ul2",
     "google/flan-t5-xxl",
     "bigcode/santacoder",
-    "Writer/palmyra-base",
     "bigcode/starcoder",
     "hf-internal-testing/llama-tokenizer",
     "openai/clip-vit-large-patch14",
@@ -34,7 +37,6 @@ _KNOWN_TOKENIZER_ALIASES: Dict[str, str] = {
 
 
 class HuggingFaceTokenizers:
-
     tokenizers: Dict[str, Any] = {}
 
     @staticmethod
@@ -78,8 +80,16 @@ class HuggingFaceTokenizers:
                 revision: Optional[str] = None
                 model_config = get_huggingface_model_config(tokenizer_name)
                 if model_config:
-                    hf_tokenizer_name = model_config.model_id
-                    revision = model_config.revision
+                    if isinstance(model_config, HuggingFaceLocalModelConfig):
+                        hlog(f"Loading {tokenizer_name} from local path {model_config.path}")
+                        hf_tokenizer_name = model_config.path
+                        revision = None
+                    elif isinstance(model_config, HuggingFaceHubModelConfig):
+                        hlog(f"Loading {tokenizer_name} from Hugging Face Hub model {model_config.model_id}")
+                        hf_tokenizer_name = model_config.model_id
+                        revision = model_config.revision
+                    else:
+                        raise ValueError(f"Unrecognized Hugging Face model config: {type(model_config)})")
                 elif tokenizer_name in _KNOWN_TOKENIZER_NAMES:
                     hf_tokenizer_name = tokenizer_name
                 elif tokenizer_name in _KNOWN_TOKENIZER_ALIASES:
