@@ -632,7 +632,7 @@ $(function () {
       let outputHTMLElement = prediction.predicted_text.trim();
       if (prediction.base64_images.length > 0) {
         outputHTMLElement = ''
-        prediction.base64_images.forEach(image => outputHTMLElement += `<img src="data:image;base64,${image}">`);
+        prediction.base64_images.forEach(image => outputHTMLElement += `<br><img src="data:image;base64,${image}">`);
       } else if (method === "multiple_choice_joint") {
         if (prediction.mapped_output !== undefined) {
           outputHTMLElement = truncateMiddle(prediction.mapped_output.trim(), 30);
