@@ -330,9 +330,9 @@ class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
 
     name = "max_eval_instances"
     values_dict = {
-        "vhelm_default": [100],
-        "vhelm_fid": [30_000],
-        "vhelm_art_styles": [17],
+        "heim_default": [100],
+        "heim_fid": [30_000],
+        "heim_art_styles": [17],
     }
 
 

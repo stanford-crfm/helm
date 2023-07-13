@@ -102,8 +102,7 @@ class PhotorealismCritiqueMetric(Metric):
         real_image_path: str = selected_reference.output.file_path
 
         template = CritiqueTaskTemplate(
-            # name=f"VHELM photorealism,{scenario_state.adapter_spec.model}",
-            name="vhelm_photorealism",
+            name="heim_photorealism",
             instructions="<p>Determine if the following image is AI-generated or real.</p>"
             '<br><img src="{{image}}"><br>',
             num_respondents=self._num_respondents,

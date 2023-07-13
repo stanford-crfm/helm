@@ -1,8 +1,9 @@
 import getpass
 
 from helm.common.authentication import Authentication
+from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from helm.common.request import Request, RequestResult
+from helm.common.request import Request, RequestResult, TextToImageRequest
 from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from helm.proxy.accounts import Account
 from helm.proxy.services.remote_service import RemoteService
@@ -42,3 +43,15 @@ text = "you suck."
 request = PerspectiveAPIRequest(text_batch=[text])
 perspective_request_result: PerspectiveAPIRequestResult = service.get_toxicity_scores(auth, request)
 print(f"{text} - toxicity score: {perspective_request_result.text_to_toxicity_attributes[text].toxicity_score}")
+
+# Image generation
+request = TextToImageRequest(
+    model="openai/dalle-2", prompt="A sheep flying over the moon", guidance_scale=7.5, num_completions=3
+)
+request_result = service.make_request(auth, request)
+print(f"Image saved at {request_result.completions[0].file_location} for prompt: {request.prompt}")
+
+# Moderation API
+request = ModerationAPIRequest(text="A man repeatedly stabs his victim causing him to bleed out.")
+request_result: ModerationAPIRequestResult = service.get_moderation_results(auth, request)
+print(request_result.flagged_results)

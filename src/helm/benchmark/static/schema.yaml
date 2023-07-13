@@ -616,7 +616,7 @@ metric_groups:
     - name: num_prompt_tokens
       split: ${main_split}
 
-  - name: vhelm_inception
+  - name: heim_inception
     display_name: HEIM inception metrics
     metrics:
       - name: fid
@@ -626,7 +626,7 @@ metric_groups:
       - name: kernel_inception_distance
         split: __all__
 
-  - name: vhelm_fidelity
+  - name: heim_fidelity
     display_name: HEIM Image fidelity metrics
     metrics:
       - name: expected_lpips_score
@@ -638,13 +638,13 @@ metric_groups:
       - name: expected_uiqi_score
         split: ${main_split}
 
-  - name: vhelm_gender
+  - name: heim_gender
     display_name: HEIM gender metrics
     metrics:
       - name: gender_imbalance
         split: ${main_split}
 
-  - name: vhelm_skin_tone
+  - name: heim_skin_tone
     display_name: HEIM skin tone metrics
     metrics:
       - name: skin_tone_imbalance
@@ -656,14 +656,14 @@ metric_groups:
 
     # HEIM metrics grouped by aspect
   # CLIP score
-  - name: vhelm_alignment_human_metrics
+  - name: heim_alignment_human_metrics
     display_name: Image-text Alignment - Human Evaluation
     metrics:
       - name: image_text_alignment_human
         split: __all__
         perturbation_name: __all__
 
-  - name: vhelm_alignment_clip_metrics
+  - name: heim_alignment_clip_metrics
     display_name: Image-text Alignment - CLIP Score
     metrics:
       - name: expected_clip_score
@@ -671,7 +671,7 @@ metric_groups:
       - name: max_clip_score
         split: ${main_split}
 
-  - name: vhelm_quality_human_metrics
+  - name: heim_quality_human_metrics
     display_name: Quality - Human Evaluation
     metrics:
 #      - name: photorealism_real_human
@@ -681,13 +681,13 @@ metric_groups:
         split: __all__
         perturbation_name: __all__
 
-  - name: vhelm_quality_fid_metrics
+  - name: heim_quality_fid_metrics
     display_name: Quality - FID
     metrics:
       - name: fid
         split: __all__
 
-  - name: vhelm_quality_inception_metrics
+  - name: heim_quality_inception_metrics
     display_name: Quality - Inception
     metrics:
       - name: inception_score
@@ -695,7 +695,7 @@ metric_groups:
       - name: kernel_inception_distance
         split: __all__
 
-  - name: vhelm_quality_automated_metrics
+  - name: heim_quality_automated_metrics
     display_name: Quality - Other Automated Metrics
     metrics:
       - name: expected_lpips_score
@@ -707,7 +707,7 @@ metric_groups:
       - name: expected_uiqi_score
         split: ${main_split}
 
-  - name: vhelm_aesthetics_human_metrics
+  - name: heim_aesthetics_human_metrics
     display_name: Aesthetics - Human Evaluation
     metrics:
       - name: clear_subject_human
@@ -717,7 +717,7 @@ metric_groups:
         split: __all__
         perturbation_name: __all__
 
-  - name: vhelm_aesthetics_automated_metrics
+  - name: heim_aesthetics_automated_metrics
     display_name: Aesthetics - Automated Metrics
     metrics:
       - name: expected_aesthetics_score
@@ -727,26 +727,26 @@ metric_groups:
       - name: fractal_dimension_loss
         split: ${main_split}
 
-  - name: vhelm_originality_human_metrics
+  - name: heim_originality_human_metrics
     display_name: Originality - Human Evaluation
     metrics:
       - name: originality_human
         split: __all__
         perturbation_name: __all__
 
-  - name: vhelm_originality_watermark_metrics
+  - name: heim_originality_watermark_metrics
     display_name: Originality - Watermark
     metrics:
       - name: watermark_frac
         split: ${main_split}
 
-  - name: vhelm_reasoning_metrics
+  - name: heim_reasoning_metrics
     display_name: Reasoning
     metrics:
       - name: detection_correct_frac
         split: ${main_split}
 
-  - name: vhelm_bias_metrics
+  - name: heim_bias_metrics
     display_name: Bias
     metrics:
       - name: gender_imbalance
@@ -754,32 +754,32 @@ metric_groups:
       - name: skin_tone_imbalance
         split: ${main_split}
 
-  - name: vhelm_toxicity_metrics
+  - name: heim_toxicity_metrics
     display_name: Toxicity (NSFW)
     metrics:
       - name: nsfw_frac_given_toxic_prompt=False
         split: ${main_split}
 
-  - name: vhelm_toxicity_black_metrics
+  - name: heim_toxicity_black_metrics
     display_name: Toxicity (blacked out images)
     metrics:
       - name: blacked_out_frac
         split: ${main_split}
 
-  - name: vhelm_toxicity_nudity_metrics
+  - name: heim_toxicity_nudity_metrics
     display_name: Toxicity (nudity)
     metrics:
       - name: nudity_frac
         split: ${main_split}
 
-  - name: vhelm_efficiency_metrics
+  - name: heim_efficiency_metrics
     display_name: Efficiency
     metrics:
       # TOOD: ugh
       - name: denoised_runtime
         split: __all__
 
-  - name: vhelm_photorealism
+  - name: heim_photorealism
     display_name: HEIM photorealism metrics
     metrics:
       - name: photorealism_generated_human
@@ -829,7 +829,7 @@ run_groups:
       - i2p
 
   # HEIM groups  
-  - name: vhelm_alignment_scenarios
+  - name: heim_alignment_scenarios
     display_name: Alignment
     description: Is the image semantically correct given the text (image-text alignment)
     category: Scenarios for specific aspects
@@ -843,7 +843,7 @@ run_groups:
       - parti_prompts_reasoning
       - parti_prompts_knowledge
 
-  - name: vhelm_quality_scenarios
+  - name: heim_quality_scenarios
     display_name: Quality
     description: Do the generated images look like real images/photos
     category: Scenarios for specific aspects
@@ -853,7 +853,7 @@ run_groups:
       - draw_bench_image_quality
       - parti_prompts_image_quality
 
-  - name: vhelm_aesthetics_scenarios
+  - name: heim_aesthetics_scenarios
     display_name: Aesthetics
     description: Is the image aesthetically pleasing
     category: Scenarios for specific aspects
@@ -865,7 +865,7 @@ run_groups:
       - landing_page
       - magazine_cover
 
-  - name: vhelm_originality_scenarios
+  - name: heim_originality_scenarios
     display_name: Originality
     description: Does the model generate creative images and prevent copyright infringement
     category: Scenarios for specific aspects
@@ -875,7 +875,7 @@ run_groups:
       - landing_page
       - magazine_cover
 
-  - name: vhelm_reasoning_scenarios
+  - name: heim_reasoning_scenarios
     display_name: Reasoning
     description: Does the model understand objects, counts, and spatial relations (compositionality)
     category: Scenarios for specific aspects
@@ -887,7 +887,7 @@ run_groups:
       - detection
       - winoground
 
-  - name: vhelm_knowledge_scenarios
+  - name: heim_knowledge_scenarios
     display_name: Knowledge
     description: Does the model have knowledge about the world or domains
     category: Scenarios for specific aspects
@@ -896,7 +896,7 @@ run_groups:
       - draw_bench_knowledge
       - parti_prompts_knowledge
 
-  - name: vhelm_bias_scenarios
+  - name: heim_bias_scenarios
     display_name: Bias
     description: Are the generated images biased in demographic representation (e.g., gender, skin tone)
     category: Scenarios for specific aspects
@@ -904,70 +904,70 @@ run_groups:
       - demographic_stereotypes
       - mental_disorders
 
-  - name: vhelm_toxicity_scenarios
+  - name: heim_toxicity_scenarios
     display_name: Toxicity
     description: Does the model generate toxic or inappropriate images (e.g., violence, sexual, illegal content)
     category: Scenarios for specific aspects
     subgroups:
       - i2p
 
-  - name: vhelm_fairness_dialect_scenarios
+  - name: heim_fairness_dialect_scenarios
     display_name: Fairness - African American Vernacular English (AAVE)
     description: Does the model exhibit performance disparities across social groups. The African American Vernacular English (AAVE) dialect perturbation converts each word to the corresponding word in AAVE if one exists.
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_dialect
 
-  - name: vhelm_fairness_gender_scenarios
+  - name: heim_fairness_gender_scenarios
     display_name: Fairness - Gender
     description: Does the model exhibit performance disparities across social groups. The gender perturbation maps male gender terms to female gender terms (e.g., son to daughter and father to mother).
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_gender
 
-  - name: vhelm_robustness_scenarios
+  - name: heim_robustness_scenarios
     display_name: Robustness
     description: Is the model robust to invariant input perturbations
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_robustness
 
-  - name: vhelm_multilinguality_chinese_scenarios
+  - name: heim_multilinguality_chinese_scenarios
     display_name: Multilinguality (Chinese)
     description: Does the model support non-English languages.
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_chinese
 
-  - name: vhelm_multilinguality_hindi_scenarios
+  - name: heim_multilinguality_hindi_scenarios
     display_name: Multilinguality (Hindi)
     description: Does the model support non-English languages.
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_hindi
 
-  - name: vhelm_multilinguality_spanish_scenarios
+  - name: heim_multilinguality_spanish_scenarios
     display_name: Multilinguality (Spanish)
     description: Does the model support non-English languages.
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_spanish
 
-  - name: vhelm_fid_scenarios
+  - name: heim_fid_scenarios
     display_name: Fidelity
     description: Fidelity metrics computed with MS-COCO
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_fid
 
-  - name: vhelm_efficiency_scenarios
+  - name: heim_efficiency_scenarios
     display_name: Efficiency
     description: How fast is inference for the model
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_efficiency
 
-  - name: vhelm_art_styles_scenarios
+  - name: heim_art_styles_scenarios
     display_name: Art styles
     description: To test the ability of these models to generate images in specific art styles.
     category: Scenarios for specific aspects
@@ -981,16 +981,16 @@ run_groups:
     display_name: MS-COCO (all)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_quality_human_metrics
-      - vhelm_quality_automated_metrics
-      - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_quality_human_metrics
+      - heim_quality_automated_metrics
+      - heim_aesthetics_human_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: valid
@@ -1000,16 +1000,16 @@ run_groups:
     display_name: MS-COCO (base)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_quality_human_metrics
-      - vhelm_quality_automated_metrics
-      - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_quality_human_metrics
+      - heim_quality_automated_metrics
+      - heim_aesthetics_human_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: valid
@@ -1019,8 +1019,8 @@ run_groups:
     display_name: MS-COCO Fidelity
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) for fidelity.
     metric_groups:
-      - vhelm_quality_fid_metrics
-      - vhelm_quality_inception_metrics
+      - heim_quality_fid_metrics
+      - heim_quality_inception_metrics
       - general_information
     environment:
       main_split: valid
@@ -1030,7 +1030,7 @@ run_groups:
     display_name: MS-COCO Efficiency
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) for efficiency.
     metric_groups:
-      - vhelm_efficiency_metrics
+      - heim_efficiency_metrics
       - general_information
     environment:
       main_split: valid
@@ -1040,9 +1040,9 @@ run_groups:
     display_name: MS-COCO (fairness - gender)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with the gender perturbation maps male gender terms to female gender terms (e.g., son to daughter and father to mother).
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_quality_human_metrics
-      - vhelm_aesthetics_human_metrics
+      - heim_alignment_human_metrics
+      - heim_quality_human_metrics
+      - heim_aesthetics_human_metrics
       - general_information
     environment:
       main_split: valid
@@ -1052,9 +1052,9 @@ run_groups:
     display_name: MS-COCO (fairness - AAVE dialect)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with the African American Vernacular English (AAVE) dialect perturbation, which converts each word to the corresponding word in AAVE if one exists.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_quality_human_metrics
-      - vhelm_aesthetics_human_metrics
+      - heim_alignment_human_metrics
+      - heim_quality_human_metrics
+      - heim_aesthetics_human_metrics
       - general_information
     environment:
       main_split: valid
@@ -1064,9 +1064,9 @@ run_groups:
     display_name: MS-COCO (robustness)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with input perturbations.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_quality_human_metrics
-      - vhelm_aesthetics_human_metrics
+      - heim_alignment_human_metrics
+      - heim_quality_human_metrics
+      - heim_aesthetics_human_metrics
       - general_information
     environment:
       main_split: valid
@@ -1076,9 +1076,9 @@ run_groups:
     display_name: MS-COCO (Chinese)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with prompts translated to Chinese.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_quality_human_metrics
-      - vhelm_aesthetics_human_metrics
+      - heim_alignment_human_metrics
+      - heim_quality_human_metrics
+      - heim_aesthetics_human_metrics
       - general_information
     environment:
       main_split: valid
@@ -1088,9 +1088,9 @@ run_groups:
     display_name: MS-COCO (Hindi)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with prompts translated to Hindi.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_quality_human_metrics
-      - vhelm_aesthetics_human_metrics
+      - heim_alignment_human_metrics
+      - heim_quality_human_metrics
+      - heim_aesthetics_human_metrics
       - general_information
     environment:
       main_split: valid
@@ -1100,9 +1100,9 @@ run_groups:
     display_name: MS-COCO (Spanish)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with prompts translated to Spanish.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_quality_human_metrics
-      - vhelm_aesthetics_human_metrics
+      - heim_alignment_human_metrics
+      - heim_quality_human_metrics
+      - heim_aesthetics_human_metrics
       - general_information
     environment:
       main_split: valid
@@ -1112,9 +1112,9 @@ run_groups:
     display_name: MS-COCO (Art styles)
     description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)) with prompts that generate images in specific art styles.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_quality_human_metrics
-      - vhelm_aesthetics_human_metrics
+      - heim_alignment_human_metrics
+      - heim_quality_human_metrics
+      - heim_aesthetics_human_metrics
       - general_information
     environment:
       main_split: valid
@@ -1124,13 +1124,13 @@ run_groups:
     display_name: Caltech-UCSD Birds-200-2011
     description: Caltech-UCSD Birds-200-2011 is a challenging dataset of 200 bird species with 10 captions for each bird ([paper](https://authors.library.caltech.edu/27452/1/CUB_200_2011.pdf), [paper](https://arxiv.org/abs/1711.10485)).
     metric_groups:
-      - vhelm_alignment_clip_metrics
-      - vhelm_quality_automated_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_clip_metrics
+      - heim_quality_automated_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1140,13 +1140,13 @@ run_groups:
     display_name: DrawBench (image quality categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1156,13 +1156,13 @@ run_groups:
     display_name: PartiPrompts (image quality categories)
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1172,15 +1172,15 @@ run_groups:
     display_name: dailydall.e
     description: DALL-E 2 prompts from [Chad Nelson's Instagram](https://www.instagram.com/dailydall.e/)
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_human_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_human_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_human_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1190,15 +1190,15 @@ run_groups:
     display_name: Landing Page
     description: Prompts to generate landing pages for mobile or web applications.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_human_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_human_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_human_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1208,15 +1208,15 @@ run_groups:
     display_name: Logos
     description: Prompts to generate logos for brands and companies
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_human_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_human_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_human_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1226,15 +1226,15 @@ run_groups:
     display_name: Magazine Cover Photos
     description: Prompts to generate magazine cover photos
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_human_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_human_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_human_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_human_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1244,13 +1244,13 @@ run_groups:
     display_name: Common Syntactic Processes
     description: Prompts from 8 different grammatical phenomena ([paper](https://arxiv.org/abs/2210.12889)).
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1260,13 +1260,13 @@ run_groups:
     display_name: DrawBench (reasoning categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1276,13 +1276,13 @@ run_groups:
     display_name: PartiPrompts (reasoning categories)
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1292,13 +1292,13 @@ run_groups:
     display_name: Relational Understanding
     description: Based on existing cognitive, linguistic, and developmental literature, the authors created a set of 15 relations (8 physical, 7 agentic) and a set of 12 entities (6 objects, 6 agents)
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1308,14 +1308,14 @@ run_groups:
     display_name: Detection (PaintSkills)
     description: A compositional diagnostic dataset an evaluation toolkit that measures visual reasoning skills ([paper](https://arxiv.org/abs/2202.04053)).
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_reasoning_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_reasoning_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1325,14 +1325,14 @@ run_groups:
     display_name: Winoground
     description: Winoground is a novel task and dataset for evaluating the ability of vision and language models to conduct visio-linguistic compositional reasoning ([paper](https://arxiv.org/abs/2204.03162)).
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_quality_automated_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_quality_automated_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1342,13 +1342,13 @@ run_groups:
     display_name: PartiPrompts (knowledge categories)
     description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1358,13 +1358,13 @@ run_groups:
     display_name: DrawBench (knowledge categories)
     description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1374,13 +1374,13 @@ run_groups:
     display_name: TIME's most significant historical figures
     description: People from TIME's "The 100 Most Significant Figures in History" list
     metric_groups:
-      - vhelm_alignment_human_metrics
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_human_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1390,13 +1390,13 @@ run_groups:
     display_name: Demographic Stereotypes
     description: Simple user prompts ("A photo of the face of...") generate images perpetuating dangerous racial, ethnic, gendered, class, and intersectional stereotypes.
     metric_groups:
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_bias_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_bias_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1406,13 +1406,13 @@ run_groups:
     display_name: Mental Disorders
     description: Prompt text-to-image models with mental disorders listed by the World Health Organization
     metric_groups:
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_bias_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_bias_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test
@@ -1422,12 +1422,12 @@ run_groups:
     display_name: Inappropriate Image Prompts (I2P)
     description: Contains real user prompts for generative text-to-image prompts that are likely to produce inappropriate images ([paper](https://arxiv.org/abs/2211.05105)).
     metric_groups:
-      - vhelm_alignment_clip_metrics
-      - vhelm_aesthetics_automated_metrics
-      - vhelm_originality_watermark_metrics
-      - vhelm_toxicity_metrics
-      - vhelm_toxicity_black_metrics
-      - vhelm_toxicity_nudity_metrics
+      - heim_alignment_clip_metrics
+      - heim_aesthetics_automated_metrics
+      - heim_originality_watermark_metrics
+      - heim_toxicity_metrics
+      - heim_toxicity_black_metrics
+      - heim_toxicity_nudity_metrics
       - general_information
     environment:
       main_split: test

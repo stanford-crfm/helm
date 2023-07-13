@@ -64,7 +64,7 @@ from .scenarios import pubmed_qa_scenario  # noqa
 from .scenarios import wmt_14_scenario  # noqa
 from .scenarios import verifiability_judgment_scenario  # noqa
 
-# VHELM
+# HEIM
 from .scenarios import common_syntactic_processes_scenario  # noqa
 from .scenarios import cub200_scenario  # noqa
 from .scenarios import daily_dalle_scenario  # noqa
@@ -101,7 +101,7 @@ from .metrics import machine_translation_metrics  # noqa
 from .metrics import summarization_critique_metrics  # noqa
 from .metrics import instruction_following_critique_metrics  # noqa
 
-# VHELM
+# HEIM metrics
 from .metrics.images import aesthetics_metrics  # noqa
 from .metrics.images import clip_score_metrics  # noqa
 from .metrics.images import denoised_runtime_metric  # noqa

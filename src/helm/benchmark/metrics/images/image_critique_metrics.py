@@ -203,7 +203,7 @@ class ImageCritiqueMetric(Metric):
 
     def _get_critique_template(self, model_name: str) -> CritiqueTaskTemplate:
         hlog(f"Generating critique template for model: {model_name}")
-        task_name: str = "vhelm_image_critique"
+        task_name: str = "heim_image_critique"
         questions: List[CritiqueQuestionTemplate] = []
 
         if self._include_alignment:
