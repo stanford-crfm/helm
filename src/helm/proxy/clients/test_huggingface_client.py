@@ -51,6 +51,7 @@ class TestHuggingFaceClient:
         assert result.cached, "Result should be cached"
         assert result.text == "I am a computer scientist."
 
+    @pytest.mark.skip(reason="Slow in GHA.")
     def test_gpt2(self):
         prompt: str = "I am a computer scientist."
         result: RequestResult = self.client.make_request(

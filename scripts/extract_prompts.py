@@ -4,7 +4,8 @@ import os
 from typing import List, Tuple
 
 """
-Extract prompts from a suite.
+Extracts all the prompts from a suite and writes it out to a TSV file,
+making it easier to double check the constructed prompts look reasonable.
 
 Usage:
      python3 scripts/extract_prompts.py benchmark_output/runs/<Name of the run suite>
