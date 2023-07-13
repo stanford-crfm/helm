@@ -2,8 +2,6 @@ from urllib.request import urlretrieve
 import os
 import zipfile
 
-from tensorflow import keras
-import autokeras as ak
 import torch
 import clip
 import numpy as np
@@ -26,6 +24,9 @@ class NSFWDetector:
         """
         Load the safety model. Adapted from https://github.com/LAION-AI/CLIP-based-NSFW-Detector.
         """
+        from tensorflow import keras
+        import autokeras as ak
+
         cache_folder: str = get_helm_cache_path()
         model_path: str
         if clip_model == "ViT-L/14":
@@ -58,7 +59,7 @@ class NSFWDetector:
         self._model_name: str = model_name
         self._device: torch.device = get_torch_device()
         self._clip_model, self._preprocess = clip.load(model_name, device=self._device)
-        self._nsfw_detector: keras.Model = self.load_safety_model(self._model_name)
+        self._nsfw_detector = self.load_safety_model(self._model_name)
 
     def is_nsfw(self, image_location: str) -> bool:
         """Returns True if the image at `image_path` is NSFW. False otherwise."""

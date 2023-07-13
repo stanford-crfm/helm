@@ -1,11 +1,6 @@
 import os
 from typing import Dict, Any
 
-from detectron2.data.common import DatasetFromList, MapDataset
-from detectron2.checkpoint import DetectionCheckpointer
-from detectron2.config import LazyConfig
-from detectron2.config import instantiate
-from detectron2.data.catalog import MetadataCatalog
 from PIL import Image
 import torch
 
@@ -15,8 +10,6 @@ from helm.common.gpu_utils import get_torch_device
 from .base_detector import BaseDetector
 
 
-COCO_CLASSES = MetadataCatalog.get("coco_2017_val").thing_classes
-
 MODEL_CONFIG_DOWNLOAD_URL = "https://drive.google.com/uc?id=1MLuwQ0ZN0gJQ42oVCc0aFz6Rneb1g3Rt"
 MODEL_CHECKPOINT_DOWNLOAD_URL = (
     "https://dl.fbaipublicfiles.com/detectron2/ViTDet/COCO/mask_rcnn_vitdet_b/f325346929/model_final_61ccd1.pkl"
@@ -25,6 +18,11 @@ MODEL_CHECKPOINT_DOWNLOAD_URL = (
 
 class ViTDetDetector(BaseDetector):
     def __init__(self):
+        from detectron2.checkpoint import DetectionCheckpointer
+        from detectron2.config import LazyConfig
+        from detectron2.config import instantiate
+        from detectron2.data.catalog import MetadataCatalog
+
         super().__init__()
 
         cache_path: str = get_helm_cache_path()
@@ -47,7 +45,13 @@ class ViTDetDetector(BaseDetector):
         self._device: torch.device = get_torch_device()
         hlog("Initialized the ViTDet model.")
 
+        # COCO classes
+        self._coco_classes = MetadataCatalog.get("coco_2017_val").thing_classes
+
     def forward_model(self, image_location: str) -> float:
+        from detectron2.data.common import DatasetFromList, MapDataset
+        from detectron2.config import instantiate
+
         image: Image = open_image(image_location)
         dataset_dicts = [
             {
@@ -76,7 +80,7 @@ class ViTDetDetector(BaseDetector):
 
     def compute_score_object(self, instances, references):
         gt_class_name = references["object"]
-        gt_class = COCO_CLASSES.index(gt_class_name)
+        gt_class = self._coco_classes.index(gt_class_name)
         if len(instances.scores) == 0:
             pred_id = None
             pred_score = torch.zeros(())
@@ -87,7 +91,7 @@ class ViTDetDetector(BaseDetector):
             pred_id = instances.scores.max(-1).indices
             pred_score = instances.scores[pred_id]  # (num_instances,) -> ()    # noqa
             pred_class = instances.pred_classes[pred_id]  # (num_instances,) -> ()
-            pred_class_name = COCO_CLASSES[pred_class.item()]  # noqa
+            pred_class_name = self._coco_classes[pred_class.item()]  # noqa
 
             correct = float(pred_class == gt_class)
 
@@ -97,7 +101,7 @@ class ViTDetDetector(BaseDetector):
     def compute_score_count(self, instances, references):
         # assume that there is only one type of object
         gt_class_name = references["object"]
-        gt_class_idx = COCO_CLASSES.index(gt_class_name)
+        gt_class_idx = self._coco_classes.index(gt_class_name)
         gt_count = references["count"]
         if len(instances.scores) == 0:
             pred_count = 0
@@ -105,16 +109,12 @@ class ViTDetDetector(BaseDetector):
         else:
             pred_count = (instances.pred_classes == gt_class_idx).sum().item()
             correct = float(pred_count == gt_count)
-
-        # hlog(f'pred_class: {[COCO_CLASSES[ind] for ind in instances.pred_classes.tolist()]}, '
-        #       f'pred_cuont: {pred_count}, '
-        #       f'gt_class: {gt_class_name}, gt_count: {gt_count}, correct: {correct}')
         return correct
 
     def compute_score_spatial(self, instances, references):
         gt_class_name_1, gt_class_name_2 = references["objects"]
-        gt_class_idx_1 = COCO_CLASSES.index(gt_class_name_1)
-        gt_class_idx_2 = COCO_CLASSES.index(gt_class_name_2)
+        gt_class_idx_1 = self._coco_classes.index(gt_class_name_1)
+        gt_class_idx_2 = self._coco_classes.index(gt_class_name_2)
         relation = references["relation"].split("_")[0]
 
         if len(instances.scores) == 0:
@@ -168,7 +168,4 @@ class ViTDetDetector(BaseDetector):
                         correct = 1
                     else:
                         correct = 0
-        # hlog(f'gt_class_1: {gt_class_name_1}, gt_class_2: {gt_class_name_2}, gt_rel: {relation}, '
-        #       f'pred_class: {[COCO_CLASSES[ind] for ind in instances.pred_classes.tolist()]}',
-        #       f'pred_count_1: {pred_count_1}, pred_count_2: {pred_count_2}, pred_rel: {pred_rel}, correct: {correct}')
         return correct
