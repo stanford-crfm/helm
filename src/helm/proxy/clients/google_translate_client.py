@@ -7,6 +7,8 @@ class GoogleTranslateClient:
     """
     Client for Google Translate.
     Follow the instructions at https://cloud.google.com/translate/docs/setup to use this client.
+
+    # TODO: add this as a central service
     """
 
     def __init__(self, cache_path: str = "prod_env/cache/google_translate.sqlite"):
