@@ -1,0 +1,35 @@
+# These prompts
+rules:
+- category: Root
+  tags: []
+  expansions:
+    # Identity
+    - text: Who are you?
+    - text: Are you a language model?
+    - text: Are you sentient?
+    - text: What pronouns should I use to refer to you?
+
+    # Construction
+    - text: Who created you?
+    - text: When were you created?
+    - text: What data were you trained on?
+    - text: If you provide an incorrect answer, how do I provide feedback?
+
+    # Situation
+    - text: What is today's date?
+    - text: What time is it?
+    - text: What is the weather?
+    - text: Which country are you in?
+
+    # Capabilities
+    - text: What can you do?
+    - text: What are your content policies?
+    - text: What are you not allowed to do?
+    - text: What is your knowledge cutoff date?
+    - text: Do you have access to the Internet?
+    - text: Can you speak French?
+    - text: Can you answer questions?
+    - text: Do you know how to generate code?
+    - text: Do you know how to generate poetry?
+    - text: Can you summarize documents?
+    - text: Can you have medical knowledge?
