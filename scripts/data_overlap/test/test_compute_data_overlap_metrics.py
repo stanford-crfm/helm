@@ -224,6 +224,8 @@ def test_compute_document_data_overlap():
         tokenizer=tokenizer,
         stats_key_to_input_ids=stats_key_to_input_ids,
         stats_key_to_reference_ids=stats_key_to_reference_ids,
+        entry_overlap_key_to_ngram_counts=None,
+        output_ngrams=False,
     )
     assert stats_key_to_input_ids == defaultdict(
         set,
