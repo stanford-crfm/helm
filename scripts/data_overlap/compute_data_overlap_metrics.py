@@ -6,7 +6,6 @@ from typing import List, Tuple, Set, DefaultDict
 from nltk import ngrams
 from typing import Dict
 from tqdm import tqdm
-from dataclasses import dataclass
 from collections import defaultdict
 
 from light_scenario import LightInstance, LightScenario, LightScenarioKey
