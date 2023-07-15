@@ -819,7 +819,7 @@ models:
   # Yandex
   - name: together/yalm
     display_name: YaLM (100B)
-    description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](From https://github.com/yandex/YaLM-100B)).
+    description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](https://github.com/yandex/YaLM-100B)).
     creator_organization: Yandex
     access: open
     num_parameters: 100000000000
