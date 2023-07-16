@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "type": "object",
+  "required": [
+    "models",
+    "adapter",
+    "perturbations",
+    "metric_groups",
+    "run_groups"
+  ],
+  "properties": {
+
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "creator_organization": {
+            "type": "string"
+          },
+          "access": {
+            "type": "string"
+          },
+          "num_parameters": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "release_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "todo": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "display_name",
+          "creator_organization",
+          "access",
+          "description"
+        ]
+      }
+    },
+
+    "adapter": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "description"
+              ],
+              "minItems": 1
+            }
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ]
+      }
+    },
+
+    "perturbations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "short_description_name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "display_name"
+        ]
+      }
+    },
+
+    "metric_groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "split": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "split"
+              ]
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "name",
+          "display_name",
+          "metrics"
+        ]
+      }
+    },
+
+    "run_groups": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "display_name": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string"
+              },
+              "visibility": {
+                "type": "string"
+              },
+              "subgroups": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "name",
+              "description",
+              "display_name",
+              "category"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "display_name": {
+                "type": "string"
+              },
+              "metric_groups": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "environment": {
+                "type": "object",
+                "properties": {
+                  "main_name": {
+                    "type": "string"
+                  },
+                  "main_split": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "main_split"
+                ]
+              },
+              "taxonomy": {
+                "type": "object",
+                "properties": {
+                  "task": {
+                    "type": "string"
+                  },
+                  "what": {
+                    "type": "string"
+                  },
+                  "who": {
+                    "type": "string"
+                  },
+                  "when": {
+                    "type": "string"
+                  },
+                  "language": {
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
