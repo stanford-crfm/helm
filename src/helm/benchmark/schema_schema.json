@@ -4,6 +4,7 @@
   "required": [
     "models",
     "adapter",
+    "metrics",
     "perturbations",
     "metric_groups",
     "run_groups"
@@ -41,6 +42,7 @@
             "type": "boolean"
           }
         },
+        "additionalProperties": false,
         "required": [
           "name",
           "display_name",
@@ -74,6 +76,7 @@
                   "type": "string"
                 }
               },
+              "additionalProperties": false,
               "required": [
                 "name",
                 "description"
@@ -82,9 +85,40 @@
             }
           }
         },
+        "additionalProperties": false,
         "required": [
           "name",
           "description"
+        ]
+      }
+    },
+
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "short_display_name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "lower_is_better": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "description",
+          "display_name"
         ]
       }
     },
@@ -100,13 +134,14 @@
           "description": {
             "type": "string"
           },
-          "short_description_name": {
+          "short_display_name": {
             "type": "string"
           },
           "display_name": {
             "type": "string"
           }
         },
+        "additionalProperties": false,
         "required": [
           "name",
           "description",
@@ -123,6 +158,9 @@
           "name": {
             "type": "string"
           },
+          "display_name": {
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
@@ -136,8 +174,11 @@
                 },
                 "split": {
                   "type": "string"
+                },
+                "perturbation_name": {
                 }
               },
+              "additionalProperties": false,
               "required": [
                 "name",
                 "split"
@@ -146,6 +187,7 @@
             "minItems": 1
           }
         },
+        "additionalProperties": false,
         "required": [
           "name",
           "display_name",
@@ -185,6 +227,7 @@
                 "uniqueItems": true
               }
             },
+            "additionalProperties": false,
             "required": [
               "name",
               "description",
@@ -240,6 +283,7 @@
                     "type": "string"
                   }
                 },
+                "additionalProperties": false,
                 "required": []
               }
             }
