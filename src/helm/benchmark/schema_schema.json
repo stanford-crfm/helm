@@ -26,7 +26,8 @@
             "type": "string"
           },
           "access": {
-            "type": "string"
+            "type": "string",
+            "enum": ["open", "limited", "closed"]
           },
           "num_parameters": {
             "type": "number"
