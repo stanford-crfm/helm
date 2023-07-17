@@ -12,6 +12,7 @@ from helm.proxy.models import (
     GPT4_CONTEXT_WINDOW_TAG,
     GPT4_32K_CONTEXT_WINDOW_TAG,
 )
+from helm.proxy.clients.huggingface_model_registry import HuggingFaceHubModelConfig
 from .ai21_window_service import AI21WindowService
 from .wider_ai21_window_service import WiderAI21WindowService, AI21Jurassic2JumboWindowService
 from .anthropic_window_service import AnthropicWindowService, LegacyAnthropicWindowService
@@ -173,6 +174,11 @@ class WindowServiceFactory:
             "databricks/dolly-v2-12b",
         ]:
             window_service = GPTNeoXWindowService(service)
+        elif model_name in ["tiiuae/falcon-7b", "tiiuae/falcon-7b-instruct"]:
+            window_service = HuggingFaceWindowService(
+                service=service,
+                model_config=HuggingFaceHubModelConfig(namespace="tiiuae", model_name="falcon-7b", revision=None),
+            )
         elif model_name in [
             "stabilityai/stablelm-base-alpha-3b",
             "stabilityai/stablelm-base-alpha-7b",

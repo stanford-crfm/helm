@@ -37,6 +37,8 @@ _ASYNC_MODELS: Set[str] = {
     "pythia-2.8b-v0",
     "pythia-6.9b",
     "pythia-12b-v0",
+    "falcon-7b",
+    "falcon-7b-instruct",
     "stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b",
     "vicuna-7b-v1.3",
@@ -82,6 +84,10 @@ MODEL_ALIASES: Dict[str, str] = {
     "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
     "pythia-6.9b": "EleutherAI/pythia-6.9b",
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
+    # TODO: The organization name is incorrectly set to togethercomputer
+    # instead of tiiuae in Together. Change this after Together fixes it.
+    "falcon-7b": "togethercomputer/falcon-7b",
+    "falcon-7b-instruct": "togethercomputer/falcon-7b-instruct",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
     "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
@@ -152,94 +158,60 @@ class TogetherClient(Client):
             raise TogetherClientError("togetherApiKey not set in credentials.conf")
         headers: Dict[str, str] = {"Authorization": f"Bearer {self.api_key}"}
 
-        if request.model_engine in _ASYNC_MODELS:
-
-            def submit_job() -> str:
-                submit_request = {**raw_request, "async": True}
-                submit_response = requests.post(TogetherClient.INFERENCE_ENDPOINT, headers=headers, json=submit_request)
-                try:
-                    submit_response.raise_for_status()
-                except Exception as e:
-                    raise TogetherClientError(
-                        f"Together job submission request failed with {submit_response.status_code}: "
-                        f"{submit_response.text}"
-                    ) from e
-                submit_response_json = submit_response.json()
-                job_id = submit_response_json.get("id")
-                if not job_id:
-                    raise TogetherClientError(
-                        f"Could not get job_id from job submission response {submit_response_json}"
-                    )
-                return job_id
-
-            def retry_if_job_not_finished(exception: Exception) -> bool:
-                return isinstance(exception, JobNotFinishedError)
-
-            # Retry with a 5 second delay that increases by 5 seconds each attempt with a maximum delay of 30 seconds.
-            # Stop retrying after 5 minutes.
-            @retry(
-                retry_on_exception=retry_if_job_not_finished,
-                wait_incrementing_start=5 * 1000,  # 5 seconds
-                wait_incrementing_increment=5 * 1000,  # 5 seconds
-                wait_incrementing_max=30 * 1000,  # 30 seconds
-                stop_max_delay=5 * 60 * 1000,  # 5 minutes
-            )
-            def retrieve_job(job_id: str) -> Dict[Any, Any]:
-                job_url = self._get_job_url(job_id)
-                retrieve_response = requests.get(job_url, headers=headers)
-                try:
-                    retrieve_response.raise_for_status()
-                except Exception as e:
-                    raise TogetherClientError(
-                        f"Together job retrieval request failed with {retrieve_response.status_code}: "
-                        f"{retrieve_response.text}"
-                    ) from e
-                retrieve_response_json = retrieve_response.json()
-                if retrieve_response_json["status"] != "finished":
-                    raise JobNotFinishedError(f"Together job not finished: {job_id}")
-                if "output" not in retrieve_response_json:
-                    raise TogetherClientError(
-                        f"Could not get output from Together job {job_id}: {retrieve_response_json}"
-                    )
-                if "error" in retrieve_response_json["output"]:
-                    error_message = retrieve_response_json["output"]["error"]
-                    raise TogetherClientError(f"Together request (job_id={job_id}) failed with error: {error_message}")
-                return retrieve_response_json["output"]
-
-            def do_it_async() -> Dict[Any, Any]:
-                job_id = submit_job()
-                print(f"[debug:yifanmai] job_id={job_id}")
-                return retrieve_job(job_id)
-
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it_async))
-        else:
-
-            def do_it_sync() -> Dict[Any, Any]:
-                response = requests.post(TogetherClient.INFERENCE_ENDPOINT, headers=headers, json=raw_request)
-                try:
-                    response.raise_for_status()
-                except Exception as e:
-                    raise TogetherClientError(
-                        f"Together request failed with {response.status_code}: {response.text}"
-                    ) from e
-                result = response.json()
-                if "output" not in result:
-                    raise TogetherClientError(f"Could not get output from Together response: {result}")
-                if "error" in result["output"]:
-                    error_message = result["output"]["error"]
-                    raise TogetherClientError(f"Together request failed with error: {error_message}")
-                return result["output"]
-
+        def submit_job() -> str:
+            submit_request = {**raw_request, "async": True}
+            submit_response = requests.post(TogetherClient.INFERENCE_ENDPOINT, headers=headers, json=submit_request)
             try:
-                response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
-            except Exception as error:
-                return RequestResult(
-                    success=False,
-                    cached=False,
-                    error=str(error),
-                    completions=[],
-                    embedding=[],
-                )
+                submit_response.raise_for_status()
+            except Exception as e:
+                raise TogetherClientError(
+                    f"Together job submission request failed with {submit_response.status_code}: "
+                    f"{submit_response.text}"
+                ) from e
+            submit_response_json = submit_response.json()
+            job_id = submit_response_json.get("id")
+            if not job_id:
+                raise TogetherClientError(f"Could not get job_id from job submission response {submit_response_json}")
+            return job_id
+
+        def retry_if_job_not_finished(exception: Exception) -> bool:
+            return isinstance(exception, JobNotFinishedError)
+
+        # Retry with a 5 second delay that increases by 5 seconds each attempt with a maximum delay of 30 seconds.
+        # Stop retrying after 5 minutes.
+        @retry(
+            retry_on_exception=retry_if_job_not_finished,
+            wait_incrementing_start=5 * 1000,  # 5 seconds
+            wait_incrementing_increment=5 * 1000,  # 5 seconds
+            wait_incrementing_max=30 * 1000,  # 30 seconds
+            stop_max_delay=5 * 60 * 1000,  # 5 minutes
+        )
+        def retrieve_job(job_id: str) -> Dict[Any, Any]:
+            job_url = self._get_job_url(job_id)
+            retrieve_response = requests.get(job_url, headers=headers)
+            try:
+                retrieve_response.raise_for_status()
+            except Exception as e:
+                raise TogetherClientError(
+                    f"Together job retrieval request failed with {retrieve_response.status_code}: "
+                    f"{retrieve_response.text}"
+                ) from e
+            retrieve_response_json = retrieve_response.json()
+            if retrieve_response_json["status"] != "finished":
+                raise JobNotFinishedError(f"Together job not finished: {job_id}")
+            if "output" not in retrieve_response_json:
+                raise TogetherClientError(f"Could not get output from Together job {job_id}: {retrieve_response_json}")
+            if "error" in retrieve_response_json["output"]:
+                error_message = retrieve_response_json["output"]["error"]
+                raise TogetherClientError(f"Together request (job_id={job_id}) failed with error: {error_message}")
+            return retrieve_response_json["output"]
+
+        def do_it() -> Dict[Any, Any]:
+            job_id = submit_job()
+            print(f"[debug:yifanmai] job_id={job_id}")
+            return retrieve_job(job_id)
+
+        response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
         # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[Sequence] = []

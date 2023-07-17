@@ -13,6 +13,8 @@ class HuggingFaceWindowService(LocalWindowService):
         self._tokenizer_name = model_config.model_id
         tokenizer = HuggingFaceTokenizers.get_tokenizer(self._tokenizer_name)
         self._prefix_token = tokenizer.bos_token
+        if self._prefix_token is None:
+            self._prefix_token = ""
         self._end_of_text_token = tokenizer.eos_token
         # Override max_sequence_length if provided as an argument.
         # Otherwise, auto-infer max_sequence_length from the Hugging Face tokenizer.

@@ -805,6 +805,22 @@ models:
     release_date: 2023-05-05
     todo: true
 
+  # TII UAE
+  - name: tiiuae/falcon-7b
+    display_name: Falcon LLM (7B)
+    description: Falcon-7B is a 7B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-15
+  - name: tiiuae/falcon-7b-instruct
+    display_name: Falcon LLM (7B)
+    description: Falcon-7B-Instruct is a 7B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-15
+
   # Salesforce
   - name: together/codegen
     display_name: CodeGen (16B)
