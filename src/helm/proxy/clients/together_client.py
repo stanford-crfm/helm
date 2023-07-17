@@ -15,6 +15,11 @@ from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
 _ASYNC_MODELS: Set[str] = {
+    # Legacy models
+    "alpaca-7b",
+    "llama-7b",
+    "pythia-7b",
+    "vicuna-13b",
     # Production models
     "redpajama-incite-base-3b-v1",
     "redpajama-incite-instruct-3b-v1",
@@ -22,7 +27,7 @@ _ASYNC_MODELS: Set[str] = {
     "dolly-v2-7b",
     "dolly-v2-12b",
     "falcon-7b",
-    "falcon-14b",
+    "falcon-7b-instruct",
     "stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b",
 }
