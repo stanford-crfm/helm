@@ -133,7 +133,7 @@ class AutoClient(Client):
                 from helm.proxy.clients.google_client import GoogleClient
 
                 client = GoogleClient(cache_config=cache_config)
-            elif organization in ["together", "databricks", "stabilityai"]:
+            elif organization in ["together", "databricks", "stabilityai", "tiiuae"]:
                 from helm.proxy.clients.together_client import TogetherClient
 
                 client = TogetherClient(api_key=self.credentials.get("togetherApiKey", None), cache_config=cache_config)
@@ -203,6 +203,7 @@ class AutoClient(Client):
                 "gooseai",
                 "huggingface",
                 "microsoft",
+                "tiiuae",
                 "hf-internal-testing",
             ]:
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient

@@ -24,6 +24,7 @@ _KNOWN_TOKENIZER_NAMES: Set[str] = {
     "google/flan-t5-xxl",
     "bigcode/santacoder",
     "bigcode/starcoder",
+    "tiiuae/falcon-7b",
     "hf-internal-testing/llama-tokenizer",
 }
 

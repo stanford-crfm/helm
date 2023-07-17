@@ -322,6 +322,17 @@ ALL_MODELS = [
         name="mosaicml/mpt-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    # TII UAE
+    Model(
+        group="together",
+        name="tiiuae/falcon-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="tiiuae/falcon-7b-instruct",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # GooseAI supported models
     Model(
         group="gooseai",

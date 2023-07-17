@@ -15,17 +15,14 @@ from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
 _ASYNC_MODELS: Set[str] = {
-    # Legacy models
-    "alpaca-7b",
-    "llama-7b",
-    "pythia-7b",
-    "vicuna-13b",
     # Production models
     "redpajama-incite-base-3b-v1",
     "redpajama-incite-instruct-3b-v1",
     "dolly-v2-3b",
     "dolly-v2-7b",
     "dolly-v2-12b",
+    "falcon-7b",
+    "falcon-14b",
     "stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b",
 }
@@ -58,6 +55,10 @@ MODEL_ALIASES: Dict[str, str] = {
     "dolly-v2-3b": "databricks/dolly-v2-3b",
     "dolly-v2-7b": "databricks/dolly-v2-7b",
     "dolly-v2-12b": "databricks/dolly-v2-12b",
+    # TODO: The organization name is incorrectly set to togethercomputer
+    # instead of tiiuae in Together. Change this after Together fixes it.
+    "falcon-7b": "togethercomputer/falcon-7b",
+    "falcon-7b-instruct": "togethercomputer/falcon-7b-instruct",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
 }
