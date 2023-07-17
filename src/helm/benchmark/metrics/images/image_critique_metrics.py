@@ -126,6 +126,7 @@ class ImageCritiqueMetric(Metric):
             )
             for stat in stats:
                 merge_stat(all_stats, add_context(stat, context))
+            assert request_state.instance.id is not None
             per_instance_stats.append(
                 PerInstanceStats(
                     instance_id=request_state.instance.id,
