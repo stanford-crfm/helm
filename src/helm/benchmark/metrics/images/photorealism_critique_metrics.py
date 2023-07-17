@@ -5,7 +5,7 @@ import numpy as np
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.metric import Metric, MetricResult, add_context
+from helm.benchmark.metrics.metric import Metric, MetricResult, PerInstanceStats, add_context
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -66,6 +66,7 @@ class PhotorealismCritiqueMetric(Metric):
             )
 
         all_stats: Dict[MetricName, Stat] = {}
+        per_instance_stats: List[PerInstanceStats] = []
         for request_state in request_states:
             context = MetricContext.from_instance(request_state.instance)
             stats = self.evaluate_generation(
@@ -76,8 +77,17 @@ class PhotorealismCritiqueMetric(Metric):
             )
             for stat in stats:
                 merge_stat(all_stats, add_context(stat, context))
+            assert request_state.instance.id is not None
+            per_instance_stats.append(
+                PerInstanceStats(
+                    instance_id=request_state.instance.id,
+                    perturbation=request_state.instance.perturbation,
+                    train_trial_index=request_state.train_trial_index,
+                    stats=stats,
+                )
+            )
 
-        return MetricResult(aggregated_stats=list(all_stats.values()), per_instance_stats=[])
+        return MetricResult(aggregated_stats=list(all_stats.values()), per_instance_stats=per_instance_stats)
 
     def evaluate_generation(
         self,
