@@ -5,13 +5,16 @@ from torchmetrics import UniversalImageQualityIndex
 from torchvision import transforms
 import torch
 
+from helm.common.general import hlog
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from .image_metrics_utils import gather_generated_image_locations, get_gold_image_location
@@ -34,6 +37,12 @@ class UniversalImageQualityIndexMetric(Metric):
 
     def __repr__(self):
         return "UniversalImageQualityIndexMetric()"
+
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        hlog(f"Setting parallelism from {parallelism} to 1, since computing UIQI with parallelism > 1 isn't supported.")
+        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=1)
 
     def evaluate_generation(
         self,
