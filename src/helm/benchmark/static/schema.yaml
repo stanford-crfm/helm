@@ -955,7 +955,7 @@ run_groups:
 
   - name: heim_fid_scenarios
     display_name: Fidelity
-    description: Fidelity metrics computed with MS-COCO
+    description: Fidelity metrics computed with MS-COCO. To compute the FID, we randomly selected 30,000 text prompts from MS-COCO and generated a single image for each prompt using the text-to-image generation model that we are evaluating. Then, we used [pytorch-fid](https://github.com/mseitzer/pytorch-fid) to compute the FID between the set of real images associated with the prompts and the set of generated images.
     category: Scenarios for specific aspects
     subgroups:
       - mscoco_fid
