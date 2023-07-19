@@ -22,7 +22,7 @@ from helm.common.hierarchical_logger import hlog
 from helm.proxy.accounts import Accounts, Account
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
-from helm.proxy.clients.nudity_check_client import NudityCheckClient
+from helm.proxy.clients.image_generation.nudity_check_client import NudityCheckClient
 from helm.proxy.clients.gcs_client import GCSClient
 from helm.proxy.clients.clip_score_client import CLIPScoreClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient

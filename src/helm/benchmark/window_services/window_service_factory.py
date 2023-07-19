@@ -53,7 +53,7 @@ from .yalm_window_service import YaLMWindowService
 from .llama_window_service import LlamaWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
-from helm.proxy.clients.adobe_vision_client import AdobeVisionClient
+from helm.proxy.clients.image_generation.adobe_vision_client import AdobeVisionClient
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.remote_model_registry import get_remote_model
 

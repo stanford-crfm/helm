@@ -16,8 +16,8 @@ from helm.common.cache import (
     request_to_key,
 )
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
-from helm.proxy.clients.adobe_vision_client import AdobeVisionClient
-from helm.proxy.clients.aleph_alpha_vision_client import AlephAlphaVisionClient
+from helm.proxy.clients.image_generation.adobe_vision_client import AdobeVisionClient
+from helm.proxy.clients.image_generation.aleph_alpha_vision_client import AlephAlphaVisionClient
 from helm.proxy.clients.google_client import GoogleClient
 from helm.proxy.clients.together_client import TogetherClient
 from helm.proxy.clients.microsoft_client import MicrosoftClient

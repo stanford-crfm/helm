@@ -12,8 +12,8 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 
-from .client import Client, wrap_request_time
-from .together_client import TogetherClient
+from helm.proxy.clients.client import Client, wrap_request_time
+from helm.proxy.clients.together_client import TogetherClient
 
 
 class TogetherVisionClient(TogetherClient):

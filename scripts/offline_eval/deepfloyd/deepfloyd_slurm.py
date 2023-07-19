@@ -22,7 +22,7 @@ from src.helm.common.request import Request
 from src.helm.common.file_caches.local_file_cache import LocalFileCache
 from src.helm.common.general import ensure_directory_exists
 from src.helm.common.hierarchical_logger import hlog, htrack_block
-from src.helm.proxy.clients.deep_floyd_client import DeepFloydClient
+from helm.proxy.clients.image_generation.deep_floyd_client import DeepFloydClient
 
 
 """

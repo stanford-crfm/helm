@@ -8,7 +8,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.toxicity_utils import is_prompt_toxic
-from helm.proxy.clients.dalle2_client import DALLE2Client
+from helm.proxy.clients.image_generation.dalle2_client import DALLE2Client
 from helm.common.images_utils import is_blacked_out_image
 from .nsfw_detector import NSFWDetector
 

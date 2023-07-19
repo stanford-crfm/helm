@@ -9,28 +9,44 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 
-from .client import Client
+from helm.proxy.clients.client import Client
 
 
-class DeepFloydClient(Client):
+class AlephAlphaVisionClient(Client):
     """
-    Client for [DeepFloyd image generation models](https://huggingface.co/docs/diffusers/v0.16.0/api/pipelines/ifs).
-    We rely on offline eval for now due to conflicting dependencies (e.g., Transformers).
+    Client for Aleph Alpha vision models. Offline eval only.
     """
 
-    SUPPORTED_MODELS: List[str] = ["IF-I-M-v1.0", "IF-I-L-v1.0", "IF-I-XL-v1.0"]
+    DEFAULT_IMAGE_HEIGHT: int = 512
+    DEFAULT_IMAGE_WIDTH: int = 512
+
+    DEFAULT_GUIDANCE_SCALE: float = 7.5
+    DEFAULT_STEPS: int = 50
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
-        # Use default hyperparameters for everything else
         raw_request: Dict = {
-            "model": request.model_engine,
-            "n": request.num_completions,
-            "prompt": request.prompt,
             "request_type": "image-model-inference",
+            "model": request.model_engine,
+            "prompt": request.prompt,
+            "n": request.num_completions,
+            "guidance_scale": AlephAlphaVisionClient.DEFAULT_GUIDANCE_SCALE,
+            "steps": AlephAlphaVisionClient.DEFAULT_STEPS,
+            "width": AlephAlphaVisionClient.DEFAULT_IMAGE_WIDTH,
+            "height": AlephAlphaVisionClient.DEFAULT_IMAGE_HEIGHT,
         }
         if request.random is not None:
             raw_request["random"] = request.random
+
+        if isinstance(request, TextToImageRequest):
+            if request.guidance_scale is not None:
+                raw_request["guidance_scale"] = request.guidance_scale
+            if request.steps is not None:
+                raw_request["steps"] = request.steps
+            if request.width is not None and request.height is not None:
+                raw_request["width"] = request.width
+                raw_request["height"] = request.height
+
         return raw_request
 
     def __init__(self, cache_config: CacheConfig):
@@ -42,10 +58,11 @@ class DeepFloydClient(Client):
         if not isinstance(request, TextToImageRequest):
             raise ValueError(f"Wrong type of request: {request}")
 
-        if request.model_engine not in self.SUPPORTED_MODELS:
+        if request.model_engine != "m-vader":
             raise ValueError(f"Unsupported model: {request.model_engine}")
 
-        raw_request = DeepFloydClient.convert_to_raw_request(request)
+        raw_request = AlephAlphaVisionClient.convert_to_raw_request(request)
+        raw_request.pop("random", None)
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
         try:
@@ -57,7 +74,7 @@ class DeepFloydClient(Client):
 
             response, cached = self._cache.get(cache_key, fail)
         except RuntimeError as e:
-            error: str = f"DeepFloyd Client error: {e}"
+            error: str = f"AlephAlphaVisionClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
@@ -66,7 +83,7 @@ class DeepFloydClient(Client):
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=response["total_inference_time"],
+            request_time=response["request_time"],
             completions=completions,
             embedding=[],
         )

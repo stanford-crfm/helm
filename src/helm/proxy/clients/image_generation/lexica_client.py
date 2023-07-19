@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 
-from .client import Client, wrap_request_time
+from helm.proxy.clients.client import Client, wrap_request_time
 
 
 class LexicaClient(Client):

@@ -13,9 +13,9 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .moderation_api_client import ModerationAPIClient
-from .client import Client, wrap_request_time
-from .openai_client import OpenAIClient
+from helm.proxy.clients.moderation_api_client import ModerationAPIClient
+from helm.proxy.clients.client import Client, wrap_request_time
+from helm.proxy.clients.openai_client import OpenAIClient
 
 
 class DALLE2Client(OpenAIClient):

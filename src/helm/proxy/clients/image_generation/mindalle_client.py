@@ -1,7 +1,6 @@
 from typing import Dict, List, Optional
 
 from PIL import Image
-from .mindalle.models import Dalle
 import numpy as np
 
 from helm.common.cache import CacheConfig, Cache
@@ -15,7 +14,8 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from .client import Client, wrap_request_time
+from helm.proxy.clients.client import Client, wrap_request_time
+from helm.proxy.clients.image_generation.mindalle.models import Dalle
 
 
 class MinDALLEClient(Client):

@@ -1,4 +1,4 @@
-from helm.proxy.clients.dalle2_client import DALLE2Client
+from helm.proxy.clients.image_generation.dalle2_client import DALLE2Client
 from .clip_window_service import CLIPWindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 

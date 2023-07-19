@@ -7,8 +7,8 @@ from PIL import Image
 from functools import partial
 from flax.jax_utils import replicate
 from flax.training.common_utils import shard_prng_key
-from .dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
-from .dalle_mini import DalleBart, DalleBartProcessor
+from helm.proxy.clients.image_generation.dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
+from helm.proxy.clients.image_generation.dalle_mini import DalleBart, DalleBartProcessor
 
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
@@ -20,7 +20,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from .client import Client, wrap_request_time
+from helm.proxy.clients.client import Client, wrap_request_time
 
 
 class DALLEMiniClient(Client):

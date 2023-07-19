@@ -9,24 +9,25 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 
-from .client import Client
+from helm.proxy.clients.client import Client
 
 
-class AdobeVisionClient(Client):
+class DeepFloydClient(Client):
     """
-    Client for Adobe vision models. Offline eval only.
+    Client for [DeepFloyd image generation models](https://huggingface.co/docs/diffusers/v0.16.0/api/pipelines/ifs).
+    We rely on offline eval for now due to conflicting dependencies (e.g., Transformers).
     """
 
-    SUPPORTED_MODELS: List[str] = ["giga-gan", "firefly"]
+    SUPPORTED_MODELS: List[str] = ["IF-I-M-v1.0", "IF-I-L-v1.0", "IF-I-XL-v1.0"]
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
         # Use default hyperparameters for everything else
         raw_request: Dict = {
-            "request_type": "image-model-inference",
             "model": request.model_engine,
-            "prompt": request.prompt,
             "n": request.num_completions,
+            "prompt": request.prompt,
+            "request_type": "image-model-inference",
         }
         if request.random is not None:
             raw_request["random"] = request.random
@@ -44,8 +45,7 @@ class AdobeVisionClient(Client):
         if request.model_engine not in self.SUPPORTED_MODELS:
             raise ValueError(f"Unsupported model: {request.model_engine}")
 
-        raw_request = AdobeVisionClient.convert_to_raw_request(request)
-        raw_request.pop("random", None)
+        raw_request = DeepFloydClient.convert_to_raw_request(request)
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
         try:
@@ -57,7 +57,7 @@ class AdobeVisionClient(Client):
 
             response, cached = self._cache.get(cache_key, fail)
         except RuntimeError as e:
-            error: str = f"Adobe Vision Client error: {e}"
+            error: str = f"DeepFloyd Client error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
@@ -66,7 +66,7 @@ class AdobeVisionClient(Client):
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=response["request_time"],
+            request_time=response["total_inference_time"],
             completions=completions,
             embedding=[],
         )

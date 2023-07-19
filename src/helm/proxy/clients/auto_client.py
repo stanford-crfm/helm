@@ -76,7 +76,7 @@ class AutoClient(Client):
                 client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "openai":
                 from helm.proxy.clients.chat_gpt_client import ChatGPTClient
-                from helm.proxy.clients.dalle2_client import DALLE2Client
+                from helm.proxy.clients.image_generation.dalle2_client import DALLE2Client
                 from helm.proxy.clients.openai_client import OpenAIClient
 
                 org_id = self.credentials.get("openaiOrgId", None)
@@ -110,7 +110,7 @@ class AutoClient(Client):
                     )
             elif organization == "AlephAlpha":
                 from helm.proxy.clients.aleph_alpha_client import AlephAlphaClient
-                from helm.proxy.clients.aleph_alpha_vision_client import AlephAlphaVisionClient
+                from helm.proxy.clients.image_generation.aleph_alpha_vision_client import AlephAlphaVisionClient
 
                 if is_text_to_image_request:
                     cache_config = self._build_cache_config("AlephAlphaVision")
@@ -134,7 +134,7 @@ class AutoClient(Client):
                 )
             elif organization == "huggingface" or organization == "mosaicml":
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
-                from helm.proxy.clients.huggingface_diffusers_client import HuggingFaceDiffusersClient
+                from helm.proxy.clients.image_generation.huggingface_diffusers_client import HuggingFaceDiffusersClient
 
                 if is_text_to_image_request:
                     cache_config = self._build_cache_config("diffusers")
@@ -169,7 +169,7 @@ class AutoClient(Client):
                 client = GoogleClient(cache_config=cache_config)
             elif organization in ["together", "databricks", "stabilityai"]:
                 from helm.proxy.clients.together_client import TogetherClient
-                from helm.proxy.clients.together_vision_client import TogetherVisionClient
+                from helm.proxy.clients.image_generation.together_vision_client import TogetherVisionClient
 
                 together_api_key: Optional[str] = self.credentials.get("togetherApiKey", None)
                 if is_text_to_image_request:
@@ -177,27 +177,27 @@ class AutoClient(Client):
                 else:
                     client = TogetherClient(cache_config, api_key=together_api_key)
             elif organization == "lexica":
-                from helm.proxy.clients.lexica_client import LexicaClient
+                from helm.proxy.clients.image_generation.lexica_client import LexicaClient
 
                 client = LexicaClient(cache_config, file_cache)
             elif organization == "adobe":
-                from helm.proxy.clients.adobe_vision_client import AdobeVisionClient
+                from helm.proxy.clients.image_generation.adobe_vision_client import AdobeVisionClient
 
                 client = AdobeVisionClient(cache_config)
             elif organization == "DeepFloyd":
-                from helm.proxy.clients.deep_floyd_client import DeepFloydClient
+                from helm.proxy.clients.image_generation.deep_floyd_client import DeepFloydClient
 
                 client = DeepFloydClient(cache_config)
             elif organization == "kakaobrain":
-                from helm.proxy.clients.mindalle_client import MinDALLEClient
+                from helm.proxy.clients.image_generation.mindalle_client import MinDALLEClient
 
                 client = MinDALLEClient(cache_config, file_cache)
             elif organization == "craiyon":
-                from helm.proxy.clients.dalle_mini_client import DALLEMiniClient
+                from helm.proxy.clients.image_generation.dalle_mini_client import DALLEMiniClient
 
                 client = DALLEMiniClient(cache_config, file_cache)
             elif organization == "thudm":
-                from helm.proxy.clients.cogview2_client import CogView2Client
+                from helm.proxy.clients.image_generation.cogview2_client import CogView2Client
 
                 client = CogView2Client(cache_config, file_cache)
             elif organization == "simple":
@@ -361,8 +361,8 @@ class AutoClient(Client):
         cache_config: CacheConfig = self._build_cache_config("gcs")
         return GCSClient(bucket_name, cache_config)
 
-    def get_nudity_check_client(self) -> "helm.proxy.clients.nudity_check_client.NudityCheckClient":
-        from .nudity_check_client import NudityCheckClient
+    def get_nudity_check_client(self) -> "helm.proxy.clients.image_generation.nudity_check_client.NudityCheckClient":
+        from helm.proxy.clients.image_generation.nudity_check_client import NudityCheckClient
 
         cache_config: CacheConfig = self._build_cache_config("nudity")
         return NudityCheckClient(cache_config)

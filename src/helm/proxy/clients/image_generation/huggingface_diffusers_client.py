@@ -17,7 +17,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from .client import Client, wrap_request_time
+from helm.proxy.clients.client import Client, wrap_request_time
 
 
 class HuggingFaceDiffusersClient(Client):
