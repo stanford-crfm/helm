@@ -3,8 +3,8 @@ import tempfile
 
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.proxy.clients.dalle2_client import DALLE2Client
-from .test_utils import get_tokenizer_service, TEST_PROMPT
-from .window_service_factory import WindowServiceFactory
+from helm.benchmark.window_services.test_utils import get_tokenizer_service, TEST_PROMPT
+from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 
 
 class TestDALLE2WindowService:

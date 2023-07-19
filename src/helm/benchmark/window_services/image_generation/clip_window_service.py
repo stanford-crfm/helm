@@ -1,7 +1,7 @@
 from abc import ABC
 
-from .local_window_service import LocalWindowService
-from .tokenizer_service import TokenizerService
+from helm.benchmark.window_services.local_window_service import LocalWindowService
+from helm.benchmark.window_services.tokenizer_service import TokenizerService
 
 
 class CLIPWindowService(LocalWindowService, ABC):

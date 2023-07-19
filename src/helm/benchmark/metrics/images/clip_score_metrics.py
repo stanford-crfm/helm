@@ -9,7 +9,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
-from helm.benchmark.window_services.clip_window_service import CLIPWindowService
+from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
 from helm.common.images_utils import is_blacked_out_image
 
 

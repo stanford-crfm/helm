@@ -11,6 +11,9 @@ from helm.proxy.models import (
     GPT4_CONTEXT_WINDOW_TAG,
     GPT4_32K_CONTEXT_WINDOW_TAG,
 )
+from .image_generation.clip_window_service import CLIPWindowService
+from .image_generation.dalle2_window_service import DALLE2WindowService
+from .image_generation.lexica_search_window_service import LexicaSearchWindowService
 from .ai21_window_service import AI21WindowService
 from .wider_ai21_window_service import WiderAI21WindowService, AI21Jurassic2JumboWindowService
 from .anthropic_window_service import AnthropicWindowService, LegacyAnthropicWindowService
@@ -47,9 +50,6 @@ from .t511b_window_service import T511bWindowService
 from .flan_t5_window_service import FlanT5WindowService
 from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
-from .clip_window_service import CLIPWindowService
-from .dalle2_window_service import DALLE2WindowService
-from .lexica_search_window_service import LexicaSearchWindowService
 from .llama_window_service import LlamaWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
