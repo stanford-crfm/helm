@@ -118,14 +118,15 @@ class ImageCritiqueMetric(Metric):
         per_instance_stats: List[PerInstanceStats] = []
         for request_state in request_states:
             context = MetricContext.from_instance(request_state.instance)
-            stats = self.evaluate_generation(
+            stats_without_context = self.evaluate_generation(
                 scenario_state.adapter_spec,
                 request_state,
                 metric_service,
                 eval_cache_path,
             )
+            stats = [add_context(stat_without_context, context) for stat_without_context in stats_without_context]
             for stat in stats:
-                merge_stat(all_stats, add_context(stat, context))
+                merge_stat(all_stats, stat)
             assert request_state.instance.id is not None
             per_instance_stats.append(
                 PerInstanceStats(
