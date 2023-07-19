@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Tuple
 from light_scenario import LightScenarioKey
 
 
@@ -31,3 +31,22 @@ class DataOverlapStats:
     instance_ids_with_overlapping_input: List[str]
 
     instance_ids_with_overlapping_reference: List[str]
+
+
+@dataclass(frozen=True)
+class EntryDataOverlapKey:
+    """Unique key representing either the input or references of a single instance in a scenario."""
+
+    stats_key: DataOverlapStatsKey
+    part: str
+    """Either PART_INPUT or PART_REF"""
+    instance_id: str
+
+
+@dataclass(frozen=True)
+class EntryOverlapNgrams:
+    """Dataclass that represents output data overlap stats"""
+
+    entry_data_overlap_key: EntryDataOverlapKey
+
+    overlapping_ngram_counts: List[Tuple[str, int]]
