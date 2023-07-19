@@ -102,25 +102,25 @@ from .metrics import summarization_critique_metrics  # noqa
 from .metrics import instruction_following_critique_metrics  # noqa
 
 # HEIM metrics
-from .metrics.images import aesthetics_metrics  # noqa
-from .metrics.images import clip_score_metrics  # noqa
-from .metrics.images import denoised_runtime_metric  # noqa
-from .metrics.images import detection_metrics  # noqa
-from .metrics.images import efficiency_metrics  # noqa
-from .metrics.images import fidelity_metrics  # noqa
-from .metrics.images import fractal_dimension_metric  # noqa
-from .metrics.images import gender_metrics  # noqa
-from .metrics.images import image_critique_metrics  # noqa
-from .metrics.images import lpips_metrics  # noqa
-from .metrics.images import multi_scale_ssim_metrics  # noqa
-from .metrics.images import nsfw_metrics  # noqa
-from .metrics.images import nudity_metrics  # noqa
-from .metrics.images import photorealism_critique_metrics  # noqa
-from .metrics.images import psnr_metrics  # noqa
-from .metrics.images import q16_toxicity_metrics  # noqa
-from .metrics.images import skin_tone_metrics  # noqa
-from .metrics.images import uiqi_metrics  # noqa
-from .metrics.images import watermark_metrics  # noqa
+from .metrics.image_generation import aesthetics_metrics  # noqa
+from .metrics.image_generation import clip_score_metrics  # noqa
+from .metrics.image_generation import denoised_runtime_metric  # noqa
+from .metrics.image_generation import detection_metrics  # noqa
+from .metrics.image_generation import efficiency_metrics  # noqa
+from .metrics.image_generation import fidelity_metrics  # noqa
+from .metrics.image_generation import fractal_dimension_metric  # noqa
+from .metrics.image_generation import gender_metrics  # noqa
+from .metrics.image_generation import image_critique_metrics  # noqa
+from .metrics.image_generation import lpips_metrics  # noqa
+from .metrics.image_generation import multi_scale_ssim_metrics  # noqa
+from .metrics.image_generation import nsfw_metrics  # noqa
+from .metrics.image_generation import nudity_metrics  # noqa
+from .metrics.image_generation import photorealism_critique_metrics  # noqa
+from .metrics.image_generation import psnr_metrics  # noqa
+from .metrics.image_generation import q16_toxicity_metrics  # noqa
+from .metrics.image_generation import skin_tone_metrics  # noqa
+from .metrics.image_generation import uiqi_metrics  # noqa
+from .metrics.image_generation import watermark_metrics  # noqa
 
 
 # Perturbations for data augmentation
