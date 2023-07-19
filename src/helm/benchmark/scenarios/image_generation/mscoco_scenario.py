@@ -4,7 +4,16 @@ from collections import defaultdict
 from typing import Any, Dict, List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Input, Output, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Input,
+    Output,
+    Reference,
+    CORRECT_TAG,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+)
 
 
 class MSCOCOScenario(Scenario):

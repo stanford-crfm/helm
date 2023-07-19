@@ -2,7 +2,7 @@ from typing import List
 
 from datasets import load_dataset
 
-from .scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
 
 
 class I2PScenario(Scenario):

@@ -65,24 +65,24 @@ from .scenarios import wmt_14_scenario  # noqa
 from .scenarios import verifiability_judgment_scenario  # noqa
 
 # HEIM
-from .scenarios import common_syntactic_processes_scenario  # noqa
-from .scenarios import cub200_scenario  # noqa
-from .scenarios import daily_dalle_scenario  # noqa
-from .scenarios import demographic_stereotypes_scenario  # noqa
-from .scenarios import detection_scenario  # noqa
-from .scenarios import draw_bench_scenario  # noqa
-from .scenarios import i2p_scenario  # noqa
-from .scenarios import landing_page_scenario  # noqa
-from .scenarios import logos_scenario  # noqa
-from .scenarios import magazine_cover_scenario  # noqa
-from .scenarios import mental_disorders_scenario  # noqa
-from .scenarios import mscoco_scenario  # noqa
-from .scenarios import paint_skills_scenario  # noqa
-from .scenarios import parti_prompts_scenario  # noqa
-from .scenarios import radiology_scenario  # noqa
-from .scenarios import relational_understanding_scenario  # noqa
-from .scenarios import time_most_significant_historical_figures_scenario  # noqa
-from .scenarios import winoground_scenario  # noqa
+from .scenarios.image_generation import common_syntactic_processes_scenario  # noqa
+from .scenarios.image_generation import cub200_scenario  # noqa
+from .scenarios.image_generation import daily_dalle_scenario  # noqa
+from .scenarios.image_generation import demographic_stereotypes_scenario  # noqa
+from .scenarios.image_generation import detection_scenario  # noqa
+from .scenarios.image_generation import draw_bench_scenario  # noqa
+from .scenarios.image_generation import i2p_scenario  # noqa
+from .scenarios.image_generation import landing_page_scenario  # noqa
+from .scenarios.image_generation import logos_scenario  # noqa
+from .scenarios.image_generation import magazine_cover_scenario  # noqa
+from .scenarios.image_generation import mental_disorders_scenario  # noqa
+from .scenarios.image_generation import mscoco_scenario  # noqa
+from .scenarios.image_generation import paint_skills_scenario  # noqa
+from .scenarios.image_generation import parti_prompts_scenario  # noqa
+from .scenarios.image_generation import radiology_scenario  # noqa
+from .scenarios.image_generation import relational_understanding_scenario  # noqa
+from .scenarios.image_generation import time_most_significant_historical_figures_scenario  # noqa
+from .scenarios.image_generation import winoground_scenario  # noqa
 
 # Metrics
 from .metrics import basic_metrics  # noqa

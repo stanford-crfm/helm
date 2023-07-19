@@ -3,7 +3,7 @@ import csv
 import os
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
 
 
 class RelationalUnderstandingScenario(Scenario):

@@ -1,6 +1,6 @@
 from typing import List
 
-from .scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
 
 
 class LandingPageScenario(Scenario):

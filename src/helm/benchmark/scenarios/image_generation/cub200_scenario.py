@@ -4,7 +4,7 @@ from typing import List
 import pandas as pd
 
 from helm.common.general import ensure_file_downloaded, shell
-from .scenario import Scenario, Instance, Input, Output, Reference, CORRECT_TAG, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Output, Reference, CORRECT_TAG, TEST_SPLIT
 
 
 class CUB200Scenario(Scenario):

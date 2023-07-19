@@ -3,7 +3,7 @@ import os
 from typing import Dict, List, Set
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Input, Output, Reference, CORRECT_TAG, VALID_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Output, Reference, CORRECT_TAG, VALID_SPLIT
 
 
 class PaintSkillsScenario(Scenario):

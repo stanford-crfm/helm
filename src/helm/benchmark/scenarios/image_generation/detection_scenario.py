@@ -4,7 +4,7 @@ import os
 import csv
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output, CORRECT_TAG
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output, CORRECT_TAG
 
 
 class DetectionScenario(Scenario):
