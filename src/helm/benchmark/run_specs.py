@@ -2343,7 +2343,8 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 @run_spec_function("common_syntactic_processes")
 def get_common_syntactic_processes_spec(phenomenon: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.common_syntactic_processes_scenario.CommonSyntacticProcessesScenario",
+        class_name="helm.benchmark.scenarios.image_generation."
+        "common_syntactic_processes_scenario.CommonSyntacticProcessesScenario",
         args={"phenomenon": phenomenon},
     )
 
@@ -2365,7 +2366,9 @@ def get_common_syntactic_processes_spec(phenomenon: str, run_human_eval: bool = 
 
 @run_spec_function("cub200")
 def get_cub200_spec(run_human_eval: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.cub200_scenario.CUB200Scenario", args={})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.image_generation.cub200_scenario.CUB200Scenario", args={}
+    )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
 
@@ -2384,7 +2387,9 @@ def get_cub200_spec(run_human_eval: bool = False) -> RunSpec:
 
 @run_spec_function("daily_dalle")
 def get_daily_dalle_spec(run_human_eval: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.daily_dalle_scenario.DailyDallEScenario", args={})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.image_generation.daily_dalle_scenario.DailyDallEScenario", args={}
+    )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
@@ -2409,7 +2414,8 @@ def get_daily_dalle_spec(run_human_eval: bool = False) -> RunSpec:
 @run_spec_function("demographic_stereotypes")
 def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.demographic_stereotypes_scenario.DemographicStereotypesScenario",
+        class_name="helm.benchmark.scenarios.image_generation."
+        "demographic_stereotypes_scenario.DemographicStereotypesScenario",
         args={"category": category},
     )
 
@@ -2431,7 +2437,8 @@ def get_demographic_stereotypes_spec(category: str) -> RunSpec:
 @run_spec_function("detection")
 def get_detection_spec(skill: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.detection_scenario.DetectionScenario", args={"skill": skill}
+        class_name="helm.benchmark.scenarios.image_generation.detection_scenario.DetectionScenario",
+        args={"skill": skill},
     )
 
     adapter_spec: AdapterSpec = get_image_generation_adapter_spec(num_outputs=4)
@@ -2452,7 +2459,8 @@ def get_detection_spec(skill: str, run_human_eval: bool = False) -> RunSpec:
 @run_spec_function("draw_bench")
 def get_draw_bench_spec(category: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.draw_bench_scenario.DrawBenchScenario", args={"category": category}
+        class_name="helm.benchmark.scenarios.image_generation.draw_bench_scenario.DrawBenchScenario",
+        args={"category": category},
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
@@ -2492,7 +2500,7 @@ def get_draw_bench_spec(category: str, run_human_eval: bool = False) -> RunSpec:
 @run_spec_function("i2p")
 def get_i2p_spec(category: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.i2p_scenario.I2PScenario", args={"category": category}
+        class_name="helm.benchmark.scenarios.image_generation.i2p_scenario.I2PScenario", args={"category": category}
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=8)
@@ -2509,7 +2517,7 @@ def get_i2p_spec(category: str) -> RunSpec:
 @run_spec_function("landing_page")
 def get_landing_page_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.landing_page_scenario.LandingPageScenario", args={}
+        class_name="helm.benchmark.scenarios.image_generation.landing_page_scenario.LandingPageScenario", args={}
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
@@ -2534,7 +2542,9 @@ def get_landing_page_spec(run_human_eval: bool = False) -> RunSpec:
 
 @run_spec_function("logos")
 def get_logos_spec(run_human_eval: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.logos_scenario.LogosScenario", args={})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.image_generation.logos_scenario.LogosScenario", args={}
+    )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
@@ -2559,7 +2569,7 @@ def get_logos_spec(run_human_eval: bool = False) -> RunSpec:
 @run_spec_function("magazine_cover")
 def get_magazine_cover_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.magazine_cover_scenario.MagazineCoverScenario", args={}
+        class_name="helm.benchmark.scenarios.image_generation.magazine_cover_scenario.MagazineCoverScenario", args={}
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
@@ -2585,7 +2595,8 @@ def get_magazine_cover_spec(run_human_eval: bool = False) -> RunSpec:
 @run_spec_function("mental_disorders")
 def get_mental_disorders_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.mental_disorders_scenario.MentalDisordersScenario", args={}
+        class_name="helm.benchmark.scenarios.image_generation.mental_disorders_scenario.MentalDisordersScenario",
+        args={},
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=8)
@@ -2609,7 +2620,9 @@ def get_mscoco_spec(
     skip_photorealism: bool = False,
     skip_subject: bool = False,
 ) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.image_generation.mscoco_scenario.MSCOCOScenario", args={}
+    )
 
     adapter_spec: AdapterSpec
     metric_specs: List[MetricSpec]
@@ -2653,7 +2666,8 @@ def get_mscoco_spec(
 @run_spec_function("paint_skills")
 def get_paint_skills_spec(skill: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.paint_skills_scenario.PaintSkillsScenario", args={"skill": skill}
+        class_name="helm.benchmark.scenarios.image_generation.paint_skills_scenario.PaintSkillsScenario",
+        args={"skill": skill},
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
@@ -2675,7 +2689,8 @@ def get_paint_skills_spec(skill: str, run_human_eval: bool = False) -> RunSpec:
 @run_spec_function("parti_prompts")
 def get_parti_prompts_spec(category: str, run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.parti_prompts_scenario.PartiPromptsScenario", args={"category": category}
+        class_name="helm.benchmark.scenarios.image_generation.parti_prompts_scenario.PartiPromptsScenario",
+        args={"category": category},
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
@@ -2714,7 +2729,9 @@ def get_parti_prompts_spec(category: str, run_human_eval: bool = False) -> RunSp
 
 @run_spec_function("radiology")
 def get_radiology_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.radiology_scenario.RadiologyScenario", args={})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.image_generation.radiology_scenario.RadiologyScenario", args={}
+    )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
@@ -2730,7 +2747,9 @@ def get_radiology_spec() -> RunSpec:
 @run_spec_function("relational_understanding")
 def get_relational_understanding_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.relational_understanding_scenario.RelationalUnderstandingScenario", args={}
+        class_name="helm.benchmark.scenarios.image_generation."
+        "relational_understanding_scenario.RelationalUnderstandingScenario",
+        args={},
     )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
@@ -2751,7 +2770,7 @@ def get_relational_understanding_spec(run_human_eval: bool = False) -> RunSpec:
 @run_spec_function("time_most_significant_historical_figures")
 def get_time_most_significant_historical_figures_spec(run_human_eval: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.time_most_significant_historical_figures_scenario."
+        class_name="helm.benchmark.scenarios.image_generation.time_most_significant_historical_figures_scenario."
         "TIMEMostSignificantHistoricalFigures",
         args={},
     )
@@ -2773,7 +2792,9 @@ def get_time_most_significant_historical_figures_spec(run_human_eval: bool = Fal
 
 @run_spec_function("winoground")
 def get_winoground_spec(run_human_eval: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.winoground_scenario.WinogroundScenario", args={})
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.image_generation.winoground_scenario.WinogroundScenario", args={}
+    )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
