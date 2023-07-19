@@ -135,7 +135,7 @@ def _get_metric_names_for_group(run_group_name: str, schema: Schema) -> Set[str]
         if metric_group is None:
             continue
         for metric_name_matcher in metric_group.metrics:
-            if metric_name_matcher.perturbation_name:
+            if metric_name_matcher.perturbation_name and metric_name_matcher.perturbation_name != "__all__":
                 continue
             result.add(metric_name_matcher.substitute(run_group.environment).name)
     return result
