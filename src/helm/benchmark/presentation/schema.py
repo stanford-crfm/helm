@@ -3,15 +3,15 @@ from datetime import date
 from typing import List, Optional, Dict
 import dacite
 import mako.template
+import os
 import yaml  # type: ignore
-import importlib_resources as resources
 
 from helm.common.general import hlog
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
 
-SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
+DEFAULT_STATIC_PATH: str = "src/helm/benchmark/static"
 SCHEMA_YAML_FILENAME: str = "schema.yaml"
 
 
@@ -34,7 +34,7 @@ class Field:
     # Description of the field
     description: Optional[str] = None
 
-    # Whether a lower vaue for this field corresponds to a better model
+    # Whether a lower value for this field corresponds to a better model
     # (e.g., False for accuracy, True for perplexity, None for num_trials)
     lower_is_better: Optional[bool] = None
 
@@ -245,9 +245,9 @@ class Schema:
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema() -> Schema:
-    hlog(f"Reading schema from {SCHEMA_YAML_FILENAME}...")
-    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_YAML_FILENAME)
-    with schema_path.open("r") as f:
+def read_schema(static_path: str = DEFAULT_STATIC_PATH) -> Schema:
+    schema_path: str = os.path.join(static_path, SCHEMA_YAML_FILENAME)
+    hlog(f"Reading schema from {schema_path}...")
+    with open(schema_path, "r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Schema, raw)

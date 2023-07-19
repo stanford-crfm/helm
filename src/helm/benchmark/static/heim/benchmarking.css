@@ -1,3 +1,16 @@
+.banner {
+  background-color: #ffda29; /* darker yellow */
+  font-size: 24px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  position: -webkit-sticky; /* Safari & IE */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
 .correct {
   background-color: #dfffdf;
 }
