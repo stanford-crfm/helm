@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 
 
@@ -51,6 +50,8 @@ def compute_fractal_dimension(image_path: str) -> float:
         # Fit the successive log(sizes) with log (counts)
         coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
         return -coeffs[0]
+
+    import cv2
 
     image = cv2.imread(image_path, 0) / 255.0
     assert image.min() >= 0 and image.max() <= 1

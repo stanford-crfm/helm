@@ -1,7 +1,6 @@
 from typing import List, Optional, Dict
 
 import numpy as np
-import cv2
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -44,6 +43,8 @@ class SkinToneMetric(Metric):
         Find mean skin pixels from an image.
         Adapted from https://github.com/j-min/DallEval/blob/main/biases/detect_skintone.py
         """
+        import cv2
+
         img_BGR = cv2.imread(image_path, 3)
 
         img_rgba = cv2.cvtColor(img_BGR, cv2.COLOR_BGR2RGBA)
