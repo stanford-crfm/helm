@@ -1,7 +1,6 @@
 import os
 from typing import List, Tuple
 
-import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -31,6 +30,8 @@ class WatermarkDetector:
         """
         Load the watermark detector model.
         """
+        import timm
+
         model = timm.create_model("efficientnet_b3a", pretrained=True, num_classes=2)
         model.classifier = nn.Sequential(
             # 1536 is the original in_features
