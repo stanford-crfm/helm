@@ -967,27 +967,38 @@ $(function () {
     return $('<a>', {href, class: 'main-link btn btn-lg m-5 px-5'}).append(text);
   }
 
+  function heimLogo() {
+    return $('<a>', {href: rootUrl()}).append($('<img>', {src: 'images/heim-logo.png', width: '500px', class: 'mx-auto d-block'}));
+  }
+
+  function heimFig() {
+    return $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/heim-main.png', width: '400px'}))
+  }
+
   function renderMainPage() {
     const $result = $('<div>', {class: 'row'});
+    $result.append($('<div>', {class: 'col-sm-12'}).append(heimLogo()));
     $result.append($('<h1 class="mx-auto d-block">Holistic Evaluation of Text-To-Image Models (HEIM)</h1>'));
 
-    // $result.append($('<div>', {class: 'col-sm-12'}).append(helmLogo()));
-
-    const $paper = button('Paper', 'https://arxiv.org/pdf/2211.09110.pdf');
-    const $code = button('GitHub', 'https://github.com/stanford-crfm/helm/tree/heim');
-    $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$code])));
+    // TODO: update with the HEIM arxiv link
+    const $paper = button('Paper', 'https://arxiv.org/abs/2211.09110');
+    const $code = button('GitHub', 'https://github.com/stanford-crfm/helm');
+    $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$paper,$code])));
 
     const $description = $('<div>', {class: 'col-sm-8'}).append([
-      '<p>Significant progress has recently been made in developing text-to-image generation models. As these models are widely used in real-world applications, there is an urgent need to comprehensively understand their capabilities and risks. However, existing evaluations primarily focus on image-text alignment and quality. To address this limitation, we introduce a new benchmark, <strong>Holistic Evaluation of Text-To-Image Models (HEIM).</strong></p>',
-      '<p>We identify 12 different aspects that are important in real-world model deployment, including image-text alignment, image quality, aesthetics, originality, reasoning, knowledge, bias, toxicity, fairness, robustness, multilinguality, and efficiency. By curating scenarios encompassing these aspects, we evaluate state-of-the-art text-to-image models using this benchmark. Unlike previous evaluations that focused on alignment and quality, HEIM significantly improves coverage by evaluating all models across all aspects. Our results reveal that no single model excels in all aspects, with different models demonstrating strengths in different aspects.</p>',
+      '<p>Significant effort has recently been made in developing text-to-image generation models. As these models are widely used in real-world applications, there is an urgent need to comprehensively understand their capabilities and risks. However, existing evaluations primarily focus on image-text alignment and image quality. To address this limitation, we introduce a new benchmark, <strong>Holistic Evaluation of Text-To-Image Models (HEIM).</strong></p>',
+      '<p>We identify 12 different aspects that are important in real-world model deployment, including</p>',
+      '<ul> <li><i>image-text alignment</i></li> <li><i>image quality</i></li> <li><i>aesthetics</i></li> <li><i>originality</i></li> <li><i>reasoning</i></li> <li><i>knowledge</i></li> <li><i>bias</i></li> <li><i>toxicity</i></li> <li><i>fairness</i></li> <li><i>robustness</i></li> <li><i>multilinguality</i></li> <li><i>efficiency</i></li> </ul>'
+      '<p>By curating scenarios encompassing these aspects, we evaluate state-of-the-art text-to-image models using this benchmark. Unlike previous evaluations that focused on alignment and quality, HEIM significantly improves coverage by evaluating all models across all aspects. Our results reveal that no single model excels in all aspects, with different models demonstrating strengths in different aspects.</p>',
       '<p>This website contains a release of all generated images and human evaluation results for full transparency.</p>',
+      '<p>We focus on evaluating text-to-image models, which take textual prompts as input and generate images. Inspired by HELM, we decompose the model evaluation into four key components: aspect, scenario, adaptation, and metric:</p>'
     ]);
-
     $result.append([
       $('<div>', {class: 'col-sm-2'}),
       $description,
       $('<div>', {class: 'col-sm-2'}),
     ]);
+    $result.append($('<div>', {class: 'col-sm-12'}).append(heimFig()));
 
     const $models = renderModelList();
     const $scenarios = renderScenarioList();
