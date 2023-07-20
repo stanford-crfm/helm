@@ -71,6 +71,15 @@ tr {
   color: lightgray;
 }
 
+.heim-logo {
+  margin: 25px;
+  width: 500px;
+}
+.heim-main-fig {
+  margin: 50px;
+  width: 1000px;
+}
+
 .access-open {
   background-color: lightgreen;
   width: 100px;

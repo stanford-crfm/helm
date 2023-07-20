@@ -968,11 +968,11 @@ $(function () {
   }
 
   function heimLogo() {
-    return $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/heim-logo.png', width: '500px', margin: '25px', class: 'mx-auto d-block'}));
+    return $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/heim-logo.png', class: 'heim-logo mx-auto d-block'}));
   }
 
   function heimFig() {
-    return $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/heim-main.png', width: '1000px', margin: '50px'}))
+    return $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/heim-main.png', class: 'heim-main-fig'}))
   }
 
   function renderMainPage() {
