@@ -1,6 +1,5 @@
 from typing import List
 
-from torchmetrics import MultiScaleStructuralSimilarityIndexMeasure
 from torchvision import transforms
 import torch
 
@@ -54,6 +53,8 @@ class MultiScaleStructuralSimilarityIndexMeasureMetric(Metric):
         return [Stat(MetricName("expected_multi_scale_ssim_score")).add(score)]
 
     def _compute_ssim_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
+        from torchmetrics import MultiScaleStructuralSimilarityIndexMeasure
+
         if self._metric is None:
             self._metric = MultiScaleStructuralSimilarityIndexMeasure().to(self._device)
 

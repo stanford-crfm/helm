@@ -1,6 +1,5 @@
 from typing import List
 
-from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 from torchvision import transforms
 import torch
 
@@ -53,6 +52,8 @@ class LearnedPerceptualImagePatchSimilarityMetric(Metric):
         return [Stat(MetricName("expected_lpips_score")).add(score)]
 
     def _compute_lpips_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
+        from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
+
         if self._metric is None:
             self._metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg").to(self._device)
 

@@ -1,6 +1,5 @@
 from typing import List
 
-from torchmetrics import PeakSignalNoiseRatio
 from torchvision import transforms
 import torch
 
@@ -50,6 +49,8 @@ class PeakSignalToNoiseRatioMetric(Metric):
         return [Stat(MetricName("expected_psnr_score")).add(score)]
 
     def _compute_psnr_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
+        from torchmetrics import PeakSignalNoiseRatio
+
         if self._metric is None:
             self._metric = PeakSignalNoiseRatio().to(self._device)
 

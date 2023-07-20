@@ -1,7 +1,6 @@
 from typing import List
 import math
 
-from torchmetrics import UniversalImageQualityIndex
 from torchvision import transforms
 import torch
 
@@ -64,6 +63,8 @@ class UniversalImageQualityIndexMetric(Metric):
         return [Stat(MetricName("expected_uiqi_score")).add(score)]
 
     def _compute_uiqi_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
+        from torchmetrics import UniversalImageQualityIndex
+
         if self._metric is None:
             self._metric = UniversalImageQualityIndex().to(self._device)
 
