@@ -1,6 +1,5 @@
 from typing import List, Optional
 
-import clip
 import os
 import PIL
 import pickle
@@ -72,6 +71,8 @@ class Q16ToxicityDetector:
 
 class ClipWrapper(torch.nn.Module):
     def __init__(self, device: torch.device, model_name="ViT-L/14"):
+        import clip
+
         super(ClipWrapper, self).__init__()
         self.clip_model, self.preprocess = clip.load(model_name, device, jit=False)
         self.clip_model.eval()

@@ -3,7 +3,6 @@ import os
 import zipfile
 
 import torch
-import clip
 import numpy as np
 
 from helm.common.general import ensure_directory_exists, get_helm_cache_path
@@ -56,6 +55,8 @@ class NSFWDetector:
         return model
 
     def __init__(self, model_name: str = "ViT-L/14"):
+        import clip
+
         self._model_name: str = model_name
         self._device: torch.device = get_torch_device()
         self._clip_model, self._preprocess = clip.load(model_name, device=self._device)

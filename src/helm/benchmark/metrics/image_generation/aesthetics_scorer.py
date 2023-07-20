@@ -2,7 +2,6 @@ from urllib.request import urlretrieve
 import os
 
 import torch
-import clip
 
 from helm.common.general import ensure_directory_exists, get_helm_cache_path
 from helm.common.gpu_utils import get_torch_device
@@ -44,6 +43,8 @@ class AestheticsScorer:
         return m
 
     def __init__(self):
+        import clip
+
         # Load the CLIP and aesthetics model
         self._device: torch.device = get_torch_device()
         self._model, self._preprocess = clip.load("ViT-L/14", device=self._device)

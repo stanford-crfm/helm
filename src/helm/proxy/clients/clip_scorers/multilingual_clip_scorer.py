@@ -1,5 +1,4 @@
 from multilingual_clip import pt_multilingual_clip
-import clip
 import torch
 import transformers
 
@@ -20,6 +19,8 @@ class MultilingualCLIPScorer(BaseCLIPScorer):
     IMAGE_MODEL_NAME: str = "ViT-L/14"
 
     def __init__(self):
+        import clip
+
         super().__init__()
         self._device: torch.device = get_torch_device()
         self._text_model = pt_multilingual_clip.MultilingualCLIP.from_pretrained(self.TEXT_MODEL_NAME)
