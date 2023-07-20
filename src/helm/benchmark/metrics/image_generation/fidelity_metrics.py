@@ -4,9 +4,6 @@ import math
 import os
 import shutil
 
-import torch_fidelity
-from pytorch_fid.fid_score import calculate_fid_given_paths
-
 from helm.common.general import ensure_directory_exists, generate_unique_id, get_file_name, hlog
 from helm.common.gpu_utils import is_cuda_available, get_torch_device
 from helm.common.request import RequestResult
@@ -111,6 +108,9 @@ class FidelityMetric(Metric):
             hlog(f"Resized {num_generated_images} images to {self.IMAGE_WIDTH}x{self.IMAGE_HEIGHT}.")
 
             try:
+                import torch_fidelity
+                from pytorch_fid.fid_score import calculate_fid_given_paths
+
                 hlog(f"Computing FID between {generated_images_path} and {gold_images_path}...")
                 fid: float = calculate_fid_given_paths(
                     paths=[generated_images_path, gold_images_path],

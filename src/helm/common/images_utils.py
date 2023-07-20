@@ -5,7 +5,6 @@ import shutil
 from urllib.request import urlopen
 from typing import Optional, List
 
-import cv2
 import numpy as np
 from PIL import Image
 
@@ -14,6 +13,8 @@ from .general import is_url
 
 def is_blacked_out_image(image_location: str) -> bool:
     """Returns True if the image is all black. False otherwise."""
+    import cv2
+
     if is_url(image_location):
         arr = np.asarray(bytearray(urlopen(image_location).read()), dtype=np.uint8)
         image = cv2.imdecode(arr, -1)
