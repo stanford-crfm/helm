@@ -1,8 +1,6 @@
 from typing import Literal
 
 from PIL import Image
-from torchmetrics.multimodal import CLIPScore
-from torchvision import transforms
 import torch
 
 from helm.common.gpu_utils import get_torch_device
@@ -35,10 +33,14 @@ class CLIPScorer(BaseCLIPScorer):
             "openai/clip-vit-large-patch14",
         ] = "openai/clip-vit-large-patch14",
     ):
+        from torchmetrics.multimodal import CLIPScore
+
         self._device: torch.device = get_torch_device()
         self._metric = CLIPScore(model_name_or_path=model_name).to(self._device)
 
     def compute_score(self, caption: str, image_location: str) -> float:
+        from torchvision import transforms
+
         image: Image = open_image(image_location)
         image_tensor: torch.Tensor = transforms.ToTensor()(image).to(self._device)
         score: float = self._metric(image_tensor, caption).detach().item()
