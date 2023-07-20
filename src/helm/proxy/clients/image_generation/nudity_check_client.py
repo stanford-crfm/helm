@@ -1,7 +1,5 @@
-from typing import Dict, Optional
+from typing import Dict
 import os
-
-from nudenet import NudeClassifier
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
@@ -19,10 +17,12 @@ class NudityCheckClient:
 
     def __init__(self, cache_config: CacheConfig):
         self.cache = Cache(cache_config)
-        self._nudity_classifier: Optional[NudeClassifier] = None
+        self._nudity_classifier = None
 
     def check_nudity(self, request: NudityCheckRequest) -> NudityCheckResult:
         """Check for nudity for a batch of images using NudeNet."""
+        from nudenet import NudeClassifier
+
         try:
 
             def do_it():

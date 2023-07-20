@@ -23,8 +23,7 @@ jobs:
           key: pip-${{ hashFiles('requirements-freeze.txt') }}-${{ matrix.python-version }}
           restore-keys: |
             pip-
-      # - run: pip install -e .
-      - run: pip install -e ".[heim]"
+      - run: pip install -e .
       - run: helm-run -h
       - run: helm-summarize -h
       - run: echo "Finished installation."
