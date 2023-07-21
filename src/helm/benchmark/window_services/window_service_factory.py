@@ -50,7 +50,7 @@ from .t511b_window_service import T511bWindowService
 from .flan_t5_window_service import FlanT5WindowService
 from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
-from .llama_window_service import LlamaWindowService
+from .llama_window_service import LlamaWindowService, Llama2WindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 from helm.proxy.clients.image_generation.adobe_vision_client import AdobeVisionClient
@@ -188,6 +188,12 @@ class WindowServiceFactory:
             "together/vicuna-13b",
         ]:
             window_service = LlamaWindowService(service)
+        elif model_name in [
+            "meta/llama-2-7b",
+            "meta/llama-2-13b",
+            "meta/llama-2-70b",
+        ]:
+            window_service = Llama2WindowService(service)
         elif organization == "cohere":
             if "command" in engine:
                 window_service = CohereCommandWindowService(service)

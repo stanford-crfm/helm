@@ -11,3 +11,22 @@ class LlamaWindowService(HuggingFaceWindowService):
             namespace="hf-internal-testing", model_name="llama-tokenizer", revision=None
         )
         super().__init__(service, model_config)
+
+
+class Llama2WindowService(HuggingFaceWindowService):
+    # To use the Llama-2 tokenizer:
+    #
+    # 1. Accept the license agreement: https://ai.meta.com/resources/models-and-libraries/llama-downloads/
+    # 2. Request to access the Hugging Face repository: https://huggingface.co/meta-llama/Llama-2-7b
+    # 3. Run `huggingface-cli login`
+    #
+    # If you encounter the following error, complete the above steps and try again:
+    #
+    #     meta-llama/Llama-2-70b-hf is not a local folder and is not a valid model identifier listed on
+    #     'https://huggingface.co/models'
+    def __init__(self, service: TokenizerService):
+        model_config = HuggingFaceHubModelConfig(namespace="meta-llama", model_name="Llama-2-7b-hf", revision=None)
+        super().__init__(service, model_config)
+
+    def max_sequence_length(self) -> int:
+        return 4096
