@@ -414,6 +414,27 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-02-24
+  - name: meta/llama-2-7b
+    display_name: LLaMA (7B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-07-18
+  - name: meta/llama-2-14b
+    display_name: LLaMA (14B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 14000000000
+    release_date: 2023-07-18
+  - name: meta/llama-2-70b
+    display_name: LLaMA (70B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2023-07-18
 
   # Stanford
   - name: huggingface/alpaca-7b
