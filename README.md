@@ -18,7 +18,7 @@ To get started, refer to [the documentation on Read the Docs](https://crfm-helm.
 
 
 
-# Holistic Evaluation of Text-To-Image Models
+# Holistic Evaluation of Text-To-Image Models ([paper](https://arxiv.org/abs/2211.09110), [results](https://crfm.stanford.edu/heim/latest/))
 
 <img src="https://github.com/stanford-crfm/helm/raw/heim/src/helm/benchmark/static/heim/images/heim-logo.png" alt=""  width="800"/>
 
@@ -26,7 +26,7 @@ Significant effort has recently been made in developing text-to-image generation
 input and generate images. As these models are widely used in real-world applications, there is an urgent need to 
 comprehensively understand their capabilities and risks. However, existing evaluations primarily focus on image-text 
 alignment and image quality. To address this limitation, we introduce a new benchmark, 
-Holistic Evaluation of Text-To-Image Models (HEIM).
+**Holistic Evaluation of Text-To-Image Models (HEIM)**.
 
 We identify 12 different aspects that are important in real-world model deployment, including:
 
