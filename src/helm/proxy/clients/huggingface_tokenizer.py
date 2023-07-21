@@ -22,6 +22,7 @@ _KNOWN_TOKENIZER_NAMES: Set[str] = {
     "facebook/opt-66b",
     "google/ul2",
     "google/flan-t5-xxl",
+    "meta-llama/Llama-2-7b-hf",
     "bigcode/santacoder",
     "bigcode/starcoder",
     "hf-internal-testing/llama-tokenizer",

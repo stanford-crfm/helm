@@ -414,6 +414,27 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-02-24
+  - name: meta/llama-2-7b
+    display_name: LLaMA-2 (7B)
+    description: Llama 2 pretrained models are trained on 2 trillion tokens, and have double the context length than Llama 1.
+    creator_organization: Meta
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-07-18
+  - name: meta/llama-2-13b
+    display_name: LLaMA-2 (13B)
+    description: Llama 2 pretrained models are trained on 2 trillion tokens, and have double the context length than Llama 1.
+    creator_organization: Meta
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-07-18
+  - name: meta/llama-2-70b
+    display_name: LLaMA-2 (70B)
+    description: Llama 2 pretrained models are trained on 2 trillion tokens, and have double the context length than Llama 1.
+    creator_organization: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2023-07-18
 
   # Stanford
   - name: huggingface/alpaca-7b

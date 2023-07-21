@@ -26,6 +26,9 @@ _ASYNC_MODELS: Set[str] = {
     "dolly-v2-3b",
     "dolly-v2-7b",
     "dolly-v2-12b",
+    "llama-2-7b",
+    "llama-2-13b",
+    "llama-2-70b",
     "stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b",
 }
@@ -58,6 +61,9 @@ MODEL_ALIASES: Dict[str, str] = {
     "dolly-v2-3b": "databricks/dolly-v2-3b",
     "dolly-v2-7b": "databricks/dolly-v2-7b",
     "dolly-v2-12b": "databricks/dolly-v2-12b",
+    "llama-2-7b": "togethercomputer/llama-2-7b",
+    "llama-2-13b": "togethercomputer/llama-2-13b",
+    "llama-2-40b": "togethercomputer/llama-2-70b",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
 }
