@@ -24,6 +24,8 @@ from helm.proxy.clients.image_generation.deep_floyd_client import DeepFloydClien
 
 
 """
+Script to run offline evaluation for the DeepFloyd-IF models.
+
 From  https://huggingface.co/docs/diffusers/main/en/api/pipelines/if#text-to-image-generation
 
 DeepFloyd IF is a novel state-of-the-art open-source text-to-image model with a high degree of photorealism and
