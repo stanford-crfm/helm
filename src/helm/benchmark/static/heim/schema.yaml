@@ -754,6 +754,18 @@ metric_groups:
       - name: skin_tone_imbalance
         split: ${main_split}
 
+  - name: heim_gender_metrics
+    display_name: Gender imbalance
+    metrics:
+      - name: gender_imbalance
+        split: ${main_split}
+
+  - name: heim_skin_tone_metrics
+    display_name: Skin tone imbalance
+    metrics:
+      - name: skin_tone_imbalance
+        split: ${main_split}
+
   - name: heim_toxicity_metrics
     display_name: Toxicity (NSFW)
     metrics:
@@ -1394,6 +1406,8 @@ run_groups:
       - heim_aesthetics_automated_metrics
       - heim_originality_watermark_metrics
       - heim_bias_metrics
+      - heim_gender_metrics
+      - heim_skin_tone_metrics
       - heim_toxicity_metrics
       - heim_toxicity_black_metrics
       - heim_toxicity_nudity_metrics
@@ -1410,6 +1424,8 @@ run_groups:
       - heim_aesthetics_automated_metrics
       - heim_originality_watermark_metrics
       - heim_bias_metrics
+      - heim_gender_metrics
+      - heim_skin_tone_metrics
       - heim_toxicity_metrics
       - heim_toxicity_black_metrics
       - heim_toxicity_nudity_metrics
