@@ -169,6 +169,12 @@ class HuggingFaceClient(Client):
                 model_config = HuggingFaceHubModelConfig.from_string("bigcode/starcoder")
             elif model == "mosaicml/mpt-7b":
                 model_config = HuggingFaceHubModelConfig.from_string("mosaicml/mpt-7b")
+            elif model == "meta/llama-2-7b":
+                model_config = HuggingFaceHubModelConfig.from_string("meta-llama/Llama-2-7b-hf")
+            elif model == "meta/llama-2-14b":
+                model_config = HuggingFaceHubModelConfig.from_string("meta-llama/Llama-2-14b-hf")
+            elif model == "meta/llama-2-70b":
+                model_config = HuggingFaceHubModelConfig.from_string("meta-llama/Llama-2-70b-hf")
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")
         return _get_singleton_server(model_config)
