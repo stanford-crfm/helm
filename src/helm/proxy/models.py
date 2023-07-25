@@ -301,7 +301,22 @@ ALL_MODELS = [
     # Meta
     Model(
         group="together",
-        name="together/llama-7b",
+        name="meta/llama-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="meta/llama-13b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="meta/llama-30b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="meta/llama-65b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
