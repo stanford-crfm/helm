@@ -28,5 +28,6 @@ class Llama2WindowService(HuggingFaceWindowService):
         model_config = HuggingFaceHubModelConfig(namespace="meta-llama", model_name="Llama-2-7b-hf", revision=None)
         super().__init__(service, model_config)
 
+    @property
     def max_sequence_length(self) -> int:
         return 4096

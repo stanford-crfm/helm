@@ -63,7 +63,7 @@ MODEL_ALIASES: Dict[str, str] = {
     "dolly-v2-12b": "databricks/dolly-v2-12b",
     "llama-2-7b": "togethercomputer/llama-2-7b",
     "llama-2-13b": "togethercomputer/llama-2-13b",
-    "llama-2-40b": "togethercomputer/llama-2-70b",
+    "llama-2-70b": "togethercomputer/llama-2-70b",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
 }
