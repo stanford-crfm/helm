@@ -17,7 +17,6 @@ from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 _ASYNC_MODELS: Set[str] = {
     # Legacy models
     "alpaca-7b",
-    "llama-7b",
     "pythia-7b",
     "vicuna-13b",
     # Production models
@@ -26,6 +25,10 @@ _ASYNC_MODELS: Set[str] = {
     "dolly-v2-3b",
     "dolly-v2-7b",
     "dolly-v2-12b",
+    "llama-7b",
+    "llama-13b",
+    "llama-30b",
+    "llama-65b",
     "llama-2-7b",
     "llama-2-13b",
     "llama-2-70b",
@@ -52,7 +55,6 @@ MODEL_ALIASES: Dict[str, str] = {
     # alpaca-7b is half-precision
     # alpaca-7b-full-precision is full-precision
     "alpaca-7b": "alpaca-7b-full-precision",
-    "llama-7b": "llama-7b-full-precision",
     "pythia-7b": "pythia-7b-full-precision",
     "vicuna-13b": "vicuna-13b-full-precision",
     # Production models
@@ -61,6 +63,10 @@ MODEL_ALIASES: Dict[str, str] = {
     "dolly-v2-3b": "databricks/dolly-v2-3b",
     "dolly-v2-7b": "databricks/dolly-v2-7b",
     "dolly-v2-12b": "databricks/dolly-v2-12b",
+    "llama-7b": "huggyllama/llama-7b",
+    "llama-13b": "huggyllama/llama-13b",
+    "llama-30b": "huggyllama/llama-30b",
+    "llama-65b": "huggyllama/llama-65b",
     "llama-2-7b": "togethercomputer/llama-2-7b",
     "llama-2-13b": "togethercomputer/llama-2-13b",
     "llama-2-40b": "togethercomputer/llama-2-70b",
