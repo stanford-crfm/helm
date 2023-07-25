@@ -57,7 +57,7 @@ class TestTogetherClient:
                     "echo": True,
                     "logprobs": 3,
                     "max_tokens": 24,
-                    "model": "llama-7b-full-precision",
+                    "model": "huggyllama/llama-7b",
                     "n": 4,
                     "prompt": "I am a computer scientist.",
                     "request_type": "language-model-inference",
