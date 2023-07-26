@@ -253,7 +253,7 @@ class TogetherClient(Client):
                 text=cleanup_str(raw_completion["text"], "together"),
                 logprob=sequence_logprob,
                 tokens=tokens,
-                finish_reason={"reason": raw_completion["finish_reason"]},
+                finish_reason={"reason": raw_completion.get("finish_reason")},
             )
             completion = truncate_sequence(completion, request)
             completions.append(completion)
