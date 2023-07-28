@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Tuple
-from light_scenario import LightScenarioKey, GroupScenarioSpecs
+from light_scenario import LightScenarioKey
 
 
 @dataclass(frozen=True)

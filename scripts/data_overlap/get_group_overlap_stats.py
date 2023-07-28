@@ -5,8 +5,6 @@ import argparse
 from typing import List, Dict
 
 from common.general import asdict_without_nones
-from common.hierarchical_logger import hlog
-
 
 from data_overlap_spec import DataOverlapStats
 from light_scenario import GroupScenarioSpecs, GroupOverlapStats
@@ -39,7 +37,7 @@ if __name__ == "__main__":
         overlap_stats_dict = json.loads(overlap_stats_json)
         data_overlap_stats_list.append(cattrs.structure(overlap_stats_dict, DataOverlapStats))
 
-    scenario_spec_overlap_counts = dict()
+    scenario_spec_overlap_counts: Dict = dict()
     for data_overlap_stats in data_overlap_stats_list:
         data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
         light_scenario_key = data_overlap_stats_key.light_scenario_key
@@ -57,12 +55,12 @@ if __name__ == "__main__":
 
     group_scenario_specs_jsons = open(args.group_scenario_specs_path, "r").readlines()
 
-    group_scenario_specs_list = []
+    group_scenario_specs_list: List = []
     for group_scenario_specs_json in group_scenario_specs_jsons:
         group_scenario_specs_dict = json.loads(group_scenario_specs_json)
         group_scenario_specs_list.append(cattrs.structure(group_scenario_specs_dict, GroupScenarioSpecs))
 
-    group_overlap_stats_list = []
+    group_overlap_stats_list: List = []
     for group_scenario_specs in group_scenario_specs_list:
         group = group_scenario_specs.group
         scenario_specs = group_scenario_specs.scenario_specs
@@ -77,7 +75,7 @@ if __name__ == "__main__":
                 group_num_instances += num_instances
                 group_num_overlapping_inputs += num_overlapping_inputs
                 group_num_overlapping_references += num_overlapping_references
-            except Exception as e:
+            except Exception:
                 pass
         if group_num_instances != 0:
             group_overlap_stats = GroupOverlapStats(
