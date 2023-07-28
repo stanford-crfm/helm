@@ -7,13 +7,12 @@ from typing import List, Dict
 from common.general import asdict_without_nones
 
 from data_overlap_spec import DataOverlapStats
-from light_scenario import GroupScenarioSpecs, GroupOverlapStats
+from light_scenario import GroupScenarioSpecs, GroupOverlapStats, AllGroupOverlapStats
 
 
-def save_group_overlap_stats_to_jsonl(group_overlap_stats_list: List[GroupOverlapStats], filename: str):
+def save_group_overlap_stats_to_jsonl(all_group_overlap_stats: AllGroupOverlapStats, filename: str):
     with open(filename, "a") as f:
-        for group_overlap_stats in group_overlap_stats_list:
-            f.write(json.dumps(asdict_without_nones(group_overlap_stats), ensure_ascii=False) + "\n")
+        f.write(json.dumps(asdict_without_nones(all_group_overlap_stats), ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":
@@ -23,6 +22,7 @@ if __name__ == "__main__":
         "--group_scenario_specs_path", type=str, required=True, help="The path to the group scenario specs file"
     )
     parser.add_argument("--output-data", type=str, required=True, help="The path to the output file")
+    parser.add_argument("--models", nargs="*", required=False, help="The name(s) of the model(s)")
     args = parser.parse_args()
 
     try:
@@ -85,5 +85,7 @@ if __name__ == "__main__":
                 num_overlapping_references=group_num_overlapping_references,
             )
             group_overlap_stats_list.append(group_overlap_stats)
-
-    save_group_overlap_stats_to_jsonl(group_overlap_stats_list, args.output_data)
+    all_group_overlap_stats = AllGroupOverlapStats(
+        group_overlap_stats_list=group_overlap_stats_list, models=args.models
+    )
+    save_group_overlap_stats_to_jsonl(all_group_overlap_stats, args.output_data)

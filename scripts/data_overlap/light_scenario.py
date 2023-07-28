@@ -20,7 +20,7 @@ class GroupScenarioSpecs:
 
 @dataclass(frozen=True)
 class GroupOverlapStats:
-    """Dataclass that represents output data overlap stats"""
+    """Dataclass that represents group data overlap stats"""
 
     group: str
 
@@ -29,6 +29,15 @@ class GroupOverlapStats:
     num_overlapping_inputs: int
 
     num_overlapping_references: int
+
+
+@dataclass(frozen=True)
+class AllGroupOverlapStats:
+    """Dataclass that represents all group data overlap stats"""
+
+    models: List[str]
+
+    group_overlap_stats_list: List[GroupOverlapStats]
 
 
 @dataclass(frozen=True)
