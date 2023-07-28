@@ -11,6 +11,8 @@ from helm.proxy.models import (
 )
 from .ai21_window_service import AI21WindowService
 from .symbl_window_service import SymblWindowService
+from .nemo_window_service import NemoWindowService
+from .falcon_window_service import FalconWindowService
 from .wider_ai21_window_service import WiderAI21WindowService, AI21Jurassic2JumboWindowService
 from .anthropic_window_service import AnthropicWindowService, LegacyAnthropicWindowService
 from .cohere_window_service import CohereWindowService, CohereCommandWindowService
@@ -155,6 +157,10 @@ class WindowServiceFactory:
                 window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         elif organization == "symbl":
             window_service = SymblWindowService(service)
+        elif organization == "nemo":
+            window_service = NemoWindowService(service)
+        elif organization == "tiiuae":
+            window_service = FalconWindowService(service)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 
