@@ -213,7 +213,7 @@ $(function () {
       metricGroup.metrics.forEach((metric) => {
         // This function is supposed to return per-instance metrics, so exclude
         // metrics that mentions perturbations.
-        if (metric.perturbation_name) {
+        if (metric.perturbation_name && metric.perturbation_name != "__all__") {
           return;
         }
         names.push(substitute(metric.name, scenarioGroup.environment));
@@ -602,6 +602,7 @@ $(function () {
       if (!runSpec.groups.includes(runGroup.name)) {
         return;
       }
+      console.log("[debug:yifanmai] metric names for ", runGroup, " is ", getMetricNames(runGroup))
       getMetricNames(runGroup).forEach((name) =>{
         if (!metricNames.includes(name)) {
           metricNames.push(name);
