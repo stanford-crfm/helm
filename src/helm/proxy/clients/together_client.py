@@ -18,7 +18,6 @@ _ASYNC_MODELS: Set[str] = {
     # Legacy models
     "alpaca-7b",
     "pythia-7b",
-    "vicuna-13b",
     # Production models
     "redpajama-incite-base-3b-v1",
     "redpajama-incite-instruct-3b-v1",
@@ -40,6 +39,8 @@ _ASYNC_MODELS: Set[str] = {
     "pythia-12b-v0",
     "stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b",
+    "vicuna-7b",
+    "vicuna-13b",
 }
 """Together models to use async requests for.
 
@@ -62,7 +63,6 @@ MODEL_ALIASES: Dict[str, str] = {
     # alpaca-7b-full-precision is full-precision
     "alpaca-7b": "alpaca-7b-full-precision",
     "pythia-7b": "pythia-7b-full-precision",
-    "vicuna-13b": "vicuna-13b-full-precision",
     # Production models
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
     "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
@@ -84,6 +84,8 @@ MODEL_ALIASES: Dict[str, str] = {
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
+    "vicuna-7b": "lmsys/vicuna-7b-v1.3",
+    "vicuna-13b": "lmsys/vicuna-13b-v1.3",
 }
 """Together model name aliases.
 
