@@ -106,6 +106,16 @@ class Model:
 # Over time, we should add more information there.
 
 ALL_MODELS = [
+    #falcon model
+    Model(group="tiiuae",
+          name="tiiuae/falcon-40B",
+          tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+          ),
+    #Nemo model
+    Model(group="nemo",
+          name="nemo/gpt-43b-002",
+          tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+          ),
     # Symbl.ai - Neo Models
     Model(group="neo",
           creator_organization="Symbl.ai",
@@ -550,6 +560,12 @@ ALL_MODELS = [
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OpenAI: https://beta.openai.com/docs/engines/gpt-3
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/gpt-3.5-turbo",
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
