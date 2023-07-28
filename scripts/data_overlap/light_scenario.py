@@ -8,6 +8,30 @@ except Exception:
 
 
 @dataclass(frozen=True)
+class GroupScenarioSpecs:
+    """
+    Scenario Specs of Group
+    """
+
+    group: str
+
+    scenario_specs: List[ScenarioSpec]
+
+
+@dataclass(frozen=True)
+class GroupOverlapStats:
+    """Dataclass that represents output data overlap stats"""
+
+    group: str
+
+    num_instances: int
+
+    num_overlapping_inputs: int
+
+    num_overlapping_references: int
+
+
+@dataclass(frozen=True)
 class LightInstance:
     """
     A lighter `Instance` with only text fields.
