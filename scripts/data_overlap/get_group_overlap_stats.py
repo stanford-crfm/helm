@@ -70,7 +70,7 @@ if __name__ == "__main__":
                 group_num_overlapping_references += num_overlapping_references
             except Exception as e:
                 pass
-        if group_num_instances != 0
+        if group_num_instances != 0:
             group_overlap_stats = GroupOverlapStats(group=group, num_instances=group_num_instances, num_overlapping_inputs=group_num_overlapping_inputs, num_overlapping_references=group_num_overlapping_references)
             group_overlap_stats_list.append(group_overlap_stats)
 
