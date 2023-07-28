@@ -1,15 +1,42 @@
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Set
 
 from transformers import AutoTokenizer
 
 from helm.common.hierarchical_logger import htrack_block, hlog
 
-from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
+from helm.proxy.clients.huggingface_model_registry import (
+    get_huggingface_model_config,
+    HuggingFaceHubModelConfig,
+    HuggingFaceLocalModelConfig,
+)
+
+
+# Tokenizer names where the HELM tokenizer name and the Hugging Face tokenizer name
+# are identical.
+_KNOWN_TOKENIZER_NAMES: Set[str] = {
+    "EleutherAI/gpt-j-6B",  # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
+    "EleutherAI/gpt-neox-20b",
+    "bigscience/bloom",
+    "bigscience/T0pp",
+    "facebook/opt-66b",
+    "google/ul2",
+    "google/flan-t5-xxl",
+    "meta-llama/Llama-2-7b-hf",
+    "bigcode/santacoder",
+    "bigcode/starcoder",
+    "hf-internal-testing/llama-tokenizer",
+}
+
+
+# Map of HELM tokenizer name to Hugging Face tokenizer name for tokenizers where they differ.
+_KNOWN_TOKENIZER_ALIASES: Dict[str, str] = {
+    "huggingface/gpt2": "gpt2",
+    "google/t5-11b": "t5-11b",
+}
 
 
 class HuggingFaceTokenizers:
-
     tokenizers: Dict[str, Any] = {}
 
     @staticmethod
@@ -53,33 +80,20 @@ class HuggingFaceTokenizers:
                 revision: Optional[str] = None
                 model_config = get_huggingface_model_config(tokenizer_name)
                 if model_config:
-                    hf_tokenizer_name = model_config.model_id
-                    revision = model_config.revision
-                elif tokenizer_name == "huggingface/gpt2":
-                    hf_tokenizer_name = "gpt2"
-                elif tokenizer_name == "EleutherAI/gpt-j-6B":
-                    # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
-                    hf_tokenizer_name = "EleutherAI/gpt-j-6B"
-                elif tokenizer_name == "EleutherAI/gpt-neox-20b":
-                    hf_tokenizer_name = "EleutherAI/gpt-neox-20b"
-                elif tokenizer_name == "bigscience/bloom":
-                    hf_tokenizer_name = "bigscience/bloom"
-                elif tokenizer_name == "bigscience/T0pp":
-                    hf_tokenizer_name = "bigscience/T0pp"
-                elif tokenizer_name == "facebook/opt-66b":
-                    hf_tokenizer_name = "facebook/opt-66b"
-                elif tokenizer_name == "google/t5-11b":
-                    hf_tokenizer_name = "t5-11b"
-                elif tokenizer_name == "google/ul2":
-                    hf_tokenizer_name = "google/ul2"
-                elif tokenizer_name == "google/flan-t5-xxl":
-                    hf_tokenizer_name = "google/flan-t5-xxl"
-                elif tokenizer_name == "bigcode/santacoder":
-                    hf_tokenizer_name = "bigcode/santacoder"
-                elif tokenizer_name == "Writer/palmyra-base":
-                    hf_tokenizer_name = "Writer/palmyra-base"
-                elif tokenizer_name == "bigcode/starcoder":
-                    hf_tokenizer_name = "bigcode/starcoder"
+                    if isinstance(model_config, HuggingFaceLocalModelConfig):
+                        hlog(f"Loading {tokenizer_name} from local path {model_config.path}")
+                        hf_tokenizer_name = model_config.path
+                        revision = None
+                    elif isinstance(model_config, HuggingFaceHubModelConfig):
+                        hlog(f"Loading {tokenizer_name} from Hugging Face Hub model {model_config.model_id}")
+                        hf_tokenizer_name = model_config.model_id
+                        revision = model_config.revision
+                    else:
+                        raise ValueError(f"Unrecognized Hugging Face model config: {type(model_config)})")
+                elif tokenizer_name in _KNOWN_TOKENIZER_NAMES:
+                    hf_tokenizer_name = tokenizer_name
+                elif tokenizer_name in _KNOWN_TOKENIZER_ALIASES:
+                    hf_tokenizer_name = _KNOWN_TOKENIZER_ALIASES[tokenizer_name]
                 else:
                     raise ValueError(f"Unsupported HuggingFace tokenizer: {tokenizer_name}")
 

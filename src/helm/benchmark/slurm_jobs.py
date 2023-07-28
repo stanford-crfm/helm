@@ -29,6 +29,16 @@ class SlurmJobState:
     PREEMPTED = "PREEMPTED"
 
 
+ACTIVE_SLURM_JOB_STATES: Set[str] = set(
+    [
+        SlurmJobState.PENDING,
+        SlurmJobState.RUNNING,
+        SlurmJobState.SUSPENDED,
+    ]
+)
+"""Slurm job active (i.e. healthy non-terminal) states."""
+
+
 FAILURE_SLURM_JOB_STATES: Set[str] = set(
     [
         SlurmJobState.BOOT_FAIL,

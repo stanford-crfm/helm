@@ -9,6 +9,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
+from helm.proxy.clients.client import cleanup_tokens
 
 
 class LocalWindowService(WindowService):
@@ -59,7 +60,9 @@ class LocalWindowService(WindowService):
         response: TokenizationRequestResult = self.service.tokenize(
             TokenizationRequest(text, tokenizer=self.tokenizer_name)
         )
-        return cast(List[str], response.raw_tokens)
+        tokens: List[str] = cast(List[str], response.raw_tokens)
+        tokens = cleanup_tokens(tokens, self.tokenizer_name)
+        return tokens
 
     def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text and returns the number of tokens."""

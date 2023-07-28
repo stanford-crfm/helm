@@ -1,5 +1,4 @@
-import shutil
-import tempfile
+from tempfile import TemporaryDirectory
 from typing import List
 
 from .tokenizer_service import TokenizerService
@@ -117,12 +116,12 @@ class TestPalmyraWindowService:
     ]
 
     def setup_method(self):
-        self.path: str = tempfile.mkdtemp()
-        service: TokenizerService = get_tokenizer_service(self.path)
+        self.temporary_directory = TemporaryDirectory()
+        service: TokenizerService = get_tokenizer_service(self.temporary_directory.name)
         self.window_service = WindowServiceFactory.get_window_service("writer/palmyra-large", service)
 
     def teardown_method(self, method):
-        shutil.rmtree(self.path)
+        self.temporary_directory.cleanup()
 
     def test_max_request_length(self):
         assert self.window_service.max_request_length == 2048

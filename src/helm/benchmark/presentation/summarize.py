@@ -2,7 +2,6 @@ import argparse
 import os
 import datetime
 import urllib.parse
-import dacite
 import json
 from collections import defaultdict
 from dataclasses import dataclass, replace
@@ -19,6 +18,7 @@ from helm.common.general import (
     singleton,
     unique_simplification,
 )
+from helm.common.codec import from_json
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -246,10 +246,10 @@ class Summarizer:
         """Load the `Run` object from `run_path`."""
 
         with open(os.path.join(run_path, "run_spec.json")) as f:
-            run_spec = dacite.from_dict(RunSpec, json.load(f))
+            run_spec = from_json(f.read(), RunSpec)
 
         with open(os.path.join(run_path, "stats.json")) as f:
-            stats = [dacite.from_dict(Stat, raw) for raw in json.load(f)]
+            stats = from_json(f.read(), List[Stat])
 
         return Run(
             run_path=run_path,
@@ -939,9 +939,9 @@ class Summarizer:
                 json.dumps(list(map(asdict_without_nones, tables)), indent=2),
             )
 
-    def write_run_display_json(self) -> None:
+    def write_run_display_json(self, skip_completed: bool) -> None:
         def process(run: Run) -> None:
-            write_run_display_json(run.run_path, run.run_spec, self.schema)
+            write_run_display_json(run.run_path, run.run_spec, self.schema, skip_completed)
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
@@ -978,9 +978,9 @@ def main():
         help="Display debugging information.",
     )
     parser.add_argument(
-        "--skip-write-run-display-json",
+        "--skip-completed-run-display-json",
         action="store_true",
-        help="Skip write_run_display_json",
+        help="Skip write_run_display_json() for runs which already have all output display JSON files",
     )
     args = parser.parse_args()
 
@@ -997,8 +997,7 @@ def main():
     summarizer.write_groups()
     summarizer.write_cost_report()
 
-    if not args.skip_write_run_display_json:
-        summarizer.write_run_display_json()
+    summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
 
     symlink_latest(args.output_path, args.suite)
     hlog("Done.")

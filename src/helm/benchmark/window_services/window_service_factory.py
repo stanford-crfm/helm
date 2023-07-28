@@ -5,7 +5,8 @@ from helm.proxy.models import (
     AI21_WIDER_CONTEXT_WINDOW_TAG,
     AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG,
     WIDER_CONTEXT_WINDOW_TAG,
-    GPT4_TOKENIZER_TAG,
+    GPT_TURBO_CONTEXT_WINDOW_TAG,
+    GPT_TURBO_16K_CONTEXT_WINDOW_TAG,
     GPT4_CONTEXT_WINDOW_TAG,
     GPT4_32K_CONTEXT_WINDOW_TAG,
 )
@@ -25,7 +26,8 @@ from .luminous_window_service import (
 from .openai_window_service import OpenAIWindowService
 from .wider_openai_window_service import (
     WiderOpenAIWindowService,
-    GPT3Point5TurboWindowService,
+    GPTTurboWindowService,
+    GPTTurbo16KWindowService,
     GPT4WindowService,
     GPT432KWindowService,
 )
@@ -37,16 +39,17 @@ from .santacoder_window_service import SantaCoderWindowService
 from .starcoder_window_service import StarCoderWindowService
 from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
-from .gptneox_window_service import GPTNeoXWindowService
+from .gptneox_window_service import GPTNeoXWindowService, StableLMAlphaWindowService
 from .megatron_window_service import MegatronWindowService
 from .opt_window_service import OPTWindowService
-from .palmyra_window_service import PalmyraWindowService, SilkRoadWindowService
+from .palmyra_window_service import PalmyraWindowService, LongerPalmyraWindowService
 from .remote_window_service import get_remote_window_service
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
 from .flan_t5_window_service import FlanT5WindowService
 from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
+from .llama_window_service import LlamaWindowService, Llama2WindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
@@ -65,6 +68,7 @@ class WindowServiceFactory:
         engine: str = model.engine
 
         window_service: WindowService
+        # Catch any HuggingFace models registered via the command line flags
         huggingface_model_config = get_huggingface_model_config(model_name)
         if get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
@@ -75,8 +79,10 @@ class WindowServiceFactory:
                 window_service = GPT4WindowService(service)
             elif model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
                 window_service = GPT432KWindowService(service)
-            elif model_name in get_model_names_with_tag(GPT4_TOKENIZER_TAG):
-                window_service = GPT3Point5TurboWindowService(service)
+            if model_name in get_model_names_with_tag(GPT_TURBO_CONTEXT_WINDOW_TAG):
+                window_service = GPTTurboWindowService(service)
+            elif model_name in get_model_names_with_tag(GPT_TURBO_16K_CONTEXT_WINDOW_TAG):
+                window_service = GPTTurbo16KWindowService(service)
             elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
                 window_service = WiderOpenAIWindowService(service)
             else:
@@ -105,8 +111,8 @@ class WindowServiceFactory:
         elif organization == "writer":
             if engine in ["palmyra-base", "palmyra-large", "palmyra-instruct-30", "palmyra-e"]:
                 window_service = PalmyraWindowService(service)
-            elif engine == "silk-road":
-                window_service = SilkRoadWindowService(service)
+            elif engine in ["palmyra-x", "silk-road"]:
+                window_service = LongerPalmyraWindowService(service)
             else:
                 raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":
@@ -123,11 +129,38 @@ class WindowServiceFactory:
             window_service = ICEWindowService(service)
         elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "together/gpt-jt-6b-v1", "gooseai/gpt-j-6b"]:
             window_service = GPTJWindowService(service)
-        elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b", "together/gpt-neoxt-chat-base-20b"]:
+        elif model_name in [
+            "together/gpt-neox-20b",
+            "gooseai/gpt-neo-20b",
+            "together/gpt-neoxt-chat-base-20b",
+            "together/redpajama-incite-base-3b-v1",
+            "together/redpajama-incite-instruct-3b-v1",
+            # Pythia uses the same tokenizer as GPT-NeoX-20B.
+            # See: https://huggingface.co/EleutherAI/pythia-6.9b#training-procedure
+            "together/pythia-7b",
+            # MPT-7B model was trained with the EleutherAI/gpt-neox-20b tokenizer
+            # See: https://huggingface.co/mosaicml/mpt-7b
+            "mosaicml/mpt-7b",
+            # Dolly models are based on Pythia.
+            # See: https://github.com/databrickslabs/dolly
+            "databricks/dolly-v2-3b",
+            "databricks/dolly-v2-7b",
+            "databricks/dolly-v2-12b",
+        ]:
             window_service = GPTNeoXWindowService(service)
+        elif model_name in [
+            "stabilityai/stablelm-base-alpha-3b",
+            "stabilityai/stablelm-base-alpha-7b",
+        ]:
+            window_service = StableLMAlphaWindowService(service)
         elif model_name == "together/h3-2.7b":
             window_service = GPT2WindowService(service)
-        elif model_name in ["together/opt-1.3b", "together/opt-6.7b", "together/opt-66b", "together/opt-175b"]:
+        elif model_name in [
+            "together/opt-1.3b",
+            "together/opt-6.7b",
+            "together/opt-66b",
+            "together/opt-175b",
+        ]:
             window_service = OPTWindowService(service)
         elif model_name == "together/t0pp":
             window_service = T0ppWindowService(service)
@@ -141,6 +174,21 @@ class WindowServiceFactory:
             window_service = YaLMWindowService(service)
         elif model_name == "nvidia/megatron-gpt2":
             window_service = MegatronWindowService(service)
+        elif model_name in [
+            "meta/llama-7b",
+            "meta/llama-13b",
+            "meta/llama-30b",
+            "meta/llama-65b",
+            "together/alpaca-7b",
+            "together/vicuna-13b",
+        ]:
+            window_service = LlamaWindowService(service)
+        elif model_name in [
+            "meta/llama-2-7b",
+            "meta/llama-2-13b",
+            "meta/llama-2-70b",
+        ]:
+            window_service = Llama2WindowService(service)
         elif organization == "cohere":
             if "command" in engine:
                 window_service = CohereCommandWindowService(service)

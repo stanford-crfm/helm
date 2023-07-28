@@ -111,7 +111,7 @@ models:
   # TODO: add Luminous World when it's released
   - name: AlephAlpha/luminous-base
     display_name: Luminous Base (13B)
-    description: Luminous Base (13B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    description: Luminous Base (13B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
     creator_organization: Aleph Alpha
     access: limited
     num_parameters: 13000000000
@@ -119,14 +119,14 @@ models:
     release_date: 2022-01-01
   - name: AlephAlpha/luminous-extended
     display_name: Luminous Extended (30B)
-    description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
     creator_organization: Aleph Alpha
     access: limited
     num_parameters: 30000000000
     release_date: 2022-01-01
   - name: AlephAlpha/luminous-supreme
     display_name: Luminous Supreme (70B)
-    description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
     creator_organization: Aleph Alpha
     access: limited
     num_parameters: 70000000000
@@ -152,6 +152,16 @@ models:
     creator_organization: Anthropic
     access: limited
     release_date: 2023-03-17
+
+  # Berkeley
+  - name: together/koala-13b
+    display_name: Koala (13B)
+    description: Koala (13B) is a chatbot fine-tuned from Llama (13B) on dialogue data gathered from the web. ([blog post](https://bair.berkeley.edu/blog/2023/04/03/koala/))
+    creator_organization: UC Berkeley
+    access: open
+    num_parameters: 13000000000
+    release_date: 2022-04-03
+    todo: true
 
   # BigScience
   - name: together/bloom
@@ -188,6 +198,24 @@ models:
     description: The StarCoder (15.5B parameter) model trained on 80+ programming languages from The Stack (v1.2) ([model card](https://huggingface.co/bigcode/starcoder)).
     creator_organization: BigCode
     access: open
+
+  # Cerebras Systems
+  - name: together/cerebras-gpt-6.7b
+    display_name: Cerebras GPT (6.7B)
+    description: Cerebras GPT is a family of open compute-optimal language models scaled from 111M to 13B parameters trained on the Eleuther Pile. ([paper](https://arxiv.org/pdf/2304.03208.pdf))
+    creator_organization: Cerebras
+    access: limited
+    num_parameters: 6700000000
+    release_date: 2023-04-06
+    todo: true
+  - name: together/cerebras-gpt-13b
+    display_name: Cerebras GPT (13B)
+    description: Cerebras GPT is a family of open compute-optimal language models scaled from 111M to 13B parameters trained on the Eleuther Pile. ([paper](https://arxiv.org/pdf/2304.03208.pdf))
+    creator_organization: Cerebras
+    access: limited
+    num_parameters: 13000000000
+    release_date: 2023-04-06
+    todo: true
 
   # Cohere
   - name: cohere/xlarge-20220609
@@ -247,6 +275,32 @@ models:
     num_parameters: 52400000000
     release_date: 2022-11-08
 
+  # Databricks
+  - name: databricks/dolly-v2-3b
+    display_name: Dolly V2 (3B)
+    description: Dolly V2 (3B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
+    creator_organization: Databricks
+    access: open
+    num_parameters: 2517652480
+    release_date: 2023-04-12
+    todo: true
+  - name: databricks/dolly-v2-7b
+    display_name: Dolly V2 (7B)
+    description: Dolly V2 (7B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
+    creator_organization: Databricks
+    access: open
+    num_parameters: 6444163072
+    release_date: 2023-04-12
+    todo: true
+  - name: databricks/dolly-v2-12b
+    display_name: Dolly V2 (12B)
+    description: Dolly V2 (12B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
+    creator_organization: Databricks
+    access: open
+    num_parameters: 11327027200
+    release_date: 2023-04-12
+    todo: true
+
   # DeepMind
   - name: deepmind/gopher
     display_name: Gopher (280B)
@@ -276,6 +330,29 @@ models:
     access: open
     num_parameters: 20000000000
     release_date: 2022-02-02
+  - name: together/pythia-3b
+    display_name: Pythia (3B)
+    description: Pythia (3B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization: EleutherAI
+    access: open
+    num_parameters: 2517652480
+    release_date: 2023-02-13
+    todo: true
+  - name: together/pythia-7b
+    display_name: Pythia (7B)
+    description: Pythia (7B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization: EleutherAI
+    access: open
+    num_parameters: 6444163072
+    release_date: 2023-02-13
+  - name: together/pythia-12b
+    display_name: Pythia (12B)
+    description: Pythia (12B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization: EleutherAI
+    access: open
+    num_parameters: 11327027200
+    release_date: 2023-02-13
+    todo: true
 
   # Google
   - name: together/t5-11b
@@ -385,6 +462,150 @@ models:
     num_parameters: 30000000000
     release_date: 2022-11-15
     todo: true
+  - name: meta/llama-7b
+    display_name: LLaMA (7B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-02-24
+  - name: meta/llama-13b
+    display_name: LLaMA (13B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-02-24
+  - name: meta/llama-30b
+    display_name: LLaMA (30B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-02-24
+  - name: meta/llama-65b
+    display_name: LLaMA (65B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 65000000000
+    release_date: 2023-02-24
+  - name: meta/llama-2-7b
+    display_name: LLaMA-2 (7B)
+    description: Llama 2 pretrained models are trained on 2 trillion tokens, and have double the context length than Llama 1.
+    creator_organization: Meta
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-07-18
+  - name: meta/llama-2-13b
+    display_name: LLaMA-2 (13B)
+    description: Llama 2 pretrained models are trained on 2 trillion tokens, and have double the context length than Llama 1.
+    creator_organization: Meta
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-07-18
+  - name: meta/llama-2-70b
+    display_name: LLaMA-2 (70B)
+    description: Llama 2 pretrained models are trained on 2 trillion tokens, and have double the context length than Llama 1.
+    creator_organization: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2023-07-18
+
+  # Stanford
+  - name: huggingface/alpaca-7b
+    display_name: Alpaca (7B)
+    description: Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following demonstrations.
+    creator_organization: Stanford
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-13
+
+  # Meta
+  - name: together/llama-7b
+    display_name: LLaMA (7B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-02-24
+  - name: together/llama-13b
+    display_name: LLaMA (13B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-02-24
+    todo: true
+  - name: together/llama-30b
+    display_name: LLaMA (30B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-02-24
+    todo: true
+  - name: together/llama-65b
+    display_name: LLaMA (65B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 65000000000
+    release_date: 2023-02-24
+    todo: true
+
+  # Stability AI
+  - name: stabilityai/stablelm-base-alpha-3b
+    display_name: StableLM-Base-Alpha (3B)
+    description: StableLM-Base-Alpha is a suite of 3B and 7B parameter decoder-only language models pre-trained on a diverse collection of English datasets with a sequence length of 4096 to push beyond the context window limitations of existing open-source language models.
+    creator_organization: Stability AI
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-04-20
+    todo: true
+
+  - name: stabilityai/stablelm-base-alpha-7b
+    display_name: StableLM-Base-Alpha (7B)
+    description: StableLM-Base-Alpha is a suite of 3B and 7B parameter decoder-only language models pre-trained on a diverse collection of English datasets with a sequence length of 4096 to push beyond the context window limitations of existing open-source language models.
+    creator_organization: Stability AI
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-04-20
+    todo: true
+
+  # Stanford
+  - name: together/alpaca-7b
+    display_name: Alpaca (7B)
+    description: Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following demonstrations
+    creator_organization: Stanford
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-13
+  - name: together/alpaca-13b
+    display_name: Alpaca (13B)
+    description: Alpaca 13B is a model fine-tuned from the LLaMA 13B model on 52K instruction-following demonstrations
+    creator_organization: Stanford
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-13
+    todo: true
+  - name: together/alpaca-30b
+    display_name: Alpaca (30B)
+    description: Alpaca 30B is a model fine-tuned from the LLaMA 30B model on 52K instruction-following demonstrations
+    creator_organization: Stanford
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-03-13
+    todo: true
+
+  # LMSYS
+  - name: together/vicuna-13b
+    display_name: Vicuna (13B)
+    description: Vicuna-13B is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
+    creator_organization: LMSYS
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-03-30
 
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
@@ -486,6 +707,18 @@ models:
     creator_organization: OpenAI
     access: limited
     release_date: 2023-03-14
+  - name: openai/gpt-4-0613
+    display_name: gpt-4-0613
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-06-13.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-06-13
+  - name: openai/gpt-4-32k-0613
+    display_name: gpt-4-32k-0613
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 with a longer context length of 32,768 tokens from 2023-06-13.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-06-13
   - name: openai/code-davinci-002
     display_name: code-davinci-002
     description: Codex-style model that is designed for pure code-completion tasks ([docs](https://beta.openai.com/docs/models/codex)).
@@ -504,10 +737,22 @@ models:
     access: limited
   - name: openai/gpt-3.5-turbo-0301
     display_name: gpt-3.5-turbo-0301
-    description: Sibling model Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
+    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
     creator_organization: OpenAI
     access: limited
     release_date: 2023-03-01
+  - name: openai/gpt-3.5-turbo-0613
+    display_name: gpt-3.5-turbo-0613
+    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-06-13
+  - name: openai/gpt-3.5-turbo-16k-0613
+    display_name: gpt-3.5-turbo-16k-0613
+    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13 with a longer context length of 16,384 tokens.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-06-13
   - name: openai/chat-gpt
     display_name: ChatGPT
     description: Sibling model to InstructGPT which interacts in a conversational way. See [OpenAI's announcement](https://openai.com/blog/chatgpt/). The size of the model is unknown.
@@ -532,6 +777,62 @@ models:
     access: open
     num_parameters: 20000000000
     release_date: 2023-03-08
+    todo: true
+  - name: together/redpajama-incite-base-3b-v1
+    display_name: RedPajama-INCITE-Base-v1 (3B)
+    description: RedPajama-INCITE-Base-v1 (3B parameters) is a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+  - name: together/redpajama-incite-instruct-3b-v1
+    display_name: RedPajama-INCITE-Instruct-v1 (3B)
+    description: RedPajama-INCITE-Instruct-v1 (3B parameters) is a model fine-tuned for few-shot applications on the data of GPT-JT. It is built from RedPajama-INCITE-Base-v1 (3B), a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+    todo: true
+  - name: together/redpajama-incite-chat-3b-v1
+    display_name: RedPajama-INCITE-Chat-v1 (3B)
+    description: RedPajama-INCITE-Chat-v1 (3B parameters) is a model fine-tuned on OASST1 and Dolly2 to enhance chatting ability. It is built from RedPajama-INCITE-Base-v1 (3B), a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+    todo: true
+  - name: together/redpajama-incite-base-7b-v1
+    display_name: RedPajama-INCITE-Base-v1 (7B)
+    description: RedPajama-INCITE-Base-v1 (7B parameters) is a 7 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-05-05
+    todo: true
+
+  # MosaicML
+  - name: mosaicml/mpt-7b
+    display_name: MPT (7B)
+    description: MPT-7B is a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
+  - name: mosaicml/mpt-7b-chat
+    display_name: MPT-Chat (7B)
+    description: MPT-Chat (7B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT-7B, a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
+    todo: true
+  - name: mosaicml/mpt-7b-instruct
+    display_name: MPT-Instruct (7B)
+    description: MPT-Instruct (7B) is a model for short-form instruction following. It is built by finetuning MPT (7B), a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
     todo: true
 
   # Salesforce
@@ -581,7 +882,7 @@ models:
     todo: true
   - name: writer/palmyra-instruct-30
     display_name: InstructPalmyra (30B)
-    description: InstructPalmyra (30B)
+    description: InstructPalmyra (30B parameters) is trained using reinforcement learning techniques based on feedback from humans.
     creator_organization: Writer
     access: limited
     num_parameters: 30000000000
@@ -603,11 +904,19 @@ models:
     num_parameters: 35000000000
     release_date: 2023-04-13
     todo: true
+  - name: writer/palmyra-x
+    display_name: Palmyra X (43B)
+    description: Palmyra-X (43B parameters) is trained to adhere to instructions using human feedback and utilizes a technique called multiquery attention. Furthermore, a new feature called 'self-instruct' has been introduced, which includes the implementation of an early stopping criteria specifically designed for minimal instruction tuning ([paper](https://dev.writer.com/docs/becoming-self-instruct-introducing-early-stopping-criteria-for-minimal-instruct-tuning)).
+    creator_organization: Writer
+    access: limited
+    num_parameters: 43000000000
+    release_date: 2023-06-11
+    todo: true
 
   # Yandex
   - name: together/yalm
     display_name: YaLM (100B)
-    description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](From https://github.com/yandex/YaLM-100B)).
+    description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](https://github.com/yandex/YaLM-100B)).
     creator_organization: Yandex
     access: open
     num_parameters: 100000000000

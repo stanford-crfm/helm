@@ -9,24 +9,18 @@ class PalmyraWindowService(LocalWindowService):
     @property
     def tokenizer_name(self) -> str:
         """All Palmyra models use the same tokenizer."""
-        return "Writer/palmyra-base"
+        return "huggingface/gpt2"
 
     @property
     def max_sequence_length(self) -> int:
         return 2048
 
     @property
-    def max_sequence_and_generated_tokens_length(self) -> int:
-        """
-        Return the max prompt length + max token length.
-        Writer is one of the rare models that has a limit on this.
-        The official limit seems to be 2048, we limit to 2000 just to be safe.
-        """
-        # TODO #1558: Replace by the exact limit here.
-        return 2000
+    def max_request_length(self) -> int:
+        return self.max_sequence_length
 
     @property
-    def max_request_length(self) -> int:
+    def max_sequence_and_generated_tokens_length(self) -> int:
         return self.max_sequence_length
 
     @property
@@ -45,12 +39,7 @@ class PalmyraWindowService(LocalWindowService):
         return self.end_of_text_token
 
 
-class SilkRoadWindowService(PalmyraWindowService):
+class LongerPalmyraWindowService(PalmyraWindowService):
     @property
     def max_sequence_length(self) -> int:
-        return 80000
-
-    @property
-    def max_sequence_and_generated_tokens_length(self) -> int:
-        # TODO #1558: Figure out the exact number, should be 4096
-        return 4000
+        return 8192

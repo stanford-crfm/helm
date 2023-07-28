@@ -647,6 +647,15 @@ def get_verifiability_judgment_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match"])
 
 
+def get_instruction_following_critique_metric_specs(num_respondents: int) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.instruction_following_critique_metrics.InstructionFollowingCritiqueMetric",  # noqa E501
+            args={"num_respondents": num_respondents},
+        )
+    ]
+
+
 ############################################################
 # Run specs
 
@@ -2132,7 +2141,7 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
 
 
 @run_spec_function("self_instruct")
-def get_self_instruct_spec() -> RunSpec:
+def get_self_instruct_spec(num_respondents: int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.self_instruct_scenario.SelfInstructScenario",
         args={},
@@ -2144,13 +2153,31 @@ def get_self_instruct_spec() -> RunSpec:
         name="self_instruct",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
         groups=["self_instruct"],
     )
 
 
+@run_spec_function("vicuna")
+def get_vicuna_spec(num_respondents: int, category: str = "all") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vicuna_scenario.VicunaScenario",
+        args={"category": category},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"vicuna:category={category}",  # TODO: add args
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
+        groups=["vicuna"],
+    )
+
+
 @run_spec_function("grammar")
-def get_grammar_spec(path: str, tags: str) -> RunSpec:
+def get_grammar_spec(num_respondents: int, path: str, tags: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.grammar_scenario.GrammarScenario",
         args={"path": path, "tags": tags},
@@ -2162,7 +2189,7 @@ def get_grammar_spec(path: str, tags: str) -> RunSpec:
         name=f"grammar:path={path},tags={tags}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_open_ended_generation_metric_specs() + get_generative_harms_metric_specs(),
+        metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
         groups=["grammar"],
     )
 
@@ -2226,6 +2253,60 @@ def get_opinions_qa_spec(
         adapter_spec=adapter_spec,
         metric_specs=[],
         groups=["opinions_qa"],
+    )
+
+
+@run_spec_function("open_assistant")
+def get_open_assistant_spec(num_respondents: int, language: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.open_assistant_scenario.OpenAssistantScenario",
+        args={"language": language},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"open_assistant:language={language}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
+        groups=["open_assistant"],
+    )
+
+
+@run_spec_function("koala")
+def get_koala_spec(num_respondents: int) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.koala_scenario.KoalaScenario",
+        args={},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name="koala",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
+        groups=["koala"],
+    )
+
+
+@run_spec_function("anthropic_hh_rlhf")
+def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.anthropic_hh_rlhf_scenario.AnthropicHHRLHFScenario",
+        args={"subset": subset},
+    )
+
+    adapter_spec = get_instruct_adapter_spec()
+
+    return RunSpec(
+        name=f"anthropic_hh_rlhf:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
+        groups=["anthropic_hh_rlhf"],
     )
 
 
@@ -2448,9 +2529,21 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if ANTHROPIC_MODEL_TAG in model.tags:
             add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
             increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
-            format_expander = FormatPromptRunExpander(
-                prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
-            )
+            # Get scenario tags
+            components = run_spec.scenario_spec.class_name.split(".")
+            module: Any = __import__(components[0])
+            for component in components[1:]:
+                module = getattr(module, component)
+            scenario_tags: List[str] = module.tags
+            # If the scenario is instruction, do not use PROMPT_ANSWER_START
+            if "instructions" in scenario_tags:
+                format_expander = FormatPromptRunExpander(
+                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}"
+                )
+            else:
+                format_expander = FormatPromptRunExpander(
+                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
+                )
             run_spec = singleton(add_to_stop_expander.expand(run_spec))
             run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
             run_spec = singleton(format_expander.expand(run_spec))

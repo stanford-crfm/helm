@@ -86,7 +86,7 @@ nltk==3.7
 nodeenv==1.7.0
 numba==0.56.4
 numpy==1.23.3
-openai==0.27.0
+openai==0.27.8
 openpyxl==3.0.10
 outcome==1.2.0
 packaging==21.3
@@ -103,7 +103,7 @@ pre-commit==2.20.0
 preshed==3.0.7
 protobuf==3.20.2
 psutil==5.9.2
-pyarrow==9.0.0
+pyarrow==11.0.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycares==4.3.0
@@ -126,13 +126,14 @@ PyYAML==6.0
 regex==2022.9.13
 requests==2.28.1
 responses==0.18.0
-retrying==1.3.3
+retrying==1.3.4
 revChatGPT==0.1.1
 rouge-score==0.1.2
 rsa==4.9
 s3transfer==0.6.0
 sacrebleu==2.2.1
 sacremoses==0.0.53
+scaleapi==2.13.0
 scikit-learn==1.1.2
 scipy==1.9.1
 selenium==4.8.0
@@ -158,7 +159,7 @@ thinc==8.0.17
 threadpoolctl==3.1.0
 tiktoken==0.3.3
 tls-client==0.1.8
-tokenizers==0.13.2
+tokenizers==0.13.3
 toml==0.10.2
 tomli==2.0.1
 torch==1.12.1 ; sys_platform == "darwin"
