@@ -1,7 +1,7 @@
 import json
 import os
 import argparse
-from typing import List, DefaultDict, Set, Dict
+from typing import List, DefaultDict, Dict
 from collections import defaultdict
 
 from helm.common.general import asdict_without_nones
