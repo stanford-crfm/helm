@@ -2,7 +2,7 @@ import json
 import cattrs
 import os
 import argparse
-from typing import List,  Dict
+from typing import List, Dict
 
 from common.general import asdict_without_nones
 from common.hierarchical_logger import hlog
@@ -10,6 +10,7 @@ from common.hierarchical_logger import hlog
 
 from data_overlap_spec import DataOverlapStats
 from light_scenario import GroupScenarioSpecs, GroupOverlapStats
+
 
 def save_group_overlap_stats_to_jsonl(group_overlap_stats_list: List[GroupOverlapStats], filename: str):
     with open(filename, "a") as f:
@@ -20,7 +21,9 @@ def save_group_overlap_stats_to_jsonl(group_overlap_stats_list: List[GroupOverla
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--overlap_stats_path", type=str, required=True, help="The path to the overlap stats file")
-    parser.add_argument("--group_scenario_specs_path", type=str, required=True, help="The path to the group scenario specs file")
+    parser.add_argument(
+        "--group_scenario_specs_path", type=str, required=True, help="The path to the group scenario specs file"
+    )
     parser.add_argument("--output-data", type=str, required=True, help="The path to the output file")
     args = parser.parse_args()
 
@@ -46,7 +49,11 @@ if __name__ == "__main__":
         num_overlapping_inputs = len(data_overlap_stats.instance_ids_with_overlapping_input)
         num_overlapping_references = len(data_overlap_stats.instance_ids_with_overlapping_reference)
         if n == 13:
-            scenario_spec_overlap_counts[scenario_spec] = (num_instances, num_overlapping_inputs, num_overlapping_references)
+            scenario_spec_overlap_counts[scenario_spec] = (
+                num_instances,
+                num_overlapping_inputs,
+                num_overlapping_references,
+            )
 
     group_scenario_specs_jsons = open(args.group_scenario_specs_path, "r").readlines()
 
@@ -64,14 +71,21 @@ if __name__ == "__main__":
         group_num_overlapping_references = 0
         for scenario_spec in scenario_specs:
             try:
-                num_instances, num_overlapping_inputs, num_overlapping_references = scenario_spec_overlap_counts[scenario_spec]
+                num_instances, num_overlapping_inputs, num_overlapping_references = scenario_spec_overlap_counts[
+                    scenario_spec
+                ]
                 group_num_instances += num_instances
                 group_num_overlapping_inputs += num_overlapping_inputs
                 group_num_overlapping_references += num_overlapping_references
             except Exception as e:
                 pass
         if group_num_instances != 0:
-            group_overlap_stats = GroupOverlapStats(group=group, num_instances=group_num_instances, num_overlapping_inputs=group_num_overlapping_inputs, num_overlapping_references=group_num_overlapping_references)
+            group_overlap_stats = GroupOverlapStats(
+                group=group,
+                num_instances=group_num_instances,
+                num_overlapping_inputs=group_num_overlapping_inputs,
+                num_overlapping_references=group_num_overlapping_references,
+            )
             group_overlap_stats_list.append(group_overlap_stats)
 
     save_group_overlap_stats_to_jsonl(group_overlap_stats_list, args.output_data)
