@@ -1,6 +1,22 @@
 ---
 ############################################################
 models:
+  #Falcon
+  - name: tiiuae/falcon-40b
+    display_name: Falcon LLM gpt (40B)
+    description: Falcon LLM (40B parameters)
+    creator_organization: tiiuae
+    access: limited
+    num_parameters: 43000000000
+    release_date: 2023-06-30
+  #Nemo
+  - name: nemo/gpt-43b-002
+    display_name: Nemo LLM gpt (43B)
+    description: Nemo LLM (43B parameters)
+    creator_organization: Symbl.ai
+    access: limited
+    num_parameters: 43000000000
+    release_date: 2023-06-30
   # Symbl.ai
   - name: symbl/neo-large
     display_name: Symbl Neo Large (30B)
@@ -9,6 +25,37 @@ models:
     access: limited
     num_parameters: 30000000000
     release_date: 2023-06-30
+  - name: symbl/neo-large-few-shot-penalty-alpha-top-k
+    display_name: Symbl Neo Large few shot penalty alpha top k (30B)
+    description: Symbl Neo Large (30B parameters)
+    creator_organization: Symbl.ai
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-06-30
+  - name: symbl/neo-large-zero-shot-penalty-alpha-top-k
+    display_name: Symbl Neo Large zero shot penalty alpha top k (30B)
+    description: Symbl Neo Large (30B parameters)
+    creator_organization: Symbl.ai
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-06-30
+  - name: symbl/neo-large-few-shot
+    display_name: Symbl Neo Large few shot (30B)
+    description: Symbl Neo Large (30B parameters)
+    creator_organization: Symbl.ai
+    access: limited
+    num_parameters: 30000000000
+  - name: symbl/neo-large-zero-shot
+    display_name: Symbl Neo Large zero shot (30B)
+    description: Symbl Neo Large (30B parameters)
+    creator_organization: Symbl.ai
+    access: limited
+    num_parameters: 30000000000
+  # gpt 3.5 temp
+  - name: openai/gpt-3.5-turbo-few-shot,
+    display_name: gpt 3.5 turbo few shot
+  - name: openai/gpt-3.5-turbo-zero-shot,
+    display_name: gpt 3.5 turbo zero shot
   # AI21 Labs
   - name: ai21/j1-jumbo
     display_name: J1-Jumbo v1 (178B)
