@@ -362,23 +362,63 @@ def get_summarization_adapter_spec(num_sents: Optional[int], max_train_instances
     if num_sents == 1:
         out_pref = "Summarize the above article in 1 sentence.\n"
     elif num_sents is None:
-        out_pref = "Summarize the above article.\n"
+        out_pref = "Summarize the below article.\n"
     else:
         out_pref = f"Summarize the above article in {num_sents} sentences.\n"
 
     return AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="",
-        input_prefix="###\nArticle: ",
+        input_prefix=out_pref,
         input_suffix="\n\n",
-        output_prefix=out_pref,
+        output_prefix="",
+        output_suffix="\n",
+        max_train_instances=max_train_instances,
+        num_outputs=max_train_instances,
+        stop_sequences=["###"],  # Separator between few-shot instances.
+        **kwargs,
+    )
+def get_conversation_summarization_adapter_spec(num_sents: Optional[int], max_train_instances: int = 0, **kwargs) -> AdapterSpec:
+    """
+    Used for summarization.
+    """
+
+    if num_sents is None:
+        input_prefix = "Summarize the below conversation.\n"
+    else:
+        input_prefix = f"Summarize the below conversation in {num_sents} sentences.\n"
+
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        input_prefix=input_prefix,
+        input_suffix="\n\n",
+        output_prefix="",
         output_suffix="\n",
         max_train_instances=max_train_instances,
         num_outputs=1,
         stop_sequences=["###"],  # Separator between few-shot instances.
         **kwargs,
     )
+def get_symbl_summarization_adapter_spec(prompt: str, max_train_instances: int = 0, **kwargs) -> AdapterSpec:
+    """
+    Used for summarization.
+    """
 
+    input_prefix = prompt
+
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        input_prefix=input_prefix + "\n",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        max_train_instances=max_train_instances,
+        num_outputs=1,
+        stop_sequences=["###"],  # Separator between few-shot instances.
+        **kwargs,
+    )
 
 def get_machine_translation_adapter_spec(
     source_language, target_language, max_train_instances, **kwargs
@@ -1455,6 +1495,50 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
     )
 
 
+@run_spec_function("conversation_summarization_dialogsum")
+def get_samsum_summarization_spec(temperature: float = 0.3, device: str = "cuda") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.conversation_summarization_scenario.ConversationSummarizationScenario",
+        args={"dataset_name": "dialogsum", "sampling_min_length": 50, "sampling_max_length": 2048, "conversation_max_length": 2048},
+    )
+
+    adapter_spec = get_conversation_summarization_adapter_spec(
+        num_sents=None,
+        max_tokens=512,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
+    )
+
+    return RunSpec(
+        name=f"conversation_summarization_dialogsum:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "conversation_summarization_dialogsum", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=["conversation_summarization_dialogsum"],
+    )
+
+@run_spec_function("conversation_summarization_samsum")
+def get_samsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.conversation_summarization_scenario.ConversationSummarizationScenario",
+        args={"dataset_name": "samsum", "sampling_min_length": 50, "sampling_max_length": 2048, "conversation_max_length": 2048},
+    )
+
+    adapter_spec = get_conversation_summarization_adapter_spec(
+        num_sents=None,
+        max_tokens=512,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
+    )
+
+    return RunSpec(
+        name=f"conversation_summarization_samsum:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "conversation_summarization_samsum", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=["conversation_summarization_samsum"],
+    )
+
 @run_spec_function("summarization_xsum")
 def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -1514,7 +1598,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
     )
 
     adapter_spec = get_summarization_adapter_spec(
-        num_sents=3,
+        num_sents=None,
         max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
     )
@@ -2146,7 +2230,171 @@ def get_opinions_qa_spec(
 
 
 ############################################################
+#symbl run specs
+@run_spec_function("symbl_summarization_bullet_point_general_meetings")
+def get_symbl_summarization_bullet_point_general_meetings_spec(temperature: float = 0.3, device: str = "cuda") -> RunSpec:
+    summarization_prompt = "Summarize this conversation in a list or bullet point format."
+    type_ = "General_List_format/Bullet_point"
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.symbl_summarization_scenario.SymblSummarizationScenario",
+        args={"summary_type": type_,
+              "sampling_min_length": 50,
+              "sampling_max_length": 3588,
+              "conversation_max_length": 3588},
+    )
 
+    adapter_spec = get_symbl_summarization_adapter_spec(
+        prompt=summarization_prompt,
+        max_tokens=512,
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
+    )
+
+    return RunSpec(
+        name=f"symbl_summarization_bullet_point_general_meetings:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "symbl_summarization_bullet_point_general_meetings", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=[f"symbl_summarization_bullet_point_general_meetings"],
+    )
+
+#symbl run specs
+@run_spec_function("symbl_summarization_bullet_point_sales_meetings")
+def get_symbl_summarization_bullet_point_sales_spec(temperature: float = 0.3, device: str = "cuda") -> RunSpec:
+    summarization_prompt = "Summarize this conversation in a list or bullet point format."
+    type_ = "Sales_List_format/Bullet_point"
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.symbl_summarization_scenario.SymblSummarizationScenario",
+        args={"summary_type": type_,
+              "sampling_min_length": 50,
+              "sampling_max_length": 3588,
+              "conversation_max_length": 3588},
+    )
+
+    adapter_spec = get_symbl_summarization_adapter_spec(
+        prompt=summarization_prompt,
+        max_tokens=512,
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
+    )
+
+    return RunSpec(
+        name=f"symbl_summarization_bullet_point_sales_meetings:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": f"symbl_summarization_bullet_point_sales", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=[f"symbl_summarization_bullet_point_sales_meetings"],
+    )
+
+@run_spec_function("symbl_summarization_long_summary_general_meetings")
+def get_symbl_summarization_long_summary_general_meetings_spec(temperature: float = 0.3, device: str = "cuda") -> RunSpec:
+    summarization_prompt = "Summarize this conversation in detail."
+    type_ = "General_long_summary"
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.symbl_summarization_scenario.SymblSummarizationScenario",
+        args={"summary_type": type_,
+              "sampling_min_length": 50,
+              "sampling_max_length": 3588,
+              "conversation_max_length": 3588},
+    )
+
+    adapter_spec = get_symbl_summarization_adapter_spec(
+        prompt=summarization_prompt,
+        max_tokens=512,
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
+    )
+
+    return RunSpec(
+        name=f"symbl_summarization_long_summary_general_meetings:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "symbl_summarization_long_summary_general_meetings", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=[f"symbl_summarization_long_summary_general_meetings"],
+    )
+
+@run_spec_function("symbl_summarization_long_summary_sales_meetings")
+def get_symbl_summarization_long_summary_sales_meetings_spec(temperature: float = 0.3, device: str = "cuda") -> RunSpec:
+    summarization_prompt = "Summarize this conversation in detail."
+    type_ = "Sales_long_summary"
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.symbl_summarization_scenario.SymblSummarizationScenario",
+        args={"summary_type": type_,
+              "sampling_min_length": 50,
+              "sampling_max_length": 3588,
+              "conversation_max_length": 3588},
+    )
+
+    adapter_spec = get_symbl_summarization_adapter_spec(
+        prompt=summarization_prompt,
+        max_tokens=512,
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
+    )
+
+    return RunSpec(
+        name=f"symbl_summarization_long_summary_sales_meetings:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": f"symbl_summarization_long_summary_sales_meetings", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=[f"symbl_summarization_long_summary_sales_meetings"],
+    )
+
+
+@run_spec_function("symbl_summarization_short_summary_general_meetings")
+def get_symbl_summarization_short_summary_general_meetings_spec(temperature: float = 0.3, device: str = "cuda") -> RunSpec:
+    summarization_prompt = "Give a short summary of this conversation."
+    type_ = "General_short_summary"
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.symbl_summarization_scenario.SymblSummarizationScenario",
+        args={"summary_type": type_,
+              "sampling_min_length": 50,
+              "sampling_max_length": 3588,
+              "conversation_max_length": 3588},
+    )
+
+    adapter_spec = get_symbl_summarization_adapter_spec(
+        prompt=summarization_prompt,
+        max_tokens=512,
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
+    )
+
+    return RunSpec(
+        name=f"symbl_summarization_short_summary_general_meetings:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": "symbl_summarization_short_summary_general_meetings", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=[f"symbl_summarization_short_summary_general_meetings"],
+    )
+
+@run_spec_function("symbl_summarization_short_summary_sales_meetings")
+def get_symbl_summarization_short_summary_sales_meetings_spec(temperature: float = 0.3, device: str = "cuda") -> RunSpec:
+    summarization_prompt = "Give a short summary of this conversation."
+    type_ = "Sales_short_summary"
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.symbl_summarization_scenario.SymblSummarizationScenario",
+        args={"summary_type": type_,
+              "sampling_min_length": 50,
+              "sampling_max_length": 3588,
+              "conversation_max_length": 3588},
+    )
+
+    adapter_spec = get_symbl_summarization_adapter_spec(
+        prompt=summarization_prompt,
+        max_tokens=512,
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
+    )
+
+    return RunSpec(
+        name=f"symbl_summarization_short_summary_sales_meetings:temperature={temperature},device={device}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs({"task": f"symbl_summarization_short_summary_sales_meetings", "device": device})
+        + get_generative_harms_metric_specs(),
+        groups=[f"symbl_summarization_short_summary_sales_meetings"],
+    )
+############################################################
 
 def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     """
