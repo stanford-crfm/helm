@@ -37,7 +37,6 @@ if __name__ == "__main__":
     except OSError:
         pass
 
-    scenario_specs: Set = set()
     scenario_specs_to_groups: Dict = dict()
     for run_spec in run_specs:
         scenario_spec = run_spec.scenario_spec
@@ -46,7 +45,6 @@ if __name__ == "__main__":
             scenario_spec.class_name
             != "helm.benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario"
         ):
-            scenario_specs.add(scenario_spec)
             scenario_specs_to_groups[scenario_spec] = groups
 
     group_to_scenario_specs: DefaultDict = defaultdict(list)
