@@ -56,6 +56,6 @@ if __name__ == "__main__":
 
     group_scenario_specs: List = []
     for group, scenario_specs in group_to_scenario_specs.items():
-        group_scenario_specs.append(GroupScenarioSpecs(group=group, scenario_specs=scenario_spec))
+        group_scenario_specs.append(GroupScenarioSpecs(group=group, scenario_specs=scenario_specs))
 
     save_group_scenario_specs_to_jsonl(group_scenario_specs, args.output_data)
