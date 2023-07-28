@@ -50,6 +50,12 @@ class Request:
     frequency_penalty: float = 0
     """Penalize repetition (OpenAI & Writer only)"""
 
+    top_k: int = 2
+    """Top k parameter"""
+
+    penalty_alpha: float = 0.6
+    """Penalty alpha parameter"""
+
     random: Optional[str] = None
     """Used to control randomness. Expect different responses for the same
     request but with different values for `random`."""
