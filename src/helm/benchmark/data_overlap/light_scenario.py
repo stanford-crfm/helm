@@ -8,6 +8,18 @@ except Exception:
 
 
 @dataclass(frozen=True)
+class GroupScenarioSpecs:
+    """
+    Scenario Specs of Group
+    """
+
+    group: str
+
+    scenario_specs: List[ScenarioSpec]
+
+
+
+@dataclass(frozen=True)
 class LightInstance:
     """
     A lighter `Instance` with only text fields.
