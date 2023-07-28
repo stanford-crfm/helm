@@ -1,5 +1,5 @@
 from typing import List, Dict
-
+from dataclasses import replace, asdict
 import requests
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
@@ -33,15 +33,14 @@ class SymblClient(Client):
         raw_request = {
             "prompt": request.prompt,
             "generation_parameters": {
-                "max_new_tokens": 512
+                "max_new_tokens": 512,
+                "penalty_alpha":request.penalty_alpha,
+                "top_k":request.top_k
             }
         }
 
-
         def do_it():
-            # print('make_request.do_it Request: ', raw_request)
             response = requests.post(self.api_base + "/v1/generate", json=raw_request).json()
-            # print('make_request.do_it Response: ', response)
             if "output" not in response:
                 raise Exception("Invalid response from Symbl API: " + str(response))
 
@@ -68,25 +67,37 @@ class SymblClient(Client):
                 tokens=tokens,
             )
         ]
-
         print(completions)
-
         return RequestResult(
             success=True,
             cached=cached,
             request_time=0,
             request_datetime=response.get("request_datetime"),
+            #request_datetime = "request_datetime",
             completions=completions,
             embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         response = requests.post(self.api_base + "/v1/tokenize", json={"text": request.text}).json()
-        # print('tokenize', response)
         return TokenizationRequestResult(
             success=True, cached=False, tokens=[TokenizationToken(text) for text in response["tokens"]], text=request.text
         )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError
+      
+        try:
+            def do_it():
+                response = requests.post(self.api_base + "/v1/decode", json={"tokens":request.tokens}).json()
+                return response
+            cache_key = asdict(request) 
+            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except Exception as e:
+            error: str = f"Symbl decode error: {e}"
+            return DecodeRequestResult(success=False, cached=False, error=error, text="")
+        print(result)
+        return DecodeRequestResult(
+            success=True, cached=cached, text=result["text"], request_time="request_datetime"
+        )
+
 
