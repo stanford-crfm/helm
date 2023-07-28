@@ -10,8 +10,7 @@ from helm.common.hierarchical_logger import hlog
 
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
-from helm.benchmark.data_overlap.light_scenario import  GroupScenarioSpecs
-
+from helm.benchmark.data_overlap.light_scenario import GroupScenarioSpecs
 
 
 def save_group_scenario_specs_to_jsonl(group_scenario_specs: List[GroupScenarioSpecs], filename: str):
@@ -49,15 +48,14 @@ if __name__ == "__main__":
         ):
             scenario_specs.add(scenario_spec)
             scenario_specs_to_groups[scenario_spec] = groups
-    
+
     group_to_scenario_specs: DefaultDict = defaultdict(list)
     for scenario_spec, groups in scenario_specs_to_groups.items():
         for group in groups:
             group_to_scenario_specs[group].append(scenario_spec)
 
-
     group_scenario_specs: List = []
     for group, scenario_specs in group_to_scenario_specs.items():
-        group_scenario_specs.append(GroupScenarioSpecs( group=group, scenario_specs=scenario_spec))
+        group_scenario_specs.append(GroupScenarioSpecs(group=group, scenario_specs=scenario_spec))
 
-    save_group_scenario_specs_to_jsonl( group_scenario_specs, args.output_data)
+    save_group_scenario_specs_to_jsonl(group_scenario_specs, args.output_data)

@@ -18,7 +18,6 @@ class GroupScenarioSpecs:
     scenario_specs: List[ScenarioSpec]
 
 
-
 @dataclass(frozen=True)
 class LightInstance:
     """
