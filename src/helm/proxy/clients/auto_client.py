@@ -22,9 +22,6 @@ from .aleph_alpha_client import AlephAlphaClient
 from .anthropic_client import AnthropicClient
 from .chat_gpt_client import ChatGPTClient
 from .cohere_client import CohereClient
-from .symbl_client import SymblClient
-from .nemo_client import NemoClient
-from .falcon_client import FalconClient
 from .together_client import TogetherClient
 from .google_client import GoogleClient
 from .goose_ai_client import GooseAIClient
@@ -176,12 +173,6 @@ class AutoClient(Client):
                 from helm.proxy.clients.megatron_client import MegatronClient
 
                 client = MegatronClient(cache_config=cache_config)
-            elif organization == "symbl":
-                client = SymblClient(cache_config=cache_config)
-            elif organization == "nemo":
-                client = NemoClient(cache_config=cache_config)
-            elif organization == "tiiuae":
-                client = FalconClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client
@@ -278,12 +269,6 @@ class AutoClient(Client):
                 from helm.proxy.clients.megatron_client import MegatronClient
 
                 client = MegatronClient(cache_config=cache_config)
-            elif organization == "symbl":
-                client = SymblClient(cache_config=cache_config)
-            elif organization == "nemo":
-                client = NemoClient(cache_config=cache_config)
-            elif organization == "tiiuae":
-                client = FalconClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client
