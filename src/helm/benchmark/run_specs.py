@@ -1884,6 +1884,21 @@ def get_pubmed_qa_spec() -> RunSpec:
     )
 
 
+@run_spec_function("fin_qa")
+def get_fin_qa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.fin_qa_scenario.FinQAScenario", args={})
+
+    adapter_spec = get_generation_adapter_spec(input_noun=None, output_noun="Answer", max_tokens=20)
+
+    return RunSpec(
+        name="fin_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["fin_qa"],
+    )
+
+
 def build_classification_metrics(task_type):
     if task_type in [TaskType.QA, TaskType.SLTC]:
         return get_classification_metric_specs(delimiter=None)
