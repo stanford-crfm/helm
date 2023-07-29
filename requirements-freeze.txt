@@ -131,6 +131,7 @@ openai==0.27.8
 opencv-python==4.7.0.68
 openpyxl==3.1.0
 opt-einsum==3.3.0
+orbax==0.1.2
 outcome==1.2.0
 packaging==23.0
 pandas==1.5.3
