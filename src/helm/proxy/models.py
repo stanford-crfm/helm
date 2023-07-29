@@ -116,23 +116,6 @@ class Model:
 
 ALL_MODELS = [
     #falcon model
-    Model(group="tiiuae",
-          name="tiiuae/falcon-40B",
-          tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-          ),
-    #Nemo model
-    Model(group="nemo",
-          name="nemo/gpt-43b-002",
-          tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-          ),
-    # Symbl.ai - Neo Models
-    Model(group="neo",
-          creator_organization="Symbl.ai",
-          name="symbl/neo-large",
-          display_name="Symbl Neo Large",
-          description="Symbl Neo Large (30B parameters)",
-          tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-          ),
 
     # AI21: https://studio.ai21.com/pricing
     Model(
