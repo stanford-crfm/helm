@@ -21,8 +21,8 @@ from helm.common.tokenization_request import (
 )
 from .client import Client, truncate_sequence, wrap_request_time
 
-os.environ['NGC_API_KEY'] = "MTZpaW1ydGxqZ2cyazEzOWtuMW4wMWdsdDM6OWE5ZDAxZGEtZDNmYi00ZDZjLWJhYzMtM2VkMjE0ZjZmOWIy"
-os.environ['NGC_ORG_ID'] = "o1rcmzgmnyys"
+os.environ['NGC_API_KEY'] = ""
+os.environ['NGC_ORG_ID'] = ""
 
 
 def create_token_chunks(transcript, tokenizer, max_token_per_chunk):
