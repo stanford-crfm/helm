@@ -153,8 +153,8 @@ class EmpatheticDialoguesScenario(Scenario):
                     if len(conv_df) < 2:
                         continue  # Filter conversations without 2 speaker utterances
                     grouped_df = conv_df.sort_values("utterance_idx")
-                    initiator = Speaker(id=grouped_df.iloc[0]["speaker_idx"], initiator=True, name="Bob")
-                    listener = Speaker(id=grouped_df.iloc[1]["speaker_idx"], initiator=False, name="Jen")
+                    initiator = Speaker(id=grouped_df.iloc[0]["speaker_idx"], initiator=True, name="Speaker A")
+                    listener = Speaker(id=grouped_df.iloc[1]["speaker_idx"], initiator=False, name="Speaker B")
                     speakers = {initiator.id: initiator, listener.id: listener}
 
                     # Create a list of utterances
@@ -270,10 +270,10 @@ class WizardOfWikipediaScenario(Scenario):
                         continue
 
                     # Create Speakers
-                    apprentice_sp = Speaker(id=0, initiator=True, name="Bob")
-                    apprentice_lis = Speaker(id=1, initiator=False, name="Bob")
-                    wizard_sp = Speaker(id=2, initiator=True, name="Jen")
-                    wizard_lis = Speaker(id=3, initiator=False, name="Jen")
+                    apprentice_sp = Speaker(id=0, initiator=True, name="Speaker A")
+                    apprentice_lis = Speaker(id=1, initiator=False, name="Speaker A")
+                    wizard_sp = Speaker(id=2, initiator=True, name="Speaker B")
+                    wizard_lis = Speaker(id=3, initiator=False, name="Speaker B")
                     speakers = {
                         "0_Apprentice": apprentice_sp,
                         "1_Wizard": wizard_lis,
@@ -408,7 +408,7 @@ class CommonSenseScenario(Scenario):
             with open(file_path) as fin:
                 samples = json.load(fin)
 
-            listener = Speaker(id=0, initiator=False, name="Bob")
+            listener = Speaker(id=0, initiator=False, name="Speaker A")
             idx = 0
             for context, samps in self._group_samples_by_context(samples).items():
                 if splits[split] in EVAL_SPLITS and not is_whitelisted(context, whitelisted_prompts):
