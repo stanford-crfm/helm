@@ -113,6 +113,7 @@
 						Question {{currentQuestionIdx+1}} of {{questions.length}} <br>
 						<div class="form-row">
 							<label class='instruction' for="{{currentQuestion.tag}}"> {{currentQuestion.text}}</label>
+							<div v-if="currentQuestion.hint !== null">{{currentQuestion.hint}}</div>
 							<div class='ternary-options'>
 								<ul class="list-group" v-if="currentQuestion.type=='turn-ternary'">  
 									<li class="list-group-item"> <label class="btn btn-success"><i class="bi bi-emoji-smile"></i></label> &nbsp; {{currentQuestion.options.positive}} </li>
@@ -159,7 +160,7 @@
 									<span>
 									<input class="form-check-input" id="{{currentQuestion.tag}}-why-{{option}}" type="checkbox" name="{{currentQuestion.tag}}-why"margin-right=10px
 									@click="toggleSelectedReason(option);" :checked="this.currentQuestion.selectedReasons.includes(option)">
-                    				<label class="form-check-label" id="{{currentQuestion.tag}}-why-{{option}}" margin-left=10px>{{option}}</label>
+                    				<label class="form-check-label" id="{{currentQuestion.tag}}-why-{{option}}" margin-left=10px style="word-break: break-word">{{option}}</label>
 									</span>
 									</div>
 									<div>
@@ -170,6 +171,9 @@
 									</span>
 									</div>
 								</div>
+								<div class="section-header" v-else-if="currentQuestion.type=='section-header'">
+									<header class="instruction" id="{{currentQuestion.tag}}" name="{{currentQuestion.tag}}"> {{currentQuestion.text}} </header>
+									</div>
 								<div style="margin-top:15px">
 									<header class="instruction">Please rate your agreement with the statement given above</header>
 									<select class="form-select" name="{{currentQuestion.tag}}-likert" v-model="currentQuestion.rating" id="{{currentQuestion.tag}}-likert">
@@ -190,7 +194,7 @@
 												:disabled="currentQuestionIdx<=0" type="button">Prev</button>
 								<button class='btn btn-outline-success' @click="submitAnswers()" v-if="isInterviewOver"
 																																								 type="button">Submit</button>
-								<button class='btn btn-outline-primary' v-else @click="nextQuestion()"
+								<button class='btn btn-outline-primary' v-else @click="nextQuestion()" 
 												type="button">Next</button>
 							</div>
 						</div>

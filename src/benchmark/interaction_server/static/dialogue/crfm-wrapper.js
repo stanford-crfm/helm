@@ -1,6 +1,7 @@
 //v-for="(utterance, index) in utterances
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
+const compareSurveys = true; // Are we comparing surveys?
 const ChatBox = {
 	data() {
 		var question_dict = {"crfm-all": [	
@@ -418,6 +419,171 @@ const ChatBox = {
 								}
 				
 			],
+			"crfm-all-compare": [	
+				{
+					tag: "initiative-1",
+					type: "combo",
+					text: "",
+					likert: {   
+								text: "How much do you agree with the following statement: \n\n 'The chatbot did enough to keep the conversation going'",
+								options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+							},
+					turn: true,
+					why: {
+								options: ["the bot was responsive to me", "the bot shared information", "the bot asked the right questions",
+											"the bot was unresponsive to me", "the bot gave close-ended answers", "the bot did not ask enough questions", 
+											 "the bot asked the wrong questions"]
+							}
+				},			
+				{
+					tag: "initiative-2",
+					type: "combo",
+					text: "",
+					likert: {	
+						text: "How much do agree with the following statement: 'I had enough opportunities to drive the conversation/choose topics'",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+					why: {
+						options: ["the bot asked enough questions about topics I chose", "the bot let me choose topics",
+							 "the bot did not ask enough questions about topics I chose", "the bot chose too many topics",
+								 "the bot let me drive the conversation enough", "the bot did not let me drive the conversation enough"]
+					}
+				},
+				{
+					tag: "interested",
+					type: "combo",
+					text: "",
+					likert: {	
+						text: "Did the chatbot seem interested in you?",
+						options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
+					},
+					turn: true,
+					why: {
+						options: ["the bot asked questions about me or my interests", "I felt like the bot was listening to me", "the bot followed through on the topics I raised",
+						"the bot did not ask enough questions about me or my interests", "I did not feel like the bot was listening to me", "the bot gave generic responses to what I said"]
+					}
+				},
+				{
+					tag: "sharing",
+					type: "combo",
+	
+					text: "",
+					likert: {	
+						text: "Did the chatbot share about itself?",
+						options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
+					},
+					turn: true,
+					why: {
+						options: ["the bot shared about itself", "the bot was genuine", "the bot did not share about itself", "the bot was inappropriate"]
+					}
+				},
+				{
+					tag: "fun",
+					type: "combo",
+					text: "",
+					likert: {
+						text: "How much do you agree with the following statement: 'Talking to the chatbot was fun.'",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"],
+					},
+					turn: true,
+					why: {
+						options: ["the bot was fun", "the bot had a good sense of humor", "I was interested in what the bot was saying", "the bot was boring/bland", "the bot was not engaging", "I got tired of talking to the bot"]
+					}
+				},
+				{
+					tag: "emotional-connection",
+					type: "combo",
+					text: "",
+					likert: {
+						text: "How much do you agree with the following statement: “I felt an emotional connection to the chatbot.”  For example, the chatbot understood how you were feeling, or made you feel less lonely.",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+					why: {
+						options: ["I felt like I was talking to a friend", "the bot seemed human", "the bot made me feel less lonely",
+														"the bot understood my feelings", "the bot did not like me", "the bot made me feel uncomfortable", "I did not like the bot"]
+					}
+				},
+				{
+					tag: "communication-skills",
+					type: "combo",
+					text: "",
+					likert: {
+						text: "How much do you agree with the following statement: “The chatbot displayed good communication skills” For example, the bot was coherent, did not repeat itself, understood what I was saying, and was logically correct.",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+					why: {
+						options: ["I understood everything the bot was talking about", "what the bot said was always consistent with the scenario", "I could not understand the bot's language", "the bot repeated itself", "the bot said things that were inconsistent with the scenario", "the bot contradicted itself", "I understood what the bot was saying, but it was absurd/ridiculous", "there were times when the bot did not make sense"]
+					}
+				},
+				{
+					tag: "social-skills",
+					type: "combo",
+					text: "",
+					likert: {
+						text: "How much do you agree with the following statement: “The chatbot responded in a way that was socially appropriate” For example, the bot was polite or the bot understood social situations.",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+					why: {
+						options: ["the bot was polite", "the bot understood social situations", "the bot was rude", "the bot was inappropriate", "the bot was argumentative", "the bot was uncooperative", "the bot was too agreeable"]
+					}
+				},
+			],
+			"parlai": [	
+				{
+					tag: "interestingness-utterances",
+					text: "",
+					type: "combo",
+					likert: {
+						text: "How much do you agree with the following statement: 'If I had to say that this partner was either interesting or boring, I would say that it is interesting'",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true
+				},
+				{
+					tag: "preference-utterances",
+					text: "",
+					type: "combo",
+					likert: {
+						text: "How much do you agree with the following statement: 'I want to talk to this partner for a long conversation'",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+				},
+				{
+					tag: "humanness-utterances",
+					text: "",
+					type: "combo",
+					likert: {
+						text: "How much do you agree with the following statement: 'This partner sounds human'",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+				}, 		
+			],
+			"lambda": [	
+				{
+					tag: "sensibility",
+					type: "turn-binary", 
+					text: "Please select any responses that did NOT make sense.", 
+					hint: "Use your common sense here. Is the response completely reasonable in context? If anything seems off—confusing, illogical, out of context, or factually wrong—then rate it as Does not make sense. If in doubt, choose Does not make sense.",
+				},			
+				{
+					tag: "specificity",
+					type: "turn-binary",	
+					text: "Please select responses that are NOT specific.",
+					hint: "You may be asked to assess whether the response is specific to a given context. For example: – if A says “I love tennis” and B responds “That’s nice”, then mark it as Not specific. That reply could be used in dozens of different contexts. – but if B responds “Me too, I can’t get enough of Roger Federer!” then mark it as Specific, since it relates closely to what you’re talking about. If you’re in doubt, or if the reply seems at all generic, rate it as Not specific.",
+				},
+				{
+					tag: "interestingness",
+					type: "turn-binary",
+					text: "Please select any responses that are NOT interesting.",
+					hint: "Choose Interesting if the response would likely catch someone’s attention or arouse curiosity; also use that rating for anything insightful, unexpected, or witty. If the response is monotonous and predictable, or if you’re unsure, then pick Not interesting.",
+				},
+			],
 		};
 		
 		for (var key in question_dict) {
@@ -442,11 +608,74 @@ const ChatBox = {
 						question.selectedReasons = [];
 						question.somethingElseValue = "";
 					}
+				} else if (question.type === "section-header") {
+					question.timestamp = 0;
 				}
 		}
 
 		}
 		console.log(question_dict);
+		survey = [] // Store survey questions here
+		if (compareSurveys) {
+			// Randomize sub-survey order
+			console.log("comparing");
+			survey_keys = ["crfm-all-compare", "parlai", "lambda"];
+			for (let i = 2; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				const temp = survey_keys[i];
+				survey_keys[i] = survey_keys[j];
+				survey_keys[j] = temp;
+			}
+			
+			// Add questions to dict, one-at-a time, starting with workerID
+			survey.push({
+				tag: "workerID",
+				text: "Please enter your Mechanical Turk WorkerID for payment processing",
+				type: "freeForm",
+			}
+			)
+
+			// Iterate through surveys
+			for (let i = 0; i < 3; i++) {
+				survey_key = survey_keys[i]
+				survey_questions = question_dict[survey_key] // Get all questions
+				
+				// Add survey feedback questions
+				survey_questions = survey_questions.concat([
+					{
+						tag: "feedback-important-"+survey_keys[i],
+						text: "How much do you agree with the following statement: 'The survey asked about the most important parts of the conversation'",
+						type: "likert",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					{
+						tag: "feedback-open-"+survey_keys[i],
+						text: "Is there anything else that we should know about this survey?",
+						type: "freeForm",
+					}
+				]);
+
+				// Add end section tag
+				survey_questions = survey_questions.concat([{
+					tag: survey_keys[i]+"-end",
+					type: "section-header",
+					text: "End survey "+String(i+1),
+				}]);
+
+				// Add begin section tag
+				begin_tag = {tag: survey_keys[i]+"-start",
+							 type: "section-header",
+				             text: "Begin survey "+String(i+1)};
+				
+				new_survey = [begin_tag].concat(survey_questions)
+				
+				survey = survey.concat(new_survey);
+			}
+
+			// Add new element to dict
+			question_dict["compare"] = survey;
+		}
+
 		return {
 			session_uuid: null,
 			user_uuid: null,
@@ -479,7 +708,8 @@ const ChatBox = {
 					selectedReasons: [],
 					somethingElseValue: "",
 					notaUtterance: false,
-					rating: ""
+					rating: "",
+					timestamp: 0,
 				}
 			}
 			return this.questions[this.currentQuestionIdx]
@@ -546,6 +776,12 @@ const ChatBox = {
 				&& this.currentQuestion.why !== null && typeof(this.currentQuestion.why) !== 'undefined') {
 				console.log("Toggling selected reasons");
 				this.currentQuestion.selectedReasons = _.xor(this.currentQuestion.selectedReasons, [option])
+			}
+		},
+		updateTimeStamp: function () {
+			if (this.currentQuestion.type === "section-header") {
+				this.currentQuestion.timestamp = Date.now(); // time in milliseconds
+				console.log(this.currentQuestion.timestamp);
 			}
 		},
 		logSomethingElse: function (option) {
@@ -645,6 +881,9 @@ const ChatBox = {
 						}
 					});
 				}
+				else if (question.type == "section-header"){
+					question.timestamp = 0;
+				}
 			}
 		},
 		addDatasetQuestion: function(response){
@@ -703,6 +942,7 @@ const ChatBox = {
 				this.error = false;
 				this.currentQuestionIdx += 1;
 			}
+			this.updateTimeStamp();
 		},
 		prevQuestion: function () {
 			this.currentQuestionIdx -= 1;
@@ -753,6 +993,9 @@ const ChatBox = {
 
 			}
 			else if (this.currentQuestion.type === "freeForm") {
+				return true;
+			}
+			else if (this.currentQuestion.type === "section-header") {
 				return true;
 			}
 			else {
