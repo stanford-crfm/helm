@@ -22,6 +22,7 @@ from helm.common.codec import from_json
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.data_overlap.read_overlap_stats import read_overlap_stats, get_group_overlap_stats
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -241,6 +242,7 @@ class Summarizer:
         self.schema = read_schema()
         self.contamination = read_contamination()
         validate_contamination(self.contamination, self.schema)
+        self.overlap_stats = read_overlap_stats()
 
     def read_run(self, run_path: str) -> Run:
         """Load the `Run` object from `run_path`."""
@@ -708,6 +710,19 @@ class Summarizer:
                 else:
                     description = ""
                     contamination_level = None
+
+                group_overlap_stats = get_group_overlap_stats(self.overlap_stats, model_name, group_name)
+                if group_overlap_stats:
+                    num_instances = group_overlap_stats.num_instances
+                    num_overlapping_inputs = group_overlap_stats.num_overlapping_inputs
+                    num_overlapping_references = group_overlap_stats.num_overlapping_references
+                    overlapping_input_ratio = num_overlapping_inputs / num_instances 
+                    overlapping_reference_ratio = num_overlapping_references / num_instances 
+                    description = (
+                        f'Overlapping input ratio: {overlapping_input_ratio:.3f}\n'
+                        f'Overlapping reference ratio: {overlapping_reference_ratio:.3f}\n'
+                        f'{description}'
+                    )
 
                 # HACK: we want to hide stats for the following model-metric combinations:
                 # 1. Calibration metrics + AI21/Anthropic
