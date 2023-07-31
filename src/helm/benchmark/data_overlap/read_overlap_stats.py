@@ -11,13 +11,16 @@ PILE_OVERLAP_STATS_FILENAME: str = "overlap_stats.jsonl"
 
 
 def read_overlap_stats() -> List[AllGroupOverlapStats]:
-    overlap_stats_path = resources.files(OVERLAP_STATS_PACKAGE).joinpath(PILE_OVERLAP_STATS_FILENAME)
-    overlap_stats_jsons = open(overlap_stats_path, "r").readlines()
-    overlap_stats_list = []
-    for overlap_stats_json in overlap_stats_jsons:
-        overlap_stats_dict = json.loads(overlap_stats_json)
-        overlap_stats_list.append(cattrs.structure(overlap_stats_dict, AllGroupOverlapStats))
-    return overlap_stats_list
+    try:
+        overlap_stats_path = resources.files(OVERLAP_STATS_PACKAGE).joinpath(PILE_OVERLAP_STATS_FILENAME)
+        overlap_stats_jsons = open(overlap_stats_path, "r").readlines()
+        overlap_stats_list = []
+        for overlap_stats_json in overlap_stats_jsons:
+            overlap_stats_dict = json.loads(overlap_stats_json)
+            overlap_stats_list.append(cattrs.structure(overlap_stats_dict, AllGroupOverlapStats))
+        return overlap_stats_list
+    except Exception:
+        return []
 
 
 def get_group_overlap_stats(
