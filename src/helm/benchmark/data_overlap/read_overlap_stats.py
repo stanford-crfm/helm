@@ -1,12 +1,9 @@
-from dataclasses import dataclass
-from typing import List, Optional
 import cattrs
 import importlib_resources as resources
-
-
 import json
-import cattrs
-from typing import List, Dict
+from typing import List, Optional
+
+
 from helm.benchmark.data_overlap.light_scenario import AllGroupOverlapStats, GroupOverlapStats
 
 OVERLAP_STATS_PACKAGE: str = "helm.benchmark.static"
