@@ -25,7 +25,7 @@ def read_overlap_stats() -> List[AllGroupOverlapStats]:
 
 def get_group_overlap_stats(
     overlap_stats_list: List[AllGroupOverlapStats], model: str, group: str
-) -> GroupOverlapStats:
+) -> Optional[GroupOverlapStats]:
     for overlap_stats in overlap_stats_list:
         models = overlap_stats.models
         if model in models:
@@ -34,3 +34,4 @@ def get_group_overlap_stats(
                 curr_group = group_overlap_stats.group
                 if curr_group == group:
                     return group_overlap_stats
+    return None
