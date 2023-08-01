@@ -3,6 +3,7 @@ Script to aggregate the overlap stats at a group level,
 given scenario_specs associated with a group
 and overlap stats at scenario_spec level
 """
+
 import json
 import cattrs
 import argparse
