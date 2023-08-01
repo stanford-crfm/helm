@@ -19,7 +19,7 @@ def read_overlap_stats() -> List[AllGroupOverlapStats]:
             overlap_stats_dict = json.loads(overlap_stats_json)
             overlap_stats_list.append(cattrs.structure(overlap_stats_dict, AllGroupOverlapStats))
         return overlap_stats_list
-    except Exception:
+    except FileNotFoundError:
         return []
 
 

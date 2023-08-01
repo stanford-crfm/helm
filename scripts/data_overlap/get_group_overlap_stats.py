@@ -47,7 +47,7 @@ if __name__ == "__main__":
         n = data_overlap_stats_key.overlap_protocol_spec.n
         num_overlapping_inputs = len(data_overlap_stats.instance_ids_with_overlapping_input)
         num_overlapping_references = len(data_overlap_stats.instance_ids_with_overlapping_reference)
-        if n == 13:
+        if args.n:
             scenario_spec_overlap_counts[scenario_spec] = (
                 num_instances,
                 num_overlapping_inputs,
