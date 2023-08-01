@@ -1,7 +1,7 @@
 """
 Get the scenario_specs associated with a group,
 as overlap stats are at scenario_spec level,
-but the web displays at group level, 
+but the web displays at group level,
 and scenario_specs don't contain group info
 """
 
