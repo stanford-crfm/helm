@@ -45,6 +45,10 @@ if __name__ == "__main__":
         scenario_spec = light_scenario_key.scenario_spec
         num_instances = data_overlap_stats.num_instances
         n = data_overlap_stats_key.overlap_protocol_spec.n
+        """
+        TODO: here we are currently just aggregating across all instance ids
+        for a given scenario rather than the subset run on HELM
+        """
         num_overlapping_inputs = len(data_overlap_stats.instance_ids_with_overlapping_input)
         num_overlapping_references = len(data_overlap_stats.instance_ids_with_overlapping_reference)
         if args.n:
