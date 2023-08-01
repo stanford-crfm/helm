@@ -13,6 +13,8 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
+from helm.proxy.clients.ai21_model_registry import get_ai21_model_config
+from helm.proxy.retry import NonRetriableException
 from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
@@ -38,6 +40,8 @@ class AI21Client(Client):
             error_message += f" Detail: {response['detail']}"
         if "Error" in response:
             error_message += f" Error: {response['Error']}"
+        else:
+            error_message += f" Response: {response}"
 
         raise AI21RequestError(error_message)
 
@@ -60,14 +64,15 @@ class AI21Client(Client):
         }
 
         def do_it():
-            url_template: str = (
-                AI21Client.EXPERIMENTAL_COMPLETION_URL_TEMPLATE
-                if request.model_engine == "j1-grande-v2-beta"
-                else AI21Client.COMPLETION_URL_TEMPLATE
-            )
+            model_config = get_ai21_model_config(request.model)
+            if not model_config:
+                raise NonRetriableException(f"Could not find AI21ModelConfig for model {request.model}")
+            api_key = self.api_key
+            if model_config.api_key:
+                api_key = model_config.api_key
             response = requests.post(
-                url_template.format(model=request.model_engine),
-                headers={"Authorization": f"Bearer {self.api_key}"},
+                model_config.url,
+                headers={"Authorization": f"Bearer {api_key}", "X-API-Key": api_key},
                 json=raw_request,
             ).json()
 
