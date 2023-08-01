@@ -10,7 +10,18 @@ except Exception:
 @dataclass(frozen=True)
 class GroupScenarioSpecs:
     """
-    Scenario Specs of Group
+    Scenario Specs associated with a given Group
+    e.g.
+    {
+        "group": "disinformation_wedging",
+        "scenario_specs":
+        [
+            {
+                "class_name": "helm.benchmark.scenarios.disinformation_scenario.DisinformationScenario",
+                "args": {"capability": "wedging", "topic": "covid"}
+            }
+        ]
+    }
     """
 
     group: str
@@ -20,7 +31,16 @@ class GroupScenarioSpecs:
 
 @dataclass(frozen=True)
 class GroupOverlapStats:
-    """Dataclass that represents group data overlap stats"""
+    """
+    Dataclass that represents group data overlap stats
+    e.g.
+    {
+        "group": "natural_qa_closedbook",
+        "num_instances": 2144,
+        "num_overlapping_inputs": 1,
+        "num_overlapping_references": 100
+    }
+    """
 
     group: str
 
@@ -33,7 +53,19 @@ class GroupOverlapStats:
 
 @dataclass(frozen=True)
 class AllGroupOverlapStats:
-    """Dataclass that represents all group data overlap stats"""
+    """
+    Dataclass that represents all group data overlap stats
+    e.g.
+    {"models": ["together/bloom", "together/gpt-j-6b", ...],
+    "group_overlap_stats_list": [
+        {
+            "group": "natural_qa_closedbook",
+            "num_instances": 2144,
+            "num_overlapping_inputs": 1,
+            "num_overlapping_references": 100
+        }
+        ...
+    """
 
     models: List[str]
 

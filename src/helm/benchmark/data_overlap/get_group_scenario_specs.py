@@ -1,5 +1,11 @@
+"""
+Get the scenario_specs associated with a group,
+as overlap stats are at scenario_spec level,
+but the web displays at group level, 
+and scenario_specs don't contain group info
+"""
+
 import json
-import os
 import argparse
 from typing import List, DefaultDict, Dict
 from collections import defaultdict
@@ -12,8 +18,10 @@ from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
 from helm.benchmark.data_overlap.light_scenario import GroupScenarioSpecs
 
+OVERLAP_SCENARIO_PRIORITY = 4
 
-def save_group_scenario_specs_to_jsonl(group_scenario_specs: List[GroupScenarioSpecs], filename: str):
+
+def append_group_scenario_specs_to_jsonl(group_scenario_specs: List[GroupScenarioSpecs], filename: str):
     with open(filename, "a") as f:
         for scenario_spec_groups in group_scenario_specs:
             f.write(json.dumps(asdict_without_nones(scenario_spec_groups), ensure_ascii=False) + "\n")
@@ -29,13 +37,8 @@ if __name__ == "__main__":
     run_entries = read_run_entries(args.run_specs).entries
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
-        priority=4,
+        priority=OVERLAP_SCENARIO_PRIORITY,
     )
-
-    try:
-        os.remove(args.output_data)
-    except OSError:
-        pass
 
     scenario_specs_to_groups: Dict = dict()
     for run_spec in run_specs:
@@ -56,4 +59,4 @@ if __name__ == "__main__":
     for group, scenario_specs in group_to_scenario_specs.items():
         group_scenario_specs.append(GroupScenarioSpecs(group=group, scenario_specs=scenario_specs))
 
-    save_group_scenario_specs_to_jsonl(group_scenario_specs, args.output_data)
+    append_group_scenario_specs_to_jsonl(group_scenario_specs, args.output_data)

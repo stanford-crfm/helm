@@ -1,6 +1,10 @@
+"""
+Script to aggregate the overlap stats at a group level,
+given scenario_specs associated with a group
+and overlap stats at scenario_spec level
+"""
 import json
 import cattrs
-import os
 import argparse
 from typing import List, Dict
 
@@ -10,27 +14,23 @@ from data_overlap_spec import DataOverlapStats
 from light_scenario import GroupScenarioSpecs, GroupOverlapStats, AllGroupOverlapStats
 
 
-def save_group_overlap_stats_to_jsonl(all_group_overlap_stats: AllGroupOverlapStats, filename: str):
+def append_group_overlap_stats_to_jsonl(all_group_overlap_stats: AllGroupOverlapStats, filename: str):
     with open(filename, "a") as f:
         f.write(json.dumps(asdict_without_nones(all_group_overlap_stats), ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--overlap_stats_path", type=str, required=True, help="The path to the overlap stats file")
+    parser.add_argument("--overlap-stats", type=str, required=True, help="The path to the overlap stats file")
     parser.add_argument(
-        "--group_scenario_specs_path", type=str, required=True, help="The path to the group scenario specs file"
+        "--group-scenario-specs", type=str, required=True, help="The path to the group scenario specs file"
     )
     parser.add_argument("--output-data", type=str, required=True, help="The path to the output file")
     parser.add_argument("--models", nargs="*", required=False, help="The name(s) of the model(s)")
+    parser.add_argument("--n", type=int, default=13, required=False, help="The ngrams we're getting the stats of")
     args = parser.parse_args()
 
-    try:
-        os.remove(args.output_data)
-    except OSError:
-        pass
-
-    overlap_stats_jsons = open(args.overlap_stats_path, "r").readlines()
+    overlap_stats_jsons = open(args.overlap_stats, "r").readlines()
 
     data_overlap_stats_list = []
     for overlap_stats_json in overlap_stats_jsons:
@@ -53,9 +53,9 @@ if __name__ == "__main__":
                 num_overlapping_references,
             )
 
-    group_scenario_specs_jsons = open(args.group_scenario_specs_path, "r").readlines()
+    group_scenario_specs_jsons = open(args.group_scenario_specs, "r").readlines()
 
-    group_scenario_specs_list: List = []
+    group_scenario_specs_list: List[GroupScenarioSpecs] = []
     for group_scenario_specs_json in group_scenario_specs_jsons:
         group_scenario_specs_dict = json.loads(group_scenario_specs_json)
         group_scenario_specs_list.append(cattrs.structure(group_scenario_specs_dict, GroupScenarioSpecs))
@@ -68,15 +68,13 @@ if __name__ == "__main__":
         group_num_overlapping_inputs = 0
         group_num_overlapping_references = 0
         for scenario_spec in scenario_specs:
-            try:
+            if scenario_spec in scenario_spec_overlap_counts:
                 num_instances, num_overlapping_inputs, num_overlapping_references = scenario_spec_overlap_counts[
                     scenario_spec
                 ]
                 group_num_instances += num_instances
                 group_num_overlapping_inputs += num_overlapping_inputs
                 group_num_overlapping_references += num_overlapping_references
-            except Exception:
-                pass
         if group_num_instances != 0:
             group_overlap_stats = GroupOverlapStats(
                 group=group,
@@ -88,4 +86,4 @@ if __name__ == "__main__":
     all_group_overlap_stats = AllGroupOverlapStats(
         group_overlap_stats_list=group_overlap_stats_list, models=args.models
     )
-    save_group_overlap_stats_to_jsonl(all_group_overlap_stats, args.output_data)
+    append_group_overlap_stats_to_jsonl(all_group_overlap_stats, args.output_data)
