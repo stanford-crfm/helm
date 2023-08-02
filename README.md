@@ -1,4 +1,13 @@
 <!--intro-start-->
+
+# Add a new dataset
+
+Follow this PR as an example
+
+1. Create a new scenario
+2. Add new entry in run_specs
+3. `helm-run -r markscenario2 -m 10 --suite v1`
+
 # Holistic Evaluation of Language Models
 
 [comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)

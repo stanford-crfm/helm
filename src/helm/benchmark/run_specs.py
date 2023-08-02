@@ -37,6 +37,7 @@ from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
+from .scenarios.markscenario2 import MarkScenario2
 from .scenarios.lextreme_scenario import (
     get_lextreme_instructions,
     get_lextreme_max_train_instances,
@@ -418,6 +419,11 @@ def get_scenario_spec_tiny():
         args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 2, "num_test_instances": 2},
     )
 
+def get_scenario_spec_mark() -> ScenarioSpec:
+    return ScenarioSpec(
+        class_name="helm.benchmark.scenarios.markscenario2.MarkScenario2",
+        args={"num_input_tokens": 30, "vocab_size": 32000, "num_train_instances": 2, "num_test_instances": 2},
+    )
 
 def get_adapter_spec1() -> AdapterSpec:
     return AdapterSpec(
@@ -650,6 +656,17 @@ def get_simple1_spec() -> RunSpec:
         groups=[],
     )
 
+
+@run_spec_function("markscenario2")
+def get_markscenario2_spec() -> RunSpec:
+    """A run spec for debugging."""
+    return RunSpec(
+        name="markscenario2",
+        scenario_spec=get_scenario_spec_mark(),
+        adapter_spec=get_adapter_spec1(),
+        metric_specs=get_basic_metric_specs([]),
+        groups=[],
+    )
 
 @run_spec_function("bbq")
 def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
