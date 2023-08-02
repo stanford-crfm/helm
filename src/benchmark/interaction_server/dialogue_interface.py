@@ -22,16 +22,16 @@ from completion_codes import COMPLETION_CODES
 
 # Hard code names for CommonSense scenarios used in Mturk testing
 commonsense_scenario_to_name = {
-    "Tracy went to a party with Lee's friends and had a great time with the crew.": "Tracy",
-    "Riley is throwing a surprise party for their boss. Riley sends out an email to all the employees devising a plan and asking they keep the secret.": "Riley",
-    "Kendall couldn't afford a regular cable bill, so they often went to Sasha's house for TV. This month, Sasha wasn't able to pay their bill so Kendall covered it.": "Kendall",
-    "Taylor looked behind Jan to see if there was a rip in Jan's clothes like there was in the front of their clothes.": "Taylor",
-    "Cameron brought their family to his play. They were so excited to see him act.": "Cameron",
-    "Cameron and Taylor were tossing up ice cubes and trying to catch them with their mouths, Cameron caught one.": "Cameron",
-    "Jordan produced a lot of money annually. Always being able to pay his bills on time.": "Jordan",
-    "Robin went to Las Vegas and risked her husbands entire savings account on the roulette table.": "Robin",
-    "Lee was practicing to be a clown. They really wanted to do balloon animals, so Lee got a balloon to practice with.": "Lee",
-    "Robin and Tracy went to school together. Robin helped Tracy study.": "Tracy"
+    "Tracy went to a party with Lee's friends and had a great time with the crew.": {"user": "Tracy", "bot": "Lee"},
+    "Riley is throwing a surprise party for their boss. Riley sends out an email to all the employees devising a plan and asking they keep the secret.": {"user": "Riley", "bot": "Riley's co-worker"},
+    "Kendall couldn't afford a regular cable bill, so they often went to Sasha's house for TV. This month, Sasha wasn't able to pay their bill so Kendall covered it.": {"user": "Kendall", "bot": "Sasha"},
+    "Taylor looked behind Jan to see if there was a rip in Jan's clothes like there was in the front of their clothes.": {"user": "Taylor", "bot": "Jan"},
+    "Cameron brought their family to his play. They were so excited to see him act.": {"user": "Cameron", "bot": "Cameron's family member"},
+    "Cameron and Taylor were tossing up ice cubes and trying to catch them with their mouths, Cameron caught one.": {"user": "Cameron", "bot": "Taylor"},
+    "Jordan produced a lot of money annually. Always being able to pay his bills on time.": {"user": "Jordan", "bot": "Jordan's friend"},
+    "Robin went to Las Vegas and risked her husbands entire savings account on the roulette table.": {"user": "Robin", "bot": "Robin's friend"},
+    "Lee was practicing to be a clown. They really wanted to do balloon animals, so Lee got a balloon to practice with.": {"user": "Lee", "bot": "Lee's friend"},
+    "Robin and Tracy went to school together. Robin helped Tracy study.": {"user": "Tracy", "bot": "Robin"}
 }
 
 def load_run_spec(output_path, run_name):
@@ -75,13 +75,20 @@ def start_dialogue(args: dict):
     interaction_trace = runner.initialize_interaction_trace(user_id=user_id, interaction_trace_id=interaction_trace_id)
     prompt = interaction_trace.instance.input
     display_prompt = ""
+    user_initiated = runner.interactive_adapter.user_initiated 
     if runner.run_spec.scenario.class_name == "benchmark.dialogue_scenarios.WizardOfWikipediaScenario":
         display_prompt = "Your topic: " + prompt
     elif runner.run_spec.scenario.class_name == "benchmark.dialogue_scenarios.CommonSenseScenario":
-        name = commonsense_scenario_to_name[prompt]
+        if user_initiated == True:
+            name = commonsense_scenario_to_name[prompt]["user"]
+        else:
+            name = commonsense_scenario_to_name[prompt]["bot"]
         display_prompt = "Chat as if you are "+name+" in this scenario: " + prompt
     else:
-        display_prompt = "Your scenario: " + prompt
+        if user_initiated == True:
+            display_prompt = "Chat as if you are in this scenario: " + prompt
+        else:
+            display_prompt = "Chat as if you are talking to a friend who is in this scenario: " + prompt
     utterances = []
     for round in interaction_trace.trace:
         if round.user_input is not None:

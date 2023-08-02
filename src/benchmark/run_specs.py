@@ -1094,7 +1094,7 @@ def get_empatheticdialogues_spec(
         output_prefix='\n<div class="conversation">\n',
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/text-davinci-002",
+        model="openai/gpt-3.5-turbo-0301",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
         stop_sequences=['"</span>', "</div>", '"', "</span>"],
         num_outputs=1,
@@ -1169,7 +1169,8 @@ def get_wizardofwikipedia_spec(
 
 
 def get_commonsense_dialogues_spec(
-    user_initiated: bool, annotation_stage: str, begin: int, end: int, batch: Optional[int] = None
+    user_initiated: bool, annotation_stage: str, begin: int, end: int,
+    batch: Optional[int] = None
 ) -> RunSpec:
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
@@ -1183,7 +1184,7 @@ def get_commonsense_dialogues_spec(
         output_prefix='\n<div class="conversation">\n',
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/text-davinci-002",
+        model="openai/gpt-3.5-turbo-0301",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
         stop_sequences=['"</span>', "</div>", '"', "</span>"],
         num_outputs=1,
@@ -1196,7 +1197,7 @@ def get_commonsense_dialogues_spec(
     model_name = adapter_spec.model[idx + 1 :]
 
     spec_name = f"commonsense_dialogues:annotation_stage={annotation_stage},"
-    spec_name += f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}"
+    spec_name += f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}"#,survey={survey}"
     if batch is not None:
         spec_name += f",batch={batch}"
 
@@ -1207,7 +1208,7 @@ def get_commonsense_dialogues_spec(
         metrics=get_basic_metrics({"names": ["exact_match"]}),
         interactive_adapter=InteractiveAdapterSpec(
             class_name="benchmark.dialogue_interactive_adapters.DialogueAdapter",
-            args={"user_initiated": user_initiated, "user_name": "Jen", "agent_name": "Bob"},
+            args={"user_initiated": user_initiated, "user_name": "Speaker 1", "agent_name": "Speaker 2"},
         ),
     )
 
