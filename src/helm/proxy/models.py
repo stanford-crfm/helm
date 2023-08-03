@@ -308,6 +308,11 @@ ALL_MODELS = [
         name="eleutherai/pythia-6.9b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    Model(
+        group="together",
+        name="eleutherai/pythia-12b-v0",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # Meta
     Model(
         group="together",

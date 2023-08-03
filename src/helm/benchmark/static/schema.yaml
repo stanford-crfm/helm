@@ -298,6 +298,13 @@ models:
     access: open
     num_parameters: 6444163072
     release_date: 2023-02-13
+  - name: eleutherai/pythia-12b-v0
+    display_name: Pythia (12B)
+    description: Pythia (12B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization: EleutherAI
+    access: open
+    num_parameters: 11327027200
+    release_date: 2023-02-13
 
   # Google
   - name: together/t5-11b

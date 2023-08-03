@@ -137,6 +137,7 @@ class WindowServiceFactory:
             "eleutherai/pythia-1b-v0",
             "eleutherai/pythia-2.8b-v0",
             "eleutherai/pythia-6.9b",
+            "eleutherai/pythia-12b-v0",
             # MPT-7B model was trained with the EleutherAI/gpt-neox-20b tokenizer
             # See: https://huggingface.co/mosaicml/mpt-7b
             "mosaicml/mpt-7b",
