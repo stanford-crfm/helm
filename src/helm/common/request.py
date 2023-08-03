@@ -182,6 +182,8 @@ class RequestResult:
     batch_request_time: Optional[float] = None
     """How long it took to process the batch? (`TogetherClient` only)"""
 
+    raw_response: Optional[dict] = None
+
     def render_lines(self) -> List[str]:
         output = [
             f"success: {self.success}",

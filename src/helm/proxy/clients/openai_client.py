@@ -205,6 +205,7 @@ class OpenAIClient(Client):
             request_datetime=response.get("request_datetime"),
             completions=completions,
             embedding=embedding,
+            raw_response=response
         )
 
     @staticmethod
