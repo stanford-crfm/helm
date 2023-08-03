@@ -39,8 +39,8 @@ _ASYNC_MODELS: Set[str] = {
     "pythia-12b-v0",
     "stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b",
-    "vicuna-7b",
-    "vicuna-13b",
+    "vicuna-7b-v1.3",
+    "vicuna-13b-v1.3",
 }
 """Together models to use async requests for.
 
@@ -84,8 +84,8 @@ MODEL_ALIASES: Dict[str, str] = {
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
-    "vicuna-7b": "lmsys/vicuna-7b-v1.3",
-    "vicuna-13b": "lmsys/vicuna-13b-v1.3",
+    "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
+    "vicuna-13b-v1.3": "lmsys/vicuna-13b-v1.3",
 }
 """Together model name aliases.
 
@@ -208,6 +208,7 @@ class TogetherClient(Client):
 
             def do_it_async() -> Dict[Any, Any]:
                 job_id = submit_job()
+                print(f"[debug:yifanmai] job_id={job_id}")
                 return retrieve_job(job_id)
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it_async))

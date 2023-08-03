@@ -202,8 +202,8 @@ class WindowServiceFactory:
             "meta/llama-30b",
             "meta/llama-65b",
             "together/alpaca-7b",
-            "lmsys/vicuna-7b",
-            "lmsys/vicuna-13b",
+            "lmsys/vicuna-7b-v1.3",
+            "lmsys/vicuna-13b-v1.3",
         ]:
             window_service = LlamaWindowService(service)
         elif model_name in [

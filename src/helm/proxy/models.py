@@ -364,12 +364,12 @@ ALL_MODELS = [
     # LMSYS
     Model(
         group="together",
-        name="lmsys/vicuna-7b",
+        name="lmsys/vicuna-7b-v1.3",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     ),
     Model(
         group="together",
-        name="lmsys/vicuna-13b",
+        name="lmsys/vicuna-13b-v1.3",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     ),
     # MosaicML
