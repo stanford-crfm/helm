@@ -183,7 +183,10 @@ class WindowServiceFactory:
         elif model_name == "nvidia/megatron-gpt2":
             window_service = MegatronWindowService(service)
         elif model_name in [
-            "together/llama-7b",
+            "meta/llama-7b",
+            "meta/llama-13b",
+            "meta/llama-30b",
+            "meta/llama-65b",
             "together/alpaca-7b",
             "together/vicuna-13b",
         ]:

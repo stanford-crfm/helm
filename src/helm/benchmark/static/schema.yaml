@@ -56,7 +56,7 @@ models:
   # TODO: add Luminous World when it's released
   - name: AlephAlpha/luminous-base
     display_name: Luminous Base (13B)
-    description: Luminous Base (13B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    description: Luminous Base (13B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
     creator_organization: Aleph Alpha
     access: limited
     num_parameters: 13000000000
@@ -64,14 +64,14 @@ models:
     release_date: 2022-01-01
   - name: AlephAlpha/luminous-extended
     display_name: Luminous Extended (30B)
-    description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
     creator_organization: Aleph Alpha
     access: limited
     num_parameters: 30000000000
     release_date: 2022-01-01
   - name: AlephAlpha/luminous-supreme
     display_name: Luminous Supreme (70B)
-    description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
     creator_organization: Aleph Alpha
     access: limited
     num_parameters: 70000000000
@@ -407,12 +407,33 @@ models:
     num_parameters: 30000000000
     release_date: 2022-11-15
     todo: true
-  - name: huggingface/llama-7b
+  - name: meta/llama-7b
     display_name: LLaMA (7B)
     description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
     creator_organization: Meta
     access: open
     num_parameters: 7000000000
+    release_date: 2023-02-24
+  - name: meta/llama-13b
+    display_name: LLaMA (13B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-02-24
+  - name: meta/llama-30b
+    display_name: LLaMA (30B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-02-24
+  - name: meta/llama-65b
+    display_name: LLaMA (65B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization: Meta
+    access: open
+    num_parameters: 65000000000
     release_date: 2023-02-24
   - name: meta/llama-2-7b
     display_name: LLaMA-2 (7B)

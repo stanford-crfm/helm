@@ -42,7 +42,7 @@ class TestTogetherClient:
             ),
             (
                 Request(
-                    model="together/llama-7b",
+                    model="meta/llama-7b",
                     prompt="I am a computer scientist.",
                     temperature=0,
                     num_completions=4,
@@ -57,7 +57,7 @@ class TestTogetherClient:
                     "echo": True,
                     "logprobs": 3,
                     "max_tokens": 24,
-                    "model": "llama-7b-full-precision",
+                    "model": "huggyllama/llama-7b",
                     "n": 4,
                     "prompt": "I am a computer scientist.",
                     "request_type": "language-model-inference",
