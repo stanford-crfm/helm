@@ -13,7 +13,7 @@ class ObjectSpec:
     args: Dict[str, Any]
 
     def __hash__(self):
-        return hash((self.class_name, tuple((k, self.args[k]) for k in sorted(self.args.keys()))))
+        return hash((self.class_name, tuple((k, self.args[k]) if not isinstance(self.args[k], list) else (k, ",".join(self.args[k])) for k in sorted(self.args.keys()))))
 
 
 def create_object(spec: ObjectSpec):
