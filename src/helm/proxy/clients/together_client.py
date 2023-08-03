@@ -22,6 +22,8 @@ _ASYNC_MODELS: Set[str] = {
     # Production models
     "redpajama-incite-base-3b-v1",
     "redpajama-incite-instruct-3b-v1",
+    "redpajama-incite-base-7b",
+    "redpajama-incite-instruct-7b",
     "dolly-v2-3b",
     "dolly-v2-7b",
     "dolly-v2-12b",
@@ -60,6 +62,8 @@ MODEL_ALIASES: Dict[str, str] = {
     # Production models
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
     "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
+    "redpajama-incite-base-7b": "togethercomputer/RedPajama-INCITE-7B-Base",
+    "redpajama-incite-instruct-7b": "togethercomputer/RedPajama-INCITE-7B-Instruct",
     "dolly-v2-3b": "databricks/dolly-v2-3b",
     "dolly-v2-7b": "databricks/dolly-v2-7b",
     "dolly-v2-12b": "databricks/dolly-v2-12b",

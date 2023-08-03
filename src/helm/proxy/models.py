@@ -706,6 +706,16 @@ ALL_MODELS = [
         name="together/redpajama-incite-instruct-3b-v1",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    Model(
+        group="together",
+        name="together/redpajama-incite-base-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="together/redpajama-incite-instruct-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # Tsinghua
     Model(
         group="together",
