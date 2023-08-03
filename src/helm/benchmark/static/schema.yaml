@@ -746,9 +746,17 @@ models:
     num_parameters: 3000000000
     release_date: 2023-05-05
     todo: true
-  - name: together/redpajama-incite-base-7b-v1
-    display_name: RedPajama-INCITE-Base-v1 (7B)
-    description: RedPajama-INCITE-Base-v1 (7B parameters) is a 7 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+  - name: together/redpajama-incite-base-7b
+    display_name: RedPajama-INCITE-Base (7B)
+    description: RedPajama-INCITE-Base (7B parameters) is a 7 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-05-05
+    todo: true
+  - name: together/redpajama-incite-instruct-7b
+    display_name: RedPajama-INCITE-Instruct (7B)
+    description: RedPajama-INCITE-Instruct (7B parameters) is a model fine-tuned for few-shot applications on the data of GPT-JT. It is built from RedPajama-INCITE-Base (7B), a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
     creator_organization: Together
     access: open
     num_parameters: 7000000000
