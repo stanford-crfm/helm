@@ -32,7 +32,7 @@ class HuggingFaceServer:
             self.device: str = "cuda:0"
         else:
             self.device = "cpu"
-        model_kwargs = {}
+        model_kwargs = {"torch_dtype": torch.bfloat16, "use_auth_token": True}
         # If the HuggingFace model is stored locally, it will have a path defined and we should load it from there.
         # Otherwise, download it from the HuggingFace hub by passing in its identifier.
         if isinstance(model_config, HuggingFaceLocalModelConfig):
