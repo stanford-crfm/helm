@@ -756,7 +756,7 @@ models:
     todo: true
   - name: together/redpajama-incite-instruct-7b
     display_name: RedPajama-INCITE-Instruct (7B)
-    description: RedPajama-INCITE-Instruct (7B parameters) is a model fine-tuned for few-shot applications on the data of GPT-JT. It is built from RedPajama-INCITE-Base (7B), a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    description: RedPajama-INCITE-Instruct (7B parameters) is a model fine-tuned for few-shot applications on the data of GPT-JT. It is built from RedPajama-INCITE-Base (7B), a 7 billion base model that aims to replicate the LLaMA recipe as closely as possible.
     creator_organization: Together
     access: open
     num_parameters: 7000000000
