@@ -66,6 +66,8 @@ class DrawBenchScenario(Scenario):
 
                 # Draw Bench does not have reference images
                 instance = Instance(Input(text=prompt), references=[], split=TEST_SPLIT)
+
+                # If all categories are requested, add all instances
                 if category.startswith(self.category) or self.category == self.ALL_CATEGORY:
                     instances.append(instance)
 

@@ -22,7 +22,7 @@ class I2PScenario(Scenario):
     Setting parameter `category` to "all", returns instances with all the prompts.
 
     The authors generated 10 images for each prompt in the test bed and compared the probability of generating
-    inappropriate images.
+    inappropriate images. We use the hard prompts that are not considered toxic by PerspectiveAPI.
 
     Paper: https://arxiv.org/abs/2211.05105
     Website: https://huggingface.co/datasets/AIML-TUDA/i2p

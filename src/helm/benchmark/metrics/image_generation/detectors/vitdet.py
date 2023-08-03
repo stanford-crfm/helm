@@ -10,8 +10,8 @@ from helm.common.gpu_utils import get_torch_device
 from .base_detector import BaseDetector
 
 
-MODEL_CONFIG_DOWNLOAD_URL = "https://drive.google.com/uc?id=1MLuwQ0ZN0gJQ42oVCc0aFz6Rneb1g3Rt"
-MODEL_CHECKPOINT_DOWNLOAD_URL = (
+MODEL_CONFIG_DOWNLOAD_URL: str = "https://drive.google.com/uc?id=1MLuwQ0ZN0gJQ42oVCc0aFz6Rneb1g3Rt"
+MODEL_CHECKPOINT_DOWNLOAD_URL: str = (
     "https://dl.fbaipublicfiles.com/detectron2/ViTDet/COCO/mask_rcnn_vitdet_b/f325346929/model_final_61ccd1.pkl"
 )
 

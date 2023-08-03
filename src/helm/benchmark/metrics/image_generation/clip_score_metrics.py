@@ -15,7 +15,7 @@ from helm.common.images_utils import is_blacked_out_image
 
 class CLIPScoreMetric(Metric):
     """
-    Defines metrics that use CLIPScore (https://arxiv.org/abs/2104.08718).
+    Defines CLIPScore-based metrics (https://arxiv.org/abs/2104.08718).
     CLIPScore is a reference free metric that can be used to evaluate the correlation between an image
     caption and the content of the image. It has been found to be highly correlated with human judgement.
     """
