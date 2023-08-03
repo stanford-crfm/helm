@@ -295,17 +295,17 @@ ALL_MODELS = [
     ),
     Model(
         group="together",
-        name="EleutherAI/pythia-1b-v0",
+        name="eleutherai/pythia-1b-v0",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
-        name="EleutherAI/pythia-2.8b-v0",
+        name="eleutherai/pythia-2.8b-v0",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
-        name="EleutherAI/pythia-6.9b",
+        name="eleutherai/pythia-6.9b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Meta

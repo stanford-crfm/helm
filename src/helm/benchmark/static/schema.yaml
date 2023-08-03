@@ -275,7 +275,7 @@ models:
     access: open
     num_parameters: 20000000000
     release_date: 2022-02-02
-  - name: EleutherAI/pythia-1b-v0
+  - name: eleutherai/pythia-1b-v0
     display_name: Pythia (1B)
     description: Pythia (1B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
     creator_organization: EleutherAI
@@ -283,7 +283,7 @@ models:
     num_parameters: 805736448
     release_date: 2023-02-13
     todo: true
-  - name: EleutherAI/pythia-2.8b-v0
+  - name: eleutherai/pythia-2.8b-v0
     display_name: Pythia (2.8B)
     description: Pythia (2.8B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
     creator_organization: EleutherAI
@@ -291,7 +291,7 @@ models:
     num_parameters: 2517652480
     release_date: 2023-02-13
     todo: true
-  - name: EleutherAI/pythia-6.9b
+  - name: eleutherai/pythia-6.9b
     display_name: Pythia (6.9B)
     description: Pythia (6.9B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
     creator_organization: EleutherAI
