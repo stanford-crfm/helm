@@ -34,6 +34,10 @@ _ASYNC_MODELS: Set[str] = {
     "llama-2-7b",
     "llama-2-13b",
     "llama-2-70b",
+    "pythia-1b-v0",
+    "pythia-2.8b-v0",
+    "pythia-6.9b",
+    "pythia-12b-v0",
     "stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b",
 }
@@ -74,6 +78,10 @@ MODEL_ALIASES: Dict[str, str] = {
     "llama-2-7b": "togethercomputer/llama-2-7b",
     "llama-2-13b": "togethercomputer/llama-2-13b",
     "llama-2-70b": "togethercomputer/llama-2-70b",
+    "pythia-1b-v0": "EleutherAI/pythia-1b-v0",
+    "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
+    "pythia-6.9b": "EleutherAI/pythia-6.9b",
+    "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
 }
