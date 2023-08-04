@@ -1119,7 +1119,7 @@ def get_empatheticdialogues_spec(
         metrics=get_basic_metrics({"names": ["exact_match"]}),
         interactive_adapter=InteractiveAdapterSpec(
             class_name="benchmark.dialogue_interactive_adapters.DialogueAdapter",
-            args={"user_initiated": user_initiated, "user_name": "Jen", "agent_name": "Bob"},
+            args={"user_initiated": user_initiated, "user_name": "user_1", "agent_name": "user_2"},
         ),
     )
 
@@ -1163,7 +1163,7 @@ def get_wizardofwikipedia_spec(
         metrics=get_basic_metrics({"names": ["exact_match"]}),
         interactive_adapter=InteractiveAdapterSpec(
             class_name="benchmark.dialogue_interactive_adapters.DialogueAdapter",
-            args={"user_initiated": user_initiated, "user_name": "Jen", "agent_name": "Bob"},
+            args={"user_initiated": user_initiated, "user_name": "user_1", "agent_name": "user_2"},
         ),
     )
 
@@ -1208,7 +1208,7 @@ def get_commonsense_dialogues_spec(
         metrics=get_basic_metrics({"names": ["exact_match"]}),
         interactive_adapter=InteractiveAdapterSpec(
             class_name="benchmark.dialogue_interactive_adapters.DialogueAdapter",
-            args={"user_initiated": user_initiated, "user_name": "Speaker 1", "agent_name": "Speaker 2"},
+            args={"user_initiated": user_initiated, "user_name": "user_1", "agent_name": "user_2"},
         ),
     )
 

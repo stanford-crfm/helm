@@ -45,7 +45,7 @@ class DialogueAdapter(InteractiveAdapter):
         inp = inp.strip()
         if name is None:
             name = self.user_name
-        adapted_utterance = name + ': <span class="conversation_utterance">"' + inp + '"</span>'
+        adapted_utterance = ': <span class="conversation_utterance_'+name+'">"' + inp + '"</span>'
         return adapted_utterance
 
     def postprocess_initial_request(
@@ -70,7 +70,7 @@ class DialogueAdapter(InteractiveAdapter):
     def agent_prompt(self, name: Optional[str] = None) -> str:
         if name is None:
             name = self.agent_name
-        agent_prompt = name + ': <span class="conversation_utterance">"'
+        agent_prompt = name + ': <span class="conversation_utterance_'+name+'">"'
         return agent_prompt
 
     def initial_lm_request(self, initial_request_state: RequestState) -> RequestState:
