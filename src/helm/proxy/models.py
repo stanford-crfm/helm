@@ -139,7 +139,7 @@ ALL_MODELS = [
     # AI21 Jurassic-2 Models: https://www.ai21.com/blog/introducing-j2
     Model(
         group="jurassic",
-        name="ai21/j2-jumbo-instruct",
+        name="ai21/j2-jumbo",
         tags=[
             TEXT_MODEL_TAG,
             AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG,

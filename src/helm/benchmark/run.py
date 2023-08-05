@@ -13,7 +13,7 @@ from helm.proxy.clients.huggingface_model_registry import (
 from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
-from helm.benchmark.model_registration import register_model_configs_from_path
+from helm.benchmark.model_registry import register_model_configs_from_path
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
