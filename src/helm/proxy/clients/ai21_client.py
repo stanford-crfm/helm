@@ -1,7 +1,9 @@
-from typing import Dict, List
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 import requests
 
 from dacite import from_dict
+from helm.benchmark.model_registry import get_model_config
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
@@ -13,13 +15,33 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from helm.proxy.clients.ai21_model_registry import get_ai21_model_config
-from helm.proxy.retry import NonRetriableException
 from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
 class AI21RequestError(Exception):
     pass
+
+
+@dataclass(frozen=True)
+class AI21ModelArgs:
+    """Configuration for a AI21 model."""
+
+    url: Optional[str] = None
+    """URL for the completion API. If unset, defaults to the default URL on api.ai21.com"""
+
+    api_key: Optional[str] = None
+    """API key. If unset, defaults to the value of ai21ApiKey of in credentials.conf"""
+
+
+def _get_ai21_model_args(name: str) -> Optional[AI21ModelArgs]:
+    model_config = get_model_config(name)
+    if not model_config:
+        return None
+    if model_config.model_type != "ai21":
+        raise ValueError(
+            f'Expected ModelConfig for {name} to have type "ai21", instead type was {model_config.client_type}'
+        )
+    return from_dict(AI21ModelArgs, model_config.args or {})
 
 
 class AI21Client(Client):
@@ -40,8 +62,6 @@ class AI21Client(Client):
             error_message += f" Detail: {response['detail']}"
         if "Error" in response:
             error_message += f" Error: {response['Error']}"
-        else:
-            error_message += f" Response: {response}"
 
         raise AI21RequestError(error_message)
 
@@ -64,15 +84,26 @@ class AI21Client(Client):
         }
 
         def do_it():
-            model_config = get_ai21_model_config(request.model)
-            if not model_config:
-                raise NonRetriableException(f"Could not find AI21ModelConfig for model {request.model}")
-            api_key = self.api_key
-            if model_config.api_key:
-                api_key = model_config.api_key
+            model_args = _get_ai21_model_args(request.model)
+
+            if model_args and model_args.url:
+                url = model_args.url
+            else:
+                url_template: str = (
+                    AI21Client.EXPERIMENTAL_COMPLETION_URL_TEMPLATE
+                    if request.model_engine == "j1-grande-v2-beta"
+                    else AI21Client.COMPLETION_URL_TEMPLATE
+                )
+                url = url_template.format(model=request.model_engine)
+
+            if model_args and model_args.api_key:
+                api_key = model_args.api_key
+            else:
+                api_key = self.api_key
+
             response = requests.post(
-                model_config.url,
-                headers={"Authorization": f"Bearer {api_key}", "X-API-Key": api_key},
+                url,
+                headers={"Authorization": f"Bearer {api_key}"},
                 json=raw_request,
             ).json()
 
