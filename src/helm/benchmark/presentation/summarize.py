@@ -24,7 +24,6 @@ from helm.common.codec import from_json
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.data_overlap.read_overlap_stats import get_group_overlap_stats
 from helm.benchmark.data_overlap.data_overlap_spec import DataOverlapStats, GroupOverlapStats
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
