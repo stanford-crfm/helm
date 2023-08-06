@@ -382,7 +382,7 @@ class Summarizer:
             
             return file_metadata
        
-        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.run])
+        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
 
         data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
 
