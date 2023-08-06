@@ -1,8 +1,10 @@
 import argparse
+import cattrs
 import os
 import datetime
 import urllib.parse
 import json
+import yaml
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from statistics import mean, median
@@ -22,7 +24,8 @@ from helm.common.codec import from_json
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.data_overlap.read_overlap_stats import read_overlap_stats, get_group_overlap_stats
+from helm.benchmark.data_overlap.read_overlap_stats import get_group_overlap_stats
+from helm.benchmark.data_overlap.data_overlap_spec import DataOverlapStats, GroupOverlapStats
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -49,7 +52,7 @@ Usage:
     venv/bin/helm-summarize --suite <Name of the suite>
 
 """
-
+OVERLAP_N_COUNT = 13
 
 @dataclass(frozen=True)
 class ExecutiveSummary:
@@ -242,7 +245,6 @@ class Summarizer:
         self.schema = read_schema()
         self.contamination = read_contamination()
         validate_contamination(self.contamination, self.schema)
-        self.overlap_stats = read_overlap_stats()
 
     def read_run(self, run_path: str) -> Run:
         """Load the `Run` object from `run_path`."""
@@ -316,6 +318,131 @@ class Summarizer:
             for group_name in run.run_spec.groups:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
+
+    def read_overlap_stats(self):
+        """
+        Load the overlap stats in the run suite path.
+        Concretely:
+            - get group -> scenario_spec information from self.runs
+                run_spec data
+            - read the files in the data_overlap directory in run_suit_path
+                which are scenario_spec -> overlap ids
+            - get aggregate stats for group -> overlap ratio    
+        """
+
+        def get_group_to_scenario_specs(run_specs: List[RunSpec]) -> Dict[RunSpec, ScenarioSpec]:
+            scenario_specs_to_groups: Dict = dict()
+            for run_spec in run_specs:
+                scenario_spec = run_spec.scenario_spec
+                groups = run_spec.groups
+                if (
+                    scenario_spec.class_name
+                    != "helm.benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario"
+                ):
+                    scenario_specs_to_groups[scenario_spec] = groups
+
+            group_to_scenario_specs: Dict = dict()
+            for scenario_spec, groups in scenario_specs_to_groups.items():
+                for group in groups:
+                    if group not in group_to_scenario_specs:
+                        group_to_scenario_specs[group] = []
+                    group_to_scenario_specs[group].append(scenario_spec)
+            return group_to_scenario_specs
+ 
+        def get_stats_file_metadata(data_overlap_dir: str) -> Dict[str, List[str]]:
+            """
+            Takes the data_overlap_dir as input and returns a dictionary
+            of stats_file_path -> List(model_names)
+
+            Sample input:
+            file_models_mapping:
+            - file_path: /path/to/file1
+                model_names:
+                - model1
+                - model2
+            - file_path: /path/to/file2
+                model_names:
+                - model2
+                - model3
+
+            """
+            metadata_file_path: str = os.path.join(data_overlap_dir, 'metadata.yaml')
+            if not os.path.exists(metadata_file_path):
+                return dict()
+            
+            with open(metadata_file_path, 'r') as yaml_file:
+                data = yaml.safe_load(yaml_file)
+
+            if 'file_models_mapping' not in data:
+                raise ValueError("Invalid YAML structure: 'file_models_mapping' key not found.")
+            
+            file_metadata = {}
+            for entry in data['file_models_mapping']:
+                if 'file_path' in entry and 'model_names' in entry:
+                    file_metadata[entry['file_path']] = entry['model_names']
+            
+            return file_metadata
+       
+        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.run])
+
+        data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
+
+        stats_file_metadata = get_stats_file_metadata(data_overlap_dir)
+        self.model_group_overlap_stats = dict()
+        for file_path, model_names in stats_file_metadata.items():
+            overlap_stats_jsons = open(file_path, "r").readlines()
+
+            data_overlap_stats_list = []
+            for overlap_stats_json in overlap_stats_jsons:
+                overlap_stats_dict = json.loads(overlap_stats_json)
+                data_overlap_stats_list.append(cattrs.structure(overlap_stats_dict, DataOverlapStats))
+
+            scenario_spec_overlap_counts: Dict = dict()
+            for data_overlap_stats in data_overlap_stats_list:
+                data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
+                light_scenario_key = data_overlap_stats_key.light_scenario_key
+                scenario_spec = light_scenario_key.scenario_spec
+                num_instances = data_overlap_stats.num_instances
+                n = data_overlap_stats_key.overlap_protocol_spec.n
+                """
+                TODO: here we are currently just aggregating across all instance ids
+                for a given scenario rather than the subset run on HELM
+                """
+                num_overlapping_inputs = len(data_overlap_stats.instance_ids_with_overlapping_input)
+                num_overlapping_references = len(data_overlap_stats.instance_ids_with_overlapping_reference)
+                if n == OVERLAP_N_COUNT:
+                    scenario_spec_overlap_counts[scenario_spec] = (
+                        num_instances,
+                        num_overlapping_inputs,
+                        num_overlapping_references,
+                    )
+
+            group_overlap_stats_list: List = []
+            for group, scenario_specs in group_to_scenario_specs.items():
+                group_num_instances = 0
+                group_num_overlapping_inputs = 0
+                group_num_overlapping_references = 0
+                for scenario_spec in scenario_specs:
+                    if scenario_spec in scenario_spec_overlap_counts:
+                        num_instances, num_overlapping_inputs, num_overlapping_references = scenario_spec_overlap_counts[
+                            scenario_spec
+                        ]
+                        group_num_instances += num_instances
+                        group_num_overlapping_inputs += num_overlapping_inputs
+                        group_num_overlapping_references += num_overlapping_references
+                if group_num_instances != 0:
+                    group_overlap_stats = GroupOverlapStats(
+                        group=group,
+                        num_instances=group_num_instances,
+                        num_overlapping_inputs=group_num_overlapping_inputs,
+                        num_overlapping_references=group_num_overlapping_references,
+                    )
+                    group_overlap_stats_list.append(group_overlap_stats)
+            for model_name in model_names:
+                # Assume model name will only be associated with single group overlap list for now
+                # can update to join lists if need arises
+                self.model_group_overlap_stats[model_name] = group_overlap_stats_list
+            
 
     @htrack(None)
     def check_metrics_defined(self):
@@ -711,16 +838,18 @@ class Summarizer:
                     description = ""
                     contamination_level = None
 
-                group_overlap_stats = get_group_overlap_stats(self.overlap_stats, model_name, group_name)
+                group_overlap_stats = None
+                if model_name in self.model_group_overlap_stats:
+                    for curr_group_overlap_stats in self.model_group_overlap_stats[model_name]:
+                        curr_group = curr_group_overlap_stats.group
+                        if curr_group == group_name:
+                            group_overlap_stats = curr_group_overlap_stats
+                            break
+ 
                 if group_overlap_stats:
-                    num_instances = group_overlap_stats.num_instances
-                    num_overlapping_inputs = group_overlap_stats.num_overlapping_inputs
-                    num_overlapping_references = group_overlap_stats.num_overlapping_references
-                    overlapping_input_ratio = num_overlapping_inputs / num_instances
-                    overlapping_reference_ratio = num_overlapping_references / num_instances
                     description = (
-                        f"Overlapping input ratio: {overlapping_input_ratio:.3f}\n"
-                        f"Overlapping reference ratio: {overlapping_reference_ratio:.3f}\n"
+                        f"Overlapping input ratio: {group_overlap_stats.overlapping_input_ratio:.3f}\n"
+                        f"Overlapping reference ratio: {group_overlap_stats.overlapping_reference_ratio:.3f}\n"
                         f"{description}"
                     )
 
@@ -1004,6 +1133,7 @@ def main():
         suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
     summarizer.read_runs()
+    summarizer.read_overlap_stats()
     summarizer.check_metrics_defined()
 
     summarizer.write_executive_summary()

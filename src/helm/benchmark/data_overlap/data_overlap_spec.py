@@ -1,6 +1,49 @@
 from dataclasses import dataclass
 from typing import List, Tuple
-from light_scenario import LightScenarioKey
+from helm.benchmark.data_overlap.light_scenario import LightScenarioKey
+
+
+@dataclass(frozen=True)
+class GroupOverlapStats:
+    """
+    Dataclass that represents group data overlap stats
+    e.g.
+    {
+        "group": "natural_qa_closedbook",
+        "num_instances": 2144,
+        "num_overlapping_inputs": 1,
+        "num_overlapping_references": 100
+    }
+    """
+
+    group: str
+
+    num_instances: int
+
+    num_overlapping_inputs: int
+
+    num_overlapping_references: int
+
+
+@dataclass(frozen=True)
+class AllGroupOverlapStats:
+    """
+    Dataclass that represents all group data overlap stats
+    e.g.
+    {"models": ["together/bloom", "together/gpt-j-6b", ...],
+    "group_overlap_stats_list": [
+        {
+            "group": "natural_qa_closedbook",
+            "num_instances": 2144,
+            "num_overlapping_inputs": 1,
+            "num_overlapping_references": 100
+        }
+        ...
+    """
+
+    models: List[str]
+
+    group_overlap_stats_list: List[GroupOverlapStats]
 
 
 @dataclass(frozen=True)
