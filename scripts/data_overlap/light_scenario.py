@@ -8,51 +8,6 @@ except Exception:
 
 
 @dataclass(frozen=True)
-class GroupScenarioSpecs:
-    """
-    Scenario Specs associated with a given Group
-    e.g.
-    {
-        "group": "disinformation_wedging",
-        "scenario_specs":
-        [
-            {
-                "class_name": "helm.benchmark.scenarios.disinformation_scenario.DisinformationScenario",
-                "args": {"capability": "wedging", "topic": "covid"}
-            }
-        ]
-    }
-
-    """
-
-    group: str
-
-    scenario_specs: List[ScenarioSpec]
-
-
-@dataclass(frozen=True)
-class GroupOverlapStats:
-    """
-    Dataclass that represents group data overlap stats
-    e.g.
-    {
-        "group": "natural_qa_closedbook",
-        "num_instances": 2144,
-        "num_overlapping_inputs": 1,
-        "num_overlapping_references": 100
-    }
-    """
-
-    group: str
-
-    num_instances: int
-
-    num_overlapping_inputs: int
-
-    num_overlapping_references: int
-
-
-@dataclass(frozen=True)
 class LightInstance:
     """
     A lighter `Instance` with only text fields.
