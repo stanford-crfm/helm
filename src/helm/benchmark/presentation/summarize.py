@@ -355,11 +355,11 @@ class Summarizer:
 
             Sample input:
             file_models_mapping:
-            - file_path: /path/to/file1
+            - file_name: file1
                 model_names:
                 - model1
                 - model2
-            - file_path: /path/to/file2
+            - file_name: /path/to/file2
                 model_names:
                 - model2
                 - model3
@@ -377,8 +377,8 @@ class Summarizer:
             
             file_metadata = {}
             for entry in data['file_models_mapping']:
-                if 'file_path' in entry and 'model_names' in entry:
-                    file_metadata[entry['file_path']] = entry['model_names']
+                if 'file_name' in entry and 'model_names' in entry:
+                    file_metadata[entry['file_name']] = entry['model_names']
             
             return file_metadata
        
