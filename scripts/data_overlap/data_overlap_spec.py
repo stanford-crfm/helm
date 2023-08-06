@@ -80,6 +80,7 @@ class EntryDataOverlapKey:
 @dataclass(frozen=True)
 class EntryOverlapNgrams:
     """Dataclass that represents output data overlap stats"""
+
     entry_data_overlap_key: EntryDataOverlapKey
 
     overlapping_ngram_counts: List[Tuple[str, int]]
