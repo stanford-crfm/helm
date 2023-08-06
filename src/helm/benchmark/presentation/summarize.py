@@ -53,6 +53,7 @@ Usage:
 """
 OVERLAP_N_COUNT = 13
 
+
 @dataclass(frozen=True)
 class ExecutiveSummary:
     """
@@ -326,7 +327,7 @@ class Summarizer:
                 run_spec data
             - read the files in the data_overlap directory in run_suit_path
                 which are scenario_spec -> overlap ids
-            - get aggregate stats for group -> overlap ratio    
+            - get aggregate stats for group -> overlap ratio
         """
 
         def get_group_to_scenario_specs(run_specs: List[RunSpec]) -> Dict[RunSpec, ScenarioSpec]:
@@ -347,7 +348,7 @@ class Summarizer:
                         group_to_scenario_specs[group] = []
                     group_to_scenario_specs[group].append(scenario_spec)
             return group_to_scenario_specs
- 
+
         def get_stats_file_metadata(data_overlap_dir: str) -> Dict[str, List[str]]:
             """
             Takes the data_overlap_dir as input and returns a dictionary
@@ -365,24 +366,24 @@ class Summarizer:
                 - model3
 
             """
-            metadata_file_path: str = os.path.join(data_overlap_dir, 'metadata.yaml')
+            metadata_file_path: str = os.path.join(data_overlap_dir, "metadata.yaml")
             if not os.path.exists(metadata_file_path):
                 return dict()
-            
-            with open(metadata_file_path, 'r') as yaml_file:
+
+            with open(metadata_file_path, "r") as yaml_file:
                 data = yaml.safe_load(yaml_file)
 
-            if 'file_models_mapping' not in data:
+            if "file_models_mapping" not in data:
                 raise ValueError("Invalid YAML structure: 'file_models_mapping' key not found.")
-            
+
             file_metadata = {}
-            for entry in data['file_models_mapping']:
-                if 'file_name' in entry and 'model_names' in entry:
-                    file_path: str = os.path.join(data_overlap_dir, entry['file_name'])
-                    file_metadata[file_path] = entry['model_names']
-            
+            for entry in data["file_models_mapping"]:
+                if "file_name" in entry and "model_names" in entry:
+                    file_path: str = os.path.join(data_overlap_dir, entry["file_name"])
+                    file_metadata[file_path] = entry["model_names"]
+
             return file_metadata
-       
+
         group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
 
         data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
@@ -424,9 +425,11 @@ class Summarizer:
                 group_num_overlapping_references = 0
                 for scenario_spec in scenario_specs:
                     if scenario_spec in scenario_spec_overlap_counts:
-                        num_instances, num_overlapping_inputs, num_overlapping_references = scenario_spec_overlap_counts[
-                            scenario_spec
-                        ]
+                        (
+                            num_instances,
+                            num_overlapping_inputs,
+                            num_overlapping_references,
+                        ) = scenario_spec_overlap_counts[scenario_spec]
                         group_num_instances += num_instances
                         group_num_overlapping_inputs += num_overlapping_inputs
                         group_num_overlapping_references += num_overlapping_references
@@ -442,7 +445,6 @@ class Summarizer:
                 # Assume model name will only be associated with single group overlap list for now
                 # can update to join lists if need arises
                 self.model_group_overlap_stats[model_name] = group_overlap_stats_list
-            
 
     @htrack(None)
     def check_metrics_defined(self):
@@ -845,7 +847,7 @@ class Summarizer:
                         if curr_group == group_name:
                             group_overlap_stats = curr_group_overlap_stats
                             break
- 
+
                 if group_overlap_stats:
                     description = (
                         f"Overlapping input ratio: {group_overlap_stats.overlapping_input_ratio:.3f}\n"
