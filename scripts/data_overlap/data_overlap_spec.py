@@ -38,27 +38,6 @@ class GroupOverlapStats:
 
 
 @dataclass(frozen=True)
-class AllGroupOverlapStats:
-    """
-    Dataclass that represents all group data overlap stats
-    e.g.
-    {"models": ["together/bloom", "together/gpt-j-6b", ...],
-    "group_overlap_stats_list": [
-        {
-            "group": "natural_qa_closedbook",
-            "num_instances": 2144,
-            "num_overlapping_inputs": 1,
-            "num_overlapping_references": 100
-        }
-        ...
-    """
-
-    models: List[str]
-
-    group_overlap_stats_list: List[GroupOverlapStats]
-
-
-@dataclass(frozen=True)
 class OverlapProtocolSpec:
     """Specification for how we compute overlap"""
 
@@ -100,8 +79,7 @@ class EntryDataOverlapKey:
 
 @dataclass(frozen=True)
 class EntryOverlapNgrams:
-
+    """Dataclass that represents output data overlap stats"""
     entry_data_overlap_key: EntryDataOverlapKey
 
     overlapping_ngram_counts: List[Tuple[str, int]]
-

@@ -22,6 +22,7 @@ class GroupScenarioSpecs:
             }
         ]
     }
+
     """
 
     group: str
@@ -49,27 +50,6 @@ class GroupOverlapStats:
     num_overlapping_inputs: int
 
     num_overlapping_references: int
-
-
-@dataclass(frozen=True)
-class AllGroupOverlapStats:
-    """
-    Dataclass that represents all group data overlap stats
-    e.g.
-    {"models": ["together/bloom", "together/gpt-j-6b", ...],
-    "group_overlap_stats_list": [
-        {
-            "group": "natural_qa_closedbook",
-            "num_instances": 2144,
-            "num_overlapping_inputs": 1,
-            "num_overlapping_references": 100
-        }
-        ...
-    """
-
-    models: List[str]
-
-    group_overlap_stats_list: List[GroupOverlapStats]
 
 
 @dataclass(frozen=True)

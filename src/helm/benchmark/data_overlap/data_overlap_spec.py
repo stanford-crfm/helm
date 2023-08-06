@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 from typing import List, Tuple
-from helm.benchmark.data_overlap.light_scenario import LightScenarioKey
+
+try:
+    from light_scenario import LightScenarioKey
+except Exception:
+    from helm.benchmark.data_overlap.light_scenario import LightScenarioKey
 
 
 @dataclass(frozen=True)
@@ -24,26 +28,13 @@ class GroupOverlapStats:
 
     num_overlapping_references: int
 
+    @property
+    def overlapping_input_ratio(self):
+        return self.num_overlapping_inputs / self.num_instances
 
-@dataclass(frozen=True)
-class AllGroupOverlapStats:
-    """
-    Dataclass that represents all group data overlap stats
-    e.g.
-    {"models": ["together/bloom", "together/gpt-j-6b", ...],
-    "group_overlap_stats_list": [
-        {
-            "group": "natural_qa_closedbook",
-            "num_instances": 2144,
-            "num_overlapping_inputs": 1,
-            "num_overlapping_references": 100
-        }
-        ...
-    """
-
-    models: List[str]
-
-    group_overlap_stats_list: List[GroupOverlapStats]
+    @property
+    def overlapping_reference_ratio(self):
+        return self.num_overlapping_references / self.num_instances
 
 
 @dataclass(frozen=True)
@@ -88,20 +79,7 @@ class EntryDataOverlapKey:
 
 @dataclass(frozen=True)
 class EntryOverlapNgrams:
-
+    """Dataclass that represents output data overlap stats"""
     entry_data_overlap_key: EntryDataOverlapKey
 
     overlapping_ngram_counts: List[Tuple[str, int]]
-
-@dataclass(frozen=True)
-class AnnotatedEntryOverlap:
-    """
-    Dataclass annotates a given scenario entry with overlaps
-    """
-
-    entry_data_overlap_key: EntryDataOverlapKey
-
-    annotated_entry_overlap: List[Tuple[str, int]]
-    """list of (word, count) where (word, count) is the 13-gram that starts with word"""
-
-
