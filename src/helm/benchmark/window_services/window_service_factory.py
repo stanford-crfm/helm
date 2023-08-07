@@ -143,9 +143,14 @@ class WindowServiceFactory:
             "together/gpt-neoxt-chat-base-20b",
             "together/redpajama-incite-base-3b-v1",
             "together/redpajama-incite-instruct-3b-v1",
+            "together/redpajama-incite-base-7b",
+            "together/redpajama-incite-instruct-7b",
             # Pythia uses the same tokenizer as GPT-NeoX-20B.
             # See: https://huggingface.co/EleutherAI/pythia-6.9b#training-procedure
-            "together/pythia-7b",
+            "eleutherai/pythia-1b-v0",
+            "eleutherai/pythia-2.8b-v0",
+            "eleutherai/pythia-6.9b",
+            "eleutherai/pythia-12b-v0",
             # MPT-7B model was trained with the EleutherAI/gpt-neox-20b tokenizer
             # See: https://huggingface.co/mosaicml/mpt-7b
             "mosaicml/mpt-7b",

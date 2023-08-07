@@ -297,7 +297,22 @@ ALL_MODELS = [
     ),
     Model(
         group="together",
-        name="together/pythia-7b",
+        name="eleutherai/pythia-1b-v0",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="eleutherai/pythia-2.8b-v0",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="eleutherai/pythia-6.9b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="eleutherai/pythia-12b-v0",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Meta
@@ -319,22 +334,22 @@ ALL_MODELS = [
     Model(
         group="together",
         name="meta/llama-65b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
         name="meta/llama-2-7b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
         name="meta/llama-2-13b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
         name="meta/llama-2-70b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Stanford
     Model(
@@ -706,6 +721,16 @@ ALL_MODELS = [
     Model(
         group="together",
         name="together/redpajama-incite-instruct-3b-v1",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="together/redpajama-incite-base-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="together/redpajama-incite-instruct-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Tsinghua
