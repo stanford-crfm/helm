@@ -3,7 +3,6 @@ from typing import Dict, List, Optional
 import requests
 
 from dacite import from_dict
-from helm.benchmark.model_registry import get_model_config
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
@@ -33,17 +32,6 @@ class AI21ModelArgs:
     """API key. If unset, defaults to the value of ai21ApiKey of in credentials.conf"""
 
 
-def _get_ai21_model_args(name: str) -> Optional[AI21ModelArgs]:
-    model_config = get_model_config(name)
-    if not model_config:
-        return None
-    if model_config.model_type != "ai21":
-        raise ValueError(
-            f'Expected ModelConfig for {name} to have type "ai21", instead type was {model_config.client_type}'
-        )
-    return from_dict(AI21ModelArgs, model_config.args or {})
-
-
 class AI21Client(Client):
     """
     AI21 Labs provides Jurassic models.
@@ -52,6 +40,11 @@ class AI21Client(Client):
 
     COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/{model}/complete"
     EXPERIMENTAL_COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/experimental/{model}/complete"
+
+    def __init__(self, api_key: str, cache_config: CacheConfig, url: Optional[str] = None):
+        self.api_key = api_key
+        self.cache = Cache(cache_config)
+        self.url = url
 
     @staticmethod
     def handle_failed_request(api_type: str, response: Dict):
@@ -64,10 +57,6 @@ class AI21Client(Client):
             error_message += f" Error: {response['Error']}"
 
         raise AI21RequestError(error_message)
-
-    def __init__(self, api_key: str, cache_config: CacheConfig):
-        self.api_key = api_key
-        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
@@ -84,10 +73,8 @@ class AI21Client(Client):
         }
 
         def do_it():
-            model_args = _get_ai21_model_args(request.model)
-
-            if model_args and model_args.url:
-                url = model_args.url
+            if self.url:
+                url = self.url
             else:
                 url_template: str = (
                     AI21Client.EXPERIMENTAL_COMPLETION_URL_TEMPLATE
@@ -95,15 +82,9 @@ class AI21Client(Client):
                     else AI21Client.COMPLETION_URL_TEMPLATE
                 )
                 url = url_template.format(model=request.model_engine)
-
-            if model_args and model_args.api_key:
-                api_key = model_args.api_key
-            else:
-                api_key = self.api_key
-
             response = requests.post(
                 url,
-                headers={"Authorization": f"Bearer {api_key}"},
+                headers={"Authorization": f"Bearer {self.api_key}"},
                 json=raw_request,
             ).json()
 

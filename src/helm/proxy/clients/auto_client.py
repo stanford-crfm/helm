@@ -1,12 +1,13 @@
 import os
 from dataclasses import replace
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
 
 from retrying import RetryError, Attempt
 
-from helm.benchmark.model_registry import ModelConfig, get_model_config
+from helm.benchmark.model_deployment_registry import get_model_deployment
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
+from helm.common.object_spec import create_object
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -14,7 +15,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from helm.proxy.retry import retry_request
+from helm.proxy.retry import retry_request, NonRetriableException
 from helm.proxy.clients.critique_client import CritiqueClient
 from helm.proxy.clients.client import Client
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
@@ -25,6 +26,10 @@ if TYPE_CHECKING:
     import helm.proxy.clients.huggingface_client
 
 
+class AuthenticationError(NonRetriableException):
+    pass
+
+
 class AutoClient(Client):
     """Automatically dispatch to the proper `Client` based on the organization.
 
@@ -32,7 +37,7 @@ class AutoClient(Client):
     This greatly speeds up the import time of this module, and allows the client modules to
     use optional dependencies."""
 
-    def __init__(self, credentials: Dict[str, str], cache_path: str, mongo_uri: str = ""):
+    def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
         self.credentials = credentials
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
@@ -58,24 +63,30 @@ class AutoClient(Client):
         client: Optional[Client] = self.clients.get(model)
 
         if client is None:
+            organization: str = model.split("/")[0]
+            cache_config: CacheConfig = self._build_cache_config(organization)
 
-            model_config: Optional[ModelConfig] = get_model_config(model)
-            if model_config:
-                model_type = model_config.model_type
-            else:
-                # TODO(#1502): Only use model_config.client_type to decide the client type,
-                # and don't fall back to organization. This requires populating the ModelConfig
-                # for every built-in model.
-                organization = model.split("/")[0]
-                model_type = organization
+            # TODO: Migrate all clients to use model deployments
+            model_deployment = get_model_deployment(model)
+            if model_deployment:
+                api_key = None
+                if "deployments" not in self.credentials:
+                    raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
+                deployment_api_keys = self.credentials["deployments"]
+                if model not in deployment_api_keys:
+                    raise AuthenticationError(
+                        f"Could not find key '{model}' under key 'deployments' in credentials.conf"
+                    )
+                api_key = deployment_api_keys[model]
+                client = create_object(
+                    model_deployment.client_spec, additional_args={"cache_config": cache_config, "api_key": api_key}
+                )
 
-            cache_config: CacheConfig = self._build_cache_config(model_type)
-
-            if get_huggingface_model_config(model):
+            elif get_huggingface_model_config(model):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
-            elif model_type == "openai":
+            elif organization == "openai":
                 from helm.proxy.clients.chat_gpt_client import ChatGPTClient
                 from helm.proxy.clients.openai_client import OpenAIClient
 
@@ -99,60 +110,60 @@ class AutoClient(Client):
                     api_key=api_key,
                     org_id=org_id,
                 )
-            elif model_type == "AlephAlpha":
+            elif organization == "AlephAlpha":
                 from helm.proxy.clients.aleph_alpha_client import AlephAlphaClient
 
                 client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
-            elif model_type == "ai21":
+            elif organization == "ai21":
                 from helm.proxy.clients.ai21_client import AI21Client
 
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
-            elif model_type == "cohere":
+            elif organization == "cohere":
                 from helm.proxy.clients.cohere_client import CohereClient
 
                 client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
-            elif model_type == "gooseai":
+            elif organization == "gooseai":
                 from helm.proxy.clients.goose_ai_client import GooseAIClient
 
                 org_id = self.credentials.get("gooseaiOrgId", None)
                 client = GooseAIClient(
                     api_key=self.credentials["gooseaiApiKey"], cache_config=cache_config, org_id=org_id
                 )
-            elif model_type == "huggingface" or model_type == "mosaicml":
+            elif organization == "huggingface" or organization == "mosaicml":
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config)
-            elif model_type == "anthropic":
+            elif organization == "anthropic":
                 from helm.proxy.clients.anthropic_client import AnthropicClient
 
                 client = AnthropicClient(
                     api_key=self.credentials.get("anthropicApiKey", None),
                     cache_config=cache_config,
                 )
-            elif model_type == "microsoft":
+            elif organization == "microsoft":
                 from helm.proxy.clients.microsoft_client import MicrosoftClient
 
                 org_id = self.credentials.get("microsoftOrgId", None)
-                lock_file_path: str = os.path.join(self.cache_path, f"{model_type}.lock")
+                lock_file_path: str = os.path.join(self.cache_path, f"{organization}.lock")
                 client = MicrosoftClient(
                     api_key=self.credentials.get("microsoftApiKey", None),
                     lock_file_path=lock_file_path,
                     cache_config=cache_config,
                     org_id=org_id,
                 )
-            elif model_type == "google":
+            elif organization == "google":
                 from helm.proxy.clients.google_client import GoogleClient
 
                 client = GoogleClient(cache_config=cache_config)
-            elif model_type in ["together", "databricks", "eleutherai", "meta", "stabilityai"]:
+            elif organization in ["together", "databricks", "eleutherai", "meta", "stabilityai"]:
                 from helm.proxy.clients.together_client import TogetherClient
 
                 client = TogetherClient(api_key=self.credentials.get("togetherApiKey", None), cache_config=cache_config)
-            elif model_type == "simple":
+            elif organization == "simple":
                 from helm.proxy.clients.simple_client import SimpleClient
 
                 client = SimpleClient(cache_config=cache_config)
-            elif model_type == "writer":
+            elif organization == "writer":
                 from helm.proxy.clients.palmyra_client import PalmyraClient
 
                 client = PalmyraClient(
@@ -160,7 +171,7 @@ class AutoClient(Client):
                     cache_config=cache_config,
                     tokenizer_client=self._get_tokenizer_client("huggingface/gpt2"),
                 )
-            elif model_type == "nvidia":
+            elif organization == "nvidia":
                 from helm.proxy.clients.megatron_client import MegatronClient
 
                 client = MegatronClient(cache_config=cache_config)
