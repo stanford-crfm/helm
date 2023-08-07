@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Dict, List, Optional
 import requests
 
@@ -21,17 +20,6 @@ class AI21RequestError(Exception):
     pass
 
 
-@dataclass(frozen=True)
-class AI21ModelArgs:
-    """Configuration for a AI21 model."""
-
-    url: Optional[str] = None
-    """URL for the completion API. If unset, defaults to the default URL on api.ai21.com"""
-
-    api_key: Optional[str] = None
-    """API key. If unset, defaults to the value of ai21ApiKey of in credentials.conf"""
-
-
 class AI21Client(Client):
     """
     AI21 Labs provides Jurassic models.
@@ -40,11 +28,6 @@ class AI21Client(Client):
 
     COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/{model}/complete"
     EXPERIMENTAL_COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/experimental/{model}/complete"
-
-    def __init__(self, api_key: str, cache_config: CacheConfig, url: Optional[str] = None):
-        self.api_key = api_key
-        self.cache = Cache(cache_config)
-        self.url = url
 
     @staticmethod
     def handle_failed_request(api_type: str, response: Dict):
@@ -57,6 +40,11 @@ class AI21Client(Client):
             error_message += f" Error: {response['Error']}"
 
         raise AI21RequestError(error_message)
+
+    def __init__(self, api_key: str, cache_config: CacheConfig, url: Optional[str] = None):
+        self.api_key = api_key
+        self.cache = Cache(cache_config)
+        self.url = url
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
