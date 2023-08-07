@@ -73,7 +73,6 @@ class SummarizationCritiqueMetric(Metric):
         if len(request_state.result.completions) != 1:
             raise ValueError("SummarizationCritiqueMetric only supports a single generation per instance")
         summary = request_state.result.completions[0].text
-        summary += "😀"
         request = CritiqueRequest(
             self._template, fields={"original_text": request_state.instance.input.text, "summary": summary}
         )
