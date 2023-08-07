@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * @TODO move me to component
+ */
+.recharts-legend-wrapper .recharts-default-legend .recharts-legend-item {
+  cursor: pointer;
+}
+
+.tremor-BarList-bar,
+.tremor-BarList-labelWrapper {
+  height: 1.75rem;
+}

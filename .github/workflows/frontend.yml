@@ -1,0 +1,72 @@
+name: Frontend
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    - name: Install dependencies
+      working-directory: ./src/helm-frontend
+      run: npm ci
+    - name: Run lint
+      working-directory: ./src/helm-frontend
+      run: npm run lint
+    - name: Run tests
+      working-directory: ./src/helm-frontend
+      run: npm run test
+
+  build:
+    runs-on: ubuntu-latest
+    # Deploy to only run on pushes to master
+    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/react_frontend'
+    needs: test
+    environment:
+      name: github-pages
+    env:
+      VITE_HELM_BENCHMARKS_ENDPOINT: ${{ vars.VITE_HELM_BENCHMARKS_ENDPOINT }}
+      VITE_HELM_BENCHMARKS_SUITE: ${{ vars.VITE_HELM_BENCHMARKS_SUITE }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    - name: Install dependencies
+      working-directory: ./src/helm-frontend
+      run: npm ci
+    - name: Build app
+      working-directory: ./src/helm-frontend
+      run: npm run build
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: ./src/helm/benchmark/static_build/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
