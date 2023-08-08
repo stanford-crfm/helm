@@ -1,8 +1,4 @@
 import importlib
-<<<<<<< HEAD
-
-=======
->>>>>>> Fixes
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple
 

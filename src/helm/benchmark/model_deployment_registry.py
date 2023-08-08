@@ -3,16 +3,14 @@
 TODO(#1673): Support adding other kinds of models besides AI21.
 """
 
-from typing import Any, Dict, Iterable, Optional, List
+from typing import Dict, Optional, List
 from dataclasses import dataclass
 
 import cattrs
 import yaml
 
-from helm.common.general import parse_hocon
 from helm.common.hierarchical_logger import hlog
-from helm.common.object_spec import ObjectSpec, create_object
-from helm.proxy.models import ALL_MODELS, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, MODEL_NAME_TO_MODEL, TEXT_MODEL_TAG, Model
+from helm.common.object_spec import ObjectSpec
 
 
 class ClientSpec(ObjectSpec):
