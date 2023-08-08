@@ -20,6 +20,7 @@ class ObjectSpec:
 
 def create_object(spec: ObjectSpec):
     """Create the actual object given the `spec`."""
+    # TODO: Refactor other places that use this pattern.
     components = spec.class_name.split(".")
     class_name = components[-1]
     module_name = ".".join(components[:-1])

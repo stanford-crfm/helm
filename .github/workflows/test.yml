@@ -50,7 +50,7 @@ jobs:
       - run: ./pre-commit-venv.sh
       - name: Run tests
         # Skip ICE tokenizer tests. GHA is having trouble downloading ice_text.model.
-        run: source venv/bin/activate && pytest --ignore src/helm/benchmark/window_services/test_ice_window_service.py --ignore src/helm/proxy/clients/test_ice_tokenizer_client.py
+        run: source venv/bin/activate && pytest --import-mode=importlib --ignore src/helm/benchmark/window_services/test_ice_window_service.py --ignore src/helm/proxy/clients/test_ice_tokenizer_client.py
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'main' }}
