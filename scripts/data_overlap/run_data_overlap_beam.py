@@ -25,7 +25,6 @@ def get_extract_text_function(input_format: str):
 def main():
     args = get_data_overlap_args()
 
-    n_values: List[int] = [5, 9, 13]  # TODO: Pick the N values
     extract_text_from_document: Callable[[str], str] = get_extract_text_function(args.input_format)
 
     # The model developer should pass in the appropriate PipelineOptions here.
@@ -39,7 +38,7 @@ def main():
             | "ComputeAndWriteDataOverlapStats"
             >> ComputeAndWriteDataOverlapStats(
                 scenario_data_path=args.scenario_data,
-                n_values=n_values,
+                n_values=args.N,
                 normalization=args.normalization,
                 tags={"tags:": args.tags},
                 output_stats=args.output_stats,
