@@ -23,7 +23,7 @@ class ModelMetadata:
 
     access: Optional[str] = None
     """How this model is available (e.g., limited).
-    
+
     If there are multiple deployments, this should be the most permissive access across
     all deployments."""
 
@@ -35,7 +35,7 @@ class ModelMetadata:
 
     num_parameters: Optional[int] = None
     """The number of model parameters.
-    
+
     This should be a string as the number of parameters is usually a round number (175B),
     but we set it as an int for plotting purposes."""
 
