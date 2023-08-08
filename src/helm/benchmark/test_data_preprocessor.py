@@ -1,10 +1,10 @@
 from typing import List
 
-from .augmentations.data_augmenter import DataAugmenterSpec
-from .augmentations.perturbation import PerturbationSpec
-from .data_preprocessor import DataPreprocessor
-from .run_specs import get_scenario_spec1
-from .scenarios.scenario import create_scenario, Instance, Scenario, with_instance_ids
+from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
+from helm.benchmark.augmentations.perturbation import PerturbationSpec
+from helm.benchmark.data_preprocessor import DataPreprocessor
+from helm.benchmark.run_specs import get_scenario_spec1
+from helm.benchmark.scenarios.scenario import create_scenario, Instance, Scenario, with_instance_ids
 
 
 def test_data_preprocessor():
