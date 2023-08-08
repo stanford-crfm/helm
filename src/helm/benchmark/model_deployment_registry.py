@@ -1,8 +1,3 @@
-"""This allows users to register additional models via configuration file.
-
-TODO(#1673): Support adding other kinds of models besides AI21.
-"""
-
 from typing import Dict, Optional, List
 from dataclasses import dataclass
 
