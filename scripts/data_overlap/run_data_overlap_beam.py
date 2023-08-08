@@ -1,7 +1,7 @@
 import json
 import apache_beam as beam
 
-from typing import Callable, List
+from typing import Callable
 
 from data_overlap_beam import ComputeAndWriteDataOverlapStats
 from common.arguments import get_data_overlap_args
