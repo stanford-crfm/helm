@@ -1,7 +1,6 @@
 import importlib
-
 from dataclasses import dataclass
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 
 @dataclass(frozen=True)
@@ -18,14 +17,18 @@ class ObjectSpec:
         return hash((self.class_name, tuple((k, self.args[k]) for k in sorted(self.args.keys()))))
 
 
-def create_object(spec: ObjectSpec):
+def create_object(spec: ObjectSpec, additional_args: Optional[Dict[str, Any]] = None):
     """Create the actual object given the `spec`."""
     # TODO: Refactor other places that use this pattern.
     components = spec.class_name.split(".")
     class_name = components[-1]
     module_name = ".".join(components[:-1])
     cls = getattr(importlib.import_module(module_name), class_name)
-    return cls(**spec.args)
+    args = {}
+    args.update(spec.args)
+    if additional_args:
+        args.update(additional_args)
+    return cls(**args)
 
 
 def parse_object_spec(description: str) -> ObjectSpec:

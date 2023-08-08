@@ -1,11 +1,13 @@
 import os
 from dataclasses import replace
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
 
 from retrying import RetryError, Attempt
 
+from helm.benchmark.model_deployment_registry import get_model_deployment
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
+from helm.common.object_spec import create_object
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -13,7 +15,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from helm.proxy.retry import retry_request
+from helm.proxy.retry import retry_request, NonRetriableException
 from helm.proxy.clients.critique_client import CritiqueClient
 from helm.proxy.clients.client import Client
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
@@ -24,6 +26,10 @@ if TYPE_CHECKING:
     import helm.proxy.clients.huggingface_client
 
 
+class AuthenticationError(NonRetriableException):
+    pass
+
+
 class AutoClient(Client):
     """Automatically dispatch to the proper `Client` based on the organization.
 
@@ -31,7 +37,7 @@ class AutoClient(Client):
     This greatly speeds up the import time of this module, and allows the client modules to
     use optional dependencies."""
 
-    def __init__(self, credentials: Dict[str, str], cache_path: str, mongo_uri: str = ""):
+    def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
         self.credentials = credentials
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
@@ -60,7 +66,23 @@ class AutoClient(Client):
             organization: str = model.split("/")[0]
             cache_config: CacheConfig = self._build_cache_config(organization)
 
-            if get_huggingface_model_config(model):
+            # TODO: Migrate all clients to use model deployments
+            model_deployment = get_model_deployment(model)
+            if model_deployment:
+                api_key = None
+                if "deployments" not in self.credentials:
+                    raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
+                deployment_api_keys = self.credentials["deployments"]
+                if model not in deployment_api_keys:
+                    raise AuthenticationError(
+                        f"Could not find key '{model}' under key 'deployments' in credentials.conf"
+                    )
+                api_key = deployment_api_keys[model]
+                client = create_object(
+                    model_deployment.client_spec, additional_args={"cache_config": cache_config, "api_key": api_key}
+                )
+
+            elif get_huggingface_model_config(model):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
