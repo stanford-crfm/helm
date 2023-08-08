@@ -21,6 +21,10 @@ class ClientSpec(ObjectSpec):
 
 @dataclass(frozen=True)
 class ModelDeployment:
+    """A model deployment is an accessible instance of this model (e.g. a hosted endpoint).
+
+    A model can have model deployments."""
+
     name: str
     """Name of the model deployment."""
 

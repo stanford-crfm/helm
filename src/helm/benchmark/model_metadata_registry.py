@@ -19,33 +19,31 @@ from helm.proxy.models import ALL_MODELS, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, MOD
 @dataclass(frozen=True)
 class ModelMetadata:
     name: str
+    """Name of the model e.g. "meta/llama-2"."""
 
-    # Organization that originally created the model (e.g. "EleutherAI")
-    #   Note that this may be different from group or the prefix of the model `name`
-    #   ("together" in "together/gpt-j-6b") as the hosting organization
-    #   may be different from the creator organization. We also capitalize
-    #   this field properly to later display in the UI.
-    # TODO: in the future, we want to cleanup the naming in the following ways:
-    # - make the creator_organization an identifier with a separate display name
-    # - have a convention like <hosting_organization><creator_organization>/<model_name>
     creator_organization: Optional[str] = None
+    """Organization that originally created the model (e.g. "meta")."""
 
-    # How this model is available (e.g., limited)
     access: Optional[str] = None
+    """How this model is available (e.g., limited).
+    
+    If there are multiple deployments, this should be the most permissive access across
+    all deployments."""
 
-    # Whether we have yet to evaluate this model
     todo: bool = False
+    """Whether we have yet to evaluate this model."""
 
-    # When was the model released
     release_date: Optional[date] = None
+    """When the model was released."""
 
-    # The number of parameters
-    # This should be a string as the number of parameters is usually a round number (175B),
-    # but we set it as an int for plotting purposes.
     num_parameters: Optional[int] = None
+    """The number of model parameters.
+    
+    This should be a string as the number of parameters is usually a round number (175B),
+    but we set it as an int for plotting purposes."""
 
-    # Tags corresponding to the properties of the model.
     tags: List[str] = field(default_factory=list)
+    """"""
 
 
 @dataclass(frozen=True)
