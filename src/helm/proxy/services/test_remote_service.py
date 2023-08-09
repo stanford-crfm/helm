@@ -75,6 +75,7 @@ class TestRemoteServerService:
                 ),
                 shell=True,
             )
+            print(f"Started server at {url}")
         except subprocess.CalledProcessError as e:
             print(f"There was an error while creating the temp instance: {str(e)}")
             raise
