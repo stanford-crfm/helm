@@ -671,9 +671,12 @@ def get_fid_metric_specs() -> List[MetricSpec]:
 
 def get_heim_reference_required_metric_specs(include_fidelity: bool = False) -> List[MetricSpec]:
     metrics: List[MetricSpec] = [
-        MetricSpec(class_name="helm.benchmark.metrics.lpips_metrics.LearnedPerceptualImagePatchSimilarityMetric", args={}),
         MetricSpec(
-            class_name="helm.benchmark.metrics.multi_scale_ssim_metrics.MultiScaleStructuralSimilarityIndexMeasureMetric",
+            class_name="helm.benchmark.metrics.lpips_metrics.LearnedPerceptualImagePatchSimilarityMetric", args={}
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.multi_scale_ssim_metrics."
+            "MultiScaleStructuralSimilarityIndexMeasureMetric",
             args={},
         ),
         MetricSpec(class_name="helm.benchmark.metrics.psnr_metrics.PeakSignalToNoiseRatioMetric", args={}),
