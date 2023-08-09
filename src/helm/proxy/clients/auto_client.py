@@ -1,21 +1,23 @@
 import os
 from dataclasses import replace
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
 
 from retrying import RetryError, Attempt
 
-from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig, request_to_key
+from helm.benchmark.model_deployment_registry import get_model_deployment
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.file_caches.local_file_cache import LocalFileCache
+from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig, request_to_key
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request, TextToImageRequest, RequestResult
+from helm.common.object_spec import create_object
+from helm.common.request import Request, RequestResult, TextToImageRequest
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
 )
-from helm.proxy.retry import retry_request
+from helm.proxy.retry import retry_request, NonRetriableException
 from helm.proxy.clients.critique_client import CritiqueClient
 from helm.proxy.clients.client import Client
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
@@ -24,6 +26,10 @@ from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClie
 
 if TYPE_CHECKING:
     import helm.proxy.clients.huggingface_client
+
+
+class AuthenticationError(NonRetriableException):
+    pass
 
 
 class AutoClient(Client):
@@ -35,7 +41,7 @@ class AutoClient(Client):
 
     OUTPUT_FILES_DIR_NAME: str = "output"
 
-    def __init__(self, credentials: Dict[str, str], cache_path: str, mongo_uri: str = ""):
+    def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
         self.credentials = credentials
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
@@ -70,7 +76,24 @@ class AutoClient(Client):
         if client is None:
             cache_config: CacheConfig = self._build_cache_config(organization)
 
-            if get_huggingface_model_config(request.model):
+            # TODO: Migrate all clients to use model deployments
+            model: str = request.model
+            model_deployment = get_model_deployment(model)
+            if model_deployment:
+                api_key = None
+                if "deployments" not in self.credentials:
+                    raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
+                deployment_api_keys = self.credentials["deployments"]
+                if model not in deployment_api_keys:
+                    raise AuthenticationError(
+                        f"Could not find key '{model}' under key 'deployments' in credentials.conf"
+                    )
+                api_key = deployment_api_keys[model]
+                client = create_object(
+                    model_deployment.client_spec, additional_args={"cache_config": cache_config, "api_key": api_key}
+                )
+
+            elif get_huggingface_model_config(model):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)

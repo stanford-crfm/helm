@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import importlib
 from typing import Any, Dict, Tuple
 
 
@@ -18,12 +19,11 @@ class ObjectSpec:
 
 def create_object(spec: ObjectSpec):
     """Create the actual object given the `spec`."""
-    # Adapted from https://stackoverflow.com/questions/547829/how-to-dynamically-load-a-python-class
     components = spec.class_name.split(".")
-    module: Any = __import__(components[0])
-    for component in components[1:]:
-        module = getattr(module, component)
-    return module(**spec.args)
+    class_name = components[-1]
+    module_name = ".".join(components[:-1])
+    cls = getattr(importlib.import_module(module_name), class_name)
+    return cls(**spec.args)
 
 
 def parse_object_spec(description: str) -> ObjectSpec:

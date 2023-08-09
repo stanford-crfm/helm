@@ -13,6 +13,8 @@ from helm.proxy.clients.huggingface_model_registry import (
 from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
+from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
+from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
@@ -248,6 +250,18 @@ def main():
         help="Experimental: If set, each RunSpec will be run in a separate worker Slurm job. "
         "Currently only works on the Stanford NLP cluster.",
     )
+    parser.add_argument(
+        "--model-metadata-paths",
+        nargs="+",
+        help="Experimental: Where to read model metadata from",
+        default=[],
+    )
+    parser.add_argument(
+        "--model-deployment-paths",
+        nargs="+",
+        help="Experimental: Where to read model deployments from",
+        default=[],
+    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
@@ -256,6 +270,10 @@ def main():
         register_huggingface_hub_model_config(huggingface_model_name)
     for huggingface_model_path in args.enable_local_huggingface_models:
         register_huggingface_local_model_config(huggingface_model_path)
+    for model_metadata_path in args.model_metadata_paths:
+        register_model_metadata_from_path(model_metadata_path)
+    for model_deployment_paths in args.model_deployment_paths:
+        register_model_deployments_from_path(model_deployment_paths)
 
     if args.server_url and args.enable_remote_models:
         check_and_register_remote_model(args.server_url, args.enable_remote_models)

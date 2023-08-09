@@ -1,5 +1,5 @@
 from helm.benchmark.run_specs import get_scenario_spec_tiny
-from .scenario import create_scenario, Scenario, Input, PassageQuestionInput
+from helm.benchmark.scenarios.scenario import create_scenario, Scenario, Input, PassageQuestionInput
 
 
 class TestScenario:
