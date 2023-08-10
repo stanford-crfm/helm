@@ -1,8 +1,6 @@
 from dataclasses import asdict
-from typing import Optional, Dict
+from typing import Dict
 import requests
-
-from google.cloud import storage
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.hierarchical_logger import hlog
@@ -24,10 +22,12 @@ class GCSClient:
     def __init__(self, bucket_name: str, cache_config: CacheConfig):
         self._bucket_name: str = bucket_name
         self._cache = Cache(cache_config)
-        self._storage_client: Optional[storage.Client] = None
+        self._storage_client = None
 
     def upload(self, request: FileUploadRequest) -> FileUploadResult:
         """Uploads a file to GCS."""
+        from google.cloud import storage
+
         try:
 
             def do_it():
