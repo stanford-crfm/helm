@@ -24,7 +24,7 @@ This needs to be run from the data overlap directory; i.e. cd scripts/data_overl
 
 Usage:
 
-python [compute_data_overlap_metrics.py OR run_data_overlap_beam.py] --input-data <input_data> --scenario-data <scenario_data> --output-stats <output_stats> --input-format <input_format> 
+python [compute_data_overlap_metrics.py OR run_data_overlap_beam.py] --input-data <input_data> --scenario-data <scenario_data> --output-stats <output_stats> --input-format <input_format>
 
 For instance, you can call this with The Pile, e.g. have:
     input_data  = 00.jsonl (download https://pile.eleuther.ai/)
