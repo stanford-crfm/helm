@@ -32,7 +32,7 @@ from .schema import (
     RunGroup,
     Schema,
     read_schema,
-    DEFAULT_STATIC_PATH,
+    SCHEMA_YAML_PACKAGE,
     SCHEMA_YAML_FILENAME,
     BY_GROUP,
     THIS_GROUP_ONLY,
@@ -242,13 +242,13 @@ class Summarizer:
         "selective_acc@10",
     }
 
-    def __init__(self, suite: str, output_path: str, static_path: str, verbose: bool, num_threads: int):
+    def __init__(self, suite: str, output_path: str, static_package: str, verbose: bool, num_threads: int):
         self.suite: str = suite
         self.run_suite_path: str = os.path.join(output_path, "runs", suite)
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
 
-        self.schema: Schema = read_schema(static_path)
+        self.schema: Schema = read_schema(static_package)
         self.contamination = read_contamination()
         validate_contamination(self.contamination, self.schema)
 
@@ -977,10 +977,10 @@ def main():
     )
     parser.add_argument(
         "-s",
-        "--static-path",
+        "--static-package",
         type=str,
         help="Where schema.yaml lives",
-        default=DEFAULT_STATIC_PATH,
+        default=SCHEMA_YAML_PACKAGE,
     )
     parser.add_argument(
         "--suite",
@@ -1005,7 +1005,7 @@ def main():
     summarizer = Summarizer(
         suite=args.suite,
         output_path=args.output_path,
-        static_path=args.static_path,
+        static_package=args.static_package,
         verbose=args.debug,
         num_threads=args.num_threads,
     )

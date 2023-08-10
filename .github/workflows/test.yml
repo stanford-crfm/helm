@@ -48,7 +48,7 @@ jobs:
           restore-keys: |
             pip-
       # Installs dependencies and performs static code checks
-      - run: ./pre-commit-venv.sh
+      - run: ./pre-commit-venv-heim.sh
       - name: Run tests
         # Skip ICE tokenizer tests. GHA is having trouble downloading ice_text.model.
         run: >

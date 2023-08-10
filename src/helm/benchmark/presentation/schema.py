@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Optional, Dict
 import dacite
+import importlib_resources as resources
 import mako.template
-import os
 import yaml  # type: ignore
 
 from helm.common.general import hlog
@@ -11,7 +11,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
 
-DEFAULT_STATIC_PATH: str = "src/helm/benchmark/static"
+SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
 SCHEMA_YAML_FILENAME: str = "schema.yaml"
 
 
@@ -198,7 +198,7 @@ class RunGroup(Field):
     # If THIS_GROUP_ONLY, we include the run in this specific group but not to others (this is useful for ablations
     # where we want to display a run for the ablation group but not for the more general groups it belongs to).
     # Example: If a run has the groups ["imdb", "ablation_in_context"] and "imdb" has visibility ALL_GROUPS, while
-    # "ablation_in_context" has visiblity THIS_GROUP_ONLY, then this run is displayed under "ablation_in_context", but
+    # "ablation_in_context" has visibility THIS_GROUP_ONLY, then this run is displayed under "ablation_in_context", but
     # not under "imdb" (and thus is not aggregated with the canonical runs with groups ["imdb"].
     visibility: str = ALL_GROUPS
 
@@ -245,9 +245,9 @@ class Schema:
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema(static_path: str = DEFAULT_STATIC_PATH) -> Schema:
-    schema_path: str = os.path.join(static_path, SCHEMA_YAML_FILENAME)
-    hlog(f"Reading schema from {schema_path}...")
-    with open(schema_path, "r") as f:
+def read_schema(schema_yaml_package: str = SCHEMA_YAML_PACKAGE) -> Schema:
+    hlog(f"Reading schema from {schema_yaml_package}...")
+    schema_path = resources.files(schema_yaml_package).joinpath(SCHEMA_YAML_FILENAME)
+    with schema_path.open("r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Schema, raw)

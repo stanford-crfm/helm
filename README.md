@@ -48,4 +48,4 @@ Unlike previous evaluations that focused on alignment and quality, HEIM signific
 models across all aspects. Our results reveal that no single model excels in all aspects, with different models 
 demonstrating strengths in different aspects.
 
-This repository branch contains the code used to produce the [main results of the paper](https://crfm.stanford.edu/heim/latest/).
+This repository contains the code used to produce the [main results of the paper](https://crfm.stanford.edu/heim/latest/).
