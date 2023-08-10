@@ -51,7 +51,7 @@ from .yalm_window_service import YaLMWindowService
 from .llama_window_service import LlamaWindowService, Llama2WindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
-from .neruips_local_window_service import NeuripsWindowService
+from .httpmodel_window_service import HTTPModelWindowServce
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.remote_model_registry import get_remote_model
 
@@ -88,7 +88,7 @@ class WindowServiceFactory:
         elif get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
         elif organization == "neurips":
-            window_service = NeuripsWindowService(service)
+            window_service = HTTPModelWindowServce(service)
         elif huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
         elif organization == "openai":

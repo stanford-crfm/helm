@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from typing import Optional
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import (
@@ -20,8 +21,8 @@ from .client import Client, wrap_request_time
 import requests
 
 
-class HTTPClient(Client):
-    """Implements a simple HTTP client."""
+class HTTPModelClient(Client):
+    """Implements a simple client for a model being served over HTTP."""
 
     def __init__(
         self,
@@ -31,11 +32,11 @@ class HTTPClient(Client):
         timeout: int = 10,
         do_cache: bool = False,
     ):
-        self.cache = Cache(cache_config)
+        self.do_cache = do_cache
+        self.cache: Optional[Cache] = Cache(cache_config) if do_cache else None
         self.base_url = base_url
         self.port = port
         self.timeout = timeout
-        self.do_cache = do_cache
 
     def make_request(self, request: Request) -> RequestResult:
         cache_key = asdict(request)
@@ -43,13 +44,9 @@ class HTTPClient(Client):
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
 
-        # Only a single stop sequence is supported as we can only pass in a single value for `eos_token_id`
-        if len(request.stop_sequences) > 1:
-            raise ValueError("More than one stop sequence is not supported.")
-
         raw_request = {
             "prompt": request.prompt,
-            "temperature": 1e-7 if request.temperature == 0 else request.temperature,
+            "temperature": request.temperature,
             "num_return_sequences": request.num_completions,
             "max_new_tokens": request.max_tokens,
             "top_p": request.top_p,
@@ -112,8 +109,10 @@ class HTTPClient(Client):
                 response.raise_for_status()
                 response_data = response.json()
                 return response_data
-
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            if self.do_cache:
+                result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            else:
+                result, cached = do_it(), False
         except Exception as e:
             error: str = f"Local Model error: {e}"
             return TokenizationRequestResult(
