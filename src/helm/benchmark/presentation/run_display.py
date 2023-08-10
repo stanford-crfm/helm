@@ -77,7 +77,6 @@ class DisplayRequest:
 
 
 def _read_scenario_state(run_path: str) -> ScenarioState:
-    hlog(f"\n\n\n\n\n\n\nn\nRUNNNING SCENARIO STATE {run_path}")
     scenario_state_path: str = os.path.join(run_path, "scenario_state.json")
     if not os.path.exists(scenario_state_path):
         raise ValueError(f"Could not load ScenarioState from {scenario_state_path}")
