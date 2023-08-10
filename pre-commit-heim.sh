@@ -3,6 +3,8 @@
 # This script fails when any of its commands fail.
 set -e
 
+./pre-commit.sh
+
 # On Mac OS, skip installing pytorch with CUDA because CUDA is not supported
 if [[ $OSTYPE != 'darwin'* ]]; then
   # DALLE mini requires jax install
@@ -26,7 +28,5 @@ fi
 
 # For Detectron2. Following https://detectron2.readthedocs.io/en/latest/tutorials/install.html
 python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
-
-./pre-commit.sh
 
 echo "Done."
