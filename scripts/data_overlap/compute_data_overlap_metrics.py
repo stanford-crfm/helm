@@ -236,7 +236,6 @@ if __name__ == "__main__":
                 output_ngrams=not args.no_output_ngrams,
             )
 
-    hlog(f'/n/n{not args.no_output_ngrams}')
     if not args.no_output_ngrams:
         all_entry_overlap_ngrams = []
         with open(f"{args.output_stats}_ngrams", "w") as f:
