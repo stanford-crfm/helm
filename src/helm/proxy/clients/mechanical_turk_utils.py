@@ -1,4 +1,3 @@
-import codecs
 import json
 import re
 import sys
@@ -29,9 +28,7 @@ def replace_emoji_characters(s):
         Returns:
             Unicode string
         """
-        bytes = codecs.encode(emoji_match.group(), "utf-8")
-        bytes_as_json = json.dumps([b for b in bytearray(bytes)])
-        return "<span class='emoji-bytes' data-emoji-bytes='%s'></span>" % bytes_as_json
+        return emoji_match.group().encode("ascii", "xmlcharrefreplace").decode()
 
     # The procedure for stripping Emoji characters is based on this
     # StackOverflow post:
