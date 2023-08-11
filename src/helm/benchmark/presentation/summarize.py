@@ -39,7 +39,7 @@ from .contamination import (
     CONTAMINATION_STYLES,
     CONTAMINATION_LEVEL_STRONG,
 )
-from .run_display import write_run_display_json
+from .run_display import write_run_display_json, read_scenario_state
 
 """
 Reads the output of the benchmark runs and produces:
@@ -403,20 +403,22 @@ class Summarizer:
                 data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
                 light_scenario_key = data_overlap_stats_key.light_scenario_key
                 scenario_spec = light_scenario_key.scenario_spec
-                num_instances = data_overlap_stats.num_instances
                 n = data_overlap_stats_key.overlap_protocol_spec.n
-                """
-                TODO: here we are currently just aggregating across all instance ids
-                for a given scenario rather than the subset run on HELM
-                """
-                num_overlapping_inputs = len(data_overlap_stats.instance_ids_with_overlapping_input)
-                num_overlapping_references = len(data_overlap_stats.instance_ids_with_overlapping_reference)
-                if n == OVERLAP_N_COUNT:
-                    scenario_spec_overlap_counts[scenario_spec] = (
-                        num_instances,
-                        num_overlapping_inputs,
-                        num_overlapping_references,
+                if scenario_spec in self.scenario_spec_instance_id_dict:
+                    instance_ids = self.scenario_spec_instance_id_dict[scenario_spec]
+                    num_instances = len(instance_ids)
+                    num_overlapping_inputs = len(
+                        set(data_overlap_stats.instance_ids_with_overlapping_input) & instance_ids
                     )
+                    num_overlapping_references = len(
+                        set(data_overlap_stats.instance_ids_with_overlapping_reference) & instance_ids
+                    )
+                    if n == OVERLAP_N_COUNT:
+                        scenario_spec_overlap_counts[scenario_spec] = (
+                            num_instances,
+                            num_overlapping_inputs,
+                            num_overlapping_references,
+                        )
 
             group_overlap_stats_list: List = []
             for group, scenario_specs in group_to_scenario_specs.items():
@@ -1091,6 +1093,22 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
+    def get_scenario_spec_instance_ids(self) -> None:
+        self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, Set[str]] = dict()
+        for run in self.runs:
+            run_spec = run.run_spec
+            scenario_spec = run_spec.scenario_spec
+            if scenario_spec in self.scenario_spec_instance_id_dict:
+                continue
+            self.scenario_spec_instance_id_dict[scenario_spec] = set()
+
+            run_path = run.run_path
+            scenario_state = read_scenario_state(run_path)
+
+            for request_state in scenario_state.request_states:
+                if request_state.instance.id:
+                    self.scenario_spec_instance_id_dict[scenario_spec].add(request_state.instance.id)
+
 
 def symlink_latest(output_path: str, suite: str) -> None:
     # Create a symlink runs/latest -> runs/<name_of_suite>,
@@ -1135,6 +1153,7 @@ def main():
         suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
     summarizer.read_runs()
+    summarizer.get_scenario_spec_instance_ids()
     summarizer.read_overlap_stats()
     summarizer.check_metrics_defined()
 
