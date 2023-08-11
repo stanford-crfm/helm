@@ -4,20 +4,18 @@ import sys
 
 
 # Source: https://github.com/charman/mturk-emoji
-def replace_emoji_characters(s):
+def replace_emoji_characters(s: str) -> str:
     """Replace 4-byte characters with HTML spans with bytes as JSON array
 
     This function takes a Unicode string containing 4-byte Unicode
     characters, e.g. 😀, and replaces each 4-byte character with an
-    HTML span with the 4 bytes encoded as a JSON array, e.g.:
-
-      <span class='emoji-bytes' data-emoji-bytes='[240, 159, 152, 128]'></span>
+    HTML span with the 4 bytes encoded as a HTML entity, e.g. &#128512;
 
     Args:
         s (Unicode string):
     Returns:
         Unicode string with all 4-byte Unicode characters in the source
-        string replaced with HTML spans
+        string replaced with HTML entities
     """
 
     def _emoji_match_to_span(emoji_match):
