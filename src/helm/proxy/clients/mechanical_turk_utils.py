@@ -1,5 +1,6 @@
 import json
 import re
+from re import Match
 import sys
 
 
@@ -8,23 +9,25 @@ def replace_emoji_characters(s: str) -> str:
     """Replace 4-byte characters with HTML spans with bytes as JSON array
 
     This function takes a Unicode string containing 4-byte Unicode
-    characters, e.g. 😀, and replaces each 4-byte character with an
-    HTML span with the 4 bytes encoded as a HTML entity, e.g. &#128512;
+    characters, e.g. "hi😀😀", and replaces each 4-byte character with an
+    HTML span with the 4 bytes encoded as a HTML entity,
+    e.g. "hi&#128512;&#128512;"
 
     Args:
-        s (Unicode string):
+        s (Unicode string): String that main contain emojis e.g. "hi😀😀"
     Returns:
         Unicode string with all 4-byte Unicode characters in the source
-        string replaced with HTML entities
+        string replaced with HTML entities e.g. "hi&#128512;&#128512;"
     """
 
-    def _emoji_match_to_span(emoji_match):
+    def _emoji_match_to_span(emoji_match: Match) -> str:
         """
         Args:
-            emoji_match (MatchObject):
+            emoji_match (Match): match containing a single group
+            with a single emoji e.g. "😀"
 
         Returns:
-            Unicode string
+            Unicode string with the emoji encoded a HTML entity e.g. "&#128512;"
         """
         return emoji_match.group().encode("ascii", "xmlcharrefreplace").decode()
 
