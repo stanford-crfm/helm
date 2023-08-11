@@ -3,6 +3,7 @@ from dataclasses import replace
 from typing import List, Optional
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
+from helm.benchmark.tokenizer_config_registry import register_tokenizer_configs_from_path
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
@@ -262,6 +263,12 @@ def main():
         help="Experimental: Where to read model deployments from",
         default=[],
     )
+    parser.add_argument(
+        "--tokenizer-paths",
+        nargs="+",
+        help="Experimental: Where to read tokenizer configs from",
+        default=[],
+    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
@@ -274,6 +281,8 @@ def main():
         register_model_metadata_from_path(model_metadata_path)
     for model_deployment_paths in args.model_deployment_paths:
         register_model_deployments_from_path(model_deployment_paths)
+    for tokenizer_paths in args.tokenizer_paths:
+        register_tokenizer_configs_from_path(tokenizer_paths)
 
     if args.server_url and args.enable_remote_models:
         check_and_register_remote_model(args.server_url, args.enable_remote_models)

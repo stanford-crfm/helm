@@ -5,6 +5,7 @@ from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
 from retrying import RetryError, Attempt
 
 from helm.benchmark.model_deployment_registry import get_model_deployment
+from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object
@@ -196,12 +197,18 @@ class AutoClient(Client):
 
     def _get_tokenizer_client(self, tokenizer: str) -> Client:
         """Return a client based on the tokenizer, creating it if necessary."""
-        organization: str = tokenizer.split("/")[0]
         client: Optional[Client] = self.tokenizer_clients.get(tokenizer)
 
         if client is None:
+            organization: str = tokenizer.split("/")[0]
             cache_config: CacheConfig = self._build_cache_config(organization)
-            if get_huggingface_model_config(tokenizer):
+            # TODO: Migrate all clients to use model deployments
+            tokenizer_config = get_tokenizer_config(tokenizer)
+            if tokenizer_config:
+                client = create_object(
+                    tokenizer_config.tokenizer_spec, additional_args={"cache_config": cache_config}
+                )
+            elif get_huggingface_model_config(tokenizer):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
