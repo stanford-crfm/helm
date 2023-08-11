@@ -1,4 +1,3 @@
-import json
 import re
 from re import Match
 import sys
