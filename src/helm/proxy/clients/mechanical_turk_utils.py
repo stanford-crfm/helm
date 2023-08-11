@@ -8,13 +8,13 @@ import sys
 def replace_emoji_characters(s: str) -> str:
     """Replace 4-byte characters with HTML spans with bytes as JSON array
 
-    This function takes a Unicode string containing 4-byte Unicode
+    This function takes a Unicode string that may contain 4-byte Unicode
     characters, e.g. "hi😀😀", and replaces each 4-byte character with an
     HTML span with the 4 bytes encoded as a HTML entity,
     e.g. "hi&#128512;&#128512;"
 
     Args:
-        s (Unicode string): String that main contain emojis e.g. "hi😀😀"
+        s (Unicode string): String that may contain emojis e.g. "hi😀😀"
     Returns:
         Unicode string with all 4-byte Unicode characters in the source
         string replaced with HTML entities e.g. "hi&#128512;&#128512;"
