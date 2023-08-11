@@ -71,7 +71,7 @@ class AutoClient(Client):
 
         # Initialize `FileCache` for text-to-image model APIs
         local_file_cache_path: str = os.path.join(self.cache_path, self.OUTPUT_FILES_DIR_NAME, organization)
-        file_cache: FileCache = LocalFileCache(local_file_cache_path, file_extension="png", binary_mode=True)
+        file_cache: FileCache = LocalFileCache(local_file_cache_path, file_extension="png")
 
         if client is None:
             cache_config: CacheConfig = self._build_cache_config(organization)

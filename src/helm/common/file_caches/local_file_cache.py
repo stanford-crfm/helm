@@ -6,17 +6,18 @@ from .file_cache import FileCache
 
 
 class LocalFileCache(FileCache):
-    def __init__(self, base_path: str, file_extension: str, binary_mode: bool = True):
-        super().__init__(base_path, file_extension, binary_mode)
+    def __init__(self, base_path: str, file_extension: str):
         ensure_directory_exists(base_path)
+        self._location: str = base_path
+        self._file_extension: str = file_extension
 
-    def store(self, compute: Callable) -> str:
+    def store(self, compute: Callable[[], bytes]) -> str:
         """
         Stores the output of `compute` as a file at a unique path.
         Returns the file path.
         """
         file_path: str = self.get_unique_file_location()
-        with open(file_path, "wb" if self.binary_mode else "w") as f:
+        with open(file_path, "wb") as f:
             f.write(compute())
 
         return file_path
@@ -25,8 +26,8 @@ class LocalFileCache(FileCache):
         """Generate an unique file name at `base_path`"""
 
         def generate_one() -> str:
-            file_name: str = f"{generate_unique_id()}.{self.file_extension}"
-            return os.path.join(self.location, file_name)
+            file_name: str = f"{generate_unique_id()}.{self._file_extension}"
+            return os.path.join(self._location, file_name)
 
         file_path: str
         while True:
