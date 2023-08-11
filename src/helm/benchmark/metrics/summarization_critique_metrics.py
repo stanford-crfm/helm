@@ -44,7 +44,7 @@ class SummarizationCritiqueMetric(Metric):
                 CritiqueQuestionTemplate(
                     name=_RELEVANCE_NAME,
                     question_type=QuestionType.MULTIPLE_CHOICE,
-                    text="To what extend the summary include only important information from the source document? "
+                    text="To what extent the summary include only important information from the source document? "
                     "(1 = not at all, 5 = very much)",
                     options=["1", "2", "3", "4", "5"],
                 ),
