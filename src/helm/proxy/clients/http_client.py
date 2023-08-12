@@ -27,15 +27,13 @@ class HTTPModelClient(Client):
     def __init__(
         self,
         cache_config: CacheConfig,
-        base_url: str = "http://localhost",
-        port: int = 8080,
+        base_url: str = "http://localhost:8080",
         timeout: int = 10,
         do_cache: bool = False,
     ):
         self.do_cache = do_cache
         self.cache: Optional[Cache] = Cache(cache_config) if do_cache else None
         self.base_url = base_url
-        self.port = port
         self.timeout = timeout
 
     def make_request(self, request: Request) -> RequestResult:
@@ -58,7 +56,7 @@ class HTTPModelClient(Client):
         try:
 
             def do_it():
-                url = f"{self.base_url}:{self.port}/process"
+                url = f"{self.base_url}/process"
                 response = requests.post(url, json=raw_request, timeout=self.timeout)
                 response.raise_for_status()
                 response_data = response.json()
@@ -104,7 +102,7 @@ class HTTPModelClient(Client):
         try:
 
             def do_it():
-                url = f"http://localhost:{self.port}/tokenize"
+                url = f"{self.base_url}/tokenize"
                 response = requests.post(url, json=raw_request)
                 response.raise_for_status()
                 response_data = response.json()
@@ -134,7 +132,7 @@ class HTTPModelClient(Client):
         # try:
 
         #     def do_it():
-        #         url = f"http://localhost:{self.port}/decode"
+        #         url = f"{self.base_url}/decode"
         #         response = requests.post(url, json={"tokens": request.tokens})
         #         response.raise_for_status()
         #         response_data = response.json()

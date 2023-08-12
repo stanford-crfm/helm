@@ -303,7 +303,7 @@ def main():
     auth: Authentication = (
         Authentication("") if args.skip_instances or not args.server_url else create_authentication(args)
     )
-    
+
     run_benchmarking(
         run_specs=run_specs,
         auth=auth,
