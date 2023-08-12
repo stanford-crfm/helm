@@ -25,6 +25,7 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.data_overlap.data_overlap_spec import DataOverlapStats, GroupOverlapStats
+from helm.benchmark.data_overlap.light_scenario import ScenarioSpecInstanceIds
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -409,10 +410,10 @@ class Summarizer:
                     instance_ids = self.scenario_spec_instance_id_dict[scenario_spec]
                     num_instances = len(instance_ids)
                     num_overlapping_inputs = len(
-                        set(data_overlap_stats.instance_ids_with_overlapping_input) & instance_ids
+                        set(data_overlap_stats.instance_ids_with_overlapping_input) & set(instance_ids)
                     )
                     num_overlapping_references = len(
-                        set(data_overlap_stats.instance_ids_with_overlapping_reference) & instance_ids
+                        set(data_overlap_stats.instance_ids_with_overlapping_reference) & set(instance_ids)
                     )
                     if n == OVERLAP_N_COUNT:
                         scenario_spec_overlap_counts[scenario_spec] = (
@@ -1095,20 +1096,48 @@ class Summarizer:
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
     def read_scenario_spec_instance_ids(self) -> None:
-        self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, Set[str]] = dict()
+        self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, List[str]] = dict()
+        scenario_spec_instance_ids_json = os.path.join(
+            self.run_suite_path, "data_overlap", "scenario_spec_instance_ids.json"
+        )
+        if not os.path.exists(scenario_spec_instance_ids_json):
+            hlog(f"No scenario spec instance ids json, writing to {scenario_spec_instance_ids_json}")
+            self.write_scenario_spec_instance_ids_json(scenario_spec_instance_ids_json)
+        else:
+            hlog(f"Reading scenario spec instance ids json from {scenario_spec_instance_ids_json}")
+            scenario_spec_instance_ids_jsons = open(scenario_spec_instance_ids_json, "r").readlines()
+
+            for scenario_spec_instance_ids_json in scenario_spec_instance_ids_jsons:
+                scenario_spec_instance_ids_dict = json.loads(scenario_spec_instance_ids_json)
+                scenario_spec_instance_ids = cattrs.structure(scenario_spec_instance_ids_dict, ScenarioSpecInstanceIds)
+                self.scenario_spec_instance_id_dict[
+                    scenario_spec_instance_ids.scenario_spec
+                ] = scenario_spec_instance_ids.instance_ids
+
+    def write_scenario_spec_instance_ids_json(self, file_path) -> None:
         for run in self.runs:
             run_spec = run.run_spec
             scenario_spec = run_spec.scenario_spec
             if scenario_spec in self.scenario_spec_instance_id_dict:
                 continue
-            self.scenario_spec_instance_id_dict[scenario_spec] = set()
+            self.scenario_spec_instance_id_dict[scenario_spec] = list()
 
             run_path = run.run_path
             scenario_state = read_scenario_state(run_path)
 
             for request_state in scenario_state.request_states:
                 if request_state.instance.id:
-                    self.scenario_spec_instance_id_dict[scenario_spec].add(request_state.instance.id)
+                    self.scenario_spec_instance_id_dict[scenario_spec].append(request_state.instance.id)
+        all_scenario_spec_instance_ids = []
+        for scenario_spec, instance_ids in self.scenario_spec_instance_id_dict.items():
+            scenario_spec_instance_ids = ScenarioSpecInstanceIds(scenario_spec=scenario_spec, instance_ids=instance_ids)
+            all_scenario_spec_instance_ids.append(scenario_spec_instance_ids)
+
+        with open(file_path, "w") as f:
+            f.writelines(
+                f"{json.dumps(asdict_without_nones(scenario_spec_instance_ids))}\n"
+                for scenario_spec_instance_ids in all_scenario_spec_instance_ids
+            )
 
 
 def symlink_latest(output_path: str, suite: str) -> None:

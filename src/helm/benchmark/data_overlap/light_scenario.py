@@ -47,3 +47,13 @@ class LightScenario:
 
     instances: List[LightInstance]
     """Instances of this scenario"""
+
+@dataclass(frozen=True)
+class ScenarioSpecInstanceIds:
+    """
+    Instance ids associated with a scenario
+    """
+
+    scenario_spec: ScenarioSpec
+
+    instance_ids: List[str]
