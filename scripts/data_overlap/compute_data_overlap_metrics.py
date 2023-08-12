@@ -233,10 +233,10 @@ if __name__ == "__main__":
                 stats_key_to_input_ids=stats_key_to_input_ids,
                 stats_key_to_reference_ids=stats_key_to_reference_ids,
                 entry_overlap_key_to_ngram_counts=entry_overlap_key_to_ngram_counts,
-                output_ngrams=args.output_ngrams,
+                output_ngrams=not args.no_output_ngrams,
             )
 
-    if args.output_ngrams:
+    if not args.no_output_ngrams:
         all_entry_overlap_ngrams = []
         with open(f"{args.output_stats}_ngrams", "w") as f:
             for entry_overlap_key in entry_overlap_key_to_ngram_counts:

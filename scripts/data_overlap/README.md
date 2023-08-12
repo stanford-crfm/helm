@@ -32,6 +32,7 @@ For instance, you can call this with The Pile, e.g. have:
     output_stats = arbitrary output file name, e.g. "output_stats"
     input_format = the_pile
 
+If you don't want to output the ngrams that are overlapping in test set to a separate "{output_stats}_ngrams" file, you can pass --no-output-ngrams.
 
 There are additional optional args:
 --normalization default 
