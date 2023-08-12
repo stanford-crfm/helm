@@ -405,6 +405,7 @@ class Summarizer:
                 scenario_spec = light_scenario_key.scenario_spec
                 n = data_overlap_stats_key.overlap_protocol_spec.n
                 if scenario_spec in self.scenario_spec_instance_id_dict:
+                    # Get statistics based on the subset of instance_ids that HELM uses for a scenario
                     instance_ids = self.scenario_spec_instance_id_dict[scenario_spec]
                     num_instances = len(instance_ids)
                     num_overlapping_inputs = len(
@@ -1093,7 +1094,7 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
-    def get_scenario_spec_instance_ids(self) -> None:
+    def read_scenario_spec_instance_ids(self) -> None:
         self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, Set[str]] = dict()
         for run in self.runs:
             run_spec = run.run_spec
@@ -1153,7 +1154,7 @@ def main():
         suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
     summarizer.read_runs()
-    summarizer.get_scenario_spec_instance_ids()
+    summarizer.read_scenario_spec_instance_ids()
     summarizer.read_overlap_stats()
     summarizer.check_metrics_defined()
 
