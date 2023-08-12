@@ -25,9 +25,6 @@ from common.util import get_tokenizer
 from scenarios.scenario import ScenarioSpec
 
 
-# The n values of the ngrams to be computed
-N_VALUES: List[int] = [5, 9, 13]  # TODO: Pick the N values
-
 PART_INPUT: str = "input"
 PART_REF: str = "references"
 
@@ -211,7 +208,7 @@ if __name__ == "__main__":
     with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
         ngram_index: NgramIndex
         ngram_index = create_ngram_index(
-            light_scenarios=light_scenarios, n_values=N_VALUES, tokenizer=tokenizer, stats_key_counts=stats_key_counts
+            light_scenarios=light_scenarios, n_values=args.N, tokenizer=tokenizer, stats_key_counts=stats_key_counts
         )
 
     # DataOverlapStatsKey -> Set[str] for ids
@@ -236,10 +233,10 @@ if __name__ == "__main__":
                 stats_key_to_input_ids=stats_key_to_input_ids,
                 stats_key_to_reference_ids=stats_key_to_reference_ids,
                 entry_overlap_key_to_ngram_counts=entry_overlap_key_to_ngram_counts,
-                output_ngrams=args.output_ngrams,
+                output_ngrams=not args.no_output_ngrams,
             )
 
-    if args.output_ngrams:
+    if not args.no_output_ngrams:
         all_entry_overlap_ngrams = []
         with open(f"{args.output_stats}_ngrams", "w") as f:
             for entry_overlap_key in entry_overlap_key_to_ngram_counts:

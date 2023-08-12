@@ -1,3 +1,5 @@
+from helm.benchmark.model_deployment_registry import get_model_deployment
+from helm.proxy.clients.huggingface_model_registry import HuggingFaceHubModelConfig
 from helm.proxy.models import (
     get_model,
     get_model_names_with_tag,
@@ -67,7 +69,22 @@ class WindowServiceFactory:
         window_service: WindowService
         # Catch any HuggingFace models registered via the command line flags
         huggingface_model_config = get_huggingface_model_config(model_name)
-        if get_remote_model(model_name):
+
+        # TODO: Migrate all window services to use use model deployments
+        model_deployment = get_model_deployment(model_name)
+        if model_deployment:
+            # TODO: Allow tokenizer name auto-inference in some cases.
+            if not model_deployment.tokenizer_name:
+                raise Exception("Tokenizer name must be set on model deplyment")
+            tokenizer_name = model_deployment.tokenizer_name
+            # Only use HuggingFaceWindowService for now.
+            # TODO: Allow using other window services.
+            window_service = HuggingFaceWindowService(
+                service=service,
+                model_config=HuggingFaceHubModelConfig.from_string(tokenizer_name),
+                max_sequence_length=model_deployment.max_sequence_length,
+            )
+        elif get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
         elif huggingface_model_config:
             window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
