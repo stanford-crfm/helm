@@ -68,14 +68,10 @@ class HTTPModelClient(Client):
                 response, cached = do_it(), False
 
             tokens = [
-                Token(
-                    text=token["text"], logprob=token["logprob"], top_logprobs=token["top_logprob"]
-                )
+                Token(text=token["text"], logprob=token["logprob"], top_logprobs=token["top_logprob"])
                 for token in response["tokens"]
             ]
-            completions = [
-                Sequence(text=response["text"], logprob=response["logprob"], tokens=tokens)
-            ]
+            completions = [Sequence(text=response["text"], logprob=response["logprob"], tokens=tokens)]
 
             return RequestResult(
                 success=True,
@@ -87,9 +83,7 @@ class HTTPModelClient(Client):
             )
         except requests.exceptions.RequestException as e:
             error: str = f"Request error: {e}"
-            return RequestResult(
-                success=False, cached=False, error=error, completions=[], embedding=[]
-            )
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         cache_key = asdict(request)
@@ -107,15 +101,14 @@ class HTTPModelClient(Client):
                 response.raise_for_status()
                 response_data = response.json()
                 return response_data
+
             if self.do_cache:
                 result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             else:
                 result, cached = do_it(), False
         except Exception as e:
             error: str = f"Local Model error: {e}"
-            return TokenizationRequestResult(
-                success=False, cached=False, error=error, text="", tokens=[]
-            )
+            return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
 
         return TokenizationRequestResult(
             success=True,
