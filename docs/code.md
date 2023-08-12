@@ -86,6 +86,7 @@ In order to implement new scenarios:
 14. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
 15. Update `src/helm/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
 
+16. Add a schema to `src/helm/benchmark/static/schema.yaml` and add the scenario to `subgroups` as needed.
 
 ## Adding new metrics
 
