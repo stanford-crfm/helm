@@ -1,8 +1,8 @@
 import os
 import json
 from typing import List, Dict
-from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Input, VALID_SPLIT, Reference, Output, CORRECT_TAG
+# from helm.common.general import ensure_file_downloaded
+from scenario import Scenario, Instance, Input, TRAIN_SPLIT, VALID_SPLIT, Reference, Output, CORRECT_TAG
 
 TASK = {"knowledge": ["qa_2020", "qa_2023"],
         "style": ["base", "shake_w", "augment", "shake_p0", "shake_p0.6", "bible_p0", "bible_p0.6", "romantic_p0",
@@ -12,6 +12,15 @@ DEMO = {"qa_2020": ["2021_qa", "global_facts", "machine_learning", "moral_scenar
         "bible_p0.6": ["base", "bible_p0.6"],
         "romantic_p0.6": ["base", "romantic_p0.6"],
         "tweet_p0.6": ["base", "tweet_p0.6"]}
+
+ANSWER_MAPPING = {
+    "sst2": {0: "negative", 1: "positive"},
+    "mnli": {0: "yes", 1: "maybe", 2: "no"},
+    "mnli-mm": {0: "yes", 1: "maybe", 2: "no"},
+    "qnli": {0: "yes", 1: "no"},
+    "qqp": {1: "yes", 0: "no"},
+    "rte": {0: "yes", 1: "no"},
+}
 
 
 class OoDRobustnessScenario(Scenario):
@@ -48,7 +57,7 @@ class OoDRobustnessScenario(Scenario):
 
         if ood_type not in TASK.keys():
             raise ValueError("Invalid OoD type name specified!")
-        if task not in TASK[task]:
+        if task not in TASK[ood_type]:
             raise ValueError("Invalid OoD task name specified!")
         if demo_name not in DEMO[task]:
             raise ValueError("Invalid OoD demo name specified!")
@@ -89,37 +98,30 @@ class OoDRobustnessScenario(Scenario):
                 context_sentences += "Question: " + question['question_sentence'] + '\n'
                 context_sentences += "0 : " + question["choices"][0] + " \n" + "1 : " + question["choices"][
                     1] + " \n" + "2 : " + question["choices"][2] + " \n" + "3 : " + question["choices"][3] + " \n"
-                dataset_demo.append([context_sentences, question["answer"][0]])
+                dataset_demo.append([context_sentences, question["answer"][0], ["0", "1", "2", "3"]])
         elif self.ood_type == "style":
             dataset_example = datasets["train_demo"][demo]
             labels = ["negative", "positive"]
             for i in range(self.few_shot_num):
                 example = dataset_example[i]
-                dataset_demo.append([example["sentence"], labels[int(example["label"])]])
+                dataset_demo.append([example["sentence"], labels[int(example["label"])], labels])
         return dataset_demo
 
-    def get_input(self, raw_item) -> Input:
-        key1, key2 = TASK_TO_KEYS[self.glue_task]
-        message = f"{key1}: {raw_item[key1]}"
-        if key2:
-            message = f"{message}\n{key2}: {raw_item[key2]}"
-        if self.glue_task == "rte":
-            # TODO: Reformat data file to get rid of this
-            message = f"{message}".replace('sentence1', 'premise').replace('sentence2', 'hypothesis')
-        message = f"{TASK_DESCRIPTIONS[self.glue_task]}\n{message}"
+    def get_input(self, text) -> Input:
+        message = f"{self.task_message}\n{text}"
 
         return Input(text=message)
 
-    def get_references(self, label: int) -> List[Reference]:
+    def get_references(self, label: str, answer_mapping: List[str]) -> List[Reference]:
         references: List[Reference] = []
-        for candidate_label, label_text in ANSWER_MAPPING[self.glue_task].items():
+        for candidate_label, label_text in enumerate(answer_mapping):
             candidate_label: str
-            tags = [CORRECT_TAG] if label == candidate_label else []
+            tags = [CORRECT_TAG] if label == label_text else []
             references.append(Reference(output=Output(text=candidate_label), tags=tags))
 
         return references
 
-    def get_prompts(self, datasets, dataset_demo=[]):
+    def get_prompts(self, datasets):
         dataset_question = []
         dataset = []
         if self.ood_type == "knowledge":
@@ -139,7 +141,7 @@ class OoDRobustnessScenario(Scenario):
                     context_sentences += "0 : " + question["choices"][0] + " \n" + "1 : " + question["choices"][
                         1] + " \n" + "2 : " + question["choices"][2] + " \n" + "3 : " + question["choices"][3] + " \n"
                     option = ["0", "1", "2", "3"]
-                dataset.append({"input": context_sentences, "label": answer, "examples": dataset_demo, "option": option})
+                dataset.append({"input": context_sentences, "label": answer, "option": option})
         elif self.ood_type == "style":
             dataset_question = datasets["dev"][self.task]
             labels = ["negative", "positive"]
@@ -148,34 +150,47 @@ class OoDRobustnessScenario(Scenario):
                 context_sentences += example["sentence"]
                 label = labels[int(example["label"])]
                 dataset.append(
-                    {"input": context_sentences, "label": label.lower(), "examples": dataset_demo, "option": labels})
+                    {"input": context_sentences, "label": label.lower(), "option": labels})
         return dataset
 
     def get_instances(self) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, "ood.json")
 
-        ensure_file_downloaded(
-            source_url=self.source_url,
-            target_path=data_path,
-        )
+        # ensure_file_downloaded(
+        #     source_url=self.source_url,
+        #     target_path=data_path,
+        # )
 
         with open(data_path) as f:
             dataset: List[Dict] = json.load(f)
 
         self.task_message = self.get_task_messages()
         curr_demo_name = self.demo_name + "_" + str(self.run_id)
-        self.task_demo = self.get_demonstrations(dataset, curr_demo_name)
-        processed_dataset = self.get_prompts(dataset, self.task_demo)
+        task_demo = self.get_demonstrations(dataset, curr_demo_name)
+        processed_dataset = self.get_prompts(dataset)
 
-        # TODO: convert processed_dataset into instances
         instances: List[Instance] = []
-        for raw_item in dataset:
+        for raw_item in task_demo:
             instance = Instance(
-                input=self.get_input(raw_item),
-                references=self.get_references(raw_item["label"]),
+                input=self.get_input(text=raw_item[0]),
+                references=self.get_references(raw_item[1], raw_item[2]),
+                split=TRAIN_SPLIT,
+                sub_split=self.demo_name
+            )
+            instances.append(instance)
+        for raw_item in processed_dataset:
+            instance = Instance(
+                input=self.get_input(text=raw_item["input"]),
+                references=self.get_references(raw_item["label"], raw_item["option"]),
                 split=VALID_SPLIT,
-                sub_split=self.glue_task
+                sub_split=self.demo_name
             )
             instances.append(instance)
 
         return instances
+
+
+if __name__ == '__main__':
+    s = OoDRobustnessScenario(ood_type="knowledge", task="qa_2020", demo_name="2021_qa", run_id=0, few_shot_num=5, idk=True)
+    instances = s.get_instances()
+    print(instances[0].input.text)
