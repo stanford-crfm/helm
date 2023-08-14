@@ -1095,10 +1095,24 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
-    def read_scenario_spec_instance_ids(self) -> None:
+    def read_scenario_spec_instance_ids(self, num_instances) -> None:
+        """
+        This file checks if there exists a file, scenario_spec_instance_ids.json
+        that it can read the instance_ids associated with scenario_specs.
+
+        It will write the num_instances used in the run as part of the file name
+
+        If it doesn't exist, it will go through all the scenario_state files
+        and parse the instance_ids and output it to the file for future uses
+
+        Only when the scenario_specs for the data overlap script change 
+        (or num_instances are different), will this need to be rerun. 
+
+        In such cases, do not include the file as part of the data_overlap directory.
+        """
         self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, List[str]] = dict()
         scenario_spec_instance_ids_json = os.path.join(
-            self.run_suite_path, "data_overlap", "scenario_spec_instance_ids.json"
+            self.run_suite_path, "data_overlap", f"scenario_spec_instance_ids_{num_instances}.json"
         )
         if not os.path.exists(scenario_spec_instance_ids_json):
             hlog(f"No scenario spec instance ids json, writing to {scenario_spec_instance_ids_json}")
@@ -1176,6 +1190,7 @@ def main():
         action="store_true",
         help="Skip write_run_display_json() for runs which already have all output display JSON files",
     )
+    parser.add_argument("-num-instances", type=int, help="Number of instance ids we're using; only for annotating scenario spec instance ids file", default=1000)
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
@@ -1183,7 +1198,7 @@ def main():
         suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
     summarizer.read_runs()
-    summarizer.read_scenario_spec_instance_ids()
+    summarizer.read_scenario_spec_instance_ids(args.num_instances)
     summarizer.read_overlap_stats()
     summarizer.check_metrics_defined()
 
