@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from typing import List, Optional, Tuple
-import re
+from pathlib import PurePath
 import inspect
 
 from helm.common.object_spec import ObjectSpec, create_object
@@ -211,10 +211,14 @@ class Scenario(ABC):
     """Where the scenario subclass for `self` is defined."""
 
     def __post_init__(self) -> None:
-        # Assume `/.../src/helm/benchmark/...`
-        path = inspect.getfile(type(self))
-        # Strip out prefix in absolute path and replace with GitHub link.
-        self.definition_path = re.sub(r"^.*\/src/", "https://github.com/stanford-crfm/helm/blob/main/src/", path)
+        parts = list(PurePath(inspect.getfile(type(self))).parts)
+        path = parts.pop()
+        parts.reverse()
+        for part in parts:
+            path = part + "/" + path
+            if part == "helm":
+                break
+        self.definition_path = "https://github.com/stanford-crfm/helm/blob/main/src/" + path
 
     @abstractmethod
     def get_instances(self) -> List[Instance]:

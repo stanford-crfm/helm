@@ -35,6 +35,12 @@ class TestScenario:
             "}",
         ]
 
+    def test_definition_path(self):
+        assert (
+            self.scenario.definition_path
+            == "https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/simple_scenarios.py"
+        )
+
 
 def test_input_equality():
     input1 = Input(text="input1")

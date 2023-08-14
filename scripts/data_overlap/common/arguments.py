@@ -13,7 +13,7 @@ def get_data_overlap_args() -> Any:
         required=True,
         help="The format of your input file for your training data, e.g. raw, custom, the_pile",
     )
-    parser.add_argument("--output-ngrams", type=bool, default=False, help="Whether to output ngrams")
+    parser.add_argument("--no-output-ngrams", type=bool, default=False, help="Pass to not output ngrams")
     parser.add_argument(
         "--tags",
         type=str,

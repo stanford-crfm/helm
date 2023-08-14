@@ -9,6 +9,7 @@ import re
 from helm.common.critique_request import CritiqueQuestionTemplate, CritiqueRequest, CritiqueTaskTemplate, QuestionType
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
+from helm.proxy.clients.mechanical_turk_utils import replace_emoji_characters
 
 
 def _indent_to_level(text: str, level: int) -> str:
@@ -45,20 +46,22 @@ def _render_template_crowd_html(task_template: CritiqueTaskTemplate) -> str:
                 return valid;
             }
 
-            window.onload = function() {
+            document.addEventListener("DOMContentLoaded", function(event) {
                 document.querySelector('crowd-form').onsubmit = function(e) {
                     if (!validateForm()) {
                         alert("Please answer all the questions in order to submit.");
                         e.preventDefault();
                     }
                 }
-            }
+            });
         </script>"""
     )
 
-    instructions_crowd_html = f"<div>{_format_template_tags(task_template.instructions)}</div>"
-    instruction_question_break_html = "<br><br><h4>Please answer the questions below:</h4>"
-    questions_crowd_html = "<br>\n<br>\n".join(
+    instructions_crowd_html = (
+        f'<p style="white-space: pre-wrap;">{_format_template_tags(task_template.instructions)}</p>'
+    )
+    divider_html = "\n<hr>"
+    questions_crowd_html = "\n<hr>\n".join(
         [_render_question_crowd_html(question) for question in task_template.questions]
     )
     return textwrap.dedent(
@@ -67,8 +70,9 @@ def _render_template_crowd_html(task_template: CritiqueTaskTemplate) -> str:
         {_indent_to_level(validation_crowd_html, 2)}
         <crowd-form answer-format="flatten-objects">
             {_indent_to_level(instructions_crowd_html, 3)}
-            {_indent_to_level(instruction_question_break_html, 3)}
+            {_indent_to_level(divider_html, 3)}
             {_indent_to_level(questions_crowd_html, 3)}
+            {_indent_to_level(divider_html, 3)}
         </crowd-form>"""
     )
 
@@ -91,16 +95,16 @@ def _render_question_crowd_html(question_template: CritiqueQuestionTemplate) -> 
         )
     return textwrap.dedent(
         f"""\
-        <div>
-            <p>{_format_template_tags(question_template.text)}</p>
-            {_indent_to_level(question_input_crowd_html, 3)}
-        </div>"""
+        <p style=\"white-space: pre-wrap;\">
+            {_format_template_tags(question_template.text)}
+        </p>
+        {_indent_to_level(question_input_crowd_html, 2)}"""
     )
 
 
 def _render_multiple_choice_options_crowd_html(name: str, options: List[str]) -> str:
     """Render the Crowd HTML for the options of a multiple-choice question."""
-    buttons_crowd_html = "<br>\n".join(
+    buttons_crowd_html = "\n<br>\n".join(
         [
             f"""<crowd-radio-button name="{name}.{index}">{_format_template_tags(option)}</crowd-radio-button>"""
             for index, option in enumerate(options)
@@ -116,7 +120,7 @@ def _render_multiple_choice_options_crowd_html(name: str, options: List[str]) ->
 
 def _render_checkbox_options_crowd_html(name: str, options: List[str]) -> str:
     """Render the Crowd HTML for the options of a checkbox question."""
-    return "<br>\n".join(
+    return "\n<br>\n".join(
         [
             f"""<crowd-checkbox name="{name}.{index}">{_format_template_tags(option)}</crowd-checkbox>"""
             for index, option in enumerate(options)
@@ -195,4 +199,7 @@ def export_request(request: CritiqueRequest):
     with _exporters_lock:
         if template.name not in _exporters:
             _exporters[template.name] = _MechanicalTurkCritiqueRequestExporter(template)
-    _exporters[template.name].export(request.fields)
+    encoded_fields = {
+        field_name: replace_emoji_characters(field_value) for field_name, field_value in request.fields.items()
+    }
+    _exporters[template.name].export(encoded_fields)
