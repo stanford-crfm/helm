@@ -31,7 +31,6 @@ class HTTPModelClient(Client):
         timeout: int = 10,
         do_cache: bool = False,
     ):
-        self.do_cache = do_cache
         self.cache: Optional[Cache] = Cache(cache_config) if do_cache else None
         self.base_url = base_url
         self.timeout = timeout
@@ -62,7 +61,7 @@ class HTTPModelClient(Client):
                 response_data = response.json()
                 return response_data
 
-            if self.do_cache:
+            if self.cache:
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             else:
                 response, cached = do_it(), False
@@ -102,7 +101,7 @@ class HTTPModelClient(Client):
                 response_data = response.json()
                 return response_data
 
-            if self.do_cache:
+            if self.cache:
                 result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             else:
                 result, cached = do_it(), False
