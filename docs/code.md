@@ -81,9 +81,9 @@ In order to implement new scenarios:
 12. Attempt to run your task with
     `venv/bin/helm-run -r yourscenarioname:arg=value` where 
     `yourscenarioname` matches the `name` specified in YourScenario
-13. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
+13. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `src/helm/benchmark/run_specs.py`.
 14. Update `src/helm/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
-
+15. Add a schema to `src/helm/benchmark/static/schema.yaml` and add the scenario to `subgroups` as needed.
 
 ## Adding new metrics
 
