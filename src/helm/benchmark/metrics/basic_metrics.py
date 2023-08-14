@@ -840,6 +840,11 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
             assert 0.0 <= cur_correct <= 1.0
             correct.append(int(cur_correct))
 
+    # If the model does not produce logprobs (i.e. max_prob is always 1.0)
+    # then don't compute calibration metrics.
+    if all([max_prob == 1.0 for max_prob in [max_probs]]):
+        return []
+
     stats: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
