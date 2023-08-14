@@ -325,7 +325,7 @@ class Summarizer:
         Concretely:
             - get group -> scenario_spec information from self.runs
                 run_spec data
-            - read the files in the data_overlap directory in run_suit_path
+            - read the files in the data_overlap directory in run_suite_path
                 which are scenario_spec -> overlap ids
             - get aggregate stats for group -> overlap ratio
         """
@@ -389,16 +389,16 @@ class Summarizer:
         data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
 
         stats_file_metadata = get_stats_file_metadata(data_overlap_dir)
-        self.model_group_overlap_stats = dict()
+        self._model_group_overlap_stats: Dict[Tuple(str, str), GroupOverlapStats] = dict()
         for file_path, model_names in stats_file_metadata.items():
             overlap_stats_jsons = open(file_path, "r").readlines()
 
-            data_overlap_stats_list = []
+            data_overlap_stats_list: List[DataOverlapStats] = []
             for overlap_stats_json in overlap_stats_jsons:
                 overlap_stats_dict = json.loads(overlap_stats_json)
                 data_overlap_stats_list.append(cattrs.structure(overlap_stats_dict, DataOverlapStats))
 
-            scenario_spec_overlap_counts: Dict = dict()
+            scenario_spec_overlap_counts: Dict[ScenarioSpec, Tuple(int, int, int)] = dict()
             for data_overlap_stats in data_overlap_stats_list:
                 data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
                 light_scenario_key = data_overlap_stats_key.light_scenario_key
@@ -418,7 +418,6 @@ class Summarizer:
                         num_overlapping_references,
                     )
 
-            group_overlap_stats_list: List = []
             for group, scenario_specs in group_to_scenario_specs.items():
                 group_num_instances = 0
                 group_num_overlapping_inputs = 0
@@ -440,11 +439,10 @@ class Summarizer:
                         num_overlapping_inputs=group_num_overlapping_inputs,
                         num_overlapping_references=group_num_overlapping_references,
                     )
-                    group_overlap_stats_list.append(group_overlap_stats)
-            for model_name in model_names:
-                # Assume model name will only be associated with single group overlap list for now
-                # can update to join lists if need arises
-                self.model_group_overlap_stats[model_name] = group_overlap_stats_list
+                    for model_name in model_names:
+                        # Assume model name will only be associated with single group overlap list for now
+                        # can update to join lists if need arises
+                        self._model_group_overlap_stats[(model_name, group)] = group_overlap_stats
 
     @htrack(None)
     def check_metrics_defined(self):
@@ -841,14 +839,9 @@ class Summarizer:
                     contamination_level = None
 
                 group_overlap_stats = None
-                if model_name in self.model_group_overlap_stats:
-                    for curr_group_overlap_stats in self.model_group_overlap_stats[model_name]:
-                        curr_group = curr_group_overlap_stats.group
-                        if curr_group == group_name:
-                            group_overlap_stats = curr_group_overlap_stats
-                            break
+                if (model_name, group_name) in self._model_group_overlap_stats:
+                    group_overlap_stats = self._model_group_overlap_stats[(model_name, group_name)]
 
-                if group_overlap_stats:
                     description = (
                         f"Overlapping input ratio: {group_overlap_stats.overlapping_input_ratio:.3f}\n"
                         f"Overlapping reference ratio: {group_overlap_stats.overlapping_reference_ratio:.3f}\n"
