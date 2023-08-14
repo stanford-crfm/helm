@@ -1105,8 +1105,8 @@ class Summarizer:
         If it doesn't exist, it will go through all the scenario_state files
         and parse the instance_ids and output it to the file for future uses
 
-        Only when the scenario_specs for the data overlap script change 
-        (or num_instances are different), will this need to be rerun. 
+        Only when the scenario_specs for the data overlap script change
+        (or num_instances are different), will this need to be rerun.
 
         In such cases, do not include the file as part of the data_overlap directory.
         """
@@ -1190,7 +1190,12 @@ def main():
         action="store_true",
         help="Skip write_run_display_json() for runs which already have all output display JSON files",
     )
-    parser.add_argument("-num-instances", type=int, help="Number of instance ids we're using; only for annotating scenario spec instance ids file", default=1000)
+    parser.add_argument(
+        "-num-instances",
+        type=int,
+        help="Number of instance ids we're using; only for annotating scenario spec instance ids file",
+        default=1000,
+    )
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
