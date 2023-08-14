@@ -44,7 +44,7 @@ class HTTPModelClient(Client):
 
         raw_request = {
             "prompt": request.prompt,
-            "temperature": request.temperature,
+            "temperature": 1e-7 if request.temperature == 0 else request.temperature,
             "num_return_sequences": request.num_completions,
             "max_new_tokens": request.max_tokens,
             "top_p": request.top_p,
