@@ -833,6 +833,13 @@ ALL_MODELS = [
         name="stabilityai/stablelm-base-alpha-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+
+    Model(
+        group="Lightning AI",
+        name="lightningai/lit-gpt",
+        tags=[TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG]
+    ),
+
     # For debugging
     Model(
         group="simple",
