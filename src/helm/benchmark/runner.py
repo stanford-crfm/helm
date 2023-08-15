@@ -74,9 +74,9 @@ class RunSpec:
 
 def remove_stats_nans(stats: List[Stat]) -> List[Stat]:
     """Return a new list of stats with stats with NaNs removed.
-    
+
     Python's stdlib json.dumps() will produce invalid JSON when serializing a NaN. See:
-    
+
     - https://github.com/stanford-crfm/helm/issues/1765
     - https://bugs.python.org/issue40633
     - https://docs.python.org/3/library/json.html#infinite-and-nan-number-values"""
@@ -91,9 +91,9 @@ def remove_stats_nans(stats: List[Stat]) -> List[Stat]:
 
 def remove_per_instance_stats_nans(per_instance_stats_list: List[PerInstanceStats]) -> List[PerInstanceStats]:
     """Return a new list of PerInstanceStats with stats with NaNs removed.
-    
+
     Python's stdlib json.dumps() will produce invalid JSON when serializing a NaN. See:
-    
+
     - https://github.com/stanford-crfm/helm/issues/1765
     - https://bugs.python.org/issue40633
     - https://docs.python.org/3/library/json.html#infinite-and-nan-number-values"""
@@ -290,7 +290,8 @@ class Runner:
         write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
 
         write(
-            os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in remove_stats_nans(stats)], indent=2)
+            os.path.join(run_path, "stats.json"),
+            json.dumps([asdict_without_nones(stat) for stat in remove_stats_nans(stats)], indent=2),
         )
         write(
             os.path.join(run_path, "per_instance_stats.json"),
