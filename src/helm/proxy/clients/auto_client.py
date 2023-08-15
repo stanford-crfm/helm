@@ -18,7 +18,7 @@ from helm.common.tokenization_request import (
 from helm.proxy.retry import retry_request, NonRetriableException
 from helm.proxy.clients.critique_client import CritiqueClient
 from helm.proxy.clients.client import Client
-from .http_client import HTTPModelClient
+from .http_model_client import HTTPModelClient
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 

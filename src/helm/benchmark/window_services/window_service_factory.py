@@ -51,7 +51,7 @@ from .yalm_window_service import YaLMWindowService
 from .llama_window_service import LlamaWindowService, Llama2WindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
-from .httpmodel_window_service import HTTPModelWindowServce
+from .http_model_window_service import HTTPModelWindowServce
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.remote_model_registry import get_remote_model
 
