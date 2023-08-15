@@ -47,6 +47,7 @@ class LitGPTClient(Client):
             strategy = FSDPStrategy(auto_wrap_policy={Block}, cpu_offload=False)
         fabric = L.Fabric(devices=devices, accelerator=device, precision=precision, strategy=strategy)
         fabric.launch()
+        logger.info("Using device: {}".format(fabric.device))
 
         checkpoint_dir = Path(checkpoint_dir)
         check_valid_checkpoint_dir(checkpoint_dir)
@@ -71,18 +72,17 @@ class LitGPTClient(Client):
         model = self.model
         tokenizer = self.tokenizer
         fabric = self.fabric
-
-        logger.info("Using device: {}".format(fabric.device))
         encoded = tokenizer.encode(
             request.prompt, bos=True, eos=False, device=fabric.device
         )
         prompt_length = encoded.size(0)
-        max_returned_tokens = prompt_length + request.max_new_tokens
+        max_returned_tokens = prompt_length + request.max_tokens
         assert max_returned_tokens <= model.config.block_size, (
             max_returned_tokens,
             model.config.block_size,
         )  # maximum rope cache length
 
+        model.reset_cache()
         t0 = time.perf_counter()
         tokens, logprobs, top_logprobs = generate(
             model,
@@ -90,11 +90,10 @@ class LitGPTClient(Client):
             max_returned_tokens,
             max_seq_length=max_returned_tokens,
             temperature=max(request.temperature, 1e-9),
-            top_k=request.top_k,
+            top_k=request.top_p,
         )
 
         t = time.perf_counter() - t0
-
         model.reset_cache()
         output = tokenizer.decode(tokens)
         tokens_generated = tokens.size(0) - prompt_length
@@ -109,7 +108,7 @@ class LitGPTClient(Client):
             tok_str = tokenizer.processor.decode([idx])
             token_tlp = {tok_str: val}
             generated_tokens.append(
-                Token(text=tokenizer.decode(t), logprob=lp, top_logprob=token_tlp)
+                Token(text=tokenizer.decode(t), logprob=lp, top_logprobs=token_tlp)
             )
 
         logprobs_sum = sum(logprobs)

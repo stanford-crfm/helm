@@ -179,7 +179,11 @@ class AutoClient(Client):
             elif organization == "lightningai":
                 from helm.proxy.clients.lit_gpt_client import LitGPTClient
 
-                client = LitGPTClient()
+                client = LitGPTClient(
+                    cache_config=cache_config,
+                    checkpoint_dir=os.environ.get("LIT_GPT_CHECKPOINT_DIR", ""),
+                    precision=os.environ.get("LIT_GPT_PRECISION", "bf16-true")
+                    )
             
             else:
                 raise ValueError(f"Could not find client for model: {model}")
@@ -277,6 +281,10 @@ class AutoClient(Client):
                 from helm.proxy.clients.megatron_client import MegatronClient
 
                 client = MegatronClient(cache_config=cache_config)
+
+            elif organization == "lightningai":
+                client = self._get_client(tokenizer)
+
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client
