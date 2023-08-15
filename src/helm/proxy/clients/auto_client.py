@@ -175,6 +175,12 @@ class AutoClient(Client):
                 from helm.proxy.clients.megatron_client import MegatronClient
 
                 client = MegatronClient(cache_config=cache_config)
+
+            elif organization == "lightningai":
+                from helm.proxy.clients.lit_gpt_client import LitGPTClient
+
+                client = LitGPTClient()
+            
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client

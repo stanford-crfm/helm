@@ -50,6 +50,7 @@ from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
 from .llama_window_service import LlamaWindowService, Llama2WindowService
 from .window_service import WindowService
+from .lit_gpt_window_service import LitGPTWindowServce
 from .tokenizer_service import TokenizerService
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.remote_model_registry import get_remote_model
@@ -222,6 +223,9 @@ class WindowServiceFactory:
                 )
             else:
                 window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
+
+        elif organization == "lightningai":
+            window_service = LitGPTWindowServce(service)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 
