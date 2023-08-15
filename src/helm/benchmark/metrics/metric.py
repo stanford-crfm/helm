@@ -1,11 +1,10 @@
 from abc import ABC
 from dataclasses import dataclass, replace
 from collections import defaultdict
-import math
 from typing import List, Dict, Tuple, Optional, Iterable, Set
 
 from helm.common.object_spec import ObjectSpec, create_object
-from helm.common.general import hlog, singleton, parallel_map
+from helm.common.general import singleton, parallel_map
 from helm.benchmark.augmentations.perturbation_description import (
     PerturbationDescription,
     PERTURBATION_ORIGINAL,
@@ -88,19 +87,6 @@ class Processor:
                     self.adapter_spec, references_states, self.metric_service, self.eval_cache_path
                 )
             )
-
-        # Drop any instance stats that contain NaN, because Python's stdlib json.dumps()
-        # will produce invalid JSON when serializing a NaN. See:
-        # - https://github.com/stanford-crfm/helm/issues/1765
-        # - https://bugs.python.org/issue40633
-        # - https://docs.python.org/3/library/json.html#infinite-and-nan-number-values
-        non_nan_instance_stats: List[Stat] = []
-        for stat in instance_stats:
-            if math.isnan(stat.sum):
-                hlog(f"WARNING: Removing stat {stat.name.name} because its value is NaN")
-                continue
-            non_nan_instance_stats.append(stat)
-        instance_stats = non_nan_instance_stats
 
         # Add instance-related context (e.g., split, perturbation) to the metrics
         for i, stat in enumerate(instance_stats):
