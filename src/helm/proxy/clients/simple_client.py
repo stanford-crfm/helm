@@ -30,23 +30,19 @@ class SimpleClient(Client):
             "n": request.num_completions,
         }
 
-        if request.model_engine == "model1":
+        def do_it():
+            return self.invoke_model1(raw_request)
 
-            def do_it():
-                return self.invoke_model1(raw_request)
-
-            cache_key = Client.make_cache_key(raw_request, request)
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            completions = [
-                Sequence(
-                    text=text,
-                    logprob=logprob,
-                    tokens=[Token(text=text, logprob=logprob, top_logprobs=response["completions"])],
-                )
-                for text, logprob in response["completions"].items()
-            ]
-        else:
-            raise ValueError(f"Invalid model: {request.model}")
+        cache_key = Client.make_cache_key(raw_request, request)
+        response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        completions = [
+            Sequence(
+                text=text,
+                logprob=logprob,
+                tokens=[Token(text=text, logprob=logprob, top_logprobs=response["completions"])],
+            )
+            for text, logprob in response["completions"].items()
+        ]
 
         return RequestResult(
             success=True,

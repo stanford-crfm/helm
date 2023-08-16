@@ -8,7 +8,7 @@ from retrying import RetryError, Attempt
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
-from helm.common.object_spec import create_object, get_class_by_name
+from helm.common.object_spec import ObjectSpec, create_object, get_class_by_name
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -60,20 +60,30 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def _inject_init_args(self, class_name: str, injectors: Dict[str, Callable[[], Any]]) -> Dict[str, Any]:
-        """Given a class"""
-        cls = get_class_by_name(class_name)
+    def _inject_init_args(self, spec: ObjectSpec, injectors: Dict[str, Callable[[], Any]]) -> ObjectSpec:
+        """Return arguments needed by the class's __init__'s parameters.
+
+        This does a simple form of dependency injection. For each parameter in the class' __init__,
+        try to find a corresponding injector and call it to produce the argument value."""
+        cls = get_class_by_name(spec.class_name)
         init_signature = inspect.signature(cls.__init__)
         args = {}
+        args.update(spec.args)
+        missing_args = []
         for parameter_name in init_signature.parameters.keys():
-            if parameter_name == "self":
+            if parameter_name == "self" or parameter_name in args:
                 continue
-            injector = injectors.get(parameter_name)
-            if injector:
-                args[parameter_name] = injector()
-        return args
+            elif parameter_name in injectors:
+                args[parameter_name] = injectors[parameter_name]()
+            else:
+                missing_args.append(parameter_name)
+        if missing_args:
+            raise ValueError(f"Missing arguments {missing_args} for client_spec for {spec.class_name}")
+        return replace(spec, args=args)
 
-    def _create_client_for_client_deployment(self, model_deployment: ModelDeployment):
+    def _create_client_for_model_deployment(self, model_deployment: ModelDeployment):
+        """Create a client for the ModelDeployment."""
+
         def get_api_key() -> str:
             if "deployments" not in self.credentials:
                 raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
@@ -89,8 +99,8 @@ class AutoClient(Client):
             return self._build_cache_config(organization)
 
         injectors = {"api_key": get_api_key, "cache_config": get_cache_config}
-        additional_args = self._inject_init_args(model_deployment.client_spec.class_name, injectors)
-        return create_object(model_deployment.client_spec, additional_args=additional_args)
+        client_spec_with_injected_args = self._inject_init_args(model_deployment.client_spec, injectors)
+        return create_object(client_spec_with_injected_args)
 
     def _get_client(self, model: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
@@ -103,7 +113,7 @@ class AutoClient(Client):
             # TODO: Migrate all clients to use model deployments
             model_deployment = get_model_deployment(model)
             if model_deployment:
-                client = self._create_client_for_client_deployment(model_deployment)
+                client = self._create_client_for_model_deployment(model_deployment)
             elif get_huggingface_model_config(model):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
