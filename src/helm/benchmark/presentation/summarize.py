@@ -401,14 +401,14 @@ class Summarizer:
 
             scenario_spec_overlap_counts: Dict = dict()
             for data_overlap_stats in data_overlap_stats_list:
+                data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
+                n = data_overlap_stats_key.overlap_protocol_spec.n
                 if n == OVERLAP_N_COUNT:
-                    data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
                     light_scenario_key = data_overlap_stats_key.light_scenario_key
                     scenario_spec = light_scenario_key.scenario_spec
-                    n = data_overlap_stats_key.overlap_protocol_spec.n
-                    if scenario_spec in self._scenario_spec_instance_id_dict:
+                    if scenario_spec in self.scenario_spec_instance_id_dict:
                         # Get statistics based on the subset of instance_ids that HELM uses for a scenario
-                        instance_ids = self._scenario_spec_instance_id_dict[scenario_spec]
+                        instance_ids = self.scenario_spec_instance_id_dict[scenario_spec]
                         num_instances = len(instance_ids)
                         num_overlapping_inputs = len(
                             set(data_overlap_stats.instance_ids_with_overlapping_input) & set(instance_ids)
@@ -1110,7 +1110,7 @@ class Summarizer:
 
         In such cases, do not include the file as part of the data_overlap directory.
         """
-        self._scenario_spec_instance_id_dict: Dict[ScenarioSpec, List[str]] = dict()
+        self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, List[str]] = dict()
         scenario_spec_instance_ids_json = os.path.join(
             self.run_suite_path, "data_overlap", f"scenario_spec_instance_ids_{num_instances}.json"
         )
@@ -1124,7 +1124,7 @@ class Summarizer:
             for scenario_spec_instance_ids_json in scenario_spec_instance_ids_jsons:
                 scenario_spec_instance_ids_dict = json.loads(scenario_spec_instance_ids_json)
                 scenario_spec_instance_ids = cattrs.structure(scenario_spec_instance_ids_dict, ScenarioSpecInstanceIds)
-                self._scenario_spec_instance_id_dict[
+                self.scenario_spec_instance_id_dict[
                     scenario_spec_instance_ids.scenario_spec
                 ] = scenario_spec_instance_ids.instance_ids
 
@@ -1132,18 +1132,18 @@ class Summarizer:
         for run in self.runs:
             run_spec = run.run_spec
             scenario_spec = run_spec.scenario_spec
-            if scenario_spec in self._scenario_spec_instance_id_dict:
+            if scenario_spec in self.scenario_spec_instance_id_dict:
                 continue
-            self._scenario_spec_instance_id_dict[scenario_spec] = list()
+            self.scenario_spec_instance_id_dict[scenario_spec] = list()
 
             run_path = run.run_path
             scenario_state = read_scenario_state(run_path)
 
             for request_state in scenario_state.request_states:
                 if request_state.instance.id:
-                    self._scenario_spec_instance_id_dict[scenario_spec].append(request_state.instance.id)
+                    self.scenario_spec_instance_id_dict[scenario_spec].append(request_state.instance.id)
         all_scenario_spec_instance_ids = []
-        for scenario_spec, instance_ids in self._scenario_spec_instance_id_dict.items():
+        for scenario_spec, instance_ids in self.scenario_spec_instance_id_dict.items():
             scenario_spec_instance_ids = ScenarioSpecInstanceIds(scenario_spec=scenario_spec, instance_ids=instance_ids)
             all_scenario_spec_instance_ids.append(scenario_spec_instance_ids)
 
