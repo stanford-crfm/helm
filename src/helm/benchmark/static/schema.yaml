@@ -77,7 +77,7 @@ models:
     num_parameters: 70000000000
     release_date: 2022-01-01
   
-  # Neurips
+  # TODO: Remove Once we have configurable model names
   - name: neurips/local
     display_name: Local service
     description: Local competition service

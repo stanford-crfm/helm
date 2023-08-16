@@ -2,6 +2,7 @@ from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 
 
+# TODO: Remove Once we have configurable model names since this hardcodes the tokenizer name
 class HTTPModelWindowServce(LocalWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
