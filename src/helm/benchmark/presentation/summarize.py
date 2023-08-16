@@ -373,7 +373,7 @@ class Summarizer:
             with open(metadata_file_path, "r") as yaml_file:
                 data = yaml.safe_load(yaml_file)
 
-            file_metadata: Dict[str, List[str]]  = {}
+            file_metadata: Dict[str, List[str]] = {}
             for entry in data["file_models_mapping"]:
                 if "file_name" in entry and "model_names" in entry:
                     file_path: str = os.path.join(data_overlap_dir, entry["file_name"])
