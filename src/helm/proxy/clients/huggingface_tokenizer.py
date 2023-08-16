@@ -12,24 +12,7 @@ from helm.proxy.clients.huggingface_model_registry import (
 )
 
 
-# Tokenizer names where the HELM tokenizer name and the Hugging Face tokenizer name
-# are identical.
-_KNOWN_TOKENIZER_NAMES: Set[str] = {
-    "EleutherAI/gpt-j-6B",  # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
-    "EleutherAI/gpt-neox-20b",
-    "bigscience/bloom",
-    "bigscience/T0pp",
-    "facebook/opt-66b",
-    "google/ul2",
-    "google/flan-t5-xxl",
-    "meta-llama/Llama-2-7b-hf",
-    "bigcode/santacoder",
-    "bigcode/starcoder",
-    "hf-internal-testing/llama-tokenizer",
-}
-
-
-# Map of HELM tokenizer name to Hugging Face tokenizer name for tokenizers where they differ.
+# Map of HELM tokenizer name to Hugging Face Hub tokenizer name where they differ.
 _KNOWN_TOKENIZER_ALIASES: Dict[str, str] = {
     "huggingface/gpt2": "gpt2",
     "google/t5-11b": "t5-11b",
@@ -90,12 +73,10 @@ class HuggingFaceTokenizers:
                         revision = model_config.revision
                     else:
                         raise ValueError(f"Unrecognized Hugging Face model config: {type(model_config)})")
-                elif tokenizer_name in _KNOWN_TOKENIZER_NAMES:
-                    hf_tokenizer_name = tokenizer_name
                 elif tokenizer_name in _KNOWN_TOKENIZER_ALIASES:
                     hf_tokenizer_name = _KNOWN_TOKENIZER_ALIASES[tokenizer_name]
                 else:
-                    raise ValueError(f"Unsupported HuggingFace tokenizer: {tokenizer_name}")
+                    hf_tokenizer_name = tokenizer_name
 
                 # Keep the tokenizer in memory, so we don't recreate it for future requests
                 HuggingFaceTokenizers.tokenizers[tokenizer_name] = load_tokenizer(hf_tokenizer_name, revision)
