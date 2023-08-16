@@ -3,7 +3,7 @@ import itertools
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
 from helm.common.hierarchical_logger import hlog, htrack
-from helm.common.object_spec import ObjectSpec
+from helm.common.object_spec import ObjectSpec, get_class_by_name
 from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -2290,10 +2290,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
             increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
             # Get scenario tags
-            components = run_spec.scenario_spec.class_name.split(".")
-            class_name = components[-1]
-            module_name = ".".join(components[:-1])
-            cls = getattr(importlib.import_module(module_name), class_name)
+            cls = get_class_by_name(run_spec.scenario_spec.class_name)
             scenario_tags: List[str] = cls.tags
             # If the scenario is instruction, do not use PROMPT_ANSWER_START
             if "instructions" in scenario_tags:

@@ -32,7 +32,9 @@ def create_object(spec: ObjectSpec, additional_args: Optional[Dict[str, Any]] = 
     if additional_args:
         key_collisions = set(args.keys()) & set(additional_args.keys())
         if key_collisions:
-            raise ValueError(f"Argument name collisions {key_collisions} when trying to create object of class {spec.class_name}")
+            raise ValueError(
+                f"Argument name collisions {key_collisions} when trying to create object of class {spec.class_name}"
+            )
         args.update(additional_args)
     return cls(**args)
 
