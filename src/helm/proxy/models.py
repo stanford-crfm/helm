@@ -112,6 +112,12 @@ class Model:
 # Over time, we should add more information there.
 
 ALL_MODELS = [
+    # Local Model
+    Model(
+        group="neurips",
+        name="neurips/local",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     # AI21: https://studio.ai21.com/pricing
     Model(
         group="jurassic",

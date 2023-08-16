@@ -18,6 +18,7 @@ from helm.common.tokenization_request import (
 from helm.proxy.retry import retry_request, NonRetriableException
 from helm.proxy.clients.critique_client import CritiqueClient
 from helm.proxy.clients.client import Client
+from .http_model_client import HTTPModelClient
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 
@@ -86,6 +87,8 @@ class AutoClient(Client):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "neurips":
+                client = HTTPModelClient(cache_config=cache_config)
             elif organization == "openai":
                 from helm.proxy.clients.chat_gpt_client import ChatGPTClient
                 from helm.proxy.clients.openai_client import OpenAIClient
@@ -216,6 +219,8 @@ class AutoClient(Client):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "neurips":
+                client = HTTPModelClient(cache_config=cache_config)
             elif organization in [
                 "bigscience",
                 "bigcode",

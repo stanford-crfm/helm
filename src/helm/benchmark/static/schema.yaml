@@ -76,6 +76,16 @@ models:
     access: limited
     num_parameters: 70000000000
     release_date: 2022-01-01
+  
+  # TODO: Remove Once we have configurable model names
+  - name: neurips/local
+    display_name: Local service
+    description: Local competition service
+    creator_organization: neurips
+    access: open
+    num_parameters: 1
+    release_date: 2021-12-01
+
 
   # Anthropic
   - name: anthropic/stanford-online-all-v4-s3
