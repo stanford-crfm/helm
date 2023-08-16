@@ -330,8 +330,8 @@ class Summarizer:
             - get aggregate stats for group -> overlap ratio
         """
 
-        def get_group_to_scenario_specs(run_specs: List[RunSpec]) -> Dict[RunSpec, ScenarioSpec]:
-            scenario_specs_to_groups: Dict = dict()
+        def get_group_to_scenario_specs(run_specs: List[RunSpec]) -> Dict[str, ScenarioSpec]:
+            scenario_specs_to_groups: Dict = {}
             for run_spec in run_specs:
                 scenario_spec = run_spec.scenario_spec
                 groups = run_spec.groups
@@ -341,7 +341,7 @@ class Summarizer:
                 ):
                     scenario_specs_to_groups[scenario_spec] = groups
 
-            group_to_scenario_specs: Dict = dict()
+            group_to_scenario_specs: Dict = {}
             for scenario_spec, groups in scenario_specs_to_groups.items():
                 for group in groups:
                     if group not in group_to_scenario_specs:
@@ -368,15 +368,12 @@ class Summarizer:
             """
             metadata_file_path: str = os.path.join(data_overlap_dir, "metadata.yaml")
             if not os.path.exists(metadata_file_path):
-                return dict()
+                return {}
 
             with open(metadata_file_path, "r") as yaml_file:
                 data = yaml.safe_load(yaml_file)
 
-            if "file_models_mapping" not in data:
-                raise ValueError("Invalid YAML structure: 'file_models_mapping' key not found.")
-
-            file_metadata = {}
+            file_metadata: Dict[str, List[str]]  = {}
             for entry in data["file_models_mapping"]:
                 if "file_name" in entry and "model_names" in entry:
                     file_path: str = os.path.join(data_overlap_dir, entry["file_name"])
@@ -389,7 +386,7 @@ class Summarizer:
         data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
 
         stats_file_metadata = get_stats_file_metadata(data_overlap_dir)
-        self._model_group_overlap_stats: Dict[Tuple(str, str), GroupOverlapStats] = dict()
+        self._model_group_overlap_stats: Dict[Tuple[str, str], GroupOverlapStats] = {}
         for file_path, model_names in stats_file_metadata.items():
             overlap_stats_jsons = open(file_path, "r").readlines()
 
@@ -398,7 +395,7 @@ class Summarizer:
                 overlap_stats_dict = json.loads(overlap_stats_json)
                 data_overlap_stats_list.append(cattrs.structure(overlap_stats_dict, DataOverlapStats))
 
-            scenario_spec_overlap_counts: Dict[ScenarioSpec, Tuple(int, int, int)] = dict()
+            scenario_spec_overlap_counts: Dict[ScenarioSpec, Tuple[int, int, int]] = {}
             for data_overlap_stats in data_overlap_stats_list:
                 data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
                 light_scenario_key = data_overlap_stats_key.light_scenario_key
