@@ -1,13 +1,14 @@
+import inspect
 import os
 from dataclasses import replace
-from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
+from typing import Any, Callable, Dict, Mapping, Optional, TYPE_CHECKING
 
 from retrying import RetryError, Attempt
 
-from helm.benchmark.model_deployment_registry import get_model_deployment
+from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
-from helm.common.object_spec import create_object
+from helm.common.object_spec import create_object, get_class_by_name
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -59,6 +60,38 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
+    def _inject_init_args(self, class_name: str, injectors: Dict[str, Callable[[], Any]]) -> Dict[str, Any]:
+        """Given a class"""
+        cls = get_class_by_name(class_name)
+        init_signature = inspect.signature(cls.__init__)
+        args = {}
+        for parameter_name in init_signature.parameters.keys():
+            if parameter_name == "self":
+                continue
+            injector = injectors.get(parameter_name)
+            if injector:
+                args[parameter_name] = injector()
+        return args
+
+    def _create_client_for_client_deployment(self, model_deployment: ModelDeployment):
+        def get_api_key() -> str:
+            if "deployments" not in self.credentials:
+                raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
+            deployment_api_keys = self.credentials["deployments"]
+            if model_deployment.name not in deployment_api_keys:
+                raise AuthenticationError(
+                    f"Could not find key '{model_deployment.name}' under key 'deployments' in credentials.conf"
+                )
+            return deployment_api_keys[model_deployment.name]
+
+        def get_cache_config() -> CacheConfig:
+            organization: str = model_deployment.name.split("/")[0]
+            return self._build_cache_config(organization)
+
+        injectors = {"api_key": get_api_key, "cache_config": get_cache_config}
+        additional_args = self._inject_init_args(model_deployment.client_spec.class_name, injectors)
+        return create_object(model_deployment.client_spec, additional_args=additional_args)
+
     def _get_client(self, model: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
         client: Optional[Client] = self.clients.get(model)
@@ -70,19 +103,7 @@ class AutoClient(Client):
             # TODO: Migrate all clients to use model deployments
             model_deployment = get_model_deployment(model)
             if model_deployment:
-                api_key = None
-                if "deployments" not in self.credentials:
-                    raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
-                deployment_api_keys = self.credentials["deployments"]
-                if model not in deployment_api_keys:
-                    raise AuthenticationError(
-                        f"Could not find key '{model}' under key 'deployments' in credentials.conf"
-                    )
-                api_key = deployment_api_keys[model]
-                client = create_object(
-                    model_deployment.client_spec, additional_args={"cache_config": cache_config, "api_key": api_key}
-                )
-
+                client = self._create_client_for_client_deployment(model_deployment)
             elif get_huggingface_model_config(model):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 

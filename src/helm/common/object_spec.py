@@ -1,6 +1,6 @@
 import importlib
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Type
 
 
 @dataclass(frozen=True)
@@ -17,16 +17,22 @@ class ObjectSpec:
         return hash((self.class_name, tuple((k, self.args[k]) for k in sorted(self.args.keys()))))
 
 
-def create_object(spec: ObjectSpec, additional_args: Optional[Dict[str, Any]] = None):
-    """Create the actual object given the `spec`."""
-    # TODO: Refactor other places that use this pattern.
-    components = spec.class_name.split(".")
+def get_class_by_name(full_class_name: str) -> Type[Any]:
+    components = full_class_name.split(".")
     class_name = components[-1]
     module_name = ".".join(components[:-1])
-    cls = getattr(importlib.import_module(module_name), class_name)
+    return getattr(importlib.import_module(module_name), class_name)
+
+
+def create_object(spec: ObjectSpec, additional_args: Optional[Dict[str, Any]] = None):
+    """Create the actual object given the `spec`."""
+    cls = get_class_by_name(spec.class_name)
     args = {}
     args.update(spec.args)
     if additional_args:
+        key_collisions = set(args.keys()) & set(additional_args.keys())
+        if key_collisions:
+            raise ValueError(f"Argument name collisions {key_collisions} when trying to create object of class {spec.class_name}")
         args.update(additional_args)
     return cls(**args)
 
