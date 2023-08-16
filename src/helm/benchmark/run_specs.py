@@ -271,6 +271,7 @@ def get_generation_adapter_spec(
     max_tokens: int = 5,
     stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
     temperature: float = 0.0,
+    multi_label: Optional[bool] = None,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -311,6 +312,7 @@ def get_generation_adapter_spec(
         max_tokens=max_tokens,
         temperature=temperature,
         stop_sequences=stop_sequences,
+        multi_label=multi_label,
     )
 
 
@@ -452,7 +454,8 @@ def get_f1_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score"])
 
 
-def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[MetricSpec]:
+def get_classification_metric_specs(multi_label: bool = False) -> List[MetricSpec]:
+    delimiter = ", " if multi_label else None
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
@@ -1892,16 +1895,10 @@ def get_pubmed_qa_spec() -> RunSpec:
     )
 
 
-def build_classification_metrics(task_type):
-    if task_type in [TaskType.QA, TaskType.SLTC]:
-        return get_classification_metric_specs(delimiter=None)
-    elif task_type == TaskType.MLTC:
-        return get_classification_metric_specs(delimiter=",")
-    return []
-
-
 @run_spec_function("lextreme")
 def get_lextreme_spec(subset: str) -> RunSpec:
+    task_type = get_lextreme_task_type(subset)
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lextreme_scenario.LEXTREMEScenario",
         args={"subset": subset},
@@ -1913,19 +1910,28 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         output_noun="Answer",
         max_tokens=get_lextreme_max_tokens(subset),
         max_train_instances=get_lextreme_max_train_instances(subset),  # in some subsets the input is very long
+        multi_label=True if task_type == TaskType.MLTC else None,
     )
+
+    metric_specs = get_basic_metric_specs([])
+    if task_type == TaskType.MLTC:
+        metric_specs += get_classification_metric_specs(multi_label=True)
+    elif task_type == TaskType.SLTC:
+        metric_specs += get_classification_metric_specs(multi_label=False)
 
     return RunSpec(
         name=f"lextreme:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=build_classification_metrics(get_lextreme_task_type(subset)),
+        metric_specs=metric_specs,
         groups=["lextreme"],
     )
 
 
 @run_spec_function("lex_glue")
 def get_lex_glue_spec(subset: str) -> RunSpec:
+    task_type = get_lex_glue_task_type(subset)
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lex_glue_scenario.LexGLUEScenario",
         args={"subset": subset},
@@ -1937,13 +1943,20 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
         output_noun="Answer",
         max_tokens=get_lex_glue_max_tokens(subset),
         max_train_instances=get_lex_glue_max_train_instances(subset),  # in some subsets the input is very long
+        multi_label=True if task_type == TaskType.MLTC else None,
     )
+
+    metric_specs = get_basic_metric_specs([])
+    if task_type == TaskType.MLTC:
+        metric_specs += get_classification_metric_specs(multi_label=True)
+    elif task_type == TaskType.SLTC:
+        metric_specs += get_classification_metric_specs(multi_label=False)
 
     return RunSpec(
         name=f"lex_glue:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=build_classification_metrics(get_lex_glue_task_type(subset)),
+        metric_specs=metric_specs,
         groups=["lex_glue"],
     )
 
