@@ -89,10 +89,9 @@ class MultipleChoiceJointAdapter(InContextLearningAdapter):
             if reference.is_correct:
                 if output == no_correct_references:
                     output = self.get_reference_prefix("A", reference_index)
-                else:
-                    if self.adapter_spec.multi_label:
-                        output += delimiter
-                        output += self.get_reference_prefix("A", reference_index)
+                elif self.adapter_spec.multi_label:
+                    output += delimiter
+                    output += self.get_reference_prefix("A", reference_index)
 
         if include_output:
             result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix

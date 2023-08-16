@@ -454,8 +454,7 @@ def get_f1_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score"])
 
 
-def get_classification_metric_specs(multi_label: bool = False) -> List[MetricSpec]:
-    delimiter = ", " if multi_label else None
+def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
@@ -1915,9 +1914,9 @@ def get_lextreme_spec(subset: str) -> RunSpec:
 
     metric_specs = get_basic_metric_specs([])
     if task_type == TaskType.MLTC:
-        metric_specs += get_classification_metric_specs(multi_label=True)
+        metric_specs += get_classification_metric_specs(delimiter=", ")
     elif task_type == TaskType.SLTC:
-        metric_specs += get_classification_metric_specs(multi_label=False)
+        metric_specs += get_classification_metric_specs()
 
     return RunSpec(
         name=f"lextreme:subset={subset}",
@@ -1948,9 +1947,9 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
 
     metric_specs = get_basic_metric_specs([])
     if task_type == TaskType.MLTC:
-        metric_specs += get_classification_metric_specs(multi_label=True)
+        metric_specs += get_classification_metric_specs(delimiter=", ")
     elif task_type == TaskType.SLTC:
-        metric_specs += get_classification_metric_specs(multi_label=False)
+        metric_specs += get_classification_metric_specs()
 
     return RunSpec(
         name=f"lex_glue:subset={subset}",
