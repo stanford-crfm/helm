@@ -21,14 +21,14 @@ class TokenizerConfig:
     name: str
     """Name of the model deployment."""
 
-    end_of_text_token: str
-    """End of text special token."""
-
-    prefix_token: str
-    """Prefix special token."""
-
     tokenizer_spec: TokenizerSpec
     """Specification for instantiating the client for this tokenizer."""
+
+    end_of_text_token: Optional[str] = None
+    """End of text special token."""
+
+    prefix_token: Optional[str] = None
+    """Prefix special token."""
 
 
 @dataclass(frozen=True)
@@ -50,4 +50,6 @@ def register_tokenizer_configs_from_path(path: str) -> None:
 
 
 def get_tokenizer_config(name: str) -> Optional[TokenizerConfig]:
+    print("debug:yifanmai tokenizer configs")
+    print(_name_to_tokenizer_config)
     return _name_to_tokenizer_config.get(name)

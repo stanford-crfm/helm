@@ -1,4 +1,5 @@
 from helm.benchmark.model_deployment_registry import get_model_deployment
+from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.proxy.clients.huggingface_model_registry import HuggingFaceHubModelConfig
 from helm.proxy.models import (
     get_model,
@@ -52,6 +53,7 @@ from .llama_window_service import LlamaWindowService, Llama2WindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 from .http_model_window_service import HTTPModelWindowServce
+from helm.benchmark.window_services.configurable_tokenizer_window_service import ConfigurableTokenizerWindowService
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.remote_model_registry import get_remote_model
 
@@ -73,18 +75,24 @@ class WindowServiceFactory:
 
         # TODO: Migrate all window services to use use model deployments
         model_deployment = get_model_deployment(model_name)
+        print(f"[debug:yifanmai] Gotten? model_deployment {model_deployment}")
         if model_deployment:
             # TODO: Allow tokenizer name auto-inference in some cases.
             if not model_deployment.tokenizer_name:
                 raise Exception("Tokenizer name must be set on model deplyment")
             tokenizer_name = model_deployment.tokenizer_name
-            # Only use HuggingFaceWindowService for now.
-            # TODO: Allow using other window services.
-            window_service = HuggingFaceWindowService(
-                service=service,
-                model_config=HuggingFaceHubModelConfig.from_string(tokenizer_name),
-                max_sequence_length=model_deployment.max_sequence_length,
-            )
+            tokenizer_config = get_tokenizer_config(tokenizer_name)
+            if tokenizer_config:
+                window_service = ConfigurableTokenizerWindowService(service, tokenizer_config, model_deployment)
+            else:
+                # Fall back to HuggingFaceWindowService.
+                # This auto-infers the tokenizer's properties (e.g. special tokens)
+                # using Hugging Face Hub.
+                window_service = HuggingFaceWindowService(
+                    service=service,
+                    model_config=HuggingFaceHubModelConfig.from_string(tokenizer_name),
+                    max_sequence_length=model_deployment.max_sequence_length,
+                )
         elif get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
         elif organization == "neurips":

@@ -264,7 +264,7 @@ def main():
         default=[],
     )
     parser.add_argument(
-        "--tokenizer-paths",
+        "--tokenizer-config-paths",
         nargs="+",
         help="Experimental: Where to read tokenizer configs from",
         default=[],
@@ -281,8 +281,8 @@ def main():
         register_model_metadata_from_path(model_metadata_path)
     for model_deployment_paths in args.model_deployment_paths:
         register_model_deployments_from_path(model_deployment_paths)
-    for tokenizer_paths in args.tokenizer_paths:
-        register_tokenizer_configs_from_path(tokenizer_paths)
+    for tokenizer_config_paths in args.tokenizer_config_paths:
+        register_tokenizer_configs_from_path(tokenizer_config_paths)
 
     if args.server_url and args.enable_remote_models:
         check_and_register_remote_model(args.server_url, args.enable_remote_models)

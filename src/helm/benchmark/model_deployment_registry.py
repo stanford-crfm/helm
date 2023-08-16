@@ -28,10 +28,17 @@ class ModelDeployment:
     """Specification for instantiating the client for this model deployment."""
 
     max_sequence_length: Optional[int]
-    """Maximum equence length for this model deployment."""
+    """Maximum sequence length for this model deployment."""
 
-    tokenizer_name: Optional[str]
-    """Tokenizer for this model deployment."""
+    max_request_length: Optional[int] = None
+    """Maximum request length for this model deployment.
+    
+    If unset, defaults to the same value as max_sequence_length."""
+
+    tokenizer_name: Optional[str] = None
+    """Tokenizer for this model deployment.
+    
+    If unset, defaults to the same value as model_name."""
 
 
 @dataclass(frozen=True)

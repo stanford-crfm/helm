@@ -204,9 +204,19 @@ class AutoClient(Client):
             cache_config: CacheConfig = self._build_cache_config(organization)
             # TODO: Migrate all clients to use model deployments
             tokenizer_config = get_tokenizer_config(tokenizer)
+            print(f"[debug:yifanmai] tokenizer_config gotten? {tokenizer_config}")
             if tokenizer_config:
+                api_key = None
+                if "tokenizers" not in self.credentials:
+                    raise AuthenticationError("Could not find key 'tokenizers' in credentials.conf")
+                tokenizer_api_keys = self.credentials["tokenizers"]
+                if tokenizer_config.name not in tokenizer_api_keys:
+                    raise AuthenticationError(
+                        f"Could not find key '{tokenizer_config.name}' under key 'tokenizers' in credentials.conf"
+                    )
+                api_key = tokenizer_api_keys[tokenizer_config.name]
                 client = create_object(
-                    tokenizer_config.tokenizer_spec, additional_args={"cache_config": cache_config}
+                    tokenizer_config.tokenizer_spec, additional_args={"cache_config": cache_config, "api_key": api_key}
                 )
             elif get_huggingface_model_config(tokenizer):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
