@@ -330,7 +330,7 @@ class Summarizer:
             - get aggregate stats for group -> overlap ratio
         """
 
-        def get_group_to_scenario_specs(run_specs: List[RunSpec]) -> Dict[str, ScenarioSpec]:
+        def get_group_to_scenario_specs(run_specs: List[RunSpec]) -> Dict[str, List[ScenarioSpec]]:
             scenario_specs_to_groups: Dict[ScenarioSpec, str] = {}
             for run_spec in run_specs:
                 scenario_spec = run_spec.scenario_spec
@@ -341,7 +341,7 @@ class Summarizer:
                 ):
                     scenario_specs_to_groups[scenario_spec] = groups
 
-            group_to_scenario_specs: Dict[str, ScenarioSpec] = {}
+            group_to_scenario_specs: Dict[str, List[ScenarioSpec]] = {}
             for scenario_spec, groups in scenario_specs_to_groups.items():
                 for group in groups:
                     if group not in group_to_scenario_specs:
