@@ -45,6 +45,7 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
+from .scenarios.cleva_scenario import CLEVAScenario
 from helm.proxy.models import (
     get_model,
     NO_NEWLINES_TAG,
@@ -2231,6 +2232,33 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
         groups=["anthropic_hh_rlhf"],
+    )
+
+
+@run_spec_function("cleva")
+def get_cleva_spec(task: str, version: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    CLEVAScenario.download_dataset(version)
+
+    class_name_prefix = "".join([word.capitalize() for word in task.split("_")])
+    scenario_spec = ScenarioSpec(
+        class_name=f"helm.benchmark.scenarios.cleva_scenario.CLEVA{class_name_prefix}Scenario",
+        args={"task": task, "version": version},
+    )
+
+    if task in ["text_classification"]:
+        adapter_spec = get_multiple_choice_adapter_spec(
+            method=method, instructions="以下文本属于哪个类别？", input_noun="问题", output_noun="答案"
+        )
+        metric_specs = get_exact_match_metric_specs()
+    else:
+        raise ValueError(f"The specified task '{task}' is not supported")
+
+    return RunSpec(
+        name=f"cleva:task={task},version={version}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["cleva"],
     )
 
 
