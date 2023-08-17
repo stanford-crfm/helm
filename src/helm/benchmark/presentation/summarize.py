@@ -25,6 +25,7 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.data_overlap.data_overlap_spec import DataOverlapStats, GroupOverlapStats
+from helm.benchmark.data_overlap.light_scenario import ScenarioSpecInstanceIds
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -39,7 +40,7 @@ from .contamination import (
     CONTAMINATION_STYLES,
     CONTAMINATION_LEVEL_STRONG,
 )
-from .run_display import write_run_display_json
+from .run_display import write_run_display_json, read_scenario_state
 
 """
 Reads the output of the benchmark runs and produces:
@@ -398,22 +399,25 @@ class Summarizer:
             scenario_spec_overlap_counts: Dict[ScenarioSpec, Tuple[int, int, int]] = {}
             for data_overlap_stats in data_overlap_stats_list:
                 data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
-                light_scenario_key = data_overlap_stats_key.light_scenario_key
-                scenario_spec = light_scenario_key.scenario_spec
-                num_instances = data_overlap_stats.num_instances
                 n = data_overlap_stats_key.overlap_protocol_spec.n
-                """
-                TODO: here we are currently just aggregating across all instance ids
-                for a given scenario rather than the subset run on HELM
-                """
-                num_overlapping_inputs = len(data_overlap_stats.instance_ids_with_overlapping_input)
-                num_overlapping_references = len(data_overlap_stats.instance_ids_with_overlapping_reference)
                 if n == OVERLAP_N_COUNT:
-                    scenario_spec_overlap_counts[scenario_spec] = (
-                        num_instances,
-                        num_overlapping_inputs,
-                        num_overlapping_references,
-                    )
+                    light_scenario_key = data_overlap_stats_key.light_scenario_key
+                    scenario_spec = light_scenario_key.scenario_spec
+                    if scenario_spec in self.scenario_spec_instance_id_dict:
+                        # Get statistics based on the subset of instance_ids that HELM uses for a scenario
+                        instance_ids = self.scenario_spec_instance_id_dict[scenario_spec]
+                        num_instances = len(instance_ids)
+                        num_overlapping_inputs = len(
+                            set(data_overlap_stats.instance_ids_with_overlapping_input) & set(instance_ids)
+                        )
+                        num_overlapping_references = len(
+                            set(data_overlap_stats.instance_ids_with_overlapping_reference) & set(instance_ids)
+                        )
+                        scenario_spec_overlap_counts[scenario_spec] = (
+                            num_instances,
+                            num_overlapping_inputs,
+                            num_overlapping_references,
+                        )
 
             for group, scenario_specs in group_to_scenario_specs.items():
                 group_num_instances = 0
@@ -1081,6 +1085,64 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
+    def read_scenario_spec_instance_ids(self, num_instances) -> None:
+        """
+        This file checks if there exists a file, scenario_spec_instance_ids.json
+        that it can read the instance_ids associated with scenario_specs.
+
+        It will write the num_instances used in the run as part of the file name
+
+        If it doesn't exist, it will go through all the scenario_state files
+        and parse the instance_ids and output it to the file for future uses
+
+        Only when the scenario_specs for the data overlap script change
+        (or num_instances are different), will this need to be rerun.
+
+        In such cases, do not include the file as part of the data_overlap directory.
+        """
+        self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, List[str]] = dict()
+        scenario_spec_instance_ids_json = os.path.join(
+            self.run_suite_path, "data_overlap", f"scenario_spec_instance_ids_{num_instances}.json"
+        )
+        if not os.path.exists(scenario_spec_instance_ids_json):
+            hlog(f"No scenario spec instance ids json, writing to {scenario_spec_instance_ids_json}")
+            self.write_scenario_spec_instance_ids_json(scenario_spec_instance_ids_json)
+        else:
+            hlog(f"Reading scenario spec instance ids json from {scenario_spec_instance_ids_json}")
+            scenario_spec_instance_ids_jsons = open(scenario_spec_instance_ids_json, "r").readlines()
+
+            for scenario_spec_instance_ids_json in scenario_spec_instance_ids_jsons:
+                scenario_spec_instance_ids_dict = json.loads(scenario_spec_instance_ids_json)
+                scenario_spec_instance_ids = cattrs.structure(scenario_spec_instance_ids_dict, ScenarioSpecInstanceIds)
+                self.scenario_spec_instance_id_dict[
+                    scenario_spec_instance_ids.scenario_spec
+                ] = scenario_spec_instance_ids.instance_ids
+
+    def write_scenario_spec_instance_ids_json(self, file_path) -> None:
+        for run in self.runs:
+            run_spec = run.run_spec
+            scenario_spec = run_spec.scenario_spec
+            if scenario_spec in self.scenario_spec_instance_id_dict:
+                continue
+            self.scenario_spec_instance_id_dict[scenario_spec] = list()
+
+            run_path = run.run_path
+            scenario_state = read_scenario_state(run_path)
+
+            for request_state in scenario_state.request_states:
+                if request_state.instance.id:
+                    self.scenario_spec_instance_id_dict[scenario_spec].append(request_state.instance.id)
+        all_scenario_spec_instance_ids = []
+        for scenario_spec, instance_ids in self.scenario_spec_instance_id_dict.items():
+            scenario_spec_instance_ids = ScenarioSpecInstanceIds(scenario_spec=scenario_spec, instance_ids=instance_ids)
+            all_scenario_spec_instance_ids.append(scenario_spec_instance_ids)
+
+        with open(file_path, "w") as f:
+            f.writelines(
+                f"{json.dumps(asdict_without_nones(scenario_spec_instance_ids))}\n"
+                for scenario_spec_instance_ids in all_scenario_spec_instance_ids
+            )
+
 
 def symlink_latest(output_path: str, suite: str) -> None:
     # Create a symlink runs/latest -> runs/<name_of_suite>,
@@ -1118,6 +1180,12 @@ def main():
         action="store_true",
         help="Skip write_run_display_json() for runs which already have all output display JSON files",
     )
+    parser.add_argument(
+        "-num-instances",
+        type=int,
+        help="Number of instance ids we're using; only for annotating scenario spec instance ids file",
+        default=1000,
+    )
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
@@ -1125,6 +1193,7 @@ def main():
         suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
     summarizer.read_runs()
+    summarizer.read_scenario_spec_instance_ids(args.num_instances)
     summarizer.read_overlap_stats()
     summarizer.check_metrics_defined()
 
