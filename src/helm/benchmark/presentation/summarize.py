@@ -331,7 +331,7 @@ class Summarizer:
         """
 
         def get_group_to_scenario_specs(run_specs: List[RunSpec]) -> Dict[str, List[ScenarioSpec]]:
-            scenario_specs_to_groups: Dict[ScenarioSpec, str] = {}
+            scenario_specs_to_groups: Dict[ScenarioSpec, List[str]] = {}
             for run_spec in run_specs:
                 scenario_spec = run_spec.scenario_spec
                 groups = run_spec.groups
