@@ -125,6 +125,25 @@ class CLEVAScenario(Scenario):
                 output_noun="主体",
                 newline_after_output_noun=False,
             )
+        elif task == "pinyin_transliteration":
+            if subtask == "pinyin2zh":
+                prompt_setting = PromptSetting(
+                    instructions="把以下汉语拼音转换成相应的汉语句子。",
+                    input_noun="拼音",
+                    newline_after_input_noun=False,
+                    output_noun="汉字",
+                    newline_after_output_noun=False,
+                )
+            elif subtask == "zh2pinyin":
+                prompt_setting = PromptSetting(
+                    instructions="把以下汉语句子转换成相应的汉语拼音。。",
+                    input_noun="汉字",
+                    newline_after_input_noun=False,
+                    output_noun="拼音",
+                    newline_after_output_noun=False,
+                )
+            else:
+                raise ValueError(f"The specified subtask '{subtask}' is not supported")
         else:
             raise ValueError(f"The specified task '{task}' is not supported")
         return prompt_setting
@@ -200,3 +219,9 @@ class CLEVAOpinionMiningScenario(CLEVAScenario):
     name = "cleva_opinion_mining"
     description = "Opinion mining task in CLEVA benchmark"
     tags = ["opinion_mining"]
+
+
+class CLEVAPinyinTransliterationScenario(CLEVAScenario):
+    name = "cleva_pinyin_transliteration"
+    description = "Pinyin Transliteration task in CLEVA benchmark"
+    tags = ["pinyin_transliteration"]
