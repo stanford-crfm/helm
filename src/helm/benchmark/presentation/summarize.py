@@ -382,12 +382,17 @@ class Summarizer:
 
             return file_metadata
 
-        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
+        self._model_group_overlap_stats: Dict[Tuple[str, str], GroupOverlapStats] = {}
 
         data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
+        if not os.path.isdir(data_overlap_dir):
+            hlog(f"Directory {data_overlap_dir} not found; skipped import of overlap results.")
+            return
+
+        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
 
         stats_file_metadata = get_stats_file_metadata(data_overlap_dir)
-        self._model_group_overlap_stats: Dict[Tuple[str, str], GroupOverlapStats] = {}
+
         for file_path, model_names in stats_file_metadata.items():
             overlap_stats_jsons = open(file_path, "r").readlines()
 
@@ -1101,8 +1106,14 @@ class Summarizer:
         In such cases, do not include the file as part of the data_overlap directory.
         """
         self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, List[str]] = dict()
+
+        data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
+        if not os.path.isdir(data_overlap_dir):
+            hlog(f"Directory {data_overlap_dir} not found; skipped producing instance ids file.")
+            return
+
         scenario_spec_instance_ids_json = os.path.join(
-            self.run_suite_path, "data_overlap", f"scenario_spec_instance_ids_{num_instances}.json"
+            data_overlap_dir, f"scenario_spec_instance_ids_{num_instances}.json"
         )
         if not os.path.exists(scenario_spec_instance_ids_json):
             hlog(f"No scenario spec instance ids json, writing to {scenario_spec_instance_ids_json}")
