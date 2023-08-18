@@ -156,6 +156,10 @@ class CLEVAScenario(Scenario):
                 input_noun="评价",
                 output_noun="答案",
             )
+        elif task == "instruction_following":
+            prompt_setting = PromptSetting(
+                instructions="",
+            )
         else:
             raise ValueError(f"The specified task '{task}' is not supported")
         return prompt_setting
@@ -260,7 +264,7 @@ class CLEVAPinyinTransliterationScenario(CLEVAScenario):
     Target: zhè shì qiú lèi bǐ sài
     """
     name = "cleva_pinyin_transliteration"
-    description = "Pinyin Transliteration task in CLEVA benchmark"
+    description = "Pinyin transliteration task in CLEVA benchmark"
     tags = ["pinyin_transliteration"]
 
 
@@ -314,5 +318,30 @@ class CLEVASentimentAnalysisScenario(CLEVAScenario):
     """
 
     name = "cleva_sentiment_analysis"
-    description = "Sentiment Analysis task in CLEVA benchmark"
+    description = "Sentiment analysis task in CLEVA benchmark"
     tags = ["sentiment_analysis"]
+
+
+class CLEVAInstructionFollowingScenario(CLEVAScenario):
+    """
+    The instruction following task of CLEVA benchmark.
+
+    An example is:
+        将e视为48+12。问：e的第一位数字是啥？答：
+        A. 6
+        B. 2
+
+    Target: A
+    """
+    name = "cleva_instruction_following"
+    description = "Instruction following task in CLEVA benchmark"
+    tags = ["instruction_following"]
+
+    def __init__(self, version: str, task: str, subtask: str, ):
+        super().__init__()
+        self.task = task
+        self.subtask = subtask
+        self.version = version
+        self.splits: Dict[str, str] = {
+            "test": TEST_SPLIT,
+        }
