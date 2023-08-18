@@ -2278,7 +2278,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_train_instances=5,  # limited by the context length
             max_tokens=100,
         )
-        metric_specs = get_exact_match_metric_specs() + get_generative_harms_metric_specs()
+        metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_generative_harms_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 
