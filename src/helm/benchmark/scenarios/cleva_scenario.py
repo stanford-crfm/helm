@@ -150,6 +150,12 @@ class CLEVAScenario(Scenario):
                 input_noun="现代文",
                 output_noun="答案",
             )
+        elif task == "sentiment_analysis":
+            prompt_setting = PromptSetting(
+                instructions="这个产品评价是正面还是负面的？",
+                input_noun="评价",
+                output_noun="答案",
+            )
         else:
             raise ValueError(f"The specified task '{task}' is not supported")
         return prompt_setting
@@ -260,7 +266,7 @@ class CLEVAPinyinTransliterationScenario(CLEVAScenario):
 
 class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
     """
-    The classical chinese understanding task of CLEVA benchmark.
+    The classical Chinese understanding task of CLEVA benchmark.
 
     An example is:
         这句现代文可以用哪句古文来表达？
@@ -283,5 +289,30 @@ class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
     """
 
     name = "cleva_classical_chinese_understanding"
-    description = "Classical Chinese Understanding task in CLEVA benchmark"
+    description = "Classical Chinese understanding task in CLEVA benchmark"
     tags = ["classical_chinese_understanding"]
+
+
+class CLEVASentimentAnalysisScenario(CLEVAScenario):
+    """
+    The sentiment analysis task of CLEVA benchmark.
+
+    An example is:
+        这个产品评价是正面还是负面的？
+
+        评价：不是快充，被坑了
+        A. 负面
+        B. 正面
+        答案：A
+
+        评价：商城就是快好省，快好省
+        A. 负面
+        B. 正面
+        答案：
+
+    Target: B
+    """
+
+    name = "cleva_sentiment_analysis"
+    description = "Sentiment Analysis task in CLEVA benchmark"
+    tags = ["sentiment_analysis"]

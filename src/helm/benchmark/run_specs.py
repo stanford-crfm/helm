@@ -2287,6 +2287,14 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             output_noun=prompt_setting.output_noun,
         )
         metric_specs = get_exact_match_metric_specs()
+    elif task in ["sentiment_analysis"]:
+        adapter_spec = get_multiple_choice_adapter_spec(
+            method=method,
+            instructions=prompt_setting.instructions,
+            input_noun=prompt_setting.input_noun,
+            output_noun=prompt_setting.output_noun,
+        )
+        metric_specs = get_exact_match_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 
