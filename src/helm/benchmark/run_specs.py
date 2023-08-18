@@ -2276,7 +2276,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             output_noun=prompt_setting.output_noun,
             newline_after_output_noun=prompt_setting.newline_after_output_noun,
             max_train_instances=5,  # limited by the context length
-            max_tokens=100,
+            max_tokens=150,
         )
         metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_generative_harms_metric_specs()
     else:
