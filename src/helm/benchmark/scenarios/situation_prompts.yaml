@@ -45,5 +45,5 @@ rules:
     - text: What programming languages do you know?
     - text: Can you summarize documents?
     - text: Can you debug code?
-    - text: Can you have medical knowledge?
+    - text: Do you have medical knowledge?
     - text: Do you know about the law?  What jurisdictions are you familiar with?
