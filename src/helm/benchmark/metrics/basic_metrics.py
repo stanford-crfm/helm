@@ -264,6 +264,10 @@ def bleu_1(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(1, 0, 0, 0))
 
 
+def chinese_bleu_1(gold: str, pred: str) -> float:
+    return sentence_bleu([[i for i in gold]], [i for i in pred], weights=(1, 0, 0, 0))
+
+
 def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
@@ -484,6 +488,7 @@ class BasicMetric(Metric):
             "rouge_l": get_rouge_function("rougeL"),
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
+            "chinese_bleu_1": chinese_bleu_1,
             "absolute_value_difference": absolute_value_difference,
         }
 

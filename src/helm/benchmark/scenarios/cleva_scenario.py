@@ -125,6 +125,25 @@ class CLEVAScenario(Scenario):
                 output_noun="主体",
                 newline_after_output_noun=False,
             )
+        elif task == "pinyin_transliteration":
+            if subtask == "pinyin2zh":
+                prompt_setting = PromptSetting(
+                    instructions="把以下汉语拼音转换成相应的汉语句子。",
+                    input_noun="拼音",
+                    newline_after_input_noun=False,
+                    output_noun="汉字",
+                    newline_after_output_noun=False,
+                )
+            elif subtask == "zh2pinyin":
+                prompt_setting = PromptSetting(
+                    instructions="把以下汉语句子转换成相应的汉语拼音。",
+                    input_noun="汉字",
+                    newline_after_input_noun=False,
+                    output_noun="拼音",
+                    newline_after_output_noun=False,
+                )
+            else:
+                raise ValueError(f"The specified subtask '{subtask}' is not supported")
         else:
             raise ValueError(f"The specified task '{task}' is not supported")
         return prompt_setting
@@ -132,7 +151,7 @@ class CLEVAScenario(Scenario):
 
 class CLEVATextClassificationScenario(CLEVAScenario):
     """
-    The text classifiation task of CLEVA benchmark.
+    The text classification task of CLEVA benchmark.
 
     An example is:
         以下文本属于哪个类别？
@@ -200,3 +219,34 @@ class CLEVAOpinionMiningScenario(CLEVAScenario):
     name = "cleva_opinion_mining"
     description = "Opinion mining task in CLEVA benchmark"
     tags = ["opinion_mining"]
+
+
+class CLEVAPinyinTransliterationScenario(CLEVAScenario):
+    """
+    The Pinyin transliteration task of CLEVA benchmark.
+
+    An example of pinyin2zh subtask is:
+        把以下汉语拼音转换成相应的汉语句子。
+
+        拼音：pín kùn xiàn xiàng yǐ jīng yǒu suǒ hǎo zhuǎn 。
+        汉字：贫困现象已经有所好转。
+
+        拼音：wǒ men shǒu tóu mù qián dōu bǐ jiào kuān yù
+        汉字：
+        
+    Target: 我们手头目前都比较宽裕
+
+    An example of zh2pinyin subtask is:
+        把以下汉语句子转换成相应的汉语拼音。
+
+        汉字：她俩之间是陌生人关系
+        拼音：tā liǎ zhī jiān shì mò shēng rén guān xì
+
+        汉字：这是球类比赛
+        拼音：
+
+    Target: zhè shì qiú lèi bǐ sài
+    """
+    name = "cleva_pinyin_transliteration"
+    description = "Pinyin Transliteration task in CLEVA benchmark"
+    tags = ["pinyin_transliteration"]
