@@ -2249,7 +2249,8 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         run_spec_name += f",subtask={subtask}"
 
     prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version)
-    if task in ["text_classification"]:
+    if task in ["text_classification", "classical_chinese_understanding",
+                "sentiment_analysis", "instruction_following"]:
         adapter_spec = get_multiple_choice_adapter_spec(
             method=method,
             instructions=prompt_setting.instructions,
@@ -2279,30 +2280,6 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=150,
         )
         metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_generative_harms_metric_specs()
-    elif task in ["classical_chinese_understanding"]:
-        adapter_spec = get_multiple_choice_adapter_spec(
-            method=method,
-            instructions=prompt_setting.instructions,
-            input_noun=prompt_setting.input_noun,
-            output_noun=prompt_setting.output_noun,
-        )
-        metric_specs = get_exact_match_metric_specs()
-    elif task in ["sentiment_analysis"]:
-        adapter_spec = get_multiple_choice_adapter_spec(
-            method=method,
-            instructions=prompt_setting.instructions,
-            input_noun=prompt_setting.input_noun,
-            output_noun=prompt_setting.output_noun,
-        )
-        metric_specs = get_exact_match_metric_specs()
-    elif task in ["instruction_following"]:
-        adapter_spec = get_multiple_choice_adapter_spec(
-            method=method,
-            instructions=prompt_setting.instructions,
-            input_noun=prompt_setting.input_noun,
-            output_noun=prompt_setting.output_noun,
-        )
-        metric_specs = get_exact_match_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 

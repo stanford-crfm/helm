@@ -338,10 +338,7 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
     tags = ["instruction_following"]
 
     def __init__(self, version: str, task: str, subtask: str, ):
-        super().__init__()
-        self.task = task
-        self.subtask = subtask
-        self.version = version
+        super().__init__(version, task, subtask)
         self.splits: Dict[str, str] = {
             "test": TEST_SPLIT,
         }
