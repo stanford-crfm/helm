@@ -2249,7 +2249,8 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         run_spec_name += f",subtask={subtask}"
 
     prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version)
-    if task in ["text_classification"]:
+    if task in ["text_classification", "classical_chinese_understanding",
+                "sentiment_analysis", "instruction_following"]:
         adapter_spec = get_multiple_choice_adapter_spec(
             method=method,
             instructions=prompt_setting.instructions,

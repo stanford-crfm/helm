@@ -26,6 +26,8 @@ class CLEVAScenario(Scenario):
     Scenario for CLEVA benchmark (https://arxiv.org/pdf/2308.04813.pdf).
     """
 
+    name = "cleva"
+
     def __init__(
         self,
         version: str,
@@ -144,6 +146,22 @@ class CLEVAScenario(Scenario):
                 )
             else:
                 raise ValueError(f"The specified subtask '{subtask}' is not supported")
+        elif task == "classical_chinese_understanding":
+            prompt_setting = PromptSetting(
+                instructions="这句现代文可以用哪句古文来表达？",
+                input_noun="现代文",
+                output_noun="答案",
+            )
+        elif task == "sentiment_analysis":
+            prompt_setting = PromptSetting(
+                instructions="这个产品评价是正面还是负面的？",
+                input_noun="评价",
+                output_noun="答案",
+            )
+        elif task == "instruction_following":
+            prompt_setting = PromptSetting(
+                instructions="",
+            )
         else:
             raise ValueError(f"The specified task '{task}' is not supported")
         return prompt_setting
@@ -195,7 +213,7 @@ class CLEVATextClassificationScenario(CLEVAScenario):
     Target: M
     """
 
-    name = "cleva_text_classification"
+    # name = "cleva_text_classification"
     description = "Text classification task in CLEVA benchmark"
     tags = ["multiple_choice"]
 
@@ -216,7 +234,7 @@ class CLEVAOpinionMiningScenario(CLEVAScenario):
     Target: 厦门大学
     """
 
-    name = "cleva_opinion_mining"
+    # name = "cleva_opinion_mining"
     description = "Opinion mining task in CLEVA benchmark"
     tags = ["opinion_mining"]
 
@@ -247,6 +265,82 @@ class CLEVAPinyinTransliterationScenario(CLEVAScenario):
 
     Target: zhè shì qiú lèi bǐ sài
     """
-    name = "cleva_pinyin_transliteration"
-    description = "Pinyin Transliteration task in CLEVA benchmark"
+    # name = "cleva_pinyin_transliteration"
+    description = "Pinyin transliteration task in CLEVA benchmark"
     tags = ["pinyin_transliteration"]
+
+
+class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
+    """
+    The classical Chinese understanding task of CLEVA benchmark.
+
+    An example is:
+        这句现代文可以用哪句古文来表达？
+
+        现代文：详细地表述了自己的苦衷。
+        A. 流觞款叙情
+        B. 款曲话情亲
+        C. 款曲会良姻
+        D. 款曲陈此情
+        答案：D
+
+        现代文：也不要埋怨故乡太遥远。
+        A. 莫恨故乡遥
+        B. 谁道故乡遥
+        C. 故乡应渐遥
+        D. 莫动故乡情
+        答案：
+
+    Target: A
+    """
+
+    # name = "cleva_classical_chinese_understanding"
+    description = "Classical Chinese understanding task in CLEVA benchmark"
+    tags = ["classical_chinese_understanding"]
+
+
+class CLEVASentimentAnalysisScenario(CLEVAScenario):
+    """
+    The sentiment analysis task of CLEVA benchmark.
+
+    An example is:
+        这个产品评价是正面还是负面的？
+
+        评价：不是快充，被坑了
+        A. 负面
+        B. 正面
+        答案：A
+
+        评价：商城就是快好省，快好省
+        A. 负面
+        B. 正面
+        答案：
+
+    Target: B
+    """
+
+    # name = "cleva_sentiment_analysis"
+    description = "Sentiment analysis task in CLEVA benchmark"
+    tags = ["sentiment_analysis"]
+
+
+class CLEVAInstructionFollowingScenario(CLEVAScenario):
+    """
+    The instruction following task of CLEVA benchmark.
+
+    An example is:
+        将e视为48+12。问：e的第一位数字是啥？答：
+        A. 6
+        B. 2
+
+    Target: A
+    """
+    # name = "cleva_instruction_following"
+    description = "Instruction following task in CLEVA benchmark"
+    tags = ["instruction_following"]
+
+    def __init__(self, version: str, task: str, subtask: str, ):
+        super().__init__(version, task, subtask)
+        self.splits: Dict[str, str] = {
+            "test": TEST_SPLIT,
+        }
