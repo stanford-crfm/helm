@@ -76,7 +76,7 @@ class DisplayRequest:
     most relevant request e.g. the request for the chosen cohice for multiple choice questions."""
 
 
-def _read_scenario_state(run_path: str) -> ScenarioState:
+def read_scenario_state(run_path: str) -> ScenarioState:
     scenario_state_path: str = os.path.join(run_path, "scenario_state.json")
     if not os.path.exists(scenario_state_path):
         raise ValueError(f"Could not load ScenarioState from {scenario_state_path}")
@@ -176,7 +176,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
     ):
         hlog(f"Skipping writing display JSON for run {run_spec.name} because all output display JSON files exist.")
         return
-    scenario_state = _read_scenario_state(run_path)
+    scenario_state = read_scenario_state(run_path)
     per_instance_stats = _read_per_instance_stats(run_path)
 
     metric_names = _get_metric_names_for_groups(run_spec.groups, schema)
