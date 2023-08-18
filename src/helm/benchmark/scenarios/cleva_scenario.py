@@ -1,7 +1,8 @@
 import json
 import os
 import zipfile
-from typing import List, Dict, Any
+from dataclasses import dataclass
+from typing import List, Dict, Any, Optional
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
@@ -11,6 +12,15 @@ CLEVA_DATA_URL = "http://emnlp.clevaplat.com:8001/data"
 CLEVA_DATA_PATH = "benchmark_output/scenarios/cleva"
 
 
+@dataclass(frozen=True)
+class PromptSetting:
+    instructions: str
+    input_noun: Optional[str] = None,
+    newline_after_input_noun: bool = False,
+    output_noun: Optional[str] = None,
+    newline_after_output_noun: bool = False,
+
+
 class CLEVAScenario(Scenario):
     """
     Scenario for CLEVA benchmark (https://arxiv.org/pdf/2308.04813.pdf).
@@ -18,17 +28,20 @@ class CLEVAScenario(Scenario):
 
     def __init__(
         self,
-        task: str,
         version: str,
+        task: str,
+        subtask: str,
     ):
         """
         Initializes CLEVA scenario.
         Args:
-            task: String identifier for dataset.
             version: String identifier for version in a format of 'v[1-9]*([0-9])'.
+            task: String identifier for task.
+            subtask: String identifier for subtask.
         """
         super().__init__()
         self.task = task
+        self.subtask = subtask
         self.version = version
         self.splits: Dict[str, str] = {
             "train": TRAIN_SPLIT,
@@ -46,12 +59,14 @@ class CLEVAScenario(Scenario):
             zip_ref.extractall(data_dir)
 
     def load_dataset(self) -> Dict[str, List[Dict[str, Any]]]:
-        data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version)
+        data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version, self.task)
+        if self.subtask:
+            data_dir: str = os.path.join(data_dir, self.subtask)
 
         dataset: Dict[str, List[Dict[str, Any]]] = {}
         for split in self.splits.keys():
 
-            with open(os.path.join(data_dir, self.task, f"{split}.jsonl"), "r") as fin:
+            with open(os.path.join(data_dir, f"{split}.jsonl"), "r") as fin:
                 dataset[split] = []
                 for line in fin.readlines():
                     dataset[split].append(json.loads(line))
@@ -92,6 +107,27 @@ class CLEVAScenario(Scenario):
             split=split,
         )
         return instance
+    
+    @classmethod
+    def get_prompt_setting(cls, task: str, subtask: str, version: str) -> PromptSetting:
+        # TODO: get prompt setting online
+        if task == "text_classification":
+            prompt_setting = PromptSetting(
+                instructions="以下文本属于哪个类别？",
+                input_noun="问题",
+                output_noun="答案",
+            )
+        elif task == "opinion_mining":
+            prompt_setting = PromptSetting(
+                instructions="请根据以下陈述，挖掘出陈述中的观点目标。",
+                input_noun="陈述",
+                newline_after_input_noun=False,
+                output_noun="主体",
+                newline_after_output_noun=False,
+            )
+        else:
+            raise ValueError(f"The specified task '{task}' is not supported")
+        return prompt_setting
 
 
 class CLEVATextClassificationScenario(CLEVAScenario):
@@ -143,3 +179,24 @@ class CLEVATextClassificationScenario(CLEVAScenario):
     name = "cleva_text_classification"
     description = "Text classification task in CLEVA benchmark"
     tags = ["multiple_choice"]
+
+
+class CLEVAOpinionMiningScenario(CLEVAScenario):
+    """
+    The opinion mining task of CLEVA benchmark.
+
+    An example is:
+        请根据以下陈述，挖掘出陈述中的观点目标。
+
+        陈述: 从亚龙湾出发，大概40分钟左右的车程即可到达码头，转乘轮渡抵达蜈支洲岛。
+        主体: 蜈支洲岛
+        
+        陈述: 这是一座被称为最美大学的校园，座山面海是厦门大学得天独厚的自然条件。
+        主体:
+
+    Target: 厦门大学
+    """
+
+    name = "cleva_opinion_mining"
+    description = "Opinion mining task in CLEVA benchmark"
+    tags = ["opinion_mining"]

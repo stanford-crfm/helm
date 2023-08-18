@@ -2236,25 +2236,43 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 
 
 @run_spec_function("cleva")
-def get_cleva_spec(task: str, version: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     CLEVAScenario.download_dataset(version)
 
     class_name_prefix = "".join([word.capitalize() for word in task.split("_")])
     scenario_spec = ScenarioSpec(
         class_name=f"helm.benchmark.scenarios.cleva_scenario.CLEVA{class_name_prefix}Scenario",
-        args={"task": task, "version": version},
+        args={"task": task, "version": version, "subtask": subtask},
     )
+    run_spec_name: str = f"cleva:task={task},version={version}"
+    if subtask:
+        run_spec_name += f",subtask={subtask}"
 
+    prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version)
     if task in ["text_classification"]:
         adapter_spec = get_multiple_choice_adapter_spec(
-            method=method, instructions="以下文本属于哪个类别？", input_noun="问题", output_noun="答案"
+            method=method,
+            instructions=prompt_setting.instructions,
+            input_noun=prompt_setting.input_noun,
+            output_noun=prompt_setting.output_noun,
         )
         metric_specs = get_exact_match_metric_specs()
+    elif task in ["opinion_mining"]:
+        adapter_spec = get_generation_adapter_spec(
+            instructions=prompt_setting.instructions,
+            input_noun=prompt_setting.input_noun,
+            newline_after_input_noun=prompt_setting.newline_after_input_noun,
+            output_noun=prompt_setting.output_noun,
+            newline_after_output_noun=prompt_setting.newline_after_output_noun,
+            max_train_instances=5,  # limited by the context length
+            max_tokens=20,
+        )
+        metric_specs = get_exact_match_metric_specs() + get_generative_harms_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 
     return RunSpec(
-        name=f"cleva:task={task},version={version}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
