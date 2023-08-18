@@ -1124,17 +1124,17 @@ class Summarizer:
             scenario_spec = run_spec.scenario_spec
             if scenario_spec in self.scenario_spec_instance_id_dict:
                 continue
-            self.scenario_spec_instance_id_dict[scenario_spec] = list()
+            self.scenario_spec_instance_id_dict[scenario_spec] = set()
 
             run_path = run.run_path
             scenario_state = read_scenario_state(run_path)
 
             for request_state in scenario_state.request_states:
                 if request_state.instance.id:
-                    self.scenario_spec_instance_id_dict[scenario_spec].append(request_state.instance.id)
+                    self.scenario_spec_instance_id_dict[scenario_spec].add(request_state.instance.id)
         all_scenario_spec_instance_ids = []
         for scenario_spec, instance_ids in self.scenario_spec_instance_id_dict.items():
-            scenario_spec_instance_ids = ScenarioSpecInstanceIds(scenario_spec=scenario_spec, instance_ids=instance_ids)
+            scenario_spec_instance_ids = ScenarioSpecInstanceIds(scenario_spec=scenario_spec, instance_ids=list(instance_ids))
             all_scenario_spec_instance_ids.append(scenario_spec_instance_ids)
 
         with open(file_path, "w") as f:
