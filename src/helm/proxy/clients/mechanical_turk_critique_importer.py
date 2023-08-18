@@ -13,7 +13,7 @@ from helm.common.critique_request import (
     CritiqueRequestResult,
 )
 from helm.common.hierarchical_logger import hlog
-
+from helm.proxy.clients.mechanical_turk_utils import replace_emoji_characters
 
 # A representation of fields that can be used as a dict key.
 _CritiqueRequestKey = Tuple[Tuple[str, str], ...]
@@ -23,7 +23,7 @@ class _MechanicalTurkRequestImporter:
     """Exports critique request results.
 
     The request results will be imported from all files matching
-    turk/{template.name}/Batch_{batch_number}_batch_results.csv"""
+    mturk/{template.name}/Batch_{batch_number}_batch_results.csv"""
 
     def __init__(self, template: CritiqueTaskTemplate):
         self._template: CritiqueTaskTemplate = template
@@ -119,4 +119,7 @@ def import_request_result(request: CritiqueRequest) -> Optional[CritiqueRequestR
         if template.name not in _importer:
             _importer[template.name] = _MechanicalTurkRequestImporter(template)
             _importer[template.name].initialize()
-    return _importer[template.name].import_request_result(request.fields)
+    encoded_fields = {
+        field_name: replace_emoji_characters(field_value) for field_name, field_value in request.fields.items()
+    }
+    return _importer[template.name].import_request_result(encoded_fields)

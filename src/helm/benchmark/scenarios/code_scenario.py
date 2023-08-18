@@ -139,7 +139,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
     # only if the version of Python has a default limit.
     #
     # See: https://docs.python.org/3/library/stdtypes.html#int-max-str-digits
-    if hasattr(sys, "set_int_max_str_digits") in sys:  # type: ignore
+    if hasattr(sys, "set_int_max_str_digits"):  # type: ignore
         sys.set_int_max_str_digits(100000)  # type: ignore
 
     SINGLE_STR_LIMIT = 150000  # From original codebase.

@@ -1,4 +1,4 @@
-from .grammar import (
+from helm.benchmark.scenarios.grammar import (
     Grammar,
     GrammarRule,
     Expansion,

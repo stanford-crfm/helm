@@ -1,9 +1,11 @@
 import dacite
 import json
+import math
 import os
 import traceback
 import typing
 from collections import Counter
+import dataclasses
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
@@ -70,6 +72,37 @@ class RunSpec:
         object.__setattr__(self, "name", self.name.replace(os.path.sep, "_"))
 
 
+def remove_stats_nans(stats: List[Stat]) -> List[Stat]:
+    """Return a new list of stats with stats with NaNs removed.
+
+    Python's stdlib json.dumps() will produce invalid JSON when serializing a NaN. See:
+
+    - https://github.com/stanford-crfm/helm/issues/1765
+    - https://bugs.python.org/issue40633
+    - https://docs.python.org/3/library/json.html#infinite-and-nan-number-values"""
+    result: List[Stat] = []
+    for stat in stats:
+        if math.isnan(stat.sum):
+            hlog(f"WARNING: Removing stat {stat.name.name} because its value is NaN")
+            continue
+        result.append(stat)
+    return result
+
+
+def remove_per_instance_stats_nans(per_instance_stats_list: List[PerInstanceStats]) -> List[PerInstanceStats]:
+    """Return a new list of PerInstanceStats with stats with NaNs removed.
+
+    Python's stdlib json.dumps() will produce invalid JSON when serializing a NaN. See:
+
+    - https://github.com/stanford-crfm/helm/issues/1765
+    - https://bugs.python.org/issue40633
+    - https://docs.python.org/3/library/json.html#infinite-and-nan-number-values"""
+    result: List[PerInstanceStats] = []
+    for per_instance_stats in per_instance_stats_list:
+        result.append(dataclasses.replace(per_instance_stats, stats=remove_stats_nans(per_instance_stats.stats)))
+    return result
+
+
 class Runner:
     """
     The main entry point for running the entire benchmark.  Mostly just
@@ -112,6 +145,25 @@ class Runner:
         self.eval_cache_path: str = os.path.join(self.runs_path, "eval_cache")
         ensure_directory_exists(self.eval_cache_path)
 
+    def _is_run_completed(self, run_spec: RunSpec):
+        """Return whether the run was previously completed.
+
+        A run is completed if all of the expected output files exist."""
+        run_path: str = os.path.join(self.runs_path, run_spec.name)
+        if not os.path.isdir(run_path):
+            return False
+        output_paths = [
+            os.path.join(run_path, "run_spec.json"),
+            os.path.join(run_path, "scenario.json"),
+            os.path.join(run_path, "scenario_state.json"),
+            os.path.join(run_path, "stats.json"),
+            os.path.join(run_path, "per_instance_stats.json"),
+        ]
+        for output_path in output_paths:
+            if not os.path.exists(output_path):
+                return False
+        return True
+
     def run_all(self, run_specs: List[RunSpec]):
         failed_run_specs: List[RunSpec] = []
 
@@ -146,7 +198,7 @@ class Runner:
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
 
-        if self.skip_completed_runs and os.path.exists(os.path.join(run_path, "scenario_state.json")):
+        if self.skip_completed_runs and self._is_run_completed(run_spec):
             # If scenario_state.json exists, assume that all other output files exist
             # because scenario_state.json is the last output file to be written.
             hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
@@ -238,11 +290,12 @@ class Runner:
         write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
 
         write(
-            os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
+            os.path.join(run_path, "stats.json"),
+            json.dumps([asdict_without_nones(stat) for stat in remove_stats_nans(stats)], indent=2),
         )
         write(
             os.path.join(run_path, "per_instance_stats.json"),
-            json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
+            json.dumps(list(map(asdict_without_nones, remove_per_instance_stats_nans(per_instance_stats))), indent=2),
         )
 
         cache_stats.print_status()

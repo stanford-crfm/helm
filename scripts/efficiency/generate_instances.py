@@ -9,7 +9,7 @@ generated for each distinct tokenizer used.
 import os
 from typing import Dict, List, Tuple
 
-from helm.common.general import ensure_directory_exists, ensure_file_downloaded, parse_hocon, write
+from helm.common.general import ensure_directory_exists, ensure_file_downloaded, write, get_credentials
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -20,7 +20,6 @@ from helm.common.tokenization_request import (
 from helm.proxy.clients.client import Client
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.services.service import (
-    CREDENTIALS_FILE,
     CACHE_DIR,
 )
 from helm.benchmark.scenarios.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
@@ -48,14 +47,9 @@ def _count_prompt_tokens(client: Client, prompt: str, tokenizer: str):
 
 
 def get_client(base_path: str = "prod_env"):
-    credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
+    credentials = get_credentials(base_path)
     cache_path = os.path.join(base_path, CACHE_DIR)
     ensure_directory_exists(cache_path)
-    if os.path.exists(credentials_path):
-        with open(credentials_path) as f:
-            credentials = parse_hocon(f.read())
-    else:
-        credentials = {}
 
     # TODO: Pass mongo_uri to AutoClient
     client = AutoClient(credentials, cache_path)
