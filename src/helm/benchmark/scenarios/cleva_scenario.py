@@ -26,6 +26,8 @@ class CLEVAScenario(Scenario):
     Scenario for CLEVA benchmark (https://arxiv.org/pdf/2308.04813.pdf).
     """
 
+    name = "cleva"
+
     def __init__(
         self,
         version: str,
@@ -211,7 +213,7 @@ class CLEVATextClassificationScenario(CLEVAScenario):
     Target: M
     """
 
-    name = "cleva_text_classification"
+    # name = "cleva_text_classification"
     description = "Text classification task in CLEVA benchmark"
     tags = ["multiple_choice"]
 
@@ -232,7 +234,7 @@ class CLEVAOpinionMiningScenario(CLEVAScenario):
     Target: 厦门大学
     """
 
-    name = "cleva_opinion_mining"
+    # name = "cleva_opinion_mining"
     description = "Opinion mining task in CLEVA benchmark"
     tags = ["opinion_mining"]
 
@@ -263,7 +265,7 @@ class CLEVAPinyinTransliterationScenario(CLEVAScenario):
 
     Target: zhè shì qiú lèi bǐ sài
     """
-    name = "cleva_pinyin_transliteration"
+    # name = "cleva_pinyin_transliteration"
     description = "Pinyin transliteration task in CLEVA benchmark"
     tags = ["pinyin_transliteration"]
 
@@ -292,7 +294,7 @@ class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
     Target: A
     """
 
-    name = "cleva_classical_chinese_understanding"
+    # name = "cleva_classical_chinese_understanding"
     description = "Classical Chinese understanding task in CLEVA benchmark"
     tags = ["classical_chinese_understanding"]
 
@@ -317,7 +319,7 @@ class CLEVASentimentAnalysisScenario(CLEVAScenario):
     Target: B
     """
 
-    name = "cleva_sentiment_analysis"
+    # name = "cleva_sentiment_analysis"
     description = "Sentiment analysis task in CLEVA benchmark"
     tags = ["sentiment_analysis"]
 
@@ -333,7 +335,7 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
 
     Target: A
     """
-    name = "cleva_instruction_following"
+    # name = "cleva_instruction_following"
     description = "Instruction following task in CLEVA benchmark"
     tags = ["instruction_following"]
 
