@@ -144,6 +144,12 @@ class CLEVAScenario(Scenario):
                 )
             else:
                 raise ValueError(f"The specified subtask '{subtask}' is not supported")
+        elif task == "classical_chinese_understanding":
+            prompt_setting = PromptSetting(
+                instructions="这句现代文可以用哪句古文来表达？",
+                input_noun="现代文",
+                output_noun="答案",
+            )
         else:
             raise ValueError(f"The specified task '{task}' is not supported")
         return prompt_setting
@@ -250,3 +256,32 @@ class CLEVAPinyinTransliterationScenario(CLEVAScenario):
     name = "cleva_pinyin_transliteration"
     description = "Pinyin Transliteration task in CLEVA benchmark"
     tags = ["pinyin_transliteration"]
+
+
+class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
+    """
+    The classical chinese understanding task of CLEVA benchmark.
+
+    An example is:
+        这句现代文可以用哪句古文来表达？
+
+        现代文：详细地表述了自己的苦衷。
+        A. 流觞款叙情
+        B. 款曲话情亲
+        C. 款曲会良姻
+        D. 款曲陈此情
+        答案：D
+
+        现代文：也不要埋怨故乡太遥远。
+        A. 莫恨故乡遥
+        B. 谁道故乡遥
+        C. 故乡应渐遥
+        D. 莫动故乡情
+        答案：
+
+    Target: A
+    """
+
+    name = "cleva_classical_chinese_understanding"
+    description = "Classical Chinese Understanding task in CLEVA benchmark"
+    tags = ["classical_chinese_understanding"]
