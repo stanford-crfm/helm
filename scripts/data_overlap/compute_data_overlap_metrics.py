@@ -257,7 +257,7 @@ if __name__ == "__main__":
     light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
     stats_key_counts: DefaultDict[DataOverlapStatsKey, int] = defaultdict(int)
-    hash_to_ngrams: HashToNgrams = None
+    hash_to_ngrams: HashToNgrams = {}
     with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
         ngram_index: NgramIndex
         ngram_index = create_ngram_index(
