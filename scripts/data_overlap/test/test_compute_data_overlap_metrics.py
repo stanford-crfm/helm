@@ -14,6 +14,7 @@ from data_overlap_spec import DataOverlapStatsKey, OverlapProtocolSpec
 from light_scenario import LightScenario, LightInstance, LightScenarioKey
 from light_tokenizer import LightTokenizer, DefaultTokenizer
 from scenarios.scenario import ScenarioSpec
+from ngram_hasher import get_ngram_hashes
 
 N_VALUES = [5, 13]
 
@@ -190,15 +191,17 @@ def test_create_ngram_index():
         "initiative",
         "born",
     )
+    test_5_gram_hash, _, _ = get_ngram_hashes(list(test_5_gram), 5)[0]
+    test_13_gram_hash, _, _ = get_ngram_hashes(list(test_13_gram), 13)[0]
 
-    assert ngram_index[5][test_5_gram] == set(
+    assert ngram_index[5][test_5_gram_hash] == set(
         [
             EntryDataOverlapKey(stats_key=stats_1_key, instance_id="id1", part=PART_INPUT),
             EntryDataOverlapKey(stats_key=stats_2_key, instance_id="id1", part=PART_INPUT),
             EntryDataOverlapKey(stats_key=stats_2_key, instance_id="id1", part=PART_REF),
         ]
     )
-    assert ngram_index[13][test_13_gram] == set(
+    assert ngram_index[13][test_13_gram_hash] == set(
         [
             EntryDataOverlapKey(stats_key=stats_3_key, instance_id="id1", part=PART_INPUT),
             EntryDataOverlapKey(stats_key=stats_3_key, instance_id="id1", part=PART_REF),
@@ -226,6 +229,7 @@ def test_compute_document_data_overlap():
         stats_key_to_reference_ids=stats_key_to_reference_ids,
         entry_overlap_key_to_ngram_counts=None,
         output_ngrams=False,
+        hash_to_ngrams={},
     )
     assert stats_key_to_input_ids == defaultdict(
         set,
