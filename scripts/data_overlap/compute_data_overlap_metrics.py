@@ -3,7 +3,6 @@ import os
 import glob
 
 from typing import List, Tuple, Set, DefaultDict
-from nltk import ngrams
 from typing import Dict
 from tqdm import tqdm
 from collections import defaultdict
