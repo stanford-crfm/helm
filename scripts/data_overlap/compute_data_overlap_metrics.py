@@ -2,7 +2,7 @@ import json
 import os
 import glob
 
-from typing import List, Tuple, Set, DefaultDict
+from typing import List, Tuple, Set, DefaultDict, Optional
 from nltk import ngrams
 from typing import Dict
 from tqdm import tqdm
@@ -33,7 +33,7 @@ PART_REF: str = "references"
 Ngram = Tuple[str, ...]
 NgramIndex = Dict[int, Dict[Ngram, Set[EntryDataOverlapKey]]]
 NgramCounter = Dict[EntryDataOverlapKey, Dict[Ngram, int]]
-HashToNgrams = Dict[int, Dict[int, Set[Tuple[str, ...]]]]
+HashToNgrams = Optional[Dict[int, Dict[int, Set[Tuple[str, ...]]]]]
 
 
 def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
