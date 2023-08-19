@@ -25,7 +25,6 @@ from common.arguments import get_data_overlap_args
 from common.util import get_tokenizer
 from scenarios.scenario import ScenarioSpec
 
-
 PART_INPUT: str = "input"
 PART_REF: str = "references"
 
@@ -233,7 +232,18 @@ if __name__ == "__main__":
         ngram_index, hash_to_ngrams = create_ngram_index(
             light_scenarios=light_scenarios, n_values=args.N, tokenizer=tokenizer, stats_key_counts=stats_key_counts
         )
-
+    
+    with open(f'{args.output_stats}_collisions', "w") as f:
+        for n in args.N:
+            for hash, ngrams in hash_to_ngrams[n].items():
+                if len(ngrams) > 1:
+                    f.write(f'Hash:{hash}\n')
+                    for ngram in ngrams:
+                        f.write(f'Ngram:{ngram}')
+                    f.write('\n')
+                    f.write('\n')
+                    break
+        
     # DataOverlapStatsKey -> Set[str] for ids
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
