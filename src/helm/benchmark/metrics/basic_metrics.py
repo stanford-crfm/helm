@@ -843,7 +843,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
 
     # If the model does not produce onn-zero-valued logprobs
     # then don't compute calibration metrics.
-    if not _has_non_zero_valued_logprobs(per_instance_stats):
+    if _has_non_zero_valued_logprobs(per_instance_stats):
         return []
 
     for instance_stats in per_instance_stats.values():
