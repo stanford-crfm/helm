@@ -9,6 +9,7 @@ from tqdm import tqdm
 from collections import defaultdict
 
 from light_scenario import LightInstance, LightScenario, LightScenarioKey
+from ngram_hasher import get_ngram_hashes
 from data_overlap_spec import (
     DataOverlapStats,
     DataOverlapStatsKey,
@@ -33,7 +34,7 @@ PART_REF: str = "references"
 Ngram = Tuple[str, ...]
 NgramIndex = Dict[int, Dict[Ngram, Set[EntryDataOverlapKey]]]
 NgramCounter = Dict[EntryDataOverlapKey, Dict[Ngram, int]]
-
+HashToNgrams = Dict[int, Dict[int, Set[str]]]
 
 def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     """
@@ -73,12 +74,13 @@ def create_ngram_index(
     n_values: List[int],
     tokenizer: LightTokenizer,
     stats_key_counts: Dict[DataOverlapStatsKey, int],
-) -> NgramIndex:
+) -> Tuple[NgramIndex, HashToNgrams]:
     """
     Given a list of scenarios and n values, initialize ngram_index.
     stats_key_counts is passed in and updated, counting the number of times a stats_key occurs
     """
     ngram_index: NgramIndex = {n: {} for n in n_values}
+    hash_to_ngrams: HashToNgrams = {n: {} for n in n_values}
     for scenario in light_scenarios:
         hlog(f"Building ngram indexes for {scenario.scenario_key}")
         for n in n_values:
@@ -90,29 +92,36 @@ def create_ngram_index(
                 id = instance.id
                 assert id
                 input_tokens = tokenizer.tokenize(instance.input)
-                for input_ngram in ngrams(input_tokens, n):
-                    if input_ngram not in ngram_index[n]:
-                        ngram_index[n][input_ngram] = set()
-                    ngram_index[n][input_ngram].add(
+                for input_hash_info in get_ngram_hashes(input_tokens, n):
+                    input_hash, start, end = input_hash_info
+                    if input_hash not in ngram_index[n]:
+                        ngram_index[n][input_hash] = set()
+                        hash_to_ngrams[n][input_hash] = set(input_tokens[start:end])
+                    ngram_index[n][input_hash].add(
                         EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_INPUT)
                     )
+                    hash_to_ngrams[n][input_hash].add(tuple(input_tokens[start:end]))
 
                 # compute reference ngrams
                 for reference in instance.references:
                     reference_unigrams = tokenizer.tokenize(reference)
-                    for reference_ngram in ngrams(reference_unigrams, n):
-                        if reference_ngram not in ngram_index[n]:
-                            ngram_index[n][reference_ngram] = set()
-                        ngram_index[n][reference_ngram].add(
+                    for reference_hash_info in get_ngram_hashes(reference_unigrams, n):
+                        reference_hash, start, end = reference_hash_info
+                        if reference_hash not in ngram_index[n]:
+                            ngram_index[n][reference_hash] = set()
+                            hash_to_ngrams[n][reference_hash] = set()
+                        ngram_index[n][reference_hash].add(
                             EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF)
                         )
-    return ngram_index
+                        hash_to_ngrams[n][reference_hash].add(tuple(reference_unigrams[start:end]))
+    return ngram_index, hash_to_ngrams
 
 
 def compute_all_data_overlap(
     training_file_path: str,
     file_format: str,
     ngram_index: NgramIndex,
+    hash_to_ngrams: HashToNgrams,
     tokenizer: LightTokenizer,
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
@@ -137,6 +146,7 @@ def compute_all_data_overlap(
         compute_document_data_overlap(
             document=document,
             ngram_index=ngram_index,
+            hash_to_ngrams=hash_to_ngrams,
             tokenizer=tokenizer,
             stats_key_to_input_ids=stats_key_to_input_ids,
             stats_key_to_reference_ids=stats_key_to_reference_ids,
@@ -148,6 +158,7 @@ def compute_all_data_overlap(
 def compute_document_data_overlap(
     document: str,
     ngram_index: NgramIndex,
+    hash_to_ngrams: HashToNgrams,
     tokenizer: LightTokenizer,
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
@@ -173,9 +184,21 @@ def compute_document_data_overlap(
 
     document_tokens = tokenizer.tokenize(document)
     for n in ngram_index.keys():
-        for document_ngram in ngrams(document_tokens, n):
-            if document_ngram in ngram_index[n]:
-                for entry_overlap_key in ngram_index[n][document_ngram]:
+        for document_hash_info in get_ngram_hashes(document_tokens, n):
+            document_hash, start, end = document_hash_info
+            if document_hash in ngram_index[n]:
+                ngrams = hash_to_ngrams[n][document_hash]
+                # if len(ngrams) == 1:
+                #     continue
+                # else:
+                curr_ngram = tuple(document_tokens[start:end])
+                if curr_ngram not in ngrams:
+                    hlog(f'False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}')
+                    hlog(', '.join(f'{element}' for element in ngrams))
+                    hlog('\n')
+
+
+                for entry_overlap_key in ngram_index[n][document_hash]:
                     id = entry_overlap_key.instance_id
                     part = entry_overlap_key.part
                     if part == PART_INPUT:
@@ -183,7 +206,7 @@ def compute_document_data_overlap(
                     elif part == PART_REF:
                         stats_key_to_reference_ids[entry_overlap_key.stats_key].add(id)
                     if output_ngrams:
-                        entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
+                        entry_overlap_key_to_ngram_counts[entry_overlap_key][document_hash] += 1
 
 
 if __name__ == "__main__":
@@ -207,7 +230,7 @@ if __name__ == "__main__":
     stats_key_counts: DefaultDict[DataOverlapStatsKey, int] = defaultdict(int)
     with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
         ngram_index: NgramIndex
-        ngram_index = create_ngram_index(
+        ngram_index, hash_to_ngrams = create_ngram_index(
             light_scenarios=light_scenarios, n_values=args.N, tokenizer=tokenizer, stats_key_counts=stats_key_counts
         )
 
@@ -229,6 +252,7 @@ if __name__ == "__main__":
                 training_file_path=input_file_path,
                 file_format=args.input_format,
                 ngram_index=ngram_index,
+                hash_to_ngrams=hash_to_ngrams,
                 tokenizer=tokenizer,
                 stats_key_to_input_ids=stats_key_to_input_ids,
                 stats_key_to_reference_ids=stats_key_to_reference_ids,
