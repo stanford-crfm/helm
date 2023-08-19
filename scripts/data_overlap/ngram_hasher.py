@@ -1,7 +1,11 @@
 from typing import List, Tuple
 
-RABIN_KARP_PRIME = 172001 # chosen as a prime larger than 171,476, estimate vocab size of english (these are the base of exponent)
-CHAR_PRIME = 401 # chosen as a prime larger than 256, UTF-8 space, and distant from 2^n; 
+RABIN_KARP_PRIME = (
+    172001  # chosen as a prime larger than 171,476, estimate vocab size of english (these are the base of exponent)
+)
+CHAR_PRIME = 401  # chosen as a prime larger than 256, UTF-8 space, and distant from 2^n;
+
+
 class RabinKarpHash:
     """
     (ignoring mods here for simplicity)
@@ -11,7 +15,7 @@ class RabinKarpHash:
 
     high_coefficient:
         256 * {w-1}
-    
+
     Is it 256 because 2^8 = 256, and the expected input is UTF-8 chars?
 
     In our case, it probably makes more sense to use a large prime p
@@ -21,6 +25,7 @@ class RabinKarpHash:
     I'll use 196613 as it's estimated there are 171,476 words in current use
     in English language, and it's prime
     """
+
     def __init__(self, int_sequence: List[int], window_size: int, mod: int = 8554560727166512717):
         self.window_start = 0
         self.window_end = window_size
@@ -43,7 +48,7 @@ class RabinKarpHash:
             self.current_hash += mod
 
     def mult_mod(self, a: int, b: int, k: int) -> int:
-        return ((a * b) % k)
+        return (a * b) % k
 
     """
     Initial hash:
@@ -56,6 +61,7 @@ class RabinKarpHash:
         hash is i_1 * 256 ^ {w-1} + i_2 * 256 ^ {w-2} + ... + i_{w}
 
     """
+
     def update(self) -> None:
         start_piece = self.mult_mod(self.int_sequence[self.window_start], self.high_coefficient, self.mod)
         self.current_hash = self.mult_mod(self.current_hash - start_piece, RABIN_KARP_PRIME, self.mod)
@@ -65,9 +71,10 @@ class RabinKarpHash:
         self.window_start += 1
         self.window_end += 1
 
+
 def compute_hashes(int_sequence: List[int], window_size: int) -> List[Tuple[int, int, int]]:
     """
-    Previously was 
+    Previously was
     rk_hash = RabinKarpHash(
         int_sequence,
         min(window_size, len(int_sequence))
@@ -76,10 +83,7 @@ def compute_hashes(int_sequence: List[int], window_size: int) -> List[Tuple[int,
     """
     if len(int_sequence) < window_size:
         return []
-    rk_hash = RabinKarpHash(
-        int_sequence,
-        window_size
-    )
+    rk_hash = RabinKarpHash(int_sequence, window_size)
     hashes = [(rk_hash.current_hash, rk_hash.window_start, rk_hash.window_end)]
     for i in range(len(int_sequence) - window_size):
         rk_hash.update()
@@ -88,12 +92,14 @@ def compute_hashes(int_sequence: List[int], window_size: int) -> List[Tuple[int,
 
     return hashes
 
+
 # mod chosen as large prime of similar size to rabin karp, but distinct
 def hash_token(token: str, mod: int = 8554560727166512181):
     hash_value = 0
     for ch in token:
         hash_value = (hash_value * CHAR_PRIME + ord(ch)) % mod
     return hash_value
+
 
 def get_ngram_hashes(tokens: List[str], n: int):
     hashed_tokens = [hash_token(token) for token in tokens]

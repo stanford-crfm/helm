@@ -36,6 +36,7 @@ NgramIndex = Dict[int, Dict[Ngram, Set[EntryDataOverlapKey]]]
 NgramCounter = Dict[EntryDataOverlapKey, Dict[Ngram, int]]
 HashToNgrams = Dict[int, Dict[int, Set[str]]]
 
+
 def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
     """
     Create a list of light scenarios from a jsonl file, where each json represents a LightScenario object.
@@ -193,10 +194,9 @@ def compute_document_data_overlap(
                 # else:
                 curr_ngram = tuple(document_tokens[start:end])
                 if curr_ngram not in ngrams:
-                    hlog(f'False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}')
-                    hlog(', '.join(f'{element}' for element in ngrams))
-                    hlog('\n')
-
+                    hlog(f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}")
+                    hlog(", ".join(f"{element}" for element in ngrams))
+                    hlog("\n")
 
                 for entry_overlap_key in ngram_index[n][document_hash]:
                     id = entry_overlap_key.instance_id
@@ -233,7 +233,6 @@ if __name__ == "__main__":
         ngram_index, hash_to_ngrams = create_ngram_index(
             light_scenarios=light_scenarios, n_values=args.N, tokenizer=tokenizer, stats_key_counts=stats_key_counts
         )
-
 
     # DataOverlapStatsKey -> Set[str] for ids
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
