@@ -219,10 +219,6 @@ def compute_document_data_overlap(
                     ngrams = hash_to_ngrams[n][document_hash]
                     curr_ngram = tuple(document_tokens[start:end])
                     if curr_ngram not in ngrams:
-                        hlog(f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}")
-                        hlog(", ".join(f"{element}" for element in ngrams))
-                        hlog("\n")
-
                         with open(f"{args.output_stats}_collisions", "a") as f:
                             f.write(
                                 f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}"
