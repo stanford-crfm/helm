@@ -254,8 +254,6 @@ class Summarizer:
         self.contamination = read_contamination()
         validate_contamination(self.contamination, self.schema)
 
-        self._model_group_overlap_stats: Dict[Tuple[str, str], GroupOverlapStats] = {}
-
     def read_run(self, run_path: str) -> Run:
         """Load the `Run` object from `run_path`."""
 
@@ -329,7 +327,7 @@ class Summarizer:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
 
-    def read_overlap_stats(self) -> None:
+    def read_overlap_stats(self):
         """
         Load the overlap stats in the run suite path.
         Concretely:
@@ -391,11 +389,15 @@ class Summarizer:
 
             return file_metadata
 
-        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
+        self._model_group_overlap_stats: Dict[Tuple[str, str], GroupOverlapStats] = {}
 
         data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
-        if os.path.isdir(data_overlap_dir):
+        if not os.path.isdir(data_overlap_dir):
+            hlog(f"Directory {data_overlap_dir} not found; skipped import of overlap results.")
             return
+
+        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
+
         stats_file_metadata = get_stats_file_metadata(data_overlap_dir)
 
         for file_path, model_names in stats_file_metadata.items():
