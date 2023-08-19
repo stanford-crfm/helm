@@ -33,7 +33,7 @@ PART_REF: str = "references"
 Ngram = Tuple[str, ...]
 NgramIndex = Dict[int, Dict[Ngram, Set[EntryDataOverlapKey]]]
 NgramCounter = Dict[EntryDataOverlapKey, Dict[Ngram, int]]
-HashToNgrams = Dict[int, Dict[int, Set[str]]]
+HashToNgrams = Dict[int, Dict[int, Set[Tuple[str, ...]]]]
 
 
 def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
@@ -194,7 +194,7 @@ def compute_document_data_overlap(
                     hlog(", ".join(f"{element}" for element in ngrams))
                     hlog("\n")
 
-                    with open(f"{args.output_stats}_collisions_pile", "a") as f:
+                    with open(f"{args.output_stats}_collisions", "a") as f:
                         f.write(
                             f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}"
                         )
