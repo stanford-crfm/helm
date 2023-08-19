@@ -239,6 +239,6 @@ function renderItems(items) {
   return $result;
 }
 
-function getRunSuite(release, runManifest, runSpecName) {
-  return (runManifest === undefined) ? release : runManifest[runSpecName];
+function getRunSuite(using_release, release, runsToRunSuites, runSpecName) {
+  return using_release ? release : runsToRunSuites[runSpecName];
 }

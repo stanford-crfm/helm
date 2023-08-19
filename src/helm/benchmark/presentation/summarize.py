@@ -57,8 +57,9 @@ class ExecutiveSummary:
     This is always loaded by the frontend, so keep this small
     """
 
-    release: str
-    suites: List[str]
+    release: Optional[str]
+    suites: Optional[List[str]]
+    suite: Optional[str]
     date: str
 
     # TODO: later, put model rankings, etc. here
@@ -233,11 +234,18 @@ class Summarizer:
         "selective_acc@10",
     }
 
-    def __init__(self, release: str, suites: List[str], output_path: str, verbose: bool, num_threads: int):
-        self.release: str = release
-        self.suites: List[str] = suites
-        self.run_release_path: str = os.path.join(output_path, "releases", release)
-        self.run_suite_paths: List[str] = [os.path.join(output_path, "runs", suite) for suite in suites]
+    def __init__(self, release: Optional[str], suites: Optional[List[str]], suite: Optional[str], output_path: str, verbose: bool, num_threads: int):
+        self.release: Optional[str] = release
+        self.suites: Optional[List[str]] = suites
+        self.suite: Optional[str] = suite
+        self.output_path: str = output_path
+        if suite:
+            self.run_release_path: str = os.path.join(output_path, "runs", suite)
+            self.run_suite_paths: List[str] = [self.run_release_path]
+            self.suites = [suite]
+        else:
+            self.run_release_path: str = os.path.join(output_path, "releases", release)
+            self.run_suite_paths: List[str] = [os.path.join(output_path, "runs", suite) for suite in suites]
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
 
@@ -313,12 +321,12 @@ class Summarizer:
             lambda: defaultdict(lambda: defaultdict(list))
         )
         for run in self.runs:
-            if run.run_spec.name in self.run_manifest:
+            if run.run_spec.name in self.runs_to_run_suites:
                 hlog(
                     f"WARNING: Run entry {run.run_spec.name} is present in two different Run Suites. "
                     f"Defaulting to the latest assigned suite: {suite}"
                 )
-            self.run_manifest[run.run_spec.name] = suite
+            self.runs_to_run_suites[run.run_spec.name] = suite
 
             scenario_spec = run.run_spec.scenario_spec
             adapter_spec = run.run_spec.adapter_spec
@@ -328,7 +336,7 @@ class Summarizer:
 
     def read_runs(self):
         self.runs: List[Run] = []
-        self.run_manifest: Dict[str, str] = dict()
+        self.runs_to_run_suites: Dict[str, str] = dict()
         for suite, run_suite_path in zip(self.suites, self.run_suite_paths):
             self.read_runs_for_suite(suite, run_suite_path)
 
@@ -358,8 +366,10 @@ class Summarizer:
         summary = ExecutiveSummary(
             release=self.release,
             suites=self.suites,
+            suite=self.suite,
             date=date,
         )
+
         write(
             os.path.join(self.run_release_path, "summary.json"),
             json.dumps(asdict_without_nones(summary), indent=2),
@@ -399,8 +409,8 @@ class Summarizer:
             json.dumps(list(map(asdict_without_nones, [run.run_spec for run in self.runs])), indent=2),
         )
 
-    def write_run_manifest(self):
-        write(os.path.join(self.run_release_path, "run_manifest.json"), json.dumps(self.run_manifest, indent=2))
+    def write_runs_to_run_suites(self):
+        write(os.path.join(self.run_release_path, "runs_to_run_suites.json"), json.dumps(self.runs_to_run_suites, indent=2))
 
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
         """Given a RunGroup, collect a list of its subgroups by traversing the subgroup tree."""
@@ -966,18 +976,16 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
-
-def symlink_latest(output_path: str, release: str) -> None:
-    # Create a symlink runs/latest -> runs/<name_of_suite>,
-    # so runs/latest always points to the latest run suite.
-    releases_dir: str = os.path.join(output_path, "releases")
-    release_dir: str = os.path.join(releases_dir, release)
-    symlink_path: str = os.path.abspath(os.path.join(releases_dir, LATEST_SYMLINK))
-    hlog(f"Symlinking {release_dir} to {LATEST_SYMLINK}.")
-    if os.path.islink(symlink_path):
-        # Remove the previous symlink if it exists.
-        os.unlink(symlink_path)
-    os.symlink(os.path.abspath(release_dir), symlink_path)
+    def symlink_latest(self) -> None:
+        # Create a symlink runs/latest -> runs/<name_of_suite>,
+        # so runs/latest always points to the latest run suite.
+        releases_dir: str = os.path.dirname(self.run_release_path)
+        symlink_path: str = os.path.abspath(os.path.join(releases_dir, LATEST_SYMLINK))
+        hlog(f"Symlinking {self.run_release_path} to {LATEST_SYMLINK}.")
+        if os.path.islink(symlink_path):
+            # Remove the previous symlink if it exists.
+            os.unlink(symlink_path)
+        os.symlink(os.path.abspath(self.run_release_path), symlink_path)
 
 
 @htrack(None)
@@ -985,6 +993,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
+    )
+    parser.add_argument(
+        "--suite",
+        type=str,
+        help="Name of the suite this summarization should go under.",
     )
     parser.add_argument(
         "--release",
@@ -995,8 +1008,7 @@ def main():
         "--suites",
         type=str,
         nargs="+",
-        help="Name of the suite(s) you want to summarize",
-        required=True,
+        help="Name of the suite(s) you want to summarize."
     )
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
     parser.add_argument(
@@ -1011,17 +1023,31 @@ def main():
     )
     args = parser.parse_args()
 
-    if args.release:
+    release: Optional[str] = None
+    suites: Optional[str] = None
+    suite: Optional[str] = None
+    if args.suite and (args.release or args.suites):
+        raise ValueError("If --suite is specified, then --release and --suites must NOT be specified.")
+    elif args.suite:
+        hlog(
+            "WARNING: The --suite flag is deprecated. Using --release and --suites is now preferred, "
+            "where --release specifies the name of a release and --suites specifies several run suites "
+            "to be included in that release."
+        )
+        suite = args.suite
+    elif args.release or args.suites:
+        if not args.release or not args.suites:
+            raise ValueError("If --release is specified, then --suites must also be specified and vice versa")
         release = args.release
+        suites = args.suites
     else:
-        if len(args.suites) > 1:
-            raise ValueError("If --release is not specified, then length of --suites must be 1.")
-        release = args.suites[0]
+        raise ValueError("At least one of --release or --suite must be specified.")
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
         release=release,
-        suites=args.suites,
+        suites=suites,
+        suite=suite,
         output_path=args.output_path,
         verbose=args.debug,
         num_threads=args.num_threads,
@@ -1032,13 +1058,13 @@ def main():
     summarizer.write_executive_summary()
     summarizer.write_runs()
     summarizer.write_run_specs()
-    summarizer.write_run_manifest()
+    summarizer.write_runs_to_run_suites()
     summarizer.write_groups()
     summarizer.write_cost_report()
 
     summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
 
-    symlink_latest(args.output_path, args.release)
+    summarizer.symlink_latest()
     hlog("Done.")
 
 
