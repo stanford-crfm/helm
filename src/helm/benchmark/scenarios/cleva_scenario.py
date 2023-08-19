@@ -75,6 +75,19 @@ class CLEVAScenario(Scenario):
 
         return dataset
 
+    @classmethod
+    def load_prompt_settings(cls, task: str, subtask: str, version: str) -> Dict[str, str]:
+        prompt_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
+        if subtask:
+            prompt_dir: str = os.path.join(prompt_dir, subtask)
+        file_path = os.path.join(prompt_dir, "prompt_setting.json")
+        if os.path.isfile(file_path):
+            with open(file_path, "r") as fin:
+                prompt_settings = json.load(fin)
+        else:
+            raise ValueError(f"Missing prompt setting file at '{file_path}'")
+        return prompt_settings[0]
+
     def get_instances(self) -> List[Instance]:
         # Download the raw data
         dataset = self.load_dataset()
@@ -112,64 +125,14 @@ class CLEVAScenario(Scenario):
     
     @classmethod
     def get_prompt_setting(cls, task: str, subtask: str, version: str) -> PromptSetting:
-        # TODO: get prompt setting online
-        if task == "text_classification":
-            prompt_setting = PromptSetting(
-                instructions="以下文本属于哪个类别？",
-                input_noun="问题",
-                output_noun="答案",
-            )
-        elif task == "opinion_mining":
-            prompt_setting = PromptSetting(
-                instructions="请根据以下陈述，挖掘出陈述中的观点目标。",
-                input_noun="陈述",
-                newline_after_input_noun=False,
-                output_noun="主体",
-                newline_after_output_noun=False,
-            )
-        elif task == "pinyin_transliteration":
-            if subtask == "pinyin2zh":
-                prompt_setting = PromptSetting(
-                    instructions="把以下汉语拼音转换成相应的汉语句子。",
-                    input_noun="拼音",
-                    newline_after_input_noun=False,
-                    output_noun="汉字",
-                    newline_after_output_noun=False,
-                )
-            elif subtask == "zh2pinyin":
-                prompt_setting = PromptSetting(
-                    instructions="把以下汉语句子转换成相应的汉语拼音。",
-                    input_noun="汉字",
-                    newline_after_input_noun=False,
-                    output_noun="拼音",
-                    newline_after_output_noun=False,
-                )
-            else:
-                raise ValueError(f"The specified subtask '{subtask}' is not supported")
-        elif task == "classical_chinese_understanding":
-            prompt_setting = PromptSetting(
-                instructions="这句现代文可以用哪句古文来表达？",
-                input_noun="现代文",
-                output_noun="答案",
-            )
-        elif task == "sentiment_analysis":
-            prompt_setting = PromptSetting(
-                instructions="这个产品评价是正面还是负面的？",
-                input_noun="评价",
-                output_noun="答案",
-            )
-        elif task == "instruction_following":
-            prompt_setting = PromptSetting(
-                instructions="",
-            )
-        elif task == "disinformation":
-            prompt_setting = PromptSetting(
-                instructions="请判断以下陈述是否为真实的。",
-                input_noun="陈述",
-                output_noun="答案",
-            )
-        else:
-            raise ValueError(f"The specified task '{task}' is not supported")
+        prompt_setting_dict = cls.load_prompt_settings(task, subtask, version)
+        prompt_setting = PromptSetting(
+            instructions=prompt_setting_dict.get("instructions", ""),
+            input_noun=prompt_setting_dict.get("input_noun", None),
+            newline_after_input_noun=prompt_setting_dict.get("newline_after_input_noun", False),
+            output_noun=prompt_setting_dict.get("output_noun", None),
+            newline_after_output_noun=prompt_setting_dict.get("newline_after_output_noun", False),
+        )
         return prompt_setting
 
 
