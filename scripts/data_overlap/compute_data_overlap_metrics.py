@@ -188,14 +188,18 @@ def compute_document_data_overlap(
             document_hash, start, end = document_hash_info
             if document_hash in ngram_index[n]:
                 ngrams = hash_to_ngrams[n][document_hash]
-                # if len(ngrams) == 1:
-                #     continue
-                # else:
                 curr_ngram = tuple(document_tokens[start:end])
                 if curr_ngram not in ngrams:
                     hlog(f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}")
                     hlog(", ".join(f"{element}" for element in ngrams))
                     hlog("\n")
+
+                    with open(f"{args.output_stats}_collisions_pile", "a") as f:
+                        f.write(
+                            f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}"
+                        )
+                        f.write(", ".join(f"{element}" for element in ngrams))
+                        f.write("\n")
 
                 for entry_overlap_key in ngram_index[n][document_hash]:
                     id = entry_overlap_key.instance_id
@@ -232,18 +236,18 @@ if __name__ == "__main__":
         ngram_index, hash_to_ngrams = create_ngram_index(
             light_scenarios=light_scenarios, n_values=args.N, tokenizer=tokenizer, stats_key_counts=stats_key_counts
         )
-    
-    with open(f'{args.output_stats}_collisions', "w") as f:
+
+    with open(f"{args.output_stats}_collisions", "w") as f:
         for n in args.N:
             for hash, ngrams in hash_to_ngrams[n].items():
                 if len(ngrams) > 1:
-                    f.write(f'Hash:{hash}\n')
+                    f.write(f"Hash:{hash}\n")
                     for ngram in ngrams:
-                        f.write(f'Ngram:{ngram}')
-                    f.write('\n')
-                    f.write('\n')
+                        f.write(f"Ngram:{ngram}")
+                    f.write("\n")
+                    f.write("\n")
                     break
-        
+
     # DataOverlapStatsKey -> Set[str] for ids
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
