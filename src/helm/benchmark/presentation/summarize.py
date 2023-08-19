@@ -234,7 +234,15 @@ class Summarizer:
         "selective_acc@10",
     }
 
-    def __init__(self, release: Optional[str], suites: Optional[List[str]], suite: Optional[str], output_path: str, verbose: bool, num_threads: int):
+    def __init__(
+        self,
+        release: Optional[str],
+        suites: Optional[List[str]],
+        suite: Optional[str],
+        output_path: str,
+        verbose: bool,
+        num_threads: int,
+    ):
         self.release: Optional[str] = release
         self.suites: Optional[List[str]] = suites
         self.suite: Optional[str] = suite
@@ -410,7 +418,10 @@ class Summarizer:
         )
 
     def write_runs_to_run_suites(self):
-        write(os.path.join(self.run_release_path, "runs_to_run_suites.json"), json.dumps(self.runs_to_run_suites, indent=2))
+        write(
+            os.path.join(self.run_release_path, "runs_to_run_suites.json"),
+            json.dumps(self.runs_to_run_suites, indent=2),
+        )
 
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
         """Given a RunGroup, collect a list of its subgroups by traversing the subgroup tree."""
@@ -1004,12 +1015,7 @@ def main():
         type=str,
         help="Name of the release this summarization should go under.",
     )
-    parser.add_argument(
-        "--suites",
-        type=str,
-        nargs="+",
-        help="Name of the suite(s) you want to summarize."
-    )
+    parser.add_argument("--suites", type=str, nargs="+", help="Name of the suite(s) you want to summarize.")
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
     parser.add_argument(
         "--debug",
