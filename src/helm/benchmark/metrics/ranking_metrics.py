@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Tuple, Optional
 
-import pytrec_eval
-
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_RANKING_BINARY
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import unpack_tag, CORRECT_TAG, Reference
 from helm.common.request import RequestResult
 from helm.common.general import binarize_dict
@@ -13,6 +12,11 @@ from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
+
+try:
+    import pytrec_eval
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 @dataclass
