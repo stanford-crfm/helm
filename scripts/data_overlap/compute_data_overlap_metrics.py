@@ -68,6 +68,7 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
         light_scenarios.append(LightScenario(scenario_key=light_scenario_key, instances=light_instances))
     return light_scenarios
 
+
 def create_ngram_index(
     light_scenarios: List[LightScenario],
     n_values: List[int],
@@ -109,7 +110,6 @@ def create_ngram_index(
                             EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF)
                         )
     return ngram_index
-
 
 
 def create_hash_to_ngrams(
