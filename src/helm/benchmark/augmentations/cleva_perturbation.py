@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import json
 import os
 from random import Random
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import unidecode
 import pypinyin
@@ -13,7 +13,7 @@ from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
-############################ Robustness ################################
+############################################################
 
 
 class ButterFingerPerturbation(Perturbation):
@@ -36,9 +36,9 @@ class ButterFingerPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         prob: float = 0.0
-        rare_word_prob: Optional[float] = 0.05
-        consider_tone: Optional[bool] = False
-        word_level_perturb: Optional[bool] = True
+        rare_word_prob: float = 0.05
+        consider_tone: bool = False
+        word_level_perturb: bool = True
 
     name: str = "butter_finger"
 
@@ -56,9 +56,9 @@ class ButterFingerPerturbation(Perturbation):
     def __init__(
         self,
         prob: float,
-        rare_char_prob: Optional[float] = 0.05,
-        consider_tone: Optional[bool] = False,
-        word_level_perturb: Optional[bool] = True,
+        rare_char_prob: float = 0.05,
+        consider_tone: bool = False,
+        word_level_perturb: bool = True,
     ):
         # Assign parameters to instance variables
         self.prob: float = prob
@@ -278,14 +278,14 @@ class ChineseSynonymPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         prob: float = 0.0
-        trial_num: Optional[int] = 10
+        trial_num: int = 10
 
     name: str = "chinese_synonym"
 
     # For downloading resources
     SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets/synonyms.json"
 
-    def __init__(self, prob: float, trial_num: Optional[int] = 10):
+    def __init__(self, prob: float, trial_num: int = 10):
         # Assign parameters to instance variables
         self.prob: float = prob
         self.trial_num: int = trial_num  # Number of trial to get a 100% perturbed text
@@ -348,4 +348,4 @@ class CLEVAMildMixPerturbation(Perturbation):
         return text
 
 
-############################ Fairness ################################
+############################################################

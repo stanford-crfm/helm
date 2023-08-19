@@ -17,7 +17,7 @@ class PromptSetting:
     instructions: str
     input_noun: Optional[str] = None
     newline_after_input_noun: bool = False
-    output_noun: Optional[str] = None
+    output_noun: str = ""
     newline_after_output_noun: bool = False
 
 
@@ -63,7 +63,7 @@ class CLEVAScenario(Scenario):
     def load_dataset(self) -> Dict[str, List[Dict[str, Any]]]:
         data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version, self.task)
         if self.subtask:
-            data_dir: str = os.path.join(data_dir, self.subtask)
+            data_dir = os.path.join(data_dir, self.subtask)
 
         dataset: Dict[str, List[Dict[str, Any]]] = {}
         for split in self.splits.keys():
@@ -98,10 +98,10 @@ class CLEVAScenario(Scenario):
             def answer_to_reference(answer: str) -> Reference:
                 return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer in correct_answer else [])
 
-            references: list[Instance] = list(map(answer_to_reference, answers))
+            references: List[Reference] = list(map(answer_to_reference, answers))
         else:
-            answers: List[str] = row["label"]
-            references: list[Instance] = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in answers]
+            correct_answer = row["label"]
+            references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
 
         instance = Instance(
             input=Input(text=text),
@@ -111,7 +111,7 @@ class CLEVAScenario(Scenario):
         return instance
 
     @classmethod
-    def get_prompt_setting(cls, task: str, subtask: str, version: str) -> PromptSetting:
+    def get_prompt_setting(cls, task: str, subtask: Optional[str], version: str) -> PromptSetting:
         # TODO: get prompt setting online
         if task == "text_classification":
             prompt_setting = PromptSetting(
