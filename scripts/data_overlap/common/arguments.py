@@ -14,6 +14,7 @@ def get_data_overlap_args() -> Any:
         help="The format of your input file for your training data, e.g. raw, custom, the_pile",
     )
     parser.add_argument("--no-output-ngrams", type=bool, default=False, help="Pass to not output ngrams")
+    parser.add_argument("--skip-check-collision", type=bool, default=False, help="Pass to skip collision check; increases speed and decreases memory")
     parser.add_argument(
         "--tags",
         type=str,

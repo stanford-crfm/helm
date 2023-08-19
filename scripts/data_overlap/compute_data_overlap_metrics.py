@@ -68,19 +68,17 @@ def load_light_scenarios_from_jsonl(path: str) -> List[LightScenario]:
         light_scenarios.append(LightScenario(scenario_key=light_scenario_key, instances=light_instances))
     return light_scenarios
 
-
 def create_ngram_index(
     light_scenarios: List[LightScenario],
     n_values: List[int],
     tokenizer: LightTokenizer,
     stats_key_counts: Dict[DataOverlapStatsKey, int],
-) -> Tuple[NgramIndex, HashToNgrams]:
+) -> NgramIndex:
     """
     Given a list of scenarios and n values, initialize ngram_index.
     stats_key_counts is passed in and updated, counting the number of times a stats_key occurs
     """
     ngram_index: NgramIndex = {n: {} for n in n_values}
-    hash_to_ngrams: HashToNgrams = {n: {} for n in n_values}
     for scenario in light_scenarios:
         hlog(f"Building ngram indexes for {scenario.scenario_key}")
         for n in n_values:
@@ -96,11 +94,9 @@ def create_ngram_index(
                     input_hash, start, end = input_hash_info
                     if input_hash not in ngram_index[n]:
                         ngram_index[n][input_hash] = set()
-                        hash_to_ngrams[n][input_hash] = set()
                     ngram_index[n][input_hash].add(
                         EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_INPUT)
                     )
-                    hash_to_ngrams[n][input_hash].add(tuple(input_tokens[start:end]))
 
                 # compute reference ngrams
                 for reference in instance.references:
@@ -109,12 +105,44 @@ def create_ngram_index(
                         reference_hash, start, end = reference_hash_info
                         if reference_hash not in ngram_index[n]:
                             ngram_index[n][reference_hash] = set()
-                            hash_to_ngrams[n][reference_hash] = set()
                         ngram_index[n][reference_hash].add(
                             EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF)
                         )
+    return ngram_index
+
+
+
+def create_hash_to_ngrams(
+    light_scenarios: List[LightScenario],
+    n_values: List[int],
+    tokenizer: LightTokenizer,
+) -> HashToNgrams:
+    """
+    Given a list of scenarios and n values, initialize hash_to_ngrams.
+    """
+    hash_to_ngrams: HashToNgrams = {n: {} for n in n_values}
+    for scenario in light_scenarios:
+        hlog(f"Building hash to ngrams for {scenario.scenario_key}")
+        for n in n_values:
+            for i, instance in enumerate(scenario.instances):
+                id = instance.id
+                assert id
+                input_tokens = tokenizer.tokenize(instance.input)
+                for input_hash_info in get_ngram_hashes(input_tokens, n):
+                    input_hash, start, end = input_hash_info
+                    if input_hash not in hash_to_ngrams[n]:
+                        hash_to_ngrams[n][input_hash] = set()
+                    hash_to_ngrams[n][input_hash].add(tuple(input_tokens[start:end]))
+
+                # compute reference ngrams
+                for reference in instance.references:
+                    reference_unigrams = tokenizer.tokenize(reference)
+                    for reference_hash_info in get_ngram_hashes(reference_unigrams, n):
+                        reference_hash, start, end = reference_hash_info
+                        if reference_hash not in hash_to_ngrams[n]:
+                            hash_to_ngrams[n][reference_hash] = set()
                         hash_to_ngrams[n][reference_hash].add(tuple(reference_unigrams[start:end]))
-    return ngram_index, hash_to_ngrams
+    return hash_to_ngrams
 
 
 def compute_all_data_overlap(
@@ -187,19 +215,21 @@ def compute_document_data_overlap(
         for document_hash_info in get_ngram_hashes(document_tokens, n):
             document_hash, start, end = document_hash_info
             if document_hash in ngram_index[n]:
-                ngrams = hash_to_ngrams[n][document_hash]
-                curr_ngram = tuple(document_tokens[start:end])
-                if curr_ngram not in ngrams:
-                    hlog(f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}")
-                    hlog(", ".join(f"{element}" for element in ngrams))
-                    hlog("\n")
+                if hash_to_ngrams:
+                    ngrams = hash_to_ngrams[n][document_hash]
+                    curr_ngram = tuple(document_tokens[start:end])
+                    if curr_ngram not in ngrams:
+                        hlog(f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}")
+                        hlog(", ".join(f"{element}" for element in ngrams))
+                        hlog("\n")
 
-                    with open(f"{args.output_stats}_collisions", "a") as f:
-                        f.write(
-                            f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}"
-                        )
-                        f.write(", ".join(f"{element}" for element in ngrams))
-                        f.write("\n")
+                        with open(f"{args.output_stats}_collisions", "a") as f:
+                            f.write(
+                                f"False postive: {curr_ngram} not found for len({len(ngrams)}) and hash {document_hash}"
+                            )
+                            f.write(", ".join(f"{element}" for element in ngrams))
+                            f.write("\n")
+                        continue
 
                 for entry_overlap_key in ngram_index[n][document_hash]:
                     id = entry_overlap_key.instance_id
@@ -231,22 +261,24 @@ if __name__ == "__main__":
     light_scenarios = load_light_scenarios_from_jsonl(args.scenario_data)
 
     stats_key_counts: DefaultDict[DataOverlapStatsKey, int] = defaultdict(int)
+    hash_to_ngrams: HashToNgrams = None
     with htrack_block("Initializing the stats, ngram_index, and ngram_counter"):
         ngram_index: NgramIndex
-        ngram_index, hash_to_ngrams = create_ngram_index(
+        ngram_index = create_ngram_index(
             light_scenarios=light_scenarios, n_values=args.N, tokenizer=tokenizer, stats_key_counts=stats_key_counts
         )
+        if not args.skip_check_collision:
+            hash_to_ngrams = create_hash_to_ngrams(
+                light_scenarios=light_scenarios, n_values=args.N, tokenizer=tokenizer
+            )
 
-    with open(f"{args.output_stats}_collisions", "w") as f:
-        for n in args.N:
-            for hash, ngrams in hash_to_ngrams[n].items():
-                if len(ngrams) > 1:
-                    f.write(f"Hash:{hash}\n")
-                    for ngram in ngrams:
-                        f.write(f"Ngram:{ngram}")
-                    f.write("\n")
-                    f.write("\n")
-                    break
+            with open(f"{args.output_stats}_collisions", "w") as f:
+                for n in args.N:
+                    for hash_val, ngrams_set in hash_to_ngrams[n].items():
+                        if len(ngrams_set) > 1:
+                            f.write(f"Hash:{hash_val}\n")
+                            for ngram in ngrams_set:
+                                f.write(f"Ngram:{ngram}\n")
 
     # DataOverlapStatsKey -> Set[str] for ids
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
