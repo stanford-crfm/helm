@@ -160,10 +160,7 @@ def test_create_hash_to_ngrams():
     tokenizer = LightTokenizer()
     scenarios = [TEST_SCENARIO_1, TEST_SCENARIO_2]
     hash_to_ngrams: HashToNgrams
-    hash_to_ngrams = create_hash_to_ngrams(
-        light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer
-    )
-
+    hash_to_ngrams = create_hash_to_ngrams(light_scenarios=scenarios, n_values=N_VALUES, tokenizer=tokenizer)
 
     test_5_gram: Ngram = ("Center", "for", "Research", "on", "Foundation")
     test_13_gram: Ngram = (
@@ -184,18 +181,8 @@ def test_create_hash_to_ngrams():
     test_5_gram_hash, _, _ = get_ngram_hashes(list(test_5_gram), 5)[0]
     test_13_gram_hash, _, _ = get_ngram_hashes(list(test_13_gram), 13)[0]
 
-    assert hash_to_ngrams[5][test_5_gram_hash] == set(
-        [
-            test_5_gram
-        ]
-    )
-    assert hash_to_ngrams[13][test_13_gram_hash] == set(
-        [
-            test_13_gram
-        ]
-    )
-
-
+    assert hash_to_ngrams[5][test_5_gram_hash] == set([test_5_gram])
+    assert hash_to_ngrams[13][test_13_gram_hash] == set([test_13_gram])
 
 
 def test_create_ngram_index():
