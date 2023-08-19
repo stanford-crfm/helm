@@ -15,6 +15,7 @@ def example_tokens():
 def test_RabinKarpHash_initialization(example_int_sequence):
     window_size = 3
     rk_hash = RabinKarpHash(example_int_sequence, window_size)
+
     assert isinstance(rk_hash, RabinKarpHash)
     assert rk_hash.current_hash != 0
 
@@ -37,6 +38,13 @@ def test_compute_hashes(example_int_sequence):
     assert isinstance(hashes, list)
     assert len(hashes) == len(example_int_sequence) - window_size + 1
 
+    for h in hashes:
+        assert isinstance(h, tuple)
+        assert len(h) == 3
+
+    distinct_hashes = set(hash[0] for hash in hashes)
+    assert len(distinct_hashes) == len(hashes)
+
 
 def test_hash_token():
     token = "apple"
@@ -52,3 +60,10 @@ def test_get_ngram_hashes(example_tokens):
 
     assert isinstance(hashes, list)
     assert len(hashes) == len(example_tokens) - n + 1
+
+    for h in hashes:
+        assert isinstance(h, tuple)
+        assert len(h) == 3
+
+    distinct_hashes = set(hash[0] for hash in hashes)
+    assert len(distinct_hashes) == len(hashes)
