@@ -832,7 +832,7 @@ def _has_non_zero_valued_logprobs(per_instance_stats: Dict[Instance, List[Stat]]
     Some models have partial functionality and produce only zero-valued logprobs."""
     for instance_stats in per_instance_stats.values():
         for stat in instance_stats:
-            if stat.name == "logprob" and stat.sum > 0:
+            if stat.name == "logprob" and stat.sum < 0:
                 return True
     return False
 
@@ -843,7 +843,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
 
     # If the model does not produce onn-zero-valued logprobs
     # then don't compute calibration metrics.
-    if _has_non_zero_valued_logprobs(per_instance_stats):
+    if not _has_non_zero_valued_logprobs(per_instance_stats):
         return []
 
     for instance_stats in per_instance_stats.values():
