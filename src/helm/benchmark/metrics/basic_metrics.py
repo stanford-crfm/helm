@@ -826,9 +826,26 @@ class BasicMetric(Metric):
         return derived_stats
 
 
+def _has_non_zero_valued_logprobs(per_instance_stats: Dict[Instance, List[Stat]]) -> bool:
+    """Return whether the per instance stats contain non-zero-valued logprobs.
+
+    Some models have partial functionality and produce only zero-valued logprobs."""
+    for instance_stats in per_instance_stats.values():
+        for stat in instance_stats:
+            if stat.name == "logprob" and stat.sum > 0:
+                return True
+    return False
+
+
 def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
     max_probs = []
     correct = []
+
+    # If the model does not produce onn-zero-valued logprobs
+    # then don't compute calibration metrics.
+    if not _has_non_zero_valued_logprobs(per_instance_stats):
+        return []
+
     for instance_stats in per_instance_stats.values():
         max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob")
         correct_stat = get_unique_stat_by_name(instance_stats, "exact_match")
@@ -839,11 +856,6 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
             cur_correct = float(correct_stat.mean)
             assert 0.0 <= cur_correct <= 1.0
             correct.append(int(cur_correct))
-
-    # If the model does not produce logprobs (i.e. max_prob is always 1.0)
-    # then don't compute calibration metrics.
-    if all([max_prob == 1.0 for max_prob in [max_probs]]):
-        return []
 
     stats: List[Stat] = []
     assert len(max_probs) == len(correct)
