@@ -96,7 +96,7 @@ def create_ngram_index(
                     input_hash, start, end = input_hash_info
                     if input_hash not in ngram_index[n]:
                         ngram_index[n][input_hash] = set()
-                        hash_to_ngrams[n][input_hash] = set(input_tokens[start:end])
+                        hash_to_ngrams[n][input_hash] = set()
                     ngram_index[n][input_hash].add(
                         EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_INPUT)
                     )
@@ -233,6 +233,7 @@ if __name__ == "__main__":
         ngram_index, hash_to_ngrams = create_ngram_index(
             light_scenarios=light_scenarios, n_values=args.N, tokenizer=tokenizer, stats_key_counts=stats_key_counts
         )
+
 
     # DataOverlapStatsKey -> Set[str] for ids
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)

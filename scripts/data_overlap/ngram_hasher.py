@@ -1,5 +1,7 @@
 from typing import List, Tuple
 
+RABIN_KARP_PRIME = 172001 # chosen as a prime larger than 171,476, estimate vocab size of english (these are the base of exponent)
+CHAR_PRIME = 401 # chosen as a prime larger than 256, UTF-8 space, and distant from 2^n; 
 class RabinKarpHash:
     """
     (ignoring mods here for simplicity)
@@ -15,12 +17,15 @@ class RabinKarpHash:
     In our case, it probably makes more sense to use a large prime p
 
     and convert words/tokens into ints (probably by multiplying chars by a prime or 256)
+
+    I'll use 196613 as it's estimated there are 171,476 words in current use
+    in English language, and it's prime
     """
-    def __init__(self, int_sequence: List[int], window_size: int, mod: int):
+    def __init__(self, int_sequence: List[int], window_size: int, mod: int = 8554560727166512717):
         self.window_start = 0
         self.window_end = window_size
         self.mod = mod
-        self.high_coefficient = pow(256, window_size - 1, mod)
+        self.high_coefficient = pow(RABIN_KARP_PRIME, window_size - 1, mod)
         self.current_hash = 0
         self.int_sequence = int_sequence
 
@@ -33,7 +38,7 @@ class RabinKarpHash:
         ord only acts at a character level, but the logic only makes sense for n-grams/tokens (otherwise we have no way to configure N, the length of n-grams)
         """
         for i in range(window_size):
-            self.current_hash = (self.current_hash * 256 + int_sequence[i]) % mod
+            self.current_hash = (self.current_hash * RABIN_KARP_PRIME + int_sequence[i]) % mod
         if self.current_hash < 0:
             self.current_hash += mod
 
@@ -53,14 +58,14 @@ class RabinKarpHash:
     """
     def update(self) -> None:
         start_piece = self.mult_mod(self.int_sequence[self.window_start], self.high_coefficient, self.mod)
-        self.current_hash = self.mult_mod(self.current_hash - start_piece, 256, self.mod)
+        self.current_hash = self.mult_mod(self.current_hash - start_piece, RABIN_KARP_PRIME, self.mod)
         self.current_hash = (self.current_hash + self.int_sequence[self.window_end]) % self.mod
         if self.current_hash < 0:
             self.current_hash += self.mod
         self.window_start += 1
         self.window_end += 1
 
-def compute_hashes(int_sequence: List[int], window_size: int, mod: int) -> List[Tuple[int, int, int]]:
+def compute_hashes(int_sequence: List[int], window_size: int) -> List[Tuple[int, int, int]]:
     """
     Previously was 
     rk_hash = RabinKarpHash(
@@ -73,8 +78,7 @@ def compute_hashes(int_sequence: List[int], window_size: int, mod: int) -> List[
         return []
     rk_hash = RabinKarpHash(
         int_sequence,
-        window_size,
-        mod
+        window_size
     )
     hashes = [(rk_hash.current_hash, rk_hash.window_start, rk_hash.window_end)]
     for i in range(len(int_sequence) - window_size):
@@ -84,12 +88,13 @@ def compute_hashes(int_sequence: List[int], window_size: int, mod: int) -> List[
 
     return hashes
 
-def hash_token(token: str, mod: int):
+# mod chosen as large prime of similar size to rabin karp, but distinct
+def hash_token(token: str, mod: int = 8554560727166512181):
     hash_value = 0
     for ch in token:
-        hash_value = (hash_value * 256 + ord(ch)) % mod
+        hash_value = (hash_value * CHAR_PRIME + ord(ch)) % mod
     return hash_value
 
-def get_ngram_hashes(tokens: List[str], n: int, mod: int = 8554560727166512717):
-    hashed_tokens = [hash_token(token, mod) for token in tokens]
-    return compute_hashes(hashed_tokens, n, mod)
+def get_ngram_hashes(tokens: List[str], n: int):
+    hashed_tokens = [hash_token(token) for token in tokens]
+    return compute_hashes(hashed_tokens, n)
