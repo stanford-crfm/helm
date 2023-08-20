@@ -346,3 +346,38 @@ class CLEVAFactCheckingScenario(CLEVAScenario):
 
     description = "Fact checking task in CLEVA benchmark"
     tags = ["fact_checking"]
+
+
+class CLEVATranslationScenario(CLEVAScenario):
+    """
+    The translation task of CLEVA benchmark.
+
+    An example of en2zh subtask is:
+        请把下面的英文句子翻译成相应的中文句子。
+
+        英语：On Thursday, a bronze statue of Vidyasagar was installed at Vidyasagar College.
+        中文：星期四，维迪亚萨加学院矗立了维迪亚萨加铜像。
+
+        英语：This will help the present generation to know about the man, who had waged a war against women oppression
+             and propagated widow remarriage, he said.
+        中文：
+
+    Target: 他说，这将有助于当代人了解这位名人，他发动了一场反对妇女压迫的战争，并鼓励寡妇再婚。
+
+    An example of zh2en subtask is:
+        请把下面的中文句子翻译成相应的英文句子。
+
+        中文：北京市场监管部门节前开展综合执法 商品价格基本稳定
+        英语：Beijing Market Regulator Initiates Comprehensive Law Enforcement before the Holiday,
+             CPI Basically Remains Stable
+
+        中文：中国驻柬大使馆外交官仲跻法、柬华理事总会代表、柬埔寨江西商会会长魏思钰等为获奖嘉宾颁奖。
+        英语：
+
+    Target: Zhong Jifa, diplomat of the Chinese Embassy in Cambodia, and Wei Siyu, representative of the Cambodian
+            Chinese Council and President of Jiangxi Chamber of Commerce in Cambodia,
+            presented the awards to the winners.
+    """
+
+    description = "Translation task in CLEVA benchmark"
+    tags = ["translation"]
