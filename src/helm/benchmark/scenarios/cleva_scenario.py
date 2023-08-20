@@ -76,10 +76,10 @@ class CLEVAScenario(Scenario):
         return dataset
 
     @classmethod
-    def load_prompt_settings(cls, task: str, subtask: str, version: str) -> Dict[str, str]:
+    def load_prompt_settings(cls, task: str, subtask: Optional[str], version: str) -> Dict:
         prompt_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
         if subtask:
-            prompt_dir: str = os.path.join(prompt_dir, subtask)
+            prompt_dir = os.path.join(prompt_dir, subtask)
         file_path = os.path.join(prompt_dir, "prompt_setting.json")
         if os.path.isfile(file_path):
             with open(file_path, "r") as fin:
@@ -124,7 +124,7 @@ class CLEVAScenario(Scenario):
         return instance
 
     @classmethod
-    def get_prompt_setting(cls, task: str, subtask: str, version: str) -> PromptSetting:
+    def get_prompt_setting(cls, task: str, subtask: Optional[str], version: str) -> PromptSetting:
         prompt_setting_dict = cls.load_prompt_settings(task, subtask, version)
         prompt_setting = PromptSetting(
             instructions=prompt_setting_dict.get("instructions", ""),
