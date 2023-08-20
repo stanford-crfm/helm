@@ -130,7 +130,7 @@ class CLEVAScenario(Scenario):
             instructions=prompt_setting_dict.get("instructions", ""),
             input_noun=prompt_setting_dict.get("input_noun", None),
             newline_after_input_noun=prompt_setting_dict.get("newline_after_input_noun", False),
-            output_noun=prompt_setting_dict.get("output_noun", None),
+            output_noun=prompt_setting_dict.get("output_noun", ""),
             newline_after_output_noun=prompt_setting_dict.get("newline_after_output_noun", False),
         )
         return prompt_setting
