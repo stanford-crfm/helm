@@ -5,6 +5,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from .metric import Metric
 from .metric_name import MetricName
 from .statistic import Stat
+from langdetect import detect
 
 
 class MachineTranslationMetric(Metric):
@@ -36,10 +37,11 @@ class MachineTranslationMetric(Metric):
         return [Stat(MetricName("bleu")).add(bleu_score)]
 
 
-class ChineseMachineTranslationMetric(Metric):
+class ClevaMachineTranslationMetric(Metric):
     """
-    Compute the BLEU score for Machine Translation scenarios whose target language is Chinese.
-    The implementation is based on sacrebleu.
+    Compute the BLEU score for Machine Translation scenarios of CLEVA benchmark.
+    Based on sacrebleu, this implementation distinguishes target language and allows variable number of references.
+    If there are more than one hypothesis, only the first one is adopted in the calculation.
     """
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
@@ -47,22 +49,36 @@ class ChineseMachineTranslationMetric(Metric):
         Compute the corpus-level metric based on all reqeust_states.
         """
 
-        bleu = BLEU(tokenize="zh")
+        def detect_language(request_states: List[RequestState]) -> str:
+            """
+            Determine the target language by detecting the language of references.
+            Currently, it only distinguishes if the target language is Chinese.
+            """
 
-        refs: List[List[str]] = [[]]
+            corpus: str = "".join(
+                [request_state.instance.references[0].output.text for request_state in request_states[:10]]
+            )
+            if detect(corpus) in ["zh-cn", "zh-tw"]:
+                return "zh"
+            else:
+                return "13a"  # Default tokenizer for sacrebleu.BLEU
+
+        bleu = BLEU(tokenize=detect_language(request_states))
+
+        max_num_references: int = max([len(request_state.instance.references) for request_state in request_states])
+        refs: List[List[str]] = [
+            [
+                request_state.instance.references[i].output.text if i < len(request_state.instance.references) else ""
+                for request_state in request_states
+            ]
+            for i in range(max_num_references)
+        ]
+
         sys: List = []
-        max_num_references = max([len(request_state.instance.references) for request_state in request_states])
-        refs = [[l[i] if i < len(l) else "" for l in label] for i in range(max_num_references)]
         for request_state in request_states:
-            # Assume there is one referece per instance. TODO: Support multiple references after adding more scenarios.
-            num_references: int = len(request_state.instance.references)
-            if num_references != 1:
-                raise ValueError(f"This instance has {num_references} references, but we currently only support one.")
-            # Usually there is only one completion for each instance.
             assert request_state.result is not None
-            if len(request_state.result.completions) != 1:
-                raise ValueError("Each request result should have only exactly one completion.")
             sys.append(request_state.result.completions[0].text)
-            refs[0].append(request_state.instance.references[0].output.text)
+
         bleu_score = bleu.corpus_score(sys, refs).score
+
         return [Stat(MetricName("bleu")).add(bleu_score)]
