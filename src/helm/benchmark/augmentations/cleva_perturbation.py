@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import json
 import os
 from random import Random
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import unidecode
 import pypinyin
@@ -13,7 +13,7 @@ from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
-############################ Robustness ################################
+############################################################
 
 
 class ButterFingerPerturbation(Perturbation):
@@ -36,9 +36,9 @@ class ButterFingerPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         prob: float = 0.0
-        rare_word_prob: Optional[float] = 0.05
-        consider_tone: Optional[bool] = False
-        word_level_perturb: Optional[bool] = True
+        rare_word_prob: float = 0.05
+        consider_tone: bool = False
+        word_level_perturb: bool = True
 
     name: str = "butter_finger"
 
@@ -53,11 +53,19 @@ class ButterFingerPerturbation(Perturbation):
         "toneless_pinyin_to_word.json",
     ]
 
-    def __init__(self, prob: float, rare_char_prob: Optional[float] = 0.05, consider_tone: Optional[bool] = False, word_level_perturb: Optional[bool] = True):
+    def __init__(
+        self,
+        prob: float,
+        rare_char_prob: float = 0.05,
+        consider_tone: bool = False,
+        word_level_perturb: bool = True,
+    ):
         # Assign parameters to instance variables
         self.prob: float = prob
         self.rare_char_prob: float = rare_char_prob  # How likely we will use rare Chinese characters
-        self.consider_tone: bool = consider_tone  # Should we take the tone of Pinyin into account when considering similar char/words
+        self.consider_tone: bool = (
+            consider_tone  # Should we take the tone of Pinyin into account when considering similar char/words
+        )
         self.word_level_perturb: bool = word_level_perturb  # Whether we perturb text on the character or word level
 
         # Ensure all necessary data are downloaded
@@ -69,17 +77,26 @@ class ButterFingerPerturbation(Perturbation):
             ensure_file_downloaded(source_url=SOURCE_URI, target_path=target_path)
 
         # Load the data for the perturbation
-        with open(os.path.join(
-            output_dir, "pinyin_to_char.json" if self.consider_tone else "toneless_pinyin_to_char.json",
-        )) as f:
+        with open(
+            os.path.join(
+                output_dir,
+                "pinyin_to_char.json" if self.consider_tone else "toneless_pinyin_to_char.json",
+            )
+        ) as f:
             self.chinese_character_database: Dict[str, List[str]] = json.load(f)
-        with open(os.path.join(
-            output_dir, "pinyin_to_common_char.json" if self.consider_tone else "toneless_pinyin_to_common_char.json",
-        )) as f:
+        with open(
+            os.path.join(
+                output_dir,
+                "pinyin_to_common_char.json" if self.consider_tone else "toneless_pinyin_to_common_char.json",
+            )
+        ) as f:
             self.common_chinese_character_database: Dict[str, List[str]] = json.load(f)
-        with open(os.path.join(
-            output_dir, "pinyin_to_word.json" if self.consider_tone else "toneless_pinyin_to_word.json",
-        )) as f:
+        with open(
+            os.path.join(
+                output_dir,
+                "pinyin_to_word.json" if self.consider_tone else "toneless_pinyin_to_word.json",
+            )
+        ) as f:
             self.chinese_words_database: Dict[str, List[str]] = json.load(f)
 
     @property
@@ -103,9 +120,7 @@ class ButterFingerPerturbation(Perturbation):
                 original_word = dict["original_word"]
                 similar_pinyins_words = dict["similar_pinyin_words"]
                 if rng.random() <= self.prob and len(similar_pinyins_words) != 0:
-                    new_chinese_character = rng.choice(
-                        similar_pinyins_words
-                    )
+                    new_chinese_character = rng.choice(similar_pinyins_words)
                 else:
                     new_chinese_character = original_word
                 butter_text += new_chinese_character
@@ -138,9 +153,7 @@ class ButterFingerPerturbation(Perturbation):
     ):
 
         pinyin_for_char_to_be_perturbed = pypinyin.pinyin(chinese_character)
-        pinyin_for_char_to_be_perturbed = [
-            item for pinyin in pinyin_for_char_to_be_perturbed for item in pinyin
-        ]
+        pinyin_for_char_to_be_perturbed = [item for pinyin in pinyin_for_char_to_be_perturbed for item in pinyin]
         pinyin_for_char_to_be_perturbed = "".join(pinyin_for_char_to_be_perturbed)
 
         chars_with_similar_pinyin = ""
@@ -190,9 +203,7 @@ class ButterFingerPerturbation(Perturbation):
                 rng,
             )
 
-            words_and_similar_word_dict[
-                "similar_pinyin_words"
-            ] = similar_word_pinyin_list
+            words_and_similar_word_dict["similar_pinyin_words"] = similar_word_pinyin_list
             words_and_similar_word_dict_list.append(words_and_similar_word_dict)
         return words_and_similar_word_dict_list
 
@@ -220,12 +231,8 @@ class ButterFingerPerturbation(Perturbation):
             similar_word_pinyin_list = [char for char in similar_pinyins]
         elif original_word_len > 1:
             original_word_pinyins = pypinyin.pinyin(original_word)
-            original_word_pinyins_flatten = [
-                item for pinyin in original_word_pinyins for item in pinyin
-            ]
-            original_word_pinyins_string = "".join(
-                original_word_pinyins_flatten
-            )
+            original_word_pinyins_flatten = [item for pinyin in original_word_pinyins for item in pinyin]
+            original_word_pinyins_string = "".join(original_word_pinyins_flatten)
             if not consider_tone:
                 original_word_pinyins_string = unidecode.unidecode(original_word_pinyins_string)
             candidate_words = chinese_words_database.get(original_word_pinyins_string, [])
@@ -271,14 +278,14 @@ class ChineseSynonymPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         prob: float = 0.0
-        trial_num: Optional[int] = 10
+        trial_num: int = 10
 
     name: str = "chinese_synonym"
 
     # For downloading resources
     SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets/synonyms.json"
 
-    def __init__(self, prob: float, trial_num: Optional[int] = 10):
+    def __init__(self, prob: float, trial_num: int = 10):
         # Assign parameters to instance variables
         self.prob: float = prob
         self.trial_num: int = trial_num  # Number of trial to get a 100% perturbed text
@@ -295,7 +302,7 @@ class ChineseSynonymPerturbation(Perturbation):
 
     def perturb(self, text: str, rng: Random) -> str:
         words = jieba.lcut(text)
-       
+
         for _ in range(self.trial_num):
             perturbed_text = ""
             for w in words:
@@ -303,12 +310,12 @@ class ChineseSynonymPerturbation(Perturbation):
                     perturbed_text += self.sample_word(self.synonym_dict[w], rng)
                 else:
                     perturbed_text += w
-            
+
             if perturbed_text != text:
                 break
 
         return perturbed_text
-    
+
     def sample_word(self, sample_list: list, rng: Random):
         index = rng.randint(0, len(sample_list) - 1)
         return sample_list[index]
@@ -341,5 +348,4 @@ class CLEVAMildMixPerturbation(Perturbation):
         return text
 
 
-############################ Fairness ################################
-
+############################################################
