@@ -6,6 +6,8 @@ RABIN_KARP_PRIME = 172001
 # A prime number chosen as a base for hashing characters, larger than 256 (UTF-8 character space)
 CHAR_PRIME = 401
 
+hash_token_cache = {}
+
 
 class RabinKarpHash:
     """
@@ -91,9 +93,16 @@ def hash_token(token: str, mod: int = 8554560727166512181):
     Returns:
         int: Hash value.
     """
+
+    # assume mod is constant for space/time efficiency
+    if token in hash_token_cache:
+        return hash_token_cache[token]
+
     hash_value = 0
     for ch in token:
         hash_value = (hash_value * CHAR_PRIME + ord(ch)) % mod
+
+    hash_token_cache[token] = hash_value
     return hash_value
 
 
