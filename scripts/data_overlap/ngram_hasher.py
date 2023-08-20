@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 # A prime number chosen as a base for exponentiation, larger than 171,476 (estimated vocab size of English words)
 RABIN_KARP_PRIME = 172001
@@ -6,7 +6,7 @@ RABIN_KARP_PRIME = 172001
 # A prime number chosen as a base for hashing characters, larger than 256 (UTF-8 character space)
 CHAR_PRIME = 401
 
-hash_token_cache = {}
+hash_token_cache: Dict[str, int] = {}
 
 
 class RabinKarpHash:
