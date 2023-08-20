@@ -2,13 +2,15 @@ from dataclasses import dataclass
 import json
 import os
 from random import Random
-from typing import Dict, List
+from collections import defaultdict
+from typing import Dict, List, Tuple, Set, Optional
 
 import unidecode
 import pypinyin
 import jieba
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
+from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
@@ -349,3 +351,111 @@ class CLEVAMildMixPerturbation(Perturbation):
 
 
 ############################################################
+
+
+class ChineseGenderPerturbation(Perturbation):
+    """Individual fairness perturbation for Chinese gender terms and pronouns."""
+
+    name: str = "chinese_gender"
+
+    should_perturb_references: bool = True
+
+    """ Genders defined by default """
+    FEMALE = "female"
+    MALE = "male"
+    GENDERS = [FEMALE, MALE]
+
+    """ Modes """
+    GENDER_TERM = "terms"
+    GENDER_PRONOUN = "pronouns"
+    MODES = [GENDER_TERM, GENDER_PRONOUN]
+
+    """ Resources """
+    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets/gender_term.txt"
+
+    @dataclass(frozen=True)
+    class Description(PerturbationDescription):
+        """Description for the GenderPerturbation class."""
+
+        mode: str = ""
+        prob: float = 0.0
+        source_class: str = ""
+        target_class: str = ""
+
+    def __init__(
+        self,
+        mode: str,
+        prob: float,
+        source_class: str,
+        target_class: str,
+    ):
+        """Initialize the gender perturbation.
+
+        Args:
+            mode: The mode of the gender perturbation, must be one of
+                "terms" or "pronouns".
+            prob: Probability of substituting a word in the source class with
+                a word in the target class given that a substitution is
+                available.
+            source_class: The source gender that will be substituted with
+                the target gender. If mapping_file_path is provided, the source
+                class must be one of the genders in it. If not, it must be
+                exactly one of `male`, `female`, and `neutral. Case-insensitive.
+            target_class: Same as the source class, but for the target gender.
+        """
+        # Assign parameters to instance variables
+        assert mode in self.MODES
+        self.mode = mode
+
+        assert 0 <= prob <= 1
+        self.prob = prob
+
+        self.source_class: str = source_class.lower()
+        self.target_class: str = target_class.lower()
+
+        if self.mode == self.GENDER_TERM:
+            self.term_dict: Dict[Tuple[str, str], Dict[str, str]] = defaultdict(dict)
+
+            target_path = os.path.join("benchmark_output", "perturbations", self.name, "gender_term.txt")
+            ensure_directory_exists(os.path.dirname(target_path))
+            ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_path)
+            with open(target_path) as fin:
+                for line in fin.readlines():
+                    splits: List[str] = line.strip("\n").split(" ")
+                    self.term_dict[(self.MALE, self.FEMALE)][splits[0]] = splits[1]
+                    self.term_dict[(self.FEMALE, self.MALE)][splits[1]] = splits[0]
+        elif self.mode == self.GENDER_PRONOUN:
+            self.term_dict = {
+                (self.MALE, self.FEMALE): {
+                    "他": "她",
+                },
+                (self.FEMALE, self.MALE): {
+                    "她": "他",
+                },
+            }
+
+    @property
+    def description(self) -> PerturbationDescription:
+        """Return a perturbation description for this class."""
+        return ChineseGenderPerturbation.Description(
+            name=self.name,
+            mode=self.mode,
+            fairness=True,
+            prob=self.prob,
+            source_class=self.source_class,
+            target_class=self.target_class,
+        )
+
+    def perturb(self, text: str, rng: Random) -> str:
+        """Perform the perturbations on the provided text."""
+        words = jieba.lcut(text)
+
+        mapping_dict = self.term_dict[(self.source_class, self.target_class)]
+        perturbed_text = ""
+        for w in words:
+            if w in mapping_dict and rng.random() < self.prob:
+                perturbed_text += mapping_dict[w]
+            else:
+                perturbed_text += w
+
+        return perturbed_text
