@@ -1,7 +1,7 @@
 from hashlib import sha512
 import json
 import threading
-from typing import Dict, List, Union, Set
+from typing import Dict, List, Union, Set, Any
 
 from cattrs import unstructure
 import scaleapi
@@ -85,12 +85,9 @@ def _ensure_batch_exists(client: scaleapi.ScaleClient, project_name: str, batch_
                         "Either rename the existing batch to a different name to allow HELM to create a new batch, or "
                         f"change scaleProject in credentials.conf to '{existing_batch.project}'. {existing_batch}"
                     )
+
                 if existing_batch.status != "staging":
-                    raise ScaleCritiqueClientError(
-                        f"New tasks cannot be added to the existing batch named '{batch_name}' because "
-                        f"its status is '{existing_batch.status}' instead of 'staging'. "
-                        "Rename the existing batch to a different name to allow HELM to create a new batch."
-                    )
+                    hlog("Important: The batch is not in staging status. New tasks cannot be added to it.")
                 hlog(f"Reusing existing Scale batch: {batch_name}")
             _scale_batches.add(batch_name)
 
@@ -142,9 +139,19 @@ class ScaleCritiqueClient(CritiqueClient):
                 "field_id": question.name,  # This must be unique, so we use the question name
                 "title": question.name,
                 "description": self._interpolate_fields(question.text, fields),
-                "choices": [{"label": option, "value": option} for option in question.options],
+                # Scale's consensus function requires the values to be a number.
+                "choices": [{"label": question.options[i], "value": i} for i in range(len(question.options))],
                 "min_choices": 0 if question.question_type == "checkbox" else 1,
                 "max_choices": len(question.options) if question.question_type == "checkbox" else 1,
+            }
+        elif question.question_type == "free_response":
+            return {
+                "type": "text",
+                "field_id": question.name,
+                "title": question.name,
+                "description": question.text,
+                "max_characters": 500,
+                "required": True,
             }
         else:
             raise ValueError(f"Unsupported question type {question.question_type}")
@@ -193,7 +200,7 @@ class ScaleCritiqueClient(CritiqueClient):
                 unique_id=unique_id,
                 instruction="Evaluate the AI model generated output following the instructions below",
                 attachments=attachments,
-                response_required=template.num_respondents,
+                responses_required=template.num_respondents,
                 fields=[self._critique_question_to_scale_field(question, fields) for question in template.questions],
             )
 
@@ -232,52 +239,78 @@ class ScaleCritiqueClient(CritiqueClient):
         if task.status != TaskStatus.Completed.value:
             return []
         else:
-            annotations: Dict[str, List[str]] = task.response["annotations"]
+            raw_responses: List[Dict[str, Any]] = task.response["responses"]
+            fields: List[dict] = task.params["fields"]
 
-            # The format of annotations is:
-            # {
-            #   "category_field_1": [
-            #      answer_1_respondent_1,
-            #      answer_1_respondent_2,
-            #      ...
-            #   ],
-            #   "category_field_2": [
-            #      answer_2_respondent_1,
-            #      answer_2_respondent_2,
-            #      ...
-            #   ],
-            #   ...
-            # }
-            # We want to convert it to:
+            # We need to convert the raw responses to a list of `CritiqueResponse`s.
+            # An example of `raw_responses`:
             # [
-            #   {
-            #     "id": "respondent_1",
-            #     "answers": {
-            #       "category_field_1": answer_1_respondent_1
-            #       "category_field_2": answer_2_respondent_1
-            #       ...
+            #     {
+            #     "Helpfulness": [
+            #         "3"
+            #     ],
+            #     "Understandability": [
+            #         "4"
+            #     ],
+            #     "Completeness": [
+            #         "2"
+            #     ],
+            #     "Conciseness": [
+            #         "4"
+            #     ],
+            #     "Harmlessness": [
+            #         "5"
+            #     ],
+            #     "Factuality": [
+            #         "3"
+            #     ],
+            #     "Keyword Feedback": "Two out of five answers were not understandable"
+            #     },
+            #     {
+            #     "Helpfulness": [
+            #         "4"
+            #     ],
+            #     "Understandability": [
+            #         "4"
+            #     ],
+            #     "Completeness": [
+            #         "5"
+            #     ],
+            #     "Conciseness": [
+            #         "4"
+            #     ],
+            #     "Harmlessness": [
+            #         "5"
+            #     ],
+            #     "Factuality": [
+            #         "1"
+            #     ],
+            #     "Keyword Feedback": "typos"
             #     }
-            #   },
-            #   {
-            #     "id": "respondent_2",
-            #     "answers": {
-            #       "category_field_1": answer_1_respondent_2
-            #       "category_field_2": answer_2_respondent_2
-            #       ...
-            #     }
-            #   },
-            #   ...
             # ]
-
             # First, we get the list of respondents
-            num_respondents: int = len(annotations[list(annotations.keys())[0]])
+            num_respondents: int = len(raw_responses)
 
             # Then, we create the list of responses
             responses: List[CritiqueResponse] = []
             for respondent_index in range(num_respondents):
                 answers: Dict[str, Union[str, List[str]]] = {}
-                for field_name, field_answers in annotations.items():
-                    answers[field_name] = field_answers[respondent_index]
+                raw_response = raw_responses[respondent_index]
+                for i, (field_name, field_answers) in enumerate(raw_response.items()):
+                    if fields[i]["type"] == "category":
+                        # We need to convert the answer from an index to the actual value
+                        assert (
+                            isinstance(field_answers, list)
+                            and len(field_answers) == 1
+                            and isinstance(field_answers[0], str)
+                        )
+                        value: int = int(field_answers[0])
+                        answers[field_name] = fields[i]["choices"][value]["label"]
+                    elif fields[i]["type"] == "text":
+                        answers[field_name] = field_answers
+                    else:
+                        raise NotImplementedError(f"{fields[i]['type']} fields are not supported yet")
+                # TODO: try to use the actual respondent(worker) id if possible.
                 responses.append(
                     CritiqueResponse(id=str(respondent_index), respondent_id=str(respondent_index), answers=answers)
                 )

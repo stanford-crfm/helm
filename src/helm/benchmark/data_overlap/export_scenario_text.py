@@ -1,35 +1,43 @@
 import json
 import os
 import argparse
-from typing import List, DefaultDict
+from typing import List, DefaultDict, Set
 from collections import defaultdict
 
 from helm.common.general import asdict_without_nones, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack_block
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, create_scenario, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    create_scenario,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    ScenarioSpec,
+    with_instance_ids,
+)
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run import run_entries_to_run_specs
-from helm.benchmark.runner import RunSpec
-from helm.benchmark.contamination.light_scenario import LightInstance, LightScenario, LightScenarioKey
+from helm.benchmark.data_overlap.light_scenario import LightInstance, LightScenario, LightScenarioKey
 
 
 def create_light_instance_from_instance(instance: Instance) -> LightInstance:
     """Create a LightInstance given an Instance. Only keep the text attributes."""
     input_text: str = instance.input.text
     reference_texts: List[str] = [reference.output.text for reference in instance.references]
-    return LightInstance(input=input_text, references=reference_texts)
+    return LightInstance(input=input_text, references=reference_texts, id=instance.id)
 
 
-def get_light_scenarios_from_run_spec(
-    run_spec: RunSpec, scenario_download_path: str = "exported_scenarios"
+def get_light_scenarios_from_scenario_spec(
+    scenario_spec: ScenarioSpec, scenario_download_path: str = "exported_scenarios"
 ) -> List[LightScenario]:
     """
-    Create a list of LightInstances given a RunSpec. Only keep the text of the input and references.
+    Create a list of LightInstances given a ScenarioSpec. Only keep the text of the input and references.
     Note that one LightScenario object is created for each split of the Scenario for simplification.
     """
 
-    scenario: Scenario = create_scenario(run_spec.scenario_spec)
+    scenario: Scenario = create_scenario(scenario_spec)
 
     ensure_directory_exists(scenario_download_path)
     scenario.output_path = os.path.join(scenario_download_path, scenario.name)
@@ -39,6 +47,9 @@ def get_light_scenarios_from_run_spec(
     instances: List[Instance]
     with htrack_block("scenario.get_instances"):
         instances = scenario.get_instances()
+
+    # Get instance ids
+    instances = with_instance_ids(instances)
 
     # Classify instances into splits
     splits: List[str] = [TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT]
@@ -54,9 +65,13 @@ def get_light_scenarios_from_run_spec(
     light_scenarios: List[LightScenario] = []
     for split, instances in split_mapping.items():
         light_instances: List[LightInstance] = [create_light_instance_from_instance(instance) for instance in instances]
+        light_scenario_key: LightScenarioKey = LightScenarioKey(
+            scenario_spec=scenario_spec,
+            split=split,
+        )
         light_scenario = LightScenario(
-            light_scenario_key=LightScenarioKey(metadata={"scenario_spec": run_spec.scenario_spec, "split": split}),
-            light_instances=light_instances,
+            scenario_key=light_scenario_key,
+            instances=light_instances,
         )
         light_scenarios.append(light_scenario)
     return light_scenarios
@@ -81,6 +96,7 @@ if __name__ == "__main__":
     run_entries = read_run_entries(args.run_specs).entries
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
+        priority=4,
     )
 
     try:
@@ -88,10 +104,16 @@ if __name__ == "__main__":
     except OSError:
         pass
 
-    hlog("Generating light scenarios from scenarios")
+    scenario_specs: Set = set()
     for run_spec in run_specs:
-        try:
-            light_scenarios: List[LightScenario] = get_light_scenarios_from_run_spec(run_spec)
-            save_scenarios_to_jsonl(light_scenarios, args.output_data)
-        except Exception as e:
-            hlog(f"Error when writing scenario: {str(e)}")
+        scenario_spec = run_spec.scenario_spec
+        if (
+            scenario_spec.class_name
+            != "helm.benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario"
+        ):
+            scenario_specs.add(scenario_spec)
+
+    hlog("Generating light scenarios from scenarios")
+    for scenario_spec in scenario_specs:
+        light_scenarios: List[LightScenario] = get_light_scenarios_from_scenario_spec(scenario_spec)
+        save_scenarios_to_jsonl(light_scenarios, args.output_data)

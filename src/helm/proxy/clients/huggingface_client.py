@@ -14,9 +14,15 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import Client, wrap_request_time, truncate_sequence, cleanup_tokens
 from .huggingface_tokenizer import HuggingFaceTokenizers
-from helm.proxy.clients.huggingface_model_registry import HuggingFaceModelConfig, get_huggingface_model_config
+from helm.proxy.clients.huggingface_model_registry import (
+    get_huggingface_model_config,
+    HuggingFaceModelConfig,
+    HuggingFaceHubModelConfig,
+    HuggingFaceLocalModelConfig,
+)
+from threading import Lock
 
 
 class HuggingFaceServer:
@@ -27,17 +33,28 @@ class HuggingFaceServer:
         else:
             self.device = "cpu"
         model_kwargs = {}
-        if model_config.revision:
-            model_kwargs["revision"] = model_config.revision
+        # If the HuggingFace model is stored locally, it will have a path defined and we should load it from there.
+        # Otherwise, download it from the HuggingFace hub by passing in its identifier.
+        if isinstance(model_config, HuggingFaceLocalModelConfig):
+            model_name = model_config.path
+        elif isinstance(model_config, HuggingFaceHubModelConfig):
+            model_name = model_config.model_id
+            if model_config.revision:
+                model_kwargs["revision"] = model_config.revision
+        else:
+            raise Exception(f"Unknown type of model_config: {model_config}")
         with htrack_block(f"Loading Hugging Face model for config {model_config}"):
-            self.model = AutoModelForCausalLM.from_pretrained(
-                model_config.model_id, trust_remote_code=True, **model_kwargs
-            ).to(self.device)
+            # WARNING this may fail if your GPU does not have enough memory
+            self.model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, **model_kwargs).to(
+                self.device
+            )
         with htrack_block(f"Loading Hugging Face tokenizer model for config {model_config}"):
-            self.tokenizer = AutoTokenizer.from_pretrained(model_config.model_id, **model_kwargs)
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name, **model_kwargs)
 
     def serve_request(self, raw_request: Dict[str, Any]):
-        encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt").to(self.device)
+        encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
+            self.device
+        )
         raw_request = deepcopy(raw_request)
         raw_request["do_sample"] = True
         raw_request["return_dict_in_generate"] = True
@@ -45,11 +62,11 @@ class HuggingFaceServer:
         top_k_per_token: int = raw_request["top_k_per_token"]
         del raw_request["top_k_per_token"]
         if len(raw_request["stop_sequences"]) > 0:
-            stop_sequence_ids = self.tokenizer(raw_request["stop_sequences"])
-            # Total number of stop words should be 1.
-            assert len(stop_sequence_ids.input_ids) == 1
-            # Total number of tokens in each stop word should be 1.
-            assert len(stop_sequence_ids.input_ids[0]) == 1
+            stop_sequence_ids = self.tokenizer(
+                raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
+            )
+            assert len(stop_sequence_ids.input_ids) == 1, "Total number of stop words should be 1."
+            assert len(stop_sequence_ids.input_ids[0]) == 1, "Total number of tokens in each stop word should be 1."
             del raw_request["stop_sequences"]
             raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
 
@@ -93,16 +110,11 @@ class HuggingFaceServer:
         if not raw_request["echo_prompt"]:
             sequences = [sequence[len(encoded_input.input_ids[0]) :] for sequence in sequences]
 
-        # TODO: Get rid of the extra tokenization?
-        all_tokens = [self.tokenizer.convert_ids_to_tokens(sequence) for sequence in sequences]
-        all_tokens = [
-            [self.tokenizer.convert_tokens_to_string([token]) for token in sequence_tokens]
-            for sequence_tokens in all_tokens
-        ]
+        all_tokens = [[self.tokenizer.decode(token) for token in sequence_tokens] for sequence_tokens in sequences]
         all_decoded_text = self.tokenizer.batch_decode(sequences)
 
         completions = []
-        for (decoded_text, tokens, logprobs_of_chosen_tokens, top_logprobs_dicts) in zip(
+        for decoded_text, tokens, logprobs_of_chosen_tokens, top_logprobs_dicts in zip(
             all_decoded_text, all_tokens, all_logprobs_of_chosen_tokens, all_top_logprobs_dicts
         ):
             completions.append(
@@ -117,34 +129,49 @@ class HuggingFaceServer:
         return {"completions": completions, "input_length": len(encoded_input.input_ids[0])}
 
 
+_servers_lock: Lock = Lock()
+_servers: Dict[str, HuggingFaceServer] = {}
+
+
+def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceServer:
+    """Lookup or create a new HuggingFaceServer that will be shared among all threads.
+
+    When --num-threads > 1, multiple threads will attempt to instantiate
+    `HuggingFaceServer`s simultaneously. Since we have limited GPU memory, we want to
+    just share a single copy of each model we are using. So, this function uses a lock
+    to make sure that for each model, only one thread creates a HuggingFaceServer.
+    The other threads can share that same server in the global _servers dictionary."""
+    global _servers_lock
+    global _servers
+    with _servers_lock:
+        if model_config.model_id not in _servers:
+            _servers[model_config.model_id] = HuggingFaceServer(model_config)
+    return _servers[model_config.model_id]
+
+
 class HuggingFaceClient(Client):
     def __init__(self, cache_config: CacheConfig):
         self.cache = Cache(cache_config)
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
 
     def get_model_server_instance(self, model) -> HuggingFaceServer:
-        if model not in self.model_server_instances:
-            model_config = get_huggingface_model_config(model)
-            if model_config:
-                self.model_server_instances[model] = HuggingFaceServer(model_config)
-            elif model == "EleutherAI/gpt-j-6B":
-                self.model_server_instances[model] = HuggingFaceServer(
-                    HuggingFaceModelConfig.from_string("EleutherAI/gpt-j-6B")
-                )
+        model_config = get_huggingface_model_config(model)
+        # Special-case some models in so that users don't have to enable them with --enable-huggingface-models
+        if not model_config:
+            # Other HuggingFace hub models that we'll look up for you even if you didn't enable them via the flag
+            if model == "EleutherAI/gpt-j-6B":
+                model_config = HuggingFaceHubModelConfig.from_string("EleutherAI/gpt-j-6B")
             elif model == "huggingface/gpt2":
-                self.model_server_instances[model] = HuggingFaceServer(HuggingFaceModelConfig.from_string("gpt2"))
+                model_config = HuggingFaceHubModelConfig.from_string("gpt2")
             elif model == "bigcode/santacoder":
-                self.model_server_instances[model] = HuggingFaceServer(
-                    HuggingFaceModelConfig.from_string("bigcode/santacoder")
-                )
+                model_config = HuggingFaceHubModelConfig.from_string("bigcode/santacoder")
             elif model == "huggingface/starcoder":
-                self.model_server_instances[model] = HuggingFaceServer(
-                    HuggingFaceModelConfig.from_string("bigcode/starcoder")
-                )
+                model_config = HuggingFaceHubModelConfig.from_string("bigcode/starcoder")
+            elif model == "mosaicml/mpt-7b":
+                model_config = HuggingFaceHubModelConfig.from_string("mosaicml/mpt-7b")
             else:
                 raise Exception(f"Unknown HuggingFace model: {model}")
-
-        return self.model_server_instances[model]
+        return _get_singleton_server(model_config)
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -238,11 +265,24 @@ class HuggingFaceClient(Client):
                         "Writer/palmyra-base",
                         "facebook/opt-66b",
                     ]:
-                        tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
+                        # These models already handle the "▁" character correctly with the
+                        # convert_tokens_to_string method. We prefer to use this method instead
+                        # of the hacky cleanup_tokens method below as it might handle cases
+                        # we haven't thought of in cleanup_tokens.
+                        tokens = [
+                            tokenizer.convert_tokens_to_string([token]) for token in tokenizer.tokenize(request.text)
+                        ]
                     else:
-                        tokens = tokenizer.tokenize(request.text)
-                        # TODO(1522): Reenable this to revove "▁"
+                        # Tokenizes the text and returns the tokens as a list of strings,
+                        # not a list of token objects (otherwise "Hello world" would be"
+                        # ["Hello", "▁world"] and not ["Hello", " world"])
+                        # We could do this with a simple replace like this:
                         # tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
+                        # But this replaces all the "▁" characters by "", which is not what we want.
+                        # This would be problematic as tokenize(" Hello", encode=False) would return ["Hello"]
+                        # Just like tokenize("Hello", encode=False) would return ["Hello"].
+                        tokens = tokenizer.tokenize(request.text)
+                        tokens = cleanup_tokens(tokens, request.tokenizer)
                 return {"tokens": tokens}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))

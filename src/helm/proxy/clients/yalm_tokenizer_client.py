@@ -9,7 +9,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, cleanup_tokens
 from .yalm_tokenizer.yalm_tokenizer import YaLMTokenizer
 
 
@@ -35,9 +35,16 @@ class YaLMTokenizerClient(Client):
                 token_ids = self.tokenizer.tokenize(request.text)
                 if request.truncation:
                     token_ids = token_ids[: request.max_length]
-                return {"tokens": token_ids if request.encode else self.tokenizer.convert_ids_to_tokens(token_ids)}
-                # TODO(1522): Check if we can reenable this to remove "▁"
+                # We do not use:
                 # return {"tokens": token_ids if request.encode else self.tokenizer.convert_ids_to_string(token_ids)}
+                # as this replace "▁" with an empty string, which is not what we want.
+                # This is a problem because then tokenize(" Hello", encode=False) == tokenize("Hello", encode=False)
+                # That is why we manually replace "▁" with a space.
+                return {
+                    "tokens": token_ids
+                    if request.encode
+                    else cleanup_tokens(self.tokenizer.convert_ids_to_tokens(token_ids), request.tokenizer)
+                }
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:

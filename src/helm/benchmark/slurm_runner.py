@@ -27,6 +27,7 @@ from helm.common.hierarchical_logger import hlog, htrack_block
 
 _DEFAULT_MAX_CONCURRENT_WORKER_SLURM_JOBS = 8
 _MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKER_SLURM_JOBS"
+_SLURM_NODE_NAMES_ENV_NAME = "HELM_SLURM_NODE_NAMES"
 
 
 @dataclass
@@ -268,11 +269,20 @@ class SlurmRunner(Runner):
             "chdir": os.getcwd(),
         }
         # TODO: Move resource requirements into RunSpec.
+        slurm_node_names = os.getenv(_SLURM_NODE_NAMES_ENV_NAME)
         if run_spec.name.startswith("msmarco:"):
             raw_slurm_args["mem"] = "64G"
         if "device=cuda" in run_spec.name:
             raw_slurm_args["gres"] = "gpu:1"
             raw_slurm_args["partition"] = "jag-hi"
+        if "model=huggingface" in run_spec.name:
+            raw_slurm_args["gres"] = "gpu:1"
+            raw_slurm_args["partition"] = "sphinx"
+            if not slurm_node_names or "sphinx" not in slurm_node_names:
+                raise Exception(f"Environment variable {_SLURM_NODE_NAMES_ENV_NAME} must be set to sphinx node names")
+        if slurm_node_names:
+            raw_slurm_args["nodelist"] = slurm_node_names
+
         slurm_args: Dict[str, str] = {key: shlex.quote(value) for key, value in raw_slurm_args.items()}
         # Uncomment this to get notification emails from Slurm for Slurm worker jobs.
         # slurm.set_mail_user(os.getenv("USER"))

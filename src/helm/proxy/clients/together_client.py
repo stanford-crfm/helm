@@ -11,16 +11,35 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
 _ASYNC_MODELS: Set[str] = {
+    # Legacy models
     "alpaca-7b",
-    "llama-7b",
-    "mpt-7b",
     "pythia-7b",
-    "redpajama-incite-base-3b-v1",
     "vicuna-13b",
+    # Production models
+    "redpajama-incite-base-3b-v1",
+    "redpajama-incite-instruct-3b-v1",
+    "redpajama-incite-base-7b",
+    "redpajama-incite-instruct-7b",
+    "dolly-v2-3b",
+    "dolly-v2-7b",
+    "dolly-v2-12b",
+    "llama-7b",
+    "llama-13b",
+    "llama-30b",
+    "llama-65b",
+    "llama-2-7b",
+    "llama-2-13b",
+    "llama-2-70b",
+    "pythia-1b-v0",
+    "pythia-2.8b-v0",
+    "pythia-6.9b",
+    "pythia-12b-v0",
+    "stablelm-base-alpha-3b",
+    "stablelm-base-alpha-7b",
 }
 """Together models to use async requests for.
 
@@ -32,6 +51,7 @@ Note: These should be HELM model names, not Together model name aliases."""
 
 
 MODEL_ALIASES: Dict[str, str] = {
+    # Legacy models
     "flan-t5-xxl": "flan-t5-xxl-hf",
     "h3-2.7b": "h3-2.7b-h3",
     "opt-1.3b": "opt-1.3b-ft-tp1",
@@ -41,11 +61,29 @@ MODEL_ALIASES: Dict[str, str] = {
     # alpaca-7b is half-precision
     # alpaca-7b-full-precision is full-precision
     "alpaca-7b": "alpaca-7b-full-precision",
-    "llama-7b": "llama-7b-full-precision",
-    "mpt-7b": "mpt-7b-full-precision",
     "pythia-7b": "pythia-7b-full-precision",
     "vicuna-13b": "vicuna-13b-full-precision",
+    # Production models
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
+    "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
+    "redpajama-incite-base-7b": "togethercomputer/RedPajama-INCITE-7B-Base",
+    "redpajama-incite-instruct-7b": "togethercomputer/RedPajama-INCITE-7B-Instruct",
+    "dolly-v2-3b": "databricks/dolly-v2-3b",
+    "dolly-v2-7b": "databricks/dolly-v2-7b",
+    "dolly-v2-12b": "databricks/dolly-v2-12b",
+    "llama-7b": "huggyllama/llama-7b",
+    "llama-13b": "huggyllama/llama-13b",
+    "llama-30b": "huggyllama/llama-30b",
+    "llama-65b": "huggyllama/llama-65b",
+    "llama-2-7b": "togethercomputer/llama-2-7b",
+    "llama-2-13b": "togethercomputer/llama-2-13b",
+    "llama-2-70b": "togethercomputer/llama-2-70b",
+    "pythia-1b-v0": "EleutherAI/pythia-1b-v0",
+    "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
+    "pythia-6.9b": "EleutherAI/pythia-6.9b",
+    "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
+    "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
+    "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
 }
 """Together model name aliases.
 
@@ -57,13 +95,6 @@ implementation was used in the cached results, since some results may
 be different depending on the implementation (e.g. efficiency metrics).
 This also allows future migration of results in the case of changes of
 available implementations on Together."""
-
-
-def fix_text(x: str, model: str) -> str:
-    """Fix text that comes back from the API."""
-    # TODO(#1522): check if with #1519 this is still needed. This is similar to #1516.
-    x = x.replace("▁", " ")
-    return x
 
 
 class TogetherClientError(Exception):
@@ -221,19 +252,23 @@ class TogetherClient(Client):
                 for text, logprob, top_logprobs in zip(
                     raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
                 ):
-                    text = fix_text(text, request.model)
+                    # TODO #1654: Check if this is still needed
+                    text = cleanup_str(text, "together")
                     tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                     sequence_logprob += logprob or 0
             else:
                 # hack: just make the entire text one token so that something shows up in the frontend
-                text = fix_text(raw_completion["text"], request.model)
+                text = cleanup_str(raw_completion["text"], "together")
                 tokens.append(Token(text=text, logprob=0, top_logprobs={}))
 
+            raw_finish_reason: Optional[str] = raw_completion.get("finish_reason")
+            finish_reason: Optional[Dict] = {"reason": raw_finish_reason} if raw_finish_reason else None
+
             completion = Sequence(
-                text=fix_text(raw_completion["text"], request.model),
+                text=cleanup_str(raw_completion["text"], "together"),
                 logprob=sequence_logprob,
                 tokens=tokens,
-                finish_reason={"reason": raw_completion["finish_reason"]},
+                finish_reason=finish_reason,
             )
             completion = truncate_sequence(completion, request)
             completions.append(completion)

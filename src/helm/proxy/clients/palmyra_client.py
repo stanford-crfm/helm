@@ -14,11 +14,24 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 
 
+_CONTENT_MODERATION_KEY = "fail.content.moderation.failed"
+
+
+def _is_content_moderation_failure(response: Dict) -> bool:
+    """Return whether a a response failed because of the content moderation filter."""
+    errors = response.get("errors")
+    if not errors:
+        return False
+    if len(errors) != 1:
+        return False
+    return errors[0].get("key") == _CONTENT_MODERATION_KEY
+
+
 class PalmyraClient(Client):
     def __init__(self, api_key: str, cache_config: CacheConfig, tokenizer_client: Client):
         self.api_key: str = api_key
         self.cache = Cache(cache_config)
-        self.tokenizer_client = tokenizer_client
+        self._tokenizer_client = tokenizer_client
 
     def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -32,8 +45,8 @@ class PalmyraClient(Client):
             data=json.dumps(raw_request),
         )
         result = json.loads(response.text)
-        if "error" in result:
-            raise ValueError(f"Request failed with error: {result['error']}")
+        if "choices" not in result and not _is_content_moderation_failure(result):
+            raise ValueError(f"Invalid response: {result}")
         return result
 
     def make_request(self, request: Request) -> RequestResult:
@@ -53,25 +66,12 @@ class PalmyraClient(Client):
             # "random_seed": request.random,
         }
 
-        if request.random is not None or request.num_completions > 1:
-            hlog(
-                "WARNING: Writer does not support random_seed or num_completions. "
-                "This request will be sent to Writer multiple times."
-            )
-
         completions: List[Sequence] = []
         model_name: str = request.model_engine
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
             try:
-                # This is disabled for now. See above TODO(#1515).
-                # HACKY: Use the random seed to get different results for each completion.
-                # raw_request["random_seed"] = (
-                #     f"completion_index={completion_index}"
-                #     if request.random is None
-                #     else request.random + f":completion_index={completion_index}"
-                # )
 
                 def do_it():
                     # Add an argument timeout to raw_request to avoid waiting getting timeout of 60s
@@ -100,29 +100,27 @@ class PalmyraClient(Client):
                 error: str = f"PalmyraClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-            if "choices" not in response:
-                if "errors" in response and response["errors"][0]["key"] == "fail.content.moderation.failed":
-                    return RequestResult(
-                        success=False,
-                        cached=False,
-                        error=response["errors"][0]["description"],
-                        completions=[],
-                        embedding=[],
-                        error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
-                        request_time=response["request_time"],
-                        request_datetime=response["request_datetime"],
-                    )
-                else:
-                    raise ValueError(f"Invalid response: {response}")
+            if _is_content_moderation_failure(response):
+                hlog(f"WARNING: Returning empty request for {request.model} due to content moderation filter")
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error=response["errors"][0]["description"],
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    request_time=response["request_time"],
+                    request_datetime=response["request_datetime"],
+                )
 
             response_text: str = response["choices"][0]["text"]
 
             # The Writer API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
             # The Writer API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenizer_client.tokenize(
-                # Writer uses their own huggingface tokenizer
-                TokenizationRequest(text, tokenizer="Writer/palmyra-base")
+            tokenization_result: TokenizationRequestResult = self._tokenizer_client.tokenize(
+                # Writer uses the GPT-2 tokenizer
+                TokenizationRequest(text, tokenizer="huggingface/gpt2")
             )
 
             # Log probs are not currently not supported by the Writer, so set to 0 for now.
@@ -144,7 +142,7 @@ class PalmyraClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
+        raise NotImplementedError("Use HuggingFaceClient to tokenize")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to decode.")
+        raise NotImplementedError("Use HuggingFaceClient to decode")

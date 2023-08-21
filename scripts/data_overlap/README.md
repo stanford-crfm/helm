@@ -1,6 +1,5 @@
 # Data Overlap Script (no dependencies on HELM)
 
-There are 2 scripts, one with and one without Apache Beam.
 
 ## Installation
 
@@ -33,39 +32,12 @@ For instance, you can call this with The Pile, e.g. have:
     output_stats = arbitrary output file name, e.g. "output_stats"
     input_format = the_pile
 
+If you don't want to output the ngrams that are overlapping in test set to a separate "{output_stats}_ngrams" file, you can pass --no-output-ngrams.
 
 There are additional optional args:
 --normalization default 
 --tags tag1 tag2
 ```
-
-## Beam API
-
-Model developers should implement an Apache Beam pipeline that creates a `PCollection[str]` of documents, and then pass it to `ComputeAndWriteDataOverlapStats()` with the appropriate arguments.
-
-Note: Each record in the `PCollection[str]` should contain an _entire_ document, not a single line from a document.
-
-```python
-with beam.Pipeline() as pipeline:
-    _ = (
-        pipeline
-        # The model developer should modify these lines to read from the actual training set.
-        | "Read" >> beam.io.ReadFromText(input_data)
-        | "ExtractTextFromDocument" >> beam.Map(extract_text_from_document)
-        # Call the HELM Data Overlap Apache Beam API.
-        | "ComputeAndWriteDataOverlapStats" >> ComputeAndWriteDataOverlapStats(
-            scenario_data_path=scenario_data,
-            n_values=n_values,
-            normalization=normalization,
-            tags=tags
-        )
-    )
-```
-
-## Notes
-
-The beam script does not support outputting overlapping ngrams yet.
-
 
 ## Docker
 
