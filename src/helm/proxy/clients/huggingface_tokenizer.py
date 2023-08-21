@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, Optional
 
 from transformers import AutoTokenizer
 
