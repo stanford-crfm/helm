@@ -29,6 +29,8 @@ To install any dependencies:
 
     ./install-dev.sh
 
+If you run into errors when installing dependencies, please create a new Python virtual environment using the previous instructions, and then try installing the dependencies again.
+
 Optionally, install Git commit hooks:
 
     pre-commit install
