@@ -383,7 +383,7 @@ class CLEVATranslationScenario(CLEVAScenario):
     tags = ["translation"]
 
 
-class CLEVAIntentUnderstanding(CLEVAScenario):
+class CLEVAIntentUnderstandingScenario(CLEVAScenario):
     """
     The intent understanding task of CLEVA benchmark.
 
