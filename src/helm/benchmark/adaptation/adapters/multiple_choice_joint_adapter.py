@@ -80,12 +80,18 @@ class MultipleChoiceJointAdapter(InContextLearningAdapter):
         result: str = self.adapter_spec.input_prefix + instance.input.text + self.adapter_spec.input_suffix
 
         # Include the references
-        output = "n/a"
+        delimiter = ", "
+        no_correct_references = "n/a"
+        output = no_correct_references
         for reference_index, reference in enumerate(instance.references):
             prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
             result += prefix + reference.output.text + self.adapter_spec.reference_suffix
-            if reference.is_correct and output == "n/a":
-                output = self.get_reference_prefix("A", reference_index)
+            if reference.is_correct:
+                if output == no_correct_references:
+                    output = self.get_reference_prefix("A", reference_index)
+                elif self.adapter_spec.multi_label:
+                    output += delimiter
+                    output += self.get_reference_prefix("A", reference_index)
 
         if include_output:
             result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
