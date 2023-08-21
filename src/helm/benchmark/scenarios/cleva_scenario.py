@@ -76,7 +76,7 @@ class CLEVAScenario(Scenario):
         return dataset
 
     @classmethod
-    def load_prompt_settings(cls, task: str, subtask: Optional[str], version: str) -> Dict:
+    def load_prompt_settings(cls, task: str, subtask: Optional[str], version: str) -> Dict[str, Any]:
         prompt_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
         if subtask:
             prompt_dir = os.path.join(prompt_dir, subtask)
@@ -86,7 +86,7 @@ class CLEVAScenario(Scenario):
                 prompt_settings = json.load(fin)
         else:
             raise ValueError(f"Missing prompt setting file at '{file_path}'")
-        return prompt_settings[0]
+        return prompt_settings[0]  # Currently, we only take the first prompt setting.
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
@@ -341,7 +341,7 @@ class CLEVAFactCheckingScenario(CLEVAScenario):
         C. 信息不足
         答案：
 
-    Target: 真实
+    Target: A
     """
 
     description = "Fact checking task in CLEVA benchmark"
@@ -381,3 +381,68 @@ class CLEVATranslationScenario(CLEVAScenario):
 
     description = "Translation task in CLEVA benchmark"
     tags = ["translation"]
+
+
+class CLEVAIntentUnderstanding(CLEVAScenario):
+    """
+    The intent understanding task of CLEVA benchmark.
+
+    An example is:
+        阅读以下材料，回答单项选择题：
+
+        美国科学家声称，每人生来有两个脑，即颅脑与肠脑。肠脑位于食管、胃脏、小肠与结肠内层组织的鞘中，含有神经细胞、神经传递质、蛋白质和
+        复杂的环行线路。结肠炎、过敏性肠综合症等都与肠脑内产生的问题有关。肠脑中几乎能找到颅脑赖以运转和控制的所有物质，如血清素、多巴胺、
+        谷氨酸、去甲肾上腺素、一氧化氮等。此外，肠脑中还存在多种被称为神经肽的脑蛋白、脑啡肽以及对神经起显著作用的化学物质。颅脑面临惊恐时
+        释出的应激激素会冲击胃脏以生痉挛；惊恐又引起交感神经影响肠脑的血清素分泌量。应激激素过分刺激还会导致腹泻。当情绪压抑时，食管神经
+        受到高度刺激会感到吞咽困难；颅脑释出的应激激素还会改变胃脏与食管间的神经功能，导致胃灼热。最初的脑神经系统起始于管形动物，生存竞争
+        需要更复杂的颅脑，从而发展了中枢神经系统。重要的肠神经系统不能进入头颅与胃肠相联，而为了适应高级动物进食和消化的需要，自然法则就
+        保存了有独立功能的肠神经系统。就人而言，早期胚胎发育中产生的神经脊，一部分进入了中枢神经系统，另一部分变成肠神经系统，通过迷走神经
+        连接两者——颅脑和肠脑。
+
+        下列解说，符合原文意思的一项是：
+        A. 应激激素作用于肠脑引起肠神经系统化学物质的改变。
+        B. 情绪的变化是肠脑和颅脑发生联系的重要渠道。
+        C. 进食和消化的需要是肠神经系统形成的基础条件。
+        D. 重要的肠神经系统因不能进入头颅而成为独立系统。
+        答案：D
+
+        1990年，加拿大多伦多大学的米切尔·洛林宣布，在2.6亿年以前，栖息在美国得克萨斯山区一种外形像蜥蜴的名叫四角龙的爬行动物，确实是
+        哺乳动物的远古“亲戚”，从而填补了进化链中从爬行动物到哺乳动物中缺少的一环。\n1987年，米切尔·洛林研究了一块盘龙类的头骨化石。
+        随着研究的深入，化石上的一些细节却使他困惑不解。因为大多数的盘龙类在腭部有很大的孔，而在较进化的兽孔类身上，这个孔已被封闭，四角龙
+        也有一个腭孔，但已明显缩小，其直径仅仅为0.635厘米。此外，盘龙类在头部背面有一块很大的骨，用以支持颌骨，在兽孔类中，这块骨头已大大
+        缩小了，而四角龙的这块骨要较兽孔类大，又较盘龙类稍小。更为重要的是，四角龙的头角上有个骨架，穿越颞孔的咀嚼肌像兽孔类那样直接依附
+        其上，而不像盘龙类那样由肌腱相接。\n这些发现使洛林相信，四角龙是盘龙类和兽孔类之间的一个过渡类型。他又把从12块盘龙类和兽孔类动物化石
+        中获得的信息输入电脑（包括腭孔、颞孔形状，头颅骨形状，牙齿数量和着生位置等），然后由电脑判断出两者之间的联系。结果表明，在进化树上，
+        通向兽孔类一边的第一个分叉就是四角龙。
+
+        文中“直接依附其上”的“其”字指代的是：
+        A. 四角龙的头角
+        B. 头角上的骨架
+        C. 被穿越的颞孔
+        D. 穿越颞孔的肌肉
+
+    Target: B
+    """
+
+    description = "Intent understanding task in CLEVA benchmark"
+    tags = ["intent_understanding"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        context: str = row["context"]
+        question: str = row["question"]
+        text: str = f"{context}\n\n问题：{question}"
+        answers: List[str] = row["choices"]
+        correct_choice: List[int] = row["label"]
+        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+
+        def answer_to_reference(answer: str) -> Reference:
+            return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer in correct_answer else [])
+
+        references: List[Reference] = list(map(answer_to_reference, answers))
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
