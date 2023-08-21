@@ -324,7 +324,7 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
 
 class CLEVAFactCheckingScenario(CLEVAScenario):
     """
-    The disinformation task of CLEVA benchmark.
+    The fact checking task of CLEVA benchmark.
 
     An example is:
         请判断以下陈述是否为真实的。
@@ -345,7 +345,7 @@ class CLEVAFactCheckingScenario(CLEVAScenario):
     """
 
     description = "Fact checking task in CLEVA benchmark"
-    tags = ["fact_checking"]
+    tags = ["fact_checking", "harms"]
 
 
 class CLEVATranslationScenario(CLEVAScenario):

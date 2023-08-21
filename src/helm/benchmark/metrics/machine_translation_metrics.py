@@ -37,7 +37,7 @@ class MachineTranslationMetric(Metric):
         return [Stat(MetricName("bleu")).add(bleu_score)]
 
 
-class ClevaMachineTranslationMetric(Metric):
+class CLEVAMachineTranslationMetric(Metric):
     """
     Compute the BLEU score for Machine Translation scenarios of CLEVA benchmark.
     Based on sacrebleu, this implementation distinguishes target language and allows variable number of references.
