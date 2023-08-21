@@ -2270,9 +2270,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             method=method,
             instructions=prompt_setting.instructions,
             input_noun=prompt_setting.input_noun,
-            newline_after_input_noun=prompt_setting.newline_after_input_noun,
             output_noun=prompt_setting.output_noun,
-            newline_after_output_noun=prompt_setting.newline_after_output_noun,
         )
         metric_specs = get_exact_match_metric_specs()
     elif task in ["opinion_mining"]:
