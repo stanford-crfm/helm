@@ -40,7 +40,15 @@ from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.runner import RunSpec, LATEST_SYMLINK
 from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
-from helm.benchmark.presentation.schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
+from helm.benchmark.presentation.schema import (
+    MetricNameMatcher,
+    RunGroup,
+    read_schema,
+    SCHEMA_YAML_FILENAME,
+    BY_GROUP,
+    THIS_GROUP_ONLY,
+    NO_GROUPS,
+)
 from helm.benchmark.presentation.contamination import (
     read_contamination,
     validate_contamination,
