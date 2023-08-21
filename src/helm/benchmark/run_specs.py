@@ -2286,6 +2286,17 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=150,
         )
         metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_generative_harms_metric_specs()
+    elif task in ["dialogue_generation"]:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            input_prefix="",
+            output_prefix=f"{prompt_setting.output_noun}：",
+            max_train_instances=1,
+            num_outputs=1,
+            max_tokens=200,
+            temperature=0.9,
+        )
+        metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_generative_harms_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 

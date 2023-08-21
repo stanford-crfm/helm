@@ -346,3 +346,28 @@ class CLEVAFactCheckingScenario(CLEVAScenario):
 
     description = "Fact checking task in CLEVA benchmark"
     tags = ["fact_checking"]
+
+
+class CLEVADialogueGenerationScenario(CLEVAScenario):
+    """
+    The dialogue generation task of CLEVA benchmark.
+
+    An example is:
+        请根据对话历史回复用户询问。
+
+        用户：你好，我想找一个价格是1000元以上，评分是4.5分以上的酒店，有什么好的地方给我推荐吗？
+        系统：给你推荐北京昆泰嘉华酒店，完全符合你的条件呢。
+        用户：是吗，该酒店是什么类型啊？
+        系统：豪华型酒店。
+        用户：好的，能帮我查一下它家是否提供商务中心吗？
+        系统：酒店提供商务中心的。
+        用户：太好了，定完酒店，我打算找个评分是4.5分以上，游玩时长是1小时 - 2小时，票价是200元以上的景点游玩，给我点建议好吗？
+        系统：乐多港奇幻乐园是个不错的去处，非常好玩的。
+        用户：好啊，就去乐多港奇幻乐园玩吧，景点周边有酒店吗？
+        系统：
+
+    Target: 嗯，周边有一个如家快捷酒店(北京昌平鼓楼西街店)。
+    """
+
+    description = "Dialogue generation task in CLEVA benchmark"
+    tags = ["dialogue_generation"]
