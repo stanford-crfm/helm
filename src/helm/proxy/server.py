@@ -8,6 +8,7 @@ Look at `index.js` to see how the functionality is invoked.
 from urllib.parse import unquote_plus
 import argparse
 import dataclasses
+import json
 import os
 import sys
 import time

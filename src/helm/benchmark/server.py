@@ -5,7 +5,6 @@ Starts a local HTTP server to display benchmarking assets.
 import argparse
 import importlib_resources as resources
 from os import path
-import json
 
 from bottle import Bottle, static_file
 

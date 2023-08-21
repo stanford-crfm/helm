@@ -248,17 +248,20 @@ class Summarizer:
         verbose: bool,
         num_threads: int,
     ):
-        self.release: Optional[str] = release
-        self.suites: Optional[List[str]] = suites
-        self.suite: Optional[str] = suite
         self.output_path: str = output_path
+        self.run_release_path: str
+        self.suites: List[str]
+        self.run_suite_paths: List[str]
         if suite:
-            self.run_release_path: str = os.path.join(output_path, "runs", suite)
-            self.run_suite_paths: List[str] = [self.run_release_path]
+            self.suite: str = suite
+            self.run_release_path = os.path.join(output_path, "runs", suite)
+            self.run_suite_paths = [self.run_release_path]
             self.suites = [suite]
-        else:
-            self.run_release_path: str = os.path.join(output_path, "releases", release)
-            self.run_suite_paths: List[str] = [os.path.join(output_path, "runs", suite) for suite in suites]
+        elif release and suites:
+            self.release: str = release
+            self.suites = suites
+            self.run_release_path = os.path.join(output_path, "releases", release)
+            self.run_suite_paths = [os.path.join(output_path, "runs", suite) for suite in suites]
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
 
@@ -352,7 +355,7 @@ class Summarizer:
         )
         for suite, run_suite_path in zip(self.suites, self.run_suite_paths):
             self.read_runs_for_suite(suite, run_suite_path)
-        
+
     def read_overlap_stats(self):
         """
         Load the overlap stats in the run suite path.
