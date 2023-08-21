@@ -612,6 +612,14 @@ def get_machine_translation_metric_specs() -> List[MetricSpec]:
     ] + get_basic_metric_specs([])
 
 
+def get_cleva_machine_translation_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.machine_translation_metrics.ClevaMachineTranslationMetric", args={}
+        )
+    ] + get_basic_metric_specs([])
+
+
 def get_verifiability_judgment_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match"])
 
@@ -2255,8 +2263,9 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "sentiment_analysis",
         "instruction_following",
         "fact_checking",
+        "intent_understanding",
     ]:
-        # TODO: Add population_micro_f1 for disinformation
+        # TODO: Add population_micro_f1 for fact_checking
         adapter_spec = get_multiple_choice_adapter_spec(
             method=method,
             instructions=prompt_setting.instructions,
@@ -2286,6 +2295,17 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=150,
         )
         metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_generative_harms_metric_specs()
+    elif task in ["translation"]:
+        adapter_spec = get_generation_adapter_spec(
+            instructions=prompt_setting.instructions,
+            input_noun=prompt_setting.input_noun,
+            newline_after_input_noun=prompt_setting.newline_after_input_noun,
+            output_noun=prompt_setting.output_noun,
+            newline_after_output_noun=prompt_setting.newline_after_output_noun,
+            max_train_instances=5,  # limited by the context length
+            max_tokens=200,
+        )
+        metric_specs = get_cleva_machine_translation_metric_specs() + get_generative_harms_metric_specs()
     elif task in ["dialogue_generation"]:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,

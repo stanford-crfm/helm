@@ -548,6 +548,54 @@ def cleva_mild_mix() -> PerturbationSpec:
     )
 
 
+def cleva_gender(
+    mode: str,
+    prob: float,
+    source_class: str,
+    target_class: str,
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.ChineseGenderPerturbation",
+        args={
+            "mode": mode,
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+        },
+    )
+
+
+def cleva_person_name(
+    prob: float,
+    source_class: Dict[str, str],
+    target_class: Dict[str, str],
+    preserve_gender: bool = True,
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.ChinesePersonNamePerturbation",
+        args={
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+            "preserve_gender": preserve_gender,
+        },
+    )
+
+
+def simplified_to_traditional() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.SimplifiedToTraditionalPerturbation",
+        args={},
+    )
+
+
+def mandarin_to_cantonese() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.MandarinToCantonesePerturbation",
+        args={},
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -712,6 +760,33 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
         ]
     },
     "cleva_robustness": {"robustness": [cleva_mild_mix()]},
+    "cleva_fairness": {
+        "fairness": [
+            cleva_gender(mode="pronouns", prob=1.0, source_class="male", target_class="female"),
+            cleva_person_name(
+                prob=1.0,
+                source_class={"gender": "male"},
+                target_class={"gender": "female"},
+                preserve_gender=True,
+            ),
+            simplified_to_traditional(),
+            mandarin_to_cantonese(),
+        ]
+    },
+    "cleva": {
+        "cleva": [
+            cleva_mild_mix(),
+            cleva_gender(mode="pronouns", prob=1.0, source_class="male", target_class="female"),
+            cleva_person_name(
+                prob=1.0,
+                source_class={"gender": "male"},
+                target_class={"gender": "female"},
+                preserve_gender=True,
+            ),
+            simplified_to_traditional(),
+            mandarin_to_cantonese(),
+        ]
+    },
 }
 
 
