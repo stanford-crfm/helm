@@ -271,7 +271,7 @@ def get_generation_adapter_spec(
     max_tokens: int = 5,
     stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
     temperature: float = 0.0,
-    multi_label: Optional[bool] = None,
+    multi_label: bool = False,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -1909,7 +1909,7 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         output_noun="Answer",
         max_tokens=get_lextreme_max_tokens(subset),
         max_train_instances=get_lextreme_max_train_instances(subset),  # in some subsets the input is very long
-        multi_label=True if task_type == TaskType.MLTC else None,
+        multi_label=(task_type == TaskType.MLTC),
     )
 
     metric_specs = get_basic_metric_specs([])
@@ -1942,7 +1942,7 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
         output_noun="Answer",
         max_tokens=get_lex_glue_max_tokens(subset),
         max_train_instances=get_lex_glue_max_train_instances(subset),  # in some subsets the input is very long
-        multi_label=True if task_type == TaskType.MLTC else None,
+        multi_label=(task_type == TaskType.MLTC),
     )
 
     metric_specs = get_basic_metric_specs([])

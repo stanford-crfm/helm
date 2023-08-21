@@ -90,4 +90,4 @@ class AdapterSpec:
 
     # If true, for instances with multiple correct reference, the gold answer should be considered
     # to be all of the correct references rather than any of the correct references.
-    multi_label: Optional[bool] = None
+    multi_label: bool = False
