@@ -475,7 +475,7 @@ class CLEVACoreferenceResolutionScenario(CLEVAScenario):
         context: str = row["context"]
         span1: str = row["span1"]
         span2: str = row["span2"]
-        text: str = f"{context}\n在上文中，“{span1}”和“{span2}”是否指代了同一个对象？"
+        text: str = f"{context}\n在上文中，“{span1}”和“{span2}”是否指代了同一个对象？\n"
         answers: List[str] = row["choices"]
         correct_choice: List[int] = row["label"]
         correct_answer: List[str] = [answers[idx] for idx in correct_choice]
