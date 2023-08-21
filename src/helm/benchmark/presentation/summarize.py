@@ -1,3 +1,12 @@
+"""Reads the output of the benchmark runs and produces:
+- JSON files for the frontend
+- Tables for the paper
+
+Usage:
+
+    venv/bin/helm-summarize --suite <Name of the suite>
+"""
+
 import argparse
 import cattrs
 import os
@@ -30,28 +39,18 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.runner import RunSpec, LATEST_SYMLINK
-from .table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
-from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
-
-from .contamination import (
+from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
+from helm.benchmark.presentation.schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
+from helm.benchmark.presentation.contamination import (
     read_contamination,
     validate_contamination,
     CONTAMINATION_SYMBOLS,
     CONTAMINATION_STYLES,
     CONTAMINATION_LEVEL_STRONG,
 )
-from .run_display import write_run_display_json, read_scenario_state
+from helm.benchmark.presentation.run_display import write_run_display_json
 
-"""
-Reads the output of the benchmark runs and produces:
-- JSON files for the frontend
-- Tables for the paper
 
-Usage:
-
-    venv/bin/helm-summarize --suite <Name of the suite>
-
-"""
 OVERLAP_N_COUNT = 13
 
 
