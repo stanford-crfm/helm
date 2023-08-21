@@ -371,3 +371,124 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
 
     description = "Dialogue generation task in CLEVA benchmark"
     tags = ["dialogue_generation"]
+
+
+class CLEVASubjectKnowledgeScenario(CLEVAScenario):
+    """
+    The subject knowledge task of CLEVA benchmark.
+
+    An example of wikifact_art is:
+        补全下列句子中下划线处的实体。
+
+        输入：疯狂的追求的作者是__。
+        输出：
+
+    Target: 弗朗西斯·哈利·康普顿·克立克
+
+    An example of wikifact_biomedicine is:
+        补全下列句子中下划线处的实体。
+
+        输入：奈玛特韦/利托那韦用于治疗__。
+        输出：
+
+    Target: 2019冠状病毒病
+
+    An example of wikifact_chemistry is:
+        补全下列句子中下划线处的实体。
+
+        输入：碲的发现地点是__。
+        输出：
+
+    Target: 锡比乌
+
+    An example of wikifact_computer_science is:
+        补全下列句子中下划线处的实体。
+
+        输入：WebLogic是由编程语言__所开发的。
+        输出：
+
+    Target: Java
+
+    An example of wikifact_economics is:
+        补全下列句子中下划线处的实体。
+
+        输入：西非经济货币联盟的中央银行是__。
+        输出：
+
+    Target: 西非国家中央银行
+
+    An example of wikifact_geography is:
+        补全下列句子中下划线处的实体。
+
+        输入：麦考利山所在的大洲是__。
+        输出：
+
+    Target: 南极洲
+
+    An example of wikifact_history is:
+        补全下列句子中下划线处的实体。
+
+        输入：礼记所处的年代是__。
+        输出：
+
+    Target: 周朝
+
+    An example of wikifact_law is:
+        补全下列句子中下划线处的实体。
+
+        输入：马伯利诉麦迪逊案的原告人是__。
+        输出：
+
+    Target: 威廉·马伯利
+
+    An example of wikifact_literature is:
+        补全下列句子中下划线处的实体。
+
+        输入：慕容复出现在作品《__》中。
+        输出：
+
+    Target: 天龙八部
+
+    An example of wikifact_math is:
+        补全下列句子中下划线处的实体。
+
+        输入：希尔伯特第十四问题被__解决了。
+        输出：
+
+    Target: 永田雅宜
+
+    An example of wikifact_other_general is:
+        补全下列句子中下划线处的实体。
+
+        输入：古剑奇谭在__首次播放。
+        输出：
+
+    Target: 湖南卫视
+
+    An example of wikifact_philosophy is:
+        补全下列句子中下划线处的实体。
+
+        输入：爱德华·维亚尔所发起的文化运动是__。
+        输出：
+
+    Target: 后印象派
+
+    An example of wikifact_physics is:
+        补全下列句子中下划线处的实体。
+
+        输入：直流电可以以__为单位进行测量。
+        输出：
+
+    Target: 安培
+
+    An example of wikifact_politics is:
+        补全下列句子中下划线处的实体。
+
+        输入：卡塔尔的政治体制是__。
+        输出：
+
+    Target: 君主立宪制
+    """
+
+    description = "Subject knowledge task in CLEVA benchmark"
+    tags = ["subject_knowledge"]
