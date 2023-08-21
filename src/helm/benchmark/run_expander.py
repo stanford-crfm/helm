@@ -773,6 +773,20 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             mandarin_to_cantonese(),
         ]
     },
+    "cleva": {
+        "cleva": [
+            cleva_mild_mix(),
+            cleva_gender(mode="pronouns", prob=1.0, source_class="male", target_class="female"),
+            cleva_person_name(
+                prob=1.0,
+                source_class={"gender": "male"},
+                target_class={"gender": "female"},
+                preserve_gender=True,
+            ),
+            simplified_to_traditional(),
+            mandarin_to_cantonese(),
+        ]
+    },
 }
 
 
