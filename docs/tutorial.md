@@ -65,6 +65,9 @@ This reads the pre-existing files in `benchmark_output/runs/v1/` that were writt
 
 Additionally, for each group and group-relavent metric, it will output a pair of files: `benchmark_output/runs/v1/groups/latex/<group_name>_<metric_name>.tex` and `benchmark_output/runs/v1/groups/latex/<group_name>_<metric_name>.json`. These files contain the statistics for that metric from each run within the group.
 
+<!--
+# TODO(#1441): Enable plots
+
 ## Using `helm-create-plots`
 
 The `helm-create-plots` reads the `groups` directory created by `helm-summarize` and creates plots, equivalent to those use in the HELM paper. Run the following:
@@ -75,6 +78,8 @@ helm-create-plots --suite v1
 
 This reads the pre-existing files in `benchmark_output/runs/v1/groups` that were written by `helm-summarize` previously,
 and creates plots (`.png` or `.pdf`) at `benchmark_output/runs/v1/plots`.
+
+-->
 
 ## Using `helm-server`
 
