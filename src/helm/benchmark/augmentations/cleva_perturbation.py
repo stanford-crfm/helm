@@ -685,3 +685,47 @@ class SimplifiedToTraditionalPerturbation(Perturbation):
         """Perform the perturbations on the provided text."""
         perturbed_text: str = self.converter.convert(text)
         return perturbed_text
+
+
+class MandarinToCantonesePerturbation(Perturbation):
+    """
+    Individual fairness perturbation for Mandarin to Cantonese translation.
+    The implementation is inspired by https://justyy.com/tools/chinese-converter/
+
+    Note that this is a rule-based translation system and there are limitations.
+    """
+
+    name: str = "mandarin_to_cantonese"
+
+    should_perturb_references: bool = True
+
+    """ Resources """
+    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets/simplified_jyutping_conversion.json"
+
+    @property
+    def description(self) -> PerturbationDescription:
+        return PerturbationDescription(name=self.name, fairness=True)
+
+    def __init__(
+        self,
+    ):
+        """Initialize the Mandarin to Cantonese translation perturbation."""
+        self.s2t_converter = opencc.OpenCC("s2t.json")
+
+        target_path = os.path.join(
+            "benchmark_output", "perturbations", self.name, "simplified_jyutping_conversion.json"
+        )
+        ensure_directory_exists(os.path.dirname(target_path))
+        ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_path)
+        with open(target_path) as fin:
+            self.phrase_table = json.load(fin)
+
+    def perturb(self, text: str, rng: Random) -> str:
+        """Perform the perturbations on the provided text."""
+        perturbed_text = text
+        # First translate all phrases in text according to the phrase table
+        for k, v in self.phrase_table.items():
+            perturbed_text = perturbed_text.replace(k, v)
+        # Then convert from Chinese simplified to Chinese traditional
+        perturbed_text = self.s2t_converter.convert(perturbed_text)
+        return perturbed_text

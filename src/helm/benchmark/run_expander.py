@@ -589,6 +589,13 @@ def simplified_to_traditional() -> PerturbationSpec:
     )
 
 
+def mandarin_to_cantonese() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.MandarinToCantonesePerturbation",
+        args={},
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -763,6 +770,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
                 preserve_gender=True,
             ),
             simplified_to_traditional(),
+            mandarin_to_cantonese(),
         ]
     },
 }
