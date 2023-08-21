@@ -640,13 +640,13 @@ def get_cleva_bias_metric_specs() -> List[MetricSpec]:
 
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.cleva_metrics.CLEVABiasMetric",
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVABiasMetric",
             args={"mode": "associations", "demographic_category": dem, "target_category": tgt},
         )
         for dem, tgt in cross_dem_target
     ] + [
         MetricSpec(
-            class_name="helm.benchmark.metrics.cleva_metrics.CLEVABiasMetric",
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVABiasMetric",
             args={"mode": "representation", "demographic_category": dem},
         )
         for dem in demographic_categories
@@ -655,7 +655,7 @@ def get_cleva_bias_metric_specs() -> List[MetricSpec]:
 
 def get_cleva_toxicity_metric_specs() -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.metrics.cleva_metrics.CLEVAToxicityMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVAToxicityMetric", args={}),
     ]
 
 
