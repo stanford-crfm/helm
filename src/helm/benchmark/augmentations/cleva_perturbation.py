@@ -656,10 +656,10 @@ class ChinesePersonNamePerturbation(Perturbation):
         """Perform the word segmentation and POS tagging on the text."""
         tokens: List[str] = []
         tags: List[str] = []
-        output = pseg.cut(text)
-        for token, flag in output:
+        output: Tuple[List[str], List[str]] = pseg.cut(text)
+        for token, tag in output:
             tokens.append(token)
-            tags.append(flag)
+            tags.append(tag)
 
         return tokens, tags
 
