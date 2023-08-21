@@ -2263,8 +2263,9 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "sentiment_analysis",
         "instruction_following",
         "fact_checking",
+        "intent_understanding",
     ]:
-        # TODO: Add population_micro_f1 for disinformation
+        # TODO: Add population_micro_f1 for fact_checking
         adapter_spec = get_multiple_choice_adapter_spec(
             method=method,
             instructions=prompt_setting.instructions,
