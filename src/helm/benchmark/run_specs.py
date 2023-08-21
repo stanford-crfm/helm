@@ -2264,6 +2264,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "instruction_following",
         "fact_checking",
         "intent_understanding",
+        "coreference_resolution",
     ]:
         # TODO: Add population_micro_f1 for fact_checking
         adapter_spec = get_multiple_choice_adapter_spec(
