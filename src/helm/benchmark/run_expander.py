@@ -582,6 +582,13 @@ def cleva_person_name(
     )
 
 
+def simplified_to_traditional() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.SimplifiedToTraditionalPerturbation",
+        args={},
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -755,6 +762,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
                 target_class={"gender": "female"},
                 preserve_gender=True,
             ),
+            simplified_to_traditional(),
         ]
     },
 }

@@ -10,6 +10,7 @@ import unidecode
 import pypinyin
 import jieba
 import jieba.posseg as pseg
+import opencc
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
@@ -661,3 +662,26 @@ class ChinesePersonNamePerturbation(Perturbation):
             tags.append(flag)
 
         return tokens, tags
+
+
+class SimplifiedToTraditionalPerturbation(Perturbation):
+    """Individual fairness perturbation for Chinese simplified to Chinese traditional."""
+
+    name: str = "simplified_to_traditional"
+
+    should_perturb_references: bool = True
+
+    @property
+    def description(self) -> PerturbationDescription:
+        return PerturbationDescription(name=self.name, fairness=True)
+
+    def __init__(
+        self,
+    ):
+        """Initialize the Chinese simplified to Chinese traditional perturbation."""
+        self.converter = opencc.OpenCC("s2t.json")
+
+    def perturb(self, text: str, rng: Random) -> str:
+        """Perform the perturbations on the provided text."""
+        perturbed_text: str = self.converter.convert(text)
+        return perturbed_text
