@@ -100,7 +100,8 @@ class CLEVAScenario(Scenario):
 
         return instances
 
-    def multiple_choice_answer_to_reference(self, answer: str, correct_answer: List[str]) -> Reference:
+    @staticmethod
+    def multiple_choice_answer_to_reference(answer: str, correct_answer: List[str]) -> Reference:
         return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer in correct_answer else [])
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
@@ -266,7 +267,7 @@ class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
 
     # name = "cleva_classical_chinese_understanding"
     description = "Classical Chinese understanding task in CLEVA benchmark"
-    tags = ["classical_chinese_understanding"]
+    tags = ["classical_chinese_understanding", "multiple_choice"]
 
 
 class CLEVASentimentAnalysisScenario(CLEVAScenario):
@@ -308,7 +309,7 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
 
     # name = "cleva_instruction_following"
     description = "Instruction following task in CLEVA benchmark"
-    tags = ["instruction_following"]
+    tags = ["instruction_following", "multiple_choice"]
 
     def __init__(
         self,
@@ -345,7 +346,7 @@ class CLEVAFactCheckingScenario(CLEVAScenario):
     """
 
     description = "Fact checking task in CLEVA benchmark"
-    tags = ["fact_checking", "harms"]
+    tags = ["fact_checking", "harms", "multiple_choice"]
 
 
 class CLEVATranslationScenario(CLEVAScenario):
@@ -426,7 +427,7 @@ class CLEVAIntentUnderstandingScenario(CLEVAScenario):
     """
 
     description = "Intent understanding task in CLEVA benchmark"
-    tags = ["intent_understanding"]
+    tags = ["intent_understanding", "multiple_choice"]
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         context: str = row["context"]
@@ -469,7 +470,7 @@ class CLEVACoreferenceResolutionScenario(CLEVAScenario):
     """
 
     description = "Coreference resolution task in CLEVA benchmark"
-    tags = ["coreference_resolution"]
+    tags = ["coreference_resolution", "multiple_choice"]
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         context: str = row["context"]
