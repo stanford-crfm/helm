@@ -268,6 +268,16 @@ def chinese_bleu_1(gold: str, pred: str) -> float:
     return sentence_bleu([[i for i in gold]], [i for i in pred], weights=(1, 0, 0, 0))
 
 
+def get_chinese_rouge_function(rouge_type: str) -> Callable[[str, str], float]:
+    class CharTokenizer:
+        def tokenize(self, text: str) -> List[str]:
+            return [char for char in text]
+
+    char_tokenizer = CharTokenizer()
+    scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True, tokenizer=char_tokenizer)
+    return partial(rouge_score, scorer=scorer, rouge_type=rouge_type)
+
+
 def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
@@ -489,6 +499,7 @@ class BasicMetric(Metric):
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
             "chinese_bleu_1": chinese_bleu_1,
+            "chinese_rouge_1": get_chinese_rouge_function("rouge1"),
             "absolute_value_difference": absolute_value_difference,
         }
 
