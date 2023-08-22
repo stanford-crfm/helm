@@ -519,6 +519,12 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
 class CLEVASubjectKnowledgeScenario(CLEVAScenario):
     """
     The subject knowledge task of CLEVA benchmark.
+    We follow https://github.com/stanford-crfm/helm/tree/main/scripts/fact_completion to construct the Chinese dataset.
+    Considering the Chinese characteristics, we rewrite and extend the relations.
+    There are 91 relations, which are grouped into 14 subjects:
+
+        Art, Biomedicine, Chemistrt, Computer Science, Economics, Geography, History,
+        Law, Literature, Math, Other General, Philosophy, Physics, Politics
 
     An example is:
         补全下列句子中下划线处的实体。
@@ -577,7 +583,7 @@ class CLEVASummarizationScenario(CLEVAScenario):
     """
     The summarization task of CLEVA task.
 
-    An example is:
+    An example of dialogue summarization is:
         用户：咨询订单号:[订单编号]
         客服：有什么问题我可以帮您处理或解决呢?
         用户：想退单
