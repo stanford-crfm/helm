@@ -75,8 +75,8 @@ class CLEVAScenario(Scenario):
 
         return dataset
 
-    @classmethod
-    def load_prompt_settings(cls, task: str, subtask: Optional[str], version: str) -> Dict[str, Any]:
+    @staticmethod
+    def load_prompt_settings(task: str, subtask: Optional[str], version: str) -> Dict[str, Any]:
         prompt_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
         if subtask:
             prompt_dir = os.path.join(prompt_dir, subtask)
@@ -476,6 +476,63 @@ class CLEVACoreferenceResolutionScenario(CLEVAScenario):
         span1: str = row["span1"]
         span2: str = row["span2"]
         text: str = f"{context}\n在上文中，“{span1}”和“{span2}”是否指代了同一个对象？\n"
+        answers: List[str] = row["choices"]
+        correct_choice: List[int] = row["label"]
+        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+        references: List[Reference] = [
+            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+        ]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVAReadingComprehensionScenario(CLEVAScenario):
+    """
+    The coreference resolution task of CLEVA benchmark.
+
+    An example is:
+        阅读以下内容，选择合适的选项回答问题。
+
+        尽管方便快捷的“网络阅读”已经成为了一种生活时尚，但纸质阅读仍然发挥着很大的作用。日前，我们通过问卷调查、现场采访的方式对不同
+        阶层的读者进行了调查，结果显示，市民电子阅读的兴趣日渐提高，但很多人仍在坚守传统的纸质阅读。\n在为期三天的阅读习惯调查中，记者
+        发现，经常上网浏览书籍的读者占被调查者的60%，而从不选择上网浏览的读者仅占25%；在喜欢的阅读方式调查中，喜爱纸质阅读的读者高达90%，
+        占绝对优势，而喜欢网上阅读的人只占到8%，很明显，读者还是更喜爱传统的阅读方式。\n许多读者表示传统图书提供了非常明了、有用的信息，
+        阅读时没有广告等干扰，有效地防止了一些时间的浪费。另外，多数读者认为长期对着屏幕阅读，也容易带来很多后遗症：眼干、肩膀疼、腰疼等。
+        纸质阅读更有利于保护眼睛。采访中，很多读者认为纸质书带给我们的不仅仅是书中的文字，更是手捧文化的一种美妙感觉，这是任何形式的电子
+        阅读器都无法做到的。
+
+        问题：被调查者的阅读习惯有：
+        A. 少数人接受纸质阅读
+        B. 年轻人喜欢网络阅读
+        C. 多数人经常上网阅读
+        D. 大部分记者习惯网上阅读
+        答案：C
+
+        去年中国汽车生产和销售分别为1379.10万辆和1364.48万辆，首次成为世界汽车生产销售第一大国。其中家庭用车的销售量是汽车销售
+        总量的51%，占乘用车销售总量的44%。
+
+        问题：请选出与试题内容一致的一项。
+        A. 去年中国汽车销售量大于生产量
+        B. 去年中国再次成为汽车第一大国
+        C. 去年中国乘用车的销售量比例是44%
+        D. 去年中国家庭用车的销售量超过总销售量的一半
+        答案：
+
+    Target: D
+    """
+
+    description = "Reading comprehension task in CLEVA benchmark"
+    tags = ["reading_comprehension"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        context: str = row["context"]
+        question: str = row["question"]
+        text: str = f"{context}\n\n问题：{question}\n"
         answers: List[str] = row["choices"]
         correct_choice: List[int] = row["label"]
         correct_answer: List[str] = [answers[idx] for idx in correct_choice]

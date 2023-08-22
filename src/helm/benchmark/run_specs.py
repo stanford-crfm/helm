@@ -615,7 +615,7 @@ def get_machine_translation_metric_specs() -> List[MetricSpec]:
 def get_cleva_machine_translation_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.machine_translation_metrics.ClevaMachineTranslationMetric", args={}
+            class_name="helm.benchmark.metrics.machine_translation_metrics.CLEVAMachineTranslationMetric", args={}
         )
     ] + get_basic_metric_specs([])
 
@@ -2265,6 +2265,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "fact_checking",
         "intent_understanding",
         "coreference_resolution",
+        "reading_comprehension",
     ]:
         # TODO: Add population_micro_f1 for fact_checking
         adapter_spec = get_multiple_choice_adapter_spec(
