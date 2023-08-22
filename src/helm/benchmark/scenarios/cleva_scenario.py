@@ -541,6 +541,13 @@ class CLEVAReadingComprehensionScenario(CLEVAScenario):
             self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
         ]
 
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
 
 class CLEVADialogueGenerationScenario(CLEVAScenario):
     """
