@@ -184,7 +184,7 @@ class CLEVATextClassificationScenario(CLEVAScenario):
 
     # name = "cleva_text_classification"
     description = "Text classification task in CLEVA benchmark"
-    tags = ["multiple_choice"]
+    tags = ["text_classification", "multiple_choice"]
 
 
 class CLEVAOpinionMiningScenario(CLEVAScenario):
@@ -553,3 +553,37 @@ class CLEVASubjectKnowledgeScenario(CLEVAScenario):
             split=split,
         )
         return instance
+
+
+class CLEVACulturalKnowledgeScenario(CLEVAScenario):
+    """
+    The cultural knowledge task of CLEVA benchmark.
+
+    An idiom example is:
+        请根据文段内容补全下划线处的成语。
+
+        文本: 王俊凯登杂志封面挑战日式发型少年____娱乐微小二2021-03-09 16:07:14 1/12王俊凯为时尚杂志拍摄的写真曝光,封面中的他,突破以往风格,首次尝试日系长发造型,身穿黑色剪裁西装,搭配金丝边眼镜,雅痞气质无比吸睛。0...
+        A. 大错特错
+        B. 化为乌有
+        C. 红颜薄命
+        D. 委曲求全
+        E. 富丽堂皇
+        F. 逢凶化吉
+        G. 初露锋芒
+        答: G
+        
+        文本: 1997年上映的电影《宋家王朝》中,影星杨紫琼,张曼玉,邬君梅,分别扮演宋霭龄,宋庆龄,宋美龄,其片头语“遥远的旧中国有三姐妹,一个爱钱,一个爱国,一个爱权”不胫而走,却也____,成为对宋氏三姐妹的总体评价。图中是《宋家王朝》的...
+        A. 异想天开
+        B. 时移世易
+        C. 半生半熟
+        D. 言之凿凿
+        E. 大有可为
+        F. 喧宾夺主
+        G. 焕然一新
+        答:
+
+    Target: D
+    """
+
+    description = "Cultural knowledge task in CLEVA benchmark"
+    tags = ["cultural_knowledge", "multiple_choice"]
