@@ -16,10 +16,10 @@ from helm.proxy.services.remote_service import create_authentication, add_servic
 from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
 from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .executor import ExecutionSpec
-from .runner import Runner, RunSpec, LATEST_SYMLINK
-from .slurm_runner import SlurmRunner
-from .run_specs import construct_run_specs
+from helm.benchmark.executor import ExecutionSpec
+from helm.benchmark.runner import Runner, RunSpec, LATEST_SYMLINK
+from helm.benchmark.slurm_runner import SlurmRunner
+from helm.benchmark.run_specs import construct_run_specs
 
 
 def run_entries_to_run_specs(

@@ -185,7 +185,7 @@ class CLEVATextClassificationScenario(CLEVAScenario):
 
     # name = "cleva_text_classification"
     description = "Text classification task in CLEVA benchmark"
-    tags = ["multiple_choice"]
+    tags = ["text_classification", "multiple_choice"]
 
 
 class CLEVAOpinionMiningScenario(CLEVAScenario):
@@ -490,3 +490,146 @@ class CLEVACoreferenceResolutionScenario(CLEVAScenario):
             split=split,
         )
         return instance
+
+
+class CLEVADialogueGenerationScenario(CLEVAScenario):
+    """
+    The dialogue generation task of CLEVA benchmark.
+
+    An example is:
+        请根据对话历史回复用户询问。
+
+        用户：你好，我想找一个价格是1000元以上，评分是4.5分以上的酒店，有什么好的地方给我推荐吗？
+        系统：给你推荐北京昆泰嘉华酒店，完全符合你的条件呢。
+        用户：是吗，该酒店是什么类型啊？
+        系统：豪华型酒店。
+        用户：好的，能帮我查一下它家是否提供商务中心吗？
+        系统：酒店提供商务中心的。
+        用户：太好了，定完酒店，我打算找个评分是4.5分以上，游玩时长是1小时 - 2小时，票价是200元以上的景点游玩，给我点建议好吗？
+        系统：乐多港奇幻乐园是个不错的去处，非常好玩的。
+        用户：好啊，就去乐多港奇幻乐园玩吧，景点周边有酒店吗？
+        系统：
+
+    Target: 嗯，周边有一个如家快捷酒店(北京昌平鼓楼西街店)。
+    """
+
+    description = "Dialogue generation task in CLEVA benchmark"
+    tags = ["dialogue_generation"]
+
+    def get_instances(self) -> List[Instance]:
+        # Download the raw data
+        dataset = self.load_dataset()
+
+        # Read all the instances
+        instances: List[Instance] = []
+        for split in self.splits:
+            for row in dataset[split]:
+                # One row could contain multiple conversation instances.
+                instances.extend(self.process_dialogue_instance(row, self.splits[split]))
+
+        return instances
+
+    def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
+        instances: List[Instance] = []
+        text: str = ""
+        speaker_mapping = {"sys": "系统", "usr": "用户"}
+        dialog = row["dialogue"]
+
+        for turn_id, utt in enumerate(dialog):
+
+            content: str = utt["content"]
+            speaker: str = utt["role"]
+
+            # For task-oriented dialogue tasks, agents should response to users' questions according to the history.
+            if speaker == "sys" and turn_id > 0:
+                correct_answer = [content]
+                references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
+
+                instance = Instance(
+                    input=Input(text=text),
+                    references=references,
+                    split=split,
+                )
+                instances.append(instance)
+
+            # append history utterances
+            if turn_id > 0:
+                text += "\n"
+            text += "{speaker}: {content}".format(speaker=speaker_mapping[speaker], content=content)
+
+        return instances
+
+
+class CLEVASubjectKnowledgeScenario(CLEVAScenario):
+    """
+    The subject knowledge task of CLEVA benchmark.
+
+    An example is:
+        补全下列句子中下划线处的实体。
+
+        输入：礼记所处的年代是__。
+        输出：周朝
+
+        输入：慕容复出现在作品《__》中。
+        输出：天龙八部
+
+        输入：古剑奇谭在__首次播放。
+        输出：
+
+    Target: 湖南卫视
+    """
+
+    description = "Subject knowledge task in CLEVA benchmark"
+    tags = ["subject_knowledge"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        # Currently, HELM will concat all references as an answer in few-shot setting.
+        # This function ensure that there is only one reference for each instance.
+        text: str = row["text"]
+
+        # truncate the label
+        correct_answer = row["label"][:1]
+        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVACulturalKnowledgeScenario(CLEVAScenario):
+    """
+    The cultural knowledge task of CLEVA benchmark.
+
+    An idiom example is:
+        请根据文段内容补全下划线处的成语。
+
+        文本: 王俊凯登杂志封面挑战日式发型少年____娱乐微小二2021-03-09 16:07:14 1/12王俊凯为时尚杂志拍摄的写真曝光,封面中的他,突破以往风格,首次尝试日系长发造型,
+        身穿黑色剪裁西装,搭配金丝边眼镜,雅痞气质无比吸睛。0...
+        A. 大错特错
+        B. 化为乌有
+        C. 红颜薄命
+        D. 委曲求全
+        E. 富丽堂皇
+        F. 逢凶化吉
+        G. 初露锋芒
+        答: G
+
+        文本: 1997年上映的电影《宋家王朝》中,影星杨紫琼,张曼玉,邬君梅,分别扮演宋霭龄,宋庆龄,宋美龄,其片头语“遥远的旧中国有三姐妹,一个爱钱,一个爱国,一个爱权”不胫而走,
+        却也____,成为对宋氏三姐妹的总体评价。图中是《宋家王朝》的...
+        A. 异想天开
+        B. 时移世易
+        C. 半生半熟
+        D. 言之凿凿
+        E. 大有可为
+        F. 喧宾夺主
+        G. 焕然一新
+        答:
+
+    Target: D
+    """
+
+    description = "Cultural knowledge task in CLEVA benchmark"
+    tags = ["cultural_knowledge", "multiple_choice"]

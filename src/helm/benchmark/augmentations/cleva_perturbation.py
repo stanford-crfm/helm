@@ -288,16 +288,17 @@ class ChineseSynonymPerturbation(Perturbation):
     name: str = "chinese_synonym"
 
     # For downloading resources
-    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets/synonyms.json"
+    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets"
+    FILE_NAME = "synonyms.json"
 
     def __init__(self, prob: float, trial_num: int = 10):
         # Assign parameters to instance variables
         self.prob: float = prob
         self.trial_num: int = trial_num  # Number of trial to get a 100% perturbed text
 
-        target_dir = os.path.join("benchmark_output", "perturbations", self.name, "synonyms.json")
+        target_dir = os.path.join("benchmark_output", "perturbations", self.name, self.FILE_NAME)
         ensure_directory_exists(os.path.dirname(target_dir))
-        ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_dir)
+        ensure_file_downloaded(source_url=f"{self.SOURCE_URI}/{self.FILE_NAME}", target_path=target_dir)
         with open(os.path.join(target_dir)) as f:
             self.synonym_dict: Dict[str, List[str]] = json.load(f)
 
@@ -374,7 +375,8 @@ class ChineseGenderPerturbation(Perturbation):
     MODES = [GENDER_TERM, GENDER_PRONOUN]
 
     """ Resources """
-    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets/gender_term.txt"
+    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets"
+    FILE_NAME: str = "gender_term.txt"
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
@@ -419,9 +421,9 @@ class ChineseGenderPerturbation(Perturbation):
         if self.mode == self.GENDER_TERM:
             self.term_dict: Dict[Tuple[str, str], Dict[str, str]] = defaultdict(dict)
 
-            target_path = os.path.join("benchmark_output", "perturbations", self.name, "gender_term.txt")
+            target_path = os.path.join("benchmark_output", "perturbations", self.name, self.FILE_NAME)
             ensure_directory_exists(os.path.dirname(target_path))
-            ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_path)
+            ensure_file_downloaded(source_url=f"{self.SOURCE_URI}/{self.FILE_NAME}", target_path=target_path)
             with open(target_path) as fin:
                 for line in fin.readlines():
                     splits: List[str] = line.strip("\n").split(" ")
@@ -473,7 +475,8 @@ class ChinesePersonNamePerturbation(Perturbation):
     should_perturb_references: bool = True
 
     """ Resources """
-    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets/chinese_name_gender.json"
+    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets"
+    FILE_NAME: str = "chinese_name_gender.json"
     OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
 
     """ Gender categories """
@@ -536,9 +539,9 @@ class ChinesePersonNamePerturbation(Perturbation):
 
         self.preserve_gender: bool = preserve_gender
 
-        target_path = os.path.join("benchmark_output", "perturbations", self.name, "chinese_name_gender.json")
+        target_path = os.path.join("benchmark_output", "perturbations", self.name, self.FILE_NAME)
         ensure_directory_exists(os.path.dirname(target_path))
-        ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_path)
+        ensure_file_downloaded(source_url=f"{self.SOURCE_URI}/{self.FILE_NAME}", target_path=target_path)
         with open(os.path.join(target_path), "r", encoding="utf-8") as f:
             self.gender2name: Dict[str, List[str]] = json.load(f)
             del self.gender2name["unknown"]
@@ -700,7 +703,8 @@ class MandarinToCantonesePerturbation(Perturbation):
     should_perturb_references: bool = True
 
     """ Resources """
-    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets/simplified_jyutping_conversion.json"
+    SOURCE_URI: str = "http://emnlp.clevaplat.com:8001/assets"
+    FILE_NAME: str = "simplified_jyutping_conversion.json"
 
     @property
     def description(self) -> PerturbationDescription:
@@ -712,11 +716,9 @@ class MandarinToCantonesePerturbation(Perturbation):
         """Initialize the Mandarin to Cantonese translation perturbation."""
         self.s2t_converter = opencc.OpenCC("s2t.json")
 
-        target_path = os.path.join(
-            "benchmark_output", "perturbations", self.name, "simplified_jyutping_conversion.json"
-        )
+        target_path = os.path.join("benchmark_output", "perturbations", self.name, self.FILE_NAME)
         ensure_directory_exists(os.path.dirname(target_path))
-        ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_path)
+        ensure_file_downloaded(source_url=f"{self.SOURCE_URI}/{self.FILE_NAME}", target_path=target_path)
         with open(target_path) as fin:
             self.phrase_table = json.load(fin)
 
