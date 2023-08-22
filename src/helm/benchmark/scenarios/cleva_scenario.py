@@ -536,3 +536,19 @@ class CLEVASubjectKnowledgeScenario(CLEVAScenario):
 
     description = "Subject knowledge task in CLEVA benchmark"
     tags = ["subject_knowledge"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        # Currently, HELM will concat all references as an answer in few-shot setting.
+        # This function ensure that there is only one reference for each instance.
+        text: str = row["text"]
+
+        # truncate the label
+        correct_answer = row["label"][:1]
+        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
