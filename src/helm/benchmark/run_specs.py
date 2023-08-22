@@ -633,6 +633,40 @@ def get_instruction_following_critique_metric_specs(num_respondents: int) -> Lis
     ]
 
 
+def get_cleva_bias_metric_specs() -> List[MetricSpec]:
+    demographic_categories = ["race", "gender"]
+    target_categories = ["adjective", "profession"]
+    cross_dem_target = itertools.product(demographic_categories, target_categories)
+
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVABiasMetric",
+            args={"mode": "associations", "demographic_category": dem, "target_category": tgt},
+        )
+        for dem, tgt in cross_dem_target
+    ] + [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVABiasMetric",
+            args={"mode": "representation", "demographic_category": dem},
+        )
+        for dem in demographic_categories
+    ]
+
+
+def get_cleva_toxicity_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVAToxicityMetric", args={}),
+    ]
+
+
+def get_cleva_generative_harms_metric_specs(include_basic_metrics: bool = False) -> List[MetricSpec]:
+    return (
+        get_cleva_bias_metric_specs()
+        + get_cleva_toxicity_metric_specs()
+        + (get_basic_metric_specs([]) if include_basic_metrics else [])
+    )
+
+
 ############################################################
 # Run specs
 
@@ -2283,7 +2317,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_train_instances=5,  # limited by the context length
             max_tokens=20,
         )
-        metric_specs = get_exact_match_metric_specs() + get_generative_harms_metric_specs()
+        metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["pinyin_transliteration"]:
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
@@ -2294,7 +2328,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_train_instances=5,  # limited by the context length
             max_tokens=150,
         )
-        metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_generative_harms_metric_specs()
+        metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_cleva_generative_harms_metric_specs()
     elif task in ["translation"]:
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
@@ -2305,7 +2339,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_train_instances=5,  # limited by the context length
             max_tokens=200,
         )
-        metric_specs = get_cleva_machine_translation_metric_specs() + get_generative_harms_metric_specs()
+        metric_specs = get_cleva_machine_translation_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["dialogue_generation"]:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
@@ -2316,7 +2350,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=200,
             temperature=0.9,
         )
-        metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_generative_harms_metric_specs()
+        metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_cleva_generative_harms_metric_specs()
     elif task in ["subject_knowledge"]:
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
@@ -2327,7 +2361,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_train_instances=5,  # limited by the context length
             max_tokens=150,
         )
-        metric_specs = get_exact_match_metric_specs() + get_generative_harms_metric_specs()
+        metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 

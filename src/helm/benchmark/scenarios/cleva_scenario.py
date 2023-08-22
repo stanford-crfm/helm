@@ -481,22 +481,23 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
         for split in self.splits:
             for row in dataset[split]:
                 # One row could contain multiple conversation instances.
-                instances.extend(self.process_instance(row, self.splits[split]))
+                instances.extend(self.process_dialogue_instance(row, self.splits[split]))
 
         return instances
 
-    def process_instance(self, row: List[Dict[str, Any]], split: str) -> List[Instance]:
-        instances: List[Dict[str, Any]] = []
+    def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
+        instances: List[Instance] = []
         text: str = ""
         speaker_mapping = {"sys": "系统", "usr": "用户"}
+        dialog = row["dialogue"]
 
-        for turn_id, utt in enumerate(row):
+        for turn_id, utt in enumerate(dialog):
 
             content: str = utt["content"]
             speaker: str = utt["role"]
-            
-            # For task-oriented dialogue tasks, agents should response to users' questions according to the dialogue history.
-            if speaker=="sys" and turn_id>0:
+
+            # For task-oriented dialogue tasks, agents should response to users' questions according to the history.
+            if speaker == "sys" and turn_id > 0:
                 correct_answer = [content]
                 references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
 
@@ -506,12 +507,12 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
                     split=split,
                 )
                 instances.append(instance)
-            
+
             # append history utterances
             if turn_id > 0:
                 text += "\n"
             text += "{speaker}: {content}".format(speaker=speaker_mapping[speaker], content=content)
-        
+
         return instances
 
 
