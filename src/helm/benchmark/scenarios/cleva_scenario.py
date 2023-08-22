@@ -100,18 +100,19 @@ class CLEVAScenario(Scenario):
 
         return instances
 
+    @staticmethod
+    def multiple_choice_answer_to_reference(answer: str, correct_answer: List[str]) -> Reference:
+        return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer in correct_answer else [])
+
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         text: str = row["text"]
         if "choices" in row.keys():
             answers: List[str] = row["choices"]
             correct_choice: List[int] = row["label"]
-
             correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-
-            def answer_to_reference(answer: str) -> Reference:
-                return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer in correct_answer else [])
-
-            references: List[Reference] = list(map(answer_to_reference, answers))
+            references: List[Reference] = [
+                self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+            ]
         else:
             correct_answer = row["label"]
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
@@ -266,7 +267,7 @@ class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
 
     # name = "cleva_classical_chinese_understanding"
     description = "Classical Chinese understanding task in CLEVA benchmark"
-    tags = ["classical_chinese_understanding"]
+    tags = ["classical_chinese_understanding", "multiple_choice"]
 
 
 class CLEVASentimentAnalysisScenario(CLEVAScenario):
@@ -308,7 +309,7 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
 
     # name = "cleva_instruction_following"
     description = "Instruction following task in CLEVA benchmark"
-    tags = ["instruction_following"]
+    tags = ["instruction_following", "multiple_choice"]
 
     def __init__(
         self,
@@ -345,7 +346,7 @@ class CLEVAFactCheckingScenario(CLEVAScenario):
     """
 
     description = "Fact checking task in CLEVA benchmark"
-    tags = ["fact_checking", "harms"]
+    tags = ["fact_checking", "harms", "multiple_choice"]
 
 
 class CLEVATranslationScenario(CLEVAScenario):
@@ -420,12 +421,13 @@ class CLEVAIntentUnderstandingScenario(CLEVAScenario):
         B. 头角上的骨架
         C. 被穿越的颞孔
         D. 穿越颞孔的肌肉
+        答案：
 
     Target: B
     """
 
     description = "Intent understanding task in CLEVA benchmark"
-    tags = ["intent_understanding"]
+    tags = ["intent_understanding", "multiple_choice"]
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         context: str = row["context"]
@@ -434,11 +436,53 @@ class CLEVAIntentUnderstandingScenario(CLEVAScenario):
         answers: List[str] = row["choices"]
         correct_choice: List[int] = row["label"]
         correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+        references: List[Reference] = [
+            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+        ]
 
-        def answer_to_reference(answer: str) -> Reference:
-            return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer in correct_answer else [])
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
 
-        references: List[Reference] = list(map(answer_to_reference, answers))
+
+class CLEVACoreferenceResolutionScenario(CLEVAScenario):
+    """
+    The coreference resolution task of CLEVA benchmark.
+
+    An example is:
+        不过还有一峰骆驼更是出尽洋相，不但脖子上缠了四五朵塑料花，耳朵上还各绑了一团红红绿绿的花布，背上还抹了一大团鲜艳的红。
+        时常见它花枝招展、喜气洋洋地在驻地附近走来走去。
+        在上文中，“背”和“它”是否指代了同一个对象？
+        A. 不是
+        B. 是
+        答案：A
+
+        渐渐地，汤中凝结出一团团块状物，将它们捞起放进盆里冷却，肥皂便出现在世上了。
+        在上文中，“块状物”和“它们”是否指代了同一个对象？
+        A. 不是
+        B. 是
+        答案：
+
+    Target: B
+    """
+
+    description = "Coreference resolution task in CLEVA benchmark"
+    tags = ["coreference_resolution", "multiple_choice"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        context: str = row["context"]
+        span1: str = row["span1"]
+        span2: str = row["span2"]
+        text: str = f"{context}\n在上文中，“{span1}”和“{span2}”是否指代了同一个对象？\n"
+        answers: List[str] = row["choices"]
+        correct_choice: List[int] = row["label"]
+        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+        references: List[Reference] = [
+            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+        ]
 
         instance = Instance(
             input=Input(text=text),

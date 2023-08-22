@@ -2298,6 +2298,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "instruction_following",
         "fact_checking",
         "intent_understanding",
+        "coreference_resolution",
         "cultural_knowledge",
     ]:
         # TODO: Add population_micro_f1 for fact_checking
