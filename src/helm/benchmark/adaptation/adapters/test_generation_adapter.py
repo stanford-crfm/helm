@@ -133,3 +133,85 @@ class TestGenerationAdapter(TestAdapter):
             for other_train_instances in previous_train_instances:
                 assert train_instances != other_train_instances, "Examples should differ when changing the seed"
             previous_train_instances.append(train_instances)
+
+    def test_multiple_correct_reference(self):
+        adapter_spec = AdapterSpec(method=ADAPT_GENERATION, model="openai/ada", max_train_instances=2)
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        adapter.train_instances = [
+            Instance(
+                Input(text="Second reference is correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[]),
+                    Reference(Output(text="Second"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Third"), tags=[]),
+                ],
+            ),
+            Instance(
+                Input(text="First and second references are correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Second"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Third"), tags=[]),
+                ],
+            ),
+        ]
+        adapter.train_trial_index = 0
+        eval_instance = Instance(
+            Input(text="First reference is correct"),
+            references=[
+                Reference(Output(text="First"), tags=[CORRECT_TAG]),
+                Reference(Output(text="Second"), tags=[]),
+                Reference(Output(text="Third"), tags=[]),
+            ],
+        )
+        actual_instances = adapter.generate_requests(eval_instance)
+        assert len(actual_instances) == 1
+        assert actual_instances[0].request.prompt == (
+            "Input: Second reference is correct\n"
+            "Output: Second\n\n"
+            "Input: First and second references are correct\n"
+            "Output: First\n\n"
+            "Input: First reference is correct\n"
+            "Output:"
+        )
+
+    def test_multiple_correct_reference_multi_label(self):
+        adapter_spec = AdapterSpec(method=ADAPT_GENERATION, model="openai/ada", max_train_instances=2, multi_label=True)
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        adapter.train_instances = [
+            Instance(
+                Input(text="Second reference is correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[]),
+                    Reference(Output(text="Second"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Third"), tags=[]),
+                ],
+            ),
+            Instance(
+                Input(text="First and second references are correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Second"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Third"), tags=[]),
+                ],
+            ),
+        ]
+        adapter.train_trial_index = 0
+        eval_instance = Instance(
+            Input(text="First reference is correct"),
+            references=[
+                Reference(Output(text="First"), tags=[CORRECT_TAG]),
+                Reference(Output(text="Second"), tags=[]),
+                Reference(Output(text="Third"), tags=[]),
+            ],
+        )
+        actual_instances = adapter.generate_requests(eval_instance)
+        assert len(actual_instances) == 1
+        assert actual_instances[0].request.prompt == (
+            "Input: Second reference is correct\n"
+            "Output: Second\n\n"
+            "Input: First and second references are correct\n"
+            "Output: First, Second\n\n"
+            "Input: First reference is correct\n"
+            "Output:"
+        )
