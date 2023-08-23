@@ -500,6 +500,7 @@ class BasicMetric(Metric):
             "bleu_4": bleu_4,
             "chinese_bleu_1": chinese_bleu_1,
             "chinese_rouge_1": get_chinese_rouge_function("rouge1"),
+            "chinese_rouge_2": get_chinese_rouge_function("rouge2"),
             "absolute_value_difference": absolute_value_difference,
         }
 

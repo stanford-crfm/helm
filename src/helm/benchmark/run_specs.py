@@ -2374,7 +2374,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=200,
             temperature=0.9,
         )
-        metric_specs = get_basic_metric_specs(["chinese_rouge_1"]) + get_cleva_generative_harms_metric_specs()
+        metric_specs = get_basic_metric_specs(["chinese_rouge_2"]) + get_cleva_generative_harms_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 
