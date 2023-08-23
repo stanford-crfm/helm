@@ -1,3 +1,12 @@
+"""Reads the output of the benchmark runs and produces:
+- JSON files for the frontend
+- Tables for the paper
+
+Usage:
+
+    venv/bin/helm-summarize --suite <Name of the suite>
+"""
+
 import argparse
 import cattrs
 import os
@@ -30,28 +39,26 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.runner import RunSpec, LATEST_SYMLINK
-from .table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
-from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
-
-from .contamination import (
+from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
+from helm.benchmark.presentation.schema import (
+    MetricNameMatcher,
+    RunGroup,
+    read_schema,
+    SCHEMA_YAML_FILENAME,
+    BY_GROUP,
+    THIS_GROUP_ONLY,
+    NO_GROUPS,
+)
+from helm.benchmark.presentation.contamination import (
     read_contamination,
     validate_contamination,
     CONTAMINATION_SYMBOLS,
     CONTAMINATION_STYLES,
     CONTAMINATION_LEVEL_STRONG,
 )
-from .run_display import write_run_display_json, read_scenario_state
+from helm.benchmark.presentation.run_display import write_run_display_json
 
-"""
-Reads the output of the benchmark runs and produces:
-- JSON files for the frontend
-- Tables for the paper
 
-Usage:
-
-    venv/bin/helm-summarize --suite <Name of the suite>
-
-"""
 OVERLAP_N_COUNT = 13
 
 
@@ -382,12 +389,17 @@ class Summarizer:
 
             return file_metadata
 
-        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
+        self._model_group_overlap_stats: Dict[Tuple[str, str], GroupOverlapStats] = {}
 
         data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
+        if not os.path.isdir(data_overlap_dir):
+            hlog(f"Directory {data_overlap_dir} not found; skipped import of overlap results.")
+            return
+
+        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
 
         stats_file_metadata = get_stats_file_metadata(data_overlap_dir)
-        self._model_group_overlap_stats: Dict[Tuple[str, str], GroupOverlapStats] = {}
+
         for file_path, model_names in stats_file_metadata.items():
             overlap_stats_jsons = open(file_path, "r").readlines()
 
@@ -1101,8 +1113,14 @@ class Summarizer:
         In such cases, do not include the file as part of the data_overlap directory.
         """
         self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, List[str]] = dict()
+
+        data_overlap_dir = os.path.join(self.run_suite_path, "data_overlap")
+        if not os.path.isdir(data_overlap_dir):
+            hlog(f"Directory {data_overlap_dir} not found; skipped producing instance ids file.")
+            return
+
         scenario_spec_instance_ids_json = os.path.join(
-            self.run_suite_path, "data_overlap", f"scenario_spec_instance_ids_{num_instances}.json"
+            data_overlap_dir, f"scenario_spec_instance_ids_{num_instances}.jsonl"
         )
         if not os.path.exists(scenario_spec_instance_ids_json):
             hlog(f"No scenario spec instance ids json, writing to {scenario_spec_instance_ids_json}")
@@ -1124,14 +1142,16 @@ class Summarizer:
             scenario_spec = run_spec.scenario_spec
             if scenario_spec in self.scenario_spec_instance_id_dict:
                 continue
-            self.scenario_spec_instance_id_dict[scenario_spec] = list()
 
             run_path = run.run_path
-            scenario_state = read_scenario_state(run_path)
+            instances_file_path = os.path.join(run_path, "instances.json")
+            with open(instances_file_path, "r") as f:
+                raw_instances = json.load(f)
 
-            for request_state in scenario_state.request_states:
-                if request_state.instance.id:
-                    self.scenario_spec_instance_id_dict[scenario_spec].append(request_state.instance.id)
+            # Optimization: Don't structure to dataclass, since we only need to read `id`
+            instance_ids = [raw_instance["id"] for raw_instance in raw_instances]
+            self.scenario_spec_instance_id_dict[scenario_spec] = instance_ids
+
         all_scenario_spec_instance_ids = []
         for scenario_spec, instance_ids in self.scenario_spec_instance_id_dict.items():
             scenario_spec_instance_ids = ScenarioSpecInstanceIds(scenario_spec=scenario_spec, instance_ids=instance_ids)
@@ -1193,17 +1213,23 @@ def main():
         suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
     summarizer.read_runs()
-    summarizer.read_scenario_spec_instance_ids(args.num_instances)
-    summarizer.read_overlap_stats()
     summarizer.check_metrics_defined()
+
+    summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
+
+    # Must happen after summarizer.write_run_display_json()
+    # because it uses instances.json files
+    summarizer.read_scenario_spec_instance_ids(args.num_instances)
+
+    # Must happen after summarizer.read_scenario_spec_instance_ids()
+    # because it uses self.scenario_spec_instance_id_dict
+    summarizer.read_overlap_stats()
 
     summarizer.write_executive_summary()
     summarizer.write_runs()
     summarizer.write_run_specs()
     summarizer.write_groups()
     summarizer.write_cost_report()
-
-    summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
 
     symlink_latest(args.output_path, args.suite)
     hlog("Done.")
