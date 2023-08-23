@@ -11,7 +11,7 @@ from helm.common.request import Sequence
 class CLEVATopKAccuracyMetric(Metric):
     """Defines metrics for CLEVA conceptual generalization task.
 
-    This is not a conventianal accuracy@k metric but rather a special one taken from
+    This is not a conventional accuracy@k metric but rather a special one taken from
     https://openreview.net/pdf?id=gJcEM8sxHK
 
     It accepts multiple predictions and multiple references to calculate the accuracy
@@ -31,7 +31,7 @@ class CLEVATopKAccuracyMetric(Metric):
                     for end in range(start + 1, len(reference_text) + 1):
                         reference_substring = reference_text[start:end]
                         if reference_substring in prediction_text:
-                            # we will consider the prediction is correct as long as
+                            # we will consider the prediction correct as long as
                             # a substring of any possible reference appears in it
                             return True
         return False
