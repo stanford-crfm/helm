@@ -738,3 +738,43 @@ class CLEVASummarizationScenario(CLEVAScenario):
 
     description = "Summarization task in CLEVA benchmark"
     tags = ["summarizarion"]
+
+
+class CLEVAMathematicalCalculationScenario(CLEVAScenario):
+    """
+    The mathematical calculation task of CLEVA benchmark.
+    The datasets are modified from
+    https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/modified_arithmetic.
+
+    An example of two-digit addition is:
+        在接下来的文本中，符号 -> 代表着一个简单的数学运算。
+
+        677 + 89 -> 766
+
+        678 + 246 ->
+
+    Target: 924
+    """
+
+    description = "Mathematical calculation task in CLEVA benchmark."
+    tags = ["mathematical_calculation"]
+
+
+class CLEVAInductiveReasoningScenario(CLEVAScenario):
+    """
+    The inductive reasoning task of CLEVA benchmark.
+    The datasets are modified from
+    https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/modified_arithmetic.
+
+    An example of two-digit substract with adding one is:
+        在接下来的文本中，符号 -> 代表着一个简单的数学运算。
+
+        935 - 927 -> 9
+
+        921 - 385 ->
+
+    Target: 537
+    """
+
+    description = "Inductive Reasoing task in CLEVA benchmark."
+    tags = ["inductive_reasoning"]

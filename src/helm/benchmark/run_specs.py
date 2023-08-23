@@ -2378,6 +2378,19 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             temperature=0.9,
         )
         metric_specs = get_basic_metric_specs(["chinese_rouge_2"]) + get_cleva_generative_harms_metric_specs()
+    elif task in ["mathematical_calculation", "inductive_reasoning"]:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions=format_instructions(prompt_setting.instructions),
+            input_prefix="",
+            input_suffix="",
+            output_prefix=f"{prompt_setting.output_noun}：",
+            max_train_instances=5,
+            num_outputs=1,
+            max_tokens=10,
+            temperature=0.9,
+        )
+        metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 
