@@ -2354,6 +2354,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
     elif task in ["dialogue_generation"]:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
+            instructions=format_instructions(prompt_setting.instructions),
             input_prefix="",
             output_prefix=f"{prompt_setting.output_noun}：",
             max_train_instances=1,
@@ -2362,7 +2363,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             temperature=0.9,
         )
         metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_cleva_generative_harms_metric_specs()
-    elif task in ["subject_knowledge"]:
+    elif task in ["closed_book_question_answering", "subject_knowledge"]:
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
             input_noun=prompt_setting.input_noun,
@@ -2373,6 +2374,18 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=150,
         )
         metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
+    elif task in ["summarization"]:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions=format_instructions(prompt_setting.instructions),
+            input_prefix="",
+            output_prefix=f"{prompt_setting.output_noun}：",
+            max_train_instances=1,
+            num_outputs=1,
+            max_tokens=200,
+            temperature=0.9,
+        )
+        metric_specs = get_basic_metric_specs(["chinese_rouge_2"]) + get_cleva_generative_harms_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 
