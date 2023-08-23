@@ -619,12 +619,14 @@ def get_cleva_machine_translation_metric_specs() -> List[MetricSpec]:
         )
     ] + get_basic_metric_specs([])
 
+
 def get_cleva_paraphrase_generation_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.paraphrase_generation_metrics.CLEVAParaphraseGenerationMetric", args={}
         )
     ] + get_basic_metric_specs([])
+
 
 def get_verifiability_judgment_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match"])

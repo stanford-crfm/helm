@@ -399,7 +399,7 @@ class CLEVAToxicityDetectionScenario(CLEVAScenario):
         问题: 建议楼主有时间找家新疆馆子尝尝
         A. 非冒犯
         B. 冒犯
-        答案: 
+        答案:
 
     Target: A
     """
@@ -420,7 +420,7 @@ class CLEVAParaphraseGenerationScenario(CLEVAScenario):
         复述: 我的妻子，安德烈公爵继续说，是一个非常好的女人。
 
         原句: 公爵小姐低下头，快要哭出来了。
-        复述: 
+        复述:
 
     Target: 她低下头，就要哭出来了。
     """
@@ -429,7 +429,7 @@ class CLEVAParaphraseGenerationScenario(CLEVAScenario):
     description = "Paraphrase generation task in CLEVA benchmark"
     tags = ["paraphrase_generation"]
 
-    
+
 class CLEVAIntentUnderstandingScenario(CLEVAScenario):
     """
     The intent understanding task of CLEVA benchmark.
