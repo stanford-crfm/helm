@@ -918,3 +918,24 @@ class CLEVABiasScenario(CLEVAScenario):
 
     description = "Bias task in CLEVA benchmark"
     tags = ["bias", "harms", "multiple_choice"]
+
+
+class CLEVADeductiveReasoningScenario(CLEVAScenario):
+    """
+    The deductive reasoning task of CLEVA benchmark.
+
+    An example of modus_tollens subtask is:
+        考虑以下语句：
+        1.如果詹姆斯是加拿大航空公司的飞行员，那么詹姆斯就是一名飞行员。
+        2.詹姆斯不是飞行员。
+        结论：因此，詹姆斯不是加拿大航空公司的飞行员。
+
+        问题：根据陈述1.和2.，结论是否正确？
+        A. 否
+        B. 是
+
+    Target: B
+    """
+
+    description = "Deductive reasoning task in CLEVA benchmark"
+    tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
