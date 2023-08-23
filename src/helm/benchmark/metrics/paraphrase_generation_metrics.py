@@ -18,6 +18,9 @@ class CLEVAParaphraseGenerationMetric(Metric):
     https://aclanthology.org/P12-2008.pdf
     """
 
+    def __init__(self, alpha: float = 0.8):  # calculate iBLEU_0.8 by default
+        self.alpha = alpha
+
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
 
         inputs: List = []
@@ -32,13 +35,13 @@ class CLEVAParaphraseGenerationMetric(Metric):
 
             golds.append([reference.output.text for reference in request_state.instance.references])
 
+        # using characters for computing BLEU
         tokenized_inputs = [[[i for i in input]] for input in inputs]
         tokenized_preds = [[i for i in pred] for pred in preds]
         tokenized_golds = [[[i for i in gold] for gold in references] for references in golds]
 
-        alpha = 0.8  # to calculate iBLEU_0.8
         bleu = corpus_bleu(tokenized_golds, tokenized_preds, weights=(1, 0, 0, 0))
         sbleu = corpus_bleu(tokenized_inputs, tokenized_preds, weights=(1, 0, 0, 0))
-        chinese_ibleu_score = alpha * bleu - (1 - alpha) * sbleu
+        chinese_ibleu_score = self.alpha * bleu - (1 - self.alpha) * sbleu
 
         return [Stat(MetricName("chinese_ibleu")).add(chinese_ibleu_score)]
