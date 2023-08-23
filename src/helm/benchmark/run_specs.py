@@ -272,6 +272,7 @@ def get_generation_adapter_spec(
     max_tokens: int = 5,
     stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
     temperature: float = 0.0,
+    multi_label: bool = False,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -312,6 +313,7 @@ def get_generation_adapter_spec(
         max_tokens=max_tokens,
         temperature=temperature,
         stop_sequences=stop_sequences,
+        multi_label=multi_label,
     )
 
 
@@ -776,9 +778,7 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
         name=f"civil_comments:demographic={demographic}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-        + get_generative_harms_metric_specs()
-        + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
         groups=["civil_comments"],
     )
 
@@ -1035,9 +1035,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         name=f"raft:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-        + get_generative_harms_metric_specs()
-        + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
         groups=["raft"],
     )
 
@@ -1164,7 +1162,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         name="boolq" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs(),
         groups=["boolq"],
     )
 
@@ -1935,16 +1933,10 @@ def get_pubmed_qa_spec() -> RunSpec:
     )
 
 
-def build_classification_metrics(task_type):
-    if task_type in [TaskType.QA, TaskType.SLTC]:
-        return get_classification_metric_specs(delimiter=None)
-    elif task_type == TaskType.MLTC:
-        return get_classification_metric_specs(delimiter=",")
-    return []
-
-
 @run_spec_function("lextreme")
 def get_lextreme_spec(subset: str) -> RunSpec:
+    task_type = get_lextreme_task_type(subset)
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lextreme_scenario.LEXTREMEScenario",
         args={"subset": subset},
@@ -1956,19 +1948,28 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         output_noun="Answer",
         max_tokens=get_lextreme_max_tokens(subset),
         max_train_instances=get_lextreme_max_train_instances(subset),  # in some subsets the input is very long
+        multi_label=(task_type == TaskType.MLTC),
     )
+
+    metric_specs = get_basic_metric_specs([])
+    if task_type == TaskType.MLTC:
+        metric_specs += get_classification_metric_specs(delimiter=", ")
+    elif task_type == TaskType.SLTC:
+        metric_specs += get_classification_metric_specs()
 
     return RunSpec(
         name=f"lextreme:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=build_classification_metrics(get_lextreme_task_type(subset)),
+        metric_specs=metric_specs,
         groups=["lextreme"],
     )
 
 
 @run_spec_function("lex_glue")
 def get_lex_glue_spec(subset: str) -> RunSpec:
+    task_type = get_lex_glue_task_type(subset)
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lex_glue_scenario.LexGLUEScenario",
         args={"subset": subset},
@@ -1980,13 +1981,20 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
         output_noun="Answer",
         max_tokens=get_lex_glue_max_tokens(subset),
         max_train_instances=get_lex_glue_max_train_instances(subset),  # in some subsets the input is very long
+        multi_label=(task_type == TaskType.MLTC),
     )
+
+    metric_specs = get_basic_metric_specs([])
+    if task_type == TaskType.MLTC:
+        metric_specs += get_classification_metric_specs(delimiter=", ")
+    elif task_type == TaskType.SLTC:
+        metric_specs += get_classification_metric_specs()
 
     return RunSpec(
         name=f"lex_glue:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=build_classification_metrics(get_lex_glue_task_type(subset)),
+        metric_specs=metric_specs,
         groups=["lex_glue"],
     )
 
@@ -2347,6 +2355,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
     elif task in ["dialogue_generation"]:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
+            instructions=format_instructions(prompt_setting.instructions),
             input_prefix="",
             output_prefix=f"{prompt_setting.output_noun}：",
             max_train_instances=1,
@@ -2355,7 +2364,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             temperature=0.9,
         )
         metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_cleva_generative_harms_metric_specs()
-    elif task in ["subject_knowledge"]:
+    elif task in ["closed_book_question_answering", "subject_knowledge"]:
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
             input_noun=prompt_setting.input_noun,
@@ -2366,6 +2375,18 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=150,
         )
         metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
+    elif task in ["summarization"]:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions=format_instructions(prompt_setting.instructions),
+            input_prefix="",
+            output_prefix=f"{prompt_setting.output_noun}：",
+            max_train_instances=1,
+            num_outputs=1,
+            max_tokens=200,
+            temperature=0.9,
+        )
+        metric_specs = get_basic_metric_specs(["chinese_rouge_2"]) + get_cleva_generative_harms_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 

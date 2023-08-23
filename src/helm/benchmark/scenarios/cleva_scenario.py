@@ -620,6 +620,8 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
 class CLEVASubjectKnowledgeScenario(CLEVAScenario):
     """
     The subject knowledge task of CLEVA benchmark.
+    We follow https://github.com/stanford-crfm/helm/tree/main/scripts/fact_completion to construct the Chinese dataset.
+    Considering the Chinese characteristics, we rewrite and extend the relations.
 
     An example is:
         补全下列句子中下划线处的实体。
@@ -734,3 +736,49 @@ class CLEVAParaphraseIdentificationScenario(CLEVAScenario):
             split=split,
         )
         return instance
+
+
+class CLEVAClosedBookQuestionAnsweringScenario(CLEVAScenario):
+    """
+    The closed-book QA task of CLEVA benchmark.
+
+    An example is:
+        问题：云南省少数民族语言文字工作条例是什么时候施行的？
+        答案：2013年5月1日
+
+        问题：天主教圣菲总教区什么时候创立的？
+        答案：
+
+    Target: 1850年
+    """
+
+    description = "Closed-book Question Answering task in CLEVA benchmark"
+    tags = ["closed_book_question_answering"]
+
+
+class CLEVASummarizationScenario(CLEVAScenario):
+    """
+    The summarization task of CLEVA task.
+
+    An example of dialogue summarization is:
+        用户：咨询订单号:[订单编号]
+        客服：有什么问题我可以帮您处理或解决呢?
+        用户：想退单
+        客服：亲爱哒，请问是什么原因您要退款呢是有其他人员通过微信或者QQ联系您刷单或者兑换门票的吗
+        用户：拍错了
+        用户：是的
+        客服：亲亲，虚拟商品属于及时交易到账，交易成功之后无法拦截，这就好比您去充值话费是一样的道理，已经交易到账，无法进行拦截呢
+        用户：没别的方法了?
+        客服：亲爱哒，虚拟订单一旦购买成功无法退回呢，请问您是否有将卡密截图提供给不法分子如还没有建议您可通过网址http://huishou.jd.com/card?cid=[数字]&pid=166168&skuId=[电话]查询是否有相关产品类型，可进行回收以此减少您的损失哦
+        客服：亲亲，请问您是否有将卡密截图提供给不法分子?
+        用户：这就是不法分子的卡密
+        客服：如果[姓名]没有使用的话还请您登录上面的网址链接进行回收操作
+        客服：如果提供了卡密虚拟订单一旦充值成功无法撤回呢，请您不要相信参与刷单，小妹这面建议您报警处理呢
+        客服：请问还有其他还可以帮到您的吗?
+        总结：
+
+    Target: 用户拍错了想申请退单。客服回答虚拟商品交易成功之后无法退单。
+    """
+
+    description = "Summarization task in CLEVA benchmark"
+    tags = ["summarizarion"]
