@@ -692,9 +692,9 @@ class CLEVACulturalKnowledgeScenario(CLEVAScenario):
     tags = ["cultural_knowledge", "multiple_choice"]
 
 
-class CLEVAReadingComprehensionScenario(CLEVAScenario):
+class CLEVAParaphraseIdentificationScenario(CLEVAScenario):
     """
-    The coreference resolution task of CLEVA benchmark.
+    The paraphrase identification task of CLEVA benchmark.
 
     An example is:
         下面这两个句子表达的意思是相同的吗？
