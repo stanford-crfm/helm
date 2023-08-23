@@ -652,6 +652,15 @@ def get_instruction_following_critique_metric_specs(num_respondents: int) -> Lis
     ]
 
 
+def get_cleva_topk_accuracy_metric_specs(k: int = 1, cut_off: int = 5) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_accuracy_metrics.CLEVATopKAccuracyMetric",
+            args={"k": k, "cut_off": cut_off},
+        )
+    ]
+
+
 def get_cleva_bias_metric_specs() -> List[MetricSpec]:
     demographic_categories = ["race", "gender"]
     target_categories = ["adjective", "profession"]
@@ -2348,6 +2357,8 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "cultural_knowledge",
         "paraphrase_identification",
         "bias",
+        "commonsense_reasoning",
+        "deductive_reasoning",
     ]:
         adapter_spec = get_multiple_choice_adapter_spec(
             method=method,
@@ -2358,6 +2369,17 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         metric_specs = get_exact_match_metric_specs()
         if task in ["fact_checking", "bias"]:
             metric_specs += get_cleva_classification_metric_specs()
+    elif task in ["conceptual_generalization"]:
+        adapter_spec = get_generation_adapter_spec(
+            instructions=prompt_setting.instructions,
+            input_noun=prompt_setting.input_noun,
+            newline_after_input_noun=prompt_setting.newline_after_input_noun,
+            output_noun=prompt_setting.output_noun,
+            newline_after_output_noun=prompt_setting.newline_after_output_noun,
+            max_train_instances=20,  # limited by the context length
+            max_tokens=10,
+        )
+        metric_specs = get_cleva_topk_accuracy_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["opinion_mining"]:
         # TODO: fetch the decoding parameters (e.g., max_tokens) online
         adapter_spec = get_generation_adapter_spec(

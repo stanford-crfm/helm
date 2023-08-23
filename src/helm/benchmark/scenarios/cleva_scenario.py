@@ -687,7 +687,7 @@ class CLEVASubjectKnowledgeScenario(CLEVAScenario):
     """
 
     description = "Subject knowledge task in CLEVA benchmark"
-    tags = ["subject_knowledge"]
+    tags = ["subject_knowledge", "knowledge"]
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         # Currently, HELM will concat all references as an answer in few-shot setting.
@@ -739,7 +739,7 @@ class CLEVACulturalKnowledgeScenario(CLEVAScenario):
     """
 
     description = "Cultural knowledge task in CLEVA benchmark"
-    tags = ["cultural_knowledge", "multiple_choice"]
+    tags = ["cultural_knowledge", "multiple_choice", "knowledge"]
 
 
 class CLEVAParaphraseIdentificationScenario(CLEVAScenario):
@@ -938,3 +938,95 @@ class CLEVACopyrightScenario(CLEVAScenario):
         self.splits: Dict[str, str] = {
             "test": TEST_SPLIT,
         }
+
+
+class CLEVAConceptualGeneralizationScenario(CLEVAScenario):
+    """
+    The conceptual generalization task of CLEVA benchmark.
+
+    An example is:
+        世界:
+        [0, 0, 0, 0, 0]
+        [0, 1, 0, 0, 0]
+        答案: 底
+
+        世界:
+        [0, 0, 1]
+        [0, 0, 0]
+        答案:
+
+    Target: 右
+    """
+
+    description = "Conceptual generalization task in CLEVA benchmark"
+    tags = ["conceptual_generalization", "reasoning"]
+
+
+class CLEVACommonsenseReasoningScenario(CLEVAScenario):
+    """
+    The commonsense reasoning task of CLEVA benchmark.
+
+    An textual entailment example is:
+        问题: 是否可以从“我们要继续向贫困宣战,决不让贫困代代相传”中推断出“贫困现象已经有所好转。”？
+        A. 总是可以
+        B. 有时可以
+        C. 不可以
+        答案: B
+
+        问题: 是否可以从“我像南方人,我一看就是南方人”中推断出“我是个外国人”？
+        A. 总是可以
+        B. 有时可以
+        C. 不可以
+        答案:
+
+    Target: C
+    """
+
+    description = "Commonsense reasoning task in CLEVA benchmark"
+    tags = ["commonsense reasoning", "reasoning", "multiple_choice"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        if self.subtask is None:
+            raise ValueError("The subtask must be specified for CLEVA commonse reasoning task")
+        if self.subtask == "textual_entailment":
+            mappings = {"contradiction": "不可以", "neutral": "有时可以", "entailment": "总是可以"}
+
+            sentence1: str = row["sentence1"]
+            sentence2: str = row["sentence2"]
+            text: str = f"是否可以从“{sentence1}”中推断出“{sentence2}”？"
+            answers: List[str] = [mappings[c] for c in row["choices"]]
+            correct_choice: List[int] = row["label"]
+            correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+            references: List[Reference] = [
+                self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+            ]
+        else:
+            raise ValueError(f"The specified subtask '{self.subtask}' is not supported")
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVADeductiveReasoningScenario(CLEVAScenario):
+    """
+    The deductive reasoning task of CLEVA benchmark.
+
+    An example of modus_tollens subtask is:
+        考虑以下语句：
+        1.如果詹姆斯是加拿大航空公司的飞行员，那么詹姆斯就是一名飞行员。
+        2.詹姆斯不是飞行员。
+        结论：因此，詹姆斯不是加拿大航空公司的飞行员。
+
+        问题：根据陈述1.和2.，结论是否正确？
+        A. 否
+        B. 是
+
+    Target: B
+    """
+
+    description = "Deductive reasoning task in CLEVA benchmark"
+    tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
