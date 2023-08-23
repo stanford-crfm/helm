@@ -10,6 +10,8 @@ from nltk.translate.bleu_score import corpus_bleu
 class CLEVAParaphraseGenerationMetric(Metric):
     """
     Compute the Chinese iBLEU score for Paraphrase Generation scenarios of CLEVA benchmark.
+    This implementation allows variable number of references (i.e., golds).
+    If there are more than one hypothesis (i.e., preds), only the first one is adopted in the calculation.
 
     Reference:
     https://aclanthology.org/2022.acl-long.178.pdf
@@ -19,20 +21,24 @@ class CLEVAParaphraseGenerationMetric(Metric):
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
 
         inputs: List = []
-        golds: List = []
         preds: List = []
+        golds: List[List[str]] = []
 
         for request_state in request_states:
             inputs.append(request_state.instance.input.text)
 
-            golds.append(request_state.instance.references[0].output.text)
-
             assert request_state.result is not None
             preds.append(request_state.result.completions[0].text)
 
-        alpha = 0.8  # to calculate ibleu0.8
-        bleu = corpus_bleu([[i for i in golds]], [[i for i in preds]], weights=(1, 0, 0, 0))
-        sbleu = corpus_bleu([[i for i in inputs]], [[i for i in preds]], weights=(1, 0, 0, 0))
+            golds.append([reference.output.text for reference in request_state.instance.references])
+
+        tokenized_inputs = [[[i for i in input]] for input in inputs]
+        tokenized_preds = [[i for i in pred] for pred in preds]
+        tokenized_golds = [[[i for i in gold] for gold in references] for references in golds]
+
+        alpha = 0.8  # to calculate iBLEU_0.8
+        bleu = corpus_bleu(tokenized_golds, tokenized_preds, weights=(1, 0, 0, 0))
+        sbleu = corpus_bleu(tokenized_inputs, tokenized_preds, weights=(1, 0, 0, 0))
         chinese_ibleu_score = alpha * bleu - (1 - alpha) * sbleu
 
         return [Stat(MetricName("chinese_ibleu")).add(chinese_ibleu_score)]
