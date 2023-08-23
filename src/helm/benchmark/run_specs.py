@@ -2339,6 +2339,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "paraphrase_identification",
         "bias",
         "commonsense_reasoning",
+        "deductive_reasoning",
     ]:
         adapter_spec = get_multiple_choice_adapter_spec(
             method=method,
