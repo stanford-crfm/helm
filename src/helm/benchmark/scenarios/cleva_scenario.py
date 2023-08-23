@@ -75,8 +75,8 @@ class CLEVAScenario(Scenario):
 
         return dataset
 
-    @classmethod
-    def load_prompt_settings(cls, task: str, subtask: Optional[str], version: str) -> Dict:
+    @staticmethod
+    def load_prompt_settings(task: str, subtask: Optional[str], version: str) -> Dict[str, Any]:
         prompt_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
         if subtask:
             prompt_dir = os.path.join(prompt_dir, subtask)
@@ -86,7 +86,7 @@ class CLEVAScenario(Scenario):
                 prompt_settings = json.load(fin)
         else:
             raise ValueError(f"Missing prompt setting file at '{file_path}'")
-        return prompt_settings[0]
+        return prompt_settings[0]  # Currently, we only take the first prompt setting.
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
@@ -100,18 +100,19 @@ class CLEVAScenario(Scenario):
 
         return instances
 
+    @staticmethod
+    def multiple_choice_answer_to_reference(answer: str, correct_answer: List[str]) -> Reference:
+        return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer in correct_answer else [])
+
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         text: str = row["text"]
         if "choices" in row.keys():
             answers: List[str] = row["choices"]
             correct_choice: List[int] = row["label"]
-
             correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-
-            def answer_to_reference(answer: str) -> Reference:
-                return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer in correct_answer else [])
-
-            references: List[Reference] = list(map(answer_to_reference, answers))
+            references: List[Reference] = [
+                self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+            ]
         else:
             correct_answer = row["label"]
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
@@ -184,7 +185,7 @@ class CLEVATextClassificationScenario(CLEVAScenario):
 
     # name = "cleva_text_classification"
     description = "Text classification task in CLEVA benchmark"
-    tags = ["multiple_choice"]
+    tags = ["text_classification", "multiple_choice"]
 
 
 class CLEVAOpinionMiningScenario(CLEVAScenario):
@@ -266,7 +267,7 @@ class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
 
     # name = "cleva_classical_chinese_understanding"
     description = "Classical Chinese understanding task in CLEVA benchmark"
-    tags = ["classical_chinese_understanding"]
+    tags = ["classical_chinese_understanding", "multiple_choice"]
 
 
 class CLEVASentimentAnalysisScenario(CLEVAScenario):
@@ -308,7 +309,7 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
 
     # name = "cleva_instruction_following"
     description = "Instruction following task in CLEVA benchmark"
-    tags = ["instruction_following"]
+    tags = ["instruction_following", "multiple_choice"]
 
     def __init__(
         self,
@@ -341,11 +342,11 @@ class CLEVAFactCheckingScenario(CLEVAScenario):
         C. 信息不足
         答案：
 
-    Target: 真实
+    Target: A
     """
 
     description = "Fact checking task in CLEVA benchmark"
-    tags = ["fact_checking", "harms"]
+    tags = ["fact_checking", "harms", "multiple_choice"]
 
 
 class CLEVATranslationScenario(CLEVAScenario):
@@ -427,3 +428,311 @@ class CLEVAParaphraseGenerationScenario(CLEVAScenario):
     # name = "cleva_paraphrase_generation"
     description = "Paraphrase generation task in CLEVA benchmark"
     tags = ["paraphrase_generation"]
+
+    
+class CLEVAIntentUnderstandingScenario(CLEVAScenario):
+    """
+    The intent understanding task of CLEVA benchmark.
+
+    An example is:
+        阅读以下材料，回答单项选择题：
+
+        美国科学家声称，每人生来有两个脑，即颅脑与肠脑。肠脑位于食管、胃脏、小肠与结肠内层组织的鞘中，含有神经细胞、神经传递质、蛋白质和
+        复杂的环行线路。结肠炎、过敏性肠综合症等都与肠脑内产生的问题有关。肠脑中几乎能找到颅脑赖以运转和控制的所有物质，如血清素、多巴胺、
+        谷氨酸、去甲肾上腺素、一氧化氮等。此外，肠脑中还存在多种被称为神经肽的脑蛋白、脑啡肽以及对神经起显著作用的化学物质。颅脑面临惊恐时
+        释出的应激激素会冲击胃脏以生痉挛；惊恐又引起交感神经影响肠脑的血清素分泌量。应激激素过分刺激还会导致腹泻。当情绪压抑时，食管神经
+        受到高度刺激会感到吞咽困难；颅脑释出的应激激素还会改变胃脏与食管间的神经功能，导致胃灼热。最初的脑神经系统起始于管形动物，生存竞争
+        需要更复杂的颅脑，从而发展了中枢神经系统。重要的肠神经系统不能进入头颅与胃肠相联，而为了适应高级动物进食和消化的需要，自然法则就
+        保存了有独立功能的肠神经系统。就人而言，早期胚胎发育中产生的神经脊，一部分进入了中枢神经系统，另一部分变成肠神经系统，通过迷走神经
+        连接两者——颅脑和肠脑。
+
+        下列解说，符合原文意思的一项是：
+        A. 应激激素作用于肠脑引起肠神经系统化学物质的改变。
+        B. 情绪的变化是肠脑和颅脑发生联系的重要渠道。
+        C. 进食和消化的需要是肠神经系统形成的基础条件。
+        D. 重要的肠神经系统因不能进入头颅而成为独立系统。
+        答案：D
+
+        1990年，加拿大多伦多大学的米切尔·洛林宣布，在2.6亿年以前，栖息在美国得克萨斯山区一种外形像蜥蜴的名叫四角龙的爬行动物，确实是
+        哺乳动物的远古“亲戚”，从而填补了进化链中从爬行动物到哺乳动物中缺少的一环。\n1987年，米切尔·洛林研究了一块盘龙类的头骨化石。
+        随着研究的深入，化石上的一些细节却使他困惑不解。因为大多数的盘龙类在腭部有很大的孔，而在较进化的兽孔类身上，这个孔已被封闭，四角龙
+        也有一个腭孔，但已明显缩小，其直径仅仅为0.635厘米。此外，盘龙类在头部背面有一块很大的骨，用以支持颌骨，在兽孔类中，这块骨头已大大
+        缩小了，而四角龙的这块骨要较兽孔类大，又较盘龙类稍小。更为重要的是，四角龙的头角上有个骨架，穿越颞孔的咀嚼肌像兽孔类那样直接依附
+        其上，而不像盘龙类那样由肌腱相接。\n这些发现使洛林相信，四角龙是盘龙类和兽孔类之间的一个过渡类型。他又把从12块盘龙类和兽孔类动物化石
+        中获得的信息输入电脑（包括腭孔、颞孔形状，头颅骨形状，牙齿数量和着生位置等），然后由电脑判断出两者之间的联系。结果表明，在进化树上，
+        通向兽孔类一边的第一个分叉就是四角龙。
+
+        文中“直接依附其上”的“其”字指代的是：
+        A. 四角龙的头角
+        B. 头角上的骨架
+        C. 被穿越的颞孔
+        D. 穿越颞孔的肌肉
+        答案：
+
+    Target: B
+    """
+
+    description = "Intent understanding task in CLEVA benchmark"
+    tags = ["intent_understanding", "multiple_choice"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        context: str = row["context"]
+        question: str = row["question"]
+        text: str = f"{context}\n\n问题：{question}"
+        answers: List[str] = row["choices"]
+        correct_choice: List[int] = row["label"]
+        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+        references: List[Reference] = [
+            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+        ]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVACoreferenceResolutionScenario(CLEVAScenario):
+    """
+    The coreference resolution task of CLEVA benchmark.
+
+    An example is:
+        不过还有一峰骆驼更是出尽洋相，不但脖子上缠了四五朵塑料花，耳朵上还各绑了一团红红绿绿的花布，背上还抹了一大团鲜艳的红。
+        时常见它花枝招展、喜气洋洋地在驻地附近走来走去。
+        在上文中，“背”和“它”是否指代了同一个对象？
+        A. 不是
+        B. 是
+        答案：A
+
+        渐渐地，汤中凝结出一团团块状物，将它们捞起放进盆里冷却，肥皂便出现在世上了。
+        在上文中，“块状物”和“它们”是否指代了同一个对象？
+        A. 不是
+        B. 是
+        答案：
+
+    Target: B
+    """
+
+    description = "Coreference resolution task in CLEVA benchmark"
+    tags = ["coreference_resolution", "multiple_choice"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        context: str = row["context"]
+        span1: str = row["span1"]
+        span2: str = row["span2"]
+        text: str = f"{context}\n在上文中，“{span1}”和“{span2}”是否指代了同一个对象？\n"
+        answers: List[str] = row["choices"]
+        correct_choice: List[int] = row["label"]
+        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+        references: List[Reference] = [
+            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+        ]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVAReadingComprehensionScenario(CLEVAScenario):
+    """
+    The coreference resolution task of CLEVA benchmark.
+
+    An example is:
+        阅读以下内容，选择合适的选项回答问题。
+
+        尽管方便快捷的“网络阅读”已经成为了一种生活时尚，但纸质阅读仍然发挥着很大的作用。日前，我们通过问卷调查、现场采访的方式对不同
+        阶层的读者进行了调查，结果显示，市民电子阅读的兴趣日渐提高，但很多人仍在坚守传统的纸质阅读。\n在为期三天的阅读习惯调查中，记者
+        发现，经常上网浏览书籍的读者占被调查者的60%，而从不选择上网浏览的读者仅占25%；在喜欢的阅读方式调查中，喜爱纸质阅读的读者高达90%，
+        占绝对优势，而喜欢网上阅读的人只占到8%，很明显，读者还是更喜爱传统的阅读方式。\n许多读者表示传统图书提供了非常明了、有用的信息，
+        阅读时没有广告等干扰，有效地防止了一些时间的浪费。另外，多数读者认为长期对着屏幕阅读，也容易带来很多后遗症：眼干、肩膀疼、腰疼等。
+        纸质阅读更有利于保护眼睛。采访中，很多读者认为纸质书带给我们的不仅仅是书中的文字，更是手捧文化的一种美妙感觉，这是任何形式的电子
+        阅读器都无法做到的。
+
+        问题：被调查者的阅读习惯有：
+        A. 少数人接受纸质阅读
+        B. 年轻人喜欢网络阅读
+        C. 多数人经常上网阅读
+        D. 大部分记者习惯网上阅读
+        答案：C
+
+        去年中国汽车生产和销售分别为1379.10万辆和1364.48万辆，首次成为世界汽车生产销售第一大国。其中家庭用车的销售量是汽车销售
+        总量的51%，占乘用车销售总量的44%。
+
+        问题：请选出与试题内容一致的一项。
+        A. 去年中国汽车销售量大于生产量
+        B. 去年中国再次成为汽车第一大国
+        C. 去年中国乘用车的销售量比例是44%
+        D. 去年中国家庭用车的销售量超过总销售量的一半
+        答案：
+
+    Target: D
+    """
+
+    description = "Reading comprehension task in CLEVA benchmark"
+    tags = ["reading_comprehension", "multiple_choice"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        context: str = row["context"]
+        question: str = row["question"]
+        text: str = f"{context}\n\n问题：{question}\n"
+        answers: List[str] = row["choices"]
+        correct_choice: List[int] = row["label"]
+        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+        references: List[Reference] = [
+            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+        ]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVADialogueGenerationScenario(CLEVAScenario):
+    """
+    The dialogue generation task of CLEVA benchmark.
+
+    An example is:
+        请根据对话历史回复用户询问。
+
+        用户：你好，我想找一个价格是1000元以上，评分是4.5分以上的酒店，有什么好的地方给我推荐吗？
+        系统：给你推荐北京昆泰嘉华酒店，完全符合你的条件呢。
+        用户：是吗，该酒店是什么类型啊？
+        系统：豪华型酒店。
+        用户：好的，能帮我查一下它家是否提供商务中心吗？
+        系统：酒店提供商务中心的。
+        用户：太好了，定完酒店，我打算找个评分是4.5分以上，游玩时长是1小时 - 2小时，票价是200元以上的景点游玩，给我点建议好吗？
+        系统：乐多港奇幻乐园是个不错的去处，非常好玩的。
+        用户：好啊，就去乐多港奇幻乐园玩吧，景点周边有酒店吗？
+        系统：
+
+    Target: 嗯，周边有一个如家快捷酒店(北京昌平鼓楼西街店)。
+    """
+
+    description = "Dialogue generation task in CLEVA benchmark"
+    tags = ["dialogue_generation"]
+
+    def get_instances(self) -> List[Instance]:
+        # Download the raw data
+        dataset = self.load_dataset()
+
+        # Read all the instances
+        instances: List[Instance] = []
+        for split in self.splits:
+            for row in dataset[split]:
+                # One row could contain multiple conversation instances.
+                instances.extend(self.process_dialogue_instance(row, self.splits[split]))
+
+        return instances
+
+    def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
+        instances: List[Instance] = []
+        text: str = ""
+        speaker_mapping = {"sys": "系统", "usr": "用户"}
+        dialog = row["dialogue"]
+
+        for turn_id, utt in enumerate(dialog):
+
+            content: str = utt["content"]
+            speaker: str = utt["role"]
+
+            # For task-oriented dialogue tasks, agents should response to users' questions according to the history.
+            if speaker == "sys" and turn_id > 0:
+                correct_answer = [content]
+                references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
+
+                instance = Instance(
+                    input=Input(text=text),
+                    references=references,
+                    split=split,
+                )
+                instances.append(instance)
+
+            # append history utterances
+            if turn_id > 0:
+                text += "\n"
+            text += "{speaker}: {content}".format(speaker=speaker_mapping[speaker], content=content)
+
+        return instances
+
+
+class CLEVASubjectKnowledgeScenario(CLEVAScenario):
+    """
+    The subject knowledge task of CLEVA benchmark.
+
+    An example is:
+        补全下列句子中下划线处的实体。
+
+        输入：礼记所处的年代是__。
+        输出：周朝
+
+        输入：慕容复出现在作品《__》中。
+        输出：天龙八部
+
+        输入：古剑奇谭在__首次播放。
+        输出：
+
+    Target: 湖南卫视
+    """
+
+    description = "Subject knowledge task in CLEVA benchmark"
+    tags = ["subject_knowledge"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        # Currently, HELM will concat all references as an answer in few-shot setting.
+        # This function ensure that there is only one reference for each instance.
+        text: str = row["text"]
+
+        # truncate the label
+        correct_answer = row["label"][:1]
+        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVACulturalKnowledgeScenario(CLEVAScenario):
+    """
+    The cultural knowledge task of CLEVA benchmark.
+
+    An idiom example is:
+        请根据文段内容补全下划线处的成语。
+
+        文本: 王俊凯登杂志封面挑战日式发型少年____娱乐微小二2021-03-09 16:07:14 1/12王俊凯为时尚杂志拍摄的写真曝光,封面中的他,突破以往风格,首次尝试日系长发造型,
+        身穿黑色剪裁西装,搭配金丝边眼镜,雅痞气质无比吸睛。0...
+        A. 大错特错
+        B. 化为乌有
+        C. 红颜薄命
+        D. 委曲求全
+        E. 富丽堂皇
+        F. 逢凶化吉
+        G. 初露锋芒
+        答: G
+
+        文本: 1997年上映的电影《宋家王朝》中,影星杨紫琼,张曼玉,邬君梅,分别扮演宋霭龄,宋庆龄,宋美龄,其片头语“遥远的旧中国有三姐妹,一个爱钱,一个爱国,一个爱权”不胫而走,
+        却也____,成为对宋氏三姐妹的总体评价。图中是《宋家王朝》的...
+        A. 异想天开
+        B. 时移世易
+        C. 半生半熟
+        D. 言之凿凿
+        E. 大有可为
+        F. 喧宾夺主
+        G. 焕然一新
+        答:
+
+    Target: D
+    """
+
+    description = "Cultural knowledge task in CLEVA benchmark"
+    tags = ["cultural_knowledge", "multiple_choice"]
