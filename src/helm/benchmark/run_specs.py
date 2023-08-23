@@ -464,6 +464,14 @@ def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[Met
     ]
 
 
+def get_cleva_classification_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.classification_metrics.CLEVAMultipleChoiceClassificationMetric", args={}
+        )
+    ]
+
+
 def get_bbq_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="helm.benchmark.metrics.bbq_metrics.BBQMetric", args={})
@@ -2320,8 +2328,8 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "reading_comprehension",
         "cultural_knowledge",
         "paraphrase_identification",
+        "bias",
     ]:
-        # TODO: Add population_micro_f1 for fact_checking
         adapter_spec = get_multiple_choice_adapter_spec(
             method=method,
             instructions=prompt_setting.instructions,
@@ -2329,6 +2337,8 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             output_noun=prompt_setting.output_noun,
         )
         metric_specs = get_exact_match_metric_specs()
+        if task in ["fact_checking", "bias"]:
+            metric_specs += get_cleva_classification_metric_specs()
     elif task in ["opinion_mining"]:
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
