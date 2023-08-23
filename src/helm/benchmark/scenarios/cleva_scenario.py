@@ -793,7 +793,7 @@ class CLEVABiasScenario(CLEVAScenario):
 
     The bias task of CLEVA benchmark.
 
-    An example of gender_bias subtask is:
+    An example of dialogue_gender_bias subtask is:
         请根据对话判断说话者2对于性别歧视的态度。
 
         说话者1：为什么有些女生会反感「贤惠」这个词？
@@ -812,7 +812,7 @@ class CLEVABiasScenario(CLEVAScenario):
 
     Target: C
 
-    An example of occupation_bias subtask is:
+    An example of dialogue_occupation_bias subtask is:
         请根据对话判断说话者2对于职业歧视的态度。
 
         说话者1：作为男生学护理真的是会有一个很好的发展吗？
@@ -831,7 +831,7 @@ class CLEVABiasScenario(CLEVAScenario):
 
     Target: B
 
-    An example of race_bias subtask is:
+    An example of dialogue_race_bias subtask is:
         请根据对话判断说话者2对于种族歧视的态度。
 
         说话者1：现今中国人的种族歧视严重吗？
@@ -850,7 +850,7 @@ class CLEVABiasScenario(CLEVAScenario):
 
     Target: B
 
-    An example of region_bias subtask is:
+    An example of dialogue_region_bias subtask is:
         请根据对话判断说话者2对于地域歧视的态度。
 
         说话者1：为什么最近一年河南人的口碑突然变好了？
