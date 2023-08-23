@@ -924,7 +924,7 @@ class CLEVADeductiveReasoningScenario(CLEVAScenario):
     """
     The deductive reasoning task of CLEVA benchmark.
 
-    An example is:
+    An example of modus_tollens subtask is:
         考虑以下语句：
         1.如果詹姆斯是加拿大航空公司的飞行员，那么詹姆斯就是一名飞行员。
         2.詹姆斯不是飞行员。
@@ -938,4 +938,4 @@ class CLEVADeductiveReasoningScenario(CLEVAScenario):
     """
 
     description = "Deductive reasoning task in CLEVA benchmark"
-    tags = ["deductive_reasoning", "multiple_choice"]
+    tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
