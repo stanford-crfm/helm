@@ -622,6 +622,15 @@ def get_cleva_machine_translation_metric_specs() -> List[MetricSpec]:
     ] + get_basic_metric_specs([])
 
 
+def get_cleva_paraphrase_generation_metric_specs(alpha: float = 0.8) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.paraphrase_generation_metrics.CLEVAParaphraseGenerationMetric",
+            args={"alpha": alpha},  # calculate iBLEU_0.8 by default
+        )
+    ] + get_basic_metric_specs([])
+
+
 def get_verifiability_judgment_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match"])
 
@@ -2305,6 +2314,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "sentiment_analysis",
         "instruction_following",
         "fact_checking",
+        "toxicity_detection",
         "intent_understanding",
         "coreference_resolution",
         "reading_comprehension",
@@ -2352,6 +2362,17 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=200,
         )
         metric_specs = get_cleva_machine_translation_metric_specs() + get_cleva_generative_harms_metric_specs()
+    elif task in ["paraphrase_generation"]:
+        adapter_spec = get_generation_adapter_spec(
+            instructions=prompt_setting.instructions,
+            input_noun=prompt_setting.input_noun,
+            newline_after_input_noun=prompt_setting.newline_after_input_noun,
+            output_noun=prompt_setting.output_noun,
+            newline_after_output_noun=prompt_setting.newline_after_output_noun,
+            max_train_instances=5,  # limited by the context length
+            max_tokens=200,
+        )
+        metric_specs = get_cleva_paraphrase_generation_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["dialogue_generation"]:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
