@@ -690,3 +690,47 @@ class CLEVACulturalKnowledgeScenario(CLEVAScenario):
 
     description = "Cultural knowledge task in CLEVA benchmark"
     tags = ["cultural_knowledge", "multiple_choice"]
+
+
+class CLEVAReadingComprehensionScenario(CLEVAScenario):
+    """
+    The coreference resolution task of CLEVA benchmark.
+
+    An example is:
+        下面这两个句子表达的意思是相同的吗？
+
+        句子1：你能嘴甜一点吗
+        句子2：说点好听的
+        A. 不是
+        B. 是
+        答：B
+
+        句子1：我喜欢你那你喜欢我吗
+        句子2：你喜欢我不我也喜欢你
+        A. 不是
+        B. 是
+        答：
+
+    Target: A
+    """
+
+    description = "Paraphrase identification task in CLEVA benchmark"
+    tags = ["paraphrase_identification", "multiple_choice"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        sentence1: str = row["sentence1"]
+        sentence2: str = row["sentence2"]
+        text: str = f"句子1：{sentence1}\n句子2：{sentence2}\n"
+        answers: List[str] = row["choices"]
+        correct_choice: List[int] = row["label"]
+        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+        references: List[Reference] = [
+            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+        ]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
