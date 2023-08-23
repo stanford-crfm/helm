@@ -7,6 +7,8 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.basic_metrics import normalize_text
 from helm.benchmark.metrics.metric import Metric, MetricName
 from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.scenarios.scenario import Reference
+from helm.common.request import Sequence
 
 
 class ClassificationMetric(Metric):
@@ -67,4 +69,41 @@ class ClassificationMetric(Metric):
         return [
             Stat(MetricName("classification_macro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="macro")),
             Stat(MetricName("classification_micro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="micro")),
+        ]
+
+
+class CLEVAMultipleChoiceClassificationMetric(Metric):
+    """
+    Calculate population micro/macro F1 score for CLEVA benchmark.
+    Intends to works for multiple_choice_* adapters.
+    """
+
+    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+        y_pred: List[str] = []
+        y_true: List[str] = []
+        for request_state in request_states:  # one request state per instance
+            if request_state.reference_index is None:
+                raise ValueError("CLEVAMultipleChoiceClassificationMetric are designed for multiple_choice_* adapters")
+            if request_state.request_mode == "calibration":
+                raise ValueError("ClassificationMetric does not support calibration requests")
+            golds: List[Reference] = [
+                reference for reference in request_state.instance.references if reference.is_correct
+            ]
+            assert len(golds) > 0
+            assert request_state.result is not None
+            sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+            preds: List[str] = [completion.text.strip() for completion in sorted_completions]
+            if request_state.output_mapping is not None:
+                preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
+
+            y_true.append(golds[0].output.text)
+            y_pred.append(preds[0])
+
+        return [
+            Stat(MetricName("cleva_classification_macro_f1")).add(
+                f1_score(y_pred=y_pred, y_true=y_true, average="macro")
+            ),
+            Stat(MetricName("cleva_classification_micro_f1")).add(
+                f1_score(y_pred=y_pred, y_true=y_true, average="micro")
+            ),
         ]
