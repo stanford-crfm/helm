@@ -82,22 +82,22 @@ class CLEVAMultipleChoiceClassificationMetric(Metric):
         y_pred: List[str] = []
         y_true: List[str] = []
         for request_state in request_states:  # one request state per instance
-            if request_state.reference_index is None:
-                raise ValueError("CLEVAMultipleChoiceClassificationMetric are designed for multiple_choice_* adapters")
+            # if request_state.reference_index is None:
+            #     raise ValueError("CLEVAMultipleChoiceClassificationMetric are designed for multiple_choice_ adapters")
             if request_state.request_mode == "calibration":
                 raise ValueError("ClassificationMetric does not support calibration requests")
             golds: List[Reference] = [
                 reference for reference in request_state.instance.references if reference.is_correct
             ]
-            assert len(golds) > 0
+            assert len(golds) > 0, "CLEVAMultipleChoiceClassificationMetric are designed for multiple_choice_* adapters"
             assert request_state.result is not None
             sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
-            preds: List[str] = [completion.text.strip() for completion in sorted_completions]
+            pred: str = sorted_completions[0].text.strip()  # Only utilize the first prediction
             if request_state.output_mapping is not None:
-                preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
+                pred = request_state.output_mapping.get(pred)  # type: ignore
 
             y_true.append(golds[0].output.text)
-            y_pred.append(preds[0])
+            y_pred.append(pred)
 
         return [
             Stat(MetricName("cleva_classification_macro_f1")).add(
