@@ -620,11 +620,11 @@ def get_cleva_machine_translation_metric_specs() -> List[MetricSpec]:
     ] + get_basic_metric_specs([])
 
 
-def get_cleva_paraphrase_generation_metric_specs() -> List[MetricSpec]:
+def get_cleva_paraphrase_generation_metric_specs(alpha: float = 0.8) -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.paraphrase_generation_metrics.CLEVAParaphraseGenerationMetric",
-            args={"alpha": 0.8},  # calculate iBLEU_0.8 by default
+            args={"alpha": alpha},  # calculate iBLEU_0.8 by default
         )
     ] + get_basic_metric_specs([])
 
