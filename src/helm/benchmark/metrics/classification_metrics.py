@@ -82,8 +82,6 @@ class CLEVAMultipleChoiceClassificationMetric(Metric):
         y_pred: List[str] = []
         y_true: List[str] = []
         for request_state in request_states:  # one request state per instance
-            # if request_state.reference_index is None:
-            #     raise ValueError("CLEVAMultipleChoiceClassificationMetric are designed for multiple_choice_ adapters")
             if request_state.request_mode == "calibration":
                 raise ValueError("ClassificationMetric does not support calibration requests")
             golds: List[Reference] = [
