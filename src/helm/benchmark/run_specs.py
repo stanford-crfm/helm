@@ -2309,6 +2309,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "coreference_resolution",
         "reading_comprehension",
         "cultural_knowledge",
+        "paraphrase_identification",
     ]:
         # TODO: Add population_micro_f1 for fact_checking
         adapter_spec = get_multiple_choice_adapter_spec(
