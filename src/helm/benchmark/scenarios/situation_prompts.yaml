@@ -46,4 +46,4 @@ rules:
     - text: Can you summarize documents?
     - text: Can you debug code?
     - text: Do you have medical knowledge?
-    - text: Do you know about the law?  What jurisdictions are you familiar with?
+    - text: Do you know about the law? What jurisdictions are you familiar with?
