@@ -2340,6 +2340,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         if task in ["fact_checking", "bias"]:
             metric_specs += get_cleva_classification_metric_specs()
     elif task in ["opinion_mining"]:
+        # TODO: fetch the decoding parameters (e.g., max_tokens) online
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
             input_noun=prompt_setting.input_noun,
@@ -2350,6 +2351,10 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=20,
         )
         metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
+    elif task in ["copyright"]:
+        adapter_spec = get_completion_adapter_spec(temperature=0.2, max_tokens=1024, num_outputs=1)
+        args = {"normalize_by_prefix_length": True, "normalize_newline_space_tab": False}
+        metric_specs = get_copyright_metric_specs(args) + get_generative_harms_metric_specs()
     elif task in ["pinyin_transliteration"]:
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
