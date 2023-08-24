@@ -2,9 +2,6 @@ from cattrs import unstructure
 import threading
 from typing import Dict, List
 
-import surge
-from surge import questions as surge_questions
-
 from helm.common.cache import Cache, CacheConfig
 from helm.common.critique_request import (
     CritiqueQuestionTemplate,
@@ -14,7 +11,14 @@ from helm.common.critique_request import (
     CritiqueTaskTemplate,
 )
 from helm.common.hierarchical_logger import hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.proxy.clients.critique_client import CritiqueClient
+
+try:
+    import surge
+    from surge import questions as surge_questions
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 _surge_cache_lock = threading.Lock()

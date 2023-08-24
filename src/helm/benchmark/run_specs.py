@@ -35,7 +35,6 @@ from .scenarios.lex_glue_scenario import (
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
-from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
 from .scenarios.lextreme_scenario import (
@@ -464,6 +463,14 @@ def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[Met
     ]
 
 
+def get_cleva_classification_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.classification_metrics.CLEVAMultipleChoiceClassificationMetric", args={}
+        )
+    ]
+
+
 def get_bbq_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="helm.benchmark.metrics.bbq_metrics.BBQMetric", args={})
@@ -640,6 +647,15 @@ def get_instruction_following_critique_metric_specs(num_respondents: int) -> Lis
         MetricSpec(
             class_name="helm.benchmark.metrics.instruction_following_critique_metrics.InstructionFollowingCritiqueMetric",  # noqa E501
             args={"num_respondents": num_respondents},
+        )
+    ]
+
+
+def get_cleva_topk_accuracy_metric_specs(k: int = 1, cut_off: int = 5) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_accuracy_metrics.CLEVATopKAccuracyMetric",
+            args={"k": k, "cut_off": cut_off},
         )
     ]
 
@@ -1053,6 +1069,8 @@ def get_raft_spec(subset: str) -> RunSpec:
 def get_numeracy_spec(
     relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
+    from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+
     run_solver: bool = True if run_solver == "True" else False  # type: ignore
     random_seed = int(seed)
     scenario_spec = ScenarioSpec(
@@ -2320,8 +2338,10 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "reading_comprehension",
         "cultural_knowledge",
         "paraphrase_identification",
+        "bias",
+        "commonsense_reasoning",
+        "deductive_reasoning",
     ]:
-        # TODO: Add population_micro_f1 for fact_checking
         adapter_spec = get_multiple_choice_adapter_spec(
             method=method,
             instructions=prompt_setting.instructions,
@@ -2329,6 +2349,19 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             output_noun=prompt_setting.output_noun,
         )
         metric_specs = get_exact_match_metric_specs()
+        if task in ["fact_checking", "bias"]:
+            metric_specs += get_cleva_classification_metric_specs()
+    elif task in ["conceptual_generalization"]:
+        adapter_spec = get_generation_adapter_spec(
+            instructions=prompt_setting.instructions,
+            input_noun=prompt_setting.input_noun,
+            newline_after_input_noun=prompt_setting.newline_after_input_noun,
+            output_noun=prompt_setting.output_noun,
+            newline_after_output_noun=prompt_setting.newline_after_output_noun,
+            max_train_instances=20,  # limited by the context length
+            max_tokens=10,
+        )
+        metric_specs = get_cleva_topk_accuracy_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["opinion_mining"]:
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
@@ -2395,7 +2428,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_train_instances=5,  # limited by the context length
             max_tokens=150,
             temperature=1,
-            stop_sequences=["\n"]
+            stop_sequences=["\n"],
         )
         metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["summarization"]:
