@@ -1033,7 +1033,7 @@ class CLEVAInductiveReasoningScenario(CLEVAScenario):
     """
 
     description = "Inductive Reasoing task in CLEVA benchmark."
-    tags = ["inductive_reasoning"]
+    tags = ["inductive_reasoning", "reasoning"]
 
 
 class CLEVAReasoningPrimitiveScenario(CLEVAScenario):
@@ -1084,4 +1084,4 @@ class CLEVAReasoningPrimitiveScenario(CLEVAScenario):
     """
 
     description = "Reasoning primitive task in CLEVA benchmark."
-    tags = ["reasoning_primitive"]
+    tags = ["reasoning_primitive", "reasoning"]
