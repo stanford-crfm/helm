@@ -90,14 +90,15 @@ def figure_out_max_prompt_length(
 
     # Perform a binary search to find the max tokens between lower_bound and upper_bound
     lower_bound += num_tokens_prefix + num_tokens_suffix
-    with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
-        while lower_bound < upper_bound:
-            middle = math.ceil((lower_bound + upper_bound) / 2)
-            if try_request(client, model_name, tokenizer_name, tokenizer_client, middle, 0, prefix, suffix):
-                lower_bound = middle
-            else:
-                upper_bound = middle - 1
-            pbar.update(1)
+    pbar = tqdm(total=int(math.log2(upper_bound - lower_bound)))
+    while lower_bound < upper_bound:
+        middle = math.ceil((lower_bound + upper_bound) / 2)
+        if try_request(client, model_name, tokenizer_name, tokenizer_client, middle, 0, prefix, suffix):
+            lower_bound = middle
+        else:
+            upper_bound = middle - 1
+        pbar.update(1)
+    pbar.close()
 
     # Just in case the number of tokens does not match the number of words, check number of tokens with tokenizer
     max_prompt_length = get_number_of_tokens(
@@ -142,16 +143,15 @@ def figure_out_max_prompt_length_plus_tokens(
         print("The model has a limit on the number of tokens")
 
     # Perform a binary search to find the max tokens between lower_bound and upper_bound
-    with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
-        while lower_bound < upper_bound:
-            middle = math.ceil((lower_bound + upper_bound) / 2)
-            if try_request(
-                client, model_name, tokenizer_name, tokenizer_client, max_prompt_length, middle, prefix, suffix
-            ):
-                lower_bound = middle
-            else:
-                upper_bound = middle - 1
-            pbar.update(1)
+    pbar = tqdm(total=int(math.log2(upper_bound - lower_bound)))
+    while lower_bound < upper_bound:
+        middle = math.ceil((lower_bound + upper_bound) / 2)
+        if try_request(client, model_name, tokenizer_name, tokenizer_client, max_prompt_length, middle, prefix, suffix):
+            lower_bound = middle
+        else:
+            upper_bound = middle - 1
+        pbar.update(1)
+    pbar.close()
 
     return lower_bound + max_prompt_length
 
