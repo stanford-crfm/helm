@@ -668,18 +668,6 @@ ALL_MODELS = [
             INSTRUCTION_FOLLOWING_MODEL_TAG,
         ],
     ),
-    Model(
-        group="gpt3",
-        name="openai/chat-gpt",
-        # TODO: The max context length is unknown. Assume it's the same length as Davinci Instruct for now.
-        tags=[
-            TEXT_MODEL_TAG,
-            WIDER_CONTEXT_WINDOW_TAG,
-            GPT2_TOKENIZER_TAG,
-            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-            INSTRUCTION_FOLLOWING_MODEL_TAG,
-        ],
-    ),
     # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
     Model(
         group="gpt3",
