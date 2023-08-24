@@ -8,6 +8,12 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from .ice_scenario_pinned_file_order import listdir_with_pinned_file_order
 from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
+try:
+    # pd.read_excel uses xlrd
+    import xlrd
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
+
 
 class ICESubset(Enum):
     CANADA = "can"
@@ -359,12 +365,6 @@ class ICEScenario(Scenario):
                 return []
 
             for fi, columns in files:
-
-                try:
-                    import xlrd  # noqa
-                except ModuleNotFoundError as e:
-                    handle_module_not_found_error(e)
-                # pd.read_excel uses xlrd
                 dfs = pd.read_excel(
                     os.path.join(header_dir, fi), sheet_name=[0] if subset == ICESubset.CANADA else None
                 )

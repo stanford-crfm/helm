@@ -15,3 +15,5 @@ pip install --no-binary=protobuf protobuf==3.20.2
 pip install -r requirements-freeze.txt
 # Install HELM in edit mode
 pip install -e .
+# Check dependencies
+pip check
