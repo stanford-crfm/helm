@@ -228,7 +228,8 @@ class ChineseTokenizer:
 
     METHOD_LIST = ["char", "jieba"]
 
-    def __init__(self, method: str = "jieba") -> None:
+    def __init__(self, method: str = "char") -> None:
+        # We use "char" by default as we would like to get rid of the dependency on word segmentation methods
         assert method in self.METHOD_LIST
         self.method = method
 
