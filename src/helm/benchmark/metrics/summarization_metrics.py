@@ -13,6 +13,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
+from helm.common.optional_dependencies import handle_module_not_found_error
 from .metric import Metric, MetricResult
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -20,6 +21,7 @@ from .basic_metrics import get_rouge_function
 from .statistic import Stat
 from .summac.model_summac import SummaCZS
 from bert_score import BERTScorer
+
 
 QAFACTEVAL_CODALAB_LINK: str = (
     "https://worksheets.codalab.org/rest/bundles/0xf4de83c1f0d34d7999480223e8f5ab87/contents/blob/"
@@ -52,7 +54,11 @@ class SummarizationMetric(Metric):
         # `NameError: name 'stderr' is not defined`
         if not spacy.util.is_package("en_core_web_sm"):
             spacy.cli.download("en_core_web_sm")  # type: ignore
-        from summ_eval.data_stats_metric import DataStatsMetric
+
+        try:
+            from summ_eval.data_stats_metric import DataStatsMetric
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
 
         self.data_stats_metric = DataStatsMetric()
         self.task: str = task

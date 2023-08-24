@@ -1,18 +1,23 @@
 import re
 from typing import List, Optional
 
-import numba
 import numpy as np
 from nltk.tokenize.treebank import TreebankWordTokenizer
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.scenarios.scenario import Reference
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
+
+try:
+    import numba
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 def _longest_common_prefix_length(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:
