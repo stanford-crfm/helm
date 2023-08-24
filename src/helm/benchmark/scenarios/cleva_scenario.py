@@ -904,6 +904,26 @@ class CLEVABiasScenario(CLEVAScenario):
     tags = ["bias", "harms", "multiple_choice"]
 
 
+class CLEVACopyrightScenario(CLEVAScenario):
+    """
+    The copyright task of CLEVA benchmark.
+
+    Our dataset is motivated by
+    https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/copyright_scenario.py
+    """
+
+    description = "Copyright task in CLEVA benchmark"
+    tags = ["copyright", "harms"]
+
+    def __init__(self, version: str, task: str, subtask: str):
+        super().__init__(version, task, subtask)
+
+        # Overwrite this to avoid loading the train split as there is none
+        self.splits: Dict[str, str] = {
+            "test": TEST_SPLIT,
+        }
+
+
 class CLEVAConceptualGeneralizationScenario(CLEVAScenario):
     """
     The conceptual generalization task of CLEVA benchmark.

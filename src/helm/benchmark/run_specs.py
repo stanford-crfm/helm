@@ -694,6 +694,25 @@ def get_cleva_generative_harms_metric_specs(include_basic_metrics: bool = False)
     )
 
 
+def get_cleva_copyright_metric_spec(args: Optional[Dict] = None) -> List[MetricSpec]:
+    if args is None:
+        args = {}
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVACopyrightMetric",
+            args={**args, "name": "longest_common_prefix_length"},
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVACopyrightMetric",
+            args={**args, "name": "edit_distance"},
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVACopyrightMetric",
+            args={**args, "name": "edit_similarity"},
+        ),
+    ]
+
+
 ############################################################
 # Run specs
 
@@ -2363,6 +2382,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         )
         metric_specs = get_cleva_topk_accuracy_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["opinion_mining"]:
+        # TODO: fetch the decoding parameters (e.g., max_tokens) online
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,
             input_noun=prompt_setting.input_noun,
@@ -2373,6 +2393,10 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_tokens=20,
         )
         metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
+    elif task in ["copyright"]:
+        adapter_spec = get_completion_adapter_spec(temperature=0.2, max_tokens=1024, num_outputs=1)
+        args = {"normalize_by_prefix_length": True, "normalize_newline_space_tab": False}
+        metric_specs = get_cleva_copyright_metric_spec(args) + get_generative_harms_metric_specs()
     elif task in ["pinyin_transliteration"]:
         adapter_spec = get_generation_adapter_spec(
             instructions=prompt_setting.instructions,

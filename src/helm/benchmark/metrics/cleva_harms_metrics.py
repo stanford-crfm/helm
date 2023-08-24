@@ -15,6 +15,7 @@ from helm.proxy.clients.perspective_api_client import PerspectiveAPIClientCreden
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from .bias_metrics import BiasMetric
 from .toxicity_metrics import ToxicityMetric
+from .copyright_metrics import BasicCopyrightMetric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
@@ -220,3 +221,30 @@ class CLEVAToxicityMetric(ToxicityMetric):
         ]
 
         return stats
+
+
+class ChineseTokenizer:
+    """Chinese tokenizer."""
+
+    METHOD_LIST = ["char", "jieba"]
+
+    def __init__(self, method: str = "char") -> None:
+        # We use "char" by default as we would like to get rid of the dependency on word segmentation methods
+        assert method in self.METHOD_LIST
+        self.method = method
+
+    def tokenize(self, text: str) -> List[str]:
+        if self.method == "jieba":
+            return jieba.lcut(text)
+        elif self.method == "char":
+            return [c for c in text]
+        else:
+            raise ValueError(f"Unknown Chinese tokenization method '{self.method}'")
+
+
+class CLEVACopyrightMetric(BasicCopyrightMetric):
+    """Basic copyright metric for Chinese."""
+
+    def __init__(self, name: str, normalize_by_prefix_length=False, normalize_newline_space_tab=False):
+        super().__init__(name, normalize_by_prefix_length, normalize_newline_space_tab)
+        self.tokenizer = ChineseTokenizer()
