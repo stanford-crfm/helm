@@ -9,8 +9,8 @@ from .ice_scenario_pinned_file_order import listdir_with_pinned_file_order
 from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
 try:
-    # pd.read_excel uses xlrd
-    import xlrd
+    # pd.read_excel() uses xlrd
+    import xlrd  # noqa
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
 
