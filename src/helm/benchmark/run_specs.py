@@ -2427,6 +2427,8 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             newline_after_output_noun=prompt_setting.newline_after_output_noun,
             max_train_instances=5,  # limited by the context length
             max_tokens=150,
+            temperature=1,
+            stop_sequences=["\n"],
         )
         metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["summarization"]:
@@ -2441,6 +2443,36 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             temperature=0.9,
         )
         metric_specs = get_basic_metric_specs(["chinese_rouge_2"]) + get_cleva_generative_harms_metric_specs()
+    elif task in ["mathematical_calculation", "inductive_reasoning"]:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions=format_instructions(prompt_setting.instructions),
+            input_prefix="",
+            input_suffix="",
+            output_prefix="",
+            max_train_instances=5,
+            num_outputs=1,
+            max_tokens=10,
+            temperature=1,
+            stop_sequences=["\n"],
+        )
+        metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
+    elif task in ["reasoning_primitive"]:
+        max_tokens: int = 100 if subtask in ["variable_sub"] else 10
+
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions=format_instructions(prompt_setting.instructions),
+            input_prefix="",
+            input_suffix="",
+            output_prefix="",
+            max_train_instances=5,
+            num_outputs=1,
+            max_tokens=max_tokens,
+            temperature=1,
+            stop_sequences=["\n"],
+        )
+        metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
     else:
         raise ValueError(f"The specified task '{task}' is not supported")
 

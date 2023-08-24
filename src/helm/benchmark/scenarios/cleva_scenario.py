@@ -689,22 +689,6 @@ class CLEVASubjectKnowledgeScenario(CLEVAScenario):
     description = "Subject knowledge task in CLEVA benchmark"
     tags = ["subject_knowledge", "knowledge"]
 
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        # Currently, HELM will concat all references as an answer in few-shot setting.
-        # This function ensure that there is only one reference for each instance.
-        text: str = row["text"]
-
-        # truncate the label
-        correct_answer = row["label"][:1]
-        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
-
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
-        return instance
-
 
 class CLEVACulturalKnowledgeScenario(CLEVAScenario):
     """
@@ -1010,3 +994,94 @@ class CLEVADeductiveReasoningScenario(CLEVAScenario):
 
     description = "Deductive reasoning task in CLEVA benchmark"
     tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
+
+
+class CLEVAMathematicalCalculationScenario(CLEVAScenario):
+    """
+    The mathematical calculation task of CLEVA benchmark.
+    The datasets are modified from
+    https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/modified_arithmetic.
+
+    An example of two-digit addition is:
+        在接下来的文本中，符号 -> 代表着一个简单的数学运算。
+
+        677 + 89 -> 766
+
+        678 + 246 ->
+
+    Target: 924
+    """
+
+    description = "Mathematical calculation task in CLEVA benchmark."
+    tags = ["mathematical_calculation"]
+
+
+class CLEVAInductiveReasoningScenario(CLEVAScenario):
+    """
+    The inductive reasoning task of CLEVA benchmark.
+    The datasets are modified from
+    https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/modified_arithmetic.
+
+    An example of two-digit substract with adding one is:
+        在接下来的文本中，符号 -> 代表着一个简单的数学运算。
+
+        935 - 927 -> 9
+
+        921 - 385 ->
+
+    Target: 537
+    """
+
+    description = "Inductive Reasoing task in CLEVA benchmark."
+    tags = ["inductive_reasoning", "reasoning"]
+
+
+class CLEVAReasoningPrimitiveScenario(CLEVAScenario):
+    """
+    The reasoning primitive task of CLEVA benchmark.
+    We modify the following codes to construct the Chinese version.
+        https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/dyck_language_scenario.py
+        https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/synthetic_reasoning_scenario.py
+
+
+    An example of dyck_language is:
+        下面是合法的dyck-n序列（只输出右括号）。
+
+        ( { { ( { ( ) } ) }
+
+    Target:  } )
+
+    An example of pattern_induction is :
+        给定两个从同一模式串生成的字符串，请推理出它们对应的模式串（模式串中仅包含变量X，Y，Z和符号+-*/）。
+
+        字符串1：鹳 海豹 桃子 眼镜蛇 桃子 眼镜蛇 * - =
+        字符串2：黑莓 马 马 * - =
+        答：（输出任一一个合法的模式串即可）
+
+    Target: Y Z Z * - =
+
+    An example of pattern_matching is:
+        给定一个结果串，请从4个模式串中找出对应的模式，并输出出来。
+
+        结果串：+ 桃子 葡萄 +
+        模式串：
+        X Y + +
+        X + Y +
+        + X + Y
+        + X Y +
+        答：（输出对应的模式）
+
+    Target: + X Y +
+
+    An example of variable_sub is:
+        请对模式串中的变量按照替换规则进行替换。
+
+        模式：Z X X * - =
+        替换规则：X -> “桃子 眼镜蛇”，Z -> “鹳 海豹”
+        答：（替换后的结果）
+
+    Target: 鹳 海豹 桃子 眼镜蛇 桃子 眼镜蛇 * - =
+    """
+
+    description = "Reasoning primitive task in CLEVA benchmark."
+    tags = ["reasoning_primitive", "reasoning"]
