@@ -11,8 +11,6 @@ if [ "$valid_version" == "False" ]; then
   exit 1
 fi
 
-pip check
-
 # Python style checks and linting
 black --check --diff src scripts || (
   echo ""

@@ -35,7 +35,6 @@ from .scenarios.lex_glue_scenario import (
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
-from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
 from .scenarios.lextreme_scenario import (
@@ -1070,6 +1069,8 @@ def get_raft_spec(subset: str) -> RunSpec:
 def get_numeracy_spec(
     relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
+    from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+
     run_solver: bool = True if run_solver == "True" else False  # type: ignore
     random_seed = int(seed)
     scenario_spec = ScenarioSpec(

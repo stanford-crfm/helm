@@ -1,11 +1,16 @@
 from typing import List
-from sacrebleu import BLEU
 
 from helm.benchmark.adaptation.request_state import RequestState
+from helm.common.optional_dependencies import handle_module_not_found_error
 from .metric import Metric
 from .metric_name import MetricName
 from .statistic import Stat
 from langdetect import detect
+
+try:
+    from sacrebleu.metrics import BLEU
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 class MachineTranslationMetric(Metric):
