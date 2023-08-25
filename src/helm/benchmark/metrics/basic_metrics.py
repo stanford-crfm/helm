@@ -278,6 +278,22 @@ def get_chinese_rouge_function(rouge_type: str) -> Callable[[str, str], float]:
     return partial(rouge_score, scorer=scorer, rouge_type=rouge_type)
 
 
+def chinese_math_exact_match_indicator(gold: str, pred: str) -> float:
+    """
+    Exact match that only cares the last math expression.
+    Common math expressions are numbers and fractions.
+    """
+    pattern = r"[-+*/%\.\(\)\d]+"
+    matches = re.findall(pattern, pred)
+    if matches:
+        pred = matches[-1].lstrip(")")
+    for term in ["\n", "。", "，"]:
+        pred = pred.split(term)[0]
+    # remove space in front or at the end
+    pred = pred.strip()
+    return exact_match(gold, pred)
+
+
 def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
@@ -501,6 +517,7 @@ class BasicMetric(Metric):
             "chinese_bleu_1": chinese_bleu_1,
             "chinese_rouge_1": get_chinese_rouge_function("rouge1"),
             "chinese_rouge_2": get_chinese_rouge_function("rouge2"),
+            "chinese_math_exact_match_indicator": chinese_math_exact_match_indicator,
             "absolute_value_difference": absolute_value_difference,
         }
 

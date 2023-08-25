@@ -1159,3 +1159,49 @@ class CLEVADataToTextGenerationScenario(CLEVAScenario):
             split=split,
         )
         return instance
+
+
+class CLEVAMathematicalReasoningScenario(CLEVAScenario):
+    """
+    The mathematical reasoning task of CLEVA benchmark.
+
+    Also, incorporates prompting methods from "Chain of Thought Prompting Elicits Reasoning in Large Language Models"
+    (Wei et al. 2021): https://arxiv.org/abs/2201.11903
+
+    For example, we use "所以答案是（只给出数字即可）" (English: Thus, the answer is:) before the answer,
+    and remove line breaks within the answer.
+
+    An example is:
+        回答以下数学问题
+
+        问题：甲数是168，乙数是甲数的4倍，乙数=？请一步一步给出推理过程。
+        答：首先，我们知道乙数是甲数的4倍，因此乙数可以表示为：乙数 = 4 × 甲数。然后，我们知道甲数是168，因此可以将乙数表示为：
+           乙数 = 4 × 168。通过计算，可得乙数为：x = 4 × 168 = 672。因此，答案是672。所以答案是（只给出数字即可）672
+        标准答案：672
+
+        问题：小方看一本书，已经看了136页，剩下的每天看15页，18天看完．这本书一共有多少页？请一步一步给出推理过程。
+        答：
+
+    Target: 406
+    """
+
+    description = "Mathematical reasoning task in CLEVA benchmark."
+    tags = ["maths", "reasoning", "mathematical_reasoning"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        question: str = row["question"]
+        explanation: str = row["explanation"].replace("\n", "")
+        label: str = row["label"]
+        text: str = f"{question}请一步一步给出推理过程。\n"
+
+        if split == TRAIN_SPLIT:
+            references = [Reference(Output(text=f"{explanation}所以答案是（只给出数字即可）{label}。"), tags=[CORRECT_TAG])]
+        elif split == TEST_SPLIT:
+            references = [Reference(Output(text=label), tags=[CORRECT_TAG])]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
