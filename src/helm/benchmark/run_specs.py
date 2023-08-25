@@ -2336,6 +2336,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
     CLEVAScenario.download_dataset(version)
 
     prompt_template, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
+    inference_parameters = CLEVAScenario.load_inference_parameters(task, subtask, version, prompt_id)
 
     class_name_prefix = "".join([word.capitalize() for word in task.split("_")])
     scenario_spec = ScenarioSpec(
@@ -2369,12 +2370,13 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
                 input_suffix=prompt_setting.input_suffix,
                 output_prefix=prompt_setting.output_prefix,
                 output_suffix=prompt_setting.output_suffix,
-                max_train_instances=5,
-                num_outputs=5,
-                max_tokens=5,
-                temperature=0.0,
-                stop_sequences=["\n"],
-                sample_train=True,
+                max_train_instances=inference_parameters.get("max_train_instances", 5),
+                num_outputs=inference_parameters.get("num_outputs", 5),
+                max_tokens=inference_parameters.get("max_tokens", 5),
+                temperature=inference_parameters.get("temperature", 0.0),
+                stop_sequences=inference_parameters.get("stop_sequences", ["\n"]),
+                sample_train=inference_parameters.get("sample_train", True),
+                multi_label=inference_parameters.get("multi_label", False),
             )
         elif prompt_setting.method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED, ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL]:
             adapter_spec = AdapterSpec(
@@ -2385,11 +2387,11 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
                 output_prefix=prompt_setting.output_prefix,
                 output_suffix=prompt_setting.output_suffix,
                 # Separate is basically language modeling, so can't easily use in-context examples
-                max_train_instances=5,
+                max_train_instances=inference_parameters.get("max_train_instances", 5),
                 num_outputs=1,
                 max_tokens=0,
-                temperature=0.0,
-                sample_train=True,
+                temperature=inference_parameters.get("temperature", 0.0),
+                sample_train=inference_parameters.get("sample_train", True),
             )
         else:
             raise ValueError(f"{task} is a mutlti-choice task and should not use {prompt_setting.method}")
@@ -2408,7 +2410,6 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
         )
         metric_specs = get_cleva_topk_accuracy_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["opinion_mining"]:
-        # TODO: fetch the decoding parameters (e.g., max_tokens) online
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
             instructions=prompt_setting.instructions,
@@ -2416,12 +2417,13 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
             input_suffix=prompt_setting.input_suffix,
             output_prefix=prompt_setting.output_prefix,
             output_suffix=prompt_setting.output_suffix,
-            max_train_instances=5,
-            num_outputs=1,
-            max_tokens=20,
-            temperature=0.0,
-            stop_sequences=["\n"],
-            multi_label=True,
+            max_train_instances=inference_parameters.get("max_train_instances", 5),
+            num_outputs=inference_parameters.get("num_outputs", 1),
+            max_tokens=inference_parameters.get("max_tokens", 20),
+            temperature=inference_parameters.get("temperature", 0.0),
+            stop_sequences=inference_parameters.get("stop_sequences", ["\n"]),
+            sample_train=inference_parameters.get("sample_train", True),
+            multi_label=inference_parameters.get("multi_label", True),
         )
         metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["copyright"]:

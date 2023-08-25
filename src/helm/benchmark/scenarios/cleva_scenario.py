@@ -293,7 +293,7 @@ class CLEVAScenario(Scenario):
             with open(file_path, "r") as fin:
                 prompt_templates: List[Dict[str, Any]] = json.load(fin)
         else:
-            raise ValueError(f"Missing prompt setting file at '{file_path}'")
+            raise ValueError(f"Missing prompt template file at '{file_path}'")
         return prompt_templates
 
     def get_instances(self) -> List[Instance]:
@@ -342,6 +342,20 @@ class CLEVAScenario(Scenario):
             instance_prefix = "\n",
         )
         return prompt_template, prompt_setting
+
+    @classmethod
+    def load_inference_parameters(cls, task: str, subtask: Optional[str], version: str, prompt_id: int) -> Dict[str, Any]:
+        # We use a dict instead of dataclass to store hyper-parameters such that we can set different default values
+        params_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
+        if subtask:
+            params_dir = os.path.join(params_dir, subtask)
+        file_path = os.path.join(params_dir, "infer_params.json")
+        if os.path.isfile(file_path):
+            with open(file_path, "r") as fin:
+                inference_parameters: List[Dict[str, Any]] = json.load(fin)
+        else:
+            raise ValueError(f"Missing inference parameters file at '{file_path}'")
+        return inference_parameters
 
 
 class CLEVATextClassificationScenario(CLEVAScenario):
