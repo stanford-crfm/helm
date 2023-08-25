@@ -18,10 +18,11 @@ from benchmark.interaction_server.blacklist import contains_offensive, initializ
 
 
 class DialogueAdapter(InteractiveAdapter):
-    def __init__(self, user_initiated, user_name: str, agent_name: str):
+    def __init__(self, user_initiated, user_name: str, agent_name: str, dataset: str):
         super().__init__(user_initiated)
         self.user_name = user_name
         self.agent_name = agent_name
+        self.dataset = dataset
         self.blacklist, self.blacklist_max_len = initialize_blacklist()
 
     def _get_agent_name(self, instance: Instance) -> Optional[str]:
@@ -45,7 +46,7 @@ class DialogueAdapter(InteractiveAdapter):
         inp = inp.strip()
         if name is None:
             name = self.user_name
-        adapted_utterance = ': <span class="conversation_utterance_'+name+'">"' + inp + '"</span>'
+        adapted_utterance = ': <span class="conversation_utterance '+name+'"> "' + inp + '"</span>'
         return adapted_utterance
 
     def postprocess_initial_request(
@@ -65,12 +66,24 @@ class DialogueAdapter(InteractiveAdapter):
             initial_request_state = replace(initial_request_state, request=new_request)
             print("After postprocessing")
             print(initial_request_state.request.prompt)
+        else:
+            # Update prompt s.t. it has the correct instructions for the bot
+            old_prompt = initial_request_state.request.prompt
+            if self.dataset == "empatheticdialogues":
+                new_prompt = "Chat as if you are in this scenario: "+old_prompt
+            elif self.dataset == "commonsense_dialogues":
+                new_prompt = "Chat as if you are in this scenario: "+old_prompt
+            else:
+                new_prompt = "Your topic: "+old_prompt
+            new_request = replace(initial_request_state.request, prompt=new_prompt)
+            initial_request_state = replace(initial_request_state, request=new_request)
+
         return initial_request_state
 
     def agent_prompt(self, name: Optional[str] = None) -> str:
         if name is None:
             name = self.agent_name
-        agent_prompt = name + ': <span class="conversation_utterance_'+name+'">"'
+        agent_prompt ='<span class="conversation_utterance '+name+'"> "'
         return agent_prompt
 
     def initial_lm_request(self, initial_request_state: RequestState) -> RequestState:

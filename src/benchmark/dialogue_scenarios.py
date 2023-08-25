@@ -23,7 +23,7 @@ class Utterance:
 
     def __str__(self):
         assert self.speaker.name is not None, "Speaker name needs to be set for generating utterance string"
-        return '<span class="conversation_utterance_'+self.speaker.name+'">"'+self.text +'"</span>\n'
+        return '<span class="conversation_utterance '+self.speaker.name+'"> "'+self.text +'"</span>\n'
 
 
 @dataclass(frozen=True, eq=False)
@@ -406,7 +406,7 @@ class CommonSenseScenario(Scenario):
             with open(file_path) as fin:
                 samples = json.load(fin)
 
-            listener = Speaker(id=0, initiator=False, name="user_1")
+            listener = Speaker(id=0, initiator=False, name="user_2")
             idx = 0
             for context, samps in self._group_samples_by_context(samples).items():
                 if splits[split] in EVAL_SPLITS and not is_whitelisted(context, whitelisted_prompts):

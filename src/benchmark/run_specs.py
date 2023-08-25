@@ -1090,7 +1090,7 @@ def get_empatheticdialogues_spec(
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Prompt: ",
+        input_prefix="",
         output_prefix='\n<div class="conversation">\n',
         num_train_trials=1,
         max_train_instances=5,
@@ -1112,6 +1112,13 @@ def get_empatheticdialogues_spec(
     if batch is not None:
         spec_name += f",batch={batch}"
 
+    if user_initiated:
+        user_name = "user_1"
+        agent_name = "user_2"
+    else:
+        user_name = "user_2"
+        agent_name = "user_1"
+
     return RunSpec(
         name=spec_name,
         scenario=scenario,
@@ -1119,7 +1126,7 @@ def get_empatheticdialogues_spec(
         metrics=get_basic_metrics({"names": ["exact_match"]}),
         interactive_adapter=InteractiveAdapterSpec(
             class_name="benchmark.dialogue_interactive_adapters.DialogueAdapter",
-            args={"user_initiated": user_initiated, "user_name": "user_1", "agent_name": "user_2"},
+            args={"user_initiated": user_initiated, "user_name": user_name, "agent_name": agent_name, "dataset": "empatheticdialogues"},
         ),
     )
 
@@ -1135,11 +1142,11 @@ def get_wizardofwikipedia_spec(
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Prompt: ",
+        input_prefix="",
         output_prefix='\n<div class="conversation">\n',
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/gpt-3.5-turbo-0301",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
         stop_sequences=['"</span>', "</div>", '"', "</span>"],
         num_outputs=1,
@@ -1156,6 +1163,13 @@ def get_wizardofwikipedia_spec(
     if batch is not None:
         spec_name += f",batch={batch}"
 
+    if user_initiated:
+        user_name = "user_1"
+        agent_name = "user_2"
+    else:
+        user_name = "user_2"
+        agent_name = "user_1"
+
     return RunSpec(
         name=spec_name,
         scenario=scenario,
@@ -1163,7 +1177,7 @@ def get_wizardofwikipedia_spec(
         metrics=get_basic_metrics({"names": ["exact_match"]}),
         interactive_adapter=InteractiveAdapterSpec(
             class_name="benchmark.dialogue_interactive_adapters.DialogueAdapter",
-            args={"user_initiated": user_initiated, "user_name": "user_1", "agent_name": "user_2"},
+            args={"user_initiated": user_initiated, "user_name": user_name, "agent_name": agent_name, "dataset": "wizardofwikipedia"},
         ),
     )
 
@@ -1180,7 +1194,7 @@ def get_commonsense_dialogues_spec(
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Prompt: ",
+        input_prefix="",
         output_prefix='\n<div class="conversation">\n',
         num_train_trials=1,
         max_train_instances=5,
@@ -1201,6 +1215,13 @@ def get_commonsense_dialogues_spec(
     if batch is not None:
         spec_name += f",batch={batch}"
 
+    if user_initiated:
+        user_name = "user_1"
+        agent_name = "user_2"
+    else:
+        user_name = "user_2"
+        agent_name = "user_1"
+
     return RunSpec(
         name=spec_name,
         scenario=scenario,
@@ -1208,7 +1229,7 @@ def get_commonsense_dialogues_spec(
         metrics=get_basic_metrics({"names": ["exact_match"]}),
         interactive_adapter=InteractiveAdapterSpec(
             class_name="benchmark.dialogue_interactive_adapters.DialogueAdapter",
-            args={"user_initiated": user_initiated, "user_name": "user_1", "agent_name": "user_2"},
+            args={"user_initiated": user_initiated, "user_name": user_name, "agent_name": agent_name, "dataset": "commonsense_dialogues"},
         ),
     )
 
