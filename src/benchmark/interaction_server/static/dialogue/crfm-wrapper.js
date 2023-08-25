@@ -843,6 +843,7 @@ const ChatBox = {
 					console.log(error);
 					that.error = error;
 					if ("response" in error){
+						console.log("goodbye");
 						if (error.response.request.status == 500) {
 							that.error = "Answers successfully submitted. Survey completion code: dinosaur";
 						}
@@ -928,6 +929,7 @@ const ChatBox = {
 						console.log(error);
 						that.error = error;
 						if ("response" in error){
+							console.log("hello");
 							if (error.response.request.status == 500) {
 								that.error = "Answers successfully submitted. Survey completion code: dinosaur";
 							}
