@@ -61,7 +61,7 @@ class Converter:
     """
 
     def transform(self, data: Dict[str, Any], templates: Dict[str, Any], split: str) -> Instance:
-        """This function convert a data point in CLEVA format to a HELM instance according to a given CLEVA prompt template."""
+        """Convert a data point in CLEVA format to a HELM instance according to a given CLEVA prompt template."""
         transformed_data = self._apply_all(data, templates)
 
         text = transformed_data["input"]
@@ -95,7 +95,7 @@ class Converter:
         This function applies the CLEVA prompt template to a data point.
 
         Note that this is an in-place operation.
-        
+
         The logic is as follows:
         1. It first maps every entry according to a set of predefined mappings in "verbalizer".
         2. It then stringifies all fields in the given data point, including processing structured data.
@@ -134,13 +134,14 @@ class Converter:
 
         `data` must have the following type: `str`, `Dict[str, str]`, `List[str]`, `List[Dict[str, str]]`.
         `template` must have the following type:
-        - `str`: composes a string from all stringified fields including itself (if it is `Dict[str, str]`, it will be flatten out).
-        - `dict`: handle structured data like `List[str]` and `List[Dict[str, str]]` by first obtaining a string for each entry
-          and then combining all strigified entries as the final result.
+        - `str`: composes a string from all stringified fields including itself (if it is `Dict[str, str]`,
+          it will be flatten out).
+        - `dict`: handle structured data like `List[str]` and `List[Dict[str, str]]` by first obtaining a string
+          for each entry and then combining all strigified entries as the final result.
         """
         # If template is a `str`, it composes a string from all fields
         if isinstance(template, str):
-            # If data is a `Dict[str, str]`, flatten all its key-value pairs by treating them as additional fields in **kwargs
+            # If data is a `Dict[str, str]`, flatten all its key-value pairs and treat them as additional fields
             if isinstance(data, dict):
                 return template.format(**kwargs, **data)
             # If data is a `str`, just directly compose the output string from other stringified fields
@@ -151,11 +152,23 @@ class Converter:
             if isinstance(data, list):
                 # If each entry is a `Dict[str, str]`, apply the template independently
                 if isinstance(data[0], dict):
-                    return template["item_separator"].join([template["item_template"].format(**i, idx=self.index_mapping(idx, template["item_index"])) for idx, i in enumerate(data)])
+                    return template["item_separator"].join(
+                        [
+                            template["item_template"].format(**i, idx=self.index_mapping(idx, template["item_index"]))
+                            for idx, i in enumerate(data)
+                        ]
+                    )
                 # If each entry is a `str`, apply the template independently
                 else:
                     # In this case, we reserve a default `item` key to hold each entry
-                    return template["item_separator"].join([template["item_template"].format(item=i, idx=self.index_mapping(idx, template["item_index"])) for idx, i in enumerate(data)])
+                    return template["item_separator"].join(
+                        [
+                            template["item_template"].format(
+                                item=i, idx=self.index_mapping(idx, template["item_index"])
+                            )
+                            for idx, i in enumerate(data)
+                        ]
+                    )
             else:
                 raise ValueError(f"Unsupport input: {data}")
         # Simple copying if template is None
@@ -166,10 +179,12 @@ class Converter:
 
     def _mapping_all(self, data: Dict[str, Any], mapping_dict: Dict[str, Dict[str, str]]) -> None:
         """
-        This function subsitute values in `data` according to the mapping defined in `mapping_dict` with the same key/field.
+        This function subsitute values in `data` according to the mapping defined in `mapping_dict` with the same
+        key/field.
 
-        Each field in `sample` must have the following type: `str`, `Dict[str, str]`, `List[str]`, `List[Dict[str, str]]`.
-        
+        Each field in `sample` must have the following type: `str`, `Dict[str, str]`, `List[str]`,
+        `List[Dict[str, str]]`.
+
         Note that this is an in-place operation.
         """
         for k, d in mapping_dict.items():
@@ -184,7 +199,9 @@ class Converter:
                     for _k in data[_name]:
                         # Only perform the subsitution if the keys match
                         if _k == k:
-                            assert isinstance(data[_name][_k], str), "We only support mapping data with type `Dict[str, str]`"
+                            assert isinstance(
+                                data[_name][_k], str
+                            ), "We only support mapping data with type `Dict[str, str]`"
                             data[_name][_k] = d[data[_name][_k]]
                 # If the value is a list, then look into its entries
                 elif isinstance(data[_name], list):
@@ -200,10 +217,14 @@ class Converter:
                                 for _k in item:
                                     # Only perform the subsitution if the keys match
                                     if _k == k:
-                                        assert isinstance(item[_k], str), "We only support mapping data with type `List[Dict[str, str]]`"
+                                        assert isinstance(
+                                            item[_k], str
+                                        ), "We only support mapping data with type `List[Dict[str, str]]`"
                                         item[_k] = d[item[_k]]
                         else:
-                            raise NotImplementedError("We only support mapping data with type `List[str]` or `List[Dict[str, str]]`")
+                            raise NotImplementedError(
+                                "We only support mapping data with type `List[str]` or `List[Dict[str, str]]`"
+                            )
                 else:
                     raise NotImplementedError("We only support mapping data with type `list` or `str`")
 
@@ -216,9 +237,9 @@ class Converter:
         elif option == "number":
             return f"{idx}"
         elif option == "upper":
-            return chr(ord('@') + idx)
+            return chr(ord("@") + idx)
         elif option == "lower":
-            return chr(ord('`') + idx)
+            return chr(ord("`") + idx)
         else:
             raise NotImplementedError(f"Unknown option {option}")
 
@@ -313,13 +334,18 @@ class CLEVAScenario(Scenario):
         return instance
 
     @classmethod
-    def get_prompt_setting(cls, task: str, subtask: Optional[str], version: str, prompt_id: int) -> Tuple[Dict[str, Any], PromptSetting]:
+    def get_prompt_setting(
+        cls, task: str, subtask: Optional[str], version: str, prompt_id: int
+    ) -> Tuple[Dict[str, Any], PromptSetting]:
         prompt_templates = cls.load_prompt_templates(task, subtask, version)
         if prompt_id >= len(prompt_templates):
-            raise ValueError(f"You want to use {prompt_id + 1}-th prompt template, but there is only {len(prompt_templates)} options.")
+            raise ValueError(
+                f"You want to use {prompt_id + 1}-th prompt template, but there is only"
+                f" {len(prompt_templates)} options."
+            )
         prompt_template = prompt_templates[prompt_id]
 
-        meta: str = prompt_template.get("meta", {})
+        meta: dict = prompt_template.get("meta", {})
         if "mul_as_gen" not in meta:
             method = ADAPT_GENERATION
         else:
@@ -333,18 +359,20 @@ class CLEVAScenario(Scenario):
             instructions=instructions + "\n" if len(instructions) > 0 else "",
             method=method,
             global_prefix="",
-            input_prefix= "",
-            input_suffix = "",
-            reference_prefix = "A. ",
-            reference_suffix = "\n",
-            output_prefix = prompt_template.get("answer_context", ""),
-            output_suffix = "\n",
-            instance_prefix = "\n",
+            input_prefix="",
+            input_suffix="",
+            reference_prefix="A. ",
+            reference_suffix="\n",
+            output_prefix=prompt_template.get("answer_context", ""),
+            output_suffix="\n",
+            instance_prefix="\n",
         )
         return prompt_template, prompt_setting
 
     @classmethod
-    def load_inference_parameters(cls, task: str, subtask: Optional[str], version: str, prompt_id: int) -> Dict[str, Any]:
+    def load_inference_parameters(
+        cls, task: str, subtask: Optional[str], version: str, prompt_id: int
+    ) -> Dict[str, Any]:
         # We use a dict instead of dataclass to store hyper-parameters such that we can set different default values
         params_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
         if subtask:
@@ -352,7 +380,7 @@ class CLEVAScenario(Scenario):
         file_path = os.path.join(params_dir, "infer_params.json")
         if os.path.isfile(file_path):
             with open(file_path, "r") as fin:
-                inference_parameters: List[Dict[str, Any]] = json.load(fin)
+                inference_parameters: Dict[str, Any] = json.load(fin)
         else:
             raise ValueError(f"Missing inference parameters file at '{file_path}'")
         return inference_parameters
@@ -537,8 +565,9 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
         version: str,
         task: str,
         subtask: str,
+        prompt_template: Dict[str, Any],
     ):
-        super().__init__(version, task, subtask)
+        super().__init__(version, task, subtask, prompt_template)
         self.splits: Dict[str, str] = {
             "test": TEST_SPLIT,
         }
@@ -696,23 +725,23 @@ class CLEVAIntentUnderstandingScenario(CLEVAScenario):
     description = "Intent understanding task in CLEVA benchmark"
     tags = ["intent_understanding", "multiple_choice"]
 
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        context: str = row["context"]
-        question: str = row["question"]
-        text: str = f"{context}\n\n问题：{question}"
-        answers: List[str] = row["choices"]
-        correct_choice: List[int] = row["label"]
-        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-        references: List[Reference] = [
-            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-        ]
+    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+    #     context: str = row["context"]
+    #     question: str = row["question"]
+    #     text: str = f"{context}\n\n问题：{question}"
+    #     answers: List[str] = row["choices"]
+    #     correct_choice: List[int] = row["label"]
+    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+    #     references: List[Reference] = [
+    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+    #     ]
 
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
-        return instance
+    #     instance = Instance(
+    #         input=Input(text=text),
+    #         references=references,
+    #         split=split,
+    #     )
+    #     return instance
 
 
 class CLEVACoreferenceResolutionScenario(CLEVAScenario):
@@ -739,24 +768,24 @@ class CLEVACoreferenceResolutionScenario(CLEVAScenario):
     description = "Coreference resolution task in CLEVA benchmark"
     tags = ["coreference_resolution", "multiple_choice"]
 
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        context: str = row["context"]
-        span1: str = row["span1"]
-        span2: str = row["span2"]
-        text: str = f"{context}\n在上文中，“{span1}”和“{span2}”是否指代了同一个对象？\n"
-        answers: List[str] = row["choices"]
-        correct_choice: List[int] = row["label"]
-        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-        references: List[Reference] = [
-            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-        ]
+    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+    #     context: str = row["context"]
+    #     span1: str = row["span1"]
+    #     span2: str = row["span2"]
+    #     text: str = f"{context}\n在上文中，“{span1}”和“{span2}”是否指代了同一个对象？\n"
+    #     answers: List[str] = row["choices"]
+    #     correct_choice: List[int] = row["label"]
+    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+    #     references: List[Reference] = [
+    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+    #     ]
 
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
-        return instance
+    #     instance = Instance(
+    #         input=Input(text=text),
+    #         references=references,
+    #         split=split,
+    #     )
+    #     return instance
 
 
 class CLEVAReadingComprehensionScenario(CLEVAScenario):
@@ -797,23 +826,23 @@ class CLEVAReadingComprehensionScenario(CLEVAScenario):
     description = "Reading comprehension task in CLEVA benchmark"
     tags = ["reading_comprehension", "multiple_choice"]
 
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        context: str = row["context"]
-        question: str = row["question"]
-        text: str = f"{context}\n\n问题：{question}\n"
-        answers: List[str] = row["choices"]
-        correct_choice: List[int] = row["label"]
-        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-        references: List[Reference] = [
-            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-        ]
+    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+    #     context: str = row["context"]
+    #     question: str = row["question"]
+    #     text: str = f"{context}\n\n问题：{question}\n"
+    #     answers: List[str] = row["choices"]
+    #     correct_choice: List[int] = row["label"]
+    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+    #     references: List[Reference] = [
+    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+    #     ]
 
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
-        return instance
+    #     instance = Instance(
+    #         input=Input(text=text),
+    #         references=references,
+    #         split=split,
+    #     )
+    #     return instance
 
 
 class CLEVADialogueGenerationScenario(CLEVAScenario):
@@ -970,23 +999,23 @@ class CLEVAParaphraseIdentificationScenario(CLEVAScenario):
     description = "Paraphrase identification task in CLEVA benchmark"
     tags = ["paraphrase_identification", "multiple_choice"]
 
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        sentence1: str = row["sentence1"]
-        sentence2: str = row["sentence2"]
-        text: str = f"句子1：{sentence1}\n句子2：{sentence2}\n"
-        answers: List[str] = row["choices"]
-        correct_choice: List[int] = row["label"]
-        correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-        references: List[Reference] = [
-            self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-        ]
+    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+    #     sentence1: str = row["sentence1"]
+    #     sentence2: str = row["sentence2"]
+    #     text: str = f"句子1：{sentence1}\n句子2：{sentence2}\n"
+    #     answers: List[str] = row["choices"]
+    #     correct_choice: List[int] = row["label"]
+    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
+    #     references: List[Reference] = [
+    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+    #     ]
 
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
-        return instance
+    #     instance = Instance(
+    #         input=Input(text=text),
+    #         references=references,
+    #         split=split,
+    #     )
+    #     return instance
 
 
 class CLEVAClosedBookQuestionAnsweringScenario(CLEVAScenario):
@@ -1134,8 +1163,8 @@ class CLEVACopyrightScenario(CLEVAScenario):
     description = "Copyright task in CLEVA benchmark"
     tags = ["copyright", "harms"]
 
-    def __init__(self, version: str, task: str, subtask: str):
-        super().__init__(version, task, subtask)
+    def __init__(self, version: str, task: str, subtask: str, prompt_template: Dict[str, Any]):
+        super().__init__(version, task, subtask, prompt_template)
 
         # Overwrite this to avoid loading the train split as there is none
         self.splits: Dict[str, str] = {
