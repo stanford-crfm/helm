@@ -56,8 +56,8 @@
 		</div>
 		<div class="my-container" id="app">
 			<div class='chat-box'>
-				<div class="speech-bubble-container prompt" v-if='prompt != ""'>
-					<div class="speech-bubble"> {{prompt}} </div>
+				<div class="speech-bubble-container prompt" v-if='display_prompt != ""'>
+					<div class="speech-bubble"> {{display_prompt}} </div>
 				</div>
 				<div v-if="utterances.length >= 40">
 					Conversation has ended. Please begin the survey.

@@ -35,6 +35,14 @@ def add_header(r):
 def template_test():
     return render_template('dialogue/interface.html')
 
+@app.route("/api/dialogue/initialize", methods=["POST"])
+def initialize():
+    args = request.json
+    args["output_path"] = file_globals["output_path"]
+    args["base_path"] = file_globals["base_path"]
+    response = dialogue_interface.initialize_prompt(args)
+    return response
+
 @app.route("/api/dialogue/start", methods=["POST"])
 def start_dialogue():
     args = request.json
@@ -73,6 +81,7 @@ def submit_interview():
 
 def main():
     parser = argparse.ArgumentParser()
+    #parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=8000)
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=80)
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="src/benchmark/interaction_server/interaction_env")
     parser.add_argument(
@@ -85,7 +94,9 @@ def main():
     ensure_directory_exists(args.output_path)
     file_globals["output_path"] = args.output_path
     file_globals["base_path"] = args.base_path
+    # app.run(host="localhost", port=args.port) # Use 0.0.0.0 on GCP, 127.0.0.1 elsewhere
     app.run(host="0.0.0.0", port=args.port) # Use 0.0.0.0 on GCP, 127.0.0.1 elsewhere
+
 
 
 if __name__ == "__main__":

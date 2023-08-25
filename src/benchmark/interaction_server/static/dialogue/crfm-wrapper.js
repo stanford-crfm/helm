@@ -1016,6 +1016,17 @@ function realign_transcript() {
 window.addEventListener("resize", realign_transcript);
 const app = Vue.createApp(ChatBox);
 const vm = app.mount("#app");
+axios.post("/api/dialogue/initialize", {
+	interaction_trace_id: urlParams.get("interaction_trace_id"), 
+	run_name: urlParams.get("run_name"),
+	user_id: urlParams.get("user_id"),
+})
+	.then(function (response) {
+		console.log(response.data.display_prompt);
+		vm.prompt = response.data.prompt;
+		vm.display_prompt = response.data.display_prompt;
+		vm.$forceUpdate();
+	});
 axios.post("/api/dialogue/start", {
 	interaction_trace_id: urlParams.get("interaction_trace_id"), 
 	run_name: urlParams.get("run_name"),
@@ -1023,7 +1034,6 @@ axios.post("/api/dialogue/start", {
 })
 	.then(function (response) {
 		console.log(response.data);
-		vm.prompt = response.data.display_prompt;
 		for (let utt of response.data.utterances){
 			vm.pushUtterance(utt.speaker, utt.text);
 		}
@@ -1035,7 +1045,6 @@ axios.post("/api/dialogue/start", {
 			console.log(vm.questions);
 			vm.questions=response.data.survey;
 		}
-		console.log(vm.prompt);
 		console.log(vm.utterances);
 	})
 	.catch(function (error) {
