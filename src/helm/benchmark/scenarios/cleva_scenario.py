@@ -1186,7 +1186,7 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     """
 
     description = "Mathematical reasoning task in CLEVA benchmark."
-    tags = ["maths", "reasoning", "mathematical_reasoning"]
+    tags = ["math", "reasoning", "mathematical_reasoning"]
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         question: str = row["question"]
@@ -1202,6 +1202,35 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
         instance = Instance(
             input=Input(text=text),
             references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVALanguageModelingScenario(CLEVAScenario):
+    """
+    The language modeling task of CLEVA benchmark.
+    The data comes from news (https://github.com/brightmart/nlp_chinese_corpus).
+    It was originally split into training and validation set.
+    CLEVA sampled 10% of the validation set, resulting in a test set of 7,679 entries.
+    """
+
+    description = "Language modeling task in CLEVA benchmark."
+    tags = ["language_modeling"]
+
+    def __init__(self, version: str, task: str, subtask: str):
+        super().__init__(version, task, subtask)
+
+        # Overwrite this to avoid loading the train split as there is none
+        self.splits: Dict[str, str] = {
+            "test": TEST_SPLIT,
+        }
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        text: str = row["choices"][0]
+        instance = Instance(
+            input=Input(text=text),
+            references=[],
             split=split,
         )
         return instance
