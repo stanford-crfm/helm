@@ -2332,19 +2332,19 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 
 
 @run_spec_function("cleva")
-def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int = 0, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     CLEVAScenario.download_dataset(version)
+
+    prompt_template, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
 
     class_name_prefix = "".join([word.capitalize() for word in task.split("_")])
     scenario_spec = ScenarioSpec(
         class_name=f"helm.benchmark.scenarios.cleva_scenario.CLEVA{class_name_prefix}Scenario",
-        args={"task": task, "version": version, "subtask": subtask},
+        args={"task": task, "version": version, "subtask": subtask, "prompt_template": prompt_template},
     )
     run_spec_name: str = f"cleva:task={task},version={version}"
     if subtask:
         run_spec_name += f",subtask={subtask}"
-
-    prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version)
     if task in [
         "text_classification",
         "classical_chinese_understanding",
@@ -2361,12 +2361,38 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         "commonsense_reasoning",
         "deductive_reasoning",
     ]:
-        adapter_spec = get_multiple_choice_adapter_spec(
-            method=method,
-            instructions=prompt_setting.instructions,
-            input_noun=prompt_setting.input_noun,
-            output_noun=prompt_setting.output_noun,
-        )
+        if prompt_setting.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            adapter_spec = AdapterSpec(
+                method=ADAPT_MULTIPLE_CHOICE_JOINT,
+                instructions=prompt_setting.instructions,
+                input_prefix=prompt_setting.input_prefix,
+                input_suffix=prompt_setting.input_suffix,
+                output_prefix=prompt_setting.output_prefix,
+                output_suffix=prompt_setting.output_suffix,
+                max_train_instances=5,
+                num_outputs=5,
+                max_tokens=5,
+                temperature=0.0,
+                stop_sequences=["\n"],
+                sample_train=True,
+            )
+        elif prompt_setting.method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED, ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL]:
+            adapter_spec = AdapterSpec(
+                method=method,
+                instructions=prompt_setting.instructions,
+                input_prefix=prompt_setting.input_prefix,
+                input_suffix=prompt_setting.input_suffix,
+                output_prefix=prompt_setting.output_prefix,
+                output_suffix=prompt_setting.output_suffix,
+                # Separate is basically language modeling, so can't easily use in-context examples
+                max_train_instances=5,
+                num_outputs=1,
+                max_tokens=0,
+                temperature=0.0,
+                sample_train=True,
+            )
+        else:
+            raise ValueError(f"{task} is a mutlti-choice task and should not use {prompt_setting.method}")
         metric_specs = get_exact_match_metric_specs()
         if task in ["fact_checking", "bias"]:
             metric_specs += get_cleva_classification_metric_specs()
@@ -2383,14 +2409,19 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
         metric_specs = get_cleva_topk_accuracy_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["opinion_mining"]:
         # TODO: fetch the decoding parameters (e.g., max_tokens) online
-        adapter_spec = get_generation_adapter_spec(
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
             instructions=prompt_setting.instructions,
-            input_noun=prompt_setting.input_noun,
-            newline_after_input_noun=prompt_setting.newline_after_input_noun,
-            output_noun=prompt_setting.output_noun,
-            newline_after_output_noun=prompt_setting.newline_after_output_noun,
-            max_train_instances=5,  # limited by the context length
+            input_prefix=prompt_setting.input_prefix,
+            input_suffix=prompt_setting.input_suffix,
+            output_prefix=prompt_setting.output_prefix,
+            output_suffix=prompt_setting.output_suffix,
+            max_train_instances=5,
+            num_outputs=1,
             max_tokens=20,
+            temperature=0.0,
+            stop_sequences=["\n"],
+            multi_label=True,
         )
         metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
     elif task in ["copyright"]:
