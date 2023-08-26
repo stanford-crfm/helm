@@ -66,7 +66,13 @@ OVERLAP_N_COUNT = 13
 class ExecutiveSummary:
     """
     Summary of the output of benchmarking.
-    This is always loaded by the frontend, so keep this small
+    This is always loaded by the frontend, so keep this small.
+
+    There are two modes for releasing runs: `release` and `suite`.
+    `releases` contain a package of suites. When the `release` mode
+    is used, `release` and `suites` will not be None and `suite`will be None.
+    When `suite` mode is used, `suite` will not be None and `release`
+    and `suites` will be None
     """
 
     release: Optional[str]
@@ -357,7 +363,7 @@ class Summarizer:
 
     def read_runs(self):
         self.runs: List[Run] = []
-        self.runs_to_run_suites: Dict[str, str] = dict()
+        self.runs_to_run_suites: Dict[str, str] = {}
         self.group_adapter_to_runs: Dict[str, Dict[AdapterSpec, List[Run]]] = defaultdict(lambda: defaultdict(list))
         self.group_scenario_adapter_to_runs: Dict[str, Dict[ScenarioSpec, Dict[AdapterSpec, List[Run]]]] = defaultdict(
             lambda: defaultdict(lambda: defaultdict(list))
@@ -1236,9 +1242,9 @@ def main():
     parser.add_argument(
         "--release",
         type=str,
-        help="Name of the release this summarization should go under.",
+        help="Experimental: Name of the release this summarization should go under.",
     )
-    parser.add_argument("--suites", type=str, nargs="+", help="Name of the suite(s) you want to summarize.")
+    parser.add_argument("--suites", type=str, nargs="+", help="Experimental: List of suites to summarize for this this release.")
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
     parser.add_argument(
         "--debug",
@@ -1264,11 +1270,12 @@ def main():
     if args.suite and (args.release or args.suites):
         raise ValueError("If --suite is specified, then --release and --suites must NOT be specified.")
     elif args.suite:
-        hlog(
-            "WARNING: The --suite flag is deprecated. Using --release and --suites is now preferred, "
-            "where --release specifies the name of a release and --suites specifies several run suites "
-            "to be included in that release."
-        )
+        # Comment this out while we have a trial period for the `release` method.
+        # hlog(
+        #     "WARNING: The --suite flag is deprecated. Using --release and --suites is now preferred, "
+        #     "where --release specifies the name of a release and --suites specifies several run suites "
+        #     "to be included in that release."
+        # )
         suite = args.suite
     elif args.release or args.suites:
         if not args.release or not args.suites:
@@ -1276,7 +1283,7 @@ def main():
         release = args.release
         suites = args.suites
     else:
-        raise ValueError("At least one of --release or --suite must be specified.")
+        raise ValueError("Exactly one of --release or --suite must be specified.")
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(

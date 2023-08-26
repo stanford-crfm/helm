@@ -6,7 +6,6 @@ function baseUrlWithDirectories(version, using_release) {
 }
 
 function summaryJsonUrl(version, using_release) {
-  console.log(`${baseUrlWithDirectories(version, using_release)}/summary.json`);
   return `${baseUrlWithDirectories(version, using_release)}/summary.json`;
 }
 
