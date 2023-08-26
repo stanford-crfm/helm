@@ -813,7 +813,7 @@ class CLEVASummarizationScenario(CLEVAScenario):
     """
 
     description = "Summarization task in CLEVA benchmark"
-    tags = ["summarizarion"]
+    tags = ["summarization"]
 
 
 class CLEVABiasScenario(CLEVAScenario):
@@ -1105,3 +1105,131 @@ class CLEVAReasoningPrimitiveScenario(CLEVAScenario):
 
     description = "Reasoning primitive task in CLEVA benchmark."
     tags = ["reasoning_primitive", "reasoning"]
+
+
+class CLEVADataToTextGenerationScenario(CLEVAScenario):
+    """
+    The data-to-text generation task of CLEVA benchmark.
+
+    An example is:
+        给定衣服的特点描述，生成相应的广告文案。
+
+        衣服特点：
+        | 类型 | 裙 |
+        | 风格 | 简约 |
+        | 图案 | 条纹 |
+        | 图案 | 线条 |
+        | 图案 | 撞色 |
+        | 裙型 | 鱼尾裙 |
+        | 裙袖长 | 无袖 |
+        广告文案：
+        圆形领口修饰脖颈线条，适合各种脸型，耐看有气质。无袖设计，尤显清凉，简约横条纹装饰，使得整身人鱼造型更为生动立体。加之撞色的鱼尾
+        下摆，深邃富有诗意。收腰包臀,修饰女性身体曲线，结合别出心裁的鱼尾裙摆设计，勾勒出自然流畅的身体轮廓，展现了婀娜多姿的迷人姿态。
+
+        衣服特点：
+        | 类型 | 上衣 |
+        | 版型 | 宽松 |
+        | 颜色 | 粉红色 |
+        | 图案 | 字母 |
+        | 图案 | 文字 |
+        | 图案 | 线条 |
+        | 衣样式 | 卫衣 |
+        | 衣款式 | 不规则 |
+        广告文案：
+
+    Target: 宽松的卫衣版型包裹着整个身材，宽大的衣身与身材形成鲜明的对比描绘出纤瘦的身形。下摆与袖口的不规则剪裁设计，彰显出时尚前卫的形态。
+            被剪裁过的样式呈现出布条状自然地垂坠下来，别具有一番设计感。线条分明的字母样式有着花式的外观，棱角分明加上具有少女元气的枣红色
+            十分有年轻活力感。粉红色的衣身把肌肤衬托得很白嫩又健康。
+    """
+
+    description = "Data-to-text generation task in CLEVA benchmark."
+    tags = ["data_to_text_generation"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        features: List[Dict[str, str]] = row["feature"]
+        feature_text: str = "\n".join([f"| {feature['key']} | {feature['val']} |" for feature in features])
+        text: str = f"衣服特点：\n{feature_text}\n广告文案：\n"
+
+        correct_answer = row["label"]
+        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVAMathematicalReasoningScenario(CLEVAScenario):
+    """
+    The mathematical reasoning task of CLEVA benchmark.
+
+    Also, incorporates prompting methods from "Chain of Thought Prompting Elicits Reasoning in Large Language Models"
+    (Wei et al. 2021): https://arxiv.org/abs/2201.11903
+
+    For example, we use "所以答案是（只给出数字即可）" (English: Thus, the answer is:) before the answer,
+    and remove line breaks within the answer.
+
+    An example of the world_problem subtask is:
+        回答以下数学问题
+
+        问题：甲数是168，乙数是甲数的4倍，乙数=？请一步一步给出推理过程。
+        答：首先，我们知道乙数是甲数的4倍，因此乙数可以表示为：乙数 = 4 × 甲数。然后，我们知道甲数是168，因此可以将乙数表示为：
+           乙数 = 4 × 168。通过计算，可得乙数为：x = 4 × 168 = 672。因此，答案是672。所以答案是（只给出数字即可）672
+        标准答案：672
+
+        问题：小方看一本书，已经看了136页，剩下的每天看15页，18天看完．这本书一共有多少页？请一步一步给出推理过程。
+        答：
+
+    Target: 406
+    """
+
+    description = "Mathematical reasoning task in CLEVA benchmark."
+    tags = ["math", "reasoning", "mathematical_reasoning"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        question: str = row["question"]
+        explanation: str = row["explanation"].replace("\n", "")
+        label: str = row["label"][0]
+        text: str = f"{question}请一步一步给出推理过程。\n"
+
+        if split == TRAIN_SPLIT:
+            references = [Reference(Output(text=f"{explanation}所以答案是（只给出数字即可）{label}。"), tags=[CORRECT_TAG])]
+        elif split == TEST_SPLIT:
+            references = [Reference(Output(text=label), tags=[CORRECT_TAG])]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
+
+
+class CLEVALanguageModelingScenario(CLEVAScenario):
+    """
+    The language modeling task of CLEVA benchmark.
+    Use corpus to evaluate language modeling ability of a model.
+    The metric is bits per byte.
+    """
+
+    description = "Language modeling task in CLEVA benchmark."
+    tags = ["language_modeling"]
+
+    def __init__(self, version: str, task: str, subtask: str):
+        super().__init__(version, task, subtask)
+
+        # Overwrite this to avoid loading the train split as there is none
+        self.splits: Dict[str, str] = {
+            "test": TEST_SPLIT,
+        }
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        text: str = row["choices"][0]
+        instance = Instance(
+            input=Input(text=text),
+            references=[],
+            split=split,
+        )
+        return instance
