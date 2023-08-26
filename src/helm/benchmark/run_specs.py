@@ -2547,17 +2547,18 @@ def get_cleva_spec(
             temperature=1,
         )
         metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_cleva_generative_harms_metric_specs()
-    elif task in ["mathematical_reasoning"]:
-        adapter_spec = get_generation_adapter_spec(
-            instructions=prompt_setting.instructions,
-            input_noun=prompt_setting.input_noun,
-            newline_after_input_noun=prompt_setting.newline_after_input_noun,
-            output_noun=prompt_setting.output_noun,
-            newline_after_output_noun=prompt_setting.newline_after_output_noun,
-            max_train_instances=5,  # limited by the context length
-            max_tokens=200,
-        )
-        metric_specs = get_basic_metric_specs(["chinese_math_result_match"]) + get_cleva_generative_harms_metric_specs()
+    # elif task in ["mathematical_reasoning"]:
+    #     adapter_spec = get_generation_adapter_spec(
+    #         instructions=prompt_setting.instructions,
+    #         input_noun=prompt_setting.input_noun,
+    #         newline_after_input_noun=prompt_setting.newline_after_input_noun,
+    #         output_noun=prompt_setting.output_noun,
+    #         newline_after_output_noun=prompt_setting.newline_after_output_noun,
+    #         max_train_instances=5,  # limited by the context length
+    #         max_tokens=200,
+    #     )
+    #     metric_specs = get_basic_metric_specs(["chinese_math_result_match"])\
+    #          + get_cleva_generative_harms_metric_specs()
     elif task in ["language_modeling"]:
         adapter_spec = get_language_modeling_adapter_spec()
         metric_specs = get_basic_metric_specs([])

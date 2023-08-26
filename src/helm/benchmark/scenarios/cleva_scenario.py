@@ -353,7 +353,7 @@ class CLEVAScenario(Scenario):
                 method = ADAPT_MULTIPLE_CHOICE_JOINT
             else:
                 method = ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
-        instructions: str = prompt_template.get("instructions", "")
+        instructions: str = prompt_template.get("instruction", "")
 
         prompt_setting = PromptSetting(
             instructions=instructions + "\n" if len(instructions) > 0 else "",
@@ -432,7 +432,6 @@ class CLEVATextClassificationScenario(CLEVAScenario):
     Target: M
     """
 
-    # name = "cleva_text_classification"
     description = "Text classification task in CLEVA benchmark"
     tags = ["text_classification", "multiple_choice"]
 
@@ -453,7 +452,6 @@ class CLEVAOpinionMiningScenario(CLEVAScenario):
     Target: 厦门大学
     """
 
-    # name = "cleva_opinion_mining"
     description = "Opinion mining task in CLEVA benchmark"
     tags = ["opinion_mining"]
 
@@ -485,7 +483,6 @@ class CLEVAPinyinTransliterationScenario(CLEVAScenario):
     Target: zhè shì qiú lèi bǐ sài
     """
 
-    # name = "cleva_pinyin_transliteration"
     description = "Pinyin transliteration task in CLEVA benchmark"
     tags = ["pinyin_transliteration"]
 
@@ -514,7 +511,6 @@ class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
     Target: A
     """
 
-    # name = "cleva_classical_chinese_understanding"
     description = "Classical Chinese understanding task in CLEVA benchmark"
     tags = ["classical_chinese_understanding", "multiple_choice"]
 
@@ -539,7 +535,6 @@ class CLEVASentimentAnalysisScenario(CLEVAScenario):
     Target: B
     """
 
-    # name = "cleva_sentiment_analysis"
     description = "Sentiment analysis task in CLEVA benchmark"
     tags = ["sentiment_analysis"]
 
@@ -556,7 +551,6 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
     Target: A
     """
 
-    # name = "cleva_instruction_following"
     description = "Instruction following task in CLEVA benchmark"
     tags = ["instruction_following", "multiple_choice"]
 
@@ -654,7 +648,6 @@ class CLEVAToxicityDetectionScenario(CLEVAScenario):
     Target: A
     """
 
-    # name = "cleva_toxicity_detection"
     description = "Toxicity detection task in CLEVA benchmark"
     tags = ["toxicity_detection", "harms", "multiple_choice"]
 
@@ -675,7 +668,6 @@ class CLEVAParaphraseGenerationScenario(CLEVAScenario):
     Target: 她低下头，就要哭出来了。
     """
 
-    # name = "cleva_paraphrase_generation"
     description = "Paraphrase generation task in CLEVA benchmark"
     tags = ["paraphrase_generation"]
 
@@ -1440,8 +1432,14 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
     description = "Language modeling task in CLEVA benchmark."
     tags = ["language_modeling"]
 
-    def __init__(self, version: str, task: str, subtask: str):
-        super().__init__(version, task, subtask)
+    def __init__(
+        self,
+        version: str,
+        task: str,
+        subtask: str,
+        prompt_template: Dict[str, Any],
+    ):
+        super().__init__(version, task, subtask, prompt_template)
 
         # Overwrite this to avoid loading the train split as there is none
         self.splits: Dict[str, str] = {
