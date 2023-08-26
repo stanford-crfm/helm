@@ -68,6 +68,7 @@ class ExecutiveSummary:
     Summary of the output of benchmarking.
     This is always loaded by the frontend, so keep this small.
 
+    A note on the relation between `release`, `suites`, and `suite`:
     There are two modes for releasing runs: `release` and `suite`.
     `releases` contain a package of suites. When the `release` mode
     is used, `release` and `suites` will not be None and `suite`will be None.
@@ -261,6 +262,14 @@ class Summarizer:
         verbose: bool,
         num_threads: int,
     ):
+        """
+        A note on the relation between `release`, `suites`, and `suite`:
+        There are two modes for releasing runs: `release` and `suite`.
+        `releases` contain a package of suites. When the `release` mode
+        is used, `release` and `suites` will not be None and `suite`will be None.
+        When `suite` mode is used, `suite` will not be None and `release`
+        and `suites` will be None
+        """
         self.output_path: str = output_path
         self.run_release_path: str
         self.suites: List[str]
@@ -1244,7 +1253,9 @@ def main():
         type=str,
         help="Experimental: Name of the release this summarization should go under.",
     )
-    parser.add_argument("--suites", type=str, nargs="+", help="Experimental: List of suites to summarize for this this release.")
+    parser.add_argument(
+        "--suites", type=str, nargs="+", help="Experimental: List of suites to summarize for this this release."
+    )
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
     parser.add_argument(
         "--debug",

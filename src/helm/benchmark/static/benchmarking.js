@@ -1184,7 +1184,7 @@ $(function () {
   const urlParams = decodeUrlParams(window.location.search);
   var usingRelease;
 
-  $.getJSON('using_release', {}, (response) => {
+  $.getJSON('benchmark_output/using_release', {}, (response) => {
     usingRelease = response['use_release'];
   }).then(() => {
     // Extract the name of the release/suite from the URL parameters. Default to "latest" if none is specified.
@@ -1195,105 +1195,110 @@ $(function () {
       version = "suite" in urlParams ? urlParams.suite : "latest";
     }
     console.log(`Version: ${version}`);
-    $.when(
-      $.get('schema.yaml', {}, (response) => {
-        const raw = jsyaml.load(response);
-        console.log('schema', raw);
-        schema = new Schema(raw);
-      }),
-      $.get(summaryJsonUrl(version, usingRelease), {}, (response) => {
-        console.log('summary', response);
-        summary = response;
-        if (usingRelease) {
-          $summary.append(`Release ${summary.release} (last updated ${summary.date})`);
-        } else {
-          $summary.append(`Suite ${summary.suite} (last updated ${summary.date})`);
-        }
-      }),
-    ).then(() => {
-      $.get(runsToRunSuitesJsonUrl(version, usingRelease), {}, (response) => {
-          runsToRunSuites = response;
-      }).always(() => {
-        if (urlParams.models) {
-          // Models
-          $main.empty()
-          $main.append(renderHeader('Models', renderModels()));
+
+    const schemaPromise = $.get('schema.yaml', {}, (response) => {
+      const raw = jsyaml.load(response);
+      console.log('schema', raw);
+      schema = new Schema(raw);
+    });
+
+    const summaryPromise = $.get(summaryJsonUrl(version, usingRelease), {}, (response) => {
+      console.log('summary', response);
+      summary = response;
+      if (usingRelease) {
+        $summary.append(`Release ${summary.release} (last updated ${summary.date})`);
+      } else {
+        $summary.append(`Suite ${summary.suite} (last updated ${summary.date})`);
+      }
+    });
+
+    const getRunToRunSuitesPromise = usingRelease ?
+      $.get(runsToRunSuitesJsonUrl(version, usingRelease), {}) :
+      $.Deferred().resolve({});
+    const runToRunSuitesPromise = getRunToRunSuitesPromise.then((response) => {
+      runsToRunSuites = response;
+    });
+
+    $.when(schemaPromise, summaryPromise, runToRunSuitesPromise).then(() => {
+      if (urlParams.models) {
+        // Models
+        $main.empty()
+        $main.append(renderHeader('Models', renderModels()));
+        refreshHashLocation();
+      } else if (urlParams.scenarios) {
+        // Models
+        $main.empty()
+        $main.append(renderHeader('Scenarios', renderScenarios()));
+        refreshHashLocation();
+      } else if (urlParams.plots) {
+        // Plots
+        $main.empty()
+        $main.append(renderHeader('Plots', renderPlots()));
+        refreshHashLocation();
+      } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
+        // Predictions for a set of run specs (matching a regular expression)
+        $main.text('Loading runs...');
+        $.getJSON(runSpecsJsonUrl(version, usingRelease), {}, (response) => {
+          $main.empty();
+          const runSpecs = response;
+          console.log('runSpecs', runSpecs);
+          let matcher;
+          if (urlParams.runSpec) {
+            // Exactly one
+            matcher = (runSpec) => runSpec.name === urlParams.runSpec;
+          } else if (urlParams.runSpecs) {
+            // List
+            const selectedRunSpecs = JSON.parse(urlParams.runSpecs);
+            matcher = (runSpec) => selectedRunSpecs.includes(runSpec.name);
+          } else if (urlParams.runSpecRegex) {
+            // Regular expression
+            const regex = new RegExp('^' + urlParams.runSpecRegex + '$');
+            matcher = (runSpec) => regex.test(runSpec.name);
+          } else {
+            throw 'Internal error';
+          }
+          const matchedRunSpecs = runSpecs.filter(matcher);
+          if (matchedRunSpecs.length === 0) {
+            $main.append(renderError('No matching runs'));
+          } else {
+            $main.append(renderRunsDetailed(matchedRunSpecs, runsToRunSuites));
+          }
           refreshHashLocation();
-        } else if (urlParams.scenarios) {
-          // Models
-          $main.empty()
-          $main.append(renderHeader('Scenarios', renderScenarios()));
+        });
+      } else if (urlParams.runs) {
+        // All runs (with search)
+        $main.text('Loading runs...');
+        $.getJSON(runSpecsJsonUrl(version, usingRelease), {}, (runSpecs) => {
+          $main.empty();
+          console.log('runSpecs', runSpecs);
+          $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
+        });
+      } else if (urlParams.groups) {
+        // All groups
+        $main.text('Loading groups...');
+        const path = groupsJsonUrl(version, usingRelease);
+        $.getJSON(path, {}, (tables) => {
+          $main.empty();
+          console.log('groups', tables);
+          $main.append(renderTables(tables, path));
           refreshHashLocation();
-        } else if (urlParams.plots) {
-          // Plots
-          $main.empty()
-          $main.append(renderHeader('Plots', renderPlots()));
+        });
+      } else if (urlParams.group) {
+        // Specific group
+        $main.text('Loading group...');
+        const path = groupJsonUrl(version, usingRelease, urlParams.group);
+        $.getJSON(path, {}, (tables) => {
+          $main.empty();
+          console.log('group', tables);
+          $main.append(renderGroupHeader());
+          $main.append(renderTables(tables, path));
           refreshHashLocation();
-        } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
-          // Predictions for a set of run specs (matching a regular expression)
-          $main.text('Loading runs...');
-          $.getJSON(runSpecsJsonUrl(version, usingRelease), {}, (response) => {
-            $main.empty();
-            const runSpecs = response;
-            console.log('runSpecs', runSpecs);
-            let matcher;
-            if (urlParams.runSpec) {
-              // Exactly one
-              matcher = (runSpec) => runSpec.name === urlParams.runSpec;
-            } else if (urlParams.runSpecs) {
-              // List
-              const selectedRunSpecs = JSON.parse(urlParams.runSpecs);
-              matcher = (runSpec) => selectedRunSpecs.includes(runSpec.name);
-            } else if (urlParams.runSpecRegex) {
-              // Regular expression
-              const regex = new RegExp('^' + urlParams.runSpecRegex + '$');
-              matcher = (runSpec) => regex.test(runSpec.name);
-            } else {
-              throw 'Internal error';
-            }
-            const matchedRunSpecs = runSpecs.filter(matcher);
-            if (matchedRunSpecs.length === 0) {
-              $main.append(renderError('No matching runs'));
-            } else {
-              $main.append(renderRunsDetailed(matchedRunSpecs, runsToRunSuites));
-            }
-            refreshHashLocation();
-          });
-        } else if (urlParams.runs) {
-          // All runs (with search)
-          $main.text('Loading runs...');
-          $.getJSON(runSpecsJsonUrl(version, usingRelease), {}, (runSpecs) => {
-            $main.empty();
-            console.log('runSpecs', runSpecs);
-            $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
-          });
-        } else if (urlParams.groups) {
-          // All groups
-          $main.text('Loading groups...');
-          const path = groupsJsonUrl(version, usingRelease);
-          $.getJSON(path, {}, (tables) => {
-            $main.empty();
-            console.log('groups', tables);
-            $main.append(renderTables(tables, path));
-            refreshHashLocation();
-          });
-        } else if (urlParams.group) {
-          // Specific group
-          $main.text('Loading group...');
-          const path = groupJsonUrl(version, usingRelease, urlParams.group);
-          $.getJSON(path, {}, (tables) => {
-            $main.empty();
-            console.log('group', tables);
-            $main.append(renderGroupHeader());
-            $main.append(renderTables(tables, path));
-            refreshHashLocation();
-          });
-        } else {
-          // Main landing page
-          $main.empty()
-          $main.append(renderMainPage());
-        }
-      });
+        });
+      } else {
+        // Main landing page
+        $main.empty()
+        $main.append(renderMainPage());
+      }
     });
   });
 });

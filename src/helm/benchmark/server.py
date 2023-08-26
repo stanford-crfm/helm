@@ -12,7 +12,7 @@ from bottle import Bottle, static_file
 app = Bottle()
 
 
-@app.get("/using_release")
+@app.get("/benchmark_output/using_release")
 def serve_release():
     return {"use_release": use_release}
 
@@ -40,7 +40,7 @@ def main():
     parser.add_argument(
         "-o", "--output-path", type=str, help="The location of the output path", default="benchmark_output"
     )
-    parser.add_argument("--use-release", action="store_true", help="Serve a release rather than a suite.")
+    parser.add_argument("--use-release", action="store_true", help="Experimental: Serve a release rather than a suite.")
     args = parser.parse_args()
 
     use_release = args.use_release
