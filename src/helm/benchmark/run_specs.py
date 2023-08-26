@@ -2519,9 +2519,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, method: str = A
             max_train_instances=5,  # limited by the context length
             max_tokens=200,
         )
-        metric_specs = (
-            get_basic_metric_specs(["chinese_math_exact_match_indicator"]) + get_cleva_generative_harms_metric_specs()
-        )
+        metric_specs = get_basic_metric_specs(["chinese_math_result_match"]) + get_cleva_generative_harms_metric_specs()
     elif task in ["language_modeling"]:
         adapter_spec = get_language_modeling_adapter_spec()
         metric_specs = get_basic_metric_specs([])

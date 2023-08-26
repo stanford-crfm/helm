@@ -1210,9 +1210,8 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
 class CLEVALanguageModelingScenario(CLEVAScenario):
     """
     The language modeling task of CLEVA benchmark.
-    The data comes from news (https://github.com/brightmart/nlp_chinese_corpus).
-    It was originally split into training and validation set.
-    CLEVA sampled 10% of the validation set, resulting in a test set of 7,679 entries.
+    Use corpus to evaluate language modeling ability of a model.
+    The metric is bits per byte.
     """
 
     description = "Language modeling task in CLEVA benchmark."
