@@ -7,7 +7,7 @@ from typing import List, Dict, Any, Optional, Tuple
 
 from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
-    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_GENERATION,
 )
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
@@ -352,8 +352,26 @@ class CLEVAScenario(Scenario):
             if meta.get("mul_as_gen", True):
                 method = ADAPT_MULTIPLE_CHOICE_JOINT
             else:
-                method = ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
-        instructions: str = prompt_template.get("instructions", "")
+                method = ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL
+        instructions: str = prompt_template.get("instruction", "")
+
+        if task == "paraphrase_generation":
+            # Paraphrase Generation follows a different pattern to construct prompts:
+            # we use HELM's original strategy so as to keep the raw input intact for
+            # accurate evaluation
+            prompt_setting = PromptSetting(
+                instructions=instructions + "\n" if len(instructions) > 0 else "",
+                method=method,
+                global_prefix=prompt_template.get("global_prefix", ""),
+                input_prefix=prompt_template.get("input_prefix", ""),
+                input_suffix=prompt_template.get("input_suffix", ""),
+                reference_prefix=prompt_template.get("reference_prefix", "A. "),
+                reference_suffix=prompt_template.get("reference_suffix", "\n"),
+                output_prefix=prompt_template.get("output_prefix", ""),
+                output_suffix=prompt_template.get("output_suffix", "\n"),
+                instance_prefix=prompt_template.get("instance_prefix", "\n"),
+            )
+            return prompt_template, prompt_setting
 
         prompt_setting = PromptSetting(
             instructions=instructions + "\n" if len(instructions) > 0 else "",
@@ -432,7 +450,6 @@ class CLEVATextClassificationScenario(CLEVAScenario):
     Target: M
     """
 
-    # name = "cleva_text_classification"
     description = "Text classification task in CLEVA benchmark"
     tags = ["text_classification", "multiple_choice"]
 
@@ -453,7 +470,6 @@ class CLEVAOpinionMiningScenario(CLEVAScenario):
     Target: 厦门大学
     """
 
-    # name = "cleva_opinion_mining"
     description = "Opinion mining task in CLEVA benchmark"
     tags = ["opinion_mining"]
 
@@ -485,7 +501,6 @@ class CLEVAPinyinTransliterationScenario(CLEVAScenario):
     Target: zhè shì qiú lèi bǐ sài
     """
 
-    # name = "cleva_pinyin_transliteration"
     description = "Pinyin transliteration task in CLEVA benchmark"
     tags = ["pinyin_transliteration"]
 
@@ -514,7 +529,6 @@ class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
     Target: A
     """
 
-    # name = "cleva_classical_chinese_understanding"
     description = "Classical Chinese understanding task in CLEVA benchmark"
     tags = ["classical_chinese_understanding", "multiple_choice"]
 
@@ -539,7 +553,6 @@ class CLEVASentimentAnalysisScenario(CLEVAScenario):
     Target: B
     """
 
-    # name = "cleva_sentiment_analysis"
     description = "Sentiment analysis task in CLEVA benchmark"
     tags = ["sentiment_analysis"]
 
@@ -556,7 +569,6 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
     Target: A
     """
 
-    # name = "cleva_instruction_following"
     description = "Instruction following task in CLEVA benchmark"
     tags = ["instruction_following", "multiple_choice"]
 
@@ -654,7 +666,6 @@ class CLEVAToxicityDetectionScenario(CLEVAScenario):
     Target: A
     """
 
-    # name = "cleva_toxicity_detection"
     description = "Toxicity detection task in CLEVA benchmark"
     tags = ["toxicity_detection", "harms", "multiple_choice"]
 
@@ -675,9 +686,20 @@ class CLEVAParaphraseGenerationScenario(CLEVAScenario):
     Target: 她低下头，就要哭出来了。
     """
 
-    # name = "cleva_paraphrase_generation"
     description = "Paraphrase generation task in CLEVA benchmark"
     tags = ["paraphrase_generation"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        text = row["sentence"]
+        correct_answer = row["label"]
+        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
 
 
 class CLEVAIntentUnderstandingScenario(CLEVAScenario):
@@ -1440,8 +1462,14 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
     description = "Language modeling task in CLEVA benchmark."
     tags = ["language_modeling"]
 
-    def __init__(self, version: str, task: str, subtask: str):
-        super().__init__(version, task, subtask)
+    def __init__(
+        self,
+        version: str,
+        task: str,
+        subtask: str,
+        prompt_template: Dict[str, Any],
+    ):
+        super().__init__(version, task, subtask, prompt_template)
 
         # Overwrite this to avoid loading the train split as there is none
         self.splits: Dict[str, str] = {
