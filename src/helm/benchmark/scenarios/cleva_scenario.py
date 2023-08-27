@@ -357,7 +357,7 @@ class CLEVAScenario(Scenario):
 
         if task == "paraphrase_generation":
             # Paraphrase Generation follows a different pattern to construct prompts:
-            # we use HELM's original strategy so as to ramain the raw input intact for
+            # we use HELM's original strategy so as to keep the raw input intact for
             # accurate evaluation
             prompt_setting = PromptSetting(
                 instructions=instructions + "\n" if len(instructions) > 0 else "",
