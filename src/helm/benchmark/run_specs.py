@@ -713,6 +713,18 @@ def get_cleva_copyright_metric_spec(args: Optional[Dict] = None) -> List[MetricS
     ]
 
 
+def get_cleva_generative_task_metric_spec(task: str, subtask: Optional[str], **kwargs) -> List[MetricSpec]:
+    CLEVA_GEN_TASK_TO_METRIC: Dict[str, Callable] = {
+        "opinion_mining:opinion_target_extraction": get_exact_match_metric_specs,
+        "paraphrase_generation": get_cleva_paraphrase_generation_metric_specs,
+    }
+
+    key: str = task
+    if subtask is not None:
+        key += ":" + subtask
+    return CLEVA_GEN_TASK_TO_METRIC[key](**kwargs)
+
+
 ############################################################
 # Run specs
 
@@ -2366,7 +2378,7 @@ def get_cleva_spec(
     ]:
         if prompt_setting.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             adapter_spec = AdapterSpec(
-                method=ADAPT_MULTIPLE_CHOICE_JOINT,
+                method=prompt_setting.method,
                 instructions=prompt_setting.instructions,
                 input_prefix=prompt_setting.input_prefix,
                 input_suffix=prompt_setting.input_suffix,
@@ -2385,7 +2397,7 @@ def get_cleva_spec(
             ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
         ]:
             adapter_spec = AdapterSpec(
-                method=method,
+                method=prompt_setting.method,
                 instructions=prompt_setting.instructions,
                 input_prefix=prompt_setting.input_prefix,
                 input_suffix=prompt_setting.input_suffix,
@@ -2414,9 +2426,9 @@ def get_cleva_spec(
     #         max_tokens=10,
     #     )
     #     metric_specs = get_cleva_topk_accuracy_metric_specs() + get_cleva_generative_harms_metric_specs()
-    elif task in ["opinion_mining"]:
+    elif task in ["opinion_mining", "paraphrase_generation"]:
         adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION,
+            method=prompt_setting.method,
             instructions=prompt_setting.instructions,
             input_prefix=prompt_setting.input_prefix,
             input_suffix=prompt_setting.input_suffix,
@@ -2430,7 +2442,7 @@ def get_cleva_spec(
             sample_train=inference_parameters.get("sample_train", True),
             multi_label=inference_parameters.get("multi_label", True),
         )
-        metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
+        metric_specs = get_cleva_generative_task_metric_spec(task, subtask) + get_cleva_generative_harms_metric_specs()
     elif task in ["copyright"]:
         adapter_spec = get_completion_adapter_spec(temperature=0.2, max_tokens=1024, num_outputs=1)
         args = {"normalize_by_prefix_length": True, "normalize_newline_space_tab": False}
@@ -2457,17 +2469,6 @@ def get_cleva_spec(
     #         max_tokens=200,
     #     )
     #     metric_specs = get_cleva_machine_translation_metric_specs() + get_cleva_generative_harms_metric_specs()
-    # elif task in ["paraphrase_generation"]:
-    #     adapter_spec = get_generation_adapter_spec(
-    #         instructions=prompt_setting.instructions,
-    #         input_noun=prompt_setting.input_noun,
-    #         newline_after_input_noun=prompt_setting.newline_after_input_noun,
-    #         output_noun=prompt_setting.output_noun,
-    #         newline_after_output_noun=prompt_setting.newline_after_output_noun,
-    #         max_train_instances=5,  # limited by the context length
-    #         max_tokens=200,
-    #     )
-    #     metric_specs = get_cleva_paraphrase_generation_metric_specs() + get_cleva_generative_harms_metric_specs()
     # elif task in ["dialogue_generation"]:
     #     adapter_spec = AdapterSpec(
     #         method=ADAPT_GENERATION,

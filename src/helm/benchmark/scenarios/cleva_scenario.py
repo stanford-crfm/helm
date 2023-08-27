@@ -7,7 +7,7 @@ from typing import List, Dict, Any, Optional, Tuple
 
 from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
-    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_GENERATION,
 )
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
@@ -352,8 +352,26 @@ class CLEVAScenario(Scenario):
             if meta.get("mul_as_gen", True):
                 method = ADAPT_MULTIPLE_CHOICE_JOINT
             else:
-                method = ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
+                method = ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL
         instructions: str = prompt_template.get("instruction", "")
+
+        if task == "paraphrase_generation":
+            # Paraphrase Generation follows a different pattern to construct prompts:
+            # we use HELM's original strategy so as to ramain the raw input intact for
+            # accurate evaluation
+            prompt_setting = PromptSetting(
+                instructions=instructions + "\n" if len(instructions) > 0 else "",
+                method=method,
+                global_prefix=prompt_template.get("global_prefix", ""),
+                input_prefix=prompt_template.get("input_prefix", ""),
+                input_suffix=prompt_template.get("input_suffix", ""),
+                reference_prefix=prompt_template.get("reference_prefix", "A. "),
+                reference_suffix=prompt_template.get("reference_suffix", "\n"),
+                output_prefix=prompt_template.get("output_prefix", ""),
+                output_suffix=prompt_template.get("output_suffix", "\n"),
+                instance_prefix=prompt_template.get("instance_prefix", "\n"),
+            )
+            return prompt_template, prompt_setting
 
         prompt_setting = PromptSetting(
             instructions=instructions + "\n" if len(instructions) > 0 else "",
@@ -670,6 +688,18 @@ class CLEVAParaphraseGenerationScenario(CLEVAScenario):
 
     description = "Paraphrase generation task in CLEVA benchmark"
     tags = ["paraphrase_generation"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        text = row["sentence"]
+        correct_answer = row["label"]
+        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
+
+        instance = Instance(
+            input=Input(text=text),
+            references=references,
+            split=split,
+        )
+        return instance
 
 
 class CLEVAIntentUnderstandingScenario(CLEVAScenario):
