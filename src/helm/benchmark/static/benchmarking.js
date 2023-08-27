@@ -1183,12 +1183,12 @@ $(function () {
   var runsToRunSuites = null;
   const urlParams = decodeUrlParams(window.location.search);
   var usingRelease;
+  var version;
 
   $.getJSON('benchmark_output/using_release', {}, (response) => {
     usingRelease = response['use_release'];
   }).then(() => {
     // Extract the name of the release/suite from the URL parameters. Default to "latest" if none is specified.
-    var version;
     if (usingRelease) {
       version = "release" in urlParams ? urlParams.release : "latest";
     } else {
