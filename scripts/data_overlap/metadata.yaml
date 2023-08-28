@@ -1,0 +1,19 @@
+file_models_mapping:
+  - file_name: output_stats_pile_all 
+    model_names:
+      - together/bloom
+      - together/gpt-j-6b
+      - together/gpt-neox-20b
+      - together/opt-66b
+      - together/opt-175b
+      - microsoft/TNLGv2_7B
+      - microsoft/TNLGv2_530B
+      - anthropic/stanford-online-all-v4-s3
+      - anthropic/claude-v1.3
+      - anthropic/claude-instant-v1
+      - together/yalm
+      - together/cerebras-gpt-6.7b
+      - together/cerebras-gpt-13b
+      - together/pythia-3b
+      - together/pythia-7b
+      - together/pythia-12b
