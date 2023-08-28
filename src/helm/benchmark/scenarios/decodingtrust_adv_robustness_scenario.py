@@ -2,7 +2,7 @@ import os
 import json
 from typing import List, Dict
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Input, VALID_SPLIT, Reference, Output, CORRECT_TAG
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, VALID_SPLIT, Reference, Output, CORRECT_TAG
 
 TASK_DESCRIPTIONS = {
     "sst2": "For the given sentence, label the sentiment of the sentence as positive or negative. The answer should be "
@@ -57,13 +57,12 @@ class AdvRobustnessScenario(Scenario):
     name: str = "AdvGLUE++"
     description: str = "Adversarial Robustness"
     tags: List[str] = ["robustness", "trustworthy"]
-    source_url: str = ""  # TODO: Fill in task-url
+    source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/adv-glue-plus-plus/data/advglue_plus_plus.json"
 
-    def __init__(self, glue_task: str, evaluate_benign: bool = False) -> None:
+    def __init__(self, glue_task: str) -> None:
         """
         Args:
           glue_task: Name of the GLUE task used to generate AdvGLUE++ examples
-          evaluate_benign: Whether to evaluate benign GLUE accuracy
         TODO: Support benign GLUE evaluation and the standard AdvGLUE test set evaluation
         """
         super().__init__()
@@ -71,7 +70,6 @@ class AdvRobustnessScenario(Scenario):
         if glue_task not in TASK_TO_KEYS.keys():
             raise ValueError("Invalid GLUE task name specified!")
 
-        self.benign = evaluate_benign
         self.glue_task = glue_task
 
     def get_input(self, raw_item) -> Input:
@@ -91,7 +89,7 @@ class AdvRobustnessScenario(Scenario):
         for candidate_label, label_text in ANSWER_MAPPING[self.glue_task].items():
             candidate_label: str
             tags = [CORRECT_TAG] if label == candidate_label else []
-            references.append(Reference(output=Output(text=candidate_label), tags=tags))
+            references.append(Reference(output=Output(text=label_text), tags=tags))
 
         return references
 
