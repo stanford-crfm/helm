@@ -747,24 +747,6 @@ class CLEVAIntentUnderstandingScenario(CLEVAScenario):
     description = "Intent understanding task in CLEVA benchmark"
     tags = ["intent_understanding", "multiple_choice"]
 
-    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-    #     context: str = row["context"]
-    #     question: str = row["question"]
-    #     text: str = f"{context}\n\n问题：{question}"
-    #     answers: List[str] = row["choices"]
-    #     correct_choice: List[int] = row["label"]
-    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-    #     references: List[Reference] = [
-    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-    #     ]
-
-    #     instance = Instance(
-    #         input=Input(text=text),
-    #         references=references,
-    #         split=split,
-    #     )
-    #     return instance
-
 
 class CLEVACoreferenceResolutionScenario(CLEVAScenario):
     """
@@ -789,25 +771,6 @@ class CLEVACoreferenceResolutionScenario(CLEVAScenario):
 
     description = "Coreference resolution task in CLEVA benchmark"
     tags = ["coreference_resolution", "multiple_choice"]
-
-    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-    #     context: str = row["context"]
-    #     span1: str = row["span1"]
-    #     span2: str = row["span2"]
-    #     text: str = f"{context}\n在上文中，“{span1}”和“{span2}”是否指代了同一个对象？\n"
-    #     answers: List[str] = row["choices"]
-    #     correct_choice: List[int] = row["label"]
-    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-    #     references: List[Reference] = [
-    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-    #     ]
-
-    #     instance = Instance(
-    #         input=Input(text=text),
-    #         references=references,
-    #         split=split,
-    #     )
-    #     return instance
 
 
 class CLEVAReadingComprehensionScenario(CLEVAScenario):
@@ -847,24 +810,6 @@ class CLEVAReadingComprehensionScenario(CLEVAScenario):
 
     description = "Reading comprehension task in CLEVA benchmark"
     tags = ["reading_comprehension", "multiple_choice"]
-
-    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-    #     context: str = row["context"]
-    #     question: str = row["question"]
-    #     text: str = f"{context}\n\n问题：{question}\n"
-    #     answers: List[str] = row["choices"]
-    #     correct_choice: List[int] = row["label"]
-    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-    #     references: List[Reference] = [
-    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-    #     ]
-
-    #     instance = Instance(
-    #         input=Input(text=text),
-    #         references=references,
-    #         split=split,
-    #     )
-    #     return instance
 
 
 class CLEVADialogueGenerationScenario(CLEVAScenario):
@@ -1020,24 +965,6 @@ class CLEVAParaphraseIdentificationScenario(CLEVAScenario):
 
     description = "Paraphrase identification task in CLEVA benchmark"
     tags = ["paraphrase_identification", "multiple_choice"]
-
-    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-    #     sentence1: str = row["sentence1"]
-    #     sentence2: str = row["sentence2"]
-    #     text: str = f"句子1：{sentence1}\n句子2：{sentence2}\n"
-    #     answers: List[str] = row["choices"]
-    #     correct_choice: List[int] = row["label"]
-    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-    #     references: List[Reference] = [
-    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-    #     ]
-
-    #     instance = Instance(
-    #         input=Input(text=text),
-    #         references=references,
-    #         split=split,
-    #     )
-    #     return instance
 
 
 class CLEVAClosedBookQuestionAnsweringScenario(CLEVAScenario):
@@ -1260,6 +1187,20 @@ class CLEVADeductiveReasoningScenario(CLEVAScenario):
     description = "Deductive reasoning task in CLEVA benchmark"
     tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
 
+    def __init__(
+        self,
+        version: str,
+        task: str,
+        subtask: str,
+        prompt_template: Dict[str, Any],
+    ):
+        super().__init__(version, task, subtask, prompt_template)
+
+        # Overwrite this to avoid loading the train split as there is none
+        self.splits: Dict[str, str] = {
+            "test": TEST_SPLIT,
+        }
+
 
 class CLEVAMathematicalCalculationScenario(CLEVAScenario):
     """
@@ -1475,12 +1416,3 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
         self.splits: Dict[str, str] = {
             "test": TEST_SPLIT,
         }
-
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        text: str = row["choices"][0]
-        instance = Instance(
-            input=Input(text=text),
-            references=[],
-            split=split,
-        )
-        return instance
