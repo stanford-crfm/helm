@@ -52,6 +52,8 @@ from .scenarios import vicuna_scenario  # noqa
 from .scenarios import open_assistant_scenario  # noqa
 from .scenarios import anthropic_hh_rlhf_scenario  # noqa
 from .scenarios import koala_scenario  # noqa
+from .scenarios import decodingtrust_adv_robustness_scenario
+
 
 # Biomedical
 from .scenarios import covid_dialog_scenario  # noqa
