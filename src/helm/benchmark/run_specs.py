@@ -401,6 +401,12 @@ def get_machine_translation_adapter_spec(
     )
 
 
+def get_chat_adapter_spec(model: str, temperature: float, num_outputs: int) -> AdapterSpec:
+    return AdapterSpec(
+
+    )
+
+
 ############################################################
 # Examples of scenario and adapter specs
 
@@ -2223,6 +2229,24 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
         groups=["anthropic_hh_rlhf"],
+    )
+
+
+@run_spec_function("adv_robustness")
+def get_adv_robustness_spec(task: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.decodingtrust_adv_robustness_scenario.AdvRobustnessScenario",
+        args={"glue_task": task}
+    )
+
+    adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
+
+    return RunSpec(
+        name=f"adv_robustness:task={task}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["decoding_trust", "adv_robustness"],
     )
 
 
