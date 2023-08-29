@@ -1,8 +1,8 @@
 import os
 import json
 from typing import List, Dict
-# from helm.common.general import ensure_file_downloaded
-from scenario import Scenario, Instance, Input, TRAIN_SPLIT, VALID_SPLIT, Reference, Output, CORRECT_TAG
+from helm.common.general import ensure_file_downloaded
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TRAIN_SPLIT, VALID_SPLIT, Reference, Output, CORRECT_TAG
 
 TASK = {"knowledge": ["qa_2020", "qa_2023"],
         "style": ["base", "shake_w", "augment", "shake_p0", "shake_p0.6", "bible_p0", "bible_p0.6", "romantic_p0",
@@ -44,9 +44,9 @@ class OoDRobustnessScenario(Scenario):
     name: str = "OoD"
     description: str = "Out-of-distribution Robustness"
     tags: List[str] = ["robustness", "trustworthy"]
-    source_url: str = ""  # TODO: Fill in task-url
+    source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/ood/{}.json"
 
-    def __init__(self, ood_type: str, task: str, demo_name: str, run_id: int, few_shot_num: int, idk: bool) -> None:
+    def __init__(self, ood_type: str, task: str, demo_name: str, run_id: int, idk: int) -> None:
         """
         Args:
           glue_task: Name of the GLUE task used to generate AdvGLUE++ examples
@@ -67,7 +67,7 @@ class OoDRobustnessScenario(Scenario):
         self.demo_name = demo_name
         self.run_id = run_id
         self.idk = idk
-        self.few_shot_num = few_shot_num
+        self.few_shot_num = 5  # 5 in our ood dataset
         self.task_message = None
 
     def get_task_messages(self):
@@ -115,9 +115,8 @@ class OoDRobustnessScenario(Scenario):
     def get_references(self, label: str, answer_mapping: List[str]) -> List[Reference]:
         references: List[Reference] = []
         for candidate_label, label_text in enumerate(answer_mapping):
-            candidate_label: str
             tags = [CORRECT_TAG] if label == label_text else []
-            references.append(Reference(output=Output(text=candidate_label), tags=tags))
+            references.append(Reference(output=Output(text=str(candidate_label)), tags=tags))
 
         return references
 
@@ -154,12 +153,12 @@ class OoDRobustnessScenario(Scenario):
         return dataset
 
     def get_instances(self) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, "ood.json")
+        data_path: str = os.path.join(self.output_path, f"{self.ood_type}.json")
 
-        # ensure_file_downloaded(
-        #     source_url=self.source_url,
-        #     target_path=data_path,
-        # )
+        ensure_file_downloaded(
+            source_url=self.source_url.format(self.ood_type),
+            target_path=data_path,
+        )
 
         with open(data_path) as f:
             dataset: List[Dict] = json.load(f)

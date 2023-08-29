@@ -336,6 +336,30 @@ def get_instruct_adapter_spec(
     )
 
 
+def get_few_shot_instruct_adapter_spec(
+    num_outputs: int = 1,
+    max_tokens: int = 512,
+    temperature: float = 0.7,
+    max_train_instances: int = 0,
+) -> AdapterSpec:
+    """
+    Few-shot instruction-following.
+    """
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        input_prefix="",
+        input_suffix="\n",
+        output_prefix="",
+        output_suffix="",
+        max_train_instances=max_train_instances,
+        num_outputs=num_outputs,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        stop_sequences=[],
+    )
+
+
 def get_language_modeling_adapter_spec() -> AdapterSpec:
     """
     Used for language modeling.
@@ -2247,6 +2271,38 @@ def get_adv_robustness_spec(task: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["decoding_trust", "adv_robustness"],
+    )
+
+
+@run_spec_function("ood_robustness")
+def get_ood_robustness_spec(
+    ood_type: str,
+    task: str,
+    demo_name: str,
+    run_id: int,
+    few_shot_num: int,
+    idk: bool
+) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.OoDRobustnessScenario",
+        args={
+            "ood_type": ood_type,
+            "task": task,
+            "demo_name": demo_name,
+            "run_id": run_id,
+            "idk": idk
+        }
+    )
+
+    adapter_spec = get_few_shot_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0, max_train_instances=few_shot_num)
+
+    return RunSpec(
+        name=f"ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name}"
+        + f",run_id={run_id},few_shot_num={few_shot_num},idk={idk}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["decoding_trust", "ood_robustness"],
     )
 
 

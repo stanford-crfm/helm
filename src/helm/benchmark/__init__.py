@@ -53,6 +53,7 @@ from .scenarios import open_assistant_scenario  # noqa
 from .scenarios import anthropic_hh_rlhf_scenario  # noqa
 from .scenarios import koala_scenario  # noqa
 from .scenarios import decodingtrust_adv_robustness_scenario
+from .scenarios import decodingtrust_ood_robustness_scenario
 
 
 # Biomedical
