@@ -114,8 +114,10 @@ def get_the_pile_document_iterator(file_path: str) -> Iterator[str]:
     {"text": "Foo bar", "meta": {"pile_set_name": "Pile-CC"}}
     """
     with open(file_path, "r") as f:
-        for line in f:
-            yield json.loads(line)["text"]
+        import random
+        if random.random < 1 / 1000:
+            for line in f:
+                yield json.loads(line)["text"]
 
 
 def get_raw_document_iterator(file_path: str) -> Iterator[str]:
