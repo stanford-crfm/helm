@@ -212,7 +212,7 @@ def compute_document_data_overlap(
                     if output_ngrams:
                         entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
                         ngram_str = '/'.join(document_ngram)
-                        directory_path = "{output_path}/{ngram_str}"
+                        directory_path = "{output_path}_docs/{ngram_str}"
                         if not os.path.exists(directory_path):
                             os.makedirs(directory_path)
                         with open(f'{ngram_str}', 'a') as f:
