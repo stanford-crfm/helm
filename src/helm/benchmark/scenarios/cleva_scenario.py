@@ -689,18 +689,6 @@ class CLEVAParaphraseGenerationScenario(CLEVAScenario):
     description = "Paraphrase generation task in CLEVA benchmark"
     tags = ["paraphrase_generation"]
 
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        text = row["sentence"]
-        correct_answer = row["label"]
-        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
-
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
-        return instance
-
 
 class CLEVAIntentUnderstandingScenario(CLEVAScenario):
     """
@@ -836,49 +824,6 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
     description = "Dialogue generation task in CLEVA benchmark"
     tags = ["dialogue_generation"]
 
-    def get_instances(self) -> List[Instance]:
-        # Download the raw data
-        dataset = self.load_dataset()
-
-        # Read all the instances
-        instances: List[Instance] = []
-        for split in self.splits:
-            for row in dataset[split]:
-                # One row could contain multiple conversation instances.
-                instances.extend(self.process_dialogue_instance(row, self.splits[split]))
-
-        return instances
-
-    def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
-        instances: List[Instance] = []
-        text: str = ""
-        speaker_mapping = {"sys": "系统", "usr": "用户"}
-        dialog = row["dialogue"]
-
-        for turn_id, utt in enumerate(dialog):
-
-            content: str = utt["content"]
-            speaker: str = utt["role"]
-
-            # For task-oriented dialogue tasks, agents should response to users' questions according to the history.
-            if speaker == "sys" and turn_id > 0:
-                correct_answer = [content]
-                references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
-
-                instance = Instance(
-                    input=Input(text=text),
-                    references=references,
-                    split=split,
-                )
-                instances.append(instance)
-
-            # append history utterances
-            if turn_id > 0:
-                text += "\n"
-            text += "{speaker}: {content}".format(speaker=speaker_mapping[speaker], content=content)
-
-        return instances
-
 
 class CLEVASubjectKnowledgeScenario(CLEVAScenario):
     """
@@ -989,7 +934,7 @@ class CLEVASummarizationScenario(CLEVAScenario):
     """
     The summarization task of CLEVA task.
 
-    An example of dialogue summarization is:
+    An example of dialogue_summarization is:
         用户：咨询订单号:[订单编号]
         客服：有什么问题我可以帮您处理或解决呢?
         用户：想退单
@@ -998,7 +943,9 @@ class CLEVASummarizationScenario(CLEVAScenario):
         用户：是的
         客服：亲亲，虚拟商品属于及时交易到账，交易成功之后无法拦截，这就好比您去充值话费是一样的道理，已经交易到账，无法进行拦截呢
         用户：没别的方法了?
-        客服：亲爱哒，虚拟订单一旦购买成功无法退回呢，请问您是否有将卡密截图提供给不法分子如还没有建议您可通过网址http://huishou.jd.com/card?cid=[数字]&pid=166168&skuId=[电话]查询是否有相关产品类型，可进行回收以此减少您的损失哦
+        客服：亲爱哒，虚拟订单一旦购买成功无法退回呢，请问您是否有将卡密截图提供给不法分子如还没有建议您可通过网址
+             http://huishou.jd.com/card?cid=[数字]&pid=166168&skuId=[电话]查询是否有相关产品类型，可进行回收
+             以此减少您的损失哦
         客服：亲亲，请问您是否有将卡密截图提供给不法分子?
         用户：这就是不法分子的卡密
         客服：如果[姓名]没有使用的话还请您登录上面的网址链接进行回收操作
@@ -1331,21 +1278,6 @@ class CLEVADataToTextGenerationScenario(CLEVAScenario):
     description = "Data-to-text generation task in CLEVA benchmark."
     tags = ["data_to_text_generation"]
 
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        features: List[Dict[str, str]] = row["feature"]
-        feature_text: str = "\n".join([f"| {feature['key']} | {feature['val']} |" for feature in features])
-        text: str = f"衣服特点：\n{feature_text}\n广告文案：\n"
-
-        correct_answer = row["label"]
-        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
-
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
-        return instance
-
 
 class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     """
@@ -1374,24 +1306,6 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     description = "Mathematical reasoning task in CLEVA benchmark."
     tags = ["math", "reasoning", "mathematical_reasoning"]
 
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        question: str = row["question"]
-        explanation: str = row["explanation"].replace("\n", "")
-        label: str = row["label"][0]
-        text: str = f"{question}请一步一步给出推理过程。\n"
-
-        if split == TRAIN_SPLIT:
-            references = [Reference(Output(text=f"{explanation}所以答案是（只给出数字即可）{label}。"), tags=[CORRECT_TAG])]
-        elif split == TEST_SPLIT:
-            references = [Reference(Output(text=label), tags=[CORRECT_TAG])]
-
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
-        return instance
-
 
 class CLEVALanguageModelingScenario(CLEVAScenario):
     """
@@ -1402,6 +1316,44 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
 
     description = "Language modeling task in CLEVA benchmark."
     tags = ["language_modeling"]
+
+    def __init__(
+        self,
+        version: str,
+        task: str,
+        subtask: str,
+        prompt_template: Dict[str, Any],
+    ):
+        super().__init__(version, task, subtask, prompt_template)
+
+        # Overwrite this to avoid loading the train split as there is none
+        self.splits: Dict[str, str] = {
+            "test": TEST_SPLIT,
+        }
+
+
+class CLEVACodeSynthesisScenario(CLEVAScenario):
+    """
+    The code synthesis task of CLEVA benchmark.
+
+    An example is:
+        根据注释说明，补全以下Python函数。
+
+        from typing import List
+
+        def below_zero(operations: List[int]) -> bool:
+        '''
+        给定一个包含对一个余额为0的银行账号进行一系列存款和取款操作的列表，
+        你的任务是检测账户余额在何时低于0，并在此时返回True，否则返回False。
+        \>\>\> below_zero([1, 2, 3])
+              False
+        \>\>\> below_zero([1, 2, -4, 5])
+              True
+        '''
+    """
+
+    description = "Code synthesis task in CLEVA benchmark."
+    tags = ["code_synthesis", "Reasoning", "Code Generation"]
 
     def __init__(
         self,

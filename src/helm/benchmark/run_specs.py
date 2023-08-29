@@ -717,6 +717,34 @@ def get_cleva_generative_task_metric_spec(task: str, subtask: Optional[str], **k
     CLEVA_GEN_TASK_TO_METRIC: Dict[str, Callable] = {
         "opinion_mining:opinion_target_extraction": get_exact_match_metric_specs,
         "paraphrase_generation": get_cleva_paraphrase_generation_metric_specs,
+        "closed_book_question_answering:generative_question_answering": get_exact_match_metric_specs,
+        "conceptual_generalization": get_cleva_topk_accuracy_metric_specs,
+        "translation:en2zh": get_cleva_machine_translation_metric_specs,
+        "translation:zh2en": get_cleva_machine_translation_metric_specs,
+        "mathematical_calculation:add": get_exact_match_metric_specs,
+        "mathematical_calculation:sub": get_exact_match_metric_specs,
+        "mathematical_calculation:mul": get_exact_match_metric_specs,
+        "inductive_reasoning:add": get_exact_match_metric_specs,
+        "inductive_reasoning:sub": get_exact_match_metric_specs,
+        "inductive_reasoning:mul": get_exact_match_metric_specs,
+        "reasoning_primitive:dyck_language": get_exact_match_metric_specs,
+        "reasoning_primitive:pattern_induction": get_exact_match_metric_specs,
+        "reasoning_primitive:pattern_matching": get_exact_match_metric_specs,
+        "reasoning_primitive:variable_sub": get_exact_match_metric_specs,
+        "subject_knowledge:art": get_exact_match_metric_specs,
+        "subject_knowledge:biomedicine": get_exact_match_metric_specs,
+        "subject_knowledge:chemistry": get_exact_match_metric_specs,
+        "subject_knowledge:computer_science": get_exact_match_metric_specs,
+        "subject_knowledge:economics": get_exact_match_metric_specs,
+        "subject_knowledge:geography": get_exact_match_metric_specs,
+        "subject_knowledge:history": get_exact_match_metric_specs,
+        "subject_knowledge:law": get_exact_match_metric_specs,
+        "subject_knowledge:literature": get_exact_match_metric_specs,
+        "subject_knowledge:math": get_exact_match_metric_specs,
+        "subject_knowledge:other_general": get_exact_match_metric_specs,
+        "subject_knowledge:philosophy": get_exact_match_metric_specs,
+        "subject_knowledge:physics": get_exact_match_metric_specs,
+        "subject_knowledge:politics": get_exact_match_metric_specs,
     }
 
     key: str = task
@@ -2415,18 +2443,26 @@ def get_cleva_spec(
         metric_specs = get_exact_match_metric_specs()
         if task in ["fact_checking", "bias"]:
             metric_specs += get_cleva_classification_metric_specs()
-    # elif task in ["conceptual_generalization"]:
-    #     adapter_spec = get_generation_adapter_spec(
-    #         instructions=prompt_setting.instructions,
-    #         input_noun=prompt_setting.input_noun,
-    #         newline_after_input_noun=prompt_setting.newline_after_input_noun,
-    #         output_noun=prompt_setting.output_noun,
-    #         newline_after_output_noun=prompt_setting.newline_after_output_noun,
-    #         max_train_instances=20,  # limited by the context length
-    #         max_tokens=10,
-    #     )
-    #     metric_specs = get_cleva_topk_accuracy_metric_specs() + get_cleva_generative_harms_metric_specs()
-    elif task in ["opinion_mining", "paraphrase_generation"]:
+    elif task in ["copyright"]:
+        adapter_spec = get_completion_adapter_spec(
+            temperature=inference_parameters.get("temperature", 0.2),
+            max_tokens=inference_parameters.get("max_tokens", 1024),
+            num_outputs=inference_parameters.get("num_outputs", 1),
+        )
+        args = {"normalize_by_prefix_length": True, "normalize_newline_space_tab": False}
+        metric_specs = get_cleva_copyright_metric_spec(args) + get_generative_harms_metric_specs()
+    elif task in ["code_synthesis"]:
+        adapter_spec = get_completion_adapter_spec(
+            temperature=inference_parameters.get("temperature", 0.2),
+            # Taken from the original OpenAI paper to prevent the further generation of irrelevant classes/functions
+            stop_sequences=inference_parameters.get("stop_sequences", ["\nclass", "\ndef", "\nif", "\nprint"]),
+            max_tokens=inference_parameters.get("max_tokens", 600),
+        )
+        metric_specs = get_basic_metric_specs(["code_eval_acc", "pass"]) + get_generative_harms_metric_specs()
+    elif task in ["language_modeling"]:
+        adapter_spec = get_language_modeling_adapter_spec()
+        metric_specs = get_basic_metric_specs([])
+    else:
         adapter_spec = AdapterSpec(
             method=prompt_setting.method,
             instructions=prompt_setting.instructions,
@@ -2442,129 +2478,27 @@ def get_cleva_spec(
             sample_train=inference_parameters.get("sample_train", True),
             multi_label=inference_parameters.get("multi_label", True),
         )
-        metric_specs = get_cleva_generative_task_metric_spec(task, subtask) + get_cleva_generative_harms_metric_specs()
-    elif task in ["copyright"]:
-        adapter_spec = get_completion_adapter_spec(temperature=0.2, max_tokens=1024, num_outputs=1)
-        args = {"normalize_by_prefix_length": True, "normalize_newline_space_tab": False}
-        metric_specs = get_cleva_copyright_metric_spec(args) + get_generative_harms_metric_specs()
-    # elif task in ["pinyin_transliteration"]:
-    #     adapter_spec = get_generation_adapter_spec(
-    #         instructions=prompt_setting.instructions,
-    #         input_noun=prompt_setting.input_noun,
-    #         newline_after_input_noun=prompt_setting.newline_after_input_noun,
-    #         output_noun=prompt_setting.output_noun,
-    #         newline_after_output_noun=prompt_setting.newline_after_output_noun,
-    #         max_train_instances=5,  # limited by the context length
-    #         max_tokens=150,
-    #     )
-    #     metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_cleva_generative_harms_metric_specs()
-    # elif task in ["translation"]:
-    #     adapter_spec = get_generation_adapter_spec(
-    #         instructions=prompt_setting.instructions,
-    #         input_noun=prompt_setting.input_noun,
-    #         newline_after_input_noun=prompt_setting.newline_after_input_noun,
-    #         output_noun=prompt_setting.output_noun,
-    #         newline_after_output_noun=prompt_setting.newline_after_output_noun,
-    #         max_train_instances=5,  # limited by the context length
-    #         max_tokens=200,
-    #     )
-    #     metric_specs = get_cleva_machine_translation_metric_specs() + get_cleva_generative_harms_metric_specs()
-    # elif task in ["dialogue_generation"]:
-    #     adapter_spec = AdapterSpec(
-    #         method=ADAPT_GENERATION,
-    #         instructions=format_instructions(prompt_setting.instructions),
-    #         input_prefix="",
-    #         output_prefix=f"{prompt_setting.output_noun}：",
-    #         max_train_instances=1,
-    #         num_outputs=1,
-    #         max_tokens=200,
-    #         temperature=0.9,
-    #     )
-    #     metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_cleva_generative_harms_metric_specs()
-    # elif task in ["closed_book_question_answering", "subject_knowledge"]:
-    #     adapter_spec = get_generation_adapter_spec(
-    #         instructions=prompt_setting.instructions,
-    #         input_noun=prompt_setting.input_noun,
-    #         newline_after_input_noun=prompt_setting.newline_after_input_noun,
-    #         output_noun=prompt_setting.output_noun,
-    #         newline_after_output_noun=prompt_setting.newline_after_output_noun,
-    #         max_train_instances=5,  # limited by the context length
-    #         max_tokens=150,
-    #         temperature=1,
-    #         stop_sequences=["\n"],
-    #     )
-    #     metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
-    # elif task in ["summarization"]:
-    #     adapter_spec = AdapterSpec(
-    #         method=ADAPT_GENERATION,
-    #         instructions=format_instructions(prompt_setting.instructions),
-    #         input_prefix="",
-    #         output_prefix=f"{prompt_setting.output_noun}：",
-    #         max_train_instances=1,
-    #         num_outputs=1,
-    #         max_tokens=200,
-    #         temperature=0.9,
-    #     )
-    #     metric_specs = get_basic_metric_specs(["chinese_rouge_2"]) + get_cleva_generative_harms_metric_specs()
-    elif task in ["mathematical_calculation", "inductive_reasoning"]:
-        adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION,
-            instructions=format_instructions(prompt_setting.instructions),
-            input_prefix="",
-            input_suffix="",
-            output_prefix="",
-            max_train_instances=5,
-            num_outputs=1,
-            max_tokens=10,
-            temperature=1,
-            stop_sequences=["\n"],
-        )
-        metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
-    elif task in ["reasoning_primitive"]:
-        max_tokens: int = 100 if subtask in ["variable_sub"] else 10
-
-        adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION,
-            instructions=format_instructions(prompt_setting.instructions),
-            input_prefix="",
-            input_suffix="",
-            output_prefix="",
-            max_train_instances=5,
-            num_outputs=1,
-            max_tokens=max_tokens,
-            temperature=1,
-            stop_sequences=["\n"],
-        )
-        metric_specs = get_exact_match_metric_specs() + get_cleva_generative_harms_metric_specs()
-    elif task in ["data_to_text_generation"]:
-        adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION,
-            instructions=format_instructions(prompt_setting.instructions),
-            input_prefix="",
-            output_prefix="",
-            max_train_instances=5,
-            num_outputs=1,
-            max_tokens=200,
-            temperature=1,
-        )
-        metric_specs = get_basic_metric_specs(["chinese_bleu_1"]) + get_cleva_generative_harms_metric_specs()
-    # elif task in ["mathematical_reasoning"]:
-    #     adapter_spec = get_generation_adapter_spec(
-    #         instructions=prompt_setting.instructions,
-    #         input_noun=prompt_setting.input_noun,
-    #         newline_after_input_noun=prompt_setting.newline_after_input_noun,
-    #         output_noun=prompt_setting.output_noun,
-    #         newline_after_output_noun=prompt_setting.newline_after_output_noun,
-    #         max_train_instances=5,  # limited by the context length
-    #         max_tokens=200,
-    #     )
-    #     metric_specs = get_basic_metric_specs(["chinese_math_result_match"])\
-    #          + get_cleva_generative_harms_metric_specs()
-    elif task in ["language_modeling"]:
-        adapter_spec = get_language_modeling_adapter_spec()
-        metric_specs = get_basic_metric_specs([])
-    else:
-        raise ValueError(f"The specified task '{task}' is not supported")
+        metric_specs = get_cleva_generative_harms_metric_specs()
+        if task in [
+            "opinion_mining",
+            "paraphrase_generation",
+            "closed_book_question_answering",
+            "conceptual_generalization",
+            "translation",
+            "mathematical_calculation",
+            "inductive_reasoning",
+            "reasoning_primitive",
+            "subject_knowledge",
+        ]:
+            metric_specs += get_cleva_generative_task_metric_spec(task, subtask)
+        elif task in ["closed_book_question_answering"]:
+            metric_specs += get_basic_metric_specs(["chinese_rouge_2"])
+        elif task in ["pinyin_transliteration", "dialogue_generation", "data_to_text_generation"]:
+            metric_specs += get_basic_metric_specs(["chinese_bleu_1"])
+        elif task in ["mathematical_reasoning"]:
+            metric_specs += get_basic_metric_specs(["chinese_math_result_match"])
+        else:
+            raise ValueError(f"The specified task '{task}' is not supported")
 
     return RunSpec(
         name=run_spec_name,
