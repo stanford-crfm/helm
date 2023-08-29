@@ -103,6 +103,9 @@ def get_flan_document_iterator(file_path: str) -> Iterator[str]:
                 yield sample["output"]
 
 
+import random
+random.seed(0)
+
 def get_the_pile_document_iterator(file_path: str) -> Iterator[str]:
     """
     This method reads input files with similar file formats with The Pile's jsonl format.
@@ -114,9 +117,8 @@ def get_the_pile_document_iterator(file_path: str) -> Iterator[str]:
     {"text": "Foo bar", "meta": {"pile_set_name": "Pile-CC"}}
     """
     with open(file_path, "r") as f:
-        import random
-        if random.random() < 1 / 10:
-            for line in f:
+        for line in f:
+            if random.random() < 1 / 10000:
                 yield json.loads(line)["text"]
 
 

@@ -28,8 +28,6 @@ from scenarios.scenario import ScenarioSpec
 PART_INPUT: str = "input"
 PART_REF: str = "references"
 PART_INTERSECT: str = "intersect"
-
-
 # type alias for overlap-related data structures
 Ngram = Tuple[str, ...]
 NgramIndex = Dict[int, Dict[Ngram, Set[EntryDataOverlapKey]]]
@@ -154,7 +152,9 @@ def compute_all_data_overlap(
     output_ngrams: whether we should output ngrams
     """
     document_iterator = get_document_iterator(file_path=training_file_path, file_format=file_format)
+    doc_id = 0
     for document in document_iterator:
+        doc_id += 1
         compute_document_data_overlap(
             document=document,
             ngram_index=ngram_index,
@@ -211,10 +211,13 @@ def compute_document_data_overlap(
                         stats_key_to_intersection_ids[entry_overlap_key.stats_key].add(id)
                     if output_ngrams:
                         entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
-                        ngram_str = ' '.join(document_ngram)
-                        with open(f'{output_path}_{ngram_str}', 'a') as f:
+                        ngram_str = '/'.join(document_ngram)
+                        directory_path = "{output_path}/{ngram_str}"
+                        if not os.path.exists(directory_path):
+                            os.makedirs(directory_path)
+                        with open(f'{ngram_str}', 'a') as f:
                             f.write(document)
-                            f.write('------------- DOCUMENT DELIMITER --------------\n\n')
+                            f.write('\n------------- DOCUMENT DELIMITER --------------\n')
 
 if __name__ == "__main__":
     args = get_data_overlap_args()
