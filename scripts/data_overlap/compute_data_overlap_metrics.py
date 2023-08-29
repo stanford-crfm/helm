@@ -138,6 +138,7 @@ def compute_all_data_overlap(
     stats_key_to_intersection_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]],
     output_ngrams: bool,
+    output_path: str,
 ) -> None:
     """
     Given an input file, compute a overlap stats for each n and each scenario by calling
@@ -163,6 +164,7 @@ def compute_all_data_overlap(
             stats_key_to_intersection_ids=stats_key_to_intersection_ids,
             entry_overlap_key_to_ngram_counts=entry_overlap_key_to_ngram_counts,
             output_ngrams=output_ngrams,
+            output_path=output_path,
         )
 
 
@@ -175,6 +177,7 @@ def compute_document_data_overlap(
     stats_key_to_intersection_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]],
     output_ngrams: bool,
+    output_path: str,
 ) -> None:
     """
     Given a document, compute a overlap stats for each n and each scenario. The function
@@ -208,7 +211,7 @@ def compute_document_data_overlap(
                         stats_key_to_intersection_ids[entry_overlap_key.stats_key].add(id)
                     if output_ngrams:
                         entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
-                        with open(f'ngram_docs_{document_ngram}', 'a') as f:
+                        with open(f'{output_path}_{document_ngram}', 'a') as f:
                             f.write(document)
 
 if __name__ == "__main__":
@@ -261,6 +264,7 @@ if __name__ == "__main__":
                 stats_key_to_intersection_ids=stats_key_to_intersection_ids,
                 entry_overlap_key_to_ngram_counts=entry_overlap_key_to_ngram_counts,
                 output_ngrams=not args.no_output_ngrams,
+                output_path=args.output_stats,
             )
 
     if not args.no_output_ngrams:
