@@ -8,37 +8,21 @@ TASK = {"knowledge": ["qa_2020", "qa_2023"],
         "style": ["base", "shake_w", "augment", "shake_p0", "shake_p0.6", "bible_p0", "bible_p0.6", "romantic_p0",
                   "romantic_p0.6", "tweet_p0", "tweet_p0.6"]}
 DEMO = {"qa_2020": ["2021_qa", "global_facts", "machine_learning", "moral_scenarios", "us_foreign_policy"],
+        "base": ["base"],
         "shake_p0.6": ["base", "shake_p0.6"],
         "bible_p0.6": ["base", "bible_p0.6"],
         "romantic_p0.6": ["base", "romantic_p0.6"],
         "tweet_p0.6": ["base", "tweet_p0.6"]}
 
-ANSWER_MAPPING = {
-    "sst2": {0: "negative", 1: "positive"},
-    "mnli": {0: "yes", 1: "maybe", 2: "no"},
-    "mnli-mm": {0: "yes", 1: "maybe", 2: "no"},
-    "qnli": {0: "yes", 1: "no"},
-    "qqp": {1: "yes", 0: "no"},
-    "rte": {0: "yes", 1: "no"},
-}
-
 
 class OoDRobustnessScenario(Scenario):
     """
-    This scenario is based on the adversarial robustness section (Section 5) of the DecodingTrust benchmark
-    To evaluate the robustness of LLMs on textual adversarial attacks, we construct three evaluation sub-scenarios:
-    1) evaluation on the standard benchmark AdvGLUE with a vanilla task description, aiming to assess: a)
-    the vulnerabilities of LLMs to existing textual adversarial attacks, b) the robustness of different
-    GPT models in comparison to state-of-the-art models on the standard AdvGLUE benchmark, c) the impact of
-    adversarial attacks on their instruction-following abilities (measured by the rate at which the model refuses to
-    answer a question or hallucinates a nonexistent answer when it is under attack), and d) the transferability
-    of current attack strategies (quantified by the transferability attack success rates of different attack
-    approaches); 2) evaluation on the AdvGLUE benchmark given different instructive task descriptions
-    and designed system prompts, so as to investigate the resilience of models under diverse (adversarial)
-    task descriptions and system prompts; 3) evaluation of GPT-3.5 and GPT-4 on our generated challenging
-    adversarial texts AdvGLUE++ against open-source autoregressive models such as Alpaca-7B, Vicuna-13B, and
-    StableVicuna-13B in different settings to further evaluate the vulnerabilities of LLMs under strong adversarial
-    attacks in diverse settings.
+    This scenario is based on the OOD robustness section (Section 6) of the DecodingTrust benchmark
+    To evaluate the OOD robustness, we construct three different scenrios, which we investigate 
+    1) OOD style, with different style transformations from original SST-2 test set
+    2) OOD knowlegde, QA2020 and QA2023 from RealtimeQA with standard and 'I don't know' setting, which we aim to evaluate the 
+    reliability of models when facing questions beyong date of training data
+    3) OOD in-context demonstrations, we evaluate two different OOD demonstrations, namely demonstrations with different domains and styles.
     """
 
     name: str = "OoD"
@@ -46,12 +30,14 @@ class OoDRobustnessScenario(Scenario):
     tags: List[str] = ["robustness", "trustworthy"]
     source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/ood/{}.json"
 
-    def __init__(self, ood_type: str, task: str, demo_name: str, run_id: int, idk: int) -> None:
+    def __init__(self, ood_type: str, task: str, demo_name: str, run_id: int, idk: bool) -> None:
         """
         Args:
-          glue_task: Name of the GLUE task used to generate AdvGLUE++ examples
-          evaluate_benign: Whether to evaluate benign GLUE accuracy
-        TODO: Support benign GLUE evaluation and the standard AdvGLUE test set evaluation
+          ood_type: which OOD aspect to be evaluated
+          task: specific OOD task to perform
+          demo_name: when evaluating OOD in-context demonstrations, which type of OOD demonstrations should be used
+          run_id: specific subset of selected type of OOD demonstrations
+          idk: when evaluating OOD knowledge, if we want to use "I don't know" mode.
         """
         super().__init__()
 
@@ -59,15 +45,21 @@ class OoDRobustnessScenario(Scenario):
             raise ValueError("Invalid OoD type name specified!")
         if task not in TASK[ood_type]:
             raise ValueError("Invalid OoD task name specified!")
-        if demo_name not in DEMO[task]:
-            raise ValueError("Invalid OoD demo name specified!")
+        if run_id >= 0 and run_id < 3:
+            if demo_name not in DEMO[task]:
+                raise ValueError("Invalid OoD demo name specified!")
 
         self.ood_type = ood_type
         self.task = task
         self.demo_name = demo_name
         self.run_id = run_id
         self.idk = idk
-        self.few_shot_num = 5  # 5 in our ood dataset
+        self.few_shot_num = 0
+        if run_id >= 0 and run_id < 3:
+            if ood_type == "style":
+                self.few_shot_num = 8
+            elif ood_type == "knowledge":
+                self.few_shot_num = 5  # 5 in our ood dataset
         self.task_message = None
 
     def get_task_messages(self):
@@ -190,6 +182,6 @@ class OoDRobustnessScenario(Scenario):
 
 
 if __name__ == '__main__':
-    s = OoDRobustnessScenario(ood_type="knowledge", task="qa_2020", demo_name="2021_qa", run_id=0, few_shot_num=5, idk=True)
+    s = OoDRobustnessScenario(ood_type="style", task="shake_p0.6", demo_name="base", run_id=0, idk=True)
     instances = s.get_instances()
     print(instances[0].input.text)
