@@ -118,7 +118,7 @@ def get_the_pile_document_iterator(file_path: str) -> Iterator[str]:
     """
     with open(file_path, "r") as f:
         for line in f:
-            if random.random() < 1 / 10000:
+            if random.random() < 1 / 1000:
                 yield json.loads(line)["text"]
 
 
