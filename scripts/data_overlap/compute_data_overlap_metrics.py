@@ -211,11 +211,13 @@ def compute_document_data_overlap(
                         stats_key_to_intersection_ids[entry_overlap_key.stats_key].add(id)
                     if output_ngrams:
                         entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
-                        ngram_str = '/'.join(document_ngram)
-                        directory_path = f"{output_path}_docs/{ngram_str}"
-                        if not os.path.exists(directory_path):
-                            os.makedirs(directory_path)
-                        with open(f'{ngram_str}', 'a') as f:
+                        ngram_prefix= '/'.join(document_ngram[0:2])
+                        ngram_suffix = ' '.join(document_ngram[2:])
+                        directory_path = f"{output_path}_docs/{ngram_prefix}"
+                        file_path = f'{directory_path}/{ngram_suffix}'
+                        if not os.path.exists(file_path):
+                            os.makedirs(file_path)
+                        with open(file_path, 'a') as f:
                             f.write(document)
                             f.write('\n------------- DOCUMENT DELIMITER --------------\n')
 
