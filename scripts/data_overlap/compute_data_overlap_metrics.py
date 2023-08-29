@@ -278,6 +278,7 @@ if __name__ == "__main__":
             data_overlap_stats_key=stats_key,
             instance_ids_with_overlapping_input=sorted(stats_key_to_input_ids[stats_key]),
             instance_ids_with_overlapping_reference=sorted(stats_key_to_reference_ids[stats_key]),
+            instance_ids_with_overlapping_intersection=sorted(stats_key_to_intersection_ids[stats_key]),
             num_instances=count,
         )
         all_data_overlap_stats.append(data_overlap_stats)
