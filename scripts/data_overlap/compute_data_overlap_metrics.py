@@ -27,6 +27,7 @@ from scenarios.scenario import ScenarioSpec
 
 PART_INPUT: str = "input"
 PART_REF: str = "references"
+PART_INTERSECT: str = "intersect"
 
 
 # type alias for overlap-related data structures
@@ -106,6 +107,20 @@ def create_ngram_index(
                         ngram_index[n][reference_ngram].add(
                             EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_REF)
                         )
+
+                # compute intersection ngrams [defined as n-grams that occur between instance and reference]
+                input_end_tokens = input_tokens[-(n-1):]
+                for reference in instance.references:
+                    reference_unigrams = tokenizer.tokenize(reference)
+                    reference_start_tokens = reference_unigrams[:n-1]
+                    intersection_tokens = input_end_tokens + reference_start_tokens
+                    for intersection_ngram in ngrams(intersection_tokens, n):
+                        if intersection_ngram not in ngram_index[n]:
+                            ngram_index[n][intersection_ngram] = set()
+                        ngram_index[n][intersection_ngram].add(
+                            EntryDataOverlapKey(stats_key=stats_key, instance_id=id, part=PART_INTERSECT)
+                        )
+
     return ngram_index
 
 
@@ -116,6 +131,7 @@ def compute_all_data_overlap(
     tokenizer: LightTokenizer,
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
+    stats_key_to_intersection_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]],
     output_ngrams: bool,
 ) -> None:
@@ -140,6 +156,7 @@ def compute_all_data_overlap(
             tokenizer=tokenizer,
             stats_key_to_input_ids=stats_key_to_input_ids,
             stats_key_to_reference_ids=stats_key_to_reference_ids,
+            stats_key_to_intersection_ids=stats_key_to_intersection_ids,
             entry_overlap_key_to_ngram_counts=entry_overlap_key_to_ngram_counts,
             output_ngrams=output_ngrams,
         )
@@ -151,6 +168,7 @@ def compute_document_data_overlap(
     tokenizer: LightTokenizer,
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
+    stats_key_to_intersection_ids: DefaultDict[DataOverlapStatsKey, Set[str]],
     entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]],
     output_ngrams: bool,
 ) -> None:
@@ -182,8 +200,11 @@ def compute_document_data_overlap(
                         stats_key_to_input_ids[entry_overlap_key.stats_key].add(id)
                     elif part == PART_REF:
                         stats_key_to_reference_ids[entry_overlap_key.stats_key].add(id)
+                    elif part == PART_INTERSECT:
+                        stats_key_to_intersection_ids[entry_overlap_key.stats_key].add(id)
                     if output_ngrams:
                         entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
+
 
 
 if __name__ == "__main__":
@@ -214,6 +235,7 @@ if __name__ == "__main__":
     # DataOverlapStatsKey -> Set[str] for ids
     stats_key_to_input_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
     stats_key_to_reference_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
+    stats_key_to_intersection_ids: DefaultDict[DataOverlapStatsKey, Set] = defaultdict(set)
 
     entry_overlap_key_to_ngram_counts: DefaultDict[EntryDataOverlapKey, DefaultDict[str, int]] = defaultdict(
         lambda: defaultdict(int)
@@ -232,6 +254,7 @@ if __name__ == "__main__":
                 tokenizer=tokenizer,
                 stats_key_to_input_ids=stats_key_to_input_ids,
                 stats_key_to_reference_ids=stats_key_to_reference_ids,
+                stats_key_to_intersection_ids=stats_key_to_intersection_ids,
                 entry_overlap_key_to_ngram_counts=entry_overlap_key_to_ngram_counts,
                 output_ngrams=not args.no_output_ngrams,
             )
