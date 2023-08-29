@@ -211,8 +211,10 @@ def compute_document_data_overlap(
                         stats_key_to_intersection_ids[entry_overlap_key.stats_key].add(id)
                     if output_ngrams:
                         entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
-                        with open(f'{output_path}_{document_ngram}', 'a') as f:
+                        ngram_str = ' '.join(document_ngram)
+                        with open(f'{output_path}_{ngram_str}', 'a') as f:
                             f.write(document)
+                            f.write('------------- DOCUMENT DELIMITER --------------\n\n')
 
 if __name__ == "__main__":
     args = get_data_overlap_args()
