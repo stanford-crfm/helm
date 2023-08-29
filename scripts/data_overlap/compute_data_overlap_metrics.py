@@ -109,10 +109,10 @@ def create_ngram_index(
                         )
 
                 # compute intersection ngrams [defined as n-grams that occur between instance and reference]
-                input_end_tokens = input_tokens[-(n-1):]
+                input_end_tokens = input_tokens[-(n - 1) :]
                 for reference in instance.references:
                     reference_unigrams = tokenizer.tokenize(reference)
-                    reference_start_tokens = reference_unigrams[:n-1]
+                    reference_start_tokens = reference_unigrams[: n - 1]
                     intersection_tokens = input_end_tokens + reference_start_tokens
                     for intersection_ngram in ngrams(intersection_tokens, n):
                         if intersection_ngram not in ngram_index[n]:
@@ -204,7 +204,6 @@ def compute_document_data_overlap(
                         stats_key_to_intersection_ids[entry_overlap_key.stats_key].add(id)
                     if output_ngrams:
                         entry_overlap_key_to_ngram_counts[entry_overlap_key][document_ngram] += 1
-
 
 
 if __name__ == "__main__":

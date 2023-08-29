@@ -65,7 +65,7 @@ class DataOverlapStats:
     instance_ids_with_overlapping_input: List[str]
 
     instance_ids_with_overlapping_reference: List[str]
-    
+
     instance_ids_with_overlapping_intersection: List[str]
 
 
