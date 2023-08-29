@@ -110,7 +110,7 @@ def create_ngram_index(
 
                 # concatenate the last n-1 tokens of input and the first n-1 tokens of reference and compute n-grams on this "interesection token" sequence
                 # for instance: input = ["is 2+2 4 true or false"] reference = ["true"]
-                # the intersection is the 5-gram ["4 true or false true"] 
+                # the intersection is the 5-gram ["4 true or false true"]
                 # (which is formed from the input 4-gram [4 true or false] and the reference 1-gram [true])
                 input_end_tokens = input_tokens[-(n - 1) :]
                 for reference in instance.references:
