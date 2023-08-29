@@ -214,9 +214,9 @@ def compute_document_data_overlap(
                         ngram_prefix= '/'.join(document_ngram[0:2])
                         ngram_suffix = ' '.join(document_ngram[2:])
                         directory_path = f"{output_path}_docs/{ngram_prefix}"
+                        if not os.path.exists(directory_path):
+                            os.makedirs(directory_path)
                         file_path = f'{directory_path}/{ngram_suffix}'
-                        if not os.path.exists(file_path):
-                            os.makedirs(file_path)
                         with open(file_path, 'a') as f:
                             f.write(document)
                             f.write('\n------------- DOCUMENT DELIMITER --------------\n')
