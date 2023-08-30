@@ -2280,7 +2280,6 @@ def get_ood_robustness_spec(
     task: str,
     demo_name: str,
     run_id: int,
-    few_shot_num: int,
     idk: bool
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -2293,12 +2292,15 @@ def get_ood_robustness_spec(
             "idk": idk
         }
     )
-
-    adapter_spec = get_few_shot_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0, max_train_instances=few_shot_num)
+    if run_id >= 0 and run_id < 3:
+        max_train = 5 if task == "knowledge" else 8
+        adapter_spec = get_few_shot_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0, max_train_instances=max_train)
+    else:
+        adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
 
     return RunSpec(
         name=f"ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name}"
-        + f",run_id={run_id},few_shot_num={few_shot_num},idk={idk}",
+        + f",run_id={run_id},idk={idk}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
