@@ -2457,7 +2457,7 @@ def get_cleva_spec(
             num_outputs=inference_parameters.get("num_outputs", 1),
         )
         args = {"normalize_by_prefix_length": True, "normalize_newline_space_tab": False}
-        metric_specs = get_cleva_copyright_metric_spec(args) + get_generative_harms_metric_specs()
+        metric_specs = get_cleva_copyright_metric_spec(args) + get_cleva_generative_harms_metric_specs()
     elif task in ["code_synthesis"]:
         adapter_spec = get_completion_adapter_spec(
             temperature=inference_parameters.get("temperature", 0.2),
@@ -2465,7 +2465,7 @@ def get_cleva_spec(
             stop_sequences=inference_parameters.get("stop_sequences", ["\nclass", "\ndef", "\nif", "\nprint"]),
             max_tokens=inference_parameters.get("max_tokens", 600),
         )
-        metric_specs = get_basic_metric_specs(["code_eval_acc", "pass"]) + get_generative_harms_metric_specs()
+        metric_specs = get_basic_metric_specs(["code_eval_acc", "pass"]) + get_cleva_generative_harms_metric_specs()
     elif task in ["language_modeling"]:
         adapter_spec = get_language_modeling_adapter_spec()
         metric_specs = get_basic_metric_specs([])
