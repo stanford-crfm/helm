@@ -2460,6 +2460,7 @@ def get_cleva_spec(
         metric_specs = get_cleva_copyright_metric_spec(args) + get_cleva_generative_harms_metric_specs()
     elif task in ["code_synthesis"]:
         adapter_spec = get_completion_adapter_spec(
+            instructions=inference_parameters.get("instruction", ""),
             temperature=inference_parameters.get("temperature", 0.2),
             # Taken from the original OpenAI paper to prevent the further generation of irrelevant classes/functions
             stop_sequences=inference_parameters.get("stop_sequences", ["\nclass", "\ndef", "\nif", "\nprint"]),

@@ -12,6 +12,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from .code_scenario import CodeReference, CodeInstance
 
 
 CLEVA_DATA_URL = "http://emnlp.clevaplat.com:8001/data"
@@ -81,6 +82,22 @@ class Converter:
         instance = Instance(
             input=Input(text=text),
             references=references,
+            split=split,
+        )
+        return instance
+
+    @staticmethod
+    def transform_code(data: Dict[str, Any], templates: Dict[str, Any], split: str) -> CodeInstance:
+        data["prompt"] = templates["input"].format(**data)
+        instance = CodeInstance(
+            input=Input(text=data["prompt"]),
+            references=[
+                CodeReference(
+                    output=Output(text=data["canonical_solution"]),
+                    test_cases=data,
+                    tags=[CORRECT_TAG],
+                )
+            ],
             split=split,
         )
         return instance
@@ -1368,3 +1385,7 @@ class CLEVACodeSynthesisScenario(CLEVAScenario):
         self.splits: Dict[str, str] = {
             "test": TEST_SPLIT,
         }
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> CodeInstance:
+        instance = self.converter.transform_code(row, self.prompt_template, split)
+        return instance
