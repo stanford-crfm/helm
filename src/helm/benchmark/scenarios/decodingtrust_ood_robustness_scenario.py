@@ -18,9 +18,9 @@ DEMO = {"qa_2020": ["2021_qa", "global_facts", "machine_learning", "moral_scenar
 class OoDRobustnessScenario(Scenario):
     """
     This scenario is based on the OOD robustness section (Section 6) of the DecodingTrust benchmark
-    To evaluate the OOD robustness, we construct three different scenrios, which we investigate 
+    To evaluate the OOD robustness, we construct three different scenarios, which we investigate
     1) OOD style, with different style transformations from original SST-2 test set
-    2) OOD knowlegde, QA2020 and QA2023 from RealtimeQA with standard and 'I don't know' setting, which we aim to evaluate the 
+    2) OOD knowledge, QA2020 and QA2023 from RealtimeQA with standard and 'I don't know' setting, which we aim to evaluate the
     reliability of models when facing questions beyong date of training data
     3) OOD in-context demonstrations, we evaluate two different OOD demonstrations, namely demonstrations with different domains and styles.
     """
@@ -45,7 +45,7 @@ class OoDRobustnessScenario(Scenario):
             raise ValueError("Invalid OoD type name specified!")
         if task not in TASK[ood_type]:
             raise ValueError("Invalid OoD task name specified!")
-        if run_id >= 0 and run_id < 3:
+        if 0 <= run_id < 3:
             if demo_name not in DEMO[task]:
                 raise ValueError("Invalid OoD demo name specified!")
 
@@ -55,7 +55,7 @@ class OoDRobustnessScenario(Scenario):
         self.run_id = run_id
         self.idk = idk
         self.few_shot_num = 0
-        if run_id >= 0 and run_id < 3:
+        if 0 <= run_id < 3:
             if ood_type == "style":
                 self.few_shot_num = 8
             elif ood_type == "knowledge":
@@ -73,6 +73,8 @@ class OoDRobustnessScenario(Scenario):
         elif self.ood_type == "style":
             task_message = "For each snippet of text, label the sentiment of the text as positive or negative. " \
                            "The answer should be exact 'positive' or 'negative'."
+        else:
+            raise ValueError
         return task_message
 
     def get_demonstrations(self, datasets, demo):
@@ -183,5 +185,4 @@ class OoDRobustnessScenario(Scenario):
 
 if __name__ == '__main__':
     s = OoDRobustnessScenario(ood_type="style", task="shake_p0.6", demo_name="base", run_id=0, idk=True)
-    instances = s.get_instances()
-    print(instances[0].input.text)
+    print(s.get_instances()[0].input.text)
