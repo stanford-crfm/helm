@@ -1,5 +1,6 @@
 import importlib
 import itertools
+from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
 from helm.common.hierarchical_logger import hlog, htrack
@@ -745,6 +746,12 @@ def get_cleva_generative_task_metric_spec(task: str, subtask: Optional[str], **k
         "subject_knowledge:philosophy": get_exact_match_metric_specs,
         "subject_knowledge:physics": get_exact_match_metric_specs,
         "subject_knowledge:politics": get_exact_match_metric_specs,
+        "summarization:dialogue_summarization": partial(get_basic_metric_specs, ["chinese_rouge_2"]),
+        "pinyin_transliteration:pinyin2zh": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
+        "pinyin_transliteration:zh2pinyin": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
+        "dialogue_generation:task_oriented": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
+        "data_to_text_generation": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
+        "mathematical_reasoning:world_problem": partial(get_basic_metric_specs, ["chinese_math_result_match"]),
     }
 
     key: str = task
@@ -2462,7 +2469,22 @@ def get_cleva_spec(
     elif task in ["language_modeling"]:
         adapter_spec = get_language_modeling_adapter_spec()
         metric_specs = get_basic_metric_specs([])
-    else:
+    elif task in [
+        "opinion_mining",
+        "paraphrase_generation",
+        "closed_book_question_answering",
+        "conceptual_generalization",
+        "translation",
+        "mathematical_calculation",
+        "inductive_reasoning",
+        "reasoning_primitive",
+        "subject_knowledge",
+        "summarization",
+        "pinyin_transliteration",
+        "dialogue_generation",
+        "data_to_text_generation",
+        "mathematical_reasoning",
+    ]:
         adapter_spec = AdapterSpec(
             method=prompt_setting.method,
             instructions=prompt_setting.instructions,
@@ -2478,27 +2500,10 @@ def get_cleva_spec(
             sample_train=inference_parameters.get("sample_train", True),
             multi_label=inference_parameters.get("multi_label", True),
         )
-        metric_specs = get_cleva_generative_harms_metric_specs()
-        if task in [
-            "opinion_mining",
-            "paraphrase_generation",
-            "closed_book_question_answering",
-            "conceptual_generalization",
-            "translation",
-            "mathematical_calculation",
-            "inductive_reasoning",
-            "reasoning_primitive",
-            "subject_knowledge",
-        ]:
-            metric_specs += get_cleva_generative_task_metric_spec(task, subtask)
-        elif task in ["closed_book_question_answering"]:
-            metric_specs += get_basic_metric_specs(["chinese_rouge_2"])
-        elif task in ["pinyin_transliteration", "dialogue_generation", "data_to_text_generation"]:
-            metric_specs += get_basic_metric_specs(["chinese_bleu_1"])
-        elif task in ["mathematical_reasoning"]:
-            metric_specs += get_basic_metric_specs(["chinese_math_result_match"])
-        else:
-            raise ValueError(f"The specified task '{task}' is not supported")
+        metric_specs = get_cleva_generative_task_metric_spec(task, subtask) + get_cleva_generative_harms_metric_specs()
+
+    else:
+        raise ValueError(f"The specified task '{task}' is not supported")
 
     return RunSpec(
         name=run_spec_name,
