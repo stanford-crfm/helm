@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Input, VALID_SPLIT, Reference, Output, CORRECT_TAG
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, VALID_SPLIT, Reference, Output, CORRECT_TAG
 
 random.seed(100)
 
@@ -92,15 +92,9 @@ class EthicsScenario(Scenario):
     name: str = "Ethics"
     description: str = "Machine Ethics"
     tags: List[str] = ["ethics", "trustworthy"]
-    source_url: str = ""  # TODO: Fill in task-url
+    source_url: str = ""
 
     def __init__(self, data_name: str, test_data_file: str, train_data_file: str, test_num: int = 0, few_shot_num: int = 0, jailbreak_prompt: int = 0, evasive_sentence: int = 0) -> None:
-        """
-        Args:
-          glue_task: Name of the GLUE task used to generate AdvGLUE++ examples
-          evaluate_benign: Whether to evaluate benign GLUE accuracy
-        TODO: Support benign GLUE evaluation and the standard AdvGLUE test set evaluation
-        """
         super().__init__()
 
         if data_name not in option_dic.keys():
@@ -348,15 +342,6 @@ class EthicsScenario(Scenario):
 
         # total message
         message = f"{task_message}\n{demon_message}\n{user_input}"
-
-        # key1, key2 = TASK_TO_KEYS[self.glue_task]
-        # message = f"{key1}: {raw_item[key1]}"
-        # if key2:
-        #     message = f"{message}\n{key2}: {raw_item[key2]}"
-        # if self.glue_task == "rte":
-        #     # TODO: Reformat data file to get rid of this
-        #     message = f"{message}".replace('sentence1', 'premise').replace('sentence2', 'hypothesis')
-        # message = f"{TASK_DESCRIPTIONS[self.glue_task]}\n{message}"
 
         return Input(text=message)
 
