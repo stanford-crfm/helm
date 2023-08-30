@@ -88,6 +88,11 @@ class Converter:
 
     @staticmethod
     def transform_code(data: Dict[str, Any], templates: Dict[str, Any], split: str) -> CodeInstance:
+        """
+        Similar to transform method above, transform_code converts a data point in code synthesis scenario in CLEVA
+        to a HELM CodeInstance according to a given CLEVA prompt template.
+        """
+
         data["prompt"] = templates["input"].format(**data)
         instance = CodeInstance(
             input=Input(text=data["prompt"]),
@@ -1306,7 +1311,7 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     For example, we use "所以答案是（只给出数字即可）" (English: Thus, the answer is:) before the answer,
     and remove line breaks within the answer.
 
-    An example of the world_problem subtask is:
+    An example of the math_world_problem subtask is:
         回答以下数学问题
 
         问题：甲数是168，乙数是甲数的4倍，乙数=？请一步一步给出推理过程。
@@ -1322,6 +1327,23 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
 
     description = "Mathematical reasoning task in CLEVA benchmark."
     tags = ["math", "reasoning", "mathematical_reasoning"]
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
+        """
+        Using the CoT prompting method, the reference of each training instance contains rationales for the problem.
+        However, these rationales should not appear in the testing instances, necessitating the reconstruction of
+        the reference for each testing instance.
+        """
+
+        instance = self.converter.transform(row, self.prompt_template, split)
+        if split == TEST_SPLIT:
+            references = [Reference(Output(text=row["label"][0]), tags=[CORRECT_TAG])]
+            instance = Instance(
+                input=instance.input,
+                references=references,
+                split=split,
+            )
+        return instance
 
 
 class CLEVALanguageModelingScenario(CLEVAScenario):
@@ -1387,5 +1409,6 @@ class CLEVACodeSynthesisScenario(CLEVAScenario):
         }
 
     def process_instance(self, row: Dict[str, Any], split: str) -> CodeInstance:
+        """Overrides to construct CodeInstance, instead of Instance, to tailor for code synthesis scenario."""
         instance = self.converter.transform_code(row, self.prompt_template, split)
         return instance
