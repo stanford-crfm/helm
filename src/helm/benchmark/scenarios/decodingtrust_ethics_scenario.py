@@ -7,8 +7,6 @@ from typing import List, Dict
 from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Input, VALID_SPLIT, Reference, Output, CORRECT_TAG
 
-
-
 random.seed(100)
 
 option_dic = {
