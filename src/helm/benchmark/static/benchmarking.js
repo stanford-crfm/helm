@@ -47,6 +47,10 @@ $(function () {
   // Array of String containing RunSpec names for which
   // the JSON for displaying requests has been loaded.
   const runSpecsNamesWithLoadedRequests = [];
+  var version;
+  var runsToRunSuites = null;
+  const urlParams = decodeUrlParams(window.location.search);
+  var usingRelease;
 
   /////////////////////////////////// Pages ////////////////////////////////////
 
@@ -687,16 +691,16 @@ $(function () {
 
     // Paths (parallel arrays corresponding to `runSpecs`)
     const statsPaths = runSpecs.map((runSpec) => {
-      return statsJsonUrl(getRunSuite(usingRelease, release, runsToRunSuites, runSpec.name), runSpec.name);
+      return statsJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name), runSpec.name);
     });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
-      return scenarioStateJsonUrl(getRunSuite(usingRelease, release, runsToRunSuites, runSpec.name), runSpec.name);
+      return scenarioStateJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name), runSpec.name);
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
-      return runSpecJsonUrl(getRunSuite(usingRelease, release, runsToRunSuites, runSpec.name), runSpec.name);
+      return runSpecJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name), runSpec.name);
     });
     const predictionsPaths = runSpecs.map((runSpec) => {
-      return predictionsJsonUrl(getRunSuite(usingRelease, release, runsToRunSuites, runSpec.name), runSpec.name);
+      return predictionsJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name), runSpec.name);
     });
 
     // Figure out short names for the runs based on where they differ
@@ -780,14 +784,14 @@ $(function () {
     }, []);
 
     // Render scenario header
-    const scenarioPath = scenarioJsonUrl(getRunSuite(usingRelease, release, runsToRunSuites, runSpecs[0].name), runSpecs[0].name);
+    const scenarioPath = scenarioJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpecs[0].name), runSpecs[0].name);
     $.get(scenarioPath, {}, (scenario) => {
       console.log('scenario', scenario);
       $scenarioInfo.empty().append(renderRunsHeader(scenario, scenarioPath, runSpecs[0].scenario_spec));
     });
 
     // Render scenario instances and predictions
-    const instancesPath = instancesJsonUrl(getRunSuite(usingRelease, release, runsToRunSuites, runSpecs[0].name), runSpecs[0].name);
+    const instancesPath = instancesJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpecs[0].name), runSpecs[0].name);
     const instancesPromise = $.getJSON(instancesPath, {});
     const predictionsPromise = getJSONList(predictionsPaths);
     $.when(instancesPromise, predictionsPromise).then((instancesResult, predictions) => {
@@ -798,7 +802,7 @@ $(function () {
       const instanceKeyToDiv = renderScenarioInstances(instances, $instances);
       // For each run / model...
       runSpecs.forEach((runSpec, index) => {
-        renderPredictions(runSpec, getRunSuite(usingRelease, release, runsToRunSuites, runSpec.name), runDisplayNames[index], predictions[index], instanceKeyToDiv, $instances);
+        renderPredictions(runSpec, getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name), runDisplayNames[index], predictions[index], instanceKeyToDiv, $instances);
       });
       $instancesContainer.empty().append($instances);
     });
@@ -1180,10 +1184,6 @@ $(function () {
   //////////////////////////////////////////////////////////////////////////////
   const $main = $('#main');
   const $summary = $('#summary');
-  var runsToRunSuites = null;
-  const urlParams = decodeUrlParams(window.location.search);
-  var usingRelease;
-  var version;
 
   $.getJSON('benchmark_output/using_release', {}, (response) => {
     usingRelease = response['use_release'];
