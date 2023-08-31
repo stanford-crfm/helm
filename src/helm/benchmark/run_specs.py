@@ -2393,63 +2393,8 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
     run_spec_name: str = f"cleva:task={task},version={version}"
     if subtask:
         run_spec_name += f",subtask={subtask}"
-    if task in [
-        "text_classification",
-        "classical_chinese_understanding",
-        "sentiment_analysis",
-        "instruction_following",
-        "fact_checking",
-        "toxicity_detection",
-        "intent_understanding",
-        "coreference_resolution",
-        "reading_comprehension",
-        "cultural_knowledge",
-        "paraphrase_identification",
-        "bias",
-        "commonsense_reasoning",
-        "deductive_reasoning",
-        "keyphrase_extraction",
-    ]:
-        if prompt_setting.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            adapter_spec = AdapterSpec(
-                method=prompt_setting.method,
-                instructions=prompt_setting.instructions,
-                input_prefix=prompt_setting.input_prefix,
-                input_suffix=prompt_setting.input_suffix,
-                output_prefix=prompt_setting.output_prefix,
-                output_suffix=prompt_setting.output_suffix,
-                max_train_instances=inference_parameters.get("max_train_instances", 5),
-                num_outputs=inference_parameters.get("num_outputs", 5),
-                max_tokens=inference_parameters.get("max_tokens", 5),
-                temperature=inference_parameters.get("temperature", 0.0),
-                stop_sequences=inference_parameters.get("stop_sequences", ["\n"]),
-                sample_train=inference_parameters.get("sample_train", True),
-                multi_label=inference_parameters.get("multi_label", False),
-            )
-        elif prompt_setting.method in [
-            ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-            ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-        ]:
-            adapter_spec = AdapterSpec(
-                method=prompt_setting.method,
-                instructions=prompt_setting.instructions,
-                input_prefix=prompt_setting.input_prefix,
-                input_suffix=prompt_setting.input_suffix,
-                output_prefix=prompt_setting.output_prefix,
-                output_suffix=prompt_setting.output_suffix,
-                # Separate is basically language modeling, so can't easily use in-context examples
-                max_train_instances=inference_parameters.get("max_train_instances", 5),
-                num_outputs=1,
-                max_tokens=0,
-                temperature=inference_parameters.get("temperature", 0.0),
-                sample_train=inference_parameters.get("sample_train", True),
-            )
-        else:
-            raise ValueError(f"{task} is a mutlti-choice task and should not use {prompt_setting.method}")
-        metric_specs = get_exact_match_metric_specs()
-        if task in ["fact_checking", "bias"]:
-            metric_specs += get_cleva_classification_metric_specs()
-    elif task in ["copyright"]:
+
+    if task in ["copyright"]:
         adapter_spec = get_completion_adapter_spec(
             temperature=inference_parameters.get("temperature", 0.2),
             max_tokens=inference_parameters.get("max_tokens", 1024),
@@ -2469,41 +2414,70 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
     elif task in ["language_modeling"]:
         adapter_spec = get_language_modeling_adapter_spec()
         metric_specs = get_basic_metric_specs([])
-    elif task in [
-        "opinion_mining",
-        "paraphrase_generation",
-        "closed_book_question_answering",
-        "conceptual_generalization",
-        "translation",
-        "mathematical_calculation",
-        "inductive_reasoning",
-        "reasoning_primitive",
-        "subject_knowledge",
-        "summarization",
-        "pinyin_transliteration",
-        "dialogue_generation",
-        "data_to_text_generation",
-        "mathematical_reasoning",
-    ]:
-        adapter_spec = AdapterSpec(
-            method=prompt_setting.method,
-            instructions=prompt_setting.instructions,
-            input_prefix=prompt_setting.input_prefix,
-            input_suffix=prompt_setting.input_suffix,
-            output_prefix=prompt_setting.output_prefix,
-            output_suffix=prompt_setting.output_suffix,
-            max_train_instances=inference_parameters.get("max_train_instances", 5),
-            num_outputs=inference_parameters.get("num_outputs", 1),
-            max_tokens=inference_parameters.get("max_tokens", 20),
-            temperature=inference_parameters.get("temperature", 0.0),
-            stop_sequences=inference_parameters.get("stop_sequences", ["\n"]),
-            sample_train=inference_parameters.get("sample_train", True),
-            multi_label=inference_parameters.get("multi_label", True),
-        )
-        metric_specs = get_cleva_generative_task_metric_spec(task, subtask) + get_cleva_generative_harms_metric_specs()
-
     else:
-        raise ValueError(f"The specified task '{task}' is not supported")
+        if prompt_setting.method in [
+            ADAPT_MULTIPLE_CHOICE_JOINT,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+        ]:
+            if prompt_setting.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+                adapter_spec = AdapterSpec(
+                    method=prompt_setting.method,
+                    instructions=prompt_setting.instructions,
+                    input_prefix=prompt_setting.input_prefix,
+                    input_suffix=prompt_setting.input_suffix,
+                    output_prefix=prompt_setting.output_prefix,
+                    output_suffix=prompt_setting.output_suffix,
+                    max_train_instances=inference_parameters.get("max_train_instances", 5),
+                    num_outputs=inference_parameters.get("num_outputs", 5),
+                    max_tokens=inference_parameters.get("max_tokens", 5),
+                    temperature=inference_parameters.get("temperature", 0.0),
+                    stop_sequences=inference_parameters.get("stop_sequences", ["\n"]),
+                    sample_train=inference_parameters.get("sample_train", True),
+                    multi_label=inference_parameters.get("multi_label", False),
+                )
+            else:
+                adapter_spec = AdapterSpec(
+                    method=prompt_setting.method,
+                    instructions=prompt_setting.instructions,
+                    input_prefix=prompt_setting.input_prefix,
+                    input_suffix=prompt_setting.input_suffix,
+                    output_prefix=prompt_setting.output_prefix,
+                    output_suffix=prompt_setting.output_suffix,
+                    # Separate is basically language modeling, so can't easily use in-context examples
+                    max_train_instances=inference_parameters.get("max_train_instances", 5),
+                    num_outputs=1,
+                    max_tokens=0,
+                    temperature=inference_parameters.get("temperature", 0.0),
+                    sample_train=inference_parameters.get("sample_train", True),
+                )
+            metric_specs = get_exact_match_metric_specs()
+            if task in ["fact_checking", "bias"]:
+                metric_specs += get_cleva_classification_metric_specs()
+        elif prompt_setting.method == ADAPT_GENERATION:
+            adapter_spec = AdapterSpec(
+                method=prompt_setting.method,
+                instructions=prompt_setting.instructions,
+                input_prefix=prompt_setting.input_prefix,
+                input_suffix=prompt_setting.input_suffix,
+                output_prefix=prompt_setting.output_prefix,
+                output_suffix=prompt_setting.output_suffix,
+                max_train_instances=inference_parameters.get("max_train_instances", 5),
+                num_outputs=inference_parameters.get("num_outputs", 1),
+                max_tokens=inference_parameters.get("max_tokens", 20),
+                temperature=inference_parameters.get("temperature", 0.0),
+                stop_sequences=inference_parameters.get("stop_sequences", ["\n"]),
+                sample_train=inference_parameters.get("sample_train", True),
+                multi_label=inference_parameters.get("multi_label", True),
+            )
+            metric_specs = (
+                get_cleva_generative_task_metric_spec(task, subtask) + get_cleva_generative_harms_metric_specs()
+            )
+        else:
+            raise ValueError(
+                f"{task} can only be {ADAPT_GENERATION}, {ADAPT_MULTIPLE_CHOICE_JOINT}, "
+                "{ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED} or {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL}"
+            )
 
     return RunSpec(
         name=run_spec_name,

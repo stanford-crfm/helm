@@ -12,6 +12,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_GENERATION,
 )
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
+from helm.common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 from .code_scenario import CodeReference, CodeInstance
 
@@ -324,7 +325,7 @@ class CLEVAScenario(Scenario):
                     for line in fin.readlines():
                         dataset[split].append(json.loads(line))
             else:
-                raise ValueError(f"Missing data file(s) at '{data_dir}'. May need to specify subtask.")
+                hlog(f"CLEVA:{self.version}:{self.task}:{self.subtask} does not have {split} split")
 
         return dataset
 
@@ -348,8 +349,9 @@ class CLEVAScenario(Scenario):
         # Read all the instances
         instances: List[Instance] = []
         for split in self.splits:
-            for row in dataset[split]:
-                instances.append(self.process_instance(row, self.splits[split]))
+            if split in dataset:
+                for row in dataset[split]:
+                    instances.append(self.process_instance(row, self.splits[split]))
 
         return instances
 
@@ -607,7 +609,6 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
 
     description = "Instruction following task in CLEVA benchmark"
     tags = ["instruction_following", "multiple_choice"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
@@ -897,48 +898,42 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
     def task(self) -> str:
         return "dialogue_generation"
 
-    # def get_instances(self) -> List[Instance]:
-    #     # Download the raw data
-    #     dataset = self.load_dataset()
-    #
-    #     # Read all the instances
-    #     instances: List[Instance] = []
-    #     for split in self.splits:
-    #         for row in dataset[split]:
-    #             # One row could contain multiple conversation instances.
-    #             instances.extend(self.process_dialogue_instance(row, self.splits[split]))
-    #
-    #     return instances
-    #
-    # def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
-    #     instances: List[Instance] = []
-    #     text: str = ""
-    #     speaker_mapping = {"sys": "系统", "usr": "用户"}
-    #     dialog = row["dialogue"]
-    #
-    #     for turn_id, utt in enumerate(dialog):
-    #
-    #         content: str = utt["content"]
-    #         speaker: str = utt["role"]
-    #
-    #         # For task-oriented dialogue tasks, agents should response to users' questions according to the history.
-    #         if speaker == "sys" and turn_id > 0:
-    #             correct_answer = [content]
-    #             references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
-    #
-    #             instance = Instance(
-    #                 input=Input(text=text),
-    #                 references=references,
-    #                 split=split,
-    #             )
-    #             instances.append(instance)
-    #
-    #         # append history utterances
-    #         if turn_id > 0:
-    #             text += "\n"
-    #         text += "{speaker}: {content}".format(speaker=speaker_mapping[speaker], content=content)
-    #
-    #     return instances
+    def get_instances(self) -> List[Instance]:
+        # Download the raw data
+        dataset = self.load_dataset()
+
+        # Read all the instances
+        instances: List[Instance] = []
+        for split in self.splits:
+            for row in dataset[split]:
+                # One row could contain multiple conversation instances.
+                instances.extend(self.process_dialogue_instance(row, self.splits[split]))
+
+        return instances
+
+    def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
+        instances: List[Instance] = []
+        dialog = row["dialogue"]
+
+        history: List[Dict[str, str]] = []
+        for item in dialog:
+            role = item["role"]
+            utterance = item["content"]
+
+            if item["role"] == "sys":
+                instances.append(
+                    self.process_instance(
+                        {
+                            "history": copy.deepcopy(history),
+                            "role": role,
+                            "label": [utterance],
+                        },
+                        split=split,
+                    )
+                )
+            history.append({"utterance": utterance, "role": role})
+
+        return instances
 
 
 class CLEVASubjectKnowledgeScenario(CLEVAScenario):
@@ -1230,7 +1225,6 @@ class CLEVACopyrightScenario(CLEVAScenario):
 
     description = "Copyright task in CLEVA benchmark"
     tags = ["copyright", "harms"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
@@ -1310,7 +1304,6 @@ class CLEVADeductiveReasoningScenario(CLEVAScenario):
 
     description = "Deductive reasoning task in CLEVA benchmark"
     tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
@@ -1522,7 +1515,6 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
 
     description = "Language modeling task in CLEVA benchmark."
     tags = ["language_modeling"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
@@ -1560,7 +1552,6 @@ class CLEVACodeSynthesisScenario(CLEVAScenario):
 
     description = "Code synthesis task in CLEVA benchmark."
     tags = ["code_synthesis", "Reasoning", "Code Generation"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
