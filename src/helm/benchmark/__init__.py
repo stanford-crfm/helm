@@ -59,7 +59,7 @@ from .scenarios import decodingtrust_fairness_scenario
 from .scenarios import decodingtrust_stereotype_prompts_scenario
 from .scenarios import decodingtrust_machine_ethics_scenario
 from .scenarios import decodingtrust_toxicity_prompts_scenario
-
+from .scenarios import decodingtrust_privacy_scenario
 
 # Biomedical
 from .scenarios import covid_dialog_scenario  # noqa
