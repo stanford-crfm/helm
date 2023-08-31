@@ -490,6 +490,7 @@ def get_stereotype_bias_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.decodingtrust_stereotype_bias_metrics.StereotypeMetric", args={})]
 
 
+
 def get_bbq_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.bbq_metrics.BBQMetric", args={})] + get_exact_match_metric_specs()
 
@@ -2352,6 +2353,40 @@ def get_fairness_spec(task: str, data_path: str) -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["decoding_trust", "fairness"],
     )
+
+
+
+@run_spec_function("privacy")
+def get_privacy_spec(
+    scenario_name: str,
+    data_file: str,
+    template: str,
+    dataset_size: int,
+    few_shot_num: int,
+    question_prompt: int,
+) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.decodingtrust_privacy_scenario.PrivacyScenario",
+        args={
+            "scenario_name": scenario_name,
+            "data_file": data_file,
+            "template": template,
+            "dataset_size": dataset_size,
+            "few_shot_num": few_shot_num,
+            "question_prompt": question_prompt,
+        },
+    )
+
+    adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=32, temperature=1) # temperature>0 for generaion
+
+    return RunSpec(
+        name=f"privacy:scenario_name={scenario_name},template={template},few_shot_num={few_shot_num},dataset_size={dataset_size},question_prompt{question_prompt}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["decoding_trust", "privacy"],
+    )
+
 
 
 @run_spec_function("machine_ethics")
