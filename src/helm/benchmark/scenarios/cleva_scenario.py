@@ -86,8 +86,7 @@ class Converter:
         )
         return instance
 
-    @staticmethod
-    def transform_code(data: Dict[str, Any], templates: Dict[str, Any], split: str) -> CodeInstance:
+    def transform_code(self, data: Dict[str, Any], templates: Dict[str, Any], split: str) -> CodeInstance:
         """
         Similar to transform method above, transform_code converts a data point in code synthesis scenario in CLEVA
         to a HELM CodeInstance according to a given CLEVA prompt template.
@@ -272,6 +271,10 @@ class CLEVAScenario(Scenario):
     """
 
     name = "cleva"
+    splits: Dict[str, str] = {
+        "train": TRAIN_SPLIT,
+        "test": TEST_SPLIT,
+    }
 
     def __init__(
         self,
@@ -292,10 +295,6 @@ class CLEVAScenario(Scenario):
         self.task = task
         self.subtask = subtask
         self.version = version
-        self.splits: Dict[str, str] = {
-            "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT,
-        }
         self.converter = Converter()
         self.prompt_template = prompt_template
 
@@ -593,18 +592,7 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
 
     description = "Instruction following task in CLEVA benchmark"
     tags = ["instruction_following", "multiple_choice"]
-
-    def __init__(
-        self,
-        version: str,
-        task: str,
-        subtask: str,
-        prompt_template: Dict[str, Any],
-    ):
-        super().__init__(version, task, subtask, prompt_template)
-        self.splits: Dict[str, str] = {
-            "test": TEST_SPLIT,
-        }
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
 
 class CLEVAFactCheckingScenario(CLEVAScenario):
@@ -1080,14 +1068,7 @@ class CLEVACopyrightScenario(CLEVAScenario):
 
     description = "Copyright task in CLEVA benchmark"
     tags = ["copyright", "harms"]
-
-    def __init__(self, version: str, task: str, subtask: str, prompt_template: Dict[str, Any]):
-        super().__init__(version, task, subtask, prompt_template)
-
-        # Overwrite this to avoid loading the train split as there is none
-        self.splits: Dict[str, str] = {
-            "test": TEST_SPLIT,
-        }
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
 
 class CLEVAConceptualGeneralizationScenario(CLEVAScenario):
@@ -1155,20 +1136,7 @@ class CLEVADeductiveReasoningScenario(CLEVAScenario):
 
     description = "Deductive reasoning task in CLEVA benchmark"
     tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
-
-    def __init__(
-        self,
-        version: str,
-        task: str,
-        subtask: str,
-        prompt_template: Dict[str, Any],
-    ):
-        super().__init__(version, task, subtask, prompt_template)
-
-        # Overwrite this to avoid loading the train split as there is none
-        self.splits: Dict[str, str] = {
-            "test": TEST_SPLIT,
-        }
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
 
 class CLEVAMathematicalCalculationScenario(CLEVAScenario):
@@ -1335,12 +1303,12 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
         the reference for each testing instance.
         """
 
+        labels: List[str] = copy.deepcopy(row["label"])
         instance = self.converter.transform(row, self.prompt_template, split)
         if split == TEST_SPLIT:
-            references = [Reference(Output(text=row["label"][0]), tags=[CORRECT_TAG])]
             instance = Instance(
                 input=instance.input,
-                references=references,
+                references=[Reference(Output(text=label), tags=[CORRECT_TAG]) for label in labels],
                 split=split,
             )
         return instance
@@ -1355,20 +1323,7 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
 
     description = "Language modeling task in CLEVA benchmark."
     tags = ["language_modeling"]
-
-    def __init__(
-        self,
-        version: str,
-        task: str,
-        subtask: str,
-        prompt_template: Dict[str, Any],
-    ):
-        super().__init__(version, task, subtask, prompt_template)
-
-        # Overwrite this to avoid loading the train split as there is none
-        self.splits: Dict[str, str] = {
-            "test": TEST_SPLIT,
-        }
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
 
 class CLEVACodeSynthesisScenario(CLEVAScenario):
@@ -1393,20 +1348,7 @@ class CLEVACodeSynthesisScenario(CLEVAScenario):
 
     description = "Code synthesis task in CLEVA benchmark."
     tags = ["code_synthesis", "Reasoning", "Code Generation"]
-
-    def __init__(
-        self,
-        version: str,
-        task: str,
-        subtask: str,
-        prompt_template: Dict[str, Any],
-    ):
-        super().__init__(version, task, subtask, prompt_template)
-
-        # Overwrite this to avoid loading the train split as there is none
-        self.splits: Dict[str, str] = {
-            "test": TEST_SPLIT,
-        }
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     def process_instance(self, row: Dict[str, Any], split: str) -> CodeInstance:
         """Overrides to construct CodeInstance, instead of Instance, to tailor for code synthesis scenario."""
