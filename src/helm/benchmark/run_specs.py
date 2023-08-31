@@ -2476,7 +2476,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
         else:
             raise ValueError(
                 f"{task} can only be {ADAPT_GENERATION}, {ADAPT_MULTIPLE_CHOICE_JOINT}, "
-                "{ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED} or {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL}"
+                f"{ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED} or {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL}"
             )
 
     return RunSpec(
