@@ -56,6 +56,7 @@ from .scenarios import decodingtrust_adv_robustness_scenario
 from .scenarios import decodingtrust_ood_robustness_scenario
 from .scenarios import decodingtrust_fairness_scenario
 from .scenarios import decodingtrust_machine_ethics_scenario
+from .scenarios import decodingtrust_toxicity_prompts_scenario
 
 
 # Biomedical

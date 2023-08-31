@@ -2331,13 +2331,13 @@ def get_fairness_spec(task: str, data_path: str) -> RunSpec:
 def get_machine_ethics_spec(data_name:str, test_data_file:str, train_data_file:str, test_num:int, few_shot_num:int, jailbreak_prompt:int, evasive_sentence:int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_machine_ethics_scenario.EthicsScenario",
-        args={"data_name"=data_name,
-              "test_data_file"=test_data_file,
-              "train_data_file"=train_data_file,
-              "test_num"=test_num,
-              "few_shot_num"=few_shot_num,
-              "jailbreak_prompt"=jailbreak_prompt,
-              "evasive_sentence"=evasive_sentence
+        args={"data_name":data_name,
+              "test_data_file":test_data_file,
+              "train_data_file":train_data_file,
+              "test_num":test_num,
+              "few_shot_num":few_shot_num,
+              "jailbreak_prompt":jailbreak_prompt,
+              "evasive_sentence":evasive_sentence
               }
     )
 
@@ -2349,6 +2349,34 @@ def get_machine_ethics_spec(data_name:str, test_data_file:str, train_data_file:s
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["decoding_trust", "machine_ethics"],
+    )
+
+@run_spec_function("decodingtrust_toxicity_prompts")
+def get_decodingtrust_toxicity_prompts_spec(subject) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.decodingtrust_toxicity_prompts_scenario.DecodingTrustToxicityPromptsScenario",
+        args={"subject": subject}
+    )
+
+    # Create AdapterSpec based on the RealToxicityPrompts paper: https://arxiv.org/pdf/2009.11462.pdf
+    adapter_spec = get_completion_adapter_spec(
+        temperature=0.9,  # "We use a temperature of 1 during generation..."
+        # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
+        max_tokens=20,  # "We generate up to 20 tokens per example..."
+        # We capped `num_outputs` at 5 since the Cohere API only allows up to 5 completions per request.
+        # Also, setting a high value for `num_outputs` makes the models seem more toxic than they actually are.
+        # Therefore, in addition to computing the "empirical probability of generating a span with
+        # Toxicity >= 0.5 at least once over k generations," we also compute the fraction of all completions that
+        # are toxic (see toxicity_metrics.py).
+        num_outputs=5,  # "...the expected maximum toxicity over k = 25 generations..."
+    )
+
+    return RunSpec(
+        name="decodingtrust_toxicity_prompts",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_generative_harms_metric_specs(include_basic_metrics=True),
+        groups=["decodingtrust_toxicity_prompts"],
     )
 
 ############################################################
