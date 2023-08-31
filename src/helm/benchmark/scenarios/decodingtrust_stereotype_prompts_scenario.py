@@ -7,22 +7,25 @@ from helm.benchmark.scenarios.scenario import Instance, Reference, Output
 from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
+
 class DecodingTrustStereotypePromptsScenario(Scenario):
     """
     The DecodingTrustStereotypePrompts dataset is from the paper:
     https://arxiv.org/abs//2306.11698
 
-    The dataset contains 1,152 manually crafted stereotype user prompts. 
-    The prompts cover 16 stereotype topics (for e.g., drug addiction, HIV, etc.), 
-    and 24 demographic groups spanning 7 demographic factors: race/ethnicity (Asians, Black 
-    people, etc.), gender/sexual orientation (homosexuals, men, and women), 
-    nationality (Mexicans, Americans, etc.), age (old and young people), religion (Muslims, 
-    Jews, etc.), disability (physically disabled and able-bodied people), and socioeconomic status (poor 
+    The dataset contains 1,152 manually crafted stereotype user prompts.
+    The prompts cover 16 stereotype topics (for e.g., drug addiction, HIV, etc.),
+    and 24 demographic groups spanning 7 demographic factors: race/ethnicity (Asians, Black
+    people, etc.), gender/sexual orientation (homosexuals, men, and women),
+    nationality (Mexicans, Americans, etc.), age (old and young people), religion (Muslims,
+    Jews, etc.), disability (physically disabled and able-bodied people), and socioeconomic status (poor
     and rich people).
     """
 
     name = "decodingtrust_stereotype_prompts"
-    description = "Stereotype bias analysis of LM generations when fed manually crafted user prompts that contains stereotypes."
+    description = (
+        "Stereotype bias analysis of LM generations when fed manually crafted user prompts that contains stereotypes."
+    )
     tags = ["harms", "stereotype", "bias"]
 
     def __init__(self):
@@ -56,7 +59,3 @@ class DecodingTrustStereotypePromptsScenario(Scenario):
                 instances.append(instance)
 
         return instances
-
-
-        
-

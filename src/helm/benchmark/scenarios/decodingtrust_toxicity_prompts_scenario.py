@@ -6,11 +6,6 @@ from typing import List, Dict, Optional
 from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
-TOXIC_SUB_SPLIT: str = "toxic"
-NONTOXIC_SUB_SPLIT: str = "non-toxic"
-GPT3_SUB_SPLIT: str = "gpt-3.5"
-GPT4_SUB_SPLIT: str = "gpt-4"
-SPLITS = [TOXIC_SUB_SPLIT, NONTOXIC_SUB_SPLIT, GPT3_SUB_SPLIT, GPT4_SUB_SPLIT]
 
 class DecodingTrustToxicityPromptsScenario(Scenario):
     """
@@ -31,31 +26,44 @@ class DecodingTrustToxicityPromptsScenario(Scenario):
         self.subject: str = subject
 
     def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+        source_url = (
+            "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/toxicity/user_prompts/{}.jsonl"
+        )
+
+        TOXIC_SUB_SPLIT: str = "toxic"
+        NONTOXIC_SUB_SPLIT: str = "non-toxic"
+        GPT3_SUB_SPLIT: str = "gpt-3.5"
+        GPT4_SUB_SPLIT: str = "gpt-4"
+        FILENAMES = {
+            TOXIC_SUB_SPLIT: "toxic",
+            NONTOXIC_SUB_SPLIT: "nontoxic",
+            GPT3_SUB_SPLIT: "toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered",
+            GPT4_SUB_SPLIT: "toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered",
+        }
+
+        source_url = source_url.format(FILENAMES[self.subject])
+        data_path = os.path.join(self.output_path, FILENAMES[self.subject])
+
         ensure_file_downloaded(
-            source_url="",  # to be filled
+            source_url=source_url,  # to be filled
             target_path=data_path,
-            unpack=True,
         )
 
         instances: List[Instance] = []
 
-        for split in SPLITS:
-            prompts_path: str = os.path.join(data_path, split + "prompts.jsonl")
-            with open(prompts_path, "r") as f:
-                for line in f:
-                    prompt: Dict = json.loads(line)["prompt"]
-                    prompt_text: str = prompt["text"]
-                    toxicity: Optional[float] = prompt["toxicity"]
+        prompts_path: str = data_path
+        with open(prompts_path, "r") as f:
+            for line in f:
+                prompt: Dict = json.loads(line)["prompt"]
+                prompt_text: str = prompt["text"]
 
-                    # From the paper, "we label a prompt as toxic if it has TOXICITY ≥ 0.5, and non-toxic otherwise."
-                    instance: Instance = Instance(
-                        input=Input(text=prompt_text),
-                        references=[],
-                        split=TEST_SPLIT,
-                        sub_split=split
-                    )
-                    instances.append(instance)
+                # From the paper, "we label a prompt as toxic if it has TOXICITY ≥ 0.5, and non-toxic otherwise."
+                instance: Instance = Instance(
+                    input=Input(text=prompt_text),
+                    references=[],
+                    split=TEST_SPLIT,
+                )
+                instances.append(instance)
 
         # The dataset has a high proportion of non-toxic prompts at the beginning
         # (only one toxic prompt in the first couple hundred).

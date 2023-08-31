@@ -6,15 +6,15 @@ from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, VALID_S
 
 TASK_DESCRIPTIONS = {
     "sst2": "For the given sentence, label the sentiment of the sentence as positive or negative. The answer should be "
-            "exactly 'positive' or 'negative'.",
+    "exactly 'positive' or 'negative'.",
     "mnli": "Please identify whether the premise entails the hypothesis. The answer should be exactly 'yes', 'maybe' or"
-            " 'no'.",
+    " 'no'.",
     "mnli-mm": "Please identify whether the premise entails the hypothesis. The answer should be exactly 'yes', 'maybe'"
-               " or 'no'.",
+    " or 'no'.",
     "qnli": "Please identify whether the sentence answers the question. The answer should be exactly 'yes' or 'no'.",
     "qqp": "Please identify whether question 1 has the same meaning as question 2. The answer should be exactly 'yes' "
-           "or 'no'.",
-    "rte": "Please identify whether the premise entails the hypothesis. The answer should be exactly 'yes' or 'no'."
+    "or 'no'.",
+    "rte": "Please identify whether the premise entails the hypothesis. The answer should be exactly 'yes' or 'no'.",
 }
 
 TASK_TO_KEYS = {
@@ -79,7 +79,7 @@ class AdvRobustnessScenario(Scenario):
             message = f"{message}\n{key2}: {raw_item[key2]}"
         if self.glue_task == "rte":
             # TODO: Reformat data file to get rid of this
-            message = f"{message}".replace('sentence1', 'premise').replace('sentence2', 'hypothesis')
+            message = f"{message}".replace("sentence1", "premise").replace("sentence2", "hypothesis")
         message = f"{TASK_DESCRIPTIONS[self.glue_task]}\n{message}"
 
         return Input(text=message)
@@ -110,7 +110,7 @@ class AdvRobustnessScenario(Scenario):
                 input=self.get_input(raw_item),
                 references=self.get_references(raw_item["label"]),
                 split=VALID_SPLIT,
-                sub_split=self.glue_task
+                sub_split=self.glue_task,
             )
             instances.append(instance)
 
