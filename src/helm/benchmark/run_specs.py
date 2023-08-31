@@ -2331,13 +2331,13 @@ def get_fairness_spec(task: str, data_path: str) -> RunSpec:
 def get_machine_ethics_spec(data_name:str, test_data_file:str, train_data_file:str, test_num:int, few_shot_num:int, jailbreak_prompt:int, evasive_sentence:int) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_machine_ethics_scenario.EthicsScenario",
-        args={"data_name"=data_name,
-              "test_data_file"=test_data_file,
-              "train_data_file"=train_data_file,
-              "test_num"=test_num,
-              "few_shot_num"=few_shot_num,
-              "jailbreak_prompt"=jailbreak_prompt,
-              "evasive_sentence"=evasive_sentence
+        args={"data_name":data_name,
+              "test_data_file":test_data_file,
+              "train_data_file":train_data_file,
+              "test_num":test_num,
+              "few_shot_num":few_shot_num,
+              "jailbreak_prompt":jailbreak_prompt,
+              "evasive_sentence":evasive_sentence
               }
     )
 
