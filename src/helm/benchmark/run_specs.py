@@ -2291,6 +2291,27 @@ def get_adv_robustness_spec(task: str) -> RunSpec:
         groups=["decoding_trust", "adv_robustness"],
     )
 
+@run_spec_function("adv_demonstration")
+def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, description: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.decodingtrust_adv_demonstration_scenario.DecodingTrustAdvDemoScenario",
+        args={"perspective": perspective,
+            "data": data,
+            "demo_name": demo_name,
+            "description": description
+        },
+    )
+
+    adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
+    name = f"perspective={perspective},data={data},demo_name={demo_name},description={description}"
+    return RunSpec(
+        name=f"adv_demonstration:{name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["decoding_trust", "adv_demonstration"],
+    )
+
 
 @run_spec_function("ood_robustness")
 def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int, idk: bool) -> RunSpec:
