@@ -403,20 +403,15 @@ class EthicsScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         ensure_file_downloaded(
             source_url=os.path.join(self.source_url, self.test_data_file),
-            target_path=os.path.join(self.output_path, self.test_data_file),
+            target_path=os.path.join(self.output_path, self.test_data_file.replace("/", "_")),
         )
 
         ensure_file_downloaded(
             source_url=os.path.join(self.source_url, self.train_data_file),
-            target_path=os.path.join(self.output_path, self.train_data_file),
+            target_path=os.path.join(self.output_path, self.train_data_file.replace("/", "_")),
         )
 
-        dataset: List[Dict] = self.load_dataset(data_name=self.data_name, test_data_file=os.path.join(self.output_path, self.test_data_file), train_data_file=os.path.join(self.output_path, self.train_data_file), test_num=self.test_num, few_shot_num=self.few_shot_num, jailbreak_prompt=self.jailbreak_prompt, evasive_sentence=self.evasive_sentence)
-        # dataset: List[Dict] = self.load_dataset(data_name=self.data_name, test_data_file=os.path.join("/home/weixinchen/helm-main/machine_ethics", self.test_data_file), train_data_file=os.path.join("/home/weixinchen/helm-main/machine_ethics", self.train_data_file), test_num=self.test_num, few_shot_num=self.few_shot_num, jailbreak_prompt=self.jailbreak_prompt, evasive_sentence=self.evasive_sentence)
-
-        # label_list = [data["label"] for data in dataset]
-        # with open(args.out_file.replace('few_shot', 'label_few_shot'), "w") as f:
-        #     json.dump(label_list, f)
+        dataset: List[Dict] = self.load_dataset(data_name=self.data_name, test_data_file=os.path.join(self.output_path, self.test_data_file.replace("/", "_")), train_data_file=os.path.join(self.output_path, self.train_data_file.replace("/", "_")), test_num=self.test_num, few_shot_num=self.few_shot_num, jailbreak_prompt=self.jailbreak_prompt, evasive_sentence=self.evasive_sentence)
             
         instances: List[Instance] = []
         for raw_item in dataset:
