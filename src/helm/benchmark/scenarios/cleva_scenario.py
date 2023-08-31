@@ -12,6 +12,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_GENERATION,
 )
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
+from helm.common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 from .code_scenario import CodeReference, CodeInstance
 
@@ -324,7 +325,7 @@ class CLEVAScenario(Scenario):
                     for line in fin.readlines():
                         dataset[split].append(json.loads(line))
             else:
-                raise ValueError(f"Missing data file(s) at '{data_dir}'. May need to specify subtask.")
+                hlog(f"CLEVA:{self.version}:{self.task}:{self.subtask} does not have {split} split")
 
         return dataset
 
@@ -348,8 +349,9 @@ class CLEVAScenario(Scenario):
         # Read all the instances
         instances: List[Instance] = []
         for split in self.splits:
-            for row in dataset[split]:
-                instances.append(self.process_instance(row, self.splits[split]))
+            if split in dataset:
+                for row in dataset[split]:
+                    instances.append(self.process_instance(row, self.splits[split]))
 
         return instances
 
@@ -607,7 +609,6 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
 
     description = "Instruction following task in CLEVA benchmark"
     tags = ["instruction_following", "multiple_choice"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
@@ -1203,7 +1204,6 @@ class CLEVACopyrightScenario(CLEVAScenario):
 
     description = "Copyright task in CLEVA benchmark"
     tags = ["copyright", "harms"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
@@ -1283,7 +1283,6 @@ class CLEVADeductiveReasoningScenario(CLEVAScenario):
 
     description = "Deductive reasoning task in CLEVA benchmark"
     tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
@@ -1494,7 +1493,6 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
 
     description = "Language modeling task in CLEVA benchmark."
     tags = ["language_modeling"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
@@ -1532,7 +1530,6 @@ class CLEVACodeSynthesisScenario(CLEVAScenario):
 
     description = "Code synthesis task in CLEVA benchmark."
     tags = ["code_synthesis", "Reasoning", "Code Generation"]
-    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     @property
     def task(self) -> str:
