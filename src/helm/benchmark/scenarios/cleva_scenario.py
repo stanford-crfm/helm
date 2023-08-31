@@ -157,7 +157,7 @@ class Converter:
         `data` must have the following type: `str`, `Dict[str, str]`, `List[str]`, `List[Dict[str, str]]`.
         `template` must have the following type:
         - `str`: composes a string from all stringified fields including itself (if it is `Dict[str, str]`,
-          it will be flatten out).
+          it will be flattened out).
         - `dict`: handle structured data like `List[str]` and `List[Dict[str, str]]` by first obtaining a string
           for each entry and then combining all strigified entries as the final result.
         """
@@ -1022,17 +1022,22 @@ class CLEVAParaphraseIdentificationScenario(CLEVAScenario):
     """
     The paraphrase identification task of CLEVA benchmark.
 
-    An example is:
+    An example of short_utterance subtask is:
         下面这两个句子表达的意思是相同的吗？
 
-        句子1：你能嘴甜一点吗
-        句子2：说点好听的
+        1. 我喜欢你那你喜欢我吗
+        2. 你喜欢我不我也喜欢你
         A. 不是
         B. 是
-        答：B
+        答：
 
-        句子1：我喜欢你那你喜欢我吗
-        句子2：你喜欢我不我也喜欢你
+    Target: A
+
+    An example of financial_question subtask is:
+        下面这两个问题是否表达了相同的意思？
+
+        1：商家怎么开通花呗支付
+        2：为什么无法开通花呗
         A. 不是
         B. 是
         答：
