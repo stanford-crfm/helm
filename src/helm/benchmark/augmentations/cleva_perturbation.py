@@ -6,16 +6,20 @@ from pathlib import Path
 from collections import defaultdict
 from typing import Dict, List, Tuple, Set, Optional
 
-import unidecode
-import pypinyin
-import jieba
-import jieba.posseg as pseg
-import opencc
-
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
+
+try:
+    import unidecode
+    import pypinyin
+    import jieba
+    import jieba.posseg as pseg
+    import opencc
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 ############################################################

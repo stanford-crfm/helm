@@ -4,7 +4,6 @@ import os
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-import jieba
 
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.request import RequestResult
@@ -13,12 +12,18 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
+from helm.common.optional_dependencies import handle_module_not_found_error
 from .bias_metrics import BiasMetric
 from .toxicity_metrics import ToxicityMetric
 from .copyright_metrics import BasicCopyrightMetric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
+
+try:
+    import jieba
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 class CLEVABiasMetric(BiasMetric):
