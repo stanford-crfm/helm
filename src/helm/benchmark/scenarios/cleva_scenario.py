@@ -299,7 +299,7 @@ class CLEVAScenario(Scenario):
     @property
     @abstractmethod
     def task(self) -> str:
-        raise NotImplementedError("CLEVAScenario is intended to be an abstract base class and cannot be used directly.")
+        pass
 
     @classmethod
     def download_dataset(cls, version: str):
