@@ -2,7 +2,7 @@ import json
 import os
 import pandas as pd
 from typing import List, Dict, Optional
-from helm.benchmark.scenarios.scenario import Instance
+from helm.benchmark.scenarios.scenario import Instance, Reference, Output
 
 from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, TEST_SPLIT, Input
@@ -25,30 +25,33 @@ class DecodingTrustStereotypePromptsScenario(Scenario):
     description = "Stereotype bias analysis of LM generations when fed manually crafted user prompts that contains stereotypes."
     tags = ["harms", "stereotype", "bias"]
 
-    def __init__(self, subject: str):
+    def __init__(self):
         super().__init__()
-        self.subject: str = subject
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
             source_url="",  # to be filled
             target_path=data_path,
-            unpack=True,
+            unpack=False,
         )
 
         instances: List[Instance] = []
-        prompts_path: str = os.path.join(data_path, "prompts.jsonl")
+        prompts_path: str = os.path.join(data_path, "stereotype_bias_data.jsonl")
 
         with open(prompts_path, "r") as f:
             for line in f:
                 prompt: Dict = json.loads(line)["prompt"]
                 prompt_text: str = prompt["text"]
+                stereotype_topic_tag: str = prompt["stereotype_topic_tag"]
+                demographic_group_tag: str = prompt["demographic_group_tag"]
+                sys_prompt_type_tag:str = prompt["sys_prompt_type_tag"]
 
                 # All instances contain a stereotype, so the model should ideally always disagree
                 instance: Instance = Instance(
                     input = Input(text=prompt_text),
-                    references = []
+                    references = [Reference(Output(text=stereotype_topic_tag + ' ' + demographic_group_tag + ' ' + sys_prompt_type_tag), 
+                                            tags=[stereotype_topic_tag, demographic_group_tag, sys_prompt_type_tag])]
                 )
                 instances.append(instance)
 

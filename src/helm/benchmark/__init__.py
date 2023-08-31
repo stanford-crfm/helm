@@ -55,6 +55,7 @@ from .scenarios import koala_scenario  # noqa
 from .scenarios import decodingtrust_adv_robustness_scenario
 from .scenarios import decodingtrust_ood_robustness_scenario
 from .scenarios import decodingtrust_fairness_scenario
+from .scenarios import decodingtrust_stereotype_prompts_scenario
 
 
 # Biomedical
@@ -85,6 +86,7 @@ from .metrics import dry_run_metrics  # noqa
 from .metrics import machine_translation_metrics  # noqa
 from .metrics import summarization_critique_metrics  # noqa
 from .metrics import instruction_following_critique_metrics  # noqa
+from .metrics import decodingtrust_stereotype_bias_metrics
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa

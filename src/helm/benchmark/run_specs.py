@@ -488,6 +488,9 @@ def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[Met
         )
     ]
 
+def get_stereotype_bias_metric_specs() -> List[MetricSpec]:
+    return [MetricSpec(class_name="helm.benchmark.decodingtrust_stereotype_bias_metrics.StereotypeMetric", args={})]
+
 
 def get_bbq_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.bbq_metrics.BBQMetric", args={})] + get_exact_match_metric_specs()
@@ -2253,6 +2256,23 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
         groups=["anthropic_hh_rlhf"],
+    )
+
+@run_spec_function("stereotype_bias")
+def get_stereotype_bias_spec(task: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.decodingtrust_stereotype_prompts_scenario.DecodingTrustStereotypePromptsScenario",
+        args={}
+    )
+
+    adapter_spec = get_instruct_adapter_spec(num_outputs=25, max_tokens=150, temperature=1)
+
+    return RunSpec(
+        name=f"stereotype_bias",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_stereotype_bias_metric_specs(),
+        groups=["decoding_trust", "stereotype_bias"]
     )
 
 
