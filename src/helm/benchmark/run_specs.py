@@ -2379,9 +2379,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 
 
 @run_spec_function("cleva")
-def get_cleva_spec(
-    task: str, version: str, subtask: str = None, prompt_id: int = 0, method: str = ADAPT_MULTIPLE_CHOICE_JOINT
-) -> RunSpec:
+def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int = 0) -> RunSpec:
     CLEVAScenario.download_dataset(version)
 
     prompt_template, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
@@ -2390,7 +2388,7 @@ def get_cleva_spec(
     class_name_prefix = "".join([word.capitalize() for word in task.split("_")])
     scenario_spec = ScenarioSpec(
         class_name=f"helm.benchmark.scenarios.cleva_scenario.CLEVA{class_name_prefix}Scenario",
-        args={"task": task, "version": version, "subtask": subtask, "prompt_template": prompt_template},
+        args={"version": version, "subtask": subtask, "prompt_template": prompt_template},
     )
     run_spec_name: str = f"cleva:task={task},version={version}"
     if subtask:

@@ -2,6 +2,7 @@ import json
 import os
 import zipfile
 import copy
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -63,7 +64,7 @@ class Converter:
 
     def transform(self, data: Dict[str, Any], templates: Dict[str, Any], split: str) -> Instance:
         """Convert a data point in CLEVA format to a HELM instance according to a given CLEVA prompt template."""
-        transformed_data = self._apply_all(data, templates)
+        transformed_data = self._apply_all(copy.deepcopy(data), templates)
 
         text = transformed_data["input"]
         if "choices" in transformed_data:
@@ -279,7 +280,6 @@ class CLEVAScenario(Scenario):
     def __init__(
         self,
         version: str,
-        task: str,
         subtask: str,
         prompt_template: Dict[str, Any],
     ):
@@ -287,16 +287,19 @@ class CLEVAScenario(Scenario):
         Initializes CLEVA scenario.
         Args:
             version: String identifier for version in a format of 'v[1-9]*([0-9])'.
-            task: String identifier for task.
             subtask: String identifier for subtask.
             prompt_template: Prompt template in CLEVA format.
         """
         super().__init__()
-        self.task = task
         self.subtask = subtask
         self.version = version
         self.converter = Converter()
         self.prompt_template = prompt_template
+
+    @property
+    @abstractmethod
+    def task(self) -> str:
+        raise NotImplementedError("CLEVAScenario is intended to be an abstract base class and cannot be used directly.")
 
     @classmethod
     def download_dataset(cls, version: str):
@@ -474,6 +477,10 @@ class CLEVATextClassificationScenario(CLEVAScenario):
     description = "Text classification task in CLEVA benchmark"
     tags = ["text_classification", "multiple_choice"]
 
+    @property
+    def task(self) -> str:
+        return "text_classification"
+
 
 class CLEVAOpinionMiningScenario(CLEVAScenario):
     """
@@ -493,6 +500,10 @@ class CLEVAOpinionMiningScenario(CLEVAScenario):
 
     description = "Opinion mining task in CLEVA benchmark"
     tags = ["opinion_mining"]
+
+    @property
+    def task(self) -> str:
+        return "opinion_mining"
 
 
 class CLEVAPinyinTransliterationScenario(CLEVAScenario):
@@ -525,6 +536,10 @@ class CLEVAPinyinTransliterationScenario(CLEVAScenario):
     description = "Pinyin transliteration task in CLEVA benchmark"
     tags = ["pinyin_transliteration"]
 
+    @property
+    def task(self) -> str:
+        return "pinyin_transliteration"
+
 
 class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
     """
@@ -553,6 +568,10 @@ class CLEVAClassicalChineseUnderstandingScenario(CLEVAScenario):
     description = "Classical Chinese understanding task in CLEVA benchmark"
     tags = ["classical_chinese_understanding", "multiple_choice"]
 
+    @property
+    def task(self) -> str:
+        return "classical_chinese_understanding"
+
 
 class CLEVASentimentAnalysisScenario(CLEVAScenario):
     """
@@ -577,6 +596,10 @@ class CLEVASentimentAnalysisScenario(CLEVAScenario):
     description = "Sentiment analysis task in CLEVA benchmark"
     tags = ["sentiment_analysis"]
 
+    @property
+    def task(self) -> str:
+        return "sentiment_analysis"
+
 
 class CLEVAInstructionFollowingScenario(CLEVAScenario):
     """
@@ -593,6 +616,10 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
     description = "Instruction following task in CLEVA benchmark"
     tags = ["instruction_following", "multiple_choice"]
     splits: Dict[str, str] = {"test": TEST_SPLIT}
+
+    @property
+    def task(self) -> str:
+        return "instruction_following"
 
 
 class CLEVAFactCheckingScenario(CLEVAScenario):
@@ -619,6 +646,10 @@ class CLEVAFactCheckingScenario(CLEVAScenario):
 
     description = "Fact checking task in CLEVA benchmark"
     tags = ["fact_checking", "harms", "multiple_choice"]
+
+    @property
+    def task(self) -> str:
+        return "fact_checking"
 
 
 class CLEVATranslationScenario(CLEVAScenario):
@@ -655,6 +686,10 @@ class CLEVATranslationScenario(CLEVAScenario):
     description = "Translation task in CLEVA benchmark"
     tags = ["translation"]
 
+    @property
+    def task(self) -> str:
+        return "translation"
+
 
 class CLEVAToxicityDetectionScenario(CLEVAScenario):
     """
@@ -679,6 +714,10 @@ class CLEVAToxicityDetectionScenario(CLEVAScenario):
     description = "Toxicity detection task in CLEVA benchmark"
     tags = ["toxicity_detection", "harms", "multiple_choice"]
 
+    @property
+    def task(self) -> str:
+        return "toxicity_detection"
+
 
 class CLEVAParaphraseGenerationScenario(CLEVAScenario):
     """
@@ -698,6 +737,10 @@ class CLEVAParaphraseGenerationScenario(CLEVAScenario):
 
     description = "Paraphrase generation task in CLEVA benchmark"
     tags = ["paraphrase_generation"]
+
+    @property
+    def task(self) -> str:
+        return "paraphrase_generation"
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         text = row["sentence"]
@@ -757,6 +800,10 @@ class CLEVAIntentUnderstandingScenario(CLEVAScenario):
     description = "Intent understanding task in CLEVA benchmark"
     tags = ["intent_understanding", "multiple_choice"]
 
+    @property
+    def task(self) -> str:
+        return "intent_understanding"
+
 
 class CLEVACoreferenceResolutionScenario(CLEVAScenario):
     """
@@ -781,6 +828,10 @@ class CLEVACoreferenceResolutionScenario(CLEVAScenario):
 
     description = "Coreference resolution task in CLEVA benchmark"
     tags = ["coreference_resolution", "multiple_choice"]
+
+    @property
+    def task(self) -> str:
+        return "coreference_resolution"
 
 
 class CLEVAReadingComprehensionScenario(CLEVAScenario):
@@ -821,6 +872,10 @@ class CLEVAReadingComprehensionScenario(CLEVAScenario):
     description = "Reading comprehension task in CLEVA benchmark"
     tags = ["reading_comprehension", "multiple_choice"]
 
+    @property
+    def task(self) -> str:
+        return "reading_comprehension"
+
 
 class CLEVADialogueGenerationScenario(CLEVAScenario):
     """
@@ -845,6 +900,10 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
 
     description = "Dialogue generation task in CLEVA benchmark"
     tags = ["dialogue_generation"]
+
+    @property
+    def task(self) -> str:
+        return "dialogue_generation"
 
     # def get_instances(self) -> List[Instance]:
     #     # Download the raw data
@@ -914,6 +973,10 @@ class CLEVASubjectKnowledgeScenario(CLEVAScenario):
     description = "Subject knowledge task in CLEVA benchmark"
     tags = ["subject_knowledge", "knowledge"]
 
+    @property
+    def task(self) -> str:
+        return "subject_knowledge"
+
 
 class CLEVACulturalKnowledgeScenario(CLEVAScenario):
     """
@@ -950,6 +1013,10 @@ class CLEVACulturalKnowledgeScenario(CLEVAScenario):
     description = "Cultural knowledge task in CLEVA benchmark"
     tags = ["cultural_knowledge", "multiple_choice", "knowledge"]
 
+    @property
+    def task(self) -> str:
+        return "cultural_knowledge"
+
 
 class CLEVAParaphraseIdentificationScenario(CLEVAScenario):
     """
@@ -976,6 +1043,10 @@ class CLEVAParaphraseIdentificationScenario(CLEVAScenario):
     description = "Paraphrase identification task in CLEVA benchmark"
     tags = ["paraphrase_identification", "multiple_choice"]
 
+    @property
+    def task(self) -> str:
+        return "paraphrase_identification"
+
 
 class CLEVAClosedBookQuestionAnsweringScenario(CLEVAScenario):
     """
@@ -993,6 +1064,10 @@ class CLEVAClosedBookQuestionAnsweringScenario(CLEVAScenario):
 
     description = "Closed-book Question Answering task in CLEVA benchmark"
     tags = ["closed_book_question_answering"]
+
+    @property
+    def task(self) -> str:
+        return "closed_book_question_answering"
 
 
 class CLEVASummarizationScenario(CLEVAScenario):
@@ -1023,6 +1098,10 @@ class CLEVASummarizationScenario(CLEVAScenario):
 
     description = "Summarization task in CLEVA benchmark"
     tags = ["summarization"]
+
+    @property
+    def task(self) -> str:
+        return "summarization"
 
 
 class CLEVABiasScenario(CLEVAScenario):
@@ -1112,6 +1191,10 @@ class CLEVABiasScenario(CLEVAScenario):
     description = "Bias task in CLEVA benchmark"
     tags = ["bias", "harms", "multiple_choice"]
 
+    @property
+    def task(self) -> str:
+        return "bias"
+
 
 class CLEVACopyrightScenario(CLEVAScenario):
     """
@@ -1124,6 +1207,10 @@ class CLEVACopyrightScenario(CLEVAScenario):
     description = "Copyright task in CLEVA benchmark"
     tags = ["copyright", "harms"]
     splits: Dict[str, str] = {"test": TEST_SPLIT}
+
+    @property
+    def task(self) -> str:
+        return "copyright"
 
 
 class CLEVAConceptualGeneralizationScenario(CLEVAScenario):
@@ -1147,6 +1234,10 @@ class CLEVAConceptualGeneralizationScenario(CLEVAScenario):
     description = "Conceptual generalization task in CLEVA benchmark"
     tags = ["conceptual_generalization", "reasoning"]
 
+    @property
+    def task(self) -> str:
+        return "conceptual_generalization"
+
 
 class CLEVACommonsenseReasoningScenario(CLEVAScenario):
     """
@@ -1169,7 +1260,11 @@ class CLEVACommonsenseReasoningScenario(CLEVAScenario):
     """
 
     description = "Commonsense reasoning task in CLEVA benchmark"
-    tags = ["commonsense reasoning", "reasoning", "multiple_choice"]
+    tags = ["commonsense_reasoning", "reasoning", "multiple_choice"]
+
+    @property
+    def task(self) -> str:
+        return "commonsense_reasoning"
 
 
 class CLEVADeductiveReasoningScenario(CLEVAScenario):
@@ -1193,6 +1288,10 @@ class CLEVADeductiveReasoningScenario(CLEVAScenario):
     tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
     splits: Dict[str, str] = {"test": TEST_SPLIT}
 
+    @property
+    def task(self) -> str:
+        return "deductive_reasoning"
+
 
 class CLEVAMathematicalCalculationScenario(CLEVAScenario):
     """
@@ -1213,6 +1312,10 @@ class CLEVAMathematicalCalculationScenario(CLEVAScenario):
     description = "Mathematical calculation task in CLEVA benchmark."
     tags = ["mathematical_calculation"]
 
+    @property
+    def task(self) -> str:
+        return "mathematical_calculation"
+
 
 class CLEVAInductiveReasoningScenario(CLEVAScenario):
     """
@@ -1232,6 +1335,10 @@ class CLEVAInductiveReasoningScenario(CLEVAScenario):
 
     description = "Inductive Reasoing task in CLEVA benchmark."
     tags = ["inductive_reasoning", "reasoning"]
+
+    @property
+    def task(self) -> str:
+        return "inductive_reasoning"
 
 
 class CLEVAReasoningPrimitiveScenario(CLEVAScenario):
@@ -1284,6 +1391,10 @@ class CLEVAReasoningPrimitiveScenario(CLEVAScenario):
     description = "Reasoning primitive task in CLEVA benchmark."
     tags = ["reasoning_primitive", "reasoning"]
 
+    @property
+    def task(self) -> str:
+        return "reasoning_primitive"
+
 
 class CLEVADataToTextGenerationScenario(CLEVAScenario):
     """
@@ -1323,6 +1434,10 @@ class CLEVADataToTextGenerationScenario(CLEVAScenario):
     description = "Data-to-text generation task in CLEVA benchmark."
     tags = ["data_to_text_generation"]
 
+    @property
+    def task(self) -> str:
+        return "data_to_text_generation"
+
 
 class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     """
@@ -1350,6 +1465,10 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
 
     description = "Mathematical reasoning task in CLEVA benchmark."
     tags = ["math", "reasoning", "mathematical_reasoning"]
+
+    @property
+    def task(self) -> str:
+        return "mathematical_reasoning"
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         """
@@ -1379,6 +1498,10 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
     description = "Language modeling task in CLEVA benchmark."
     tags = ["language_modeling"]
     splits: Dict[str, str] = {"test": TEST_SPLIT}
+
+    @property
+    def task(self) -> str:
+        return "language_modeling"
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
         text: str = row["choices"][0]  # The length of row["choices"] should be 1. Only the first one is used.
@@ -1413,6 +1536,10 @@ class CLEVACodeSynthesisScenario(CLEVAScenario):
     description = "Code synthesis task in CLEVA benchmark."
     tags = ["code_synthesis", "Reasoning", "Code Generation"]
     splits: Dict[str, str] = {"test": TEST_SPLIT}
+
+    @property
+    def task(self) -> str:
+        return "code_synthesis"
 
     def process_instance(self, row: Dict[str, Any], split: str) -> CodeInstance:
         """Overrides to construct CodeInstance, instead of Instance, to tailor for code synthesis scenario."""
