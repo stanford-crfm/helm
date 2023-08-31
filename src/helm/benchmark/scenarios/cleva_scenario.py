@@ -846,48 +846,42 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
     description = "Dialogue generation task in CLEVA benchmark"
     tags = ["dialogue_generation"]
 
-    # def get_instances(self) -> List[Instance]:
-    #     # Download the raw data
-    #     dataset = self.load_dataset()
-    #
-    #     # Read all the instances
-    #     instances: List[Instance] = []
-    #     for split in self.splits:
-    #         for row in dataset[split]:
-    #             # One row could contain multiple conversation instances.
-    #             instances.extend(self.process_dialogue_instance(row, self.splits[split]))
-    #
-    #     return instances
-    #
-    # def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
-    #     instances: List[Instance] = []
-    #     text: str = ""
-    #     speaker_mapping = {"sys": "系统", "usr": "用户"}
-    #     dialog = row["dialogue"]
-    #
-    #     for turn_id, utt in enumerate(dialog):
-    #
-    #         content: str = utt["content"]
-    #         speaker: str = utt["role"]
-    #
-    #         # For task-oriented dialogue tasks, agents should response to users' questions according to the history.
-    #         if speaker == "sys" and turn_id > 0:
-    #             correct_answer = [content]
-    #             references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
-    #
-    #             instance = Instance(
-    #                 input=Input(text=text),
-    #                 references=references,
-    #                 split=split,
-    #             )
-    #             instances.append(instance)
-    #
-    #         # append history utterances
-    #         if turn_id > 0:
-    #             text += "\n"
-    #         text += "{speaker}: {content}".format(speaker=speaker_mapping[speaker], content=content)
-    #
-    #     return instances
+    def get_instances(self) -> List[Instance]:
+        # Download the raw data
+        dataset = self.load_dataset()
+
+        # Read all the instances
+        instances: List[Instance] = []
+        for split in self.splits:
+            for row in dataset[split]:
+                # One row could contain multiple conversation instances.
+                instances.extend(self.process_dialogue_instance(row, self.splits[split]))
+
+        return instances
+
+    def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
+        instances: List[Instance] = []
+        dialog = row["dialogue"]
+
+        history: List[Dict[str, str]] = []
+        for item in dialog:
+            role = item["role"]
+            utterance = item["content"]
+
+            if item["role"] == "sys":
+                instances.append(
+                    self.process_instance(
+                        {
+                            "history": copy.deepcopy(history),
+                            "role": role,
+                            "label": [utterance],
+                        },
+                        split=split,
+                    )
+                )
+            history.append({"utterance": utterance, "role": role})
+
+        return instances
 
 
 class CLEVASubjectKnowledgeScenario(CLEVAScenario):
