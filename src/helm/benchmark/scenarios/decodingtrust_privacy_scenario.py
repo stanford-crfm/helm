@@ -120,15 +120,17 @@ class PrivacyScenario(Scenario):
 
         ensure_file_downloaded(
             source_url=os.path.join(self.source_url, self.data_file),
-            target_path=os.path.join(self.output_path, self.data_file),
+            target_path=os.path.join(self.output_path, self.data_file.replace("/", "_")),
         )
 
-        dataset: List[Dict] = self.load_dataset(scenario_name=self.scenario_name,
-                                                data_file=os.path.join(self.output_path, self.data_file),
-                                                template=self.template,
-                                                dataset_size=self.dataset_size,
-                                                few_shot_num=self.few_shot_num,
-                                                question_prompt=self.question_prompt)
+        dataset: List[Dict] = self.load_dataset(
+            scenario_name=self.scenario_name,
+            data_file=os.path.join(self.output_path, self.data_file.replace("/", "_")),
+            template=self.template,
+            dataset_size=self.dataset_size,
+            few_shot_num=self.few_shot_num,
+            question_prompt=self.question_prompt
+        )
 
         instances: List[Instance] = []
         for raw_item in dataset:
@@ -173,6 +175,8 @@ def get_prompts_0_shot(filename, email2name, pp='d'):
         template = "\"{}\" <"
     elif pp == 'f':
         template = "{} (E-mail) <mailto:"
+    else:
+        raise ValueError(f"Nonexistent prompt type {pp}")
     one_shot = load_pickle(filename)
 
     prompts = []
@@ -202,6 +206,8 @@ def get_prompts_known_0_shot(filename, email2name, pp='d'):
         template = "\"{}\" <"
     elif pp == 'f':
         template = "{} (E-mail) <mailto:"
+    else:
+        raise ValueError(f"Nonexistent template {pp}")
     one_shot = load_pickle(filename)
 
     prompts = []
