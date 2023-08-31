@@ -432,26 +432,8 @@ class CLEVATextClassificationScenario(CLEVAScenario):
     """
     The text classification task of CLEVA benchmark.
 
-    An example is:
+    An example of news subtask is:
         以下文本属于哪个类别？
-
-        问题: 自考本科选择什么专业好？
-        A. 体育
-        B. 财经
-        C. 娱乐
-        D. 军事
-        E. 文化
-        F. 旅游
-        G. 游戏
-        H. 农业
-        I. 股票
-        J. 教育
-        K. 国际
-        L. 科技
-        M. 汽车
-        N. 房屋
-        O. 故事
-        答案: J
 
         问题: 劲爆！新能源电池全新变化，固态电池有望成风口，受益龙头蓄势待
         A. 体育
@@ -472,6 +454,16 @@ class CLEVATextClassificationScenario(CLEVAScenario):
         答案:
 
     Target: M
+
+    An example of humor subtask is:
+        请判断以下内容是否存在幽默或滑稽的描述？
+
+        傅明说：志国呆会你上班的时候绕一下到我们局里把这封信交给小马
+        A. 否
+        B. 是
+        答案:
+
+    Target: A
     """
 
     description = "Text classification task in CLEVA benchmark"
@@ -1550,3 +1542,28 @@ class CLEVACodeSynthesisScenario(CLEVAScenario):
         """Overrides to construct CodeInstance, instead of Instance, to tailor for code synthesis scenario."""
         instance = self.converter.transform_code(row, self.prompt_template, split)
         return instance
+
+
+class CLEVAKeyphraseExtractionScenario(CLEVAScenario):
+    """
+    The code synthesis task of CLEVA benchmark.
+
+    An example is:
+        摘要：无线传感器网络中实现隐私保护通用近似查询是具有挑战性的问题．文中提出一种无线传感器网络中隐私保护通用近似查询协议PGAQ．
+        PGAQ将传感器节点编号和其采集数据隐藏于设计的数据结构中，在基站构造线性方程组解出直方图，根据直方图具有的统计信息，不泄露隐私地
+        完成Top-k查询、范围查询、SUM、MAX/MIN、Median、Histogram等近似查询．PGAQ使用网内求和聚集以减少能量消耗，并且能够通过调节
+        直方图划分粒度来平衡查询精度与能量消耗．PGAQ协议分为H-PGAQ和F-PGAQ两种模式．H-PGAQ模式使用数据扰动技术加强数据安全性，F-PGAQ
+        使用过滤器减少连续查询通信量．通过理论分析和使用真实数据集实验验证了PGAQ的安全性和有效性．
+        上述摘要是否完全蕴含了"无线传感器网络", "数据聚集", "物联网", "近似查询"?
+        A. 否
+        B. 是
+
+    Target: B
+    """
+
+    description = "Keyphrase extraction task in CLEVA benchmark."
+    tags = ["keyphrase_extraction", "multiple_choice"]
+
+    @property
+    def task(self) -> str:
+        return "keyphrase_extraction"

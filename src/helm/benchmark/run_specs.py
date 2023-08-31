@@ -2408,6 +2408,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
         "bias",
         "commonsense_reasoning",
         "deductive_reasoning",
+        "keyphrase_extraction",
     ]:
         if prompt_setting.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             adapter_spec = AdapterSpec(
