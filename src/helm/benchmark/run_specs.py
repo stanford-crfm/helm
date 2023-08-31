@@ -518,6 +518,10 @@ def get_toxicity_metric_specs() -> List[MetricSpec]:
         MetricSpec(class_name="helm.benchmark.toxicity_metrics.ToxicityMetric", args={}),
     ]
 
+def get_ood_knowledge_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="helm.benchmark.ood_knowledge_metrics.OODKnowledgeMetric", args={}),
+    ]
 
 def get_bias_metric_specs() -> List[MetricSpec]:
     demographic_categories = ["race", "gender"]
@@ -2303,7 +2307,7 @@ def get_ood_robustness_spec(
         + f",run_id={run_id},idk={idk}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() if ood_type == "style" else get_ood_knowledge_metric_specs(),
         groups=["decoding_trust", "ood_robustness"],
     )
 

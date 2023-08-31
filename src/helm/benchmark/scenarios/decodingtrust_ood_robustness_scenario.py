@@ -182,6 +182,6 @@ class OoDRobustnessScenario(Scenario):
 
 
 if __name__ == '__main__':
-    s = OoDRobustnessScenario(ood_type="style", task="shake_p0.6", demo_name="base", run_id=0, idk=True)
+    s = OoDRobustnessScenario(ood_type="knowledge", task="qa_2020", demo_name="2021_qa", run_id=0, idk=True)
     instances = s.get_instances()
-    print(instances[0].input.text)
+    print(instances[6].input.text)
