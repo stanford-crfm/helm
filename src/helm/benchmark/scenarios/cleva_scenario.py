@@ -1088,7 +1088,6 @@ class CLEVAClosedBookQuestionAnsweringScenario(CLEVAScenario):
 
     description = "Closed-book Question Answering task in CLEVA benchmark"
     tags = ["closed_book_question_answering"]
-    splits: 
 
     @property
     def task(self) -> str:
