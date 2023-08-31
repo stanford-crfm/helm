@@ -426,9 +426,7 @@ def get_machine_translation_adapter_spec(
 
 
 def get_chat_adapter_spec(model: str, temperature: float, num_outputs: int) -> AdapterSpec:
-    return AdapterSpec(
-
-    )
+    return AdapterSpec()
 
 
 ############################################################
@@ -2260,7 +2258,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 def get_adv_robustness_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_adv_robustness_scenario.AdvRobustnessScenario",
-        args={"glue_task": task}
+        args={"glue_task": task},
     )
 
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
@@ -2275,32 +2273,21 @@ def get_adv_robustness_spec(task: str) -> RunSpec:
 
 
 @run_spec_function("ood_robustness")
-def get_ood_robustness_spec(
-    ood_type: str,
-    task: str,
-    demo_name: str,
-    run_id: int,
-    idk: bool
-) -> RunSpec:
+def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int, idk: bool) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.OoDRobustnessScenario",
-        args={
-            "ood_type": ood_type,
-            "task": task,
-            "demo_name": demo_name,
-            "run_id": run_id,
-            "idk": idk
-        }
+        args={"ood_type": ood_type, "task": task, "demo_name": demo_name, "run_id": run_id, "idk": idk},
     )
     if run_id >= 0 and run_id < 3:
         max_train = 5 if task == "knowledge" else 8
-        adapter_spec = get_few_shot_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0, max_train_instances=max_train)
+        adapter_spec = get_few_shot_instruct_adapter_spec(
+            num_outputs=1, max_tokens=16, temperature=0, max_train_instances=max_train
+        )
     else:
         adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
 
     return RunSpec(
-        name=f"ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name}"
-        + f",run_id={run_id},idk={idk}",
+        name=f"ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name}" + f",run_id={run_id},idk={idk}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -2312,9 +2299,7 @@ def get_ood_robustness_spec(
 def get_fairness_spec(task: str, data_path: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_fairness_scenario.FairnessScenario",
-        args={"task": task,
-              "data_path": data_path
-              }
+        args={"task": task, "data_path": data_path},
     )
 
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
@@ -2327,18 +2312,28 @@ def get_fairness_spec(task: str, data_path: str) -> RunSpec:
         groups=["decoding_trust", "fairness"],
     )
 
+
 @run_spec_function("machine_ethics")
-def get_machine_ethics_spec(data_name:str, test_data_file:str, train_data_file:str, test_num:int, few_shot_num:int, jailbreak_prompt:int, evasive_sentence:int) -> RunSpec:
+def get_machine_ethics_spec(
+    data_name: str,
+    test_data_file: str,
+    train_data_file: str,
+    test_num: int,
+    few_shot_num: int,
+    jailbreak_prompt: int,
+    evasive_sentence: int,
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_machine_ethics_scenario.EthicsScenario",
-        args={"data_name":data_name,
-              "test_data_file":test_data_file,
-              "train_data_file":train_data_file,
-              "test_num":test_num,
-              "few_shot_num":few_shot_num,
-              "jailbreak_prompt":jailbreak_prompt,
-              "evasive_sentence":evasive_sentence
-              }
+        args={
+            "data_name": data_name,
+            "test_data_file": test_data_file,
+            "train_data_file": train_data_file,
+            "test_num": test_num,
+            "few_shot_num": few_shot_num,
+            "jailbreak_prompt": jailbreak_prompt,
+            "evasive_sentence": evasive_sentence,
+        },
     )
 
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
@@ -2351,11 +2346,12 @@ def get_machine_ethics_spec(data_name:str, test_data_file:str, train_data_file:s
         groups=["decoding_trust", "machine_ethics"],
     )
 
+
 @run_spec_function("decodingtrust_toxicity_prompts")
 def get_decodingtrust_toxicity_prompts_spec(subject) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_toxicity_prompts_scenario.DecodingTrustToxicityPromptsScenario",
-        args={"subject": subject}
+        args={"subject": subject},
     )
 
     # Create AdapterSpec based on the RealToxicityPrompts paper: https://arxiv.org/pdf/2009.11462.pdf
@@ -2378,6 +2374,7 @@ def get_decodingtrust_toxicity_prompts_spec(subject) -> RunSpec:
         metric_specs=get_generative_harms_metric_specs(include_basic_metrics=True),
         groups=["decodingtrust_toxicity_prompts"],
     )
+
 
 ############################################################
 

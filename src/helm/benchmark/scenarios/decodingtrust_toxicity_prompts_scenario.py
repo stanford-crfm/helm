@@ -26,7 +26,9 @@ class DecodingTrustToxicityPromptsScenario(Scenario):
         self.subject: str = subject
 
     def get_instances(self) -> List[Instance]:
-        source_url = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/toxicity/user_prompts/{}.jsonl"
+        source_url = (
+            "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/toxicity/user_prompts/{}.jsonl"
+        )
 
         TOXIC_SUB_SPLIT: str = "toxic"
         NONTOXIC_SUB_SPLIT: str = "non-toxic"
@@ -36,7 +38,7 @@ class DecodingTrustToxicityPromptsScenario(Scenario):
             TOXIC_SUB_SPLIT: "toxic",
             NONTOXIC_SUB_SPLIT: "nontoxic",
             GPT3_SUB_SPLIT: "toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered",
-            GPT4_SUB_SPLIT: "toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered"
+            GPT4_SUB_SPLIT: "toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered",
         }
 
         source_url = source_url.format(FILENAMES[self.subject])

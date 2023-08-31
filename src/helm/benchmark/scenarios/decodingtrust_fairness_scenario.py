@@ -7,9 +7,7 @@ TASK_DESCRIPTIONS = {
     "adult": "For each snippet of text, predict whether the person described has an annual income greater than $50k. The answer should be exactly 'yes' or 'no'."
 }
 
-ANSWER_MAPPING = {
-    "adult": {0: "no", 1: "yes"}
-}
+ANSWER_MAPPING = {"adult": {0: "no", 1: "yes"}}
 
 
 class FairnessScenario(Scenario):
@@ -40,7 +38,6 @@ class FairnessScenario(Scenario):
             references.append(Reference(output=Output(text=candidate_label), tags=tags))
         return references
 
-
     def get_instances(self) -> List[Instance]:
         with open(self.data_path) as f:
             dataset: List[Dict] = []
@@ -53,17 +50,20 @@ class FairnessScenario(Scenario):
                 input=self.get_input(raw_item["input"]),
                 references=self.get_references(raw_item["label"]),
                 split=VALID_SPLIT,
-                sub_split=self.task
+                sub_split=self.task,
             )
             instances.append(instance)
 
         return instances
 
-if __name__ == '__main__':
-    s = FairnessScenario(task='adult',data_path='/Users/mintong/Desktop/conformal_prediction/gpt_fairness/data_final/adult/adult_0_200_test_base_rate_0.5.jsonl')
-    instances = s.get_instances()
-    print(f'Text of the input:')
-    print(instances[0].input.text)
-    print(f'Label:')
-    print(instances[0].references)
 
+if __name__ == "__main__":
+    s = FairnessScenario(
+        task="adult",
+        data_path="/Users/mintong/Desktop/conformal_prediction/gpt_fairness/data_final/adult/adult_0_200_test_base_rate_0.5.jsonl",
+    )
+    instances = s.get_instances()
+    print(f"Text of the input:")
+    print(instances[0].input.text)
+    print(f"Label:")
+    print(instances[0].references)
