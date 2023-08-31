@@ -12,6 +12,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from .code_scenario import CodeReference, CodeInstance
 
 
 CLEVA_DATA_URL = "http://emnlp.clevaplat.com:8001/data"
@@ -81,6 +82,26 @@ class Converter:
         instance = Instance(
             input=Input(text=text),
             references=references,
+            split=split,
+        )
+        return instance
+
+    def transform_code(self, data: Dict[str, Any], templates: Dict[str, Any], split: str) -> CodeInstance:
+        """
+        Similar to transform method above, transform_code converts a data point in code synthesis scenario in CLEVA
+        to a HELM CodeInstance according to a given CLEVA prompt template.
+        """
+
+        data["prompt"] = templates["input"].format(**data)
+        instance = CodeInstance(
+            input=Input(text=data["prompt"]),
+            references=[
+                CodeReference(
+                    output=Output(text=data["canonical_solution"]),
+                    test_cases=data,
+                    tags=[CORRECT_TAG],
+                )
+            ],
             split=split,
         )
         return instance
@@ -250,6 +271,10 @@ class CLEVAScenario(Scenario):
     """
 
     name = "cleva"
+    splits: Dict[str, str] = {
+        "train": TRAIN_SPLIT,
+        "test": TEST_SPLIT,
+    }
 
     def __init__(
         self,
@@ -270,10 +295,6 @@ class CLEVAScenario(Scenario):
         self.task = task
         self.subtask = subtask
         self.version = version
-        self.splits: Dict[str, str] = {
-            "train": TRAIN_SPLIT,
-            "test": TEST_SPLIT,
-        }
         self.converter = Converter()
         self.prompt_template = prompt_template
 
@@ -571,18 +592,7 @@ class CLEVAInstructionFollowingScenario(CLEVAScenario):
 
     description = "Instruction following task in CLEVA benchmark"
     tags = ["instruction_following", "multiple_choice"]
-
-    def __init__(
-        self,
-        version: str,
-        task: str,
-        subtask: str,
-        prompt_template: Dict[str, Any],
-    ):
-        super().__init__(version, task, subtask, prompt_template)
-        self.splits: Dict[str, str] = {
-            "test": TEST_SPLIT,
-        }
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
 
 class CLEVAFactCheckingScenario(CLEVAScenario):
@@ -747,24 +757,6 @@ class CLEVAIntentUnderstandingScenario(CLEVAScenario):
     description = "Intent understanding task in CLEVA benchmark"
     tags = ["intent_understanding", "multiple_choice"]
 
-    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-    #     context: str = row["context"]
-    #     question: str = row["question"]
-    #     text: str = f"{context}\n\n问题：{question}"
-    #     answers: List[str] = row["choices"]
-    #     correct_choice: List[int] = row["label"]
-    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-    #     references: List[Reference] = [
-    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-    #     ]
-
-    #     instance = Instance(
-    #         input=Input(text=text),
-    #         references=references,
-    #         split=split,
-    #     )
-    #     return instance
-
 
 class CLEVACoreferenceResolutionScenario(CLEVAScenario):
     """
@@ -789,25 +781,6 @@ class CLEVACoreferenceResolutionScenario(CLEVAScenario):
 
     description = "Coreference resolution task in CLEVA benchmark"
     tags = ["coreference_resolution", "multiple_choice"]
-
-    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-    #     context: str = row["context"]
-    #     span1: str = row["span1"]
-    #     span2: str = row["span2"]
-    #     text: str = f"{context}\n在上文中，“{span1}”和“{span2}”是否指代了同一个对象？\n"
-    #     answers: List[str] = row["choices"]
-    #     correct_choice: List[int] = row["label"]
-    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-    #     references: List[Reference] = [
-    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-    #     ]
-
-    #     instance = Instance(
-    #         input=Input(text=text),
-    #         references=references,
-    #         split=split,
-    #     )
-    #     return instance
 
 
 class CLEVAReadingComprehensionScenario(CLEVAScenario):
@@ -848,24 +821,6 @@ class CLEVAReadingComprehensionScenario(CLEVAScenario):
     description = "Reading comprehension task in CLEVA benchmark"
     tags = ["reading_comprehension", "multiple_choice"]
 
-    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-    #     context: str = row["context"]
-    #     question: str = row["question"]
-    #     text: str = f"{context}\n\n问题：{question}\n"
-    #     answers: List[str] = row["choices"]
-    #     correct_choice: List[int] = row["label"]
-    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-    #     references: List[Reference] = [
-    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-    #     ]
-
-    #     instance = Instance(
-    #         input=Input(text=text),
-    #         references=references,
-    #         split=split,
-    #     )
-    #     return instance
-
 
 class CLEVADialogueGenerationScenario(CLEVAScenario):
     """
@@ -891,48 +846,48 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
     description = "Dialogue generation task in CLEVA benchmark"
     tags = ["dialogue_generation"]
 
-    def get_instances(self) -> List[Instance]:
-        # Download the raw data
-        dataset = self.load_dataset()
-
-        # Read all the instances
-        instances: List[Instance] = []
-        for split in self.splits:
-            for row in dataset[split]:
-                # One row could contain multiple conversation instances.
-                instances.extend(self.process_dialogue_instance(row, self.splits[split]))
-
-        return instances
-
-    def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
-        instances: List[Instance] = []
-        text: str = ""
-        speaker_mapping = {"sys": "系统", "usr": "用户"}
-        dialog = row["dialogue"]
-
-        for turn_id, utt in enumerate(dialog):
-
-            content: str = utt["content"]
-            speaker: str = utt["role"]
-
-            # For task-oriented dialogue tasks, agents should response to users' questions according to the history.
-            if speaker == "sys" and turn_id > 0:
-                correct_answer = [content]
-                references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
-
-                instance = Instance(
-                    input=Input(text=text),
-                    references=references,
-                    split=split,
-                )
-                instances.append(instance)
-
-            # append history utterances
-            if turn_id > 0:
-                text += "\n"
-            text += "{speaker}: {content}".format(speaker=speaker_mapping[speaker], content=content)
-
-        return instances
+    # def get_instances(self) -> List[Instance]:
+    #     # Download the raw data
+    #     dataset = self.load_dataset()
+    #
+    #     # Read all the instances
+    #     instances: List[Instance] = []
+    #     for split in self.splits:
+    #         for row in dataset[split]:
+    #             # One row could contain multiple conversation instances.
+    #             instances.extend(self.process_dialogue_instance(row, self.splits[split]))
+    #
+    #     return instances
+    #
+    # def process_dialogue_instance(self, row: Dict[str, Any], split: str) -> List[Instance]:
+    #     instances: List[Instance] = []
+    #     text: str = ""
+    #     speaker_mapping = {"sys": "系统", "usr": "用户"}
+    #     dialog = row["dialogue"]
+    #
+    #     for turn_id, utt in enumerate(dialog):
+    #
+    #         content: str = utt["content"]
+    #         speaker: str = utt["role"]
+    #
+    #         # For task-oriented dialogue tasks, agents should response to users' questions according to the history.
+    #         if speaker == "sys" and turn_id > 0:
+    #             correct_answer = [content]
+    #             references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
+    #
+    #             instance = Instance(
+    #                 input=Input(text=text),
+    #                 references=references,
+    #                 split=split,
+    #             )
+    #             instances.append(instance)
+    #
+    #         # append history utterances
+    #         if turn_id > 0:
+    #             text += "\n"
+    #         text += "{speaker}: {content}".format(speaker=speaker_mapping[speaker], content=content)
+    #
+    #     return instances
 
 
 class CLEVASubjectKnowledgeScenario(CLEVAScenario):
@@ -1021,24 +976,6 @@ class CLEVAParaphraseIdentificationScenario(CLEVAScenario):
     description = "Paraphrase identification task in CLEVA benchmark"
     tags = ["paraphrase_identification", "multiple_choice"]
 
-    # def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-    #     sentence1: str = row["sentence1"]
-    #     sentence2: str = row["sentence2"]
-    #     text: str = f"句子1：{sentence1}\n句子2：{sentence2}\n"
-    #     answers: List[str] = row["choices"]
-    #     correct_choice: List[int] = row["label"]
-    #     correct_answer: List[str] = [answers[idx] for idx in correct_choice]
-    #     references: List[Reference] = [
-    #         self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
-    #     ]
-
-    #     instance = Instance(
-    #         input=Input(text=text),
-    #         references=references,
-    #         split=split,
-    #     )
-    #     return instance
-
 
 class CLEVAClosedBookQuestionAnsweringScenario(CLEVAScenario):
     """
@@ -1062,7 +999,7 @@ class CLEVASummarizationScenario(CLEVAScenario):
     """
     The summarization task of CLEVA task.
 
-    An example of dialogue summarization is:
+    An example of dialogue_summarization is:
         用户：咨询订单号:[订单编号]
         客服：有什么问题我可以帮您处理或解决呢?
         用户：想退单
@@ -1071,7 +1008,9 @@ class CLEVASummarizationScenario(CLEVAScenario):
         用户：是的
         客服：亲亲，虚拟商品属于及时交易到账，交易成功之后无法拦截，这就好比您去充值话费是一样的道理，已经交易到账，无法进行拦截呢
         用户：没别的方法了?
-        客服：亲爱哒，虚拟订单一旦购买成功无法退回呢，请问您是否有将卡密截图提供给不法分子如还没有建议您可通过网址http://huishou.jd.com/card?cid=[数字]&pid=166168&skuId=[电话]查询是否有相关产品类型，可进行回收以此减少您的损失哦
+        客服：亲爱哒，虚拟订单一旦购买成功无法退回呢，请问您是否有将卡密截图提供给不法分子如还没有建议您可通过网址
+             http://huishou.jd.com/card?cid=[数字]&pid=166168&skuId=[电话]查询是否有相关产品类型，可进行回收
+             以此减少您的损失哦
         客服：亲亲，请问您是否有将卡密截图提供给不法分子?
         用户：这就是不法分子的卡密
         客服：如果[姓名]没有使用的话还请您登录上面的网址链接进行回收操作
@@ -1184,14 +1123,7 @@ class CLEVACopyrightScenario(CLEVAScenario):
 
     description = "Copyright task in CLEVA benchmark"
     tags = ["copyright", "harms"]
-
-    def __init__(self, version: str, task: str, subtask: str, prompt_template: Dict[str, Any]):
-        super().__init__(version, task, subtask, prompt_template)
-
-        # Overwrite this to avoid loading the train split as there is none
-        self.splits: Dict[str, str] = {
-            "test": TEST_SPLIT,
-        }
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
 
 class CLEVAConceptualGeneralizationScenario(CLEVAScenario):
@@ -1259,6 +1191,7 @@ class CLEVADeductiveReasoningScenario(CLEVAScenario):
 
     description = "Deductive reasoning task in CLEVA benchmark"
     tags = ["deductive_reasoning", "reasoning", "multiple_choice"]
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
 
 class CLEVAMathematicalCalculationScenario(CLEVAScenario):
@@ -1390,21 +1323,6 @@ class CLEVADataToTextGenerationScenario(CLEVAScenario):
     description = "Data-to-text generation task in CLEVA benchmark."
     tags = ["data_to_text_generation"]
 
-    def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        features: List[Dict[str, str]] = row["feature"]
-        feature_text: str = "\n".join([f"| {feature['key']} | {feature['val']} |" for feature in features])
-        text: str = f"衣服特点：\n{feature_text}\n广告文案：\n"
-
-        correct_answer = row["label"]
-        references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
-
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
-        return instance
-
 
 class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     """
@@ -1416,7 +1334,7 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     For example, we use "所以答案是（只给出数字即可）" (English: Thus, the answer is:) before the answer,
     and remove line breaks within the answer.
 
-    An example of the world_problem subtask is:
+    An example of the math_world_problem subtask is:
         回答以下数学问题
 
         问题：甲数是168，乙数是甲数的4倍，乙数=？请一步一步给出推理过程。
@@ -1434,21 +1352,20 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     tags = ["math", "reasoning", "mathematical_reasoning"]
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        question: str = row["question"]
-        explanation: str = row["explanation"].replace("\n", "")
-        label: str = row["label"][0]
-        text: str = f"{question}请一步一步给出推理过程。\n"
+        """
+        Using the CoT prompting method, the reference of each training instance contains rationales for the problem.
+        However, these rationales should not appear in the testing instances, necessitating the reconstruction of
+        the reference for each testing instance.
+        """
 
-        if split == TRAIN_SPLIT:
-            references = [Reference(Output(text=f"{explanation}所以答案是（只给出数字即可）{label}。"), tags=[CORRECT_TAG])]
-        elif split == TEST_SPLIT:
-            references = [Reference(Output(text=label), tags=[CORRECT_TAG])]
-
-        instance = Instance(
-            input=Input(text=text),
-            references=references,
-            split=split,
-        )
+        labels: List[str] = copy.deepcopy(row["label"])
+        instance = self.converter.transform(row, self.prompt_template, split)
+        if split == TEST_SPLIT:
+            instance = Instance(
+                input=instance.input,
+                references=[Reference(Output(text=label), tags=[CORRECT_TAG]) for label in labels],
+                split=split,
+            )
         return instance
 
 
@@ -1461,26 +1378,43 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
 
     description = "Language modeling task in CLEVA benchmark."
     tags = ["language_modeling"]
-
-    def __init__(
-        self,
-        version: str,
-        task: str,
-        subtask: str,
-        prompt_template: Dict[str, Any],
-    ):
-        super().__init__(version, task, subtask, prompt_template)
-
-        # Overwrite this to avoid loading the train split as there is none
-        self.splits: Dict[str, str] = {
-            "test": TEST_SPLIT,
-        }
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        text: str = row["choices"][0]
+        text: str = row["choices"][0]  # The length of row["choices"] should be 1. Only the first one is used.
         instance = Instance(
             input=Input(text=text),
             references=[],
             split=split,
         )
+        return instance
+
+
+class CLEVACodeSynthesisScenario(CLEVAScenario):
+    """
+    The code synthesis task of CLEVA benchmark.
+
+    An example is:
+        根据注释说明，补全以下Python函数。
+
+        from typing import List
+
+        def below_zero(operations: List[int]) -> bool:
+        '''
+        给定一个包含对一个余额为0的银行账号进行一系列存款和取款操作的列表，
+        你的任务是检测账户余额在何时低于0，并在此时返回True，否则返回False。
+        \>\>\> below_zero([1, 2, 3])
+              False
+        \>\>\> below_zero([1, 2, -4, 5])
+              True
+        '''
+    """
+
+    description = "Code synthesis task in CLEVA benchmark."
+    tags = ["code_synthesis", "Reasoning", "Code Generation"]
+    splits: Dict[str, str] = {"test": TEST_SPLIT}
+
+    def process_instance(self, row: Dict[str, Any], split: str) -> CodeInstance:
+        """Overrides to construct CodeInstance, instead of Instance, to tailor for code synthesis scenario."""
+        instance = self.converter.transform_code(row, self.prompt_template, split)
         return instance
