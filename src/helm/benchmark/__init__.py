@@ -54,7 +54,12 @@ from .scenarios import anthropic_hh_rlhf_scenario  # noqa
 from .scenarios import koala_scenario  # noqa
 from .scenarios import decodingtrust_adv_robustness_scenario
 from .scenarios import decodingtrust_ood_robustness_scenario
-
+from .scenarios import decodingtrust_adv_demonstration_scenario
+from .scenarios import decodingtrust_fairness_scenario
+from .scenarios import decodingtrust_stereotype_prompts_scenario
+from .scenarios import decodingtrust_machine_ethics_scenario
+from .scenarios import decodingtrust_toxicity_prompts_scenario
+from .scenarios import decodingtrust_privacy_scenario
 
 # Biomedical
 from .scenarios import covid_dialog_scenario  # noqa
@@ -84,8 +89,8 @@ from .metrics import dry_run_metrics  # noqa
 from .metrics import machine_translation_metrics  # noqa
 from .metrics import summarization_critique_metrics  # noqa
 from .metrics import instruction_following_critique_metrics  # noqa
-from .metrics import ood_knowledge_metrics  # noqa
-
+from .metrics import decodingtrust_stereotype_bias_metrics
+from .metrics import decodingtrust_ood_knowledge_metrics
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
 from .augmentations.misspelling_perturbation import MisspellingPerturbation  # noqa
