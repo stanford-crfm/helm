@@ -404,6 +404,16 @@ ALL_MODELS = [
         name="tiiuae/falcon-7b-instruct",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    Model(
+        group="together",
+        name="tiiuae/falcon-40b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="tiiuae/falcon-40b-instruct",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # GooseAI supported models
     Model(
         group="gooseai",

@@ -174,7 +174,7 @@ class WindowServiceFactory:
             "databricks/dolly-v2-12b",
         ]:
             window_service = GPTNeoXWindowService(service)
-        elif model_name in ["tiiuae/falcon-7b", "tiiuae/falcon-7b-instruct"]:
+        elif model_name in ["tiiuae/falcon-7b", "tiiuae/falcon-7b-instruct", "tiiuae/falcon-40b", "tiiuae/falcon-40b-instruct"]:
             window_service = HuggingFaceWindowService(
                 service=service,
                 model_config=HuggingFaceHubModelConfig(namespace="tiiuae", model_name="falcon-7b", revision=None),

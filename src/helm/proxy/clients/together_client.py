@@ -88,6 +88,8 @@ MODEL_ALIASES: Dict[str, str] = {
     # instead of tiiuae in Together. Change this after Together fixes it.
     "falcon-7b": "togethercomputer/falcon-7b",
     "falcon-7b-instruct": "togethercomputer/falcon-7b-instruct",
+    "falcon-40b": "togethercomputer/falcon-40b",
+    "falcon-40b-instruct": "togethercomputer/falcon-40b-instruct",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
     "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
