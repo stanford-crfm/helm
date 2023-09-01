@@ -489,7 +489,8 @@ def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[Met
 def get_stereotype_bias_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.decodingtrust_stereotype_bias_metrics.StereotypeMetric", args={})]
 
-
+def get_fairness_specs() -> List[MetricSpec]:
+    return [MetricSpec(class_name="helm.benchmark.decodingtrust_fairness_metrics.FairnessMetric", args={})]
 
 def get_bbq_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.bbq_metrics.BBQMetric", args={})] + get_exact_match_metric_specs()
@@ -2354,7 +2355,7 @@ def get_fairness_spec(task: str, data_path: str) -> RunSpec:
         name=f"fairness:task={task}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        metric_specs=get_fairness_specs(),
         groups=["decoding_trust", "fairness"],
     )
 
