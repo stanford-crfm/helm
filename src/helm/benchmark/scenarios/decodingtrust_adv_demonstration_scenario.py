@@ -12,14 +12,14 @@ TASKS = {
     "backdoor": ["sst-2"],
 }
 
+EXP1 = [f"{x}_{y}" for x in ["setup1", "setup2", "setup3"] for y in ["badword", "addsent", "synbkd", "stylebkd"]]
+EXP2 = ["setup2_badword_0", "setup2_badword_1"]
+EXP3 = [f"{x}_cf_{y}" for x in ["setup2", "setup3"] for y in ["first", "middle", "end"]]
+
 DEMOS = {
     "counterfactual": ["demo+cf", "demo", "cf", "zero"],
     "spurious": ["zero", "entail-bias", "non-entail-bias"],
-    "backdoor": [
-        f"{x}_{y}"
-        for x in ["setup1", "setup2", "setup3"]
-        for y in ["badword", "addsent", "synbkd", "stylebkd"]
-    ],
+    "backdoor": EXP1 + EXP2 + EXP3,
 }
 
 TASK_DESCRIPTIONS = {
@@ -132,9 +132,19 @@ class DecodingTrustAdvDemoScenario(Scenario):
 
         for seed in self.seeds:
             if self.perspective == "backdoor":
-                asr_path = f"{self.perspective}/experiment1/{self.data}_{self.demo_name}_asr/{seed}.jsonl"
+                if self.demo_name in EXP1:
+                    exp = "experiment1"
+                    part = f"{self.data}_{self.demo_name}"
+                elif self.demo_name in EXP2:
+                    exp = "experiment2"
+                    part = f"{self.data}_{self.demo_name}"
+                elif self.demo_name in EXP3:
+                    exp = "experiment3"
+                    part = self.demo_name
+
+                asr_path = f"{self.perspective}/{exp}/{part}_asr/{seed}.jsonl"
                 instances.extend(self._get_instances(asr_path, f"asr_{seed}"))
-                cacc_path = f"{self.perspective}/experiment1/{self.data}_{self.demo_name}_cacc/{seed}.jsonl"
+                cacc_path = f"{self.perspective}/{exp}/{part}_cacc/{seed}.jsonl"
                 instances.extend(self._get_instances(cacc_path, f"cacc_{seed}"))
             else:
                 if self.perspective == "counterfactual":
