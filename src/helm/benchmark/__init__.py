@@ -90,7 +90,7 @@ from .metrics import machine_translation_metrics  # noqa
 from .metrics import summarization_critique_metrics  # noqa
 from .metrics import instruction_following_critique_metrics  # noqa
 from .metrics import decodingtrust_stereotype_bias_metrics
-
+from .metrics import decodingtrust_ood_knowledge_metrics
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
 from .augmentations.misspelling_perturbation import MisspellingPerturbation  # noqa
