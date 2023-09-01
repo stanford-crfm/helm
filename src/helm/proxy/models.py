@@ -358,7 +358,7 @@ ALL_MODELS = [
     # Stanford
     Model(
         group="together",
-        name="together/alpaca-7b",
+        name="stanford/alpaca-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     ),
     # LMSYS
@@ -376,6 +376,21 @@ ALL_MODELS = [
     Model(
         group="huggingface",
         name="mosaicml/mpt-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="huggingface",
+        name="mosaicml/mpt-instruct-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="huggingface",
+        name="mosaicml/mpt-30b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="huggingface",
+        name="mosaicml/mpt-instruct-30b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # GooseAI supported models

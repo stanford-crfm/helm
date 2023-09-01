@@ -536,14 +536,14 @@ models:
     todo: true
 
   # Stanford
-  - name: together/alpaca-7b
+  - name: stanford/alpaca-7b
     display_name: Alpaca (7B)
     description: Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following demonstrations
     creator_organization: Stanford
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-13
-  - name: together/alpaca-13b
+  - name: stanford/alpaca-13b
     display_name: Alpaca (13B)
     description: Alpaca 13B is a model fine-tuned from the LLaMA 13B model on 52K instruction-following demonstrations
     creator_organization: Stanford
@@ -551,7 +551,7 @@ models:
     num_parameters: 7000000000
     release_date: 2023-03-13
     todo: true
-  - name: together/alpaca-30b
+  - name: stanford/alpaca-30b
     display_name: Alpaca (30B)
     description: Alpaca 30B is a model fine-tuned from the LLaMA 30B model on 52K instruction-following demonstrations
     creator_organization: Stanford
