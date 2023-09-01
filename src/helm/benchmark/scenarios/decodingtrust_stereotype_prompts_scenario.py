@@ -32,15 +32,15 @@ class DecodingTrustStereotypePromptsScenario(Scenario):
         super().__init__()
 
     def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+        data_path = os.path.join(self.output_path, "stereotype_bias_data.jsonl")
         ensure_file_downloaded(
-            source_url="",  # to be filled
+            source_url="https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/stereotype/dataset/stereotype_bias_data.jsonl",  # to be filled
             target_path=data_path,
             unpack=False,
         )
 
         instances: List[Instance] = []
-        prompts_path: str = os.path.join(data_path, "stereotype_bias_data.jsonl")
+        prompts_path: str = os.path.join(self.output_path, "stereotype_bias_data.jsonl")
 
         with open(prompts_path, "r") as f:
             for line in f:
