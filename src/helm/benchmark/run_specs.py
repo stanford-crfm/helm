@@ -490,6 +490,7 @@ def get_stereotype_bias_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.decodingtrust_stereotype_bias_metrics.StereotypeMetric", args={})]
 
 
+
 def get_bbq_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.bbq_metrics.BBQMetric", args={})] + get_exact_match_metric_specs()
 
@@ -519,6 +520,10 @@ def get_toxicity_metric_specs() -> List[MetricSpec]:
         MetricSpec(class_name="helm.benchmark.toxicity_metrics.ToxicityMetric", args={}),
     ]
 
+def get_ood_knowledge_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="helm.benchmark.decodingtrust_ood_knowledge_metrics.OODKnowledgeMetric", args={}),
+    ]
 
 def get_bias_metric_specs() -> List[MetricSpec]:
     demographic_categories = ["race", "gender"]
@@ -2291,6 +2296,27 @@ def get_adv_robustness_spec(task: str) -> RunSpec:
         groups=["decoding_trust", "adv_robustness"],
     )
 
+@run_spec_function("adv_demonstration")
+def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, description: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.decodingtrust_adv_demonstration_scenario.DecodingTrustAdvDemoScenario",
+        args={"perspective": perspective,
+            "data": data,
+            "demo_name": demo_name,
+            "description": description
+        },
+    )
+
+    adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
+    name = f"perspective={perspective},data={data},demo_name={demo_name},description={description}"
+    return RunSpec(
+        name=f"adv_demonstration:{name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["decoding_trust", "adv_demonstration"],
+    )
+
 
 @run_spec_function("ood_robustness")
 def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int, idk: bool) -> RunSpec:
@@ -2310,7 +2336,7 @@ def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: in
         name=f"ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name}" + f",run_id={run_id},idk={idk}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() if ood_type == "style" else get_ood_knowledge_metric_specs(),
         groups=["decoding_trust", "ood_robustness"],
     )
 
@@ -2331,6 +2357,40 @@ def get_fairness_spec(task: str, data_path: str) -> RunSpec:
         metric_specs=get_exact_match_metric_specs(),
         groups=["decoding_trust", "fairness"],
     )
+
+
+
+@run_spec_function("privacy")
+def get_privacy_spec(
+    scenario_name: str,
+    data_file: str,
+    template: str,
+    dataset_size: int,
+    few_shot_num: int,
+    question_prompt: int,
+) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.decodingtrust_privacy_scenario.PrivacyScenario",
+        args={
+            "scenario_name": scenario_name,
+            "data_file": data_file,
+            "template": template,
+            "dataset_size": dataset_size,
+            "few_shot_num": few_shot_num,
+            "question_prompt": question_prompt,
+        },
+    )
+
+    adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=32, temperature=1) # temperature>0 for generaion
+
+    return RunSpec(
+        name=f"privacy:scenario_name={scenario_name},template={template},few_shot_num={few_shot_num},dataset_size={dataset_size},question_prompt{question_prompt}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["decoding_trust", "privacy"],
+    )
+
 
 
 @run_spec_function("machine_ethics")
