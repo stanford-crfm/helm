@@ -150,6 +150,7 @@ class AutoClient(Client):
                 "eleutherai",
                 "lmsys",
                 "meta",
+                "mosaicml",
                 "stabilityai",
                 "stanford",
                 "tiiuae",

@@ -206,13 +206,13 @@ class WindowServiceFactory:
         elif model_name == "nvidia/megatron-gpt2":
             window_service = MegatronWindowService(service)
         elif model_name in [
+            "lmsys/vicuna-7b-v1.3",
+            "lmsys/vicuna-13b-v1.3",
             "meta/llama-7b",
             "meta/llama-13b",
             "meta/llama-30b",
             "meta/llama-65b",
             "stanford/alpaca-7b",
-            "lmsys/vicuna-7b-v1.3",
-            "lmsys/vicuna-13b-v1.3",
         ]:
             window_service = LlamaWindowService(service)
         elif model_name in [
