@@ -118,7 +118,7 @@ class AutoClient(Client):
                 client = GooseAIClient(
                     api_key=self.credentials["gooseaiApiKey"], cache_config=cache_config, org_id=org_id
                 )
-            elif organization == "huggingface" or organization == "mosaicml":
+            elif organization == "huggingface":
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config)

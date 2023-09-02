@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional, Union, Set
+from typing import List, Dict, Any, Optional, Union
 
 import requests
 from retrying import retry
@@ -170,7 +170,6 @@ class TogetherClient(Client):
 
         def do_it() -> Dict[Any, Any]:
             job_id = submit_job()
-            print(f"[debug:yifanmai] job_id={job_id}")
             return retrieve_job(job_id)
 
         response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
