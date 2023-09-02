@@ -229,25 +229,26 @@ class Converter:
                 # If the value is a list, then look into its entries
                 elif isinstance(data[_name], list):
                     assert len(data[_name]) > 0, f"The length of {_name} must be larger than 0."
-                    # Only perform the subsitution if the keys match
-                    if _name == k:
-                        # If the entry is a string, we directly map the result
-                        if isinstance(data[_name][0], str):
+                    if isinstance(data[_name][0], int):
+                        pass
+                    elif isinstance(data[_name][0], str):
+                        # If the entry is a string and the key matches, we directly map the result
+                        if _name == k:
                             data[_name] = [d[c] for c in data[_name]]
-                        # If the entry is a dict, we look into its key-value pairs
-                        elif isinstance(data[_name][0], dict):
-                            for item in data[_name]:
-                                for _k in item:
-                                    # Only perform the subsitution if the keys match
-                                    if _k == k:
-                                        assert isinstance(
-                                            item[_k], str
-                                        ), "We only support mapping data with type `List[Dict[str, str]]`"
-                                        item[_k] = d[item[_k]]
-                        else:
-                            raise NotImplementedError(
-                                "We only support mapping data with type `List[str]` or `List[Dict[str, str]]`"
-                            )
+                    # If the entry is a dict, we look into its key-value pairs
+                    elif isinstance(data[_name][0], dict):
+                        for item in data[_name]:
+                            for _k in item:
+                                # Only perform the subsitution if the keys match
+                                if _k == k:
+                                    assert isinstance(
+                                        item[_k], str
+                                    ), "We only support mapping data with type `List[Dict[str, str]]`"
+                                    item[_k] = d[item[_k]]
+                    else:
+                        raise NotImplementedError(
+                            "We only support mapping data with type `List[str]` or `List[Dict[str, str]]`"
+                        )
                 else:
                     raise NotImplementedError("We only support mapping data with type `list` or `str`")
 
