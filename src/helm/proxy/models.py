@@ -374,22 +374,22 @@ ALL_MODELS = [
     ),
     # MosaicML
     Model(
-        group="huggingface",
+        group="together",
         name="mosaicml/mpt-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
-        group="huggingface",
+        group="together",
         name="mosaicml/mpt-instruct-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
-        group="huggingface",
+        group="together",
         name="mosaicml/mpt-30b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
-        group="huggingface",
+        group="together",
         name="mosaicml/mpt-instruct-30b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
