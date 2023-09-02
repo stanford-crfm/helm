@@ -725,14 +725,14 @@ models:
   # MosaicML
   - name: mosaicml/mpt-7b
     display_name: MPT (7B)
-    description: MPT-7B is a Transformer trained from scratch on 1T tokens of text and code.
+    description: MPT (7B) is a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
   - name: mosaicml/mpt-7b-chat
     display_name: MPT-Chat (7B)
-    description: MPT-Chat (7B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT-7B, a Transformer trained from scratch on 1T tokens of text and code.
+    description: MPT-Chat (7B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT (30B) , a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
@@ -740,21 +740,21 @@ models:
     todo: true
   - name: mosaicml/mpt-7b-instruct
     display_name: MPT-Instruct (7B)
-    description: MPT-Instruct (7B) is a model for short-form instruction following. It is built by finetuning MPT (7B), a Transformer trained from scratch on 1T tokens of text and code.
+    description: MPT-Instruct (7B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
   - name: mosaicml/mpt-30b
     display_name: MPT (30B)
-    description: MPT-7B is a Transformer trained from scratch on 1T tokens of text and code.
+    description: MPT (30B) is a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
   - name: mosaicml/mpt-30b-chat
     display_name: MPT-Chat (30B)
-    description: MPT-Chat (30B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT-7B, a Transformer trained from scratch on 1T tokens of text and code.
+    description: MPT-Chat (30B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
@@ -762,7 +762,7 @@ models:
     todo: true
   - name: mosaicml/mpt-30b-instruct
     display_name: MPT-Instruct (30B)
-    description: MPT-Instruct (30B) is a model for short-form instruction following. It is built by finetuning MPT (7B), a Transformer trained from scratch on 1T tokens of text and code.
+    description: MPT-Instruct (30B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
@@ -784,7 +784,7 @@ models:
     num_parameters: 7000000000
     release_date: 2023-03-15
   - name: tiiuae/falcon-40b
-    display_name: Falcon LLM (7B)
+    display_name: Falcon LLM (4B)
     description: Falcon-40B is a 40B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
     creator_organization: TII UAE
     access: open
