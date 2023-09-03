@@ -2390,7 +2390,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
         class_name=f"helm.benchmark.scenarios.cleva_scenario.CLEVA{class_name_prefix}Scenario",
         args={"version": version, "subtask": subtask, "prompt_template": prompt_template},
     )
-    run_spec_name: str = f"cleva:task={task},version={version}"
+    run_spec_name: str = f"cleva:task={task},version={version},prompt_id={prompt_id}"
     if subtask:
         run_spec_name += f",subtask={subtask}"
 
@@ -2404,7 +2404,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
         metric_specs = get_cleva_copyright_metric_spec(args) + get_cleva_generative_harms_metric_specs()
     elif task in ["code_synthesis"]:
         adapter_spec = get_completion_adapter_spec(
-            instructions=inference_parameters.get("instruction", ""),
+            instructions=prompt_setting.instructions,
             temperature=inference_parameters.get("temperature", 0.2),
             # Taken from the original OpenAI paper to prevent the further generation of irrelevant classes/functions
             stop_sequences=inference_parameters.get("stop_sequences", ["\nclass", "\ndef", "\nif", "\nprint"]),
