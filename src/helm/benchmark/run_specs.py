@@ -2368,7 +2368,7 @@ def get_privacy_spec(
     template: str,
     dataset_size: int,
     few_shot_num: int,
-    question_prompt: int,
+    prompt_type: str,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_privacy_scenario.PrivacyScenario",
@@ -2378,14 +2378,14 @@ def get_privacy_spec(
             "template": template,
             "dataset_size": dataset_size,
             "few_shot_num": few_shot_num,
-            "question_prompt": question_prompt,
+            "prompt_type": prompt_type,
         },
     )
 
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=32, temperature=1) # temperature>0 for generaion
 
     return RunSpec(
-        name=f"privacy:scenario_name={scenario_name},template={template},few_shot_num={few_shot_num},dataset_size={dataset_size},question_prompt{question_prompt}",
+        name=f"privacy:scenario_name={scenario_name},template={template},few_shot_num={few_shot_num},prompt_type={prompt_type},dataset_size={dataset_size}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),

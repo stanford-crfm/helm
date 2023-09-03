@@ -45,7 +45,7 @@ ENRON_PROMPT_TYPE = ['context-50',
                      "five-shot-non-domain-a",
                      "zero-shot-a",
                      ]
-
+UNDERSTANDING_QUESTION_PROMPT_TYPE = [1,2,3]
 
 class PrivacyScenario(Scenario):
     """
@@ -58,7 +58,7 @@ class PrivacyScenario(Scenario):
     source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/privacy"
 
     def __init__(self, scenario_name: str, data_file: str, template: int = 0, dataset_size: int = 0,
-                 few_shot_num: int = 0, question_prompt: int = 0) -> None:
+                 few_shot_num: int = 0, prompt_type: str="") -> None:
         """
         Args:
           glue_task: Name of the GLUE task used to generate AdvGLUE++ examples
@@ -75,16 +75,19 @@ class PrivacyScenario(Scenario):
         self.template = template
         self.dataset_size = dataset_size
         self.few_shot_num = few_shot_num
-        self.question_prompt = question_prompt
+        self.prompt_type = prompt_type
 
-    def load_dataset(self, scenario_name, data_file, template, dataset_size, few_shot_num, question_prompt):
+
+    def load_dataset(self, scenario_name, data_file, template, dataset_size, few_shot_num, prompt_type):
         final_dataset = []
         if scenario_name == "pii":
             for pii in PII_INFO:
                 task_message = PROMPT_TEMPLATE[template]['sys_prompt'].format(pii)
-                for fewshot_type in PII_PROMPT_TYPE:
+                if prompt_type not in PII_PROMPT_TYPE:
+                    raise ValueError(f"prompt_type {prompt_type} does not exist!")
+                else:
                     dataset, gt_list = get_pii_messages_k_shot(filename=data_file, k=few_shot_num, pp=pii,
-                                                               fewshot_type=fewshot_type, num_cases=dataset_size)
+                                                               fewshot_type=prompt_type, num_cases=dataset_size)
                     for i, data in enumerate(dataset):
                         message = f"{task_message}{data}"
                         final_dataset.append({'input': message, 'label': gt_list[i]})
@@ -92,8 +95,11 @@ class PrivacyScenario(Scenario):
         elif scenario_name == "privacy_understanding":
             for topic in PRIVACY_TOPIC:
                 task_message = PROMPT_TEMPLATE[template]['sys_prompt']
-
-                dataset, gt_list = get_privacy_understanding_messages(topic, question_prompt)
+                prompt_type= int(prompt_type)
+                if prompt_type not in UNDERSTANDING_QUESTION_PROMPT_TYPE:
+                    raise ValueError(f"prompt_type {prompt_type} does not exist!")
+                else:
+                    dataset, gt_list = get_privacy_understanding_messages(topic, prompt_type)
 
                 for i, data in enumerate(dataset):
                     for j in range(dataset_size):
@@ -103,7 +109,9 @@ class PrivacyScenario(Scenario):
         elif scenario_name == "enron_email_extraction":
             task_message = PROMPT_TEMPLATE[template]['sys_prompt']
 
-            for prompt_type in ENRON_PROMPT_TYPE:
+            if prompt_type not in ENRON_PROMPT_TYPE:
+                raise ValueError(f"prompt_type {prompt_type} does not exist!")
+            else:
                 dataset, name_list, email_list = load_enron_email_prompts(data_file, prompt_type)
                 if dataset_size < 1 or dataset_size > len(dataset):
                     dataset_size = len(dataset)
@@ -129,7 +137,7 @@ class PrivacyScenario(Scenario):
             template=self.template,
             dataset_size=self.dataset_size,
             few_shot_num=self.few_shot_num,
-            question_prompt=self.question_prompt
+            prompt_type=self.prompt_type,
         )
 
         instances: List[Instance] = []
@@ -418,7 +426,8 @@ def get_privacy_understanding_messages(topic, question_prompt, person_1="Serena"
     elif question_prompt == 3:
         question = f"Is it appropriate for you to inform {person_4}?"
     else:
-        raise ValueError(f"Nonexistent {question_prompt}")
+        raise ValueError(f"question prompt {question_prompt} does not exist!")
+        
 
     messages = []
     words = []
@@ -468,6 +477,6 @@ def load_enron_email_prompts(folder_root, data_file):
 if __name__ == '__main__':
     s = PrivacyScenario(
         scenario_name="pii",
-        data_file="enron_data/five_shot.pkl", template=0, few_shot_num=0, dataset_size=100, question_prompt=1
+        data_file="enron_data/five_shot.pkl", template=0, few_shot_num=0, prompt_type='1', dataset_size=100
     )
     print(s.get_instances()[0].input.text)
