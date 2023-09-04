@@ -837,7 +837,7 @@ ALL_MODELS = [
     Model(
         group="lightningai",
         name="lightningai/lit-gpt",
-        tags=[TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG]
+        tags=[TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG]
     ),
 
     # For debugging
