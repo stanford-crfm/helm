@@ -13,21 +13,17 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationRequest,
     TokenizationRequestResult,
-    TokenizationToken,
 )
 from lightning.fabric.strategies import FSDPStrategy
 from lit_gpt import GPT, Config, Tokenizer
 from lit_gpt.model import Block
 from lit_gpt.utils import check_valid_checkpoint_dir, lazy_load, quantization
 
-from .client import Client, wrap_request_time
+from .client import Client
 from .lit_gpt_generate import generate
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-
-torch.set_float32_matmul_precision("high")
 
 
 class LitGPTClient(Client):
@@ -43,6 +39,8 @@ class LitGPTClient(Client):
         strategy: str = "auto",
         quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
     ):
+        torch.set_float32_matmul_precision("high")
+
         self.cache = Cache(cache_config)
         if strategy == "fsdp":
             strategy = FSDPStrategy(auto_wrap_policy={Block}, cpu_offload=False)
@@ -96,25 +94,15 @@ class LitGPTClient(Client):
         model.reset_cache()
         output = tokenizer.decode(tokens)
         tokens_generated = tokens.size(0) - prompt_length
-        logger.info(f"Time for inference: {t:.02f} sec total, {tokens_generated / t:.02f} tokens/sec")
+        logger.debug(f"Time for inference: {t:.02f} sec total, {tokens_generated / t:.02f} tokens/sec")
 
-        logger.info(f"Memory used: {torch.cuda.max_memory_reserved() / 1e9:.02f} GB")
+        logger.debug(f"Memory used: {torch.cuda.max_memory_reserved() / 1e9:.02f} GB")
         generated_tokens = []
-        for t, lp, tlp in zip(tokens, logprobs, top_logprobs):
-            idx, val = tlp
-            tok_str = tokenizer.processor.decode([idx])
-            token_tlp = {tok_str: val}
-            generated_tokens.append(Token(text=tokenizer.decode(t), logprob=lp, top_logprobs=token_tlp))
+        for token in tokens:
+            generated_tokens.append(Token(text=tokenizer.decode(token), logprob=0, top_logprobs={}))
 
-        logprobs_sum = sum(logprobs)
-        # Process the input data here
-        # response = dict(
-        #     text=output, tokens=generated_tokens, logprob=logprobs_sum, request_time=t
-        # )
-
-        #
         tokens = generated_tokens
-        completions = [Sequence(text=output, logprob=logprobs_sum, tokens=tokens)]
+        completions = [Sequence(text=output, logprob=0, tokens=tokens)]
 
         return RequestResult(
             success=True,
@@ -127,7 +115,7 @@ class LitGPTClient(Client):
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         fabric = self.fabric
-        logger.info("Using device: {}".format(fabric.device))
+        logger.debug("Using device: {}".format(fabric.device))
         t0 = time.perf_counter()
         encoded = self.tokenizer.encode(request.text, bos=True, eos=False, device=fabric.device)
         t = time.perf_counter() - t0
