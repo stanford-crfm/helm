@@ -40,9 +40,6 @@ def generate(
     idx = empty
     input_pos = torch.arange(0, T, device=device)
 
-    top_logprob = []
-    logprob = []
-
     # generate up to a fixed number of tokens
     for _ in range(max_returned_tokens - T):
         x = idx.index_select(0, input_pos).view(1, -1)
@@ -68,6 +65,6 @@ def generate(
 
         # if <eos> token is triggered, return the output (stop generation)
         if idx_next == eos_id:
-            return idx[:input_pos], logprob, top_logprob  # include the EOS token
+            return idx[:input_pos], 0, 0  # include the EOS token
     # TODO: implement logprob in a future PR
     return idx, 0, 0
