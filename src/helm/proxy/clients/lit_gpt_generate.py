@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, List
+from typing import List, Optional, Tuple
 
 import torch
 
@@ -60,12 +60,6 @@ def generate(
 
         idx_next = torch.multinomial(probs, num_samples=1).to(dtype=dtype)
 
-        # append the logprob of selected token
-        logprob.append(torch.log(probs[idx_next]).item())
-
-        # append th idx and logprob of top token
-        top_logprob.append((torch.argmax(probs).item(), torch.log(probs).max().item()))
-
         # advance
         input_pos = input_pos[-1:] + 1
 
@@ -75,5 +69,5 @@ def generate(
         # if <eos> token is triggered, return the output (stop generation)
         if idx_next == eos_id:
             return idx[:input_pos], logprob, top_logprob  # include the EOS token
-
-    return idx, logprob, top_logprob
+    # TODO: implement logprob in a future PR
+    return idx, 0, 0
