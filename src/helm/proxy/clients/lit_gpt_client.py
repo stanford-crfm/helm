@@ -82,6 +82,7 @@ class LitGPTClient(Client):
         model.reset_cache()
         t0 = time.perf_counter()
         # helm doesn't have anything equivalent to top_k at the moment
+        # TODO: allow temperature=0, pick the top token rather than sampling.
         tokens, logprobs, top_logprobs = generate(
             model,
             encoded,
