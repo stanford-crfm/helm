@@ -1,23 +1,24 @@
 import json
-import time
 import logging
+import time
 from pathlib import Path
 from typing import Dict, List, Literal, Optional
 
 import lightning as L
 import torch
+from helm.common.cache import Cache, CacheConfig
+from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.tokenization_request import (
+    DecodeRequest,
+    DecodeRequestResult,
+    TokenizationRequest,
+    TokenizationRequestResult,
+    TokenizationToken,
+)
 from lightning.fabric.strategies import FSDPStrategy
 from lit_gpt import GPT, Config, Tokenizer
 from lit_gpt.model import Block
 from lit_gpt.utils import check_valid_checkpoint_dir, lazy_load, quantization
-
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (DecodeRequest,
-                                              DecodeRequestResult,
-                                              TokenizationRequest,
-                                              TokenizationRequestResult,
-                                              TokenizationToken)
 
 from .client import Client, wrap_request_time
 from .lit_gpt_generate import generate
@@ -72,9 +73,7 @@ class LitGPTClient(Client):
         model = self.model
         tokenizer = self.tokenizer
         fabric = self.fabric
-        encoded = tokenizer.encode(
-            request.prompt, bos=True, eos=False, device=fabric.device
-        )
+        encoded = tokenizer.encode(request.prompt, bos=True, eos=False, device=fabric.device)
         prompt_length = encoded.size(0)
         max_returned_tokens = prompt_length + request.max_tokens
         assert max_returned_tokens <= model.config.block_size, (
@@ -97,9 +96,7 @@ class LitGPTClient(Client):
         model.reset_cache()
         output = tokenizer.decode(tokens)
         tokens_generated = tokens.size(0) - prompt_length
-        logger.info(
-            f"Time for inference: {t:.02f} sec total, {tokens_generated / t:.02f} tokens/sec"
-        )
+        logger.info(f"Time for inference: {t:.02f} sec total, {tokens_generated / t:.02f} tokens/sec")
 
         logger.info(f"Memory used: {torch.cuda.max_memory_reserved() / 1e9:.02f} GB")
         generated_tokens = []
@@ -107,43 +104,35 @@ class LitGPTClient(Client):
             idx, val = tlp
             tok_str = tokenizer.processor.decode([idx])
             token_tlp = {tok_str: val}
-            generated_tokens.append(
-                Token(text=tokenizer.decode(t), logprob=lp, top_logprobs=token_tlp)
-            )
+            generated_tokens.append(Token(text=tokenizer.decode(t), logprob=lp, top_logprobs=token_tlp))
 
         logprobs_sum = sum(logprobs)
         # Process the input data here
         # response = dict(
         #     text=output, tokens=generated_tokens, logprob=logprobs_sum, request_time=t
         # )
-        
+
         #
         tokens = generated_tokens
         completions = [Sequence(text=output, logprob=logprobs_sum, tokens=tokens)]
 
         return RequestResult(
-                success=True,
-                cached=False,
-                error=None,
-                completions=completions,
-                embedding=[],
-                request_time=None,
-            )
+            success=True,
+            cached=False,
+            error=None,
+            completions=completions,
+            embedding=[],
+            request_time=None,
+        )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         fabric = self.fabric
         logger.info("Using device: {}".format(fabric.device))
         t0 = time.perf_counter()
-        encoded = self.tokenizer.encode(
-            request.text, bos=True, eos=False, device=fabric.device
-        )
+        encoded = self.tokenizer.encode(request.text, bos=True, eos=False, device=fabric.device)
         t = time.perf_counter() - t0
         tokens = encoded.tolist()
-        return TokenizationRequestResult(
-                    success=True, cached=False, tokens=tokens, text=request.text,
-                    request_time=t
-                )
-
+        return TokenizationRequestResult(success=True, cached=False, tokens=tokens, text=request.text, request_time=t)
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         raise NotImplementedError
