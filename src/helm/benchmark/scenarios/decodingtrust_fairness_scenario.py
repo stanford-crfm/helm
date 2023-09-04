@@ -71,7 +71,7 @@ class FairnessScenario(Scenario):
 if __name__ == "__main__":
     s = FairnessScenario(
         task="adult",
-        data_path="xx",
+        setting="adult_0_200_test_base_rate_0.0.jsonl",
     )
     instances = s.get_instances()
     print(f"Text of the input:")
