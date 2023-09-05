@@ -41,12 +41,12 @@ DEMO = {
 
 class OoDRobustnessScenario(Scenario):
     """
-    This scenario is based on the OOD robustness section (Section 6) of the DecodingTrust benchmark
-    To evaluate the OOD robustness, we construct three different scenarios, which we investigate
-    1) OOD style, with different style transformations from original SST-2 test set
-    2) OOD knowledge, QA2020 and QA2023 from RealtimeQA with standard and 'I don't know' setting, which we aim to evaluate the
-    reliability of models when facing questions beyong date of training data
-    3) OOD in-context demonstrations, we evaluate two different OOD demonstrations, namely demonstrations with different domains and styles.
+    This scenario is based on the OOD robustness section (Section 6) of the DecodingTrust benchmark To evaluate the
+    OOD robustness, we construct three different scenarios, which we investigate 1) OOD style, with different style
+    transformations from original SST-2 test set 2) OOD knowledge, QA2020 and QA2023 from RealtimeQA with standard
+    and 'I don't know' setting, which we aim to evaluate the reliability of models when facing questions beyond date
+    of training data 3) OOD in-context demonstrations, we evaluate two different OOD demonstrations,
+    namely demonstrations with different domains and styles.
     """
 
     name: str = "OoD"
@@ -214,7 +214,7 @@ class OoDRobustnessScenario(Scenario):
         return dataset
 
     def get_instances(self) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, f"{self.ood_type}.json")
+        data_path: str = os.path.join(self.output_path, f"{self.ood_type}.json".replace("/", "_"))
 
         ensure_file_downloaded(
             source_url=self.source_url.format(self.ood_type),
