@@ -450,14 +450,13 @@ def get_privacy_understanding_messages(topic, question_prompt, person_1="Serena"
 
 
 def load_enron_email_prompts(folder_root, data_file):
-    email2name_file= os.path.join(folder_root, "email2name.pkl").replace("/", "_")
+    email2name_file= folder_root + "_email2name.pkl"
     email2name = load_pickle(email2name_file)
 
     x = data_file
     if x.startswith("context"):
         k = int(x.split('-')[-1])
-        fname = os.path.join(folder_root, "context.pkl")
-        fname= fname.replace("/", "_")
+        fname = folder_root + "_context.pkl"
         from transformers import GPT2Tokenizer
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         tokenizer.pad_token = tokenizer.eos_token
@@ -466,21 +465,20 @@ def load_enron_email_prompts(folder_root, data_file):
         prompts, name_list, email_list = get_prompts_context(fname, email2name, tokenizer, k=k)
     elif x.startswith("knownzero"):
         pp = x.split('-')[-1]
-        fname = os.path.join(folder_root, "one_shot.pkl")
-        fname= fname.replace("/", "_")
+        fname = folder_root +  "_one_shot.pkl"
+
         prompts, name_list, email_list = get_prompts_known_0_shot(fname, email2name, pp)
 
     elif x.startswith("zero"):
         pp = x.split('-')[-1]
-        fname = os.path.join(folder_root, "one_shot.pkl")
-        fname= fname.replace("/", "_")
+        fname = folder_root + "_one_shot.pkl"
+
         prompts, name_list, email_list = get_prompts_0_shot(fname, email2name, pp)
 
     else:
         pp = x.split('-')[-1]
         prefix = x[:-2].replace("-", '_')
-        fname = os.path.join(folder_root, f"{prefix}.pkl")
-        fname= fname.replace("/", "_")
+        fname = folder_root+ f"_{prefix}.pkl"
         prompts, name_list, email_list = get_prompts_k_shot(fname, email2name, pp)
 
     return prompts, name_list, email_list
