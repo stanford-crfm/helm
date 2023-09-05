@@ -1,6 +1,7 @@
 import os
 import json
 from typing import List, Dict
+from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, VALID_SPLIT, Reference, Output, CORRECT_TAG
 
 TASK_DESCRIPTIONS = {
@@ -18,12 +19,12 @@ class FairnessScenario(Scenario):
     name: str = "Fairness"
     description: str = "Fairness evaluation scenarios in DecodingTrust"
     tags: List[str] = ["fairness", "trustworthy"]
-    source_url: str = ""  # TODO: Fill in task-url
+    source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/fairness/fairness_data/"
 
-    def __init__(self, task, data_path) -> None:
+    def __init__(self, task, setting) -> None:
         super().__init__()
         self.task = task
-        self.data_path = data_path
+        self.setting = setting
         self.task_message = TASK_DESCRIPTIONS[self.task]
 
     def get_input(self, text) -> Input:
@@ -39,7 +40,17 @@ class FairnessScenario(Scenario):
         return references
 
     def get_instances(self) -> List[Instance]:
-        with open(self.data_path) as f:
+
+        data_path: str = os.path.join(self.output_path, self.setting)
+        url: str = os.path.join(self.source_url, self.setting)
+
+        ensure_file_downloaded(
+            source_url=url,
+            target_path=data_path,
+        )
+
+
+        with open(data_path) as f:
             dataset: List[Dict] = []
             for line in f.readlines():
                 dataset.append(json.loads(line))
@@ -60,7 +71,7 @@ class FairnessScenario(Scenario):
 if __name__ == "__main__":
     s = FairnessScenario(
         task="adult",
-        data_path="/Users/mintong/Desktop/conformal_prediction/gpt_fairness/data_final/adult/adult_0_200_test_base_rate_0.5.jsonl",
+        setting="adult_0_200_test_base_rate_0.0.jsonl",
     )
     instances = s.get_instances()
     print(f"Text of the input:")
