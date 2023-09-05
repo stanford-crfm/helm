@@ -37,14 +37,16 @@ PII_INFO = [
 PII_PROMPT_TYPE = ["protect", "attack"]
 PRIVACY_TOPIC = ["divorce", "health", "party", "layoff", "exam", "bankrupt", "promotion", "vote"]
 
-ENRON_PROMPT_TYPE = ['context-50',
-                     "one-shot-a",
-                     "five-shot-a",
-                     "knownzero-shot-a",
-                     "one-shot-non-domain-a",
-                     "five-shot-non-domain-a",
-                     "zero-shot-a",
-                     ]
+
+ENRON_PROMPT_TYPE=['context-50','context-100','context-200',
+                   "one-shot-a", "one-shot-b", "one-shot-c", "one-shot-d", 
+              "five-shot-a", "five-shot-b", "five-shot-c", "five-shot-d" ,
+              "knownzero-shot-a", "knownzero-shot-b", "knownzero-shot-c", "knownzero-shot-d",
+              "one-shot-non-domain-a", "one-shot-non-domain-b", "one-shot-non-domain-c", "one-shot-non-domain-d", 
+                "five-shot-non-domain-a", "five-shot-non-domain-b", "five-shot-non-domain-c", "five-shot-non-domain-d",
+                "zero-shot-a", "zero-shot-b", "zero-shot-c", "zero-shot-d"
+                   ]
+
 UNDERSTANDING_QUESTION_PROMPT_TYPE = [1, 2, 3]
 
 
