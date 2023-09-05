@@ -61,9 +61,12 @@ class PrivacyScenario(Scenario):
                  few_shot_num: int = 0, prompt_type: str="") -> None:
         """
         Args:
-          glue_task: Name of the GLUE task used to generate AdvGLUE++ examples
-          evaluate_benign: Whether to evaluate benign GLUE accuracy
-        TODO: Support benign GLUE evaluation and the standard AdvGLUE test set evaluation
+            scenario_name: Name of the privacy scenarios
+            data_file: The data file for the scenario
+            template: The template of the system prompt
+            dataset_size: The number of instances in the evalution dataset
+            few_shot_num: The number of few-shot demonstrations
+            prompt_type: The type of the prompt
         """
         super().__init__()
 
@@ -126,10 +129,18 @@ class PrivacyScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
 
-        ensure_file_downloaded(
-            source_url=os.path.join(self.source_url, self.data_file),
-            target_path=os.path.join(self.output_path, self.data_file.replace("/", "_")),
-        )
+        if self.data_file=="enron_data": # download the whole folder
+            download_files=["enron_data/context.pkl", "enron_data/email_freq.pkl", "enron_data/email2name.pkl", "enron_data/name2email.pkl", 
+                             "enron_data/five_shot.pkl", "enron_data/five_shot_non_domain.pkl",
+                             "enron_data/one_shot.pkl", "enron_data/one_shot_non_domain.pkl",
+                            "enron_data/two_shot.pkl", "enron_data/two_shot_non_domain.pkl",]
+        else:
+            download_files=[self.data_file]
+        for download_file in download_files:
+            ensure_file_downloaded(
+                source_url=os.path.join(self.source_url, download_file),
+                target_path=os.path.join(self.output_path, download_file.replace("/", "_")),
+            )
 
         dataset: List[Dict] = self.load_dataset(
             scenario_name=self.scenario_name,
@@ -433,22 +444,21 @@ def get_privacy_understanding_messages(topic, question_prompt, person_1="Serena"
     words = []
     for prompt in prompts:
         secret = prompt[0].format(person_1, person_2, person_3, person_4, person_1, person_2, person_3, sensitive_info)
-        # messages.append([{
-        #         "role": "user", 
-        #         "content": f"{secret}\n {question}"}])
         messages.append(f"{secret}\n {question}")
-
         words.append(prompt[1])
 
     return messages, words
 
 
 def load_enron_email_prompts(folder_root, data_file):
-    email2name = load_pickle(os.path.join(folder_root, "email2name.pkl"))
+    email2name_file= os.path.join(folder_root, "email2name.pkl").replace("/", "_")
+    email2name = load_pickle(email2name_file)
+
     x = data_file
     if x.startswith("context"):
         k = int(x.split('-')[-1])
         fname = os.path.join(folder_root, "context.pkl")
+        fname= fname.replace("/", "_")
         from transformers import GPT2Tokenizer
         tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         tokenizer.pad_token = tokenizer.eos_token
@@ -458,17 +468,20 @@ def load_enron_email_prompts(folder_root, data_file):
     elif x.startswith("knownzero"):
         pp = x.split('-')[-1]
         fname = os.path.join(folder_root, "one_shot.pkl")
+        fname= fname.replace("/", "_")
         prompts, name_list, email_list = get_prompts_known_0_shot(fname, email2name, pp)
 
     elif x.startswith("zero"):
         pp = x.split('-')[-1]
         fname = os.path.join(folder_root, "one_shot.pkl")
+        fname= fname.replace("/", "_")
         prompts, name_list, email_list = get_prompts_0_shot(fname, email2name, pp)
 
     else:
         pp = x.split('-')[-1]
         prefix = x[:-2].replace("-", '_')
         fname = os.path.join(folder_root, f"{prefix}.pkl")
+        fname= fname.replace("/", "_")
         prompts, name_list, email_list = get_prompts_k_shot(fname, email2name, pp)
 
     return prompts, name_list, email_list
