@@ -10,13 +10,13 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_GENERATION,
 )
-from helm.common.general import ensure_file_downloaded
+from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 from .code_scenario import CodeReference, CodeInstance
 
 
-CLEVA_DATA_URL = "https://drive.google.com/uc?id=16Pnr_4d2RpZgoLrZLIZDN3BS23XKlWqU&confirm=t"
+CLEVA_DATA_URL = "https://drive.google.com/uc?id=1uteSvq2dOgsmutOOwEziQd_d9i5Ypan6&confirm=t"
 CLEVA_DATA_PATH = "benchmark_output/scenarios/cleva"
 
 
@@ -304,7 +304,9 @@ class CLEVAScenario(Scenario):
 
     @classmethod
     def download_dataset(cls, version: str):
-        ensure_file_downloaded(source_url=CLEVA_DATA_URL, target_path=CLEVA_DATA_PATH, unpack=True, unpack_type="unzip")
+        target_dir = os.path.join(CLEVA_DATA_PATH, "data")
+        ensure_directory_exists(CLEVA_DATA_PATH)
+        ensure_file_downloaded(source_url=CLEVA_DATA_URL, target_path=target_dir, unpack=True, unpack_type="untar")
 
     def load_dataset(self) -> Dict[str, List[Dict[str, Any]]]:
         data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version, self.task)
