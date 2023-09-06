@@ -1,6 +1,5 @@
 import json
 import os
-import zipfile
 import copy
 from abc import abstractmethod
 from dataclasses import dataclass
@@ -17,7 +16,7 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CO
 from .code_scenario import CodeReference, CodeInstance
 
 
-CLEVA_DATA_URL = "http://emnlp.clevaplat.com:8001/data"
+CLEVA_DATA_URL = "https://drive.google.com/uc?id=1uteSvq2dOgsmutOOwEziQd_d9i5Ypan6&confirm=t"
 CLEVA_DATA_PATH = "benchmark_output/scenarios/cleva"
 
 
@@ -305,13 +304,9 @@ class CLEVAScenario(Scenario):
 
     @classmethod
     def download_dataset(cls, version: str):
-        download_url: str = CLEVA_DATA_URL + f"/{version}/data.zip"
-        data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version)
-        ensure_directory_exists(data_dir)
-        ensure_file_downloaded(source_url=download_url, target_path=os.path.join(data_dir, "data.zip"))
-
-        with zipfile.ZipFile(os.path.join(data_dir, "data.zip"), "r") as zip_ref:
-            zip_ref.extractall(data_dir)
+        target_dir = os.path.join(CLEVA_DATA_PATH, "data")
+        ensure_directory_exists(CLEVA_DATA_PATH)
+        ensure_file_downloaded(source_url=CLEVA_DATA_URL, target_path=target_dir, unpack=True, unpack_type="untar")
 
     def load_dataset(self) -> Dict[str, List[Dict[str, Any]]]:
         data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version, self.task)
