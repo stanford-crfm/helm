@@ -227,17 +227,24 @@ class InContextLearningAdapter(Adapter, ABC):
         # References (optionally) and output
         output: str
 
-        delimiter = ","
-        if reference_index is None:
+        delimiter = ", "
+        no_correct_references = "n/a"
+        if reference_index is not None:
+            reference = instance.references[reference_index]
+            output = reference.output.text
             # Put only the correct reference as the output
+        elif self.adapter_spec.multi_label:
             correct_references: List[Reference] = instance.all_correct_references
             if not correct_references:
-                output = "n/a"
+                output = no_correct_references
             else:
                 output = delimiter.join([correct_reference.output.text for correct_reference in correct_references])
         else:
-            reference = instance.references[reference_index]
-            output = reference.output.text
+            first_correct_reference: Optional[Reference] = instance.first_correct_reference
+            if not first_correct_reference:
+                output = no_correct_references
+            else:
+                output = first_correct_reference.output.text
 
         if include_output:
             result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix

@@ -22,6 +22,8 @@ _ASYNC_MODELS: Set[str] = {
     # Production models
     "redpajama-incite-base-3b-v1",
     "redpajama-incite-instruct-3b-v1",
+    "redpajama-incite-base-7b",
+    "redpajama-incite-instruct-7b",
     "dolly-v2-3b",
     "dolly-v2-7b",
     "dolly-v2-12b",
@@ -32,6 +34,10 @@ _ASYNC_MODELS: Set[str] = {
     "llama-2-7b",
     "llama-2-13b",
     "llama-2-70b",
+    "pythia-1b-v0",
+    "pythia-2.8b-v0",
+    "pythia-6.9b",
+    "pythia-12b-v0",
     "stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b",
 }
@@ -60,6 +66,8 @@ MODEL_ALIASES: Dict[str, str] = {
     # Production models
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
     "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
+    "redpajama-incite-base-7b": "togethercomputer/RedPajama-INCITE-7B-Base",
+    "redpajama-incite-instruct-7b": "togethercomputer/RedPajama-INCITE-7B-Instruct",
     "dolly-v2-3b": "databricks/dolly-v2-3b",
     "dolly-v2-7b": "databricks/dolly-v2-7b",
     "dolly-v2-12b": "databricks/dolly-v2-12b",
@@ -70,6 +78,10 @@ MODEL_ALIASES: Dict[str, str] = {
     "llama-2-7b": "togethercomputer/llama-2-7b",
     "llama-2-13b": "togethercomputer/llama-2-13b",
     "llama-2-70b": "togethercomputer/llama-2-70b",
+    "pythia-1b-v0": "EleutherAI/pythia-1b-v0",
+    "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
+    "pythia-6.9b": "EleutherAI/pythia-6.9b",
+    "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
 }
@@ -249,11 +261,14 @@ class TogetherClient(Client):
                 text = cleanup_str(raw_completion["text"], "together")
                 tokens.append(Token(text=text, logprob=0, top_logprobs={}))
 
+            raw_finish_reason: Optional[str] = raw_completion.get("finish_reason")
+            finish_reason: Optional[Dict] = {"reason": raw_finish_reason} if raw_finish_reason else None
+
             completion = Sequence(
                 text=cleanup_str(raw_completion["text"], "together"),
                 logprob=sequence_logprob,
                 tokens=tokens,
-                finish_reason={"reason": raw_completion["finish_reason"]},
+                finish_reason=finish_reason,
             )
             completion = truncate_sequence(completion, request)
             completions.append(completion)

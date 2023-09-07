@@ -13,6 +13,7 @@ import pyhocon
 from dataclasses import asdict, is_dataclass
 
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 _CREDENTIALS_FILE_NAME = "credentials.conf"
@@ -82,6 +83,10 @@ def ensure_file_downloaded(
         # gdown is used to download large files/zip folders from Google Drive.
         # It bypasses security warnings which wget cannot handle.
         if source_url.startswith("https://drive.google.com"):
+            try:
+                import gdown  # noqa
+            except ModuleNotFoundError as e:
+                handle_module_not_found_error(e)
             downloader_executable = "gdown"
         tmp_path: str = f"{target_path}.tmp"
         shell([downloader_executable, source_url, "-O", tmp_path])

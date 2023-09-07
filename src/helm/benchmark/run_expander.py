@@ -369,7 +369,6 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
             "ai21/j1-jumbo": ["ai21/j1-jumbo"],
             "openai/curie": ["openai/curie"],
-            "chat_run": ["openai/chat-gpt", "openai/text-davinci-003"],  # Compare ChatGPT to text-davinci-003
             "all": get_all_models(),
             "text_code": get_all_text_models() + get_all_code_models(),
             "text": get_all_text_models(),

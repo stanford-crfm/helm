@@ -112,6 +112,12 @@ class Model:
 # Over time, we should add more information there.
 
 ALL_MODELS = [
+    # Local Model
+    Model(
+        group="neurips",
+        name="neurips/local",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     # AI21: https://studio.ai21.com/pricing
     Model(
         group="jurassic",
@@ -295,44 +301,59 @@ ALL_MODELS = [
     ),
     Model(
         group="together",
-        name="together/pythia-7b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        name="eleutherai/pythia-1b-v0",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="eleutherai/pythia-2.8b-v0",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="eleutherai/pythia-6.9b",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="eleutherai/pythia-12b-v0",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Meta
     Model(
         group="together",
         name="meta/llama-7b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
         name="meta/llama-13b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
         name="meta/llama-30b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
         name="meta/llama-65b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
         name="meta/llama-2-7b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
         name="meta/llama-2-13b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
         name="meta/llama-2-70b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Stanford
     Model(
@@ -647,18 +668,6 @@ ALL_MODELS = [
             INSTRUCTION_FOLLOWING_MODEL_TAG,
         ],
     ),
-    Model(
-        group="gpt3",
-        name="openai/chat-gpt",
-        # TODO: The max context length is unknown. Assume it's the same length as Davinci Instruct for now.
-        tags=[
-            TEXT_MODEL_TAG,
-            WIDER_CONTEXT_WINDOW_TAG,
-            GPT2_TOKENIZER_TAG,
-            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-            INSTRUCTION_FOLLOWING_MODEL_TAG,
-        ],
-    ),
     # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
     Model(
         group="gpt3",
@@ -704,6 +713,16 @@ ALL_MODELS = [
     Model(
         group="together",
         name="together/redpajama-incite-instruct-3b-v1",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="together/redpajama-incite-base-7b",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        name="together/redpajama-incite-instruct-7b",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # Tsinghua

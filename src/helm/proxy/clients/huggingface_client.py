@@ -25,6 +25,13 @@ from helm.proxy.clients.huggingface_model_registry import (
 from threading import Lock
 
 
+# Map of HELM model name to Hugging Face Hub model name where they differ.
+_KNOWN_MODEL_ALIASES: Dict[str, str] = {
+    "huggingface/gpt2": "gpt2",
+    "huggingface/starcoder": "bigcode/starcoder",
+}
+
+
 class HuggingFaceServer:
     def __init__(self, model_config: HuggingFaceModelConfig):
         if torch.cuda.is_available():
@@ -154,23 +161,14 @@ class HuggingFaceClient(Client):
         self.cache = Cache(cache_config)
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
 
-    def get_model_server_instance(self, model) -> HuggingFaceServer:
+    def get_model_server_instance(self, model: str) -> HuggingFaceServer:
         model_config = get_huggingface_model_config(model)
         # Special-case some models in so that users don't have to enable them with --enable-huggingface-models
         if not model_config:
-            # Other HuggingFace hub models that we'll look up for you even if you didn't enable them via the flag
-            if model == "EleutherAI/gpt-j-6B":
-                model_config = HuggingFaceHubModelConfig.from_string("EleutherAI/gpt-j-6B")
-            elif model == "huggingface/gpt2":
-                model_config = HuggingFaceHubModelConfig.from_string("gpt2")
-            elif model == "bigcode/santacoder":
-                model_config = HuggingFaceHubModelConfig.from_string("bigcode/santacoder")
-            elif model == "huggingface/starcoder":
-                model_config = HuggingFaceHubModelConfig.from_string("bigcode/starcoder")
-            elif model == "mosaicml/mpt-7b":
-                model_config = HuggingFaceHubModelConfig.from_string("mosaicml/mpt-7b")
+            if model in _KNOWN_MODEL_ALIASES:
+                model_config = HuggingFaceHubModelConfig.from_string(_KNOWN_MODEL_ALIASES[model])
             else:
-                raise Exception(f"Unknown HuggingFace model: {model}")
+                model_config = HuggingFaceHubModelConfig.from_string(model)
         return _get_singleton_server(model_config)
 
     def make_request(self, request: Request) -> RequestResult:

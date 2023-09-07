@@ -47,7 +47,9 @@ jobs:
           restore-keys: |
             pip-
       # Installs dependencies and performs static code checks
-      - run: ./pre-commit-venv.sh
+      - run: python3 -m pip install virtualenv && python3 -m virtualenv -p python3 venv
+      - run: source venv/bin/activate && ./install-dev.sh
+      - run: source venv/bin/activate && ./pre-commit.sh
       - name: Run tests
         # Skip ICE tokenizer tests. GHA is having trouble downloading ice_text.model.
         run: source venv/bin/activate && pytest --ignore src/helm/benchmark/window_services/test_ice_window_service.py --ignore src/helm/proxy/clients/test_ice_tokenizer_client.py

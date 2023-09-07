@@ -60,8 +60,7 @@ In order to implement new scenarios:
 4. Note that you need not enumerate every possible correct answer (nor must
    there even necessarily be a correct answer). 
 5. Make sure to document your scenario well with a clear docstring. 
-6. In addition, specify its `name`, `description`, and `tags` and define a class
-   `__init__` function even if it is simply `pass`.
+6. In addition, specify its `name`, `description`, and `tags`.
 7. Define a function `get_specname_spec` in `run_specs.py` to retrieve a `ScenarioSpec` 
    for your scenario using a class name corresponding to the Python path of 
    the class (e.g. `helm.benchmark.scenarios.your_scenario.YourScenario`) and any 
@@ -79,17 +78,17 @@ In order to implement new scenarios:
    `name` corresponding to the scenario name and any patterns to match in 
    curly braces, a `scenario_spec`, an `adapter_spec`, `metric_specs`, 
    and `groups`. 
-12. Add the scenario to `__init__.py`
-13. Attempt to run your task with
+12. Attempt to run your task with
     `venv/bin/helm-run -r yourscenarioname:arg=value` where 
     `yourscenarioname` matches the `name` specified in YourScenario
-14. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
-15. Update `src/helm/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
-
+13. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `src/helm/benchmark/run_specs.py`.
+14. Update `src/helm/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
+15. Add a schema to `src/helm/benchmark/static/schema.yaml` and add the scenario to `subgroups` as needed.
 
 ## Adding new metrics
 
 To add a new metric:
+
 1. If the metric is task-specific, create a new `yourtask_metrics.py` file. 
    Otherwise, if the metric is generic and likely to be widely used, add it
    to `basic_metrics.py`.
@@ -101,7 +100,6 @@ To add a new metric:
    (e.g. multiple distance metrics). 
 5. For each `value` generated for a `Stat`, add it to `yourstat` using `yourstat.add(value)`. 
    Usually, there will only be one value for each `Stat`, but multiple can be used, e.g. to show variance.
-6. Add your metric to `__init__.py`.
 
 ## Data augmentations
 
@@ -138,13 +136,12 @@ multiple perturbations and applying it onto a single instance.
 
 ### Adding a new perturbation
 
-To add a new perturbation to the framework, create a new file at `src/helm/benchmark/augmentations` with the name
-`<Name of perturbation>_perturbation.py` e.g., `typo_perturbation.py`. Inside the file, create a new class
-(name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`)
-that extends the abstract class `Perturbation` and implement the `perturb` method which
-takes in text and outputs the perturbed text.
-Add your new perturbation to `src/helm/benchmark/__init__.py`.
-Add a test for the new perturbation in `test_perturbation.py`.
+1. To add a new perturbation to the framework, create a new file at `src/helm/benchmark/augmentations` with the name
+   `<Name of perturbation>_perturbation.py` e.g., `typo_perturbation.py`. Inside the file, create a new class
+   (name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`)
+   that extends the abstract class `Perturbation` and implement the `perturb` method which
+   takes in text and outputs the perturbed text.
+2. Add a test for the new perturbation in `test_perturbation.py`.
 
 ## Supporting new Hugging Face tokenizers
 
