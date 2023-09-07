@@ -194,3 +194,4 @@ zipp==3.11.0
 zope.event==4.5.0
 zope.interface==5.4.0
 zstandard==0.18.0
+fairlearn==0.9.0
