@@ -487,7 +487,9 @@ def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[Met
 
 
 def get_stereotype_bias_metric_specs() -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.metrics.decodingtrust_stereotype_bias_metrics.StereotypeMetric", args={})]
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.decodingtrust_stereotype_bias_metrics.StereotypeMetric", args={})
+    ]
 
 
 def get_fairness_metric_specs() -> List[MetricSpec]:
@@ -2287,8 +2289,8 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 def get_stereotype_bias_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_stereotype_prompts_scenario"
-                   ".DecodingTrustStereotypePromptsScenario",
-        args={}
+        ".DecodingTrustStereotypePromptsScenario",
+        args={},
     )
 
     adapter_spec = get_instruct_adapter_spec(num_outputs=25, max_tokens=150, temperature=1)
@@ -2298,7 +2300,7 @@ def get_stereotype_bias_spec(task: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_stereotype_bias_metric_specs(),
-        groups=["decoding_trust", "stereotype_bias"]
+        groups=["decoding_trust", "stereotype_bias"],
     )
 
 
@@ -2324,11 +2326,7 @@ def get_adv_robustness_spec(task: str) -> RunSpec:
 def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, description: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_adv_demonstration_scenario.DecodingTrustAdvDemoScenario",
-        args={"perspective": perspective,
-              "data": data,
-              "demo_name": demo_name,
-              "description": description
-              },
+        args={"perspective": perspective, "data": data, "demo_name": demo_name, "description": description},
     )
 
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
@@ -2385,12 +2383,12 @@ def get_fairness_spec(task: str, setting: str) -> RunSpec:
 
 @run_spec_function("privacy")
 def get_privacy_spec(
-        scenario_name: str,
-        data_file: str,
-        template: str,
-        dataset_size: int,
-        few_shot_num: int,
-        prompt_type: str,
+    scenario_name: str,
+    data_file: str,
+    template: str,
+    dataset_size: int,
+    few_shot_num: int,
+    prompt_type: str,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_privacy_scenario.PrivacyScenario",
@@ -2417,13 +2415,13 @@ def get_privacy_spec(
 
 @run_spec_function("machine_ethics")
 def get_machine_ethics_spec(
-        data_name: str,
-        test_data_file: str,
-        train_data_file: str,
-        test_num: int,
-        few_shot_num: int,
-        jailbreak_prompt: int,
-        evasive_sentence: int,
+    data_name: str,
+    test_data_file: str,
+    train_data_file: str,
+    test_num: int,
+    few_shot_num: int,
+    jailbreak_prompt: int,
+    evasive_sentence: int,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_machine_ethics_scenario.EthicsScenario",
@@ -2453,7 +2451,7 @@ def get_machine_ethics_spec(
 def get_decodingtrust_toxicity_prompts_spec(subject) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_toxicity_prompts_scenario"
-                   ".DecodingTrustToxicityPromptsScenario",
+        ".DecodingTrustToxicityPromptsScenario",
         args={"subject": subject},
     )
 

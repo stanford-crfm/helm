@@ -53,9 +53,10 @@ class DecodingTrustStereotypePromptsScenario(Scenario):
                     input=Input(text=prompt_text),
                     references=[
                         Reference(
-                            Output(text=stereotype_topic_tag + ' ' + demographic_group_tag + ' ' + sys_prompt_type_tag),
-                            tags=[stereotype_topic_tag, demographic_group_tag, sys_prompt_type_tag])
-                    ]
+                            Output(text=stereotype_topic_tag + " " + demographic_group_tag + " " + sys_prompt_type_tag),
+                            tags=[stereotype_topic_tag, demographic_group_tag, sys_prompt_type_tag],
+                        )
+                    ],
                 )
                 instances.append(instance)
 

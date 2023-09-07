@@ -10,7 +10,6 @@ from helm.common.object_spec import ObjectSpec, create_object
 
 
 class Perturbation(ABC):
-
     # Unique name to describe perturbation
     name: str
 

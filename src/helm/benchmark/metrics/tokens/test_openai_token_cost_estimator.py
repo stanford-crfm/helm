@@ -11,7 +11,6 @@ from .openai_token_cost_estimator import OpenAITokenCostEstimator
 
 
 class TestOpenAITokenCostEstimator:
-
     # The following prompt has 51 tokens according to the GPT-2 tokenizer
     TEST_PROMPT: str = (
         "The Center for Research on Foundation Models (CRFM) is "

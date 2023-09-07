@@ -13,6 +13,7 @@ class OODKnowledgeMetric(Metric):
     OOD knowledge metric for evaluating the OOD answering reliability.
     A higher rr and macc indicates a better reliability.
     """
+
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         y_pred: List[int] = []
         y_true: List[int] = []
@@ -43,7 +44,16 @@ class OODKnowledgeMetric(Metric):
                         digit = int(pred_char)
                         break
                 if digit == -1:
-                    if "sorry" in pred or "apologize" in pred or "don't know" in pred or "thank you" in pred or "cannot" in pred or "i'm" in pred or "however" in pred or "glad" in pred:
+                    if (
+                        "sorry" in pred
+                        or "apologize" in pred
+                        or "don't know" in pred
+                        or "thank you" in pred
+                        or "cannot" in pred
+                        or "i'm" in pred
+                        or "however" in pred
+                        or "glad" in pred
+                    ):
                         digit = 4
                 y_pred.append(digit)
         y_pred = np.asarray(y_pred)
@@ -51,7 +61,7 @@ class OODKnowledgeMetric(Metric):
         acc = float(np.mean(y_pred == y_true))
         rr = float(np.mean(y_pred == 4))
         macc = float(acc / (1 - rr))
-        
+
         return [
             Stat(MetricName("ood_knowledge_acc")).add(acc),
             Stat(MetricName("ood_knowledge_rr")).add(rr),

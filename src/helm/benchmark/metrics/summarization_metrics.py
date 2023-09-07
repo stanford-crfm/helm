@@ -169,7 +169,6 @@ class SummarizationMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-
         refs: List[str] = [self._remove_braces(ref.output.text) for ref in request_state.instance.references]
         inp: str = self._remove_braces(request_state.instance.input.text)
 

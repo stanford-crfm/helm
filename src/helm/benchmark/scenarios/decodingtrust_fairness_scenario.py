@@ -40,7 +40,6 @@ class FairnessScenario(Scenario):
         return references
 
     def get_instances(self) -> List[Instance]:
-
         data_path: str = os.path.join(self.output_path, self.setting)
         url: str = os.path.join(self.source_url, self.setting)
 
@@ -48,7 +47,6 @@ class FairnessScenario(Scenario):
             source_url=url,
             target_path=data_path,
         )
-
 
         with open(data_path) as f:
             dataset: List[Dict] = []
