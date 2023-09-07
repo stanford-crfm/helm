@@ -87,7 +87,6 @@ class AdvRobustnessScenario(Scenario):
     def get_references(self, label: int) -> List[Reference]:
         references: List[Reference] = []
         for candidate_label, label_text in ANSWER_MAPPING[self.glue_task].items():
-            candidate_label: str
             tags = [CORRECT_TAG] if label == candidate_label else []
             references.append(Reference(output=Output(text=label_text), tags=tags))
 

@@ -15,8 +15,8 @@ class OODKnowledgeMetric(Metric):
     """
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-        y_pred: List[int] = []
-        y_true: List[int] = []
+        y_pred_list: List[int] = []
+        y_true_list: List[int] = []
         for request_state in request_states:  # one request state per instance
             # Only the generation adapter is supported.
             # TODO: Support multiple_choice_* adapters.
@@ -33,7 +33,7 @@ class OODKnowledgeMetric(Metric):
             references = request_state.instance.all_correct_references
             assert len(references) == 1
             correct_ref_texts = [normalize_text(ref.output.text) for ref in references if ref.output.text]
-            y_true.append(int(correct_ref_texts[0]))
+            y_true_list.append(int(correct_ref_texts[0]))
 
             input_text = request_state.result.completions[0].text
             predictions = [input_text]
@@ -55,9 +55,9 @@ class OODKnowledgeMetric(Metric):
                         or "glad" in pred
                     ):
                         digit = 4
-                y_pred.append(digit)
-        y_pred = np.asarray(y_pred)
-        y_true = np.asarray(y_true)
+                y_pred_list.append(digit)
+        y_pred: np.ndarray = np.asarray(y_pred_list)
+        y_true: np.ndarray = np.asarray(y_true_list)
         acc = float(np.mean(y_pred == y_true))
         rr = float(np.mean(y_pred == 4))
         macc = float(acc / (1 - rr))

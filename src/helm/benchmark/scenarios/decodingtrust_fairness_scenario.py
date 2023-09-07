@@ -34,7 +34,7 @@ class FairnessScenario(Scenario):
     def get_references(self, label: int) -> List[Reference]:
         references: List[Reference] = []
         for candidate_label, label_text in ANSWER_MAPPING[self.task].items():
-            candidate_label: str = str(candidate_label)
+            candidate_label = str(candidate_label)
             tags = [CORRECT_TAG] if label == label_text else []
             references.append(Reference(output=Output(text=candidate_label), tags=tags))
         return references

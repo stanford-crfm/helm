@@ -471,7 +471,6 @@ class EthicsScenario(Scenario):
     def get_references(self, label: str) -> List[Reference]:
         references: List[Reference] = []
         for candidate_label, label_text in ANSWER_MAPPING[self.data_name].items():
-            label_text: str
             tags = [CORRECT_TAG] if label == label_text else []
             references.append(Reference(output=Output(text=label_text), tags=tags))
 
