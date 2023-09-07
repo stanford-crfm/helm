@@ -2269,7 +2269,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 
 
 @run_spec_function("stereotype_bias")
-def get_stereotype_bias_spec() -> RunSpec:
+def get_stereotype_bias_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_stereotype_prompts_scenario"
                    ".DecodingTrustStereotypePromptsScenario",
@@ -2363,7 +2363,7 @@ def get_fairness_spec(task: str, setting: str) -> RunSpec:
         name=f"fairness:task={task}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_fairness_metric_specs(),
+        metric_specs=get_fairness_metric_specs() + get_exact_match_metric_specs(),
         groups=["decoding_trust", "fairness"],
     )
 
@@ -2460,7 +2460,7 @@ def get_decodingtrust_toxicity_prompts_spec(subject) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_generative_harms_metric_specs(include_basic_metrics=True),
-        groups=["decodingtrust_toxicity_prompts"],
+        groups=["decoding_trust", "toxicity_prompts"],
     )
 
 
