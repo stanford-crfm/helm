@@ -13,7 +13,12 @@ class ObjectSpec:
     args: Dict[str, Any]
 
     def __hash__(self):
-        return hash((self.class_name, tuple((k, self.args[k]) if not isinstance(self.args[k], list) else (k, ",".join(self.args[k])) for k in sorted(self.args.keys()))))
+        # bug : Scenario object has tags as a list which is not hashable
+        # return hash((self.class_name, tuple((k, self.args[k]) for k in sorted(self.args.keys()))))
+        t = tuple()
+        for k in sorted(self.args.keys()):
+            t = t + ((k, tuple(self.args[k])),)
+        return hash((self.class_name, t))
 
 
 def create_object(spec: ObjectSpec):
