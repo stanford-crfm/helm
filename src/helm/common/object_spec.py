@@ -13,8 +13,6 @@ class ObjectSpec:
     args: Dict[str, Any]
 
     def __hash__(self):
-        # bug : Scenario object has tags as a list which is not hashable
-        # return hash((self.class_name, tuple((k, self.args[k]) for k in sorted(self.args.keys()))))
         t = tuple()
         for k in sorted(self.args.keys()):
             t = t + ((k, tuple(self.args[k])),)
