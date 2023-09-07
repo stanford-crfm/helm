@@ -1,5 +1,4 @@
 from typing import List
-from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from .metric import Metric
 from .metric_name import MetricName
@@ -26,7 +25,6 @@ class FairnessMetric(Metric):
             if request_state.output_mapping:
                 raise ValueError("ClassificationMetric does not support multiple choice adapters")
 
-
             instance = request_state.instance
 
             references = instance.all_correct_references
@@ -49,13 +47,11 @@ class FairnessMetric(Metric):
         prediction = np.array(y_pred)
         labels = np.array(y_true)
         sensitive_attr = np.array(x_sensitive)
-        acc = float(np.mean(y_pred == y_true))
         idx = prediction >= 0
         dpd = demographic_parity_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
         eod = equalized_odds_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
 
         return [
-            Stat(MetricName("acc")).add(acc),
             Stat(MetricName("demographic_parity_difference")).add(dpd),
             Stat(MetricName("equalized_odds_difference")).add(eod),
         ]
