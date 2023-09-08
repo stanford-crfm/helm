@@ -41,14 +41,18 @@ class HuggingFaceServer:
         else:
             self.device = "cpu"
         model_kwargs = {}
+        print(model_config)
         # If the HuggingFace model is stored locally, it will have a path defined and we should load it from there.
         # Otherwise, download it from the HuggingFace hub by passing in its identifier.
         if isinstance(model_config, HuggingFacePretrainedModelConfig):
+            hlog(f"Loading model from pretrained path {model_config.pretrained_model_name_or_path} with kwargs {model_config.kwargs}")
             model_name = model_config.pretrained_model_name_or_path
             model_kwargs = model_config.kwargs
         elif isinstance(model_config, HuggingFaceLocalModelConfig):
+            hlog(f"Loading model from local path {model_config.path}")
             model_name = model_config.path
         elif isinstance(model_config, HuggingFaceHubModelConfig):
+            hlog(f"Loading model from Hugging Face Hub {model_config.model_id}")
             model_name = model_config.model_id
             if model_config.revision:
                 model_kwargs["revision"] = model_config.revision
@@ -166,24 +170,25 @@ class HuggingFaceClient(Client):
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
         self.pretrained_model_name_or_path = pretrained_model_name_or_path
         self.kwargs = kwargs
+        self.model_config: Optional[HuggingFaceModelConfig] = None
+        if pretrained_model_name_or_path:
+            self.model_config = HuggingFacePretrainedModelConfig(pretrained_model_name_or_path=self.pretrained_model_name_or_path, kwargs=self.kwargs)
+        print(f"[debug:yifanmai] model config {self.model_config}")
 
     def get_model_server_instance(self, model_name: str) -> HuggingFaceServer:
-        model_config: Optional[HuggingFaceHubModelConfig] = None
-        if self.pretrained_model_name_or_path:
-            model_config = HuggingFacePretrainedModelConfig(pretrained_model_name_or_path=self.pretrained_model_name_or_path, kwargs=self.kwargs)
-
-        if not model_config:
+        model_config: Optional[HuggingFaceHubModelConfig]
+        if self.model_config:
+            model_config = self.model_config
+        else:
             model_config = get_huggingface_model_config(model_name)
 
-    def get_model_server_instance(self, model: str) -> HuggingFaceServer:
-        model_config = get_huggingface_model_config(model)
         # Special-case some models in so that users don't have to enable them with --enable-huggingface-models
         if not model_config:
-            if model in _KNOWN_MODEL_ALIASES:
-                model_config = HuggingFaceHubModelConfig.from_string(_KNOWN_MODEL_ALIASES[model])
+            if model_name in _KNOWN_MODEL_ALIASES:
+                model_config = HuggingFaceHubModelConfig.from_string(_KNOWN_MODEL_ALIASES[model_name])
             else:
-                model_config = HuggingFaceHubModelConfig.from_string(model)
-        return _get_singleton_server(model_config)
+                model_config = HuggingFaceHubModelConfig.from_string(model_name)
+        return _get_singleton_server(model_name, model_config)
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -255,7 +260,7 @@ class HuggingFaceClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        tokenizer = HuggingFaceTokenizers.get_tokenizer(request.tokenizer)
+        tokenizer = HuggingFaceTokenizers.get_tokenizer(request.tokenizer, self.model_config)
         cache_key = asdict(request)
 
         try:
@@ -311,7 +316,7 @@ class HuggingFaceClient(Client):
         )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        tokenizer = HuggingFaceTokenizers.get_tokenizer(request.tokenizer)
+        tokenizer = HuggingFaceTokenizers.get_tokenizer(request.tokenizer, self.model_config)
         cache_key = asdict(request)
 
         try:
