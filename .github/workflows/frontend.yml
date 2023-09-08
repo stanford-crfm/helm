@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - '*'
+    paths:
+      - 'src/helm-frontend/**'
   pull_request:
     branches:
       - '*'
+    paths:
+      - 'src/helm-frontend/**'
 
 jobs:
   test:
