@@ -1,3 +1,4 @@
+import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass
 
@@ -6,6 +7,9 @@ import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
+
+
+MODEL_DEPLOYMENTS_FILE = "model_deployments.yaml"
 
 
 class ClientSpec(ObjectSpec):
@@ -57,6 +61,12 @@ def register_model_deployments_from_path(path: str) -> None:
     model_deployments: ModelDeployments = cattrs.structure(raw, ModelDeployments)
     for model_deployment in model_deployments.model_deployments:
         _name_to_model_deployment[model_deployment.name] = model_deployment
+
+
+def maybe_register_model_deployments_from_base_path(base_path: str) -> None:
+    path = os.path.join(base_path, MODEL_DEPLOYMENTS_FILE)
+    if os.path.exists(path):
+        register_model_deployments_from_path(path)
 
 
 def get_model_deployment(name: str) -> Optional[ModelDeployment]:

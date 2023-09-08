@@ -2271,56 +2271,56 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
-        model = get_model(run_spec.adapter_spec.model)
-        # For models that strip newlines, when we're generating, we need to set
-        # the delimiter to be '###' so we stop properly.
-        if NO_NEWLINES_TAG in model.tags and run_spec.adapter_spec.method in (
-            ADAPT_GENERATION,
-            ADAPT_MULTIPLE_CHOICE_JOINT,
-        ):
-            stop_expander = StopRunExpander(value="hash")
-            run_spec = singleton(stop_expander.expand(run_spec))
+        # model = get_model(run_spec.adapter_spec.model)
+        # # For models that strip newlines, when we're generating, we need to set
+        # # the delimiter to be '###' so we stop properly.
+        # if NO_NEWLINES_TAG in model.tags and run_spec.adapter_spec.method in (
+        #     ADAPT_GENERATION,
+        #     ADAPT_MULTIPLE_CHOICE_JOINT,
+        # ):
+        #     stop_expander = StopRunExpander(value="hash")
+        #     run_spec = singleton(stop_expander.expand(run_spec))
 
-        if NLG_PREFIX_TAG in model.tags:
-            global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
-            run_spec = singleton(global_prefix_expander.expand(run_spec))
+        # if NLG_PREFIX_TAG in model.tags:
+        #     global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
+        #     run_spec = singleton(global_prefix_expander.expand(run_spec))
 
-        # When running ChatGPT on non-language modelling tasks, increase max_tokens by 1
-        # to add room for the special message role token.
-        if OPENAI_CHATGPT_MODEL_TAG in model.tags and run_spec.adapter_spec.max_tokens:
-            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=1)
-            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
+        # # When running ChatGPT on non-language modelling tasks, increase max_tokens by 1
+        # # to add room for the special message role token.
+        # if OPENAI_CHATGPT_MODEL_TAG in model.tags and run_spec.adapter_spec.max_tokens:
+        #     increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=1)
+        #     run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
 
-        if CHATML_MODEL_TAG in model.tags:
-            chatml_expander = ChatMLRunExpander()
-            run_spec = singleton(chatml_expander.expand(run_spec))
+        # if CHATML_MODEL_TAG in model.tags:
+        #     chatml_expander = ChatMLRunExpander()
+        #     run_spec = singleton(chatml_expander.expand(run_spec))
 
-        if ANTHROPIC_MODEL_TAG in model.tags:
-            add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
-            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
-            # Get scenario tags
-            components = run_spec.scenario_spec.class_name.split(".")
-            class_name = components[-1]
-            module_name = ".".join(components[:-1])
-            cls = getattr(importlib.import_module(module_name), class_name)
-            scenario_tags: List[str] = cls.tags
-            # If the scenario is instruction, do not use PROMPT_ANSWER_START
-            if "instructions" in scenario_tags:
-                format_expander = FormatPromptRunExpander(
-                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}"
-                )
-            else:
-                format_expander = FormatPromptRunExpander(
-                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
-                )
-            run_spec = singleton(add_to_stop_expander.expand(run_spec))
-            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
-            run_spec = singleton(format_expander.expand(run_spec))
+        # if ANTHROPIC_MODEL_TAG in model.tags:
+        #     add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
+        #     increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
+        #     # Get scenario tags
+        #     components = run_spec.scenario_spec.class_name.split(".")
+        #     class_name = components[-1]
+        #     module_name = ".".join(components[:-1])
+        #     cls = getattr(importlib.import_module(module_name), class_name)
+        #     scenario_tags: List[str] = cls.tags
+        #     # If the scenario is instruction, do not use PROMPT_ANSWER_START
+        #     if "instructions" in scenario_tags:
+        #         format_expander = FormatPromptRunExpander(
+        #             prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}"
+        #         )
+        #     else:
+        #         format_expander = FormatPromptRunExpander(
+        #             prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
+        #         )
+        #     run_spec = singleton(add_to_stop_expander.expand(run_spec))
+        #     run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
+        #     run_spec = singleton(format_expander.expand(run_spec))
 
-        # For multiple choice
-        if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
-            increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
-            run_spec = singleton(increase_temperature_expander.expand(run_spec))
+        # # For multiple choice
+        # if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
+        #     increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
+        #     run_spec = singleton(increase_temperature_expander.expand(run_spec))
 
         return run_spec
 

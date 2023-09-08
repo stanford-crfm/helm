@@ -1,14 +1,16 @@
 import os
 from dataclasses import replace
-from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
+from typing import Any, Callable, Dict, Mapping, Optional, TYPE_CHECKING, Type
+import importlib
+import inspect
 
 from retrying import RetryError, Attempt
 
-from helm.benchmark.model_deployment_registry import get_model_deployment
-from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
+from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
+from helm.benchmark.tokenizer_config_registry import TokenizerConfig, get_tokenizer_config
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
-from helm.common.object_spec import create_object
+from helm.common.object_spec import ObjectSpec, create_object
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -31,6 +33,15 @@ if TYPE_CHECKING:
 class AuthenticationError(NonRetriableException):
     pass
 
+
+
+
+def get_class_by_name(full_class_name: str) -> Type[Any]:
+    components = full_class_name.split(".")
+    class_name = components[-1]
+    module_name = ".".join(components[:-1])
+    cls = getattr(importlib.import_module(module_name), class_name)
+    return getattr(importlib.import_module(module_name), class_name)
 
 class AutoClient(Client):
     """Automatically dispatch to the proper `Client` based on the organization.
@@ -60,6 +71,65 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
+
+    def _inject_init_args(self, spec: ObjectSpec, injectors: Dict[str, Callable[[], Any]]) -> ObjectSpec:
+        """Return arguments needed by the class's __init__'s parameters.
+
+        This does a simple form of dependency injection. For each parameter in the class' __init__,
+        try to find a corresponding injector and call it to produce the argument value."""
+        cls = get_class_by_name(spec.class_name)
+        init_signature = inspect.signature(cls.__init__)
+        args = {}
+        args.update(spec.args)
+        for parameter_name in init_signature.parameters.keys():
+            if parameter_name == "self" or parameter_name in args:
+                continue
+            elif parameter_name in injectors:
+                args[parameter_name] = injectors[parameter_name]()
+        return replace(spec, args=args)
+
+    def _create_client_for_model_deployment(self, model_deployment: ModelDeployment):
+        """Create a client for the ModelDeployment."""
+
+        def get_api_key() -> str:
+            if "deployments" not in self.credentials:
+                raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
+            deployment_api_keys = self.credentials["deployments"]
+            if model_deployment.name not in deployment_api_keys:
+                raise AuthenticationError(
+                    f"Could not find key '{model_deployment.name}' under key 'deployments' in credentials.conf"
+                )
+            return deployment_api_keys[model_deployment.name]
+
+        def get_cache_config() -> CacheConfig:
+            organization: str = model_deployment.name.split("/")[0]
+            return self._build_cache_config(organization)
+
+        injectors = {"api_key": get_api_key, "cache_config": get_cache_config}
+        client_spec_with_injected_args = self._inject_init_args(model_deployment.client_spec, injectors)
+        return create_object(client_spec_with_injected_args)
+
+    def _create_client_for_tokenizer_config(self, tokenizer_config: TokenizerConfig):
+        """Create a client for the TokenizerConfig."""
+
+        def get_api_key() -> str:
+            if "tokenizers" not in self.credentials:
+                raise AuthenticationError("Could not find key 'tokenizers' in credentials.conf")
+            deployment_api_keys = self.credentials["tokenizers"]
+            if tokenizer_config.name not in deployment_api_keys:
+                raise AuthenticationError(
+                    f"Could not find key '{tokenizer_config.name}' under key 'tokenizers' in credentials.conf"
+                )
+            return deployment_api_keys[tokenizer_config.name]
+
+        def get_cache_config() -> CacheConfig:
+            organization: str = tokenizer_config.name.split("/")[0]
+            return self._build_cache_config(organization)
+
+        injectors = {"api_key": get_api_key, "cache_config": get_cache_config}
+        client_spec_with_injected_args = self._inject_init_args(tokenizer_config.tokenizer_spec, injectors)
+        return create_object(client_spec_with_injected_args)
+    
     def _get_client(self, model: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
         client: Optional[Client] = self.clients.get(model)
@@ -71,19 +141,7 @@ class AutoClient(Client):
             # TODO: Migrate all clients to use model deployments
             model_deployment = get_model_deployment(model)
             if model_deployment:
-                api_key = None
-                if "deployments" not in self.credentials:
-                    raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
-                deployment_api_keys = self.credentials["deployments"]
-                if model not in deployment_api_keys:
-                    raise AuthenticationError(
-                        f"Could not find key '{model}' under key 'deployments' in credentials.conf"
-                    )
-                api_key = deployment_api_keys[model]
-                client = create_object(
-                    model_deployment.client_spec, additional_args={"cache_config": cache_config, "api_key": api_key}
-                )
-
+                client = self._create_client_for_model_deployment(model_deployment)
             elif get_huggingface_model_config(model):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
@@ -204,20 +262,8 @@ class AutoClient(Client):
             cache_config: CacheConfig = self._build_cache_config(organization)
             # TODO: Migrate all clients to use model deployments
             tokenizer_config = get_tokenizer_config(tokenizer)
-            print(f"[debug:yifanmai] tokenizer_config gotten? {tokenizer_config}")
             if tokenizer_config:
-                api_key = None
-                if "tokenizers" not in self.credentials:
-                    raise AuthenticationError("Could not find key 'tokenizers' in credentials.conf")
-                tokenizer_api_keys = self.credentials["tokenizers"]
-                if tokenizer_config.name not in tokenizer_api_keys:
-                    raise AuthenticationError(
-                        f"Could not find key '{tokenizer_config.name}' under key 'tokenizers' in credentials.conf"
-                    )
-                api_key = tokenizer_api_keys[tokenizer_config.name]
-                client = create_object(
-                    tokenizer_config.tokenizer_spec, additional_args={"cache_config": cache_config, "api_key": api_key}
-                )
+                client = self._create_client_for_tokenizer_config(tokenizer_config)
             elif get_huggingface_model_config(tokenizer):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 

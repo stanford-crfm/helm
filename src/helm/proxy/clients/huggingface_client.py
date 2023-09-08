@@ -2,7 +2,7 @@ from copy import deepcopy
 import torch
 from dataclasses import asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
@@ -19,6 +19,7 @@ from .huggingface_tokenizer import HuggingFaceTokenizers
 from helm.proxy.clients.huggingface_model_registry import (
     get_huggingface_model_config,
     HuggingFaceModelConfig,
+    HuggingFacePretrainedModelConfig,
     HuggingFaceHubModelConfig,
     HuggingFaceLocalModelConfig,
 )
@@ -42,7 +43,10 @@ class HuggingFaceServer:
         model_kwargs = {}
         # If the HuggingFace model is stored locally, it will have a path defined and we should load it from there.
         # Otherwise, download it from the HuggingFace hub by passing in its identifier.
-        if isinstance(model_config, HuggingFaceLocalModelConfig):
+        if isinstance(model_config, HuggingFacePretrainedModelConfig):
+            model_name = model_config.pretrained_model_name_or_path
+            model_kwargs = model_config.kwargs
+        elif isinstance(model_config, HuggingFaceLocalModelConfig):
             model_name = model_config.path
         elif isinstance(model_config, HuggingFaceHubModelConfig):
             model_name = model_config.model_id
@@ -140,7 +144,7 @@ _servers_lock: Lock = Lock()
 _servers: Dict[str, HuggingFaceServer] = {}
 
 
-def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceServer:
+def _get_singleton_server(model_name: str, model_config: HuggingFaceModelConfig) -> HuggingFaceServer:
     """Lookup or create a new HuggingFaceServer that will be shared among all threads.
 
     When --num-threads > 1, multiple threads will attempt to instantiate
@@ -151,15 +155,25 @@ def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceSe
     global _servers_lock
     global _servers
     with _servers_lock:
-        if model_config.model_id not in _servers:
-            _servers[model_config.model_id] = HuggingFaceServer(model_config)
-    return _servers[model_config.model_id]
+        if model_name not in _servers:
+            _servers[model_name] = HuggingFaceServer(model_config)
+    return _servers[model_name]
 
 
 class HuggingFaceClient(Client):
-    def __init__(self, cache_config: CacheConfig):
+    def __init__(self, cache_config: CacheConfig, pretrained_model_name_or_path: Optional[str] = None, **kwargs):
         self.cache = Cache(cache_config)
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
+        self.pretrained_model_name_or_path = pretrained_model_name_or_path
+        self.kwargs = kwargs
+
+    def get_model_server_instance(self, model_name: str) -> HuggingFaceServer:
+        model_config: Optional[HuggingFaceHubModelConfig] = None
+        if self.pretrained_model_name_or_path:
+            model_config = HuggingFacePretrainedModelConfig(pretrained_model_name_or_path=self.pretrained_model_name_or_path, kwargs=self.kwargs)
+
+        if not model_config:
+            model_config = get_huggingface_model_config(model_name)
 
     def get_model_server_instance(self, model: str) -> HuggingFaceServer:
         model_config = get_huggingface_model_config(model)

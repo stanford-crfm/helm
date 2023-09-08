@@ -23,7 +23,7 @@ class ConfigurableTokenizerWindowService(LocalWindowService):
         if tokenizer_config.end_of_text_token is not None:
             self._end_of_text_token = tokenizer_config.end_of_text_token
         else:
-            raise Exception(f"`end_of_text_token` needs to be set for TokenizerConfig {tokenizer_config.name}")
+            self._end_of_text_token = ""
 
         if tokenizer_config.prefix_token is not None:
             self._prefix_token = tokenizer_config.prefix_token

@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union
+from typing import Any, Dict, Optional, Union
 from dataclasses import dataclass
 import re
 import os
@@ -111,7 +111,13 @@ class HuggingFaceLocalModelConfig:
         return HuggingFaceLocalModelConfig(model_name=model_name, path=path)
 
 
-HuggingFaceModelConfig = Union[HuggingFaceHubModelConfig, HuggingFaceLocalModelConfig]
+@dataclass(frozen=True)
+class HuggingFacePretrainedModelConfig:
+    pretrained_model_name_or_path: str
+    kwargs: Dict[str, Any]
+    
+
+HuggingFaceModelConfig = Union[HuggingFaceHubModelConfig, HuggingFaceLocalModelConfig, HuggingFacePretrainedModelConfig]
 
 
 # Initialize registry with local models from models.py

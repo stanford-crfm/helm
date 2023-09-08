@@ -65,11 +65,7 @@ class WindowServiceFactory:
         Returns a `WindowService` given the name of the model.
         Make sure this function returns instantaneously on repeated calls.
         """
-        model: Model = get_model(model_name)
-        organization: str = model.organization
-        engine: str = model.engine
 
-        window_service: WindowService
         # Catch any HuggingFace models registered via the command line flags
         huggingface_model_config = get_huggingface_model_config(model_name)
 
@@ -83,12 +79,12 @@ class WindowServiceFactory:
             tokenizer_name = model_deployment.tokenizer_name
             tokenizer_config = get_tokenizer_config(tokenizer_name)
             if tokenizer_config:
-                window_service = ConfigurableTokenizerWindowService(service, tokenizer_config, model_deployment)
+                return ConfigurableTokenizerWindowService(service, tokenizer_config, model_deployment)
             else:
                 # Fall back to HuggingFaceWindowService.
                 # This auto-infers the tokenizer's properties (e.g. special tokens)
                 # using Hugging Face Hub.
-                window_service = HuggingFaceWindowService(
+                return HuggingFaceWindowService(
                     service=service,
                     model_config=HuggingFaceHubModelConfig.from_string(tokenizer_name),
                     max_sequence_length=model_deployment.max_sequence_length,
@@ -98,62 +94,66 @@ class WindowServiceFactory:
         elif organization == "neurips":
             window_service = HTTPModelWindowServce(service)
         elif huggingface_model_config:
-            window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
-        elif organization == "openai":
+            return HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
+        
+        model: Model = get_model(model_name)
+        organization: str = model.organization
+        engine: str = model.engine
+        if organization == "openai":
             if model_name in get_model_names_with_tag(GPT4_CONTEXT_WINDOW_TAG):
-                window_service = GPT4WindowService(service)
+                return GPT4WindowService(service)
             elif model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
-                window_service = GPT432KWindowService(service)
+                return GPT432KWindowService(service)
             if model_name in get_model_names_with_tag(GPT_TURBO_CONTEXT_WINDOW_TAG):
-                window_service = GPTTurboWindowService(service)
+                return GPTTurboWindowService(service)
             elif model_name in get_model_names_with_tag(GPT_TURBO_16K_CONTEXT_WINDOW_TAG):
-                window_service = GPTTurbo16KWindowService(service)
+                return GPTTurbo16KWindowService(service)
             elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
-                window_service = WiderOpenAIWindowService(service)
+                return WiderOpenAIWindowService(service)
             else:
-                window_service = OpenAIWindowService(service)
+                return OpenAIWindowService(service)
         # For the Google models, we approximate with the OpenAIWindowService
         elif organization == "simple" or organization == "google":
-            window_service = OpenAIWindowService(service)
+            return OpenAIWindowService(service)
         elif organization == "AlephAlpha":
             if engine == "luminous-base":
-                window_service = LuminousBaseWindowService(service)
+                return LuminousBaseWindowService(service)
             elif engine == "luminous-extended":
-                window_service = LuminousExtendedWindowService(service)
+                return LuminousExtendedWindowService(service)
             elif engine == "luminous-supreme":
-                window_service = LuminousSupremeWindowService(service)
+                return LuminousSupremeWindowService(service)
             elif engine == "luminous-world":
-                window_service = LuminousWorldWindowService(service)
+                return LuminousWorldWindowService(service)
             else:
                 raise ValueError(f"Unhandled Aleph Alpha model: {engine}")
         elif organization == "microsoft":
-            window_service = MTNLGWindowService(service)
+            return MTNLGWindowService(service)
         elif organization == "anthropic":
             if engine == "stanford-online-all-v4-s3":
-                window_service = LegacyAnthropicWindowService(service)
+                return LegacyAnthropicWindowService(service)
             else:
-                window_service = AnthropicWindowService(service)
+                return AnthropicWindowService(service)
         elif organization == "writer":
             if engine in ["palmyra-base", "palmyra-large", "palmyra-instruct-30", "palmyra-e"]:
-                window_service = PalmyraWindowService(service)
+                return PalmyraWindowService(service)
             elif engine in ["palmyra-x", "silk-road"]:
-                window_service = LongerPalmyraWindowService(service)
+                return LongerPalmyraWindowService(service)
             else:
                 raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":
-            window_service = SantaCoderWindowService(service)
+            return SantaCoderWindowService(service)
         elif engine == "starcoder":
-            window_service = StarCoderWindowService(service)
+            return StarCoderWindowService(service)
         elif model_name == "huggingface/gpt2":
-            window_service = GPT2WindowService(service)
+            return GPT2WindowService(service)
         elif model_name == "together/bloom":
-            window_service = BloomWindowService(service)
+            return BloomWindowService(service)
         elif model_name == "together/glm":
             # From https://github.com/THUDM/GLM-130B, "the tokenizer is implemented based on
             # icetk---a unified multimodal tokenizer for images, Chinese, and English."
-            window_service = ICEWindowService(service)
+            return ICEWindowService(service)
         elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "together/gpt-jt-6b-v1", "gooseai/gpt-j-6b"]:
-            window_service = GPTJWindowService(service)
+            return GPTJWindowService(service)
         elif model_name in [
             "together/gpt-neox-20b",
             "gooseai/gpt-neo-20b",
@@ -177,33 +177,33 @@ class WindowServiceFactory:
             "databricks/dolly-v2-7b",
             "databricks/dolly-v2-12b",
         ]:
-            window_service = GPTNeoXWindowService(service)
+            return GPTNeoXWindowService(service)
         elif model_name in [
             "stabilityai/stablelm-base-alpha-3b",
             "stabilityai/stablelm-base-alpha-7b",
         ]:
-            window_service = StableLMAlphaWindowService(service)
+            return StableLMAlphaWindowService(service)
         elif model_name == "together/h3-2.7b":
-            window_service = GPT2WindowService(service)
+            return GPT2WindowService(service)
         elif model_name in [
             "together/opt-1.3b",
             "together/opt-6.7b",
             "together/opt-66b",
             "together/opt-175b",
         ]:
-            window_service = OPTWindowService(service)
+            return OPTWindowService(service)
         elif model_name == "together/t0pp":
-            window_service = T0ppWindowService(service)
+            return T0ppWindowService(service)
         elif model_name == "together/t5-11b":
-            window_service = T511bWindowService(service)
+            return T511bWindowService(service)
         elif model_name == "together/flan-t5-xxl":
-            window_service = FlanT5WindowService(service)
+            return FlanT5WindowService(service)
         elif model_name == "together/ul2":
-            window_service = UL2WindowService(service)
+            return UL2WindowService(service)
         elif model_name == "together/yalm":
-            window_service = YaLMWindowService(service)
+            return YaLMWindowService(service)
         elif model_name == "nvidia/megatron-gpt2":
-            window_service = MegatronWindowService(service)
+            return MegatronWindowService(service)
         elif model_name in [
             "meta/llama-7b",
             "meta/llama-13b",
@@ -212,28 +212,26 @@ class WindowServiceFactory:
             "together/alpaca-7b",
             "together/vicuna-13b",
         ]:
-            window_service = LlamaWindowService(service)
+            return LlamaWindowService(service)
         elif model_name in [
             "meta/llama-2-7b",
             "meta/llama-2-13b",
             "meta/llama-2-70b",
         ]:
-            window_service = Llama2WindowService(service)
+            return Llama2WindowService(service)
         elif organization == "cohere":
             if "command" in engine:
-                window_service = CohereCommandWindowService(service)
+                return CohereCommandWindowService(service)
             else:
-                window_service = CohereWindowService(service)
+                return CohereWindowService(service)
         elif organization == "ai21":
             if model_name in get_model_names_with_tag(AI21_WIDER_CONTEXT_WINDOW_TAG):
-                window_service = WiderAI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
+                return WiderAI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
             if model_name in get_model_names_with_tag(AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG):
-                window_service = AI21Jurassic2JumboWindowService(
+                return AI21Jurassic2JumboWindowService(
                     service=service, gpt2_window_service=GPT2WindowService(service)
                 )
             else:
-                window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
+                return AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
-
-        return window_service
