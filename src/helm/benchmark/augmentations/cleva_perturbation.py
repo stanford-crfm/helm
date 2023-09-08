@@ -25,7 +25,7 @@ except ModuleNotFoundError as e:
 ############################################################
 
 
-class ButterFingerPerturbation(Perturbation):
+class ChineseTyposPerturbation(Perturbation):
     """
     Chinese typos. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/tree/main/nlaugmenter/transformations/chinese_butter_fingers_perturbation
@@ -49,7 +49,7 @@ class ButterFingerPerturbation(Perturbation):
         consider_tone: bool = False
         word_level_perturb: bool = True
 
-    name: str = "butter_finger"
+    name: str = "chinese_typos"
 
     # For downloading resources
     ASSET_URL = "https://drive.google.com/uc?id=1p5mldLpKxI-63H8YEruGJghtD1dZJI8k"
@@ -99,7 +99,7 @@ class ButterFingerPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ButterFingerPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
+        return ChineseTyposPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
     def perturb(self, text: str, rng: Random) -> str:
         butter_text: str = ""
@@ -331,18 +331,18 @@ class CLEVAMildMixPerturbation(Perturbation):
 
     def __init__(self):
         self.synonym_perturbation = ChineseSynonymPerturbation(0.3)
-        self.butter_finger_perturbation = ButterFingerPerturbation(0.05)
+        self.chinese_typos_perturbation = ChineseTyposPerturbation(0.05)
 
     @property
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
     def perturb(self, text: str, rng: Random) -> str:
-        # Original CLEVA paper also adopts the "character swapping",
+        # Original CLEVA paper additionally adopts the "character swapping",
         # but we find that it has a negative impact on many reasoning
-        # tasks. Therefore we do not include it here.
+        # tasks. Therefore, we do not include it here.
         text = self.synonym_perturbation.perturb(text, rng)
-        text = self.butter_finger_perturbation.perturb(text, rng)
+        text = self.chinese_typos_perturbation.perturb(text, rng)
         return text
 
 
@@ -396,7 +396,7 @@ class ChineseGenderPerturbation(Perturbation):
             source_class: The source gender that will be substituted with
                 the target gender. If mapping_file_path is provided, the source
                 class must be one of the genders in it. If not, it must be
-                exactly one of `male`, `female`, and `neutral. Case-insensitive.
+                exactly one of `male`, `female`, and `neutral`. Case-insensitive.
             target_class: Same as the source class, but for the target gender.
         """
         # Assign parameters to instance variables

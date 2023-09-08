@@ -278,7 +278,7 @@ def get_chinese_rouge_function(rouge_type: str) -> Callable[[str, str], float]:
     return partial(rouge_score, scorer=scorer, rouge_type=rouge_type)
 
 
-def chinese_math_result_match(gold: str, pred: str) -> float:
+def cleva_math_result_match(gold: str, pred: str) -> float:
     """
     Exact match that only cares the last math expression.
     Common math expressions are numbers and fractions.
@@ -515,7 +515,7 @@ class BasicMetric(Metric):
             "chinese_bleu_1": chinese_bleu_1,
             "chinese_rouge_1": get_chinese_rouge_function("rouge1"),
             "chinese_rouge_2": get_chinese_rouge_function("rouge2"),
-            "chinese_math_result_match": chinese_math_result_match,
+            "cleva_math_result_match": cleva_math_result_match,
             "absolute_value_difference": absolute_value_difference,
         }
 
