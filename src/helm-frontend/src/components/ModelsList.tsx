@@ -6,21 +6,23 @@ interface Props {
 
 export default function ModelsList({ models }: Props) {
   return (
-    <ul>
+    <section>
       <h3 className="text-3xl">{models.length} Models</h3>
-      {models.map((model, idx) =>
-        model.todo
-          ? (
-            <li key={idx} className="text-slate-300">
-              {model.creator_organization} / {model.display_name}
-            </li>
-          )
-          : (
-            <li key={idx}>
-              {model.creator_organization} / {model.display_name}
-            </li>
-          )
-      )}
-    </ul>
+      <ul>
+        {models.map((model, idx) =>
+          model.todo
+            ? (
+              <li key={idx} className="text-slate-300">
+                {model.creator_organization} / {model.display_name}
+              </li>
+            )
+            : (
+              <li key={idx}>
+                {model.creator_organization} / {model.display_name}
+              </li>
+            )
+        )}
+      </ul>
+    </section>
   );
 }
