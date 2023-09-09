@@ -17,8 +17,10 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
     TokenizationRequest,
-    TokenizationRequestResult, TokenizationToken,
+    TokenizationRequestResult,
+    TokenizationToken,
 )
+
 from .client import Client
 from .lit_gpt_generate import generate
 
@@ -30,15 +32,14 @@ class LitGPTClient(Client):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
     def __init__(
-            self,
-            cache_config: CacheConfig,
-            checkpoint_dir: str = "",
-            precision: str = "bf16-true",
-            device="auto",
-            devices: int = 1,
-            strategy: str = "auto",
-            quantize: Optional[
-                Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+        self,
+        cache_config: CacheConfig,
+        checkpoint_dir: str = "",
+        precision: str = "bf16-true",
+        device="auto",
+        devices: int = 1,
+        strategy: str = "auto",
+        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
     ):
         torch.set_float32_matmul_precision("high")
 
@@ -84,7 +85,9 @@ class LitGPTClient(Client):
         t0 = time.perf_counter()
         # helm doesn't have anything equivalent to top_k at the moment
         # TODO: allow temperature=0, pick the top token rather than sampling.
-        eos_ids = [tokenizer.encode(e) for e in request.stop_sequences]
+        eos_ids = torch.as_tensor(
+            [tokenizer.encode(e) for e in request.stop_sequences], device=fabric.device, dtype=torch.int
+        )
         tokens, logprobs, top_logprobs = generate(
             model,
             encoded,
