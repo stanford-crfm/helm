@@ -87,7 +87,7 @@ class LitGPTClient(Client):
         # TODO: allow temperature=0, pick the top token rather than sampling.
         eos_ids = torch.as_tensor(
             [tokenizer.encode(e) for e in request.stop_sequences], device=fabric.device, dtype=torch.int
-        )
+        ) if request.stop_sequences else None
         tokens, logprobs, top_logprobs = generate(
             model,
             encoded,
