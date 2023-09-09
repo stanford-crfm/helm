@@ -18,6 +18,7 @@ from helm.common.tokenization_request import (
 from helm.proxy.retry import retry_request, NonRetriableException
 from helm.proxy.clients.critique_client import CritiqueClient
 from helm.proxy.clients.client import Client
+from .http_model_client import HTTPModelClient
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 
@@ -86,27 +87,15 @@ class AutoClient(Client):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "neurips":
+                client = HTTPModelClient(cache_config=cache_config)
             elif organization == "openai":
-                from helm.proxy.clients.chat_gpt_client import ChatGPTClient
                 from helm.proxy.clients.openai_client import OpenAIClient
-
-                # TODO: add ChatGPT to the OpenAIClient when it's supported.
-                #       We're using a separate client for now since we're using an unofficial Python library.
-                # See https://github.com/acheong08/ChatGPT/wiki/Setup on how to get a valid session token.
-                chat_gpt_client: ChatGPTClient = ChatGPTClient(
-                    session_token=self.credentials.get("chatGPTSessionToken", ""),
-                    lock_file_path=os.path.join(self.cache_path, "ChatGPT.lock"),
-                    # TODO: use `cache_config` above. Since this feature is still experimental,
-                    #       save queries and responses in a separate collection.
-                    cache_config=self._build_cache_config("ChatGPT"),
-                    tokenizer_client=self._get_tokenizer_client("huggingface"),
-                )
 
                 org_id = self.credentials.get("openaiOrgId", None)
                 api_key = self.credentials.get("openaiApiKey", None)
                 client = OpenAIClient(
                     cache_config=cache_config,
-                    chat_gpt_client=chat_gpt_client,
                     api_key=api_key,
                     org_id=org_id,
                 )
@@ -226,6 +215,8 @@ class AutoClient(Client):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "neurips":
+                client = HTTPModelClient(cache_config=cache_config)
             elif organization in [
                 "bigscience",
                 "bigcode",

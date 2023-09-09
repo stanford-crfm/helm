@@ -4,9 +4,6 @@ import threading
 from typing import Dict, List, Union, Set, Any
 
 from cattrs import unstructure
-import scaleapi
-from scaleapi.tasks import TaskType, TaskStatus
-from scaleapi.exceptions import ScaleDuplicateResource
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.cache import Cache, CacheConfig
@@ -17,7 +14,15 @@ from helm.common.critique_request import (
     CritiqueTaskTemplate,
     CritiqueResponse,
 )
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.proxy.clients.critique_client import CritiqueClient
+
+try:
+    import scaleapi
+    from scaleapi.tasks import TaskType, TaskStatus
+    from scaleapi.exceptions import ScaleDuplicateResource
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 class ScaleCritiqueClientError(Exception):

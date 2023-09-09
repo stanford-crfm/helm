@@ -25,16 +25,13 @@ Using [Anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/mana
 
 ## Install dependencies
 
-To install any dependencies (creates into `venv`):
+To install any dependencies:
 
-    ./pre-commit.sh
+    ./install-dev.sh
 
-If you get the following error during installation, please delete the `venv` folder and re-run the above command:
+If you run into errors when installing dependencies, please create a new Python virtual environment using the previous instructions, and then try installing the dependencies again.
 
-    Installing build dependencies ... error
-    error: subprocess-exited-with-error
-
-Optionally, install git commit hooks:
+Optionally, install Git commit hooks:
 
     pre-commit install
 
@@ -53,3 +50,11 @@ Append `-vv` to output the full diff and results:
 To run a specific file, simply specify the path:
 
     python -m pytest <path/to/file> -vv
+
+# Run linter and type-checker
+
+To run the linter and type-checker:
+
+    ./pre-commit.sh
+
+If you previously installed the Git commit hooks using `pre-commit install`, then the linter and type-checker will be run whenever you run `git commit`. To skip running the linter and type checker when making a commit, use the `--no-verify` flag with `git commit`.
