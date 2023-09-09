@@ -45,7 +45,7 @@ class ChineseTyposPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         prob: float = 0.0
-        rare_word_prob: float = 0.05
+        rare_char_prob: float = 0.05
         consider_tone: bool = False
         word_level_perturb: bool = True
 
@@ -99,7 +99,14 @@ class ChineseTyposPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ChineseTyposPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
+        return ChineseTyposPerturbation.Description(
+            name=self.name,
+            robustness=True,
+            prob=self.prob,
+            rare_char_prob=self.rare_char_prob,
+            consider_tone=self.consider_tone,
+            word_level_perturb=self.word_level_perturb,
+        )
 
     def perturb(self, text: str, rng: Random) -> str:
         butter_text: str = ""
