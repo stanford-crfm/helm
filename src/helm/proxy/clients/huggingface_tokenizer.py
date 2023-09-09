@@ -25,7 +25,7 @@ class HuggingFaceTokenizers:
     tokenizers: Dict[str, Any] = {}
 
     @staticmethod
-    def get_tokenizer(tokenizer_name: str, model_config: Optional[HuggingFaceModelConfig]) -> Any:
+    def get_tokenizer(tokenizer_name: str, model_config: Optional[HuggingFaceModelConfig] = None) -> Any:
         """
         Checks if the desired tokenizer is cached. Creates the tokenizer if it's not cached.
         Returns the tokenizer.
