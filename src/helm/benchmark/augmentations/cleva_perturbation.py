@@ -4,7 +4,7 @@ import os
 from random import Random
 from pathlib import Path
 from collections import defaultdict
-from typing import Dict, List, Tuple, Set, Optional, Union
+from typing import Dict, List, Tuple, Set, Optional, Union, cast
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -114,13 +114,13 @@ class ChineseTyposPerturbation(Perturbation):
                 self.consider_tone,
                 rng,
             )
-            for dict in words_and_similar_word_dict_list:
-                original_word = dict["original_word"]
-                similar_pinyins_words = dict["similar_pinyin_words"]
+            for words_and_similar_word_dict in words_and_similar_word_dict_list:
+                original_word = words_and_similar_word_dict["original_word"]
+                similar_pinyins_words = words_and_similar_word_dict["similar_pinyin_words"]
                 if rng.random() <= self.prob and len(similar_pinyins_words) != 0:
-                    new_chinese_character = rng.choice(similar_pinyins_words)
+                    new_chinese_character = cast(str, rng.choice(similar_pinyins_words))
                 else:
-                    new_chinese_character = original_word
+                    new_chinese_character = cast(str, original_word)
                 butter_text += new_chinese_character
         else:
             for chinese_character in text:
@@ -184,11 +184,11 @@ class ChineseTyposPerturbation(Perturbation):
         consider_tone: bool,
         rng: Random,
     ) -> List[Dict[str, Union[str, List[str]]]]:
-        words_and_similar_word_dict_list = []
+        words_and_similar_word_dict_list: List[Dict[str, Union[str, List[str]]]] = []
         for original_word in text:
-            words_and_similar_word_dict = {"original_word": original_word}
+            words_and_similar_word_dict: Dict[str, Union[str, List[str]]] = {"original_word": original_word}
             original_word_len: int = len(original_word)
-            similar_word_pinyin_list = []
+            similar_word_pinyin_list: List[str] = []
             similar_word_pinyin_list = self.get_similar_word_pinyin_list(
                 chinese_character_database,
                 chinese_words_database,
