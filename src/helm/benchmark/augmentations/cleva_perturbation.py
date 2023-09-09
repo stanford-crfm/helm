@@ -319,7 +319,7 @@ class ChineseSynonymPerturbation(Perturbation):
 
         return perturbed_text
 
-    def sample_word(self, sample_list: list, rng: Random):
+    def sample_word(self, sample_list: List[str], rng: Random) -> str:
         index = rng.randint(0, len(sample_list) - 1)
         return sample_list[index]
 
