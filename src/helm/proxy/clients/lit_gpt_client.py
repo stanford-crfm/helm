@@ -2,23 +2,23 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Dict, List, Literal, Optional
+from typing import Literal, Optional
 
 import lightning as L
 import torch
+from lightning.fabric.strategies import FSDPStrategy
+from lit_gpt import GPT, Config, Tokenizer
+from lit_gpt.model import Block
+from lit_gpt.utils import check_valid_checkpoint_dir, lazy_load, quantization
+
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
     TokenizationRequest,
-    TokenizationRequestResult,
+    TokenizationRequestResult, TokenizationToken,
 )
-from lightning.fabric.strategies import FSDPStrategy
-from lit_gpt import GPT, Config, Tokenizer
-from lit_gpt.model import Block
-from lit_gpt.utils import check_valid_checkpoint_dir, lazy_load, quantization
-
 from .client import Client
 from .lit_gpt_generate import generate
 
@@ -30,14 +30,15 @@ class LitGPTClient(Client):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
     def __init__(
-        self,
-        cache_config: CacheConfig,
-        checkpoint_dir: str = "",
-        precision: str = "bf16-true",
-        device="auto",
-        devices: int = 1,
-        strategy: str = "auto",
-        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+            self,
+            cache_config: CacheConfig,
+            checkpoint_dir: str = "",
+            precision: str = "bf16-true",
+            device="auto",
+            devices: int = 1,
+            strategy: str = "auto",
+            quantize: Optional[
+                Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
     ):
         torch.set_float32_matmul_precision("high")
 
@@ -121,7 +122,11 @@ class LitGPTClient(Client):
         encoded = self.tokenizer.encode(request.text, bos=True, eos=False, device=fabric.device)
         t = time.perf_counter() - t0
         tokens = encoded.tolist()
+        tokens = [TokenizationToken(value=token) for token in tokens]
         return TokenizationRequestResult(success=True, cached=False, tokens=tokens, text=request.text, request_time=t)
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError
+        t0 = time.perf_counter()
+        text = self.tokenizer.decode(torch.as_tensor(request.tokens, dtype=torch.int))
+        t = time.perf_counter() - t0
+        return DecodeRequestResult(success=True, cached=False, text=text, request_time=t)
