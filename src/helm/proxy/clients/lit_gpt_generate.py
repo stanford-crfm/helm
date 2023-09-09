@@ -12,7 +12,7 @@ def generate(
     *,
     temperature: float = 1.0,
     top_k: Optional[int] = None,
-    eos_id: Optional[int] = None,
+    eos_ids: Optional[List[int]] = None,
 ) -> Tuple[List[int], List[float], List[Tuple[int, float]]]:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
 
@@ -64,7 +64,8 @@ def generate(
         idx = idx.index_copy(0, input_pos, idx_next)
 
         # if <eos> token is triggered, return the output (stop generation)
-        if idx_next == eos_id:
-            return idx[:input_pos], 0, 0  # include the EOS token
+        for eos_id in eos_ids:
+            if idx_next == eos_id:
+                return idx[:input_pos], 0, 0  # include the EOS token
     # TODO: implement logprob in a future PR
     return idx, 0, 0
