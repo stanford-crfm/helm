@@ -2285,7 +2285,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
     )
 
 
-@run_spec_function("stereotype_bias")
+@run_spec_function("decodingtrust_stereotype_bias")
 def get_stereotype_bias_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_stereotype_prompts_scenario"
@@ -2304,7 +2304,7 @@ def get_stereotype_bias_spec(task: str) -> RunSpec:
     )
 
 
-@run_spec_function("adv_robustness")
+@run_spec_function("decodingtrust_adv_robustness")
 def get_adv_robustness_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_adv_robustness_scenario.AdvRobustnessScenario",
@@ -2322,7 +2322,7 @@ def get_adv_robustness_spec(task: str) -> RunSpec:
     )
 
 
-@run_spec_function("adv_demonstration")
+@run_spec_function("decodingtrust_adv_demonstration")
 def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, description: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_adv_demonstration_scenario.DecodingTrustAdvDemoScenario",
@@ -2340,7 +2340,7 @@ def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, desc
     )
 
 
-@run_spec_function("ood_robustness")
+@run_spec_function("decodingtrust_ood_robustness")
 def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int, idk: bool) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.OoDRobustnessScenario",
@@ -2363,7 +2363,7 @@ def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: in
     )
 
 
-@run_spec_function("fairness")
+@run_spec_function("decodingtrust_fairness")
 def get_fairness_spec(task: str, setting: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_fairness_scenario.FairnessScenario",
@@ -2381,7 +2381,7 @@ def get_fairness_spec(task: str, setting: str) -> RunSpec:
     )
 
 
-@run_spec_function("privacy")
+@run_spec_function("decodingtrust_privacy")
 def get_privacy_spec(
     scenario_name: str,
     data_file: str,
@@ -2413,7 +2413,7 @@ def get_privacy_spec(
     )
 
 
-@run_spec_function("machine_ethics")
+@run_spec_function("decodingtrust_machine_ethics")
 def get_machine_ethics_spec(
     data_name: str,
     test_data_file: str,
