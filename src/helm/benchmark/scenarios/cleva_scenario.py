@@ -69,11 +69,9 @@ class Converter:
         text = transformed_data["input"]
         if "choices" in transformed_data:
             # This is a multiple-choice task
-            answers: List[str] = transformed_data["choices"]
-            correct_choice: List[int] = transformed_data["label"]
-            correct_answer: List[str] = [answers[idx] for idx in correct_choice]
             references: List[Reference] = [
-                self.multiple_choice_answer_to_reference(answer, correct_answer) for answer in answers
+                Reference(Output(text=text), tags=[CORRECT_TAG] if idx in transformed_data["label"] else [])
+                for idx, text in enumerate(transformed_data["choices"])
             ]
         else:
             # This is a generation task
@@ -106,11 +104,6 @@ class Converter:
             split=split,
         )
         return instance
-
-    @staticmethod
-    def multiple_choice_answer_to_reference(answer: str, correct_answer: List[str]) -> Reference:
-        """This function convert a possible reference string into HELM Reference."""
-        return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer in correct_answer else [])
 
     def _apply_all(self, data: dict, templates: dict) -> dict:
         """

@@ -4,7 +4,7 @@ import os
 from random import Random
 from pathlib import Path
 from collections import defaultdict
-from typing import Dict, List, Tuple, Set, Optional
+from typing import Dict, List, Tuple, Set, Optional, Union
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -142,13 +142,13 @@ class ChineseTyposPerturbation(Perturbation):
 
     def get_characters_with_similar_pinyin(
         self,
-        chinese_character,
-        rare_word_prob,
-        chinese_character_database,
-        common_chinese_character_database,
-        consider_tone,
-        rng,
-    ):
+        chinese_character: str,
+        rare_word_prob: float,
+        chinese_character_database: Dict[str, List[str]],
+        common_chinese_character_database: Dict[str, List[str]],
+        consider_tone: bool,
+        rng: Random,
+    ) -> str:
 
         pinyin_for_char_to_be_perturbed = pypinyin.pinyin(chinese_character)
         pinyin_for_char_to_be_perturbed = [item for pinyin in pinyin_for_char_to_be_perturbed for item in pinyin]
@@ -176,18 +176,18 @@ class ChineseTyposPerturbation(Perturbation):
 
     def get_words_with_similar_pinyin(
         self,
-        text,
-        rare_word_prob,
-        chinese_character_database,
-        common_chinese_character_database,
-        chinese_words_database,
-        consider_tone,
-        rng,
-    ):
+        text: List[str],
+        rare_word_prob: float,
+        chinese_character_database: Dict[str, List[str]],
+        common_chinese_character_database: Dict[str, List[str]],
+        chinese_words_database: Dict[str, List[str]],
+        consider_tone: bool,
+        rng: Random,
+    ) -> List[Dict[str, Union[str, List[str]]]]:
         words_and_similar_word_dict_list = []
         for original_word in text:
             words_and_similar_word_dict = {"original_word": original_word}
-            original_word_len = len(original_word)
+            original_word_len: int = len(original_word)
             similar_word_pinyin_list = []
             similar_word_pinyin_list = self.get_similar_word_pinyin_list(
                 chinese_character_database,
@@ -207,16 +207,16 @@ class ChineseTyposPerturbation(Perturbation):
 
     def get_similar_word_pinyin_list(
         self,
-        chinese_character_database,
-        chinese_words_database,
-        common_chinese_character_database,
-        consider_tone,
-        original_word,
-        original_word_len,
-        rare_word_prob,
-        similar_word_pinyin_list,
-        rng,
-    ):
+        chinese_character_database: Dict[str, List[str]],
+        chinese_words_database: Dict[str, List[str]],
+        common_chinese_character_database: Dict[str, List[str]],
+        consider_tone: bool,
+        original_word: str,
+        original_word_len: int,
+        rare_word_prob: float,
+        similar_word_pinyin_list: List[str],
+        rng: Random,
+    ) -> List[str]:
         if original_word_len == 1:
             similar_pinyins = self.get_characters_with_similar_pinyin(
                 original_word,
@@ -241,12 +241,12 @@ class ChineseTyposPerturbation(Perturbation):
 
     def retrieve_from_database(
         self,
-        chinese_character,
-        chars_with_similar_pinyin,
-        chinese_character_database,
-        consider_tone,
-        pinyin_for_char_to_be_perturbed,
-    ):
+        chinese_character: str,
+        chars_with_similar_pinyin: str,
+        chinese_character_database: Dict[str, List[str]],
+        consider_tone: bool,
+        pinyin_for_char_to_be_perturbed: str,
+    ) -> str:
         if not consider_tone:
             pinyin_for_char_to_be_perturbed = unidecode.unidecode(pinyin_for_char_to_be_perturbed)
         candidate_chars = chinese_character_database.get(pinyin_for_char_to_be_perturbed, [])
