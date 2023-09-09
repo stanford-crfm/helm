@@ -84,25 +84,30 @@ class LitGPTClient(Client):
         t0 = time.perf_counter()
         # helm doesn't have anything equivalent to top_k at the moment
         # TODO: allow temperature=0, pick the top token rather than sampling.
+        eos_ids = [tokenizer.encode(e) for e in request.stop_sequences]
         tokens, logprobs, top_logprobs = generate(
             model,
             encoded,
             max_returned_tokens,
             max_seq_length=max_returned_tokens,
-            temperature=max(request.temperature, 1e-9),
+            temperature=max(request.temperature, 1e-11),
+            eos_ids=eos_ids,
         )
 
         t = time.perf_counter() - t0
         model.reset_cache()
-        output = tokenizer.decode(tokens)
+        if request.echo_prompt is False:
+            output = tokenizer.decode(tokens[prompt_length:])
+        else:
+            output = tokenizer.decode(tokens)
         tokens_generated = tokens.size(0) - prompt_length
-        logger.debug(f"Time for inference: {t:.02f} sec total, {tokens_generated / t:.02f} tokens/sec")
 
+        logger.debug(f"Time for inference: {t:.02f} sec total, {tokens_generated / t:.02f} tokens/sec")
         logger.debug(f"Memory used: {torch.cuda.max_memory_reserved() / 1e9:.02f} GB")
+
         generated_tokens = []
         for token in tokens:
             generated_tokens.append(Token(text=tokenizer.decode(token), logprob=0, top_logprobs={}))
-
         tokens = generated_tokens
         completions = [Sequence(text=output, logprob=0, tokens=tokens)]
 
@@ -120,9 +125,9 @@ class LitGPTClient(Client):
         logger.debug("Using device: {}".format(fabric.device))
         t0 = time.perf_counter()
         encoded = self.tokenizer.encode(request.text, bos=True, eos=False, device=fabric.device)
-        t = time.perf_counter() - t0
         tokens = encoded.tolist()
         tokens = [TokenizationToken(value=token) for token in tokens]
+        t = time.perf_counter() - t0
         return TokenizationRequestResult(success=True, cached=False, tokens=tokens, text=request.text, request_time=t)
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
