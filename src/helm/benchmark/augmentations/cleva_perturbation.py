@@ -25,7 +25,7 @@ except ModuleNotFoundError as e:
 ############################################################
 
 
-class ButterFingerPerturbation(Perturbation):
+class ChineseTyposPerturbation(Perturbation):
     """
     Chinese typos. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/tree/main/nlaugmenter/transformations/chinese_butter_fingers_perturbation
@@ -45,11 +45,11 @@ class ButterFingerPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         prob: float = 0.0
-        rare_word_prob: float = 0.05
+        rare_char_prob: float = 0.05
         consider_tone: bool = False
         word_level_perturb: bool = True
 
-    name: str = "butter_finger"
+    name: str = "chinese_typos"
 
     # For downloading resources
     ASSET_URL = "https://drive.google.com/uc?id=1p5mldLpKxI-63H8YEruGJghtD1dZJI8k"
@@ -99,13 +99,20 @@ class ButterFingerPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ButterFingerPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
+        return ChineseTyposPerturbation.Description(
+            name=self.name,
+            robustness=True,
+            prob=self.prob,
+            rare_char_prob=self.rare_char_prob,
+            consider_tone=self.consider_tone,
+            word_level_perturb=self.word_level_perturb,
+        )
 
     def perturb(self, text: str, rng: Random) -> str:
         butter_text: str = ""
         output: List[str] = jieba.lcut(text)
         if self.word_level_perturb:
-            words_and_similar_word_dict_list = self.get_words_with_similar_pinyin(
+            words_to_similar_word_dict = self.get_words_with_similar_pinyin(
                 output,
                 self.rare_char_prob,
                 self.chinese_character_database,
@@ -114,13 +121,12 @@ class ButterFingerPerturbation(Perturbation):
                 self.consider_tone,
                 rng,
             )
-            for dict in words_and_similar_word_dict_list:
-                original_word = dict["original_word"]
-                similar_pinyins_words = dict["similar_pinyin_words"]
-                if rng.random() <= self.prob and len(similar_pinyins_words) != 0:
-                    new_chinese_character = rng.choice(similar_pinyins_words)
+            for word in output:
+                similar_pinyin_words = words_to_similar_word_dict[word]
+                if rng.random() <= self.prob and len(similar_pinyin_words) != 0:
+                    new_chinese_character = rng.choice(similar_pinyin_words)
                 else:
-                    new_chinese_character = original_word
+                    new_chinese_character = word
                 butter_text += new_chinese_character
         else:
             for chinese_character in text:
@@ -142,17 +148,17 @@ class ButterFingerPerturbation(Perturbation):
 
     def get_characters_with_similar_pinyin(
         self,
-        chinese_character,
-        rare_word_prob,
-        chinese_character_database,
-        common_chinese_character_database,
-        consider_tone,
-        rng,
-    ):
+        chinese_character: str,
+        rare_word_prob: float,
+        chinese_character_database: Dict[str, List[str]],
+        common_chinese_character_database: Dict[str, List[str]],
+        consider_tone: bool,
+        rng: Random,
+    ) -> str:
 
-        pinyin_for_char_to_be_perturbed = pypinyin.pinyin(chinese_character)
-        pinyin_for_char_to_be_perturbed = [item for pinyin in pinyin_for_char_to_be_perturbed for item in pinyin]
-        pinyin_for_char_to_be_perturbed = "".join(pinyin_for_char_to_be_perturbed)
+        pinyin_for_char_to_be_perturbed: str = "".join(
+            [item for pinyin in pypinyin.pinyin(chinese_character) for item in pinyin]
+        )
 
         chars_with_similar_pinyin = ""
         if rng.random() <= rare_word_prob:
@@ -176,48 +182,38 @@ class ButterFingerPerturbation(Perturbation):
 
     def get_words_with_similar_pinyin(
         self,
-        text,
-        rare_word_prob,
-        chinese_character_database,
-        common_chinese_character_database,
-        chinese_words_database,
-        consider_tone,
-        rng,
-    ):
-        words_and_similar_word_dict_list = []
+        text: List[str],
+        rare_word_prob: float,
+        chinese_character_database: Dict[str, List[str]],
+        common_chinese_character_database: Dict[str, List[str]],
+        chinese_words_database: Dict[str, List[str]],
+        consider_tone: bool,
+        rng: Random,
+    ) -> Dict[str, List[str]]:
+        words_to_similar_word_dict: Dict[str, List[str]] = {}
         for original_word in text:
-            words_and_similar_word_dict = {"original_word": original_word}
-            original_word_len = len(original_word)
-            similar_word_pinyin_list = []
-            similar_word_pinyin_list = self.get_similar_word_pinyin_list(
+            words_to_similar_word_dict[original_word] = self.get_similar_word_pinyin_list(
                 chinese_character_database,
                 chinese_words_database,
                 common_chinese_character_database,
                 consider_tone,
                 original_word,
-                original_word_len,
                 rare_word_prob,
-                similar_word_pinyin_list,
                 rng,
             )
-
-            words_and_similar_word_dict["similar_pinyin_words"] = similar_word_pinyin_list
-            words_and_similar_word_dict_list.append(words_and_similar_word_dict)
-        return words_and_similar_word_dict_list
+        return words_to_similar_word_dict
 
     def get_similar_word_pinyin_list(
         self,
-        chinese_character_database,
-        chinese_words_database,
-        common_chinese_character_database,
-        consider_tone,
-        original_word,
-        original_word_len,
-        rare_word_prob,
-        similar_word_pinyin_list,
-        rng,
-    ):
-        if original_word_len == 1:
+        chinese_character_database: Dict[str, List[str]],
+        chinese_words_database: Dict[str, List[str]],
+        common_chinese_character_database: Dict[str, List[str]],
+        consider_tone: bool,
+        original_word: str,
+        rare_word_prob: float,
+        rng: Random,
+    ) -> List[str]:
+        if len(original_word) == 1:
             similar_pinyins = self.get_characters_with_similar_pinyin(
                 original_word,
                 rare_word_prob,
@@ -227,13 +223,14 @@ class ButterFingerPerturbation(Perturbation):
                 rng,
             )
             similar_word_pinyin_list = [char for char in similar_pinyins]
-        elif original_word_len > 1:
+        elif len(original_word) > 1:
             original_word_pinyins = pypinyin.pinyin(original_word)
             original_word_pinyins_flatten = [item for pinyin in original_word_pinyins for item in pinyin]
             original_word_pinyins_string = "".join(original_word_pinyins_flatten)
             if not consider_tone:
                 original_word_pinyins_string = unidecode.unidecode(original_word_pinyins_string)
             candidate_words = chinese_words_database.get(original_word_pinyins_string, [])
+            similar_word_pinyin_list = []
             for word in candidate_words:
                 if word != original_word:
                     similar_word_pinyin_list.append(word)
@@ -241,12 +238,12 @@ class ButterFingerPerturbation(Perturbation):
 
     def retrieve_from_database(
         self,
-        chinese_character,
-        chars_with_similar_pinyin,
-        chinese_character_database,
-        consider_tone,
-        pinyin_for_char_to_be_perturbed,
-    ):
+        chinese_character: str,
+        chars_with_similar_pinyin: str,
+        chinese_character_database: Dict[str, List[str]],
+        consider_tone: bool,
+        pinyin_for_char_to_be_perturbed: str,
+    ) -> str:
         if not consider_tone:
             pinyin_for_char_to_be_perturbed = unidecode.unidecode(pinyin_for_char_to_be_perturbed)
         candidate_chars = chinese_character_database.get(pinyin_for_char_to_be_perturbed, [])
@@ -296,7 +293,9 @@ class ChineseSynonymPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ChineseSynonymPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
+        return ChineseSynonymPerturbation.Description(
+            name=self.name, robustness=True, prob=self.prob, trial_num=self.trial_num
+        )
 
     def perturb(self, text: str, rng: Random) -> str:
         words = jieba.lcut(text)
@@ -314,7 +313,7 @@ class ChineseSynonymPerturbation(Perturbation):
 
         return perturbed_text
 
-    def sample_word(self, sample_list: list, rng: Random):
+    def sample_word(self, sample_list: List[str], rng: Random) -> str:
         index = rng.randint(0, len(sample_list) - 1)
         return sample_list[index]
 
@@ -331,18 +330,18 @@ class CLEVAMildMixPerturbation(Perturbation):
 
     def __init__(self):
         self.synonym_perturbation = ChineseSynonymPerturbation(0.3)
-        self.butter_finger_perturbation = ButterFingerPerturbation(0.05)
+        self.chinese_typos_perturbation = ChineseTyposPerturbation(0.05)
 
     @property
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
     def perturb(self, text: str, rng: Random) -> str:
-        # Original CLEVA paper also adopts the "character swapping",
+        # Original CLEVA paper additionally adopts the "character swapping",
         # but we find that it has a negative impact on many reasoning
-        # tasks. Therefore we do not include it here.
+        # tasks. Therefore, we do not include it here.
         text = self.synonym_perturbation.perturb(text, rng)
-        text = self.butter_finger_perturbation.perturb(text, rng)
+        text = self.chinese_typos_perturbation.perturb(text, rng)
         return text
 
 
@@ -396,7 +395,7 @@ class ChineseGenderPerturbation(Perturbation):
             source_class: The source gender that will be substituted with
                 the target gender. If mapping_file_path is provided, the source
                 class must be one of the genders in it. If not, it must be
-                exactly one of `male`, `female`, and `neutral. Case-insensitive.
+                exactly one of `male`, `female`, and `neutral`. Case-insensitive.
             target_class: Same as the source class, but for the target gender.
         """
         # Assign parameters to instance variables
