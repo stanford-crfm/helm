@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, Hashable
 
 
 @dataclass(frozen=True)
@@ -13,10 +13,15 @@ class ObjectSpec:
     args: Dict[str, Any]
 
     def __hash__(self):
-        t = tuple()
-        for k in sorted(self.args.keys()):
-            t = t + ((k, tuple(self.args[k])),)
-        return hash((self.class_name, t))
+        def get_arg_value(key: str) -> Any:
+            value = self.args[key]
+            # Convert non hashable objects into tuple
+            if not isinstance(value, Hashable):
+                return tuple(value)
+            return value
+
+        args_tuple = tuple((k, get_arg_value(k)) for k in sorted(self.args.keys()))
+        return hash((self.class_name, args_tuple))
 
 
 def create_object(spec: ObjectSpec):
