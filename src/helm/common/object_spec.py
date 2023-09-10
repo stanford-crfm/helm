@@ -16,9 +16,9 @@ class ObjectSpec:
     def __hash__(self):
         def get_arg_value(key: str) -> Any:
             value = self.args[key]
-            # Convert non hashable objects into tuple
+            # Convert non hashable objects into string
             if not isinstance(value, Hashable):
-                return tuple(value)
+                return value.__str__()
             return value
 
         args_tuple = tuple((k, get_arg_value(k)) for k in sorted(self.args.keys()))
