@@ -118,7 +118,7 @@ class LitGPTClient(Client):
             error=None,
             completions=completions,
             embedding=[],
-            request_time=None,
+            request_time=t,
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
