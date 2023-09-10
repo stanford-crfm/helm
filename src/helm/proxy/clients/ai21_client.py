@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 import requests
 
 from dacite import from_dict
@@ -41,9 +41,10 @@ class AI21Client(Client):
 
         raise AI21RequestError(error_message)
 
-    def __init__(self, api_key: str, cache_config: CacheConfig):
+    def __init__(self, api_key: str, cache_config: CacheConfig, url: Optional[str] = None):
         self.api_key = api_key
         self.cache = Cache(cache_config)
+        self.url = url
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
@@ -60,13 +61,17 @@ class AI21Client(Client):
         }
 
         def do_it():
-            url_template: str = (
-                AI21Client.EXPERIMENTAL_COMPLETION_URL_TEMPLATE
-                if request.model_engine == "j1-grande-v2-beta"
-                else AI21Client.COMPLETION_URL_TEMPLATE
-            )
+            if self.url:
+                url = self.url
+            else:
+                url_template: str = (
+                    AI21Client.EXPERIMENTAL_COMPLETION_URL_TEMPLATE
+                    if request.model_engine == "j1-grande-v2-beta"
+                    else AI21Client.COMPLETION_URL_TEMPLATE
+                )
+                url = url_template.format(model=request.model_engine)
             response = requests.post(
-                url_template.format(model=request.model_engine),
+                url,
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 json=raw_request,
             ).json()

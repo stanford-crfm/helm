@@ -6,16 +6,22 @@ import json
 import os
 from typing import List, Dict, Optional, Any, Callable, Union, Mapping, Tuple, Set
 
-import colorcet
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import pearsonr
-import seaborn as sns
 
 from helm.common.hierarchical_logger import hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.presentation.schema import read_schema
 from helm.benchmark.presentation.summarize import AGGREGATE_WIN_RATE_COLUMN
+
+try:
+    import colorcet
+    import matplotlib
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
+
 
 sns.set_style("whitegrid")
 

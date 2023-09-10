@@ -1,3 +1,4 @@
+import importlib
 import itertools
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
@@ -34,7 +35,6 @@ from .scenarios.lex_glue_scenario import (
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
-from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
 from .scenarios.lextreme_scenario import (
@@ -270,6 +270,7 @@ def get_generation_adapter_spec(
     max_tokens: int = 5,
     stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
     temperature: float = 0.0,
+    multi_label: bool = False,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -310,6 +311,7 @@ def get_generation_adapter_spec(
         max_tokens=max_tokens,
         temperature=temperature,
         stop_sequences=stop_sequences,
+        multi_label=multi_label,
     )
 
 
@@ -438,7 +440,7 @@ def get_adapter_spec1() -> AdapterSpec:
 
 
 def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.basic_metrics.BasicMetric", args={"names": names})]
+    return [MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicMetric", args={"names": names})]
 
 
 def get_exact_match_metric_specs() -> List[MetricSpec]:
@@ -454,13 +456,16 @@ def get_f1_metric_specs() -> List[MetricSpec]:
 def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.classification_metrics.ClassificationMetric", args={"delimiter": delimiter}
+            class_name="helm.benchmark.metrics.classification_metrics.ClassificationMetric",
+            args={"delimiter": delimiter},
         )
     ]
 
 
 def get_bbq_metric_specs() -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.bbq_metrics.BBQMetric", args={})] + get_exact_match_metric_specs()
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.bbq_metrics.BBQMetric", args={})
+    ] + get_exact_match_metric_specs()
 
 
 def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[MetricSpec]:
@@ -470,7 +475,7 @@ def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[Met
 
     return [
         MetricSpec(
-            class_name="helm.benchmark.ranking_metrics.RankingMetric",
+            class_name="helm.benchmark.metrics.ranking_metrics.RankingMetric",
             args={
                 "method": ADAPT_RANKING_BINARY,
                 "measure_names": measure_names,
@@ -485,7 +490,7 @@ def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[Met
 
 def get_toxicity_metric_specs() -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.toxicity_metrics.ToxicityMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.toxicity_metrics.ToxicityMetric", args={}),
     ]
 
 
@@ -496,13 +501,13 @@ def get_bias_metric_specs() -> List[MetricSpec]:
 
     return [
         MetricSpec(
-            class_name="helm.benchmark.bias_metrics.BiasMetric",
+            class_name="helm.benchmark.metrics.bias_metrics.BiasMetric",
             args={"mode": "associations", "demographic_category": dem, "target_category": tgt},
         )
         for dem, tgt in cross_dem_target
     ] + [
         MetricSpec(
-            class_name="helm.benchmark.bias_metrics.BiasMetric",
+            class_name="helm.benchmark.metrics.bias_metrics.BiasMetric",
             args={"mode": "representation", "demographic_category": dem},
         )
         for dem in demographic_categories
@@ -519,14 +524,14 @@ def get_generative_harms_metric_specs(include_basic_metrics: bool = False) -> Li
 
 def get_summarization_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.summarization_metrics.SummarizationMetric", args=args)
+        MetricSpec(class_name="helm.benchmark.metrics.summarization_metrics.SummarizationMetric", args=args)
     ] + get_basic_metric_specs([])
 
 
 def get_summarization_critique_metric_specs(num_respondents: int) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.summarization_critique_metrics.SummarizationCritiqueMetric",
+            class_name="helm.benchmark.metrics.summarization_critique_metrics.SummarizationCritiqueMetric",
             args={"num_respondents": num_respondents},
         )
     ]
@@ -544,7 +549,7 @@ def get_numeracy_metric_specs(run_solver: bool = False) -> List[MetricSpec]:
     # The solvers are slow to run so make them skippable
     if run_solver:
         metric_specs += [
-            MetricSpec(class_name="helm.benchmark.numeracy_metrics.DistanceMetric", args={}),
+            MetricSpec(class_name="helm.benchmark.metrics.numeracy_metrics.DistanceMetric", args={}),
         ]
     return metric_specs
 
@@ -558,15 +563,15 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
         args = {}
     return [
         MetricSpec(
-            class_name="helm.benchmark.copyright_metrics.BasicCopyrightMetric",
+            class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
             args={**args, "name": "longest_common_prefix_length"},
         ),
         MetricSpec(
-            class_name="helm.benchmark.copyright_metrics.BasicCopyrightMetric",
+            class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
             args={**args, "name": "edit_distance"},
         ),
         MetricSpec(
-            class_name="helm.benchmark.copyright_metrics.BasicCopyrightMetric",
+            class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
             args={**args, "name": "edit_similarity"},
         ),
     ] + get_basic_metric_specs([])
@@ -576,10 +581,14 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
     if args is None:
         args = {}
     return [
-        MetricSpec(class_name="helm.benchmark.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}),
-        MetricSpec(class_name="helm.benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"}),
         MetricSpec(
-            class_name="helm.benchmark.disinformation_metrics.DisinformationMetric",
+            class_name="helm.benchmark.metrics.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"}
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.disinformation_metrics.DisinformationMetric",
             args={"name": "monte_carlo_entropy"},
         ),
     ] + get_basic_metric_specs([])
@@ -590,7 +599,7 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
         return get_basic_metric_specs(["code_eval_acc", "pass"])
     else:  # APPS.
         args: Dict[str, Any] = {"names": ["test_avg", "strict_acc"], "timeout": timeout}
-        return [MetricSpec(class_name="helm.benchmark.code_metrics.APPSMetric", args=args)]
+        return [MetricSpec(class_name="helm.benchmark.metrics.code_metrics.APPSMetric", args=args)]
 
 
 def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
@@ -599,7 +608,7 @@ def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
 
 def get_machine_translation_metric_specs() -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.machine_translation_metrics.MachineTranslationMetric", args={})
+        MetricSpec(class_name="helm.benchmark.metrics.machine_translation_metrics.MachineTranslationMetric", args={})
     ] + get_basic_metric_specs([])
 
 
@@ -725,9 +734,7 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
         name=f"civil_comments:demographic={demographic}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-        + get_generative_harms_metric_specs()
-        + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
         groups=["civil_comments"],
     )
 
@@ -984,9 +991,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         name=f"raft:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-        + get_generative_harms_metric_specs()
-        + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
         groups=["raft"],
     )
 
@@ -995,6 +1000,8 @@ def get_raft_spec(subset: str) -> RunSpec:
 def get_numeracy_spec(
     relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
+    from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+
     run_solver: bool = True if run_solver == "True" else False  # type: ignore
     random_seed = int(seed)
     scenario_spec = ScenarioSpec(
@@ -1113,7 +1120,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         name="boolq" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs(),
         groups=["boolq"],
     )
 
@@ -1884,16 +1891,10 @@ def get_pubmed_qa_spec() -> RunSpec:
     )
 
 
-def build_classification_metrics(task_type):
-    if task_type in [TaskType.QA, TaskType.SLTC]:
-        return get_classification_metric_specs(delimiter=None)
-    elif task_type == TaskType.MLTC:
-        return get_classification_metric_specs(delimiter=",")
-    return []
-
-
 @run_spec_function("lextreme")
 def get_lextreme_spec(subset: str) -> RunSpec:
+    task_type = get_lextreme_task_type(subset)
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lextreme_scenario.LEXTREMEScenario",
         args={"subset": subset},
@@ -1905,19 +1906,28 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         output_noun="Answer",
         max_tokens=get_lextreme_max_tokens(subset),
         max_train_instances=get_lextreme_max_train_instances(subset),  # in some subsets the input is very long
+        multi_label=(task_type == TaskType.MLTC),
     )
+
+    metric_specs = get_basic_metric_specs([])
+    if task_type == TaskType.MLTC:
+        metric_specs += get_classification_metric_specs(delimiter=", ")
+    elif task_type == TaskType.SLTC:
+        metric_specs += get_classification_metric_specs()
 
     return RunSpec(
         name=f"lextreme:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=build_classification_metrics(get_lextreme_task_type(subset)),
+        metric_specs=metric_specs,
         groups=["lextreme"],
     )
 
 
 @run_spec_function("lex_glue")
 def get_lex_glue_spec(subset: str) -> RunSpec:
+    task_type = get_lex_glue_task_type(subset)
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lex_glue_scenario.LexGLUEScenario",
         args={"subset": subset},
@@ -1929,13 +1939,20 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
         output_noun="Answer",
         max_tokens=get_lex_glue_max_tokens(subset),
         max_train_instances=get_lex_glue_max_train_instances(subset),  # in some subsets the input is very long
+        multi_label=(task_type == TaskType.MLTC),
     )
+
+    metric_specs = get_basic_metric_specs([])
+    if task_type == TaskType.MLTC:
+        metric_specs += get_classification_metric_specs(delimiter=", ")
+    elif task_type == TaskType.SLTC:
+        metric_specs += get_classification_metric_specs()
 
     return RunSpec(
         name=f"lex_glue:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=build_classification_metrics(get_lex_glue_task_type(subset)),
+        metric_specs=metric_specs,
         groups=["lex_glue"],
     )
 
@@ -2283,10 +2300,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
             # Get scenario tags
             components = run_spec.scenario_spec.class_name.split(".")
-            module: Any = __import__(components[0])
-            for component in components[1:]:
-                module = getattr(module, component)
-            scenario_tags: List[str] = module.tags
+            class_name = components[-1]
+            module_name = ".".join(components[:-1])
+            cls = getattr(importlib.import_module(module_name), class_name)
+            scenario_tags: List[str] = cls.tags
             # If the scenario is instruction, do not use PROMPT_ANSWER_START
             if "instructions" in scenario_tags:
                 format_expander = FormatPromptRunExpander(

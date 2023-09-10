@@ -18,12 +18,19 @@ import bottle
 
 from helm.common.authentication import Authentication
 from helm.common.hierarchical_logger import hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request
 from helm.common.perspective_api_request import PerspectiveAPIRequest
 from helm.common.tokenization_request import TokenizationRequest, DecodeRequest
 from .accounts import Account
 from .services.server_service import ServerService
 from .query import Query
+
+try:
+    import gunicorn  # noqa
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
+
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 

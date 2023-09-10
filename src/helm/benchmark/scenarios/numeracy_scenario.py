@@ -7,17 +7,22 @@ from math import comb  # type: ignore
 import numpy as np
 import numpy.typing as npt
 import random
-import sympy
-from sympy import Symbol, Poly, diff
-from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
 from typing import List, Optional, Tuple, Dict
 
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.common.authentication import Authentication
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.proxy.services.server_service import ServerService
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+
+try:
+    import sympy
+    from sympy import Symbol, Poly, diff
+    from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 # TODO: we shouldn't create an Adapter and TokenizerService in a scenario

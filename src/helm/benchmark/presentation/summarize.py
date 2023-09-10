@@ -1,8 +1,19 @@
+"""Reads the output of the benchmark runs and produces:
+- JSON files for the frontend
+- Tables for the paper
+
+Usage:
+
+    venv/bin/helm-summarize --suite <Name of the suite>
+"""
+
 import argparse
+import cattrs
 import os
 import datetime
 import urllib.parse
 import json
+import yaml
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from statistics import mean, median
@@ -22,42 +33,52 @@ from helm.common.codec import from_json
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.data_overlap.data_overlap_spec import DataOverlapStats, GroupOverlapStats
+from helm.benchmark.data_overlap.light_scenario import ScenarioSpecInstanceIds
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.runner import RunSpec, LATEST_SYMLINK
-from .table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
-from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
-
-from .contamination import (
+from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
+from helm.benchmark.presentation.schema import (
+    MetricNameMatcher,
+    RunGroup,
+    read_schema,
+    SCHEMA_YAML_FILENAME,
+    BY_GROUP,
+    THIS_GROUP_ONLY,
+    NO_GROUPS,
+)
+from helm.benchmark.presentation.contamination import (
     read_contamination,
     validate_contamination,
     CONTAMINATION_SYMBOLS,
     CONTAMINATION_STYLES,
     CONTAMINATION_LEVEL_STRONG,
 )
-from .run_display import write_run_display_json
+from helm.benchmark.presentation.run_display import write_run_display_json
 
-"""
-Reads the output of the benchmark runs and produces:
-- JSON files for the frontend
-- Tables for the paper
 
-Usage:
-
-    venv/bin/helm-summarize --suite <Name of the suite>
-
-"""
+OVERLAP_N_COUNT = 13
 
 
 @dataclass(frozen=True)
 class ExecutiveSummary:
     """
     Summary of the output of benchmarking.
-    This is always loaded by the frontend, so keep this small
+    This is always loaded by the frontend, so keep this small.
+
+    A note on the relation between `release`, `suites`, and `suite`:
+    There are two modes for releasing runs: `release` and `suite`.
+    `releases` contain a package of suites. When the `release` mode
+    is used, `release` and `suites` will not be None and `suite`will be None.
+    When `suite` mode is used, `suite` will not be None and `release`
+    and `suites` will be None
     """
 
-    suite: str
+    release: Optional[str]
+    suites: Optional[List[str]]
+    suite: Optional[str]
     date: str
 
     # TODO: later, put model rankings, etc. here
@@ -232,11 +253,43 @@ class Summarizer:
         "selective_acc@10",
     }
 
-    def __init__(self, suite: str, output_path: str, verbose: bool, num_threads: int):
-        self.suite: str = suite
-        self.run_suite_path: str = os.path.join(output_path, "runs", suite)
+    def __init__(
+        self,
+        release: Optional[str],
+        suites: Optional[List[str]],
+        suite: Optional[str],
+        output_path: str,
+        verbose: bool,
+        num_threads: int,
+    ):
+        """
+        A note on the relation between `release`, `suites`, and `suite`:
+        There are two modes for releasing runs: `release` and `suite`.
+        `releases` contain a package of suites. When the `release` mode
+        is used, `release` and `suites` will not be None and `suite`will be None.
+        When `suite` mode is used, `suite` will not be None and `release`
+        and `suites` will be None
+        """
+        self.output_path: str = output_path
+        self.run_release_path: str
+        self.suites: List[str]
+        self.run_suite_paths: List[str]
+        self.suite: Optional[str] = None
+        self.release: Optional[str] = None
+        if suite:
+            self.suite = suite
+            self.run_release_path = os.path.join(output_path, "runs", suite)
+            self.run_suite_paths = [self.run_release_path]
+            self.suites = [suite]
+        elif release and suites:
+            self.release = release
+            self.suites = suites
+            self.run_release_path = os.path.join(output_path, "releases", release)
+            self.run_suite_paths = [os.path.join(output_path, "runs", suite) for suite in suites]
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
+
+        ensure_directory_exists(self.run_release_path)
 
         self.schema = read_schema()
         self.contamination = read_contamination()
@@ -285,35 +338,177 @@ class Summarizer:
                 filtered_runs.append(run)
         return filtered_runs
 
-    def read_runs(self):
+    def read_runs_for_suite(self, suite, run_suite_path):
         """Load the runs in the run suite path."""
-        self.runs: List[Run] = []
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
         # so filter them out.
-        run_dir_names = sorted([p for p in os.listdir(self.run_suite_path) if p != "eval_cache" and p != "groups"])
+        run_dir_names = sorted([p for p in os.listdir(run_suite_path) if p != "eval_cache" and p != "groups"])
         for run_dir_name in tqdm(run_dir_names, disable=None):
-            run_spec_path: str = os.path.join(self.run_suite_path, run_dir_name, "run_spec.json")
-            stats_path: str = os.path.join(self.run_suite_path, run_dir_name, "stats.json")
+            run_spec_path: str = os.path.join(run_suite_path, run_dir_name, "run_spec.json")
+            stats_path: str = os.path.join(run_suite_path, run_dir_name, "stats.json")
             if not os.path.exists(run_spec_path) or not os.path.exists(stats_path):
                 hlog(f"WARNING: {run_dir_name} doesn't have run_spec.json or stats.json, skipping")
                 continue
-            run_path: str = os.path.join(self.run_suite_path, run_dir_name)
+            run_path: str = os.path.join(run_suite_path, run_dir_name)
             self.runs.append(self.read_run(run_path))
 
         # For each group (e.g., natural_qa), map
         # (i) scenario spec (e.g., subject=philosophy) [optional] and
         # (ii) adapter spec (e.g., model = openai/davinci)
         # to list of runs
-        self.group_adapter_to_runs: Dict[str, Dict[AdapterSpec, List[Run]]] = defaultdict(lambda: defaultdict(list))
-        self.group_scenario_adapter_to_runs: Dict[str, Dict[ScenarioSpec, Dict[AdapterSpec, List[Run]]]] = defaultdict(
-            lambda: defaultdict(lambda: defaultdict(list))
-        )
         for run in self.runs:
+            if run.run_spec.name in self.runs_to_run_suites:
+                hlog(
+                    f"WARNING: Run entry {run.run_spec.name} is present in two different Run Suites. "
+                    f"Defaulting to the latest assigned suite: {suite}"
+                )
+            self.runs_to_run_suites[run.run_spec.name] = suite
+
             scenario_spec = run.run_spec.scenario_spec
             adapter_spec = run.run_spec.adapter_spec
             for group_name in run.run_spec.groups:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
+
+    def read_runs(self):
+        self.runs: List[Run] = []
+        self.runs_to_run_suites: Dict[str, str] = {}
+        self.group_adapter_to_runs: Dict[str, Dict[AdapterSpec, List[Run]]] = defaultdict(lambda: defaultdict(list))
+        self.group_scenario_adapter_to_runs: Dict[str, Dict[ScenarioSpec, Dict[AdapterSpec, List[Run]]]] = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(list))
+        )
+        for suite, run_suite_path in zip(self.suites, self.run_suite_paths):
+            self.read_runs_for_suite(suite, run_suite_path)
+
+    def read_overlap_stats(self):
+        """
+        Load the overlap stats in the run suite path.
+        Concretely:
+            - get group -> scenario_spec information from self.runs
+                run_spec data
+            - read the files in the data_overlap directory in run_suite_path
+                which are scenario_spec -> overlap ids
+            - get aggregate stats for group -> overlap ratio
+        """
+
+        def get_group_to_scenario_specs(run_specs: List[RunSpec]) -> Dict[str, List[ScenarioSpec]]:
+            scenario_specs_to_groups: Dict[ScenarioSpec, List[str]] = {}
+            for run_spec in run_specs:
+                scenario_spec = run_spec.scenario_spec
+                groups = run_spec.groups
+                if (
+                    scenario_spec.class_name
+                    != "helm.benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario"
+                ):
+                    scenario_specs_to_groups[scenario_spec] = groups
+
+            group_to_scenario_specs: Dict[str, List[ScenarioSpec]] = {}
+            for scenario_spec, groups in scenario_specs_to_groups.items():
+                for group in groups:
+                    if group not in group_to_scenario_specs:
+                        group_to_scenario_specs[group] = []
+                    group_to_scenario_specs[group].append(scenario_spec)
+            return group_to_scenario_specs
+
+        def get_stats_file_metadata(data_overlap_dir: str) -> Dict[str, List[str]]:
+            """
+            Takes the data_overlap_dir as input and returns a dictionary
+            of stats_file_path -> List(model_names)
+
+            Sample input:
+            file_models_mapping:
+            - file_name: file1
+                model_names:
+                - model1
+                - model2
+            - file_name: file2
+                model_names:
+                - model2
+                - model3
+
+            """
+            metadata_file_path: str = os.path.join(data_overlap_dir, "metadata.yaml")
+            if not os.path.exists(metadata_file_path):
+                return {}
+
+            with open(metadata_file_path, "r") as yaml_file:
+                data = yaml.safe_load(yaml_file)
+
+            file_metadata: Dict[str, List[str]] = {}
+            for entry in data["file_models_mapping"]:
+                if "file_name" in entry and "model_names" in entry:
+                    file_path: str = os.path.join(data_overlap_dir, entry["file_name"])
+                    file_metadata[file_path] = entry["model_names"]
+
+            return file_metadata
+
+        self._model_group_overlap_stats: Dict[Tuple[str, str], GroupOverlapStats] = {}
+
+        data_overlap_dir = os.path.join(self.run_release_path, "data_overlap")
+        if not os.path.isdir(data_overlap_dir):
+            hlog(f"Directory {data_overlap_dir} not found; skipped import of overlap results.")
+            return
+
+        group_to_scenario_specs = get_group_to_scenario_specs([run.run_spec for run in self.runs])
+
+        stats_file_metadata = get_stats_file_metadata(data_overlap_dir)
+
+        for file_path, model_names in stats_file_metadata.items():
+            overlap_stats_jsons = open(file_path, "r").readlines()
+
+            data_overlap_stats_list: List[DataOverlapStats] = []
+            for overlap_stats_json in overlap_stats_jsons:
+                overlap_stats_dict = json.loads(overlap_stats_json)
+                data_overlap_stats_list.append(cattrs.structure(overlap_stats_dict, DataOverlapStats))
+
+            scenario_spec_overlap_counts: Dict[ScenarioSpec, Tuple[int, int, int]] = {}
+            for data_overlap_stats in data_overlap_stats_list:
+                data_overlap_stats_key = data_overlap_stats.data_overlap_stats_key
+                n = data_overlap_stats_key.overlap_protocol_spec.n
+                if n == OVERLAP_N_COUNT:
+                    light_scenario_key = data_overlap_stats_key.light_scenario_key
+                    scenario_spec = light_scenario_key.scenario_spec
+                    if scenario_spec in self.scenario_spec_instance_id_dict:
+                        # Get statistics based on the subset of instance_ids that HELM uses for a scenario
+                        instance_ids = self.scenario_spec_instance_id_dict[scenario_spec]
+                        num_instances = len(instance_ids)
+                        num_overlapping_inputs = len(
+                            set(data_overlap_stats.instance_ids_with_overlapping_input) & set(instance_ids)
+                        )
+                        num_overlapping_references = len(
+                            set(data_overlap_stats.instance_ids_with_overlapping_reference) & set(instance_ids)
+                        )
+                        scenario_spec_overlap_counts[scenario_spec] = (
+                            num_instances,
+                            num_overlapping_inputs,
+                            num_overlapping_references,
+                        )
+
+            for group, scenario_specs in group_to_scenario_specs.items():
+                group_num_instances = 0
+                group_num_overlapping_inputs = 0
+                group_num_overlapping_references = 0
+                for scenario_spec in scenario_specs:
+                    if scenario_spec in scenario_spec_overlap_counts:
+                        (
+                            num_instances,
+                            num_overlapping_inputs,
+                            num_overlapping_references,
+                        ) = scenario_spec_overlap_counts[scenario_spec]
+                        group_num_instances += num_instances
+                        group_num_overlapping_inputs += num_overlapping_inputs
+                        group_num_overlapping_references += num_overlapping_references
+                if group_num_instances != 0:
+                    group_overlap_stats = GroupOverlapStats(
+                        group=group,
+                        num_instances=group_num_instances,
+                        num_overlapping_inputs=group_num_overlapping_inputs,
+                        num_overlapping_references=group_num_overlapping_references,
+                    )
+                    for model_name in model_names:
+                        # Assume model name will only be associated with single group overlap list for now
+                        # can update to join lists if need arises
+                        self._model_group_overlap_stats[(model_name, group)] = group_overlap_stats
 
     @htrack(None)
     def check_metrics_defined(self):
@@ -339,11 +534,14 @@ class Summarizer:
         date = datetime.date.today().strftime("%Y-%m-%d")
 
         summary = ExecutiveSummary(
+            release=self.release,
+            suites=self.suites,
             suite=self.suite,
             date=date,
         )
+
         write(
-            os.path.join(self.run_suite_path, "summary.json"),
+            os.path.join(self.run_release_path, "summary.json"),
             json.dumps(asdict_without_nones(summary), indent=2),
         )
 
@@ -365,20 +563,26 @@ class Summarizer:
             costs["total_tokens"] = costs["num_prompt_tokens"] + costs["num_completion_tokens"]
 
         write(
-            os.path.join(self.run_suite_path, "costs.json"),
+            os.path.join(self.run_release_path, "costs.json"),
             json.dumps(models_to_costs, indent=2),
         )
 
     def write_runs(self):
         write(
-            os.path.join(self.run_suite_path, "runs.json"),
+            os.path.join(self.run_release_path, "runs.json"),
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
         )
 
     def write_run_specs(self):
         write(
-            os.path.join(self.run_suite_path, "run_specs.json"),
+            os.path.join(self.run_release_path, "run_specs.json"),
             json.dumps(list(map(asdict_without_nones, [run.run_spec for run in self.runs])), indent=2),
+        )
+
+    def write_runs_to_run_suites(self):
+        write(
+            os.path.join(self.run_release_path, "runs_to_run_suites.json"),
+            json.dumps(self.runs_to_run_suites, indent=2),
         )
 
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
@@ -709,6 +913,16 @@ class Summarizer:
                     description = ""
                     contamination_level = None
 
+                group_overlap_stats = None
+                if (model_name, group_name) in self._model_group_overlap_stats:
+                    group_overlap_stats = self._model_group_overlap_stats[(model_name, group_name)]
+
+                    description = (
+                        f"Overlapping input ratio: {group_overlap_stats.overlapping_input_ratio:.3f}\n"
+                        f"Overlapping reference ratio: {group_overlap_stats.overlapping_reference_ratio:.3f}\n"
+                        f"{description}"
+                    )
+
                 # HACK: we want to hide stats for the following model-metric combinations:
                 # 1. Calibration metrics + AI21/Anthropic
                 # 2. MSMARCO metrics + AI21/Anthropic
@@ -896,18 +1110,18 @@ class Summarizer:
 
         # Write out index file with all the groups and basic stats
         write(
-            os.path.join(self.run_suite_path, "groups.json"),
+            os.path.join(self.run_release_path, "groups.json"),
             json.dumps(list(map(asdict_without_nones, self.create_index_tables())), indent=2),
         )
 
         # Write out metadata file for all groups
         write(
-            os.path.join(self.run_suite_path, "groups_metadata.json"),
+            os.path.join(self.run_release_path, "groups_metadata.json"),
             json.dumps(self.create_groups_metadata(), indent=2),
         )
 
         # Write out a separate JSON for each group
-        groups_path = os.path.join(self.run_suite_path, "groups")
+        groups_path = os.path.join(self.run_release_path, "groups")
         ensure_directory_exists(groups_path)
         for group in self.schema.run_groups:
             if group.subgroup_display_mode == BY_GROUP or len(self.expand_subgroups(group)) == 1:
@@ -945,18 +1159,82 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
+    def read_scenario_spec_instance_ids(self, num_instances) -> None:
+        """
+        This file checks if there exists a file, scenario_spec_instance_ids.json
+        that it can read the instance_ids associated with scenario_specs.
 
-def symlink_latest(output_path: str, suite: str) -> None:
-    # Create a symlink runs/latest -> runs/<name_of_suite>,
-    # so runs/latest always points to the latest run suite.
-    runs_dir: str = os.path.join(output_path, "runs")
-    suite_dir: str = os.path.join(runs_dir, suite)
-    symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
-    hlog(f"Symlinking {suite_dir} to {LATEST_SYMLINK}.")
-    if os.path.islink(symlink_path):
-        # Remove the previous symlink if it exists.
-        os.unlink(symlink_path)
-    os.symlink(os.path.abspath(suite_dir), symlink_path)
+        It will write the num_instances used in the run as part of the file name
+
+        If it doesn't exist, it will go through all the scenario_state files
+        and parse the instance_ids and output it to the file for future uses
+
+        Only when the scenario_specs for the data overlap script change
+        (or num_instances are different), will this need to be rerun.
+
+        In such cases, do not include the file as part of the data_overlap directory.
+        """
+        self.scenario_spec_instance_id_dict: Dict[ScenarioSpec, List[str]] = dict()
+
+        data_overlap_dir = os.path.join(self.run_release_path, "data_overlap")
+        if not os.path.isdir(data_overlap_dir):
+            hlog(f"Directory {data_overlap_dir} not found; skipped producing instance ids file.")
+            return
+
+        scenario_spec_instance_ids_json = os.path.join(
+            data_overlap_dir, f"scenario_spec_instance_ids_{num_instances}.jsonl"
+        )
+        if not os.path.exists(scenario_spec_instance_ids_json):
+            hlog(f"No scenario spec instance ids json, writing to {scenario_spec_instance_ids_json}")
+            self.write_scenario_spec_instance_ids_json(scenario_spec_instance_ids_json)
+        else:
+            hlog(f"Reading scenario spec instance ids json from {scenario_spec_instance_ids_json}")
+            scenario_spec_instance_ids_jsons = open(scenario_spec_instance_ids_json, "r").readlines()
+
+            for scenario_spec_instance_ids_json in scenario_spec_instance_ids_jsons:
+                scenario_spec_instance_ids_dict = json.loads(scenario_spec_instance_ids_json)
+                scenario_spec_instance_ids = cattrs.structure(scenario_spec_instance_ids_dict, ScenarioSpecInstanceIds)
+                self.scenario_spec_instance_id_dict[
+                    scenario_spec_instance_ids.scenario_spec
+                ] = scenario_spec_instance_ids.instance_ids
+
+    def write_scenario_spec_instance_ids_json(self, file_path) -> None:
+        for run in self.runs:
+            run_spec = run.run_spec
+            scenario_spec = run_spec.scenario_spec
+            if scenario_spec in self.scenario_spec_instance_id_dict:
+                continue
+
+            run_path = run.run_path
+            instances_file_path = os.path.join(run_path, "instances.json")
+            with open(instances_file_path, "r") as f:
+                raw_instances = json.load(f)
+
+            # Optimization: Don't structure to dataclass, since we only need to read `id`
+            instance_ids = [raw_instance["id"] for raw_instance in raw_instances]
+            self.scenario_spec_instance_id_dict[scenario_spec] = instance_ids
+
+        all_scenario_spec_instance_ids = []
+        for scenario_spec, instance_ids in self.scenario_spec_instance_id_dict.items():
+            scenario_spec_instance_ids = ScenarioSpecInstanceIds(scenario_spec=scenario_spec, instance_ids=instance_ids)
+            all_scenario_spec_instance_ids.append(scenario_spec_instance_ids)
+
+        with open(file_path, "w") as f:
+            f.writelines(
+                f"{json.dumps(asdict_without_nones(scenario_spec_instance_ids))}\n"
+                for scenario_spec_instance_ids in all_scenario_spec_instance_ids
+            )
+
+    def symlink_latest(self) -> None:
+        # Create a symlink runs/latest -> runs/<name_of_suite>,
+        # so runs/latest always points to the latest run suite.
+        releases_dir: str = os.path.dirname(self.run_release_path)
+        symlink_path: str = os.path.abspath(os.path.join(releases_dir, LATEST_SYMLINK))
+        hlog(f"Symlinking {self.run_release_path} to {LATEST_SYMLINK}.")
+        if os.path.islink(symlink_path):
+            # Remove the previous symlink if it exists.
+            os.unlink(symlink_path)
+        os.symlink(os.path.abspath(self.run_release_path), symlink_path)
 
 
 @htrack(None)
@@ -968,8 +1246,15 @@ def main():
     parser.add_argument(
         "--suite",
         type=str,
-        help="Name of the suite this run belongs to (default is today's date).",
-        required=True,
+        help="Name of the suite this summarization should go under.",
+    )
+    parser.add_argument(
+        "--release",
+        type=str,
+        help="Experimental: Name of the release this summarization should go under.",
+    )
+    parser.add_argument(
+        "--suites", type=str, nargs="+", help="Experimental: List of suites to summarize for this this release."
     )
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
     parser.add_argument(
@@ -982,24 +1267,65 @@ def main():
         action="store_true",
         help="Skip write_run_display_json() for runs which already have all output display JSON files",
     )
+    parser.add_argument(
+        "-num-instances",
+        type=int,
+        help="Number of instance ids we're using; only for annotating scenario spec instance ids file",
+        default=1000,
+    )
     args = parser.parse_args()
+
+    release: Optional[str] = None
+    suites: Optional[str] = None
+    suite: Optional[str] = None
+    if args.suite and (args.release or args.suites):
+        raise ValueError("If --suite is specified, then --release and --suites must NOT be specified.")
+    elif args.suite:
+        # Comment this out while we have a trial period for the `release` method.
+        # hlog(
+        #     "WARNING: The --suite flag is deprecated. Using --release and --suites is now preferred, "
+        #     "where --release specifies the name of a release and --suites specifies several run suites "
+        #     "to be included in that release."
+        # )
+        suite = args.suite
+    elif args.release or args.suites:
+        if not args.release or not args.suites:
+            raise ValueError("If --release is specified, then --suites must also be specified and vice versa")
+        release = args.release
+        suites = args.suites
+    else:
+        raise ValueError("Exactly one of --release or --suite must be specified.")
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
-        suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
+        release=release,
+        suites=suites,
+        suite=suite,
+        output_path=args.output_path,
+        verbose=args.debug,
+        num_threads=args.num_threads,
     )
     summarizer.read_runs()
     summarizer.check_metrics_defined()
 
+    summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
+
+    # Must happen after summarizer.write_run_display_json()
+    # because it uses instances.json files
+    summarizer.read_scenario_spec_instance_ids(args.num_instances)
+
+    # Must happen after summarizer.read_scenario_spec_instance_ids()
+    # because it uses self.scenario_spec_instance_id_dict
+    summarizer.read_overlap_stats()
+
     summarizer.write_executive_summary()
     summarizer.write_runs()
     summarizer.write_run_specs()
+    summarizer.write_runs_to_run_suites()
     summarizer.write_groups()
     summarizer.write_cost_report()
 
-    summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
-
-    symlink_latest(args.output_path, args.suite)
+    summarizer.symlink_latest()
     hlog("Done.")
 
 
