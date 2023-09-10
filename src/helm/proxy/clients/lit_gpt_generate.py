@@ -12,7 +12,7 @@ def generate(
     *,
     temperature: float = 1.0,
     top_k: Optional[int] = None,
-    eos_ids: Optional[List[int]] = None,
+    stop_tokens: Tuple[List[int], ...] = (),
 ) -> Tuple[List[int], List[float], List[Tuple[int, float]]]:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
 
@@ -34,6 +34,8 @@ def generate(
     T = idx.size(0)
     assert max_returned_tokens > T
     device, dtype = idx.device, idx.dtype
+    stop_tokens = [torch.tensor(tokens, device=device) for tokens in stop_tokens]
+
     # create an empty tensor of the expected final shape and fill in the current tokens
     empty = torch.empty(max_returned_tokens, dtype=dtype, device=device)
     empty[:T] = idx
@@ -64,7 +66,7 @@ def generate(
         idx = idx.index_copy(0, input_pos, idx_next)
 
         # if <eos> token is triggered, return the output (stop generation)
-        for eos_id in eos_ids:
+        for eos_id in stop_tokens:
             if idx_next == eos_id:
                 return idx[:input_pos], 0, 0  # include the EOS token
     # TODO: implement logprob in a future PR
