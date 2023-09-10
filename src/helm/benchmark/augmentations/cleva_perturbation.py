@@ -112,7 +112,7 @@ class ChineseTyposPerturbation(Perturbation):
         butter_text: str = ""
         output: List[str] = jieba.lcut(text)
         if self.word_level_perturb:
-            words_to_similar_word_dict_list = self.get_words_with_similar_pinyin(
+            words_to_similar_word_dict = self.get_words_with_similar_pinyin(
                 output,
                 self.rare_char_prob,
                 self.chinese_character_database,
@@ -121,14 +121,12 @@ class ChineseTyposPerturbation(Perturbation):
                 self.consider_tone,
                 rng,
             )
-            for words_to_similar_word_dict in words_to_similar_word_dict_list:
-                # Only one key in words_to_similar_word_dict
-                original_word = list(words_to_similar_word_dict.keys())[0]
-                similar_pinyin_words = list(words_to_similar_word_dict.values())[0]
+            for word in output:
+                similar_pinyin_words = words_to_similar_word_dict[word]
                 if rng.random() <= self.prob and len(similar_pinyin_words) != 0:
                     new_chinese_character = rng.choice(similar_pinyin_words)
                 else:
-                    new_chinese_character = original_word
+                    new_chinese_character = word
                 butter_text += new_chinese_character
         else:
             for chinese_character in text:
@@ -191,23 +189,19 @@ class ChineseTyposPerturbation(Perturbation):
         chinese_words_database: Dict[str, List[str]],
         consider_tone: bool,
         rng: Random,
-    ) -> List[Dict[str, List[str]]]:
-        words_to_similar_word_dict_list: List[Dict[str, List[str]]] = []
+    ) -> Dict[str, List[str]]:
+        words_to_similar_word_dict: Dict[str, List[str]] = {}
         for original_word in text:
-            similar_word_pinyin_list: List[str] = []
-            similar_word_pinyin_list = self.get_similar_word_pinyin_list(
+            words_to_similar_word_dict[original_word] = self.get_similar_word_pinyin_list(
                 chinese_character_database,
                 chinese_words_database,
                 common_chinese_character_database,
                 consider_tone,
                 original_word,
                 rare_word_prob,
-                similar_word_pinyin_list,
                 rng,
             )
-
-            words_to_similar_word_dict_list.append({original_word: similar_word_pinyin_list})
-        return words_to_similar_word_dict_list
+        return words_to_similar_word_dict
 
     def get_similar_word_pinyin_list(
         self,
@@ -217,7 +211,6 @@ class ChineseTyposPerturbation(Perturbation):
         consider_tone: bool,
         original_word: str,
         rare_word_prob: float,
-        similar_word_pinyin_list: List[str],
         rng: Random,
     ) -> List[str]:
         if len(original_word) == 1:
@@ -237,6 +230,7 @@ class ChineseTyposPerturbation(Perturbation):
             if not consider_tone:
                 original_word_pinyins_string = unidecode.unidecode(original_word_pinyins_string)
             candidate_words = chinese_words_database.get(original_word_pinyins_string, [])
+            similar_word_pinyin_list = []
             for word in candidate_words:
                 if word != original_word:
                     similar_word_pinyin_list.append(word)
