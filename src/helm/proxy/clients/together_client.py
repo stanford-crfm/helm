@@ -48,8 +48,6 @@ MODEL_ALIASES: Dict[str, str] = {
     "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
     "pythia-6.9b": "EleutherAI/pythia-6.9b",
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
-    # TODO: The organization name is incorrectly set to togethercomputer
-    # instead of tiiuae in Together. Change this after Together fixes it.
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
     "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
