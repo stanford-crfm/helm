@@ -784,7 +784,7 @@ models:
     num_parameters: 7000000000
     release_date: 2023-03-15
   - name: tiiuae/falcon-40b
-    display_name: Falcon LLM (4B)
+    display_name: Falcon LLM (40B)
     description: Falcon-40B is a 40B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
     creator_organization: TII UAE
     access: open

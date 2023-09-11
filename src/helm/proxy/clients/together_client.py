@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import List, Dict, Any, Optional, Union
 
 import requests
@@ -67,6 +68,7 @@ available implementations on Together."""
 
 class _RewriteRequestTags:
     """Tags that indicate that the request for the model must be rewritten before sending to Together."""
+
     # TODO: Convert to StrEnum after upgrading to Python 3.11
 
     ADD_EOS_TOKEN_AS_STOP_SEQUENCE = "ADD_EOS_TOKEN_AS_STOP_SEQUENCE"
@@ -81,7 +83,11 @@ class _RewriteRequestTags:
 
 
 _MODEL_TO_TAGS: Dict[str, List[str]] = {
-    "alpaca-7b": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE, _RewriteRequestTags.SET_DETAILS_TO_TRUE]
+    "alpaca-7b": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
+    "vicuna-7b-v1.3": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
+    "llama-65b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
+    "llama-2-70b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
+    "vicuna-13b-v1.3": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
 }
 """Dict of models to Together model tags.
 
@@ -92,6 +98,8 @@ The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the
 
 _MODEL_TO_EOS_TOKEN: Dict[str, str] = {
     "alpaca-7b": "</s>",
+    "vicuna-7b-v1.3": "</s>",
+    "vicuna-13b-v1.3": "</s>",
 }
 """Dict of models to end of sequence tokens.
 
@@ -103,9 +111,8 @@ The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the
 
 def _rewrite_raw_request_for_model_tags(raw_request: Dict[str, Any], model_engine: str) -> Dict[str, Any]:
     """Rewrite the raw request given the model."""
-    from copy import deepcopy
     # Make a deepcopy to avoid mutating the input in unexpected ways
-    # (e.g. raw_request["stop"] is a mutable list)
+    # (e.g. raw_request["stop"] can be a mutable list)
     rewritten_request = deepcopy(raw_request)
     model_tags = _MODEL_TO_TAGS.get(model_engine, [])
     for model_tag in model_tags:
@@ -113,9 +120,9 @@ def _rewrite_raw_request_for_model_tags(raw_request: Dict[str, Any], model_engin
             eos_token = _MODEL_TO_EOS_TOKEN.get(model_engine)
             if not eos_token:
                 raise ValueError(f"Unknown EOS token for: {model_engine}")
-            if rewritten_request["stop"] is None:
-                rewritten_request["stop"] = []
-            rewritten_request["stop"].append(eos_token)
+            rewritten_stop_sequences: List[str] = rewritten_request["stop"] or []
+            rewritten_stop_sequences.append(eos_token)
+            rewritten_request["stop"] = rewritten_stop_sequences
         elif model_tag == _RewriteRequestTags.SET_DETAILS_TO_TRUE:
             rewritten_request["details"] = True
         else:
