@@ -65,6 +65,64 @@ This also allows future migration of results in the case of changes of
 available implementations on Together."""
 
 
+class _RewriteRequestTags:
+    """Tags that indicate that the request for the model must be rewritten before sending to Together."""
+    # TODO: Convert to StrEnum after upgrading to Python 3.11
+
+    ADD_EOS_TOKEN_AS_STOP_SEQUENCE = "ADD_EOS_TOKEN_AS_STOP_SEQUENCE"
+    """Indicates that the EOS token should be added as an extra stop sequence.
+    
+    This prevents the model from incorrectly returning the EOS token as part of the generation."""
+
+    SET_DETAILS_TO_TRUE = "SET_DETAILS_TO_TRUE"
+    """Indicates that the `details` field should be set to `true`.
+    
+    This indicates that Together should return logprobs for models that do not return logprobs by default."""
+
+
+_MODEL_TO_TAGS: Dict[str, List[str]] = {
+    "alpaca-7b": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE, _RewriteRequestTags.SET_DETAILS_TO_TRUE]
+}
+"""Dict of models to Together model tags.
+
+This indicates which models require their requests to be rewritten before sending to together.
+The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the full HELM model name
+(e.g. "stanford/alpaca-7b") or the Together model name (e.g. "togethercomputer/alpaca-7b")."""
+
+
+_MODEL_TO_EOS_TOKEN: Dict[str, str] = {
+    "alpaca-7b": "</s>",
+}
+"""Dict of models to end of sequence tokens.
+
+This provides the end of sequence tokens for models that have `ADD_EOS_TOKEN_AS_STOP_SEQUENCE` as a model tag.
+We hardcode the end of sequence tokens as constants here instead of attepmting to auto-infer them, for simplicity.
+The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the full HELM model name
+(e.g. "stanford/alpaca-7b") or the Together model name (e.g. "togethercomputer/alpaca-7b")."""
+
+
+def _rewrite_raw_request_for_model_tags(raw_request: Dict[str, Any], model_engine: str) -> Dict[str, Any]:
+    """Rewrite the raw request given the model."""
+    from copy import deepcopy
+    # Make a deepcopy to avoid mutating the input in unexpected ways
+    # (e.g. raw_request["stop"] is a mutable list)
+    rewritten_request = deepcopy(raw_request)
+    model_tags = _MODEL_TO_TAGS.get(model_engine, [])
+    for model_tag in model_tags:
+        if model_tag == _RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE:
+            eos_token = _MODEL_TO_EOS_TOKEN.get(model_engine)
+            if not eos_token:
+                raise ValueError(f"Unknown EOS token for: {model_engine}")
+            if rewritten_request["stop"] is None:
+                rewritten_request["stop"] = []
+            rewritten_request["stop"].append(eos_token)
+        elif model_tag == _RewriteRequestTags.SET_DETAILS_TO_TRUE:
+            rewritten_request["details"] = True
+        else:
+            raise ValueError(f"Unknown `_RewriteRequestTags`: {model_tag}")
+    return rewritten_request
+
+
 class TogetherClientError(Exception):
     pass
 
@@ -87,7 +145,7 @@ class TogetherClient(Client):
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
         # Following the examples from https://github.com/togethercomputer/open-models-api
-        return {
+        raw_request = {
             "request_type": "language-model-inference",
             "model": MODEL_ALIASES.get(request.model_engine, request.model_engine),
             "prompt": request.prompt,
@@ -100,6 +158,7 @@ class TogetherClient(Client):
             "echo": request.echo_prompt,
             "top_p": request.top_p,
         }
+        return _rewrite_raw_request_for_model_tags(raw_request, request.model_engine)
 
     def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
         # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
