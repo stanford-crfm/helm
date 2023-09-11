@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional, Union, Set
+from typing import List, Dict, Any, Optional, Union
 
 import requests
 from retrying import retry
@@ -14,63 +14,25 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
-_ASYNC_MODELS: Set[str] = {
-    # Legacy models
-    "alpaca-7b",
-    "pythia-7b",
-    "vicuna-13b",
-    # Production models
-    "redpajama-incite-base-3b-v1",
-    "redpajama-incite-instruct-3b-v1",
-    "redpajama-incite-base-7b",
-    "redpajama-incite-instruct-7b",
-    "dolly-v2-3b",
-    "dolly-v2-7b",
-    "dolly-v2-12b",
-    "llama-7b",
-    "llama-13b",
-    "llama-30b",
-    "llama-65b",
-    "llama-2-7b",
-    "llama-2-13b",
-    "llama-2-70b",
-    "pythia-1b-v0",
-    "pythia-2.8b-v0",
-    "pythia-6.9b",
-    "pythia-12b-v0",
-    "stablelm-base-alpha-3b",
-    "stablelm-base-alpha-7b",
-}
-"""Together models to use async requests for.
-
-Currently async requests are only used for models that are timing out,
-because async requests are slower than sync requests.
-
-Note: These should be HELM model names, not Together model name aliases."""
-# TODO: Eventually delete this and switch every model to async requests.
-
-
 MODEL_ALIASES: Dict[str, str] = {
     # Legacy models
     "flan-t5-xxl": "flan-t5-xxl-hf",
     "h3-2.7b": "h3-2.7b-h3",
     "opt-1.3b": "opt-1.3b-ft-tp1",
     "opt-6.7b": "opt-6.7b-ft-tp1",
-    # Together's models are half-precision are default,
-    # and the full-precision models are suffixed e.g.
-    # alpaca-7b is half-precision
-    # alpaca-7b-full-precision is full-precision
-    "alpaca-7b": "alpaca-7b-full-precision",
-    "pythia-7b": "pythia-7b-full-precision",
-    "vicuna-13b": "vicuna-13b-full-precision",
     # Production models
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
     "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
     "redpajama-incite-base-7b": "togethercomputer/RedPajama-INCITE-7B-Base",
     "redpajama-incite-instruct-7b": "togethercomputer/RedPajama-INCITE-7B-Instruct",
+    "alpaca-7b": "togethercomputer/alpaca-7b",
     "dolly-v2-3b": "databricks/dolly-v2-3b",
     "dolly-v2-7b": "databricks/dolly-v2-7b",
     "dolly-v2-12b": "databricks/dolly-v2-12b",
+    "falcon-7b": "togethercomputer/falcon-7b",
+    "falcon-7b-instruct": "togethercomputer/falcon-7b-instruct",
+    "falcon-40b": "togethercomputer/falcon-40b",
+    "falcon-40b-instruct": "togethercomputer/falcon-40b-instruct",
     "llama-7b": "huggyllama/llama-7b",
     "llama-13b": "huggyllama/llama-13b",
     "llama-30b": "huggyllama/llama-30b",
@@ -78,12 +40,18 @@ MODEL_ALIASES: Dict[str, str] = {
     "llama-2-7b": "togethercomputer/llama-2-7b",
     "llama-2-13b": "togethercomputer/llama-2-13b",
     "llama-2-70b": "togethercomputer/llama-2-70b",
+    "mpt-7b": "togethercomputer/mpt-7b",
+    "mpt-instruct-7b": "togethercomputer/mpt-7b-instruct",
+    "mpt-30b": "togethercomputer/mpt-30b",
+    "mpt-instruct-30b": "togethercomputer/mpt-30b-instruct",
     "pythia-1b-v0": "EleutherAI/pythia-1b-v0",
     "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
     "pythia-6.9b": "EleutherAI/pythia-6.9b",
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
+    "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
+    "vicuna-13b-v1.3": "lmsys/vicuna-13b-v1.3",
 }
 """Together model name aliases.
 
@@ -150,7 +118,8 @@ class TogetherClient(Client):
             raise TogetherClientError("togetherApiKey not set in credentials.conf")
         headers: Dict[str, str] = {"Authorization": f"Bearer {self.api_key}"}
 
-        if request.model_engine in _ASYNC_MODELS:
+        # TODO: Remove synchronous branch.
+        if request.model_engine in MODEL_ALIASES:
 
             def submit_job() -> str:
                 submit_request = {**raw_request, "async": True}

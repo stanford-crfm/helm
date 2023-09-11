@@ -163,6 +163,9 @@ class WindowServiceFactory:
             # MPT-7B model was trained with the EleutherAI/gpt-neox-20b tokenizer
             # See: https://huggingface.co/mosaicml/mpt-7b
             "mosaicml/mpt-7b",
+            "mosaicml/mpt-instruct-7b",
+            "mosaicml/mpt-30b",
+            "mosaicml/mpt-instruct-30b",
             # Dolly models are based on Pythia.
             # See: https://github.com/databrickslabs/dolly
             "databricks/dolly-v2-3b",
@@ -170,6 +173,16 @@ class WindowServiceFactory:
             "databricks/dolly-v2-12b",
         ]:
             window_service = GPTNeoXWindowService(service)
+        elif model_name in [
+            "tiiuae/falcon-7b",
+            "tiiuae/falcon-7b-instruct",
+            "tiiuae/falcon-40b",
+            "tiiuae/falcon-40b-instruct",
+        ]:
+            window_service = HuggingFaceWindowService(
+                service=service,
+                model_config=HuggingFaceHubModelConfig(namespace="tiiuae", model_name="falcon-7b", revision=None),
+            )
         elif model_name in [
             "stabilityai/stablelm-base-alpha-3b",
             "stabilityai/stablelm-base-alpha-7b",
@@ -197,12 +210,13 @@ class WindowServiceFactory:
         elif model_name == "nvidia/megatron-gpt2":
             window_service = MegatronWindowService(service)
         elif model_name in [
+            "lmsys/vicuna-7b-v1.3",
+            "lmsys/vicuna-13b-v1.3",
             "meta/llama-7b",
             "meta/llama-13b",
             "meta/llama-30b",
             "meta/llama-65b",
-            "together/alpaca-7b",
-            "together/vicuna-13b",
+            "stanford/alpaca-7b",
         ]:
             window_service = LlamaWindowService(service)
         elif model_name in [
