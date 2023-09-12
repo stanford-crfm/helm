@@ -229,7 +229,7 @@ class CLEVAToxicityMetric(ToxicityMetric):
 class ChineseTokenizer:
     """Chinese tokenizer."""
 
-    METHOD_LIST = ["char", "jieba"]
+    METHOD_LIST = ["char"]
 
     def __init__(self, method: str = "char") -> None:
         # We use "char" by default as we would like to get rid of the dependency on word segmentation methods
@@ -237,9 +237,7 @@ class ChineseTokenizer:
         self.method = method
 
     def tokenize(self, text: str) -> List[str]:
-        if self.method == "jieba":
-            return jieba.lcut(text)
-        elif self.method == "char":
+        if self.method == "char":
             return [c for c in text]
         else:
             raise ValueError(f"Unknown Chinese tokenization method '{self.method}'")

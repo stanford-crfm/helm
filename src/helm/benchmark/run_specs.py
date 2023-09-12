@@ -464,10 +464,10 @@ def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[Met
     ]
 
 
-def get_cleva_classification_metric_specs() -> List[MetricSpec]:
+def get_multiple_choice_classification_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.classification_metrics.CLEVAMultipleChoiceClassificationMetric", args={}
+            class_name="helm.benchmark.metrics.classification_metrics.MultipleChoiceClassificationMetric", args={}
         )
     ]
 
@@ -2453,7 +2453,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
                 )
             metric_specs = get_exact_match_metric_specs()
             if task in ["fact_checking", "bias"]:
-                metric_specs += get_cleva_classification_metric_specs()
+                metric_specs += get_multiple_choice_classification_metric_specs()
         elif prompt_setting.method == ADAPT_GENERATION:
             adapter_spec = AdapterSpec(
                 method=prompt_setting.method,
