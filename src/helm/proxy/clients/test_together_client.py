@@ -66,6 +66,26 @@ class TestTogetherClient:
                     "top_p": 0.3,
                 },
             ),
+            (
+                Request(
+                    model="stanford/alpaca-7b",
+                    stop_sequences=["\n"],
+                ),
+                {
+                    "best_of": 1,
+                    "echo": False,
+                    "logprobs": 1,
+                    "max_tokens": 100,
+                    "model": "togethercomputer/alpaca-7b",
+                    "n": 1,
+                    "prompt": "",
+                    "request_type": "language-model-inference",
+                    "stop": ["\n", "</s>"],
+                    "temperature": 1.0,
+                    "top_p": 1,
+                },
+            ),
+            # TODO(#1828): Add test for `SET_DETAILS_TO_TRUE` after Together supports it.
         ],
     )
     def test_convert_to_raw_request(self, test_input, expected):
