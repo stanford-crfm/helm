@@ -36,6 +36,7 @@ from . import code_metrics_helper
 from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .cleva_harms_metrics import ChineseTokenizer
 from .statistic import Stat
 
 
@@ -265,15 +266,12 @@ def bleu_1(gold: str, pred: str) -> float:
 
 
 def chinese_bleu_1(gold: str, pred: str) -> float:
-    return sentence_bleu([[i for i in gold]], [i for i in pred], weights=(1, 0, 0, 0))
+    char_tokenizer = ChineseTokenizer(method="char")
+    return sentence_bleu([char_tokenizer.tokenize(gold)], char_tokenizer.tokenize(pred), weights=(1, 0, 0, 0))
 
 
 def get_chinese_rouge_function(rouge_type: str) -> Callable[[str, str], float]:
-    class CharTokenizer:
-        def tokenize(self, text: str) -> List[str]:
-            return [char for char in text]
-
-    char_tokenizer = CharTokenizer()
+    char_tokenizer = ChineseTokenizer(method="char")
     scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True, tokenizer=char_tokenizer)
     return partial(rouge_score, scorer=scorer, rouge_type=rouge_type)
 

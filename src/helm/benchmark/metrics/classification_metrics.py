@@ -42,7 +42,7 @@ class ClassificationMetric(Metric):
         y_true: List[List[str]] = []
         for request_state in request_states:  # one request state per instance
             # Only the generation adapter is supported.
-            # TODO: Support multiple_choice_* adapters.
+            # For multiple_choice_* adapters, please use MultipleChoiceClassificationMetric.
             if request_state.reference_index is not None:
                 raise ValueError("ClassificationMetric does not support multiple choice separate adapters")
             if request_state.request_mode == "calibration":
@@ -72,10 +72,10 @@ class ClassificationMetric(Metric):
         ]
 
 
-class CLEVAMultipleChoiceClassificationMetric(Metric):
+class MultipleChoiceClassificationMetric(Metric):
     """
-    Calculate population micro/macro F1 score for CLEVA benchmark.
-    Intends to works for multiple_choice_* adapters.
+    Calculate population micro/macro F1 score for multiple_choice_* adapters.
+    For generation adapters, please use ClassificationMetric.
     """
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
@@ -83,11 +83,11 @@ class CLEVAMultipleChoiceClassificationMetric(Metric):
         y_true: List[str] = []
         for request_state in request_states:  # one request state per instance
             if request_state.request_mode == "calibration":
-                raise ValueError("ClassificationMetric does not support calibration requests")
+                raise ValueError("MultipleChoiceClassificationMetric does not support calibration requests")
             golds: List[Reference] = [
                 reference for reference in request_state.instance.references if reference.is_correct
             ]
-            assert len(golds) > 0, "CLEVAMultipleChoiceClassificationMetric are designed for multiple_choice_* adapters"
+            assert len(golds) > 0, "MultipleChoiceClassificationMetric are designed for multiple_choice_* adapters"
             assert request_state.result is not None
             sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
             pred: str = sorted_completions[0].text.strip()  # Only utilize the first prediction
@@ -98,10 +98,10 @@ class CLEVAMultipleChoiceClassificationMetric(Metric):
             y_pred.append(pred)
 
         return [
-            Stat(MetricName("cleva_classification_macro_f1")).add(
+            Stat(MetricName("multiple_choice_classification_macro_f1")).add(
                 f1_score(y_pred=y_pred, y_true=y_true, average="macro")
             ),
-            Stat(MetricName("cleva_classification_micro_f1")).add(
+            Stat(MetricName("multiple_choice_classification_micro_f1")).add(
                 f1_score(y_pred=y_pred, y_true=y_true, average="micro")
             ),
         ]
