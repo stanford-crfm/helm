@@ -10,7 +10,7 @@ async-generator==1.10
 async-timeout==4.0.2
 attrs==22.1.0
 beautifulsoup4==4.11.1
-bert-score==0.3.11
+bert-score==0.3.13
 bitarray==2.7.3
 black==22.10.0
 blanc==0.2.7
