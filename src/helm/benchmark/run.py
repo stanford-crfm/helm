@@ -2,7 +2,10 @@ import argparse
 from dataclasses import replace
 from typing import List, Optional
 
-import helm_plugins.plugin_demo.plugin_demo_run_spec
+try:
+    import helm_plugins.plugin_demo.plugin_demo_run_spec
+except ImportError:
+    print("demo run spec not found")
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.benchmark.tokenizer_config_registry import register_tokenizer_configs_from_path
