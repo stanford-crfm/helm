@@ -73,12 +73,12 @@ class _RewriteRequestTags:
 
     ADD_EOS_TOKEN_AS_STOP_SEQUENCE = "ADD_EOS_TOKEN_AS_STOP_SEQUENCE"
     """Indicates that the EOS token should be added as an extra stop sequence.
-    
+
     This prevents the model from incorrectly returning the EOS token as part of the generation."""
 
     SET_DETAILS_TO_TRUE = "SET_DETAILS_TO_TRUE"
     """Indicates that the `details` field should be set to `true`.
-    
+
     This indicates that Together should return logprobs for models that do not return logprobs by default."""
 
 
