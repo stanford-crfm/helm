@@ -120,9 +120,10 @@ def _rewrite_raw_request_for_model_tags(raw_request: Dict[str, Any], model_engin
             eos_token = _MODEL_TO_EOS_TOKEN.get(model_engine)
             if not eos_token:
                 raise ValueError(f"Unknown EOS token for: {model_engine}")
-            rewritten_stop_sequences: List[str] = rewritten_request["stop"] or []
-            rewritten_stop_sequences.append(eos_token)
-            rewritten_request["stop"] = rewritten_stop_sequences
+            if isinstance(rewritten_request["stop"], list):
+                rewritten_request["stop"].append(eos_token)
+            else:
+                rewritten_request["stop"] = [eos_token]
         elif model_tag == _RewriteRequestTags.SET_DETAILS_TO_TRUE:
             rewritten_request["details"] = True
         else:
