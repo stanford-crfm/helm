@@ -412,7 +412,7 @@ class CLEVAScenario(Scenario):
     def load_inference_parameters(
         cls, task: str, subtask: Optional[str], version: str, prompt_id: int
     ) -> Dict[str, Any]:
-        # We use a dict instead of dataclass to store hyper-parameters such that we can set different default values
+        # We use a dict instead of dataclass to store hyperparameters such that we can set different default values
         params_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
         if subtask:
             params_dir = os.path.join(params_dir, subtask)
