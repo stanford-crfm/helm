@@ -3,7 +3,7 @@ import os
 import copy
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Union
 
 from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -62,6 +62,9 @@ class Converter:
     Convert samples in CLEVA format to HELM instances according to CLEVA prompt template standard.
     """
 
+    RawData = Union[str, Dict[str, str], List[str], List[Dict[str, str]]]
+    Template = Union[str, Dict[str, str]]
+
     def transform(self, data: Dict[str, Any], templates: Dict[str, Any], split: str) -> Instance:
         """Convert a data point in CLEVA format to a HELM instance according to a given CLEVA prompt template."""
         transformed_data = self._apply_all(copy.deepcopy(data), templates)
@@ -105,7 +108,7 @@ class Converter:
         )
         return instance
 
-    def _apply_all(self, data: dict, templates: dict) -> dict:
+    def _apply_all(self, data: dict, templates: Dict[str, Optional[Template]]) -> dict:
         """
         This function applies the CLEVA prompt template to a data point.
 
@@ -118,7 +121,8 @@ class Converter:
         """
         # If we define a verbalizer, we map all fields before further processing
         if templates.get("verbalizer", None) is not None:
-            self._mapping_all(data, templates["verbalizer"])
+            # templates["verbalizer"] is guaranteed to have Dict[str, Dict[str, str]] type in CLEVA prompt.json file.
+            self._mapping_all(data, templates["verbalizer"])  # type: ignore
 
         # We first convert all fields except `input` to strings
         transformed_data = copy.deepcopy(data)
@@ -128,6 +132,7 @@ class Converter:
                 transformed_data[k] = self._apply(data[k], template, **data)
 
         # We then merge all other fields into the `input`
+        assert isinstance(templates["input"], str), "The input field of a template should be a string"
         data["input"] = templates["input"].format(**transformed_data)
         if "choices" in data:
             # We take the corresponding choices and apply the `label` template
@@ -141,7 +146,7 @@ class Converter:
             data["label"] = [self._apply(x, templates.get("label", None), **kwargs, label=x) for x in data["label"]]
         return data
 
-    def _apply(self, data: Any, template: Optional[Any], **kwargs) -> str:
+    def _apply(self, data: RawData, template: Optional[Template], **kwargs) -> str:
         """
         This function constructs a string from the data and template for a given field.
 
@@ -165,9 +170,12 @@ class Converter:
             if isinstance(data, list):
                 # If each entry is a `Dict[str, str]`, apply the template independently
                 if isinstance(data[0], dict):
+                    # Every element of data is a dictionary, so we skip the mypy check.
                     return template["item_separator"].join(
                         [
-                            template["item_template"].format(**i, idx=self.index_mapping(idx, template["item_index"]))
+                            template["item_template"].format(
+                                **i, idx=self.index_mapping(idx, template["item_index"])  # type: ignore
+                            )
                             for idx, i in enumerate(data)
                         ]
                     )
@@ -186,6 +194,7 @@ class Converter:
                 raise ValueError(f"Unsupported input: {data}")
         # Simple copying if template is None
         elif template is None:
+            assert isinstance(data, str), "If there is no template, the data should be a string."
             return data
         else:
             raise NotImplementedError(f"Unsupported template {template}")
@@ -195,7 +204,7 @@ class Converter:
         This function subsitute values in `data` according to the mapping defined in `mapping_dict` with the same
         key/field.
 
-        Each field in `sample` must have the following type: `str`, `Dict[str, str]`, `List[str]`,
+        Each field in `data` must have one of the following types: `str`, `Dict[str, str]`, `List[str]`, and
         `List[Dict[str, str]]`.
 
         Note that this is an in-place operation.
@@ -205,7 +214,7 @@ class Converter:
                 # If the value is a string, we directly map the result
                 if isinstance(data[_name], str):
                     if _name == k:
-                        # Only perform the subsitution if the keys in the `sample` and `mapping_dict` match
+                        # Only perform the substitution if the keys in the `sample` match `mapping_dict`
                         data[_name] = d[data[_name]]
                 # If the value is a dict, we map the value of its key-value pairs
                 elif isinstance(data[_name], dict):
