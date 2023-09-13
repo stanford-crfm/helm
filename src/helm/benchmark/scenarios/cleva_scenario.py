@@ -3,7 +3,7 @@ import os
 import copy
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Union
 
 from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -62,36 +62,57 @@ class Converter:
     Convert samples in CLEVA format to HELM instances according to CLEVA prompt template standard.
     """
 
-    def transform(self, data: Dict[str, Any], templates: Dict[str, Any], split: str) -> Instance:
+    RawData = Union[str, Dict[str, str], List[str], List[int], List[Dict[str, str]]]
+    Template = Union[str, Dict[str, str]]
+
+    def transform(self, data: Dict[str, RawData], templates: Dict[str, Optional[Template]], split: str) -> Instance:
         """Convert a data point in CLEVA format to a HELM instance according to a given CLEVA prompt template."""
         transformed_data = self._apply_all(copy.deepcopy(data), templates)
 
-        text = transformed_data["input"]
+        prompt: str = transformed_data["input"]  # type: ignore
+        assert isinstance(prompt, str)
         if "choices" in transformed_data:
             # This is a multiple-choice task
+            choices: List[str] = transformed_data["choices"]  # type: ignore
+            # Gurantee `choices` must be `List[str]`
+            assert isinstance(choices, list)
+            for c in choices:
+                assert isinstance(c, str)
             references: List[Reference] = [
                 Reference(Output(text=text), tags=[CORRECT_TAG] if idx in transformed_data["label"] else [])
-                for idx, text in enumerate(transformed_data["choices"])
+                for idx, text in enumerate(choices)
             ]
         else:
             # This is a generation task
-            correct_answer = transformed_data["label"]
+            correct_answer: List[str] = transformed_data["label"]  # type: ignore
+            # Gurantee `label` must be `List[str]`
+            assert isinstance(correct_answer, list)
+            for a in correct_answer:
+                assert isinstance(a, str)
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
 
         instance = Instance(
-            input=Input(text=text),
+            input=Input(text=prompt),
             references=references,
             split=split,
         )
         return instance
 
-    def transform_code(self, data: Dict[str, Any], templates: Dict[str, Any], split: str) -> CodeInstance:
+    def transform_code(
+        self,
+        data: Dict[str, RawData],
+        templates: Dict[str, Optional[Template]],
+        split: str,
+    ) -> CodeInstance:
         """
         Similar to transform method above, transform_code converts a data point in code synthesis scenario in CLEVA
         to a HELM CodeInstance according to a given CLEVA prompt template.
         """
 
+        assert isinstance(templates["input"], str)
         data["prompt"] = templates["input"].format(**data)
+        assert isinstance(data["prompt"], str)
+        assert isinstance(data["canonical_solution"], str)
         instance = CodeInstance(
             input=Input(text=data["prompt"]),
             references=[
@@ -105,7 +126,7 @@ class Converter:
         )
         return instance
 
-    def _apply_all(self, data: dict, templates: dict) -> dict:
+    def _apply_all(self, data: Dict[str, RawData], templates: Dict[str, Optional[Template]]) -> Dict[str, RawData]:
         """
         This function applies the CLEVA prompt template to a data point.
 
@@ -118,12 +139,13 @@ class Converter:
         """
         # If we define a verbalizer, we map all fields before further processing
         if templates.get("verbalizer", None) is not None:
-            self._mapping_all(data, templates["verbalizer"])
+            # templates["verbalizer"] is guaranteed to have Dict[str, Dict[str, str]] type in CLEVA prompt.json file.
+            assert isinstance(templates["verbalizer"], dict)
+            for k, v in templates["verbalizer"].items():
+                assert isinstance(k, str)
+                assert isinstance(v, str)
+            self._mapping_all(data, templates["verbalizer"])  # type: ignore
 
-        if "choices" in data.keys():
-            # We take the corresonding choices and apply the `label` template
-            # Note: we do not allow `label` template to access other fields in multi-choice tasks
-            choices = [self._apply(c, templates.get("label", None), label=c) for c in data["choices"]]
         # We first convert all fields except `input` to strings
         transformed_data = copy.deepcopy(data)
         for k, template in templates.items():
@@ -132,18 +154,31 @@ class Converter:
                 transformed_data[k] = self._apply(data[k], template, **data)
 
         # We then merge all other fields into the `input`
+        assert isinstance(templates["input"], str), "The input field of a template should be a string"
         data["input"] = templates["input"].format(**transformed_data)
-        if "choices" in data.keys():
+        if "choices" in data:
+            # We take the corresponding choices and apply the `label` template
+            # Note: we do not allow `label` template to access other fields in multi-choice tasks
             # Overwrite `choices` to the actual continuations
-            data["choices"] = choices
+            choices: List[str] = data["choices"]  # type: ignore
+            # Gurantee `choices` must be `List[str]`
+            assert isinstance(choices, list)
+            for c in choices:
+                assert isinstance(c, str)
+            data["choices"] = [self._apply(c, templates.get("label", None), label=c) for c in choices]
         else:
             # For generation tasks, we allow it to access to other stringified fields
             kwargs = transformed_data
             del kwargs["label"]
-            data["label"] = [self._apply(x, templates.get("label", None), **kwargs, label=x) for x in data["label"]]
+            labels: List[str] = data["label"]  # type: ignore
+            # Gurantee `label` must be `List[str]`
+            assert isinstance(labels, list)
+            for label in labels:
+                assert isinstance(label, str)
+            data["label"] = [self._apply(x, templates.get("label", None), **kwargs, label=x) for x in labels]
         return data
 
-    def _apply(self, data: Any, template: Optional[Any], **kwargs) -> str:
+    def _apply(self, data: RawData, template: Optional[Template], **kwargs) -> str:
         """
         This function constructs a string from the data and template for a given field.
 
@@ -159,7 +194,7 @@ class Converter:
             # If data is a `Dict[str, str]`, flatten all its key-value pairs and treat them as additional fields
             if isinstance(data, dict):
                 return template.format(**kwargs, **data)
-            # If data is a `str`, just directly compose the output string from other stringified fields
+            # kwargs contains all the necessary content to compose the output string.
             return template.format(**kwargs)
         # If template is a `dict`, it is tailored to structured data, i.e., `List[str]` or `List[Dict[str, str]]`
         elif isinstance(template, dict):
@@ -167,9 +202,12 @@ class Converter:
             if isinstance(data, list):
                 # If each entry is a `Dict[str, str]`, apply the template independently
                 if isinstance(data[0], dict):
+                    # Every element of data is a dictionary, so we skip the mypy check.
                     return template["item_separator"].join(
                         [
-                            template["item_template"].format(**i, idx=self.index_mapping(idx, template["item_index"]))
+                            template["item_template"].format(
+                                **i, idx=self.index_mapping(idx, template["item_index"])  # type: ignore
+                            )
                             for idx, i in enumerate(data)
                         ]
                     )
@@ -185,9 +223,10 @@ class Converter:
                         ]
                     )
             else:
-                raise ValueError(f"Unsupport input: {data}")
+                raise ValueError(f"Unsupported input: {data}")
         # Simple copying if template is None
         elif template is None:
+            assert isinstance(data, str), "If there is no template, the data should be a string."
             return data
         else:
             raise NotImplementedError(f"Unsupported template {template}")
@@ -197,7 +236,7 @@ class Converter:
         This function subsitute values in `data` according to the mapping defined in `mapping_dict` with the same
         key/field.
 
-        Each field in `sample` must have the following type: `str`, `Dict[str, str]`, `List[str]`,
+        Each field in `data` must have one of the following types: `str`, `Dict[str, str]`, `List[str]`, and
         `List[Dict[str, str]]`.
 
         Note that this is an in-place operation.
@@ -207,7 +246,7 @@ class Converter:
                 # If the value is a string, we directly map the result
                 if isinstance(data[_name], str):
                     if _name == k:
-                        # Only perform the subsitution if the keys in the `sample` and `mapping_dict` match
+                        # Only perform the substitution if the keys in the `sample` match `mapping_dict`
                         data[_name] = d[data[_name]]
                 # If the value is a dict, we map the value of its key-value pairs
                 elif isinstance(data[_name], dict):
@@ -247,15 +286,14 @@ class Converter:
     @staticmethod
     def index_mapping(idx: int, option: str) -> str:
         """This function defines how to index a list of values according to the given option."""
-        idx = idx + 1
         if option is None:
             return ""
         elif option == "number":
-            return f"{idx}"
+            return f"{idx + 1}"
         elif option == "upper":
-            return chr(ord("@") + idx)
+            return chr(ord("A") + idx)
         elif option == "lower":
-            return chr(ord("`") + idx)
+            return chr(ord("a") + idx)
         else:
             raise NotImplementedError(f"Unknown option {option}")
 
@@ -296,7 +334,7 @@ class CLEVAScenario(Scenario):
         pass
 
     @classmethod
-    def download_dataset(cls, version: str):
+    def download_dataset(cls):
         target_dir = os.path.join(CLEVA_DATA_PATH, "data")
         ensure_directory_exists(CLEVA_DATA_PATH)
         ensure_file_downloaded(source_url=CLEVA_DATA_URL, target_path=target_dir, unpack=True, unpack_type="untar")
@@ -406,7 +444,7 @@ class CLEVAScenario(Scenario):
     def load_inference_parameters(
         cls, task: str, subtask: Optional[str], version: str, prompt_id: int
     ) -> Dict[str, Any]:
-        # We use a dict instead of dataclass to store hyper-parameters such that we can set different default values
+        # We use a dict instead of dataclass to store hyperparameters such that we can set different default values
         params_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
         if subtask:
             params_dir = os.path.join(params_dir, subtask)
@@ -1424,7 +1462,8 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
         return "language_modeling"
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        text: str = row["choices"][0]  # The length of row["choices"] should be 1. Only the first one is used.
+        assert len(row["choices"]) == 1, "The length of choices should be 1."
+        text: str = row["choices"][0]  # Only the first one is used.
         instance = Instance(
             input=Input(text=text),
             references=[],

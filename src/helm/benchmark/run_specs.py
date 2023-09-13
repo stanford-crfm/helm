@@ -45,7 +45,6 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
-from .scenarios.cleva_scenario import CLEVAScenario
 from helm.proxy.models import (
     get_model,
     NO_NEWLINES_TAG,
@@ -2380,7 +2379,9 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 
 @run_spec_function("cleva")
 def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int = 0) -> RunSpec:
-    CLEVAScenario.download_dataset(version)
+    from .scenarios.cleva_scenario import CLEVAScenario  # noqa
+
+    CLEVAScenario.download_dataset()
 
     prompt_template, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
     inference_parameters = CLEVAScenario.load_inference_parameters(task, subtask, version, prompt_id)
@@ -2484,7 +2485,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["cleva"],
+        groups=["cleva", f"cleva_{task}"],
     )
 
 
