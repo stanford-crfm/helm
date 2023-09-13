@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import List, Dict, Optional, Tuple, Type
+from typing import Any, List, Dict, Optional, Tuple, Type
 
 from helm.proxy.models import (
     get_all_instruction_following_models,
@@ -334,6 +334,13 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
         "all": [0, 1, 2, 4, 8, 16],  # Cap at 16 due to limited context length
         "big_bench_few_shot_setting": [0, 1, 2, 3],  # Commonly used few-shot setting in BIG-bench
     }
+
+
+class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
+    """For overriding the number of eval instances at the run level."""
+
+    name = "max_eval_instances"
+    values_dict: Dict[str, List[Any]] = {}
 
 
 class NumOutputsRunExpander(ReplaceValueRunExpander):
@@ -1047,6 +1054,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     GlobalPrefixRunExpander,
     NumTrainTrialsRunExpander,
     MaxTrainInstancesRunExpander,
+    MaxEvalInstancesRunExpander,
     NumOutputsRunExpander,
     ModelRunExpander,
     DataAugmentationRunExpander,
