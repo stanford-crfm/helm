@@ -62,34 +62,48 @@ class Converter:
     Convert samples in CLEVA format to HELM instances according to CLEVA prompt template standard.
     """
 
-    RawData = Union[str, Dict[str, str], List[str], List[Dict[str, str]]]
+    RawData = Union[str, Dict[str, str], List[str], List[int], List[Dict[str, str]]]
     Template = Union[str, Dict[str, str]]
 
     def transform(self, data: Dict[str, RawData], templates: Dict[str, Optional[Template]], split: str) -> Instance:
         """Convert a data point in CLEVA format to a HELM instance according to a given CLEVA prompt template."""
         transformed_data = self._apply_all(copy.deepcopy(data), templates)
 
-        assert isinstance(transformed_data["input"], str)
-        text = transformed_data["input"]
+        prompt: str = transformed_data["input"]  # type: ignore
+        assert isinstance(prompt, str)
         if "choices" in transformed_data:
             # This is a multiple-choice task
+            choices: List[str] = transformed_data["choices"]  # type: ignore
+            # Gurantee `choices` must be `List[str]`
+            assert isinstance(choices, list)
+            for c in choices:
+                assert isinstance(c, str)
             references: List[Reference] = [
                 Reference(Output(text=text), tags=[CORRECT_TAG] if idx in transformed_data["label"] else [])
-                for idx, text in enumerate(transformed_data["choices"])
+                for idx, text in enumerate(choices)
             ]
         else:
             # This is a generation task
-            correct_answer = transformed_data["label"]
+            correct_answer: List[str] = transformed_data["label"]  # type: ignore
+            # Gurantee `label` must be `List[str]`
+            assert isinstance(correct_answer, list)
+            for a in correct_answer:
+                assert isinstance(a, str)
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
 
         instance = Instance(
-            input=Input(text=text),
+            input=Input(text=prompt),
             references=references,
             split=split,
         )
         return instance
 
-    def transform_code(self, data: Dict[str, RawData], templates: Dict[str, Optional[Template]], split: str) -> CodeInstance:
+    def transform_code(
+        self,
+        data: Dict[str, RawData],
+        templates: Dict[str, Optional[Template]],
+        split: str,
+    ) -> CodeInstance:
         """
         Similar to transform method above, transform_code converts a data point in code synthesis scenario in CLEVA
         to a HELM CodeInstance according to a given CLEVA prompt template.
@@ -146,12 +160,22 @@ class Converter:
             # We take the corresponding choices and apply the `label` template
             # Note: we do not allow `label` template to access other fields in multi-choice tasks
             # Overwrite `choices` to the actual continuations
-            data["choices"] = [self._apply(c, templates.get("label", None), label=c) for c in data["choices"]]
+            choices: List[str] = data["choices"]  # type: ignore
+            # Gurantee `choices` must be `List[str]`
+            assert isinstance(choices, list)
+            for c in choices:
+                assert isinstance(c, str)
+            data["choices"] = [self._apply(c, templates.get("label", None), label=c) for c in choices]
         else:
             # For generation tasks, we allow it to access to other stringified fields
             kwargs = transformed_data
             del kwargs["label"]
-            data["label"] = [self._apply(x, templates.get("label", None), **kwargs, label=x) for x in data["label"]]
+            labels: List[str] = data["label"]  # type: ignore
+            # Gurantee `label` must be `List[str]`
+            assert isinstance(labels, list)
+            for label in labels:
+                assert isinstance(label, str)
+            data["label"] = [self._apply(x, templates.get("label", None), **kwargs, label=x) for x in labels]
         return data
 
     def _apply(self, data: RawData, template: Optional[Template], **kwargs) -> str:
