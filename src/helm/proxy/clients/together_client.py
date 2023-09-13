@@ -84,9 +84,10 @@ class _RewriteRequestTags:
 
 _MODEL_TO_TAGS: Dict[str, List[str]] = {
     "alpaca-7b": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
+    # TODO(#1828): Uncomment these lines once Together supports the `details` field.
+    # "llama-65b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
+    # "llama-2-70b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
     "vicuna-7b-v1.3": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
-    "llama-65b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
-    "llama-2-70b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
     "vicuna-13b-v1.3": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
 }
 """Dict of models to Together model tags.
