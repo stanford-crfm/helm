@@ -120,10 +120,6 @@ class Converter:
         if templates.get("verbalizer", None) is not None:
             self._mapping_all(data, templates["verbalizer"])
 
-        if "choices" in data.keys():
-            # We take the corresonding choices and apply the `label` template
-            # Note: we do not allow `label` template to access other fields in multi-choice tasks
-            choices = [self._apply(c, templates.get("label", None), label=c) for c in data["choices"]]
         # We first convert all fields except `input` to strings
         transformed_data = copy.deepcopy(data)
         for k, template in templates.items():
@@ -133,9 +129,11 @@ class Converter:
 
         # We then merge all other fields into the `input`
         data["input"] = templates["input"].format(**transformed_data)
-        if "choices" in data.keys():
+        if "choices" in data:
+            # We take the corresponding choices and apply the `label` template
+            # Note: we do not allow `label` template to access other fields in multi-choice tasks
             # Overwrite `choices` to the actual continuations
-            data["choices"] = choices
+            data["choices"] = [self._apply(c, templates.get("label", None), label=c) for c in data["choices"]]
         else:
             # For generation tasks, we allow it to access to other stringified fields
             kwargs = transformed_data
@@ -159,7 +157,7 @@ class Converter:
             # If data is a `Dict[str, str]`, flatten all its key-value pairs and treat them as additional fields
             if isinstance(data, dict):
                 return template.format(**kwargs, **data)
-            # If data is a `str`, just directly compose the output string from other stringified fields
+            # kwargs contains all the necessary content to compose the output string.
             return template.format(**kwargs)
         # If template is a `dict`, it is tailored to structured data, i.e., `List[str]` or `List[Dict[str, str]]`
         elif isinstance(template, dict):
@@ -185,7 +183,7 @@ class Converter:
                         ]
                     )
             else:
-                raise ValueError(f"Unsupport input: {data}")
+                raise ValueError(f"Unsupported input: {data}")
         # Simple copying if template is None
         elif template is None:
             return data
@@ -247,15 +245,14 @@ class Converter:
     @staticmethod
     def index_mapping(idx: int, option: str) -> str:
         """This function defines how to index a list of values according to the given option."""
-        idx = idx + 1
         if option is None:
             return ""
         elif option == "number":
-            return f"{idx}"
+            return f"{idx + 1}"
         elif option == "upper":
-            return chr(ord("@") + idx)
+            return chr(ord("A") + idx)
         elif option == "lower":
-            return chr(ord("`") + idx)
+            return chr(ord("a") + idx)
         else:
             raise NotImplementedError(f"Unknown option {option}")
 
@@ -296,7 +293,7 @@ class CLEVAScenario(Scenario):
         pass
 
     @classmethod
-    def download_dataset(cls, version: str):
+    def download_dataset(cls):
         target_dir = os.path.join(CLEVA_DATA_PATH, "data")
         ensure_directory_exists(CLEVA_DATA_PATH)
         ensure_file_downloaded(source_url=CLEVA_DATA_URL, target_path=target_dir, unpack=True, unpack_type="untar")
@@ -1424,7 +1421,8 @@ class CLEVALanguageModelingScenario(CLEVAScenario):
         return "language_modeling"
 
     def process_instance(self, row: Dict[str, Any], split: str) -> Instance:
-        text: str = row["choices"][0]  # The length of row["choices"] should be 1. Only the first one is used.
+        assert len(row["choices"]) == 1, "The length of choices should be 1."
+        text: str = row["choices"][0]  # Only the first one is used.
         instance = Instance(
             input=Input(text=text),
             references=[],
