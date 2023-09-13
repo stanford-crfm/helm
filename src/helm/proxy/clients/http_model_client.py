@@ -130,7 +130,10 @@ class HTTPModelClient(Client):
                 response_data = response.json()
                 return response_data
 
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            if self.cache:
+                result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            else:
+                result, cached = do_it(), False
         except Exception as e:
             error: str = f"Local Model error: {e}"
             return DecodeRequestResult(success=False, cached=False, error=error, text="")
