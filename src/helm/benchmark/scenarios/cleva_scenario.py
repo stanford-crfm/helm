@@ -122,6 +122,10 @@ class Converter:
         # If we define a verbalizer, we map all fields before further processing
         if templates.get("verbalizer", None) is not None:
             # templates["verbalizer"] is guaranteed to have Dict[str, Dict[str, str]] type in CLEVA prompt.json file.
+            assert isinstance(templates["verbalizer"], dict)
+            for k, v in templates["verbalizer"].items():
+                assert isinstance(k, str)
+                assert isinstance(v, str)
             self._mapping_all(data, templates["verbalizer"])  # type: ignore
 
         # We first convert all fields except `input` to strings
