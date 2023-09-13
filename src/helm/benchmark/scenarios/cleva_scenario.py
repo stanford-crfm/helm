@@ -65,10 +65,11 @@ class Converter:
     RawData = Union[str, Dict[str, str], List[str], List[Dict[str, str]]]
     Template = Union[str, Dict[str, str]]
 
-    def transform(self, data: Dict[str, Any], templates: Dict[str, Any], split: str) -> Instance:
+    def transform(self, data: Dict[str, RawData], templates: Dict[str, Optional[Template]], split: str) -> Instance:
         """Convert a data point in CLEVA format to a HELM instance according to a given CLEVA prompt template."""
         transformed_data = self._apply_all(copy.deepcopy(data), templates)
 
+        assert isinstance(transformed_data["input"], str)
         text = transformed_data["input"]
         if "choices" in transformed_data:
             # This is a multiple-choice task
@@ -88,13 +89,16 @@ class Converter:
         )
         return instance
 
-    def transform_code(self, data: Dict[str, Any], templates: Dict[str, Any], split: str) -> CodeInstance:
+    def transform_code(self, data: Dict[str, RawData], templates: Dict[str, Optional[Template]], split: str) -> CodeInstance:
         """
         Similar to transform method above, transform_code converts a data point in code synthesis scenario in CLEVA
         to a HELM CodeInstance according to a given CLEVA prompt template.
         """
 
+        assert isinstance(templates["input"], str)
         data["prompt"] = templates["input"].format(**data)
+        assert isinstance(data["prompt"], str)
+        assert isinstance(data["canonical_solution"], str)
         instance = CodeInstance(
             input=Input(text=data["prompt"]),
             references=[
@@ -108,7 +112,7 @@ class Converter:
         )
         return instance
 
-    def _apply_all(self, data: dict, templates: Dict[str, Optional[Template]]) -> dict:
+    def _apply_all(self, data: Dict[str, RawData], templates: Dict[str, Optional[Template]]) -> Dict[str, RawData]:
         """
         This function applies the CLEVA prompt template to a data point.
 
