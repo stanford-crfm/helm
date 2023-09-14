@@ -136,6 +136,63 @@ class Converter:
         1. It first maps every entry according to a set of predefined mappings in "verbalizer".
         2. It then stringifies all fields in the given data point, including processing structured data.
         3. It finally constructs the input string and reference strings.
+
+        A `templates` example of the dialogue generation task is:
+        ```json
+        {
+            "verbalizer": {
+                "role": {
+                    "sys": "Assistant",
+                    "usr": "User"
+                }
+            },
+            "history": {
+                "item_separator": "\n",
+                "item_template": "{role}: {utterance}",
+                "item_index": null
+            },
+            "input": "{history}\n{role}:",
+            "label": " {label}"
+        }
+        ```
+        An example `Template` of the field "input" here is "{history}\n{role}:".
+
+        and a dialogue generation `data` example is:
+        ```json
+        {
+            "history": [
+                {
+                    "utterance": "Who is the US president?",
+                    "role": "usr"
+                },
+                {
+                    "utterance": "Joe Biden.",
+                    "role": "sys"
+                },
+                {
+                    "utterance": "Then who is his wife?",
+                    "role": "usr"
+                }
+            ],
+            "role": "sys",
+            "label": [
+                "Jill Biden."
+            ],
+        }
+        ```
+        An example `RawData` of the field "role" here is "sys".
+
+        The resulting prompt (in the "input" field of the returned result) after conversion will be:
+
+            User: Who is the US president?
+            Assistant: Joe Biden.
+            User: Then who is his wife?
+            Assistant:
+
+        and the reference (in the "label" field of the returned result) is:
+
+             Jill Biden.
+
         """
         # If we define a verbalizer, we map all fields before further processing
         if templates.get("verbalizer", None) is not None:
@@ -188,6 +245,25 @@ class Converter:
           it will be flattened out).
         - `dict`: handle structured data like `List[str]` and `List[Dict[str, str]]` by first obtaining a string
           for each entry and then combining all strigified entries as the final result.
+
+        An example of applying the template of the `input` field is:
+        - `data`: "I don't like this movie."
+        - `Template`: "{review} It is"
+        - `kwargs`:
+          ```json
+          {
+              "review": "I don't like this movie.",
+              "label": [
+                  0
+              ],
+              "choices": [
+                  "negative",
+                  "positive"
+              ]
+          }
+          ```
+
+        The returned result will be "I don't like this movie. It is".
         """
         # If template is a `str`, it composes a string from all fields
         if isinstance(template, str):
@@ -260,10 +336,11 @@ class Converter:
                 # If the value is a list, then look into its entries
                 elif isinstance(data[_name], list):
                     assert len(data[_name]) > 0, f"The length of {_name} must be larger than 0."
+                    # We use the first element for type checking, assuming all entries are of the same type
                     if isinstance(data[_name][0], int):
                         pass
                     elif isinstance(data[_name][0], str):
-                        # If the entry is a string and the key matches, we directly map the result
+                        # If the entry is a string and the key matches, we directly map all entries
                         if _name == k:
                             data[_name] = [d[c] for c in data[_name]]
                     # If the entry is a dict, we look into its key-value pairs
@@ -393,7 +470,7 @@ class CLEVAScenario(Scenario):
         prompt_templates = cls.load_prompt_templates(task, subtask, version)
         if prompt_id >= len(prompt_templates):
             raise ValueError(
-                f"You want to use {prompt_id + 1}-th prompt template, but there is only"
+                f"You want to use prompt template with prompt_id {prompt_id}, but there is only"
                 f" {len(prompt_templates)} options."
             )
         prompt_template = prompt_templates[prompt_id]
@@ -1438,6 +1515,8 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
         labels: List[str] = copy.deepcopy(row["label"])
         instance = self.converter.transform(row, self.prompt_template, split)
         if split == TEST_SPLIT:
+            # converter.transform will modify `label` to incorprate CoT, which is desired only for train instances.
+            # We manually overwrite `references` to ensure the correctness of labels (without CoT, just answers).
             instance = Instance(
                 input=instance.input,
                 references=[Reference(Output(text=label), tags=[CORRECT_TAG]) for label in labels],
