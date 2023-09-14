@@ -152,6 +152,7 @@ class Converter:
                 "item_index": null
             },
             "input": "{history}\n{role}:",
+            "label": " {label}"
         }
         ```
         An example `Template` of the field "input" here is "{history}\n{role}:".
@@ -190,7 +191,7 @@ class Converter:
 
         and the reference (in the "label" field of the returned result) is:
 
-            Jill Biden.
+             Jill Biden.
 
         """
         # If we define a verbalizer, we map all fields before further processing
@@ -245,7 +246,7 @@ class Converter:
         - `dict`: handle structured data like `List[str]` and `List[Dict[str, str]]` by first obtaining a string
           for each entry and then combining all strigified entries as the final result.
 
-        An example is:
+        An example of applying the template of the `input` field is:
         - `data`: "I don't like this movie."
         - `Template`: "{review} It is"
         - `kwargs`:
