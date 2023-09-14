@@ -136,7 +136,7 @@ class Converter:
         1. It first maps every entry according to a set of predefined mappings in "verbalizer".
         2. It then stringifies all fields in the given data point, including processing structured data.
         3. It finally constructs the input string and reference strings.
-        
+
         A `templates` example of the dialogue generation task is:
         ```json
         {
@@ -244,6 +244,25 @@ class Converter:
           it will be flattened out).
         - `dict`: handle structured data like `List[str]` and `List[Dict[str, str]]` by first obtaining a string
           for each entry and then combining all strigified entries as the final result.
+
+        An example is:
+        - `data`: "This movie sucks."
+        - `Template`: "{review} It is"
+        - `kwargs`:
+          ```json
+          {
+              "review": "This movie sucks.",
+              "label": [
+                  0
+              ],
+              "choices": [
+                  "negative",
+                  "positive"
+              ]
+          }
+          ```
+
+        The returned result will be "This movie sucks. It is".
         """
         # If template is a `str`, it composes a string from all fields
         if isinstance(template, str):
