@@ -90,7 +90,6 @@ class ReplaceRunSpecValueRunExpander(RunExpander):
             replace(
                 run_spec,
                 name=f"{run_spec.name},{self.name}={sanitize(value)}",
-                metrics=value,
             )
             for value in self.values
         ]
@@ -523,7 +522,7 @@ def gender(
     source_class: str,
     target_class: str,
     mapping_file_path: Optional[str] = None,
-    mapping_file_genders: Tuple[str] = None,
+    mapping_file_genders: Optional[Tuple[str]] = None,
     bidirectional: bool = False,
 ) -> PerturbationSpec:
     return PerturbationSpec(

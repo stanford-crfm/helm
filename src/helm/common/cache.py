@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import contextlib
 from dataclasses import dataclass
 import json
 from typing import Dict, Callable, Generator, Iterable, Optional, Tuple
@@ -103,18 +104,12 @@ class WithFollowerCacheConfig(CacheConfig):
         return self.main.cache_stats_key
 
 
-class KeyValueStore(ABC):
+class KeyValueStore(ABC, contextlib.AbstractContextManager):
     """Key value store that persists writes."""
 
     @property
     def path(self):
         return self._path
-
-    def __enter__(self) -> "KeyValueStore":
-        pass
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        pass
 
     @abstractmethod
     def contains(self, key: Dict) -> bool:
@@ -150,11 +145,9 @@ class _SqliteKeyValueStore(KeyValueStore):
 
     def __enter__(self) -> "_SqliteKeyValueStore":
         self._sqlite_dict.__enter__()
-        super().__enter__()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
-        super().__exit__(exc_type, exc_value, traceback)
         self._sqlite_dict.__exit__(exc_type, exc_value, traceback)
 
     def contains(self, key: Dict) -> bool:
@@ -204,11 +197,10 @@ class _MongoKeyValueStore(KeyValueStore):
         super().__init__()
 
     def __enter__(self) -> "_MongoKeyValueStore":
-        super().__enter__()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
-        super().__exit__(exc_type, exc_value, traceback)
+        return
 
     def _canonicalize_key(self, key: Dict) -> SON:
         serialized = json.dumps(key, sort_keys=True)

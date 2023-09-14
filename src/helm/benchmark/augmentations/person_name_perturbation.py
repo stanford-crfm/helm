@@ -1,3 +1,4 @@
+import abc
 import os
 import re
 from collections import defaultdict
@@ -262,6 +263,7 @@ class PersonNamePerturbation(Perturbation):
         name = rng.choice(list(options))
         return name
 
+    @abc.abstractmethod
     def perturb(self, text: str, rng: Random) -> str:
         """
         Perturbing the text is handled in `perturb_with_persistency` to ensure that perturbed names
