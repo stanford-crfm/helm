@@ -1,3 +1,4 @@
+import os
 from dataclasses import asdict
 from typing import Optional
 
@@ -32,7 +33,7 @@ class HTTPModelClient(Client):
         do_cache: bool = False,
     ):
         self.cache: Optional[Cache] = Cache(cache_config) if do_cache else None
-        self.base_url = base_url
+        self.base_url = base_url if not os.environ["HELM_BASE_URL"] else os.environ['HELM_BASE_URL']
         self.timeout = timeout
 
     def make_request(self, request: Request) -> RequestResult:
