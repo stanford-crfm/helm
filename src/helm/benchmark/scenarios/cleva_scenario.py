@@ -246,12 +246,12 @@ class Converter:
           for each entry and then combining all strigified entries as the final result.
 
         An example is:
-        - `data`: "This movie sucks."
+        - `data`: "I don't like this movie."
         - `Template`: "{review} It is"
         - `kwargs`:
           ```json
           {
-              "review": "This movie sucks.",
+              "review": "I don't like this movie.",
               "label": [
                   0
               ],
@@ -262,7 +262,7 @@ class Converter:
           }
           ```
 
-        The returned result will be "This movie sucks. It is".
+        The returned result will be "I don't like this movie. It is".
         """
         # If template is a `str`, it composes a string from all fields
         if isinstance(template, str):
