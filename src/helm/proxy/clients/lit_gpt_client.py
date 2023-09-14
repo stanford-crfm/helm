@@ -40,23 +40,18 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-class LitGPTClient(Client, metaclass=SingletonMeta):
-    """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
-
+class LitGPT(metaclass=SingletonMeta):
     def __init__(
-            self,
-            cache_config: CacheConfig,
-            checkpoint_dir: str = "",
-            precision: str = "bf16-true",
-            device="auto",
-            devices: int = 1,
-            strategy: str = "auto",
-            quantize: Optional[
-                Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+        self,
+        checkpoint_dir: str = "",
+        precision: str = "bf16-true",
+        device="auto",
+        devices: int = 1,
+        strategy: str = "auto",
+        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
     ):
         torch.set_float32_matmul_precision("high")
 
-        self.cache = Cache(cache_config)
         if strategy == "fsdp":
             strategy = FSDPStrategy(auto_wrap_policy={Block}, cpu_offload=False)
         fabric = L.Fabric(devices=devices, accelerator=device, precision=precision, strategy=strategy)
@@ -81,6 +76,24 @@ class LitGPTClient(Client, metaclass=SingletonMeta):
         self.model = fabric.setup(model)
         self.tokenizer = Tokenizer(checkpoint_dir)
         self.fabric = fabric
+
+
+class LitGPTClient(Client):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        checkpoint_dir: str = "",
+        precision: str = "bf16-true",
+        device="auto",
+        devices: int = 1,
+        strategy: str = "auto",
+        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+    ):
+        self.cache = Cache(cache_config)
+        lit_gpt = LitGPT(checkpoint_dir, precision, device, devices, strategy, quantize)
+        self.model = lit_gpt.model
+        self.tokenizer = lit_gpt.tokenizer
+        self.fabric = lit_gpt.fabric
 
     def make_request(self, request: Request) -> RequestResult:
         model = self.model
