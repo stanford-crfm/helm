@@ -48,7 +48,7 @@ def run_entries_to_run_specs(
 
             # Modify AdapterSpec
             adapter_spec: AdapterSpec = run_spec.adapter_spec
-            if max_eval_instances is not None:
+            if max_eval_instances is not None and adapter_spec.max_eval_instances is None:
                 adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
             if num_train_trials is not None or adapter_spec.max_train_instances == 0:
                 adapter_spec = replace(
