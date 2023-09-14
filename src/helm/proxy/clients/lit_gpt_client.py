@@ -2,6 +2,7 @@ import json
 import logging
 import time
 from pathlib import Path
+from threading import Lock
 from typing import Literal, Optional
 
 import lightning as L
@@ -20,7 +21,6 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
-
 from .client import Client
 from .lit_gpt_generate import generate
 
@@ -28,18 +28,31 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-class LitGPTClient(Client):
+class SingletonMeta(type):
+    _instances = {}
+    _lock: Lock = Lock()
+
+    def __call__(cls, *args, **kwargs):
+        with cls._lock:
+            if cls not in cls._instances:
+                instance = super().__call__(*args, **kwargs)
+                cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class LitGPTClient(Client, metaclass=SingletonMeta):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
     def __init__(
-        self,
-        cache_config: CacheConfig,
-        checkpoint_dir: str = "",
-        precision: str = "bf16-true",
-        device="auto",
-        devices: int = 1,
-        strategy: str = "auto",
-        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+            self,
+            cache_config: CacheConfig,
+            checkpoint_dir: str = "",
+            precision: str = "bf16-true",
+            device="auto",
+            devices: int = 1,
+            strategy: str = "auto",
+            quantize: Optional[
+                Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
     ):
         torch.set_float32_matmul_precision("high")
 
