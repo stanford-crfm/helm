@@ -91,3 +91,19 @@ class AdapterSpec:
     # If true, for instances with multiple correct reference, the gold answer should be considered
     # to be all of the correct references rather than any of the correct references.
     multi_label: bool = False
+
+    # EXPERIMENTAL: This controls how the train instances for in-context learning are sampled.
+    #
+    # When `num_train_instances_samples` is set to a positive integer K, within each trial,
+    # the train instances for in-context learning are sampled K times.
+    # These K train instance samples are rotated round-robin for the eval instances e.g.
+    # train_instances_sample[0] is used for eval_instance[0], eval_instance[K], eval_instance[2 * K], ...
+    # train_instances_sample[1] is used for eval_instance[1], eval_instance[K + 1], eval_instance[2 * K + 1], ...
+    # train_instances_sample[2] is used for eval_instance[2], eval_instance[K + 2], eval_instance[2 * K + 2], ...
+    #
+    # When set to 1, the existing HELM default behavior is observed. Within a single trial, the train instances
+    # for in-context learning are sampled once. The same train instances are re-used for every eval instances.
+    #
+    # When set to >= `max_eval_instances`, the train instances for in-context learning are sampled once per eval
+    # instance.
+    num_train_instances_samples: int = 1

@@ -31,9 +31,9 @@ class GenerationAdapter(InContextLearningAdapter):
         <input_prefix><input><output_prefix><output>
     """
 
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+    def generate_requests(self, train_instances: List[Instance], eval_instance: Instance) -> List[RequestState]:
         prompt: Prompt = self.construct_prompt(
-            self.train_instances, eval_instance, include_output=False, reference_index=None
+            train_instances, eval_instance, include_output=False, reference_index=None
         )
         request = Request(
             model=self.adapter_spec.model,

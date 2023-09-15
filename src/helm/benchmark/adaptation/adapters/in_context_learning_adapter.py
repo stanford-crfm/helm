@@ -1,5 +1,5 @@
 import random
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from dataclasses import replace
 from itertools import cycle
@@ -19,6 +19,13 @@ class InContextLearningAdapter(Adapter, ABC):
     An `Adapter`, guided by the `AdapterSpec`, takes a `Scenario` and produces
     a `ScenarioState`. It has additional logic surrounding in-context examples.
     """
+
+    @abstractmethod
+    def generate_requests(self, train_instances: List[Instance], eval_instance: Instance) -> List[RequestState]:
+        """
+        Given a validation or test `Instance`, generates one or more `RequestState`s.
+        """
+        pass
 
     @htrack(None)
     def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
@@ -65,15 +72,38 @@ class InContextLearningAdapter(Adapter, ABC):
         parallelism: int,
     ) -> List[RequestState]:
         self.train_trial_index: int = train_trial_index
-        self.train_instances: List[Instance] = self.sample_examples(
-            all_train_instances, seed=train_trial_index, sample_train=self.adapter_spec.sample_train
-        )
-        hlog(f"Sampled {len(self.train_instances)} examples for trial #{self.train_trial_index}.")
+        if self.adapter_spec.num_train_instances_samples < 1:
+            raise ValueError("AdapterSpec.num_train_instances_samples must be >= 1")
+        seeds = [
+            train_trial_index + i * self.adapter_spec.num_train_trials
+            for i in range(self.adapter_spec.num_train_instances_samples)
+        ]
+
+        if len(seeds) > 1:
+            hlog(
+                f"Using random seeds {seeds} for {len(seeds)} samples of train instances for trial #{train_trial_index}"
+            )
+
+        train_instances_samples: List[List[Instance]] = [
+            self.sample_examples(all_train_instances, seed=seed, sample_train=self.adapter_spec.sample_train)
+            for seed in seeds
+        ]
+        if len(seeds) > 1:
+            hlog(
+                f"Sampled {len(train_instances_samples)} samples of train instances for in-context learning for "
+                f"trial #{train_trial_index}."
+            )
+            hlog(
+                f"Sampled {len(train_instances_samples[0])} train instances for in-context learning in sample #0 for "
+                f"trial #{train_trial_index}."
+            )
+        else:
+            hlog(f"Sampled {len(train_instances_samples[0])} examples for trial #{self.train_trial_index}.")
 
         # Generate request_states
         results: List[List[RequestState]] = parallel_map(
-            self.generate_requests,
-            eval_instances,
+            lambda args_tuple: self.generate_requests(args_tuple[0], args_tuple[1]),
+            list(zip(cycle(train_instances_samples), eval_instances))[0 : len(eval_instances)],
             parallelism=parallelism,
         )
 

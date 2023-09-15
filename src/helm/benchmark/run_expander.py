@@ -311,6 +311,13 @@ class FormatPromptRunExpander(RunExpander):
         ]
 
 
+class NumTrainInstancesSamplesRunExpander(ReplaceValueRunExpander):
+    """For overriding `num_train_instances_samples`."""
+
+    name = "num_train_instances_samples"
+    values_dict: Dict[str, List[str]] = {}
+
+
 class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
@@ -1045,6 +1052,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     FormatPromptRunExpander,
     AddToStopRunExpander,
     GlobalPrefixRunExpander,
+    NumTrainInstancesSamplesRunExpander,
     NumTrainTrialsRunExpander,
     MaxTrainInstancesRunExpander,
     NumOutputsRunExpander,

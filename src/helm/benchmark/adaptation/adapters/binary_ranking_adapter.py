@@ -36,12 +36,12 @@ class BinaryRankingAdapter(InContextLearningAdapter):
     RANKING_CORRECT_LABEL: str = "Yes"
     RANKING_WRONG_LABEL: str = "No"
 
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+    def generate_requests(self, train_instances: List[Instance], eval_instance: Instance) -> List[RequestState]:
         request_states = []
         request_mode = "original"
         for reference_index, reference in enumerate(eval_instance.references):
             prompt = self.construct_prompt(
-                self.train_instances,
+                train_instances,
                 eval_instance,
                 include_output=False,
                 reference_index=reference_index,
