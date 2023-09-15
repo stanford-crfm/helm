@@ -34,7 +34,7 @@ class HTTPModelClient(Client):
     ):
         self.cache: Optional[Cache] = Cache(cache_config) if do_cache else None
         self.base_url = (
-            base_url if not os.environ["HELM_HTTP_MODEL_BASE_URL"] else os.environ["HELM_HTTP_MODEL_BASE_URL"]
+            base_url if not os.environ.get("HELM_HTTP_MODEL_BASE_URL") else os.environ["HELM_HTTP_MODEL_BASE_URL"]
         )
         self.timeout = timeout
 
