@@ -302,7 +302,7 @@ class Converter:
                 raise ValueError(f"Unsupported input: {data}")
         # Simple copying if template is None
         elif template is None:
-            return data
+            return data  # type: ignore
         else:
             raise NotImplementedError(f"Unsupported template {template}")
 
