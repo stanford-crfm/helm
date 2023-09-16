@@ -200,7 +200,7 @@ class Converter:
             assert isinstance(templates["verbalizer"], dict)
             for k, v in templates["verbalizer"].items():
                 assert isinstance(k, str)
-                assert isinstance(v, str)
+                assert isinstance(v, dict)
             self._mapping_all(data, templates["verbalizer"])  # type: ignore
 
         # We first convert all fields except `input` to strings
@@ -302,7 +302,6 @@ class Converter:
                 raise ValueError(f"Unsupported input: {data}")
         # Simple copying if template is None
         elif template is None:
-            assert isinstance(data, str), "If there is no template, the data should be a string."
             return data
         else:
             raise NotImplementedError(f"Unsupported template {template}")
