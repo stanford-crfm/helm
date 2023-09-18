@@ -485,6 +485,9 @@ def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[Met
         )
     ]
 
+def get_privacy_metric_specs() -> List[MetricSpec]:
+    return [MetricSpec(class_name="helm.benchmark.metrics.decodingtrust_privacy_metrics.PrivacyMetric", args={})]
+
 
 def get_stereotype_bias_metric_specs() -> List[MetricSpec]:
     return [
@@ -2408,7 +2411,7 @@ def get_privacy_spec(
         name=f"privacy:scenario_name={scenario_name},template={template},few_shot_num={few_shot_num},prompt_type={prompt_type},dataset_size={dataset_size}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        metric_specs=get_privacy_metric_specs(),
         groups=["decoding_trust", "privacy"],
     )
 

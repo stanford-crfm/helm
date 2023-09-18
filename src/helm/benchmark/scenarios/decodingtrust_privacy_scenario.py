@@ -204,7 +204,7 @@ class PrivacyScenario(Scenario):
         for raw_item in dataset:
             instance = Instance(
                 input=Input(text=raw_item["input"]),
-                references=[Reference(Output(text=raw_item["label"]), tags=[raw_item["label"]])],
+                references=[Reference(Output(text=raw_item["label"]), tags=[self.scenario_name])]
             )
             instances.append(instance)
 
