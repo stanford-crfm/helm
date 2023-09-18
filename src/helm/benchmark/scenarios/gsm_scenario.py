@@ -1,6 +1,6 @@
-import jsonlines
+import json
 import os
-from typing import List
+from typing import Dict, List
 
 from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, Input, Output
@@ -44,8 +44,9 @@ class GSM8KScenario(Scenario):
             data_path: str = os.path.join(self.output_path, f"gsm_data_{split}")
             ensure_file_downloaded(source_url=source_url, target_path=data_path)
 
-            with jsonlines.open(data_path) as reader:
-                for example in reader:  # Each example is a dictionary with a 'question' and 'answer' key
+            with open(data_path, "r") as f:
+                for line in f.readlines():
+                    example: Dict = json.loads(line)
                     answer: str = example["answer"].replace("####", "The answer is").replace("\n", " ") + "."
                     instances.append(
                         Instance(

@@ -5,7 +5,7 @@ from typing import List, Optional
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
-from helm.common.object_spec import parse_object_spec
+from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.clients.huggingface_model_registry import (
     register_huggingface_hub_model_config,
     register_huggingface_local_model_config,
@@ -18,7 +18,6 @@ from helm.benchmark.model_deployment_registry import register_model_deployments_
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
-from .slurm_runner import SlurmRunner
 from .run_specs import construct_run_specs
 
 
@@ -80,7 +79,7 @@ def run_benchmarking(
     cache_instances_only: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
-    use_slurm_runner: bool,
+    runner_class_name: Optional[str],
     mongo_uri: str = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
@@ -95,7 +94,7 @@ def run_benchmarking(
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec)
-    runner_cls = SlurmRunner if use_slurm_runner else Runner
+    runner_cls = get_class_by_name(runner_class_name) if runner_class_name else Runner
     runner: Runner = runner_cls(
         execution_spec,
         output_path,
@@ -245,10 +244,10 @@ def main():
         "The client will use RemoteWindowService for windowing.",
     )
     parser.add_argument(
-        "--use-slurm-runner",
-        action="store_true",
-        help="Experimental: If set, each RunSpec will be run in a separate worker Slurm job. "
-        "Currently only works on the Stanford NLP cluster.",
+        "--runner-class-name",
+        type=str,
+        default=None,
+        help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
     parser.add_argument(
         "--model-metadata-paths",
@@ -318,7 +317,7 @@ def main():
         cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
-        use_slurm_runner=args.use_slurm_runner,
+        runner_class_name=args.runner_class_name,
         mongo_uri=args.mongo_uri,
     )
 
