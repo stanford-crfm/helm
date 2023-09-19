@@ -235,7 +235,18 @@ class Summarizer:
     COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
 
     # We need to hide stats for these model-metric combinations
-    LOGPROBS_ISSUE_MODELS: Set[str] = {"anthropic/stanford-online-all-v4-s3"}
+    LOGPROBS_ISSUE_MODELS: Set[str] = {
+        "anthropic/stanford-online-all-v4-s3",
+        # Together sometimes returns logprobs and sometimes does not.
+        # TODO(#1847): Enabled calibration for metrics after this is resolved.
+        "meta/llama-7b",
+        "meta/llama-13b",
+        "meta/llama-30b",
+        "meta/llama-65b",
+        "meta/llama-2-7b",
+        "meta/llama-2-13b",
+        "meta/llama-2-70b",
+    }
     LOGPROBS_ISSUE_METRICS: Set[str] = {
         # MSMARCO metrics
         "NDCG@10",
