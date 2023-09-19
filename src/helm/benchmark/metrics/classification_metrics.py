@@ -92,7 +92,7 @@ class MultipleChoiceClassificationMetric(Metric):
             sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
             pred: str = sorted_completions[0].text.strip()  # Only utilize the first prediction
             if request_state.output_mapping is not None:
-                pred = request_state.output_mapping.get(pred)  # type: ignore
+                pred = request_state.output_mapping.get(pred, pred)
 
             y_true.append(golds[0].output.text)
             y_pred.append(pred)
