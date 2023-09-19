@@ -396,7 +396,7 @@ class CLEVAScenario(Scenario):
         Args:
             version: String identifier for version in a format of 'v[1-9]*([0-9])'.
             subtask: String identifier for subtask.
-            prompt_id: Prompt template id, started from 0.
+            prompt_id: Prompt template index starting from 0.
         """
         super().__init__()
         self.subtask = subtask
