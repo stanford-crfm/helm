@@ -2383,13 +2383,13 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
 
     CLEVAScenario.download_dataset()
 
-    prompt_template, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
+    _, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
     inference_parameters = CLEVAScenario.load_inference_parameters(task, subtask, version, prompt_id)
 
     class_name_prefix = "".join([word.capitalize() for word in task.split("_")])
     scenario_spec = ScenarioSpec(
         class_name=f"helm.benchmark.scenarios.cleva_scenario.CLEVA{class_name_prefix}Scenario",
-        args={"version": version, "subtask": subtask, "prompt_template": prompt_template},
+        args={"version": version, "subtask": subtask, "prompt_id": prompt_id},
     )
     run_spec_name: str = f"cleva:task={task},version={version},prompt_id={prompt_id}"
     if subtask:

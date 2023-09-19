@@ -86,4 +86,4 @@ class CLEVAMachineTranslationMetric(Metric):
 
         bleu_score = bleu.corpus_score(sys, refs).score
 
-        return [Stat(MetricName("bleu")).add(bleu_score)]
+        return [Stat(MetricName("cleva_machine_translation_bleu")).add(bleu_score)]
