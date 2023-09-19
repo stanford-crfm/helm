@@ -6,6 +6,8 @@ on:
 
 jobs:
   install:
+    # Tests that the HELM CLI commands work when only installing required dependencies
+    # without optional extra dependencies.
     name: Install
     runs-on: ubuntu-latest
     strategy:
