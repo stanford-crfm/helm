@@ -389,20 +389,20 @@ class CLEVAScenario(Scenario):
         self,
         version: str,
         subtask: str,
-        prompt_template: Dict[str, Any],
+        prompt_id: int,
     ):
         """
         Initializes CLEVA scenario.
         Args:
             version: String identifier for version in a format of 'v[1-9]*([0-9])'.
             subtask: String identifier for subtask.
-            prompt_template: Prompt template in CLEVA format.
+            prompt_id: Prompt template index starting from 0.
         """
         super().__init__()
         self.subtask = subtask
         self.version = version
         self.converter = Converter()
-        self.prompt_template = prompt_template
+        self.prompt_template, _ = CLEVAScenario.get_prompt_setting(self.task, subtask, version, prompt_id)
 
     @property
     @abstractmethod
