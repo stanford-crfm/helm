@@ -6,6 +6,8 @@ on:
 
 jobs:
   install:
+    # Tests that the HELM CLI commands work when only installing required dependencies
+    # without optional extra dependencies.
     name: Install
     runs-on: ubuntu-latest
     strategy:
@@ -20,7 +22,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements-freeze.txt') }}-${{ matrix.python-version }}
+          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
           restore-keys: |
             pip-
       - run: pip install -e .
@@ -43,7 +45,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements-freeze.txt') }}
+          key: pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             pip-
       # Installs dependencies and performs static code checks

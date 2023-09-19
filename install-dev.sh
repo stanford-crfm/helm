@@ -12,7 +12,7 @@ fi
 # Manually install protobuf to workaround issue: https://github.com/protocolbuffers/protobuf/issues/6550
 pip install --no-binary=protobuf protobuf==3.20.2
 # Install all pinned dependencies
-pip install -r requirements-freeze.txt
+pip install -r requirements.txt
 # Install HELM in edit mode
 pip install -e .[all]
 # Check dependencies
