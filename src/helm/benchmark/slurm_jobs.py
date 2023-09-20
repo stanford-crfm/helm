@@ -2,7 +2,12 @@ import re
 import subprocess
 from typing import Mapping, Set, Union
 
-from simple_slurm import Slurm
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from simple_slurm import Slurm
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 class SlurmJobState:

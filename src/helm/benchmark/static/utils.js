@@ -238,3 +238,7 @@ function renderItems(items) {
   $result.append(' ]');
   return $result;
 }
+
+function getRunSuite(using_release, version, runsToRunSuites, runSpecName) {
+  return using_release ? runsToRunSuites[runSpecName] : version;
+}

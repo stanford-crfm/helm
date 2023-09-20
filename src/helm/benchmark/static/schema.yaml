@@ -484,48 +484,6 @@ models:
     num_parameters: 70000000000
     release_date: 2023-07-18
 
-  # Stanford
-  - name: huggingface/alpaca-7b
-    display_name: Alpaca (7B)
-    description: Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following demonstrations.
-    creator_organization: Stanford
-    access: open
-    num_parameters: 7000000000
-    release_date: 2023-03-13
-
-  # Meta
-  - name: together/llama-7b
-    display_name: LLaMA (7B)
-    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
-    creator_organization: Meta
-    access: open
-    num_parameters: 6700000000
-    release_date: 2023-02-24
-  - name: together/llama-13b
-    display_name: LLaMA (13B)
-    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
-    creator_organization: Meta
-    access: open
-    num_parameters: 13000000000
-    release_date: 2023-02-24
-    todo: true
-  - name: together/llama-30b
-    display_name: LLaMA (30B)
-    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
-    creator_organization: Meta
-    access: open
-    num_parameters: 30000000000
-    release_date: 2023-02-24
-    todo: true
-  - name: together/llama-65b
-    display_name: LLaMA (65B)
-    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
-    creator_organization: Meta
-    access: open
-    num_parameters: 65000000000
-    release_date: 2023-02-24
-    todo: true
-
   # Stability AI
   - name: stabilityai/stablelm-base-alpha-3b
     display_name: StableLM-Base-Alpha (3B)
@@ -546,38 +504,29 @@ models:
     todo: true
 
   # Stanford
-  - name: together/alpaca-7b
+  - name: stanford/alpaca-7b
     display_name: Alpaca (7B)
     description: Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following demonstrations
     creator_organization: Stanford
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-13
-  - name: together/alpaca-13b
-    display_name: Alpaca (13B)
-    description: Alpaca 13B is a model fine-tuned from the LLaMA 13B model on 52K instruction-following demonstrations
-    creator_organization: Stanford
-    access: open
-    num_parameters: 7000000000
-    release_date: 2023-03-13
-    todo: true
-  - name: together/alpaca-30b
-    display_name: Alpaca (30B)
-    description: Alpaca 30B is a model fine-tuned from the LLaMA 30B model on 52K instruction-following demonstrations
-    creator_organization: Stanford
-    access: open
-    num_parameters: 30000000000
-    release_date: 2023-03-13
-    todo: true
 
   # LMSYS
-  - name: together/vicuna-13b
-    display_name: Vicuna (13B)
-    description: Vicuna-13B is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
+  - name: lmsys/vicuna-7b-v1.3
+    display_name: Vicuna v1.3 (7B)
+    description: Vicuna v1.3 (7B) is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
+    creator_organization: LMSYS
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-06-22
+  - name: lmsys/vicuna-13b-v1.3
+    display_name: Vicuna v1.3 (13B)
+    description: Vicuna v1.3 (13B) is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
     creator_organization: LMSYS
     access: open
     num_parameters: 13000000000
-    release_date: 2023-03-30
+    release_date: 2023-06-22
 
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
@@ -786,14 +735,14 @@ models:
   # MosaicML
   - name: mosaicml/mpt-7b
     display_name: MPT (7B)
-    description: MPT-7B is a Transformer trained from scratch on 1T tokens of text and code.
+    description: MPT (7B) is a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
   - name: mosaicml/mpt-7b-chat
     display_name: MPT-Chat (7B)
-    description: MPT-Chat (7B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT-7B, a Transformer trained from scratch on 1T tokens of text and code.
+    description: MPT-Chat (7B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT (30B) , a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
@@ -801,12 +750,63 @@ models:
     todo: true
   - name: mosaicml/mpt-7b-instruct
     display_name: MPT-Instruct (7B)
-    description: MPT-Instruct (7B) is a model for short-form instruction following. It is built by finetuning MPT (7B), a Transformer trained from scratch on 1T tokens of text and code.
+    description: MPT-Instruct (7B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
+  - name: mosaicml/mpt-30b
+    display_name: MPT (30B)
+    description: MPT (30B) is a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-06-22
+  - name: mosaicml/mpt-30b-chat
+    display_name: MPT-Chat (30B)
+    description: MPT-Chat (30B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-06-22
     todo: true
+  - name: mosaicml/mpt-30b-instruct
+    display_name: MPT-Instruct (30B)
+    description: MPT-Instruct (30B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-06-22
+
+  # TII UAE
+  - name: tiiuae/falcon-7b
+    display_name: Falcon LLM (7B)
+    description: Falcon-7B is a 7B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-15
+  - name: tiiuae/falcon-7b-instruct
+    display_name: Falcon LLM (7B)
+    description: Falcon-7B-Instruct is a 7B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-15
+  - name: tiiuae/falcon-40b
+    display_name: Falcon LLM (40B)
+    description: Falcon-40B is a 40B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 40000000000
+    release_date: 2023-05-25
+  - name: tiiuae/falcon-40b-instruct
+    display_name: Falcon LLM (40B)
+    description: Falcon-7B-Instruct is a 40B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 40000000000
+    release_date: 2023-05-25
 
   # Salesforce
   - name: together/codegen
