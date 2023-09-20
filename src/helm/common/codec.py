@@ -5,6 +5,12 @@ import json
 import typing
 from typing import Any, Callable, Dict, List, Union, Type, TypeVar
 
+from helm.benchmark.augmentations.cleva_perturbation import (
+    ChineseTyposPerturbation,
+    ChineseSynonymPerturbation,
+    ChineseGenderPerturbation,
+    ChinesePersonNamePerturbation,
+)
 from helm.benchmark.augmentations.dialect_perturbation import DialectPerturbation
 from helm.benchmark.augmentations.extra_space_perturbation import ExtraSpacePerturbation
 from helm.benchmark.augmentations.filler_words_perturbation import FillerWordsPerturbation
@@ -36,6 +42,11 @@ PERTURBATION_NAME_TO_DESCRIPTION = {
     SpacePerturbation.name: SpacePerturbation.Description,
     SynonymPerturbation.name: SynonymPerturbation.Description,
     TyposPerturbation.name: TyposPerturbation.Description,
+    # CLEVA Perturbations
+    ChineseTyposPerturbation.name: ChineseTyposPerturbation.Description,
+    ChineseSynonymPerturbation.name: ChineseSynonymPerturbation.Description,
+    ChineseGenderPerturbation.name: ChineseGenderPerturbation.Description,
+    ChinesePersonNamePerturbation.name: ChinesePersonNamePerturbation.Description,
 }
 
 
