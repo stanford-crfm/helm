@@ -282,6 +282,8 @@ class WindowServiceFactory:
                 window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
 
         elif organization == "lightningai":
+            from helm.benchmark.window_services.lit_gpt_window_service import LitGPTWindowServce
+
             window_service = LitGPTWindowServce(service)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
