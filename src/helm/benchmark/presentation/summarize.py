@@ -567,12 +567,6 @@ class Summarizer:
             json.dumps(models_to_costs, indent=2),
         )
 
-    def write_runs(self):
-        write(
-            os.path.join(self.run_release_path, "runs.json"),
-            json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
-        )
-
     def write_run_specs(self):
         write(
             os.path.join(self.run_release_path, "run_specs.json"),
@@ -1319,7 +1313,6 @@ def main():
     summarizer.read_overlap_stats()
 
     summarizer.write_executive_summary()
-    summarizer.write_runs()
     summarizer.write_run_specs()
     summarizer.write_runs_to_run_suites()
     summarizer.write_groups()
