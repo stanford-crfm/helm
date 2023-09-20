@@ -1,12 +1,10 @@
 from dataclasses import replace, asdict
 from typing import Any, Dict, List, Optional, cast
 
-import openai
-import tiktoken
-
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.hierarchical_logger import hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -15,7 +13,13 @@ from helm.common.tokenization_request import (
     TokenizationToken,
 )
 from .client import Client, truncate_sequence, wrap_request_time
-from .chat_gpt_client import ChatGPTClient
+
+try:
+    import openai
+    import tiktoken
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
+
 
 ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 
@@ -26,7 +30,6 @@ class OpenAIClient(Client):
     def __init__(
         self,
         cache_config: CacheConfig,
-        chat_gpt_client: Optional[ChatGPTClient] = None,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
@@ -34,16 +37,11 @@ class OpenAIClient(Client):
         self.api_key: Optional[str] = api_key
         self.api_base: str = "https://api.openai.com/v1"
         self.cache = Cache(cache_config)
-        self.chat_gpt_client: Optional[ChatGPTClient] = chat_gpt_client
 
     def _is_chat_model_engine(self, model_engine: str):
         return model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4")
 
     def make_request(self, request: Request) -> RequestResult:
-        if request.model_engine == "chat-gpt":
-            assert self.chat_gpt_client is not None
-            return self.chat_gpt_client.make_request(request)
-
         if self.api_key is None:
             raise ValueError("OpenAI API key is required")
 

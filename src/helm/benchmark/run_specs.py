@@ -15,6 +15,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.common.optional_dependencies import handle_module_not_found_error
 from .metrics.metric import MetricSpec
 from .run_expander import (
     RUN_EXPANDERS,
@@ -55,8 +56,6 @@ from helm.proxy.models import (
     BUGGY_TEMP_0_TAG,
 )
 from helm.common.general import singleton
-import anthropic
-from helm.proxy.clients.anthropic_client import AnthropicClient
 
 
 ############################################################
@@ -2542,6 +2541,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             run_spec = singleton(chatml_expander.expand(run_spec))
 
         if ANTHROPIC_MODEL_TAG in model.tags:
+            try:
+                import anthropic
+                from helm.proxy.clients.anthropic_client import AnthropicClient
+            except ModuleNotFoundError as e:
+                handle_module_not_found_error(e)
             add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
             increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
             # Get scenario tags

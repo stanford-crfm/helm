@@ -90,6 +90,7 @@ def figure_out_max_prompt_length(
 
     # Perform a binary search to find the max tokens between lower_bound and upper_bound
     lower_bound += num_tokens_prefix + num_tokens_suffix
+    pbar: tqdm
     with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
         while lower_bound < upper_bound:
             middle = math.ceil((lower_bound + upper_bound) / 2)
@@ -142,6 +143,7 @@ def figure_out_max_prompt_length_plus_tokens(
         print("The model has a limit on the number of tokens")
 
     # Perform a binary search to find the max tokens between lower_bound and upper_bound
+    pbar: tqdm
     with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
         while lower_bound < upper_bound:
             middle = math.ceil((lower_bound + upper_bound) / 2)

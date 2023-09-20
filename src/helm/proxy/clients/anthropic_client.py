@@ -4,12 +4,11 @@ import requests
 import time
 import urllib.parse
 
-import websocket
-import anthropic
 import threading
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
@@ -28,6 +27,12 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence
 from transformers import PreTrainedTokenizerBase, PreTrainedTokenizerFast
 from dataclasses import asdict
+
+try:
+    import anthropic
+    import websocket
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 class AnthropicClient(Client):

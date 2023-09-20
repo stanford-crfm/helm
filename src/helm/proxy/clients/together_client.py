@@ -1,4 +1,5 @@
-from typing import List, Dict, Any, Optional, Union, Set
+from copy import deepcopy
+from typing import List, Dict, Any, Optional, Union
 
 import requests
 from retrying import retry
@@ -14,63 +15,25 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
 
 
-_ASYNC_MODELS: Set[str] = {
-    # Legacy models
-    "alpaca-7b",
-    "pythia-7b",
-    "vicuna-13b",
-    # Production models
-    "redpajama-incite-base-3b-v1",
-    "redpajama-incite-instruct-3b-v1",
-    "redpajama-incite-base-7b",
-    "redpajama-incite-instruct-7b",
-    "dolly-v2-3b",
-    "dolly-v2-7b",
-    "dolly-v2-12b",
-    "llama-7b",
-    "llama-13b",
-    "llama-30b",
-    "llama-65b",
-    "llama-2-7b",
-    "llama-2-13b",
-    "llama-2-70b",
-    "pythia-1b-v0",
-    "pythia-2.8b-v0",
-    "pythia-6.9b",
-    "pythia-12b-v0",
-    "stablelm-base-alpha-3b",
-    "stablelm-base-alpha-7b",
-}
-"""Together models to use async requests for.
-
-Currently async requests are only used for models that are timing out,
-because async requests are slower than sync requests.
-
-Note: These should be HELM model names, not Together model name aliases."""
-# TODO: Eventually delete this and switch every model to async requests.
-
-
 MODEL_ALIASES: Dict[str, str] = {
     # Legacy models
     "flan-t5-xxl": "flan-t5-xxl-hf",
     "h3-2.7b": "h3-2.7b-h3",
     "opt-1.3b": "opt-1.3b-ft-tp1",
     "opt-6.7b": "opt-6.7b-ft-tp1",
-    # Together's models are half-precision are default,
-    # and the full-precision models are suffixed e.g.
-    # alpaca-7b is half-precision
-    # alpaca-7b-full-precision is full-precision
-    "alpaca-7b": "alpaca-7b-full-precision",
-    "pythia-7b": "pythia-7b-full-precision",
-    "vicuna-13b": "vicuna-13b-full-precision",
     # Production models
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
     "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
     "redpajama-incite-base-7b": "togethercomputer/RedPajama-INCITE-7B-Base",
     "redpajama-incite-instruct-7b": "togethercomputer/RedPajama-INCITE-7B-Instruct",
+    "alpaca-7b": "togethercomputer/alpaca-7b",
     "dolly-v2-3b": "databricks/dolly-v2-3b",
     "dolly-v2-7b": "databricks/dolly-v2-7b",
     "dolly-v2-12b": "databricks/dolly-v2-12b",
+    "falcon-7b": "togethercomputer/falcon-7b",
+    "falcon-7b-instruct": "togethercomputer/falcon-7b-instruct",
+    "falcon-40b": "togethercomputer/falcon-40b",
+    "falcon-40b-instruct": "togethercomputer/falcon-40b-instruct",
     "llama-7b": "huggyllama/llama-7b",
     "llama-13b": "huggyllama/llama-13b",
     "llama-30b": "huggyllama/llama-30b",
@@ -78,12 +41,18 @@ MODEL_ALIASES: Dict[str, str] = {
     "llama-2-7b": "togethercomputer/llama-2-7b",
     "llama-2-13b": "togethercomputer/llama-2-13b",
     "llama-2-70b": "togethercomputer/llama-2-70b",
+    "mpt-7b": "togethercomputer/mpt-7b",
+    "mpt-instruct-7b": "togethercomputer/mpt-7b-instruct",
+    "mpt-30b": "togethercomputer/mpt-30b",
+    "mpt-instruct-30b": "togethercomputer/mpt-30b-instruct",
     "pythia-1b-v0": "EleutherAI/pythia-1b-v0",
     "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
     "pythia-6.9b": "EleutherAI/pythia-6.9b",
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
     "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
     "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
+    "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
+    "vicuna-13b-v1.3": "lmsys/vicuna-13b-v1.3",
 }
 """Together model name aliases.
 
@@ -95,6 +64,71 @@ implementation was used in the cached results, since some results may
 be different depending on the implementation (e.g. efficiency metrics).
 This also allows future migration of results in the case of changes of
 available implementations on Together."""
+
+
+class _RewriteRequestTags:
+    """Tags that indicate that the request for the model must be rewritten before sending to Together."""
+
+    # TODO: Convert to StrEnum after upgrading to Python 3.11
+
+    ADD_EOS_TOKEN_AS_STOP_SEQUENCE = "ADD_EOS_TOKEN_AS_STOP_SEQUENCE"
+    """Indicates that the EOS token should be added as an extra stop sequence.
+
+    This prevents the model from incorrectly returning the EOS token as part of the generation."""
+
+    SET_DETAILS_TO_TRUE = "SET_DETAILS_TO_TRUE"
+    """Indicates that the `details` field should be set to `true`.
+
+    This indicates that Together should return logprobs for models that do not return logprobs by default."""
+
+
+_MODEL_TO_TAGS: Dict[str, List[str]] = {
+    "alpaca-7b": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
+    "vicuna-7b-v1.3": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
+    "llama-65b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
+    "llama-2-70b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
+    "vicuna-13b-v1.3": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
+}
+"""Dict of models to Together model tags.
+
+This indicates which models require their requests to be rewritten before sending to together.
+The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the full HELM model name
+(e.g. "stanford/alpaca-7b") or the Together model name (e.g. "togethercomputer/alpaca-7b")."""
+
+
+_MODEL_TO_EOS_TOKEN: Dict[str, str] = {
+    "alpaca-7b": "</s>",
+    "vicuna-7b-v1.3": "</s>",
+    "vicuna-13b-v1.3": "</s>",
+}
+"""Dict of models to end of sequence tokens.
+
+This provides the end of sequence tokens for models that have `ADD_EOS_TOKEN_AS_STOP_SEQUENCE` as a model tag.
+We hardcode the end of sequence tokens as constants here instead of attepmting to auto-infer them, for simplicity.
+The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the full HELM model name
+(e.g. "stanford/alpaca-7b") or the Together model name (e.g. "togethercomputer/alpaca-7b")."""
+
+
+def _rewrite_raw_request_for_model_tags(raw_request: Dict[str, Any], model_engine: str) -> Dict[str, Any]:
+    """Rewrite the raw request given the model."""
+    # Make a deepcopy to avoid mutating the input in unexpected ways
+    # (e.g. raw_request["stop"] can be a mutable list)
+    rewritten_request = deepcopy(raw_request)
+    model_tags = _MODEL_TO_TAGS.get(model_engine, [])
+    for model_tag in model_tags:
+        if model_tag == _RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE:
+            eos_token = _MODEL_TO_EOS_TOKEN.get(model_engine)
+            if not eos_token:
+                raise ValueError(f"Unknown EOS token for: {model_engine}")
+            if isinstance(rewritten_request["stop"], list):
+                rewritten_request["stop"].append(eos_token)
+            else:
+                rewritten_request["stop"] = [eos_token]
+        elif model_tag == _RewriteRequestTags.SET_DETAILS_TO_TRUE:
+            rewritten_request["details"] = True
+        else:
+            raise ValueError(f"Unknown `_RewriteRequestTags`: {model_tag}")
+    return rewritten_request
 
 
 class TogetherClientError(Exception):
@@ -119,7 +153,7 @@ class TogetherClient(Client):
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
         # Following the examples from https://github.com/togethercomputer/open-models-api
-        return {
+        raw_request = {
             "request_type": "language-model-inference",
             "model": MODEL_ALIASES.get(request.model_engine, request.model_engine),
             "prompt": request.prompt,
@@ -132,6 +166,7 @@ class TogetherClient(Client):
             "echo": request.echo_prompt,
             "top_p": request.top_p,
         }
+        return _rewrite_raw_request_for_model_tags(raw_request, request.model_engine)
 
     def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
         # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
@@ -150,7 +185,8 @@ class TogetherClient(Client):
             raise TogetherClientError("togetherApiKey not set in credentials.conf")
         headers: Dict[str, str] = {"Authorization": f"Bearer {self.api_key}"}
 
-        if request.model_engine in _ASYNC_MODELS:
+        # TODO: Remove synchronous branch.
+        if request.model_engine in MODEL_ALIASES:
 
             def submit_job() -> str:
                 submit_request = {**raw_request, "async": True}

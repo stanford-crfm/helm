@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import List, Dict, Optional, Tuple, Type
+from typing import Any, List, Dict, Optional, Tuple, Type
 
 from helm.proxy.models import (
     get_all_instruction_following_models,
@@ -336,6 +336,13 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
     }
 
 
+class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
+    """For overriding the number of eval instances at the run level."""
+
+    name = "max_eval_instances"
+    values_dict: Dict[str, List[Any]] = {}
+
+
 class NumOutputsRunExpander(ReplaceValueRunExpander):
     """For overriding num_outputs."""
 
@@ -369,7 +376,6 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
             "ai21/j1-jumbo": ["ai21/j1-jumbo"],
             "openai/curie": ["openai/curie"],
-            "chat_run": ["openai/chat-gpt", "openai/text-davinci-003"],  # Compare ChatGPT to text-davinci-003
             "all": get_all_models(),
             "text_code": get_all_text_models() + get_all_code_models(),
             "text": get_all_text_models(),
@@ -1131,6 +1137,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     GlobalPrefixRunExpander,
     NumTrainTrialsRunExpander,
     MaxTrainInstancesRunExpander,
+    MaxEvalInstancesRunExpander,
     NumOutputsRunExpander,
     ModelRunExpander,
     DataAugmentationRunExpander,
