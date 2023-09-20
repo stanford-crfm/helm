@@ -39,6 +39,7 @@ Thank you to the following contributors for your contributions to this HELM rele
 - @mkly
 - @msaroufim
 - @percyliang
+- @teetone
 - @timothylimyl
 - @unnawut
 - @yifanmai
