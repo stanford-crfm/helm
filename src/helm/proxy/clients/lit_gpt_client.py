@@ -80,6 +80,7 @@ class LitGPT(metaclass=SingletonMeta):
 
 
 class LitGPTClient(Client):
+    """Client for evaluating Lit-GPT (from Lightning AI) supported LLMs"""
     def __init__(
         self,
         cache_config: CacheConfig,
@@ -136,8 +137,7 @@ class LitGPTClient(Client):
         generated_tokens = []
         for token in tokens:
             generated_tokens.append(Token(text=tokenizer.decode(token), logprob=0, top_logprobs={}))
-        tokens = generated_tokens
-        completions = [Sequence(text=output, logprob=0, tokens=tokens)]
+        completions = [Sequence(text=output, logprob=0, tokens=generated_tokens)]
 
         return RequestResult(
             success=True,
