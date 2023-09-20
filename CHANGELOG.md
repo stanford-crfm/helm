@@ -19,6 +19,7 @@
 
 - Moved many dependencies, especially those only used by a single model provider or a small number of runs, to optional extra dependencies (#1798, #1844)
 - Widened some dependencies (e.g. PyTorch) to reduce dependency conflicts with other packages  (#1759)
+- Added `MaxEvalInstancesRunExpander` to allow overriding the number of eval instances at the run level (#1837)
 - Updated human critique evaluation on Amazon Mechanical Turk to support emoji and other special characters (#1773)
 - Fixed a bug where in-context learning examples with multiple correct references were adapted to prompts where all the correct references are concatenated together as the output, which was not intended for some scenarios (e.g. narrative_qa, natural_qa, quac and wikifact) (#1785)
 - Fixed a bug where ObjectSpec is not hashable if any arg is a list (#1771)
