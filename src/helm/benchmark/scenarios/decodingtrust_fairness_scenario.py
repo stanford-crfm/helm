@@ -21,10 +21,10 @@ class FairnessScenario(Scenario):
     tags: List[str] = ["fairness", "trustworthy"]
     source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/fairness/fairness_data/"
 
-    def __init__(self, task, setting) -> None:
+    def __init__(self, task: str, train_br: float, test_br: float, num_train: int, num_test: int) -> None:
         super().__init__()
         self.task = task
-        self.setting = setting
+        self.subscenario = f"{task}_{num_train}_{num_test}_train_br_{train_br}_test_br_{test_br}.jsonl"
         self.task_message = TASK_DESCRIPTIONS[self.task]
 
     def get_input(self, text) -> Input:
@@ -40,15 +40,13 @@ class FairnessScenario(Scenario):
         return references
 
     def get_instances(self) -> List[Instance]:
-
-        data_path: str = os.path.join(self.output_path, self.setting)
-        url: str = os.path.join(self.source_url, self.setting)
+        data_path: str = os.path.join(self.output_path, self.subscenario)
+        url: str = os.path.join(self.source_url, self.subscenario)
 
         ensure_file_downloaded(
             source_url=url,
             target_path=data_path,
         )
-
 
         with open(data_path) as f:
             dataset: List[Dict] = []
@@ -69,10 +67,7 @@ class FairnessScenario(Scenario):
 
 
 if __name__ == "__main__":
-    s = FairnessScenario(
-        task="adult",
-        setting="adult_0_200_test_base_rate_0.0.jsonl",
-    )
+    s = FairnessScenario(task="adult", train_br=0.5, test_br=0.0, num_train=32, num_test=200)
     instances = s.get_instances()
     print(f"Text of the input:")
     print(instances[0].input.text)
