@@ -12,15 +12,6 @@ from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
-try:
-    import unidecode
-    import pypinyin
-    import jieba
-    import jieba.posseg as pseg
-    import opencc
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
-
 
 ############################################################
 
@@ -109,6 +100,10 @@ class ChineseTyposPerturbation(Perturbation):
         )
 
     def perturb(self, text: str, rng: Random) -> str:
+        try:
+            import jieba
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
         butter_text: str = ""
         output: List[str] = jieba.lcut(text)
         if self.word_level_perturb:
@@ -155,7 +150,10 @@ class ChineseTyposPerturbation(Perturbation):
         consider_tone: bool,
         rng: Random,
     ) -> str:
-
+        try:
+            import pypinyin
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
         pinyin_for_char_to_be_perturbed: str = "".join(
             [item for pinyin in pypinyin.pinyin(chinese_character) for item in pinyin]
         )
@@ -213,6 +211,11 @@ class ChineseTyposPerturbation(Perturbation):
         rare_word_prob: float,
         rng: Random,
     ) -> List[str]:
+        try:
+            import unidecode
+            import pypinyin
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
         if len(original_word) == 1:
             similar_pinyins = self.get_characters_with_similar_pinyin(
                 original_word,
@@ -244,6 +247,10 @@ class ChineseTyposPerturbation(Perturbation):
         consider_tone: bool,
         pinyin_for_char_to_be_perturbed: str,
     ) -> str:
+        try:
+            import unidecode
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
         if not consider_tone:
             pinyin_for_char_to_be_perturbed = unidecode.unidecode(pinyin_for_char_to_be_perturbed)
         candidate_chars = chinese_character_database.get(pinyin_for_char_to_be_perturbed, [])
@@ -298,6 +305,10 @@ class ChineseSynonymPerturbation(Perturbation):
         )
 
     def perturb(self, text: str, rng: Random) -> str:
+        try:
+            import jieba
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
         words = jieba.lcut(text)
 
         for _ in range(self.trial_num):
@@ -443,6 +454,10 @@ class ChineseGenderPerturbation(Perturbation):
 
     def perturb(self, text: str, rng: Random) -> str:
         """Perform the perturbations on the provided text."""
+        try:
+            import jieba
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
         words = jieba.lcut(text)
 
         mapping_dict = self.term_dict[(self.source_class, self.target_class)]
@@ -646,6 +661,10 @@ class ChinesePersonNamePerturbation(Perturbation):
     @staticmethod
     def word_segment_and_pos_tagging(text: str) -> Tuple[List[str], List[str]]:
         """Perform the word segmentation and POS tagging on the text."""
+        try:
+            import jieba.posseg as pseg
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
         tokens: List[str] = []
         tags: List[str] = []
         output: Tuple[List[str], List[str]] = pseg.cut(text)
@@ -671,6 +690,10 @@ class SimplifiedToTraditionalPerturbation(Perturbation):
         self,
     ):
         """Initialize the Chinese simplified to Chinese traditional perturbation."""
+        try:
+            import opencc
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
         self.converter = opencc.OpenCC("s2t.json")
 
     def perturb(self, text: str, rng: Random) -> str:
@@ -702,6 +725,10 @@ class MandarinToCantonesePerturbation(Perturbation):
         self,
     ):
         """Initialize the Mandarin to Cantonese translation perturbation."""
+        try:
+            import opencc
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e)
         self.s2t_converter = opencc.OpenCC("s2t.json")
 
         target_path = os.path.join("benchmark_output", "perturbations", self.name, "conversion.json")
