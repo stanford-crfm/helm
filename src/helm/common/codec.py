@@ -42,11 +42,24 @@ PERTURBATION_NAME_TO_DESCRIPTION = {
     SpacePerturbation.name: SpacePerturbation.Description,
     SynonymPerturbation.name: SynonymPerturbation.Description,
     TyposPerturbation.name: TyposPerturbation.Description,
+    # The following Perturbations are not included because
+    # they use the base PerturbationDescription:
+    # - ContractionPerturbation
+    # - ExpansionPerturbation
+    # - ContrastSetsPerturbation
+    # - LowerCasePerturbation
+    # - MildMixPerturbation
+    ############################################################
     # CLEVA Perturbations
     ChineseTyposPerturbation.name: ChineseTyposPerturbation.Description,
     ChineseSynonymPerturbation.name: ChineseSynonymPerturbation.Description,
     ChineseGenderPerturbation.name: ChineseGenderPerturbation.Description,
     ChinesePersonNamePerturbation.name: ChinesePersonNamePerturbation.Description,
+    # The following Perturbations are not included because
+    # they use the base PerturbationDescription:
+    # - CLEVAMildMixPerturbation
+    # - SimplifiedToTraditionalPerturbation
+    # - MandarinToCantonesePerturbation
 }
 
 
