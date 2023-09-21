@@ -3,6 +3,7 @@ import json
 import errno
 from typing import List
 from helm.common.general import ensure_file_downloaded
+from helm.common.general import ensure_directory_exists
 from .scenario import Scenario, Instance, Input, Reference, CORRECT_TAG, Output, VALID_SPLIT
 
 TASKS = {
@@ -44,14 +45,6 @@ TASK_DESCRIPTIONS = {
 SEEDS = {"counterfactual": [42, 2333, 10007], "spurious": [42, 2333, 10007, 0, 12306], "backdoor": [42, 2333, 10007]}
 
 
-def make_sure_path_exists(path):
-    try:
-        os.makedirs(path)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
-
-
 class DecodingTrustAdvDemoScenario(Scenario):
     """
     The DecodingTrustAdvDemoScenario dataset is from the paper:
@@ -79,7 +72,7 @@ class DecodingTrustAdvDemoScenario(Scenario):
     def _get_instances(self, data_path, note) -> List[Instance]:
         instances: List[Instance] = []
         target_path = os.path.join(self.output_path, data_path)
-        make_sure_path_exists(os.path.split(target_path)[0])
+        ensure_directory_exists(os.path.split(target_path)[0])
         ensure_file_downloaded(source_url=self.source_url + data_path, target_path=target_path)  # to be filled
         dataset = []
         with open(target_path) as f:
