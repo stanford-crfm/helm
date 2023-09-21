@@ -1952,7 +1952,7 @@ run_groups:
     category: Targeted evaluations
     visibility: this_group_only
 
-### Non-English
+### Chinese
   - name: chinese_cleva
     display_name: CLEVA (Chinese) scenarios
     description: Scenarios for evaluating Chinese language models
@@ -3576,13 +3576,6 @@ run_groups:
     todo: true
 
 # Language coverage
-  - name: non_english
-    display_name: Scenarios for languages beyond English.
-    description: Currently, we only implement English scenarios.
-    taxonomy:
-      language: non-English
-    todo: true
-
   - name: user_facing_tasks_english_dialects
     display_name: Scenarios with user-facing tasks on English dialects
     description: Currently, evaluate performance on English dialects via language modeling (e.g., TwitterAAE, ICE), but it would be good to implement user-facing tasks for these dialects.
