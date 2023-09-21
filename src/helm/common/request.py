@@ -37,6 +37,9 @@ class Request:
     stop_sequences: List[str] = field(default_factory=list)
     """Stop generating once we hit one of these strings."""
 
+    stop_token_ids: List[int] = field(default_factory=list)
+    """Stop generating once we hit one of these tokens."""
+
     echo_prompt: bool = False
     """Should `prompt` be included as a prefix of each completion? (e.g., for
     evaluating perplexity of the prompt)"""

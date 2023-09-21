@@ -383,3 +383,12 @@ class Cache(object):
             with create_key_value_store(self.follower_config) as follower_key_value_store:
                 write_to_key_value_store(follower_key_value_store, request, response)
         return response, cached
+
+
+class NoCache(Cache):
+
+    def __init__(self, config: CacheConfig):
+        super().__init__(config)
+
+    def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
+        return compute(), False
