@@ -2,6 +2,49 @@
 
 ## [Upcoming]
 
+## [v0.2.4] - 2023-09-20
+
+### Models
+
+- Added Meta LLaMA, Meta Llama 2, EleutherAI Pythia, Together RedPajama on Together (#1821)
+- Removed the unofficial chat-gpt client in favor of the official API (#1809)
+- Added support for models for the NeurIPS Efficiency Challenge (#1693)
+
+### Frontend
+
+- Added support for rendering train-test overlap stats in the frontend (#1747)
+- Fixed a bug where stats with NaN values would cause the frontend to fail to render tables (#1784)
+
+### Framework
+
+- Moved many dependencies, especially those only used by a single model provider or a small number of runs, to optional extra dependencies (#1798, #1844)
+- Widened some dependencies (e.g. PyTorch) to reduce dependency conflicts with other packages  (#1759)
+- Added `MaxEvalInstancesRunExpander` to allow overriding the number of eval instances at the run level (#1837)
+- Updated human critique evaluation on Amazon Mechanical Turk to support emoji and other special characters (#1773)
+- Fixed a bug where in-context learning examples with multiple correct references were adapted to prompts where all the correct references are concatenated together as the output, which was not intended for some scenarios (e.g. narrative_qa, natural_qa, quac and wikifact) (#1785)
+- Fixed a bug where ObjectSpec is not hashable if any arg is a list (#1771)
+
+### Evaluations
+
+- Added evaluation results for Meta LLaMA, Meta Llama 2, EleutherAI Pythia, Together RedPajama on Together
+- Corrected evaluation results for AI21 Jurassic-2 and Writer Palmyra for the scenarios narrative_qa, natural_qa, quac and wikifact, as they were affected by the bug fixed by #1785
+
+### Contributors
+
+Thank you to the following contributors for your contributions to this HELM release!
+
+- @AndrewJGaut
+- @andyzorigin
+- @bidyapati-p
+- @drisspg
+- @mkly
+- @msaroufim
+- @percyliang
+- @teetone
+- @timothylimyl
+- @unnawut
+- @yifanmai
+
 ## [v0.2.3] - 2023-07-25
 
 ### Models
@@ -134,7 +177,8 @@
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.3...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.4...HEAD
+[v0.2.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.4
 [v0.2.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.3
 [v0.2.2]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.2
 [v0.2.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.1
