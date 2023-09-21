@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from pathlib import Path
 
 from typing import List, Optional, Any

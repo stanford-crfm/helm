@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from typing import List
 
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference, Input, Output

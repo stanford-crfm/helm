@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 import csv
 import os
 import random

@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from abc import abstractmethod
 import contextlib
 from dataclasses import dataclass
