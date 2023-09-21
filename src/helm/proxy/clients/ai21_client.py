@@ -129,7 +129,7 @@ class AI21Client(Client):
                 top_logprobs=top_logprobs,
             )
 
-        def parse_sequence(raw: Dict, first: bool, finish_reason: Dict = None) -> Sequence:
+        def parse_sequence(raw: Dict, first: bool, finish_reason: Optional[Dict] = None) -> Sequence:
             text = raw["text"]
             tokens = [parse_token(token, first and i == 0) for i, token in enumerate(raw["tokens"])]
             logprob = sum(token.logprob for token in tokens)

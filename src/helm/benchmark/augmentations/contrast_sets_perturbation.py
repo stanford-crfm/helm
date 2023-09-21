@@ -83,4 +83,4 @@ class ContrastSetsPerturbation(Perturbation):
         )
 
     def perturb(self, text: str, rng: Random) -> str:  # we need this since parent method is abstract
-        pass
+        raise NotImplementedError("Should never be called since apply() was overridden")
