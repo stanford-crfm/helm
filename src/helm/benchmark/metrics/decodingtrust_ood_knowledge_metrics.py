@@ -8,6 +8,11 @@ from helm.benchmark.metrics.metric import Metric, MetricName
 from helm.benchmark.metrics.statistic import Stat
 
 
+NULL_RESPONSE = -1
+REFUSAL_RESPONSE = 4
+REFUSAL_KEYWORDS = ["sorry", "apologize", "don't know", "thank you", "cannot", "i'm", "however", "glad"]
+
+
 class OODKnowledgeMetric(Metric):
     """
     OOD knowledge metric for evaluating the OOD answering reliability.
@@ -35,31 +40,25 @@ class OODKnowledgeMetric(Metric):
             correct_ref_texts = [normalize_text(ref.output.text) for ref in references if ref.output.text]
             y_true_list.append(int(correct_ref_texts[0]))
 
-            input_text = request_state.result.completions[0].text
-            predictions = [input_text]
-            for pred in predictions:
-                digit = -1
-                for pred_char in pred.split("202")[0]:
-                    if pred_char.isdigit():
-                        digit = int(pred_char)
-                        break
-                if digit == -1:
-                    if (
-                        "sorry" in pred
-                        or "apologize" in pred
-                        or "don't know" in pred
-                        or "thank you" in pred
-                        or "cannot" in pred
-                        or "i'm" in pred
-                        or "however" in pred
-                        or "glad" in pred
-                    ):
-                        digit = 4
-                y_pred_list.append(digit)
+            respond_text = request_state.result.completions[0].text.lower()
+
+            parsed_prediction = NULL_RESPONSE
+            # Identify and remove text snippets like "as my knowledge cut off date of December 2021"
+            for pred_char in respond_text.split("202")[0]:
+                if pred_char.isdigit():
+                    parsed_prediction = int(pred_char)  # parse answers to 0 1 2 3 4 digits
+
+            if parsed_prediction == NULL_RESPONSE:
+                # Check refusal key words
+                if any([keyword in respond_text for keyword in REFUSAL_KEYWORDS]):
+                    parsed_prediction = REFUSAL_RESPONSE
+
+            y_pred_list.append(parsed_prediction)
+
         y_pred: np.ndarray = np.asarray(y_pred_list)
         y_true: np.ndarray = np.asarray(y_true_list)
         acc = float(np.mean(y_pred == y_true))
-        rr = float(np.mean(y_pred == 4))
+        rr = float(np.mean(y_pred == REFUSAL_RESPONSE))
         macc = float(acc / (1 - rr))
 
         return [
