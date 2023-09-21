@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import contextlib
 from dataclasses import dataclass
 import json
@@ -104,7 +104,7 @@ class WithFollowerCacheConfig(CacheConfig):
         return self.main.cache_stats_key
 
 
-class KeyValueStore(ABC, contextlib.AbstractContextManager):
+class KeyValueStore(contextlib.AbstractContextManager):
     """Key value store that persists writes."""
 
     @property
