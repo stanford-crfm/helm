@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import Any, List, Dict, Optional, Tuple, Type

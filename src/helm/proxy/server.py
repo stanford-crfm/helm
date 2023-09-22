@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# mypy: check_untyped_defs = False
 
 """
 Starts a REST server for the frontend to interact with.

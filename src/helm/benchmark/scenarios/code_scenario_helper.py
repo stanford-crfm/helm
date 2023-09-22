@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 """Code formatting helper functions for the code scenario.
 
 Sourced from https://github.com/hendrycks/apps

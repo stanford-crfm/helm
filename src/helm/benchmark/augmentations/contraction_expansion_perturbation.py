@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from typing import Dict
 import re
 

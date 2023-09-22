@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 import os
 import tempfile
 from typing import List

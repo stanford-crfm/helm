@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from typing import List
 
 from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
