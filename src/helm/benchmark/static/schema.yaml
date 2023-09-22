@@ -1406,15 +1406,37 @@ metrics:
     lower_is_better: false
 
   # CLEVA (Chinese) metrics:
-  # TODO: Fill in display_name, short_display_name, description, lower_is_better fields
+  # Accuracy metrics (Chinese)
   - name: chinese_ibleu
+    display_name: Chinese iBLEU
+    short_display_name: iBLEU (Chinese)
+    description: A special BLEU score [(Sun and Zhou, 2008)](https://aclanthology.org/P12-2008.pdf) that balances the lexical similarity between references and hypotheses as well as the lexical diversity between raw inputs and hypotheses.
+    lower_is_better: false
   - name: cleva_top1_accuracy
-  - name: bleu
+    display_name: Chinese Top-1 Accuracy
+    short_display_name: Acc@Top-1 (Chinese)
+    description: A special accuracy [(Patel and Pavlick, 2008)](https://openreview.net/pdf?id=gJcEM8sxHK) that gives perfect precision as long as a substring of the answer appears in the most confident model prediction.
+    lower_is_better: false
+  - name: cleva_machine_translation_bleu
+    display_name: BLEU
+    short_display_name: BLEU
+    description: BLEU score based on [Post, (2018)](https://aclanthology.org/W18-6319/).
+    lower_is_better: false
   - name: chinese_rouge_2
+    display_name: Chinese ROUGE-2 score
+    short_display_name: ROUGE-2 (Chinese)
+    description: ROUGE-2 score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on a Chinese tokenizer that segments Chinese strings by character.
+    lower_is_better: false
   - name: chinese_bleu_1
-  - name: chinese_bleu_1
-  - name: chinese_bleu_1
+    display_name: Chinese BLEU-1 score
+    short_display_name: BLEU-1 (Chinese)
+    description: BLEU-1 score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on a Chinese tokenizer that segments Chinese strings by character.
+    lower_is_better: false
   - name: cleva_math_result_match
+    display_name: CLEVA Math Exact Match
+    short_display_name: EM (Math)
+    description: Exact match that cares only the last math expression (numbers and fractions) in the model's prediction.
+    lower_is_better: false
   # TODO: Add bias metrics
 
 ############################################################
