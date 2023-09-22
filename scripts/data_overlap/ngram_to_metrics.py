@@ -287,7 +287,7 @@ def get_metrics(ngram_path, scenario_path, out_path, N):
         entry_overlap_metric_list.append(weighted_token)
 
     def save_metrics_to_jsonl(overlap_metrics: List[EntryOverlapMetric], filename: str):
-        with open(filename, "a") as f:
+        with open(filename, "w") as f:
             for overlap_metric in overlap_metrics:
                 f.write(json.dumps(asdict_without_nones(overlap_metric), ensure_ascii=False) + "\n")
 
