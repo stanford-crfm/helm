@@ -1674,6 +1674,14 @@ metric_groups:
       - name: classification_micro_f1
         split: ${main_split}
 
+  - name: multiple_choice_classification_metrics
+    display_name: Multiple-choice classification metrics
+    metrics:
+      - name: multiple_choice_classification_macro_f1
+        split: ${main_split}
+      - name: multiple_choice_classification_micro_f1
+        split: ${main_split}
+
   - name: cleva_paraphrase_generation_metrics
     display_name: CLEVA (Chinese) paraphrase generation metrics
     metrics:
@@ -1708,6 +1716,18 @@ metric_groups:
     display_name: CLEVA (Chinese) mathematical reasoning metrics
     metrics:
       - name: cleva_math_result_match
+        split: ${main_split}
+
+  - name: cleva_dialogue_generation_metrics
+    display_name: CLEVA (Chinese) dialogue generation metrics
+    metrics:
+      - name: chinese_bleu_1
+        split: ${main_split}
+
+  - name: cleva_data_to_text_generation_metrics
+    display_name: CLEVA (Chinese) dialogue generation metrics
+    metrics:
+      - name: chinese_bleu_1
         split: ${main_split}
 
 ############################################################
@@ -2962,6 +2982,7 @@ run_groups:
       - accuracy
       - calibration
       - general_information
+      - multiple_choice_classification_metrics
     environment:
       main_name: exact_match
       main_split: test
@@ -2987,7 +3008,7 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: Chinese
+      language: Classical Chinese
 
   - name: cleva_closed_book_question_answering
     display_name: CLEVA (Chinese) closed book question answering
@@ -3021,7 +3042,7 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: Chinese
+      language: synthetic
 
   - name: cleva_commonsense_reasoning
     display_name: CLEVA (Chinese) commonsense reasoning
@@ -3044,7 +3065,6 @@ run_groups:
     display_name: CLEVA (Chinese) conceptual generalization
     description: CLEVA (Chinese) conceptual generalization
     metric_groups:
-      - accuracy
       - calibration
       - cleva_conceptual_generalization_metrics
       - general_information
@@ -3056,14 +3076,13 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: Chinese
+      language: synthetic
 
   - name: cleva_copyright
     display_name: CLEVA (Chinese) copyright
     description: CLEVA (Chinese) copyright
     metric_groups:
-      - accuracy
-      - calibration
+      - copyright_metrics
       - general_information
     environment:
       main_split: test
@@ -3112,8 +3131,6 @@ run_groups:
     display_name: CLEVA (Chinese) data to text generation
     description: CLEVA (Chinese) data to text generation
     metric_groups:
-      - accuracy
-      - calibration
       - cleva_data_to_text_generation_metrics
       - general_information
     environment:
@@ -3147,8 +3164,6 @@ run_groups:
     display_name: CLEVA (Chinese) dialogue generation
     description: CLEVA (Chinese) dialogue generation
     metric_groups:
-      - accuracy
-      - calibration
       - cleva_dialogue_generation_metrics
       - general_information
     environment:
@@ -3168,6 +3183,7 @@ run_groups:
       - accuracy
       - calibration
       - general_information
+      - multiple_choice_classification_metrics
     environment:
       main_name: exact_match
       main_split: test
@@ -3193,7 +3209,7 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: Chinese
+      language: Math Expression
 
   - name: cleva_instruction_following
     display_name: CLEVA (Chinese) instruction following
@@ -3261,14 +3277,12 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: Chinese
+      language: Chinese or Math Expression
 
   - name: cleva_mathematical_reasoning
     display_name: CLEVA (Chinese) mathematical reasoning
     description: CLEVA (Chinese) mathematical reasoning
     metric_groups:
-      - accuracy
-      - calibration
       - cleva_mathematical_reasoning_metrics
       - general_information
     environment:
@@ -3302,8 +3316,6 @@ run_groups:
     display_name: CLEVA (Chinese) paraphrase generation
     description: CLEVA (Chinese) paraphrase generation
     metric_groups:
-      - accuracy
-      - calibration
       - cleva_paraphrase_generation_metrics
       - general_information
     environment:
@@ -3337,8 +3349,6 @@ run_groups:
     display_name: CLEVA (Chinese) pinyin transliteration
     description: CLEVA (Chinese) pinyin transliteration
     metric_groups:
-      - accuracy
-      - calibration
       - cleva_pinyin_transliteration_metrics
       - general_information
     environment:
@@ -3349,7 +3359,7 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: Chinese
+      language: Chinese or Pinyin
 
   - name: cleva_reading_comprehension
     display_name: CLEVA (Chinese) reading comprehension
@@ -3383,7 +3393,7 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: Chinese
+      language: synthetic
 
   - name: cleva_sentiment_analysis
     display_name: CLEVA (Chinese) sentiment analysis
@@ -3417,14 +3427,12 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: Chinese
+      language: structured Chinese
 
   - name: cleva_summarization
     display_name: CLEVA (Chinese) summarization
     description: CLEVA (Chinese) summarization
     metric_groups:
-      - accuracy
-      - calibration
       - cleva_summarization_metrics
       - general_information
     environment:
@@ -3475,19 +3483,17 @@ run_groups:
     display_name: CLEVA (Chinese) translation
     description: CLEVA (Chinese) translation
     metric_groups:
-      - accuracy
-      - calibration
       - cleva_translation_metrics
       - general_information
     environment:
       main_name: bleu
       main_split: test
     taxonomy:
-      task: "?"
+      task: translation
       what: "?"
       who: "?"
       when: "?"
-      language: Chinese
+      language: Chinese or English
 
 ## Aspirational scenarios
 # Task coverage
