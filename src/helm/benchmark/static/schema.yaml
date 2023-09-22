@@ -1437,7 +1437,7 @@ metrics:
     short_display_name: EM (Math)
     description: Exact match that cares only the last math expression (numbers and fractions) in the model's prediction.
     lower_is_better: false
-  # TODO: Add bias metrics
+  # CLEVA Chinese bias, copyright and toxicity metrics share the same name as the original HELM metrics
 
 ############################################################
 perturbations:
@@ -1704,20 +1704,8 @@ metric_groups:
       - name: chinese_bleu_1
         split: ${main_split}
 
-  - name: cleva_dialogue_generation_metrics
-    display_name: CLEVA (Chinese) pinyin metrics
-    metrics:
-      - name: chinese_bleu_1
-        split: ${main_split}
-
-  - name: cleva_data_to_text_generation_metrics
-    display_name: CLEVA (Chinese) pinyin metrics
-    metrics:
-      - name: chinese_bleu_1
-        split: ${main_split}
-
   - name: cleva_mathematical_reasoning_metrics
-    display_name: CLEVA (Chinese) pinyin metrics
+    display_name: CLEVA (Chinese) mathematical reasoning metrics
     metrics:
       - name: cleva_math_result_match
         split: ${main_split}
