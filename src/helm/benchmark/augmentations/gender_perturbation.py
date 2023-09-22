@@ -99,7 +99,7 @@ class GenderPerturbation(Perturbation):
         source_class: str,
         target_class: str,
         mapping_file_path: Optional[str] = None,
-        mapping_file_genders: List[str] = None,
+        mapping_file_genders: Optional[List[str]] = None,
         bidirectional: bool = False,
     ):
         """Initialize the gender perturbation.
