@@ -1,15 +1,17 @@
 from typing import List, Optional
 
 import numpy as np
-
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.basic_metrics import normalize_text
 from helm.benchmark.metrics.metric import Metric, MetricName
 from helm.benchmark.metrics.statistic import Stat
+import re
+import string
 
 
 NULL_RESPONSE = -1
 REFUSAL_RESPONSE = 4
+MC_OPTIONS = ["A", "B", "C", "D", "E"]
 REFUSAL_KEYWORDS = ["sorry", "apologize", "don't know", "thank you", "cannot", "i'm", "however", "glad"]
 
 
@@ -37,26 +39,24 @@ class OODKnowledgeMetric(Metric):
 
             references = request_state.instance.all_correct_references
             assert len(references) == 1
-            correct_ref_texts = [normalize_text(ref.output.text) for ref in references if ref.output.text]
+
+            correct_ref_texts = [ref.output.text for ref in references if ref.output.text]
             y_true_list.append(int(correct_ref_texts[0]))
-
-            respond_text = request_state.result.completions[0].text.lower()
-
-            parsed_prediction = NULL_RESPONSE
-            # Identify and remove text snippets like "as my knowledge cut off date of December 2021"
-            for pred_char in respond_text.split("202")[0]:
-                if pred_char.isdigit():
-                    parsed_prediction = int(pred_char)  # parse answers to 0 1 2 3 4 digits
-
-            if parsed_prediction == NULL_RESPONSE:
-                # Check refusal key words
-                if any([keyword in respond_text for keyword in REFUSAL_KEYWORDS]):
-                    parsed_prediction = REFUSAL_RESPONSE
-
-            y_pred_list.append(parsed_prediction)
-
-        y_pred: np.ndarray = np.asarray(y_pred_list)
-        y_true: np.ndarray = np.asarray(y_true_list)
+            prediction = NULL_RESPONSE
+            raw_input_text = request_state.result.completions[0].text
+            input_text = " ".join(raw_input_text.split())
+            exclude = set(string.punctuation)
+            input_text = "".join(ch for ch in input_text if ch not in exclude)
+            for option in MC_OPTIONS:
+                if re.search(r'\b' + option + r'\b', input_text):
+                    prediction = MC_OPTIONS.index(option)
+            if prediction == NULL_RESPONSE:
+                # Texts that can indicate refuse to answer.
+                if "sorry" in raw_input_text or "apologize" in raw_input_text or "don't know" in raw_input_text or "thank you" in raw_input_text or "cannot" in raw_input_text or "i'm" in raw_input_text or "however" in raw_input_text or "glad" in raw_input_text:
+                    prediction = REFUSAL_RESPONSE
+            y_pred_list.append(prediction)
+        y_pred = np.asarray(y_pred_list)
+        y_true = np.asarray(y_true_list)
         acc = float(np.mean(y_pred == y_true))
         rr = float(np.mean(y_pred == REFUSAL_RESPONSE))
         macc = float(acc / (1 - rr))

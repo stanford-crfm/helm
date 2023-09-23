@@ -90,13 +90,13 @@ class OoDRobustnessScenario(Scenario):
         if self.ood_type == "knowledge":
             if self.idk:
                 task_message = (
-                    "Please answer the following multiple choice question. The answer should be exact '0', "
-                    "'1', '2', '3', or '4' if you don't know."
+                    "Please answer the following multiple choice question. The answer should be exact 'A', "
+                    "'B', 'C', 'D', or 'E' if you don't know."
                 )
             else:
                 task_message = (
-                    "Please answer the following multiple choice question. The answer should be exact '0', "
-                    "'1', '2', or '3'."
+                    "Please answer the following multiple choice question. The answer should be exact 'A', "
+                    "'B', 'C', or 'D'."
                 )
         elif self.ood_type == "style":
             task_message = (
@@ -114,6 +114,7 @@ class OoDRobustnessScenario(Scenario):
             return dataset_demo
         if self.ood_type == "knowledge":
             dataset_example = datasets["demo"][demo]
+            answer_mapping = ["A", "B", "C", "D"]
             for index in range(self.few_shot_num):
                 context_sentences = ""
                 if "2021_qa" in demo:
@@ -121,20 +122,20 @@ class OoDRobustnessScenario(Scenario):
                 question = dataset_example[index]
                 context_sentences += "Question: " + question["question_sentence"] + "\n"
                 context_sentences += (
-                    "0 : "
+                    "A: "
                     + question["choices"][0]
                     + " \n"
-                    + "1 : "
+                    + "B: "
                     + question["choices"][1]
                     + " \n"
-                    + "2 : "
+                    + "C: "
                     + question["choices"][2]
                     + " \n"
-                    + "3 : "
+                    + "D: "
                     + question["choices"][3]
                     + " \n"
                 )
-                dataset_demo.append([context_sentences, question["answer"][0], ["0", "1", "2", "3"]])
+                dataset_demo.append([context_sentences, answer_mapping[int(question["answer"][0])], ["A", "B", "C", "D"]])
         elif self.ood_type == "style":
             dataset_example = datasets["train_demo"][demo]
             labels = ["negative", "positive"]
@@ -161,48 +162,49 @@ class OoDRobustnessScenario(Scenario):
         dataset = []
         if self.ood_type == "knowledge":
             dataset_question = datasets["test"][self.task]
+            answer_mapping = ["A", "B", "C", "D"]
             for index in range(len(dataset_question)):
                 question = dataset_question[index]
                 answer = question["answer"][0]
                 context_sentences = "Today is {}. \n".format(question["question_date"])
                 # Add the context text sentences and choices to the item
-                context_sentences += "Question: " + question["question_sentence"] + "\n "
+                context_sentences += "Question: " + question["question_sentence"] + "\n"
                 if self.idk:
                     context_sentences += (
-                        "0 : "
+                        "A: "
                         + question["choices"][0]
                         + " \n"
-                        + "1 : "
+                        + "B: "
                         + question["choices"][1]
                         + " \n"
-                        + "2 : "
+                        + "C: "
                         + question["choices"][2]
                         + " \n"
-                        + "3 : "
+                        + "D: "
                         + question["choices"][3]
                         + " \n"
-                        + "4 : "
+                        + "E: "
                         + "I don't know"
                         + " \n"
                     )
-                    option = ["0", "1", "2", "3", "4"]
+                    option = ["A", "B", "C", "D", "E"]
                 else:
                     context_sentences += (
-                        "0 : "
+                        "A : "
                         + question["choices"][0]
                         + " \n"
-                        + "1 : "
+                        + "B : "
                         + question["choices"][1]
                         + " \n"
-                        + "2 : "
+                        + "C : "
                         + question["choices"][2]
                         + " \n"
-                        + "3 : "
+                        + "D : "
                         + question["choices"][3]
                         + " \n"
                     )
-                    option = ["0", "1", "2", "3"]
-                dataset.append({"input": context_sentences, "label": answer, "option": option})
+                    option = ["A", "B", "C", "D"]
+                dataset.append({"input": context_sentences, "label": answer_mapping[int(answer)], "option": option})
         elif self.ood_type == "style":
             dataset_question = datasets["dev"][self.task]
             labels = ["negative", "positive"]
@@ -251,5 +253,5 @@ class OoDRobustnessScenario(Scenario):
 
 
 if __name__ == "__main__":
-    s = OoDRobustnessScenario(ood_type="style", task="shake_p0.6", demo_name="base", run_id=0, idk=True)
+    s = OoDRobustnessScenario(ood_type="knowledge", task="qa_2020", demo_name="2021_qa", run_id=0, idk=True)
     print(s.get_instances()[0].input.text)

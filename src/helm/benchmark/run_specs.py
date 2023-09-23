@@ -2343,14 +2343,14 @@ def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, desc
     )
 
 
-@run_spec_function("decodingtrust_ood_robustness")
-def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int, idk: bool) -> RunSpec:
+@run_spec_function("ood_robustness")
+def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int = -1, idk: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.OoDRobustnessScenario",
         args={"ood_type": ood_type, "task": task, "demo_name": demo_name, "run_id": run_id, "idk": idk},
     )
     if 0 <= run_id < 3:
-        max_train = 5 if task == "knowledge" else 8
+        max_train = 5 if ood_type == "knowledge" else 8
         adapter_spec = get_few_shot_instruct_adapter_spec(
             num_outputs=1, max_tokens=16, temperature=0, max_train_instances=max_train
         )
