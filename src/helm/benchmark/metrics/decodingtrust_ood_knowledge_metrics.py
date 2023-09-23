@@ -1,13 +1,15 @@
 from typing import List, Optional
 
 import numpy as np
-
+from sklearn.preprocessing import MultiLabelBinarizer
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.basic_metrics import normalize_text
 from helm.benchmark.metrics.metric import Metric, MetricName
 from helm.benchmark.metrics.statistic import Stat
+import re
+import string
 
-
+IDK = 4
 class OODKnowledgeMetric(Metric):
     """
     OOD knowledge metric for evaluating the OOD answering reliability.
@@ -16,6 +18,7 @@ class OODKnowledgeMetric(Metric):
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         y_pred: List[int] = []
         y_true: List[int] = []
+        options = ["A", "B", "C", "D", "E"]
         for request_state in request_states:  # one request state per instance
             # Only the generation adapter is supported.
             # TODO: Support multiple_choice_* adapters.
@@ -31,27 +34,26 @@ class OODKnowledgeMetric(Metric):
 
             references = request_state.instance.all_correct_references
             assert len(references) == 1
-            correct_ref_texts = [normalize_text(ref.output.text) for ref in references if ref.output.text]
+            correct_ref_texts = [ref.output.text for ref in references if ref.output.text]
             y_true.append(int(correct_ref_texts[0]))
-
-            input_text = request_state.result.completions[0].text
-            predictions = [input_text]
-            for pred in predictions:
-                digit = -1
-                for pred_char in pred.split("202")[0]:
-                    if pred_char.isdigit():
-                        digit = int(pred_char)
-                        break
-                if digit == -1:
-                    if "sorry" in pred or "apologize" in pred or "don't know" in pred or "thank you" in pred or "cannot" in pred or "i'm" in pred or "however" in pred or "glad" in pred:
-                        digit = 4
-                y_pred.append(digit)
+            prediction = -1
+            raw_input_text = request_state.result.completions[0].text
+            input_text = " ".join(raw_input_text.split())
+            exclude = set(string.punctuation)
+            input_text = "".join(ch for ch in input_text if ch not in exclude)
+            for option in options:
+                if re.search(r'\b' + option + r'\b', input_text):
+                    prediction = options.index(option)
+            if prediction == -1:
+                # Texts that can indicate refuse to answer.
+                if "sorry" in raw_input_text or "apologize" in raw_input_text or "don't know" in raw_input_text or "thank you" in raw_input_text or "cannot" in raw_input_text or "i'm" in raw_input_text or "however" in raw_input_text or "glad" in raw_input_text:
+                    prediction = IDK
+            y_pred.append(prediction)
         y_pred = np.asarray(y_pred)
         y_true = np.asarray(y_true)
         acc = float(np.mean(y_pred == y_true))
-        rr = float(np.mean(y_pred == 4))
+        rr = float(np.mean(y_pred == IDK))
         macc = float(acc / (1 - rr))
-        
         return [
             Stat(MetricName("ood_knowledge_acc")).add(acc),
             Stat(MetricName("ood_knowledge_rr")).add(rr),
