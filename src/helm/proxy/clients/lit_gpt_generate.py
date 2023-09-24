@@ -8,7 +8,6 @@ def generate(
         model: torch.nn.Module,
         idx: torch.Tensor,
         max_returned_tokens: int,
-        max_seq_length: int,
         *,
         temperature: float = 1.0,
         top_k: Optional[int] = None,
@@ -22,7 +21,6 @@ def generate(
         model: The model to use.
         idx: Tensor of shape (T) with indices of the prompt sequence.
         max_returned_tokens: The maximum number of tokens to return (given plus generated).
-        max_seq_length: The maximum sequence length allowed. Should be less or equal than the block size.
         temperature: Scales the predicted logits by 1 / temperature.
         top_k: If specified, only sample among the tokens with the k highest probabilities.
         stop_tokens: If specified, stop generating any more token once the stop token is triggered.
@@ -33,6 +31,12 @@ def generate(
     """
     T = idx.size(0)
     assert max_returned_tokens > T
+    if model.max_seq_length < max_returned_tokens - 1:
+        # rolling the kv cache based on the `input_pos` value would be necessary. However, doing so would introduce a
+        # data dependency on the `input_pos` tensor and impact model compilation. Since this setting is uncommon, we do
+        # not support it to avoid negatively impacting the overall speed
+        raise NotImplementedError(f"max_seq_length {model.max_seq_length} needs to be >= {max_returned_tokens - 1}")
+
     device, dtype = idx.device, idx.dtype
     # stop_tokens = [torch.tensor(tokens, device=device) for tokens in stop_tokens]
 
@@ -47,7 +51,7 @@ def generate(
         x = idx.index_select(0, input_pos).view(1, -1)
 
         # forward
-        logits = model(x, max_seq_length, input_pos)
+        logits = model(x, input_pos)
         logits = logits[0, -1] / temperature
 
         # optionally crop the logits to only the top k options

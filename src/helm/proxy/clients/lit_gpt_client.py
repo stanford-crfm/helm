@@ -116,22 +116,30 @@ class LitGPTClient(Client):
             model.config.block_size,
         )  # maximum rope cache length
 
-        model.reset_cache()
+        model.clear_kv_cache()
+
+        with fabric.init_tensor():
+            # set the max_seq_length to limit the memory usage to what we need
+            model.max_seq_length = max_returned_tokens
+
         t0 = time.perf_counter()
         # helm doesn't have anything equivalent to top_k at the moment
         # TODO: allow temperature=0, pick the top token rather than sampling.
         stop_tokens: List[torch.int] = [tokenizer.encode(e, device=fabric.device) for e in request.stop_sequences]
+
+        with fabric.init_tensor():
+            # enable the kv cache
+            model.set_kv_cache(batch_size=1)
         tokens, logprobs, top_logprobs = generate(
             model,
             encoded,
             max_returned_tokens,
-            max_seq_length=max_returned_tokens,
             temperature=max(request.temperature, 1e-11),
             stop_tokens=stop_tokens,
         )
 
         t = time.perf_counter() - t0
-        model.reset_cache()
+        model.clear_kv_cache()
         if request.echo_prompt is False:
             output = tokenizer.decode(tokens[prompt_length:])
         else:
