@@ -3,7 +3,7 @@ import logging
 import time
 from pathlib import Path
 from threading import Lock
-from typing import Literal, Optional, List
+from typing import List, Literal, Optional
 
 import torch
 
@@ -17,6 +17,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
+
 from .client import Client
 from .lit_gpt_generate import generate
 
@@ -47,14 +48,13 @@ class SingletonMeta(type):
 
 class LitGPT(metaclass=SingletonMeta):
     def __init__(
-            self,
-            checkpoint_dir: str = "",
-            precision: str = "bf16-true",
-            device="auto",
-            devices: int = 1,
-            strategy: str = "auto",
-            quantize: Optional[
-                Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+        self,
+        checkpoint_dir: str = "",
+        precision: str = "bf16-true",
+        device="auto",
+        devices: int = 1,
+        strategy: str = "auto",
+        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
     ):
         torch.set_float32_matmul_precision("high")
 
@@ -88,15 +88,14 @@ class LitGPTClient(Client):
     """Client for evaluating Lit-GPT (from Lightning AI) supported LLMs"""
 
     def __init__(
-            self,
-            cache_config: CacheConfig,
-            checkpoint_dir: str = "",
-            precision: str = "bf16-true",
-            device="auto",
-            devices: int = 1,
-            strategy: str = "auto",
-            quantize: Optional[
-                Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+        self,
+        cache_config: CacheConfig,
+        checkpoint_dir: str = "",
+        precision: str = "bf16-true",
+        device="auto",
+        devices: int = 1,
+        strategy: str = "auto",
+        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
     ):
         self.cache = Cache(cache_config)
         lit_gpt = LitGPT(checkpoint_dir, precision, device, devices, strategy, quantize)

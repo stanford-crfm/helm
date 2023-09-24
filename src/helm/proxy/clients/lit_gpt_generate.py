@@ -5,13 +5,13 @@ import torch
 
 @torch.no_grad()
 def generate(
-        model: torch.nn.Module,
-        idx: torch.Tensor,
-        max_returned_tokens: int,
-        *,
-        temperature: float = 1.0,
-        top_k: Optional[int] = None,
-        stop_tokens: List[torch.Tensor] = [],
+    model: torch.nn.Module,
+    idx: torch.Tensor,
+    max_returned_tokens: int,
+    *,
+    temperature: float = 1.0,
+    top_k: Optional[int] = None,
+    stop_tokens: List[torch.Tensor] = [],
 ) -> Tuple[List[int], int, int]:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
 
@@ -72,6 +72,6 @@ def generate(
         # if <eos> token is triggered, return the output (stop generation)
         for eos_id in stop_tokens:
             if torch.equal(idx_next, eos_id):
-                return idx[:input_pos - 1], 0, 0  # exclude the EOS token
+                return idx[: input_pos - 1], 0, 0  # exclude the EOS token
     # TODO: implement logprob in a future PR
     return idx, 0, 0
