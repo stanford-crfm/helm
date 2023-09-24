@@ -5,15 +5,15 @@ import torch
 
 @torch.no_grad()
 def generate(
-    model: torch.nn.Module,
-    idx: torch.Tensor,
-    max_returned_tokens: int,
-    max_seq_length: int,
-    *,
-    temperature: float = 1.0,
-    top_k: Optional[int] = None,
-    stop_tokens: Tuple[List[int], ...] = (),
-) -> Tuple[List[int], List[float], List[Tuple[int, float]]]:
+        model: torch.nn.Module,
+        idx: torch.Tensor,
+        max_returned_tokens: int,
+        max_seq_length: int,
+        *,
+        temperature: float = 1.0,
+        top_k: Optional[int] = None,
+        stop_tokens: List[torch.Tensor] = [],
+) -> Tuple[List[int], int, int]:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
 
     The implementation of this function is modified from A. Karpathy's nanoGPT.
@@ -25,7 +25,7 @@ def generate(
         max_seq_length: The maximum sequence length allowed. Should be less or equal than the block size.
         temperature: Scales the predicted logits by 1 / temperature.
         top_k: If specified, only sample among the tokens with the k highest probabilities.
-        eos_id: If specified, stop generating any more token once the <eos> token is triggered.
+        stop_tokens: If specified, stop generating any more token once the stop token is triggered.
 
     Returns:
         Tuple containing a list of token indexes, id of the top log probability, and the actual log probability of the
@@ -34,7 +34,7 @@ def generate(
     T = idx.size(0)
     assert max_returned_tokens > T
     device, dtype = idx.device, idx.dtype
-    stop_tokens = [torch.tensor(tokens, device=device) for tokens in stop_tokens]
+    # stop_tokens = [torch.tensor(tokens, device=device) for tokens in stop_tokens]
 
     # create an empty tensor of the expected final shape and fill in the current tokens
     empty = torch.empty(max_returned_tokens, dtype=dtype, device=device)
@@ -68,6 +68,6 @@ def generate(
         # if <eos> token is triggered, return the output (stop generation)
         for eos_id in stop_tokens:
             if torch.equal(idx_next, eos_id):
-                return idx[:input_pos-1], 0, 0  # exclude the EOS token
+                return idx[:input_pos - 1], 0, 0  # exclude the EOS token
     # TODO: implement logprob in a future PR
     return idx, 0, 0

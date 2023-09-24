@@ -3,7 +3,7 @@ import logging
 import time
 from pathlib import Path
 from threading import Lock
-from typing import Literal, Optional
+from typing import Literal, Optional, List
 
 import torch
 
@@ -120,7 +120,7 @@ class LitGPTClient(Client):
         t0 = time.perf_counter()
         # helm doesn't have anything equivalent to top_k at the moment
         # TODO: allow temperature=0, pick the top token rather than sampling.
-        stop_tokens = [tokenizer.encode(e) for e in request.stop_sequences]
+        stop_tokens: List[torch.int] = [tokenizer.encode(e, device=fabric.device) for e in request.stop_sequences]
         tokens, logprobs, top_logprobs = generate(
             model,
             encoded,
