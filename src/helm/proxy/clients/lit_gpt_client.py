@@ -5,14 +5,10 @@ from pathlib import Path
 from threading import Lock
 from typing import Literal, Optional
 
-import lightning as L
 import torch
-from lightning.fabric.strategies import FSDPStrategy
-from lit_gpt import GPT, Config, Tokenizer
-from lit_gpt.model import Block
-from lit_gpt.utils import check_valid_checkpoint_dir, lazy_load, quantization
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -21,9 +17,17 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
-
 from .client import Client
 from .lit_gpt_generate import generate
+
+try:
+    import lightning as L
+    from lightning.fabric.strategies import FSDPStrategy
+    from lit_gpt import GPT, Config, Tokenizer
+    from lit_gpt.model import Block
+    from lit_gpt.utils import check_valid_checkpoint_dir, lazy_load, quantization
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -43,13 +47,14 @@ class SingletonMeta(type):
 
 class LitGPT(metaclass=SingletonMeta):
     def __init__(
-        self,
-        checkpoint_dir: str = "",
-        precision: str = "bf16-true",
-        device="auto",
-        devices: int = 1,
-        strategy: str = "auto",
-        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+            self,
+            checkpoint_dir: str = "",
+            precision: str = "bf16-true",
+            device="auto",
+            devices: int = 1,
+            strategy: str = "auto",
+            quantize: Optional[
+                Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
     ):
         torch.set_float32_matmul_precision("high")
 
@@ -81,15 +86,17 @@ class LitGPT(metaclass=SingletonMeta):
 
 class LitGPTClient(Client):
     """Client for evaluating Lit-GPT (from Lightning AI) supported LLMs"""
+
     def __init__(
-        self,
-        cache_config: CacheConfig,
-        checkpoint_dir: str = "",
-        precision: str = "bf16-true",
-        device="auto",
-        devices: int = 1,
-        strategy: str = "auto",
-        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+            self,
+            cache_config: CacheConfig,
+            checkpoint_dir: str = "",
+            precision: str = "bf16-true",
+            device="auto",
+            devices: int = 1,
+            strategy: str = "auto",
+            quantize: Optional[
+                Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
     ):
         self.cache = Cache(cache_config)
         lit_gpt = LitGPT(checkpoint_dir, precision, device, devices, strategy, quantize)
