@@ -69,14 +69,14 @@ def format_instructions(instructions: str) -> str:
 
 
 def get_multiple_choice_joint_adapter_spec(
-    instructions: str,
-    input_noun: Optional[str],
-    output_noun: str,
-    num_outputs: int = 5,
-    max_train_instances: int = 5,
-    max_tokens: int = 5,
-    sample_train: bool = True,
-    **kwargs,
+        instructions: str,
+        input_noun: Optional[str],
+        output_noun: str,
+        num_outputs: int = 5,
+        max_train_instances: int = 5,
+        max_tokens: int = 5,
+        sample_train: bool = True,
+        **kwargs,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -135,16 +135,16 @@ def get_multiple_choice_separate_adapter_spec(method: str, empty_input: bool = F
 
 
 def get_multiple_choice_adapter_spec(
-    method: str,
-    instructions: str,
-    input_noun: Optional[str],
-    output_noun: str,
-    max_train_instances: int = 5,
-    num_outputs: int = 5,
-    max_tokens: int = 1,
-    empty_input: bool = False,
-    sample_train: bool = True,
-    **kwargs,
+        method: str,
+        instructions: str,
+        input_noun: Optional[str],
+        output_noun: str,
+        max_train_instances: int = 5,
+        num_outputs: int = 5,
+        max_tokens: int = 1,
+        empty_input: bool = False,
+        sample_train: bool = True,
+        **kwargs,
 ):
     """
     Toggle between joint and separate adapters.
@@ -167,17 +167,17 @@ def get_multiple_choice_adapter_spec(
 
 
 def get_ranking_binary_adapter_spec(
-    instructions: str = "",
-    document_noun: str = "Passage",
-    query_noun: str = "Query",
-    output_prefix: str = "Does the passage answer the query?",
-    output_noun: str = "Answer",
-    max_train_instances: int = 4,
-    num_outputs: int = 1,
-    num_train_trials: int = 1,
-    temperature: float = 0.0,
-    max_tokens: int = 5,
-    **kwargs,
+        instructions: str = "",
+        document_noun: str = "Passage",
+        query_noun: str = "Query",
+        output_prefix: str = "Does the passage answer the query?",
+        output_noun: str = "Answer",
+        max_train_instances: int = 4,
+        num_outputs: int = 1,
+        num_train_trials: int = 1,
+        temperature: float = 0.0,
+        max_tokens: int = 5,
+        **kwargs,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -224,16 +224,16 @@ def get_ranking_binary_adapter_spec(
 
 
 def get_completion_adapter_spec(
-    instructions: str = "",
-    input_prefix: str = "",
-    output_prefix: str = "",
-    output_suffix: str = "",
-    max_train_instances: int = 0,
-    temperature: float = 0.0,
-    num_outputs: int = 1,
-    max_tokens: int = 100,
-    stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is no stop sequence,
-    **kwargs,
+        instructions: str = "",
+        input_prefix: str = "",
+        output_prefix: str = "",
+        output_suffix: str = "",
+        max_train_instances: int = 0,
+        temperature: float = 0.0,
+        num_outputs: int = 1,
+        max_tokens: int = 100,
+        stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is no stop sequence,
+        **kwargs,
 ) -> AdapterSpec:
     """
     [input][output_prefix][output][output_suffix]
@@ -260,17 +260,17 @@ def get_completion_adapter_spec(
 
 
 def get_generation_adapter_spec(
-    instructions: str = "",
-    input_noun: Optional[str] = None,
-    newline_after_input_noun: bool = False,
-    output_noun: Optional[str] = None,
-    newline_after_output_noun: bool = False,
-    max_train_instances: int = 5,
-    num_outputs: int = 1,
-    max_tokens: int = 5,
-    stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
-    temperature: float = 0.0,
-    multi_label: bool = False,
+        instructions: str = "",
+        input_noun: Optional[str] = None,
+        newline_after_input_noun: bool = False,
+        output_noun: Optional[str] = None,
+        newline_after_output_noun: bool = False,
+        max_train_instances: int = 5,
+        num_outputs: int = 1,
+        max_tokens: int = 5,
+        stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
+        temperature: float = 0.0,
+        multi_label: bool = False,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -316,9 +316,9 @@ def get_generation_adapter_spec(
 
 
 def get_instruct_adapter_spec(
-    num_outputs: int = 1,
-    max_tokens: int = 512,
-    temperature: float = 0.7,
+        num_outputs: int = 1,
+        max_tokens: int = 512,
+        temperature: float = 0.7,
 ) -> AdapterSpec:
     """
     Zero-shot instruction-following.
@@ -339,10 +339,10 @@ def get_instruct_adapter_spec(
 
 
 def get_few_shot_instruct_adapter_spec(
-    num_outputs: int = 1,
-    max_tokens: int = 512,
-    temperature: float = 0.7,
-    max_train_instances: int = 0,
+        num_outputs: int = 1,
+        max_tokens: int = 512,
+        temperature: float = 0.7,
+        max_train_instances: int = 0,
 ) -> AdapterSpec:
     """
     Few-shot instruction-following.
@@ -407,7 +407,7 @@ def get_summarization_adapter_spec(num_sents: Optional[int], max_train_instances
 
 
 def get_machine_translation_adapter_spec(
-    source_language, target_language, max_train_instances, **kwargs
+        source_language, target_language, max_train_instances, **kwargs
 ) -> AdapterSpec:
     """
     Used for machine translation.
@@ -485,6 +485,7 @@ def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[Met
         )
     ]
 
+
 def get_privacy_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.metrics.decodingtrust_privacy_metrics.PrivacyMetric", args={})]
 
@@ -559,9 +560,9 @@ def get_bias_metric_specs() -> List[MetricSpec]:
 
 def get_generative_harms_metric_specs(include_basic_metrics: bool = False) -> List[MetricSpec]:
     return (
-        get_bias_metric_specs()
-        + get_toxicity_metric_specs()
-        + (get_basic_metric_specs([]) if include_basic_metrics else [])
+            get_bias_metric_specs()
+            + get_toxicity_metric_specs()
+            + (get_basic_metric_specs([]) if include_basic_metrics else [])
     )
 
 
@@ -662,7 +663,8 @@ def get_verifiability_judgment_metric_specs() -> List[MetricSpec]:
 def get_instruction_following_critique_metric_specs(num_respondents: int) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.instruction_following_critique_metrics.InstructionFollowingCritiqueMetric",  # noqa E501
+            class_name="helm.benchmark.metrics.instruction_following_critique_metrics.InstructionFollowingCritiqueMetric",
+            # noqa E501
             args={"num_respondents": num_respondents},
         )
     ]
@@ -674,7 +676,6 @@ def get_instruction_following_critique_metric_specs(num_respondents: int) -> Lis
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {}
 """Dict of run spec function names to run spec functions."""
-
 
 F = TypeVar("F", bound=Callable[..., RunSpec])
 
@@ -778,8 +779,8 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs()
-        + get_generative_harms_metric_specs()
-        + get_classification_metric_specs(),
+                     + get_generative_harms_metric_specs()
+                     + get_classification_metric_specs(),
         groups=["civil_comments"],
     )
 
@@ -1043,7 +1044,7 @@ def get_raft_spec(subset: str) -> RunSpec:
 
 @run_spec_function("numeracy")
 def get_numeracy_spec(
-    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
+        relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
     from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 
@@ -1094,10 +1095,10 @@ def get_numeracy_spec(
 
 @run_spec_function("math")
 def get_math_spec(
-    subject: str,
-    level: str,
-    use_official_examples: str = "False",
-    use_chain_of_thought: str = "False",
+        subject: str,
+        level: str,
+        use_official_examples: str = "False",
+        use_chain_of_thought: str = "False",
 ) -> RunSpec:
     use_official_examples: bool = use_official_examples == "True"  # type: ignore
     use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
@@ -1145,7 +1146,7 @@ def get_math_spec(
 
     return RunSpec(
         name=f"math:subject={subject},level={level},"
-        f"use_official_examples={use_official_examples},use_chain_of_thought={use_chain_of_thought}",
+             f"use_official_examples={use_official_examples},use_chain_of_thought={use_chain_of_thought}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_math_metric_specs(use_chain_of_thought) + get_generative_harms_metric_specs(),  # type: ignore
@@ -1230,12 +1231,12 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
 
 @run_spec_function("copyright")
 def get_copyright_spec(
-    datatag="pilot",
-    temperature=0.2,
-    max_tokens=1024,
-    num_outputs=1,
-    normalize_by_prefix_length=True,
-    normalize_newline_space_tab=False,
+        datatag="pilot",
+        temperature=0.2,
+        max_tokens=1024,
+        num_outputs=1,
+        normalize_by_prefix_length=True,
+        normalize_newline_space_tab=False,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
@@ -1253,7 +1254,7 @@ def get_copyright_spec(
                 "normalize_newline_space_tab": normalize_newline_space_tab,
             }
         )
-        + get_generative_harms_metric_specs(),
+                     + get_generative_harms_metric_specs(),
         groups=["copyright_code" if datatag in datatag2hash_code else "copyright_text"],
     )
 
@@ -1430,10 +1431,10 @@ def get_narrativeqa_spec() -> RunSpec:
 
 @run_spec_function("synthetic_efficiency")
 def get_synthetic_efficiency_spec(
-    num_prompt_tokens: Optional[int] = None,
-    num_output_tokens: Optional[int] = None,
-    tokenizer: Optional[str] = None,
-    random: Optional[str] = None,
+        num_prompt_tokens: Optional[int] = None,
+        num_output_tokens: Optional[int] = None,
+        tokenizer: Optional[str] = None,
+        random: Optional[str] = None,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
@@ -1534,7 +1535,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "summarization_xsum", "device": device})
-        + get_generative_harms_metric_specs(),
+                     + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1562,7 +1563,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "summarization_xsum_sampled", "device": device})
-        + get_generative_harms_metric_specs(),
+                     + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1585,7 +1586,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "summarization_cnndm", "device": device})
-        + get_generative_harms_metric_specs(),
+                     + get_generative_harms_metric_specs(),
         groups=["summarization_cnndm"],
     )
 
@@ -1625,7 +1626,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
 
     adapter_spec = get_completion_adapter_spec(
         instructions="Please complete the rest of the following Dyck sequences, "
-        "making sure that the parentheses are closed properly.",
+                     "making sure that the parentheses are closed properly.",
         input_prefix="Input: ",
         max_tokens=5,
         max_train_instances=3,  # Determined by looking at average length of examples to see what fits
@@ -2025,7 +2026,7 @@ def get_billsum_legal_summarization_spec(temperature: float = 0.3, device: str =
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "billsum_legal_summarization", "device": device})
-        + get_generative_harms_metric_specs(),
+                     + get_generative_harms_metric_specs(),
         groups=["legal_summarization", "summarization"],
     )
 
@@ -2053,7 +2054,7 @@ def get_multilexsum_legal_summarization_spec(temperature: float = 0.3, device: s
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "multilexsum_legal_summarization", "device": device})
-        + get_generative_harms_metric_specs(),
+                     + get_generative_harms_metric_specs(),
         groups=["legal_summarization", "summarization"],
     )
 
@@ -2081,7 +2082,7 @@ def get_eurlexsum_legal_summarization_spec(temperature: float = 0.3, device: str
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "eurlexsum_legal_summarization", "device": device})
-        + get_generative_harms_metric_specs(),
+                     + get_generative_harms_metric_specs(),
         groups=["legal_summarization", "summarization"],
     )
 
@@ -2201,11 +2202,11 @@ def get_verifiability_judgment_spec() -> RunSpec:
 
 @run_spec_function("opinions_qa")
 def get_opinions_qa_spec(
-    survey_type: str,
-    num_logprobs: str,
-    context: str = "None",
-    num_train_trials: str = "1",
-    method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
+        survey_type: str,
+        num_logprobs: str,
+        context: str = "None",
+        num_train_trials: str = "1",
+        method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.opinions_qa_scenario.OpinionsQAScenario",
@@ -2226,7 +2227,7 @@ def get_opinions_qa_spec(
 
     return RunSpec(
         name=f"opinions_qa:survey={survey_type},num_logprobs={num_logprobs}"
-        + f",context={context},num_train_trials={num_train_trials}",
+             + f",context={context},num_train_trials={num_train_trials}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=[],
@@ -2292,7 +2293,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 def get_stereotype_bias_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_stereotype_prompts_scenario"
-        ".DecodingTrustStereotypePromptsScenario",
+                   ".DecodingTrustStereotypePromptsScenario",
         args={},
     )
 
@@ -2349,14 +2350,33 @@ def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: in
         class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.OoDRobustnessScenario",
         args={"ood_type": ood_type, "task": task, "demo_name": demo_name, "run_id": run_id, "idk": idk},
     )
-    if 0 <= run_id < 3:
-        max_train = 5 if ood_type == "knowledge" else 8
-        adapter_spec = get_few_shot_instruct_adapter_spec(
-            num_outputs=1, max_tokens=16, temperature=0, max_train_instances=max_train
+    print(scenario_spec)
+    if ood_type == "knowledge":
+        if idk:
+            task_message = (
+                "Please answer the following multiple choice question. The answer should be exact 'A', "
+                "'B', 'C', 'D', or 'E' if you don't know."
+            )
+        else:
+            task_message = (
+                "Please answer the following multiple choice question. The answer should be exact 'A', "
+                "'B', 'C', or 'D'."
+            )
+        adapter_spec = get_multiple_choice_adapter_spec(
+            method=ADAPT_MULTIPLE_CHOICE_JOINT,
+            instructions=task_message,
+            input_noun=None,
+            output_noun="Answer",
+            max_tokens=16,
+            max_train_instances=5
         )
     else:
-        adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
-
+        if 0 <= run_id < 3:
+            adapter_spec = get_few_shot_instruct_adapter_spec(
+                num_outputs=1, max_tokens=16, temperature=0, max_train_instances=8
+            )
+        else:
+            adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
     return RunSpec(
         name=f"ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name}" + f",run_id={run_id},idk={idk}",
         scenario_spec=scenario_spec,
@@ -2364,6 +2384,7 @@ def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: in
         metric_specs=get_exact_match_metric_specs() if ood_type == "style" else get_ood_knowledge_metric_specs(),
         groups=["decoding_trust", "ood_robustness"],
     )
+
 
 @run_spec_function("fairness")
 def get_fairness_spec(task: str, train_br: float, test_br: float, num_train: int, num_test: int) -> RunSpec:
@@ -2385,12 +2406,12 @@ def get_fairness_spec(task: str, train_br: float, test_br: float, num_train: int
 
 @run_spec_function("decodingtrust_privacy")
 def get_privacy_spec(
-    scenario_name: str,
-    data_file: str,
-    template: str,
-    dataset_size: int,
-    few_shot_num: int,
-    prompt_type: str,
+        scenario_name: str,
+        data_file: str,
+        template: str,
+        dataset_size: int,
+        few_shot_num: int,
+        prompt_type: str,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_privacy_scenario.PrivacyScenario",
@@ -2417,13 +2438,13 @@ def get_privacy_spec(
 
 @run_spec_function("decodingtrust_machine_ethics")
 def get_machine_ethics_spec(
-    data_name: str,
-    test_data_file: str,
-    train_data_file: str,
-    test_num: int,
-    few_shot_num: int,
-    jailbreak_prompt: int,
-    evasive_sentence: int,
+        data_name: str,
+        test_data_file: str,
+        train_data_file: str,
+        test_num: int,
+        few_shot_num: int,
+        jailbreak_prompt: int,
+        evasive_sentence: int,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_machine_ethics_scenario.EthicsScenario",
@@ -2453,7 +2474,7 @@ def get_machine_ethics_spec(
 def get_decodingtrust_toxicity_prompts_spec(subject) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_toxicity_prompts_scenario"
-        ".DecodingTrustToxicityPromptsScenario",
+                   ".DecodingTrustToxicityPromptsScenario",
         args={"subject": subject},
     )
 
@@ -2511,8 +2532,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # For models that strip newlines, when we're generating, we need to set
         # the delimiter to be '###' so we stop properly.
         if NO_NEWLINES_TAG in model.tags and run_spec.adapter_spec.method in (
-            ADAPT_GENERATION,
-            ADAPT_MULTIPLE_CHOICE_JOINT,
+                ADAPT_GENERATION,
+                ADAPT_MULTIPLE_CHOICE_JOINT,
         ):
             stop_expander = StopRunExpander(value="hash")
             run_spec = singleton(stop_expander.expand(run_spec))

@@ -88,16 +88,7 @@ class OoDRobustnessScenario(Scenario):
 
     def get_task_messages(self):
         if self.ood_type == "knowledge":
-            if self.idk:
-                task_message = (
-                    "Please answer the following multiple choice question. The answer should be exact 'A', "
-                    "'B', 'C', 'D', or 'E' if you don't know."
-                )
-            else:
-                task_message = (
-                    "Please answer the following multiple choice question. The answer should be exact 'A', "
-                    "'B', 'C', or 'D'."
-                )
+            task_message = None
         elif self.ood_type == "style":
             task_message = (
                 "For each snippet of text, label the sentiment of the text as positive or negative. "
@@ -114,28 +105,13 @@ class OoDRobustnessScenario(Scenario):
             return dataset_demo
         if self.ood_type == "knowledge":
             dataset_example = datasets["demo"][demo]
-            answer_mapping = ["A", "B", "C", "D"]
             for index in range(self.few_shot_num):
                 context_sentences = ""
                 if "2021_qa" in demo:
                     context_sentences = "Today is {}. \n".format(dataset_example[index]["question_date"])
                 question = dataset_example[index]
                 context_sentences += "Question: " + question["question_sentence"] + "\n"
-                context_sentences += (
-                    "A: "
-                    + question["choices"][0]
-                    + " \n"
-                    + "B: "
-                    + question["choices"][1]
-                    + " \n"
-                    + "C: "
-                    + question["choices"][2]
-                    + " \n"
-                    + "D: "
-                    + question["choices"][3]
-                    + " \n"
-                )
-                dataset_demo.append([context_sentences, answer_mapping[int(question["answer"][0])], ["A", "B", "C", "D"]])
+                dataset_demo.append([context_sentences, int(question["answer"][0]), question["choices"]])
         elif self.ood_type == "style":
             dataset_example = datasets["train_demo"][demo]
             labels = ["negative", "positive"]
@@ -145,66 +121,38 @@ class OoDRobustnessScenario(Scenario):
         return dataset_demo
 
     def get_input(self, text) -> Input:
-        message = f"{self.task_message}\n{text}"
+        if self.task_message is not None:
+            message = f"{self.task_message}\n{text}"
+        else:
+            message = text
 
         return Input(text=message)
 
     def get_references(self, label: str, answer_mapping: List[str]) -> List[Reference]:
         references: List[Reference] = []
         for candidate_label, label_text in enumerate(answer_mapping):
-            tags = [CORRECT_TAG] if label == label_text else []
-            references.append(Reference(output=Output(text=str(candidate_label)), tags=tags))
-
+            if self.ood_type == "style":
+                tags = [CORRECT_TAG] if label == label_text else []
+                references.append(Reference(output=Output(text=label_text), tags=tags))
+            elif self.ood_type == "knowledge":
+                tags = [CORRECT_TAG] if label == candidate_label else []
+                references.append(Reference(output=Output(text=label_text), tags=tags))
         return references
 
     def get_prompts(self, datasets):
-        dataset_question = []
         dataset = []
         if self.ood_type == "knowledge":
             dataset_question = datasets["test"][self.task]
-            answer_mapping = ["A", "B", "C", "D"]
             for index in range(len(dataset_question)):
                 question = dataset_question[index]
                 answer = question["answer"][0]
                 context_sentences = "Today is {}. \n".format(question["question_date"])
+                choices = question["choices"]
                 # Add the context text sentences and choices to the item
                 context_sentences += "Question: " + question["question_sentence"] + "\n"
                 if self.idk:
-                    context_sentences += (
-                        "A: "
-                        + question["choices"][0]
-                        + " \n"
-                        + "B: "
-                        + question["choices"][1]
-                        + " \n"
-                        + "C: "
-                        + question["choices"][2]
-                        + " \n"
-                        + "D: "
-                        + question["choices"][3]
-                        + " \n"
-                        + "E: "
-                        + "I don't know"
-                        + " \n"
-                    )
-                    option = ["A", "B", "C", "D", "E"]
-                else:
-                    context_sentences += (
-                        "A : "
-                        + question["choices"][0]
-                        + " \n"
-                        + "B : "
-                        + question["choices"][1]
-                        + " \n"
-                        + "C : "
-                        + question["choices"][2]
-                        + " \n"
-                        + "D : "
-                        + question["choices"][3]
-                        + " \n"
-                    )
-                    option = ["A", "B", "C", "D"]
-                dataset.append({"input": context_sentences, "label": answer_mapping[int(answer)], "option": option})
+                    choices.append("I don't know")
+                dataset.append({"input": context_sentences, "label": int(answer), "option": choices})
         elif self.ood_type == "style":
             dataset_question = datasets["dev"][self.task]
             labels = ["negative", "positive"]
