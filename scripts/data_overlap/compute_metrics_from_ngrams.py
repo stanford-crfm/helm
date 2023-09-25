@@ -255,7 +255,10 @@ def get_metrics(ngrams_path, scenario_path, out_path, filter_path, N):
 
         for ngram in ngrams(tokens, 13):
             curr_count = ngram_counts_dict[ngram]
-            if frequency == 0 or count <= frequency:
+
+            # either no frequency, or check current count is less than frequency
+            # or a previous contiguous count (weight != 0) less than frequency
+            if frequency == 0 or curr_count <= frequency or (weight != 0 and weight <= frequency):
                 if curr_count != 0:
                     token_budget = 13
                     if weight > 0:
