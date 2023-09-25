@@ -25,8 +25,6 @@ for filename, paths in files_dict.items():
                     merged_file.write(source_file.read())
                 except Exception:
                     print(path)
-                # Add a newline to ensure content separation if the original file didn't end with one
-                merged_file.write("\n")
 
 print("Merging completed!")
 
