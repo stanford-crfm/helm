@@ -3042,7 +3042,7 @@ run_groups:
       task: translation
       what: news
       who: "?"
-      when: 2022 or after
+      when: 2022 or before
       language: Chinese, English
 
   - name: cleva_data_to_text_generation
@@ -3152,7 +3152,7 @@ run_groups:
 
   - name: cleva_sentiment_analysis
     display_name: CLEVA (Chinese) sentiment analysis
-    description: CLEVA (Chinese) sentiment analysis
+    description: Chinese sentiment analysis for product reviews [(Xu et al., 2021)](https://arxiv.org/abs/2107.07498).
     metric_groups:
       - accuracy
       - calibration
@@ -3163,7 +3163,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: sentiment analysis
-      what: "?"
+      what: product review
       who: "?"
       when: "?"
       language: Chinese
@@ -3182,9 +3182,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: language modeling
-      what: "?"
+      what: web text
       who: "?"
-      when: "?"
+      when: 2010s
       language: Chinese
 
   - name: cleva_pinyin_transliteration
@@ -3255,7 +3255,7 @@ run_groups:
       task: multiple-choice
       what: "?"
       who: "?"
-      when: 2022 or before
+      when: 1990-2022
       language: Chinese
 
 # Knowledge
