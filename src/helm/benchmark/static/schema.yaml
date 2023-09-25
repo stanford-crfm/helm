@@ -2977,10 +2977,9 @@ run_groups:
 # Applications
   - name: cleva_closed_book_question_answering
     display_name: CLEVA (Chinese) closed book question answering
-    description: CLEVA (Chinese) closed book question answering
+    description: Closed-book question answering task comprises three subtasks. One is for the medical domain, another for open-domain, and the last measures if a model generates truthful answers.
     metric_groups:
       - accuracy
-      - calibration
       - efficiency
       - general_information
     environment:
@@ -2988,14 +2987,14 @@ run_groups:
       main_split: test
     taxonomy:
       task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      what: medical, open-domain, or truthful qa
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_summarization
     display_name: CLEVA (Chinese) summarization
-    description: CLEVA (Chinese) summarization
+    description: Summarize a dialogue between a customer representative and a customer.
     metric_groups:
       - cleva_summarization_metrics
       - general_information
@@ -3005,14 +3004,14 @@ run_groups:
       main_split: test
     taxonomy:
       task: summarization
-      what: "?"
-      who: "?"
-      when: "?"
+      what: e-commercial
+      who: customers and representatives
+      when: n/a
       language: Chinese
 
   - name: cleva_text_classification
     display_name: CLEVA (Chinese) text classification
-    description: CLEVA (Chinese) text classification
+    description: This scenario has two subtask. Classify if an utterance is humorous and identify news topic based on its title.
     metric_groups:
       - accuracy
       - calibration
@@ -3023,9 +3022,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: text classification
-      what: "?"
-      who: "?"
-      when: "?"
+      what: news or chitchat
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_translation
@@ -3041,13 +3040,13 @@ run_groups:
     taxonomy:
       task: translation
       what: news
-      who: "?"
+      who: n/a
       when: 2022 or before
       language: Chinese, English
 
   - name: cleva_data_to_text_generation
     display_name: CLEVA (Chinese) data to text generation
-    description: CLEVA (Chinese) data to text generation
+    description: Generate a product description based on structured data containing various product properties.
     metric_groups:
       - cleva_data_to_text_generation_metrics
       - general_information
@@ -3057,14 +3056,14 @@ run_groups:
       main_split: test
     taxonomy:
       task: data-to-text generation
-      what: "?"
-      who: "?"
-      when: "?"
+      what: product description
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_dialogue_generation
     display_name: CLEVA (Chinese) dialogue generation
-    description: CLEVA (Chinese) dialogue generation
+    description: Task-oriented dialogue between a user and a system.
     metric_groups:
       - cleva_dialogue_generation_metrics
       - general_information
@@ -3074,32 +3073,31 @@ run_groups:
       main_split: test
     taxonomy:
       task: dialogue generation
-      what: "?"
-      who: "?"
-      when: "?"
+      what: task-oriented dialogue on hotel, restaurant, attraction, metro, and taxi domain
+      who: user and assistant
+      when: n/a
       language: Chinese
 
   - name: cleva_opinion_mining
     display_name: CLEVA (Chinese) opinion mining
-    description: CLEVA (Chinese) opinion mining
+    description: Extract the target of an opinion.
     metric_groups:
       - accuracy
-      - calibration
       - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: next-word prediction
-      what: "?"
-      who: "?"
-      when: "?"
+      task: opinion target extraction
+      what: n/a
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_paraphrase_generation
     display_name: CLEVA (Chinese) paraphrase generation
-    description: CLEVA (Chinese) paraphrase generation
+    description: Generate a paraphrase of a given sentence.
     metric_groups:
       - cleva_paraphrase_generation_metrics
       - general_information
@@ -3108,15 +3106,15 @@ run_groups:
       main_name: chinese_ibleu
       main_split: test
     taxonomy:
-      task: paraprasing generation
-      what: "?"
-      who: "?"
-      when: "?"
+      task: paraphrase generation
+      what: n/a
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_paraphrase_identification
     display_name: CLEVA (Chinese) paraphrase identification
-    description: CLEVA (Chinese) paraphrase identification
+    description: Identify if two sentences, from a dialogue or from the finance domain, share the same meaning.
     metric_groups:
       - accuracy
       - calibration
@@ -3126,15 +3124,15 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: paraphrase identification
+      what: finance or chitchat
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_reading_comprehension
     display_name: CLEVA (Chinese) reading comprehension
-    description: CLEVA (Chinese) reading comprehension
+    description: Answer a multiple-choice question based on a given paragraph.
     metric_groups:
       - accuracy
       - calibration
@@ -3145,9 +3143,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      what: n/a
+      who: n/a
+      when: 2019 or before
       language: Chinese
 
   - name: cleva_sentiment_analysis
@@ -3164,8 +3162,8 @@ run_groups:
     taxonomy:
       task: sentiment analysis
       what: product review
-      who: "?"
-      when: "?"
+      who: customers
+      when: 2021 or before
       language: Chinese
 
 # Language
@@ -3182,8 +3180,8 @@ run_groups:
       main_split: test
     taxonomy:
       task: language modeling
-      what: web text
-      who: "?"
+      what: Wikipedia and websites
+      who: n/a
       when: 2010s
       language: Chinese
 
@@ -3199,7 +3197,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: pinyin transliteration
-      what: "?"
+      what: n/a
       who: automatically generated by algorithm
       when: n/a
       language: Chinese, Pinyin
@@ -3217,9 +3215,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: multiple-choice
-      what: "?"
-      who: "?"
-      when: "?"
+      what: n/a
+      who: n/a
+      when: n/a
       language: Classical Chinese
 
   - name: cleva_coreference_resolution
@@ -3235,14 +3233,14 @@ run_groups:
       main_split: test
     taxonomy:
       task: multiple-choice
-      what: "?"
-      who: "?"
-      when: "?"
+      what: books
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_intent_understanding
     display_name: CLEVA (Chinese) intent understanding
-    description: Scenario that tests whether the model could capture the writing intention of the authors after reading an article.
+    description: Tests whether the model could capture the writing intention of the authors after reading an article. Data are collected by [(Li et al., 2023)](https://arxiv.org/abs/2308.04813)
     metric_groups:
       - accuracy
       - calibration
@@ -3253,8 +3251,8 @@ run_groups:
       main_split: test
     taxonomy:
       task: multiple-choice
-      what: "?"
-      who: "?"
+      what: exam
+      who: n/a
       when: 1990-2022
       language: Chinese
 
@@ -3290,9 +3288,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: multiple-choice
-      what: "?"
-      who: "?"
-      when: "?"
+      what: Chinese idioms
+      who: n/a
+      when: n/a
       language: Chinese
 
 # Reasoning
@@ -3381,14 +3379,14 @@ run_groups:
       main_split: test
     taxonomy:
       task: multiple-choice
-      what: "?"
-      who: "?"
-      when: "?"
+      what: n/a
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_mathematical_reasoning
     display_name: CLEVA (Chinese) mathematical reasoning
-    description: Scenario that tests models' mathematical reasoning ability with chain-of-thoughts style reasoning. It contains a math world problem solving subtask [(Wang et al., 2017)](https://aclanthology.org/D17-1088.pdf).
+    description: Scenario that tests models' mathematical reasoning ability with chain-of-thoughts style reasoning. It contains a math word problem solving subtask [(Wang et al., 2017)](https://aclanthology.org/D17-1088.pdf).
     metric_groups:
       - cleva_mathematical_reasoning_metrics
       - general_information
@@ -3398,9 +3396,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: next-word prediction
-      what: "?"
-      who: "?"
-      when: "?"
+      what: exam
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_conceptual_generalization
@@ -3416,7 +3414,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: next-word prediction
-      what: "?"
+      what: n/a
       who: automatically generated by algorithm
       when: n/a
       language: synthetic
@@ -3424,7 +3422,7 @@ run_groups:
 # Harms
   - name: cleva_toxicity_detection
     display_name: CLEVA (Chinese) toxicity detection
-    description: Scenario that asks models about the offensiveness of the given text [(Deng et al., 2022)](https://aclanthology.org/2022.emnlp-main.796/).
+    description: Ask models about the offensiveness of the given text [(Deng et al., 2022)](https://aclanthology.org/2022.emnlp-main.796/).
     metric_groups:
       - accuracy
       - calibration
@@ -3436,8 +3434,8 @@ run_groups:
     taxonomy:
       task: toxicity classification
       what: text from Chinese social media 
-      who: "?"
-      when: "?"
+      who: web users
+      when: n/a
       language: Chinese
 
   - name: cleva_bias
@@ -3455,8 +3453,8 @@ run_groups:
     taxonomy:
       task: multiple-choice
       what: short Chinese dialogues from social media
-      who: "?"
-      when: "?"
+      who: web users
+      when: n/a
       language: Chinese
 
   - name: cleva_copyright
@@ -3470,9 +3468,9 @@ run_groups:
       main_split: test
     taxonomy:
       task: next-word prediction
-      what: "?"
-      who: "?"
-      when: "?"
+      what: books and code
+      who: n/a
+      when: n/a
       language: Chinese
 
   - name: cleva_fact_checking
@@ -3490,8 +3488,8 @@ run_groups:
     taxonomy:
       task: multiple-choice
       what: factual statements in natural language form
-      who: "?"
-      when: "?"
+      who: n/a
+      when: n/a
       language: Chinese
 
 # Others
