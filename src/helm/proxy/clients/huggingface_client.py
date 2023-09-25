@@ -3,7 +3,7 @@ import torch
 from torch.nn import functional
 from dataclasses import asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer, StoppingCriteria, StoppingCriteriaList
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 
 from helm.common.cache import Cache, CacheConfig, NoCache
 from helm.common.hierarchical_logger import htrack_block, hlog
@@ -16,6 +16,7 @@ from helm.common.tokenization_request import (
     TokenizationToken,
 )
 from .client import Client, wrap_request_time, truncate_sequence, cleanup_tokens
+from .huggingface_model_registry import HuggingfaceModelQuantizationConfig
 from .huggingface_tokenizer import HuggingFaceTokenizers
 from helm.proxy.clients.huggingface_model_registry import (
     get_huggingface_model_config,
@@ -68,12 +69,13 @@ class HuggingFaceServer:
 
         with htrack_block(f"Loading Hugging Face model for config {model_config}"):
             # WARNING this may fail if your GPU does not have enough memory
-            if model_config.quantization_config.model_loader == ModelLoader.AWQ:
+            quantization_config: Optional[HuggingfaceModelQuantizationConfig] = model_config.quantization_config
+            if quantization_config and model_config.quantization_config.model_loader == ModelLoader.AWQ:
                 from awq import AutoAWQForCausalLM
                 self.model = AutoAWQForCausalLM.from_quantized(
                     model_name, model_config.quantization_config.quant_file, fuse_layers=True
                 )
-            elif model_config.quantization_config.model_loader == ModelLoader.GPTQ:
+            elif quantization_config and model_config.quantization_config.model_loader == ModelLoader.GPTQ:
                 from auto_gptq import AutoGPTQForCausalLM
                 self.model = AutoGPTQForCausalLM.from_quantized(
                     model_name, trust_remote_code=True,
