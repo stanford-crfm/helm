@@ -2981,6 +2981,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
       - multiple_choice_classification_metrics
     environment:
@@ -2999,6 +3000,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -3016,6 +3018,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -3033,15 +3036,16 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: next-word prediction
+      what: n/a
+      who: n/a
+      when: n/a
       language: synthetic
 
   - name: cleva_commonsense_reasoning
@@ -3050,6 +3054,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -3066,16 +3071,17 @@ run_groups:
     description: CLEVA (Chinese) conceptual generalization
     metric_groups:
       - calibration
+      - efficiency
       - cleva_conceptual_generalization_metrics
       - general_information
     environment:
       main_name: cleva_top1_accuracy
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: next-word prediction
+      what: n/a
+      who: n/a
+      when: n/a
       language: synthetic
 
   - name: cleva_copyright
@@ -3084,10 +3090,11 @@ run_groups:
     metric_groups:
       - copyright_metrics
       - general_information
+      - efficiency
     environment:
       main_split: test
     taxonomy:
-      task: "?"
+      task: next-word prediction
       what: "?"
       who: "?"
       when: "?"
@@ -3099,6 +3106,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -3116,6 +3124,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -3133,11 +3142,12 @@ run_groups:
     metric_groups:
       - cleva_data_to_text_generation_metrics
       - general_information
+      - efficiency
     environment:
       main_name: chinese_bleu_1
       main_split: test
     taxonomy:
-      task: "?"
+      task: data-to-text generation
       what: "?"
       who: "?"
       when: "?"
@@ -3149,6 +3159,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -3166,11 +3177,12 @@ run_groups:
     metric_groups:
       - cleva_dialogue_generation_metrics
       - general_information
+      - efficiency
     environment:
       main_name: chinese_bleu_1
       main_split: test
     taxonomy:
-      task: "?"
+      task: dialogue generation
       what: "?"
       who: "?"
       when: "?"
@@ -3182,6 +3194,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
       - multiple_choice_classification_metrics
     environment:
@@ -3200,15 +3213,16 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: next-word prediction
+      what: n/a
+      who: n/a
+      when: n/a
       language: Math Expression
 
   - name: cleva_instruction_following
@@ -3217,6 +3231,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -3234,6 +3249,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -3251,12 +3267,13 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: bits_per_byte
       main_split: test
     taxonomy:
-      task: "?"
+      task: language modeling
       what: "?"
       who: "?"
       when: "?"
@@ -3268,15 +3285,16 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: next-word prediction
+      what: n/a
+      who: n/a
+      when: n/a
       language: Chinese or Math Expression
 
   - name: cleva_mathematical_reasoning
@@ -3285,11 +3303,12 @@ run_groups:
     metric_groups:
       - cleva_mathematical_reasoning_metrics
       - general_information
+      - efficiency
     environment:
       main_name: cleva_math_result_match
       main_split: test
     taxonomy:
-      task: "?"
+      task: next-word prediction
       what: "?"
       who: "?"
       when: "?"
@@ -3301,12 +3320,13 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
+      task: next-word prediction
       what: "?"
       who: "?"
       when: "?"
@@ -3318,11 +3338,12 @@ run_groups:
     metric_groups:
       - cleva_paraphrase_generation_metrics
       - general_information
+      - efficiency
     environment:
       main_name: chinese_ibleu
       main_split: test
     taxonomy:
-      task: "?"
+      task: paraprasing generation
       what: "?"
       who: "?"
       when: "?"
@@ -3334,6 +3355,7 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -3351,11 +3373,12 @@ run_groups:
     metric_groups:
       - cleva_pinyin_transliteration_metrics
       - general_information
+      - efficiency
     environment:
       main_name: chinese_bleu_1
       main_split: test
     taxonomy:
-      task: "?"
+      task: pinyin transliteration
       what: "?"
       who: "?"
       when: "?"
@@ -3367,12 +3390,13 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
+      task: question answering
       what: "?"
       who: "?"
       when: "?"
@@ -3384,15 +3408,16 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: next-word prediction
+      what: n/a
+      who: n/a
+      when: n/a
       language: synthetic
 
   - name: cleva_sentiment_analysis
@@ -3401,12 +3426,13 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
+      task: sentiment analysis
       what: "?"
       who: "?"
       when: "?"
@@ -3418,14 +3444,15 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
+      task: knowledge base completion
+      what: entity-relation-entity triples in natural language form
+      who: automatically generated from templates
       when: "?"
       language: structured Chinese
 
@@ -3435,11 +3462,12 @@ run_groups:
     metric_groups:
       - cleva_summarization_metrics
       - general_information
+      - efficiency
     environment:
       main_name: chinese_rouge_2
       main_split: test
     taxonomy:
-      task: "?"
+      task: summarization
       what: "?"
       who: "?"
       when: "?"
@@ -3451,12 +3479,13 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
+      task: text classification
       what: "?"
       who: "?"
       when: "?"
@@ -3468,12 +3497,13 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
+      task: toxicity classification
       what: "?"
       who: "?"
       when: "?"
@@ -3485,6 +3515,7 @@ run_groups:
     metric_groups:
       - cleva_translation_metrics
       - general_information
+      - efficiency
     environment:
       main_name: bleu
       main_split: test
