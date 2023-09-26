@@ -2378,7 +2378,7 @@ def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: in
         else:
             adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
     return RunSpec(
-        name=f"ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name}" + f",run_id={run_id},idk={idk}",
+        name=f"ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name},run_id={run_id},idk={idk}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() if ood_type == "style" else get_ood_knowledge_metric_specs(),
