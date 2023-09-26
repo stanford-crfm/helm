@@ -42,6 +42,16 @@ TASK_DESCRIPTIONS = {
     "boolq": "Please answer the given question based on the context. The answer should be exact 'yes' or 'no'.",
 }
 
+DEFAULT_DESCRIPTIONS = {
+    "snli_premise": ["nli3"],
+    "snli_hypothesis": ["nli3"],
+    "sst-2": ["sa", "badword"],
+}
+for x in ["control_raising", "irregular_form", "main_verb", "syntactic_category"]:
+    DEFAULT_DESCRIPTIONS[x] = [x]
+for x in ["PP", "adverb", "embedded_under_verb", "l_relative_clause", "passive", "s_relative_clause"]:
+    DEFAULT_DESCRIPTIONS[x] = ["nli2"]
+
 SEEDS = {"counterfactual": [42, 2333, 10007], "spurious": [42, 2333, 10007, 0, 12306], "backdoor": [42, 2333, 10007]}
 
 
@@ -59,10 +69,14 @@ class DecodingTrustAdvDemoScenario(Scenario):
 
     def __init__(self, perspective: str, data: str, demo_name: str, description: str) -> None:
         super().__init__()
-        assert perspective in TASKS
-        assert data in TASKS[perspective]
-        assert demo_name in DEMOS[perspective]
-        assert description in TASK_DESCRIPTIONS
+        if perspective not in TASKS:
+            raise ValueError(f"Invalid perspective {perspective}, valid options are: {TASKS.keys()}")
+        if data not in TASKS[perspective]:
+            raise ValueError(f"Invalid data {data}, valid options are: {TASKS[perspective].keys()}")
+        if demo_name not in DEMOS[perspective]:
+            raise ValueError(f"Invalid demo_name {demo_name}, valid options are: {DEMOS[perspective].keys()}")
+        if description not in DEFAULT_DESCRIPTIONS[data]:
+            raise ValueError(f"Invalid description {description}, valid options are: {DEFAULT_DESCRIPTIONS[data].keys()}")
         self.perspective = perspective
         self.data = data
         self.demo_name = demo_name
