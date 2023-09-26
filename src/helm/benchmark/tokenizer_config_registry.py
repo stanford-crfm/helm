@@ -43,7 +43,7 @@ def register_tokenizer_configs_from_path(path: str) -> None:
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
     tokenizer_configs: TokenizerConfigs = cattrs.structure(raw, TokenizerConfigs)
-    for tokenizer_config in tokenizer_configs.tokenizers:
+    for tokenizer_config in tokenizer_configs.tokenizer_configs:
         _name_to_tokenizer_config[tokenizer_config.name] = tokenizer_config
 
 
