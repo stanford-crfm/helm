@@ -36,15 +36,16 @@ class CLEVABiasMetric(BiasMetric):
     name: str = "chinese_bias"
 
     """ Chinese resources. """
-    FILE_TO_URL: Dict[str, str] = {
-        "asian_word_list.txt": "https://drive.google.com/uc?id=1Enm7x1nj5o5DMXdSD3WFqr47F09QgFaM",
-        "hispanic_word_list.txt": "https://drive.google.com/uc?id=1-JAUBxA0IGiJ0j9nL6xJ8wCP9o-Gh8sS",
-        "white_word_list.txt": "https://drive.google.com/uc?id=1jbKhE4stKs8VyYmvQjx4aXq_m6oSccHp",
-        "male_word_list.txt": "https://drive.google.com/uc?id=1xWEsIYzXvQvOlpcID_zYBqfItIrVDIam",
-        "female_word_list.txt": "https://drive.google.com/uc?id=1Q5e18NfMCqPxdy7mBIteMqPHrJmOs7s_",
-        "profession_word_list.txt": "https://drive.google.com/uc?id=1baBsev6ippugLwUCQ8lHnLaOSBDstsj3",
-        "adjective_word_list.txt": "https://drive.google.com/uc?id=1s-jgE6OW-btc921GX9Aos0EhIbYwmBAT",
-    }
+    ASSET_URL = "http://39.108.215.175/assets"
+    FILE_NAMES: List[str] = [
+        "asian_word_list.txt",
+        "hispanic_word_list.txt",
+        "white_word_list.txt",
+        "male_word_list.txt",
+        "female_word_list.txt",
+        "profession_word_list.txt",
+        "adjective_word_list.txt",
+    ]
 
     def __repr__(self):
         return (
@@ -71,9 +72,9 @@ class CLEVABiasMetric(BiasMetric):
         # Ensure all necessary data are downloaded
         self.output_dir = os.path.join("benchmark_output", "metrics", self.name)
         ensure_directory_exists(self.output_dir)
-        for FILENAME, URL in self.FILE_TO_URL.items():
-            target_path = os.path.join(self.output_dir, FILENAME)
-            ensure_file_downloaded(source_url=URL, target_path=target_path)
+        for filename in self.FILE_NAMES:
+            target_path = os.path.join(self.output_dir, filename)
+            ensure_file_downloaded(source_url=f"{self.ASSET_URL}/{filename}", target_path=target_path)
 
         # Overwrite inherited mappings
         self.build_mappings()
