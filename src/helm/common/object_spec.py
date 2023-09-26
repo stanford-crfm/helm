@@ -52,7 +52,7 @@ def inject_object_spec_args(
     If found in constant_bindings, add the corresponding value to args.
     If found in provider_bindings, call the corresponding value and add the return values to args.
 
-    This is loosely based on instances (constant) bindings and provider bindings in Guice dependency injection."""
+    This is loosely based on instance (constant) bindings and provider bindings in Guice dependency injection."""
     cls = get_class_by_name(spec.class_name)
     init_signature = inspect.signature(cls.__init__)
     args = {}
@@ -72,7 +72,6 @@ def create_object(spec: ObjectSpec):
     cls = get_class_by_name(spec.class_name)
     args = {}
     args.update(spec.args)
-    print(cls)
     return cls(**args)
 
 

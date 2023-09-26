@@ -56,7 +56,7 @@ def register_model_metadata_from_path(path: str) -> None:
     model_metadata_list = dacite.from_dict(ModelMetadataList, raw)
     for model_metadata in model_metadata_list.models:
         model = Model(
-            group="unknown",  # TODO: group should be part of model deployment, not model
+            group="none",  # TODO: group should be part of model deployment, not model
             name=model_metadata.name,
             tags=model_metadata.tags,
         )

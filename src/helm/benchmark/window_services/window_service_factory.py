@@ -1,5 +1,4 @@
 from helm.benchmark.model_deployment_registry import WindowServiceSpec, get_model_deployment
-from helm.proxy.clients.huggingface_model_registry import HuggingFaceHubModelConfig
 from helm.proxy.models import (
     get_model,
     get_model_names_with_tag,
@@ -66,7 +65,7 @@ class WindowServiceFactory:
 
             window_service = HTTPModelWindowServce(service)
         elif huggingface_model_config:
-            window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
+            window_service = HuggingFaceWindowService(service=service, tokenizer_name=huggingface_model_config.model_id)
         elif organization == "openai":
             from helm.benchmark.window_services.openai_window_service import OpenAIWindowService
             from helm.benchmark.window_services.wider_openai_window_service import (
@@ -197,10 +196,7 @@ class WindowServiceFactory:
             "tiiuae/falcon-40b",
             "tiiuae/falcon-40b-instruct",
         ]:
-            window_service = HuggingFaceWindowService(
-                service=service,
-                model_config=HuggingFaceHubModelConfig(namespace="tiiuae", model_name="falcon-7b", revision=None),
-            )
+            window_service = HuggingFaceWindowService(service=service, tokenizer_name="tiiuae/falcon-7b")
         elif model_name in [
             "stabilityai/stablelm-base-alpha-3b",
             "stabilityai/stablelm-base-alpha-7b",

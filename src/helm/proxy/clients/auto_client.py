@@ -71,7 +71,6 @@ class AutoClient(Client):
             # TODO: Migrate all clients to use model deployments
             model_deployment = get_model_deployment(model)
             if model_deployment:
-                api_key = None
 
                 def provide_api_key():
                     if "deployments" not in self.credentials:
@@ -94,6 +93,8 @@ class AutoClient(Client):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "neurips":
+                client = HTTPModelClient(cache_config=cache_config)
             elif organization == "openai":
                 from helm.proxy.clients.openai_client import OpenAIClient
 

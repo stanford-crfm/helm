@@ -2,7 +2,6 @@ import os
 import signal
 from typing import List, Optional
 
-
 from helm.benchmark.model_metadata_registry import maybe_register_model_metadata_from_base_path
 from helm.benchmark.model_deployment_registry import maybe_register_model_deployments_from_base_path
 from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
