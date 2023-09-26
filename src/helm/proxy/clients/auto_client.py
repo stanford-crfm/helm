@@ -1,8 +1,8 @@
 import os
 from dataclasses import replace
-from typing import Any, Dict, Mapping, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
 
-from retrying import RetryError, Attempt
+from retrying import Attempt, RetryError
 
 from helm.benchmark.model_deployment_registry import get_model_deployment
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
@@ -10,18 +10,18 @@ from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
+    TokenizationRequest,
+    TokenizationRequestResult,
 )
-from helm.proxy.retry import retry_request, NonRetriableException
-from helm.proxy.clients.critique_client import CritiqueClient
 from helm.proxy.clients.client import Client
-from .http_model_client import HTTPModelClient
+from helm.proxy.clients.critique_client import CritiqueClient
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
+from helm.proxy.retry import NonRetriableException, retry_request
 
+from .http_model_client import HTTPModelClient
 
 if TYPE_CHECKING:
     import helm.proxy.clients.huggingface_client
@@ -181,9 +181,9 @@ class AutoClient(Client):
                 client = LitGPTClient(
                     cache_config=cache_config,
                     checkpoint_dir=os.environ.get("LIT_GPT_CHECKPOINT_DIR", ""),
-                    precision=os.environ.get("LIT_GPT_PRECISION", "bf16-true")
-                    )
-            
+                    precision=os.environ.get("LIT_GPT_PRECISION", "bf16-true"),
+                )
+
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client
@@ -341,11 +341,15 @@ class AutoClient(Client):
 
             self._critique_client = RandomCritiqueClient()
         elif critique_type == "mturk":
-            from helm.proxy.clients.mechanical_turk_critique_client import MechanicalTurkCritiqueClient
+            from helm.proxy.clients.mechanical_turk_critique_client import (
+                MechanicalTurkCritiqueClient,
+            )
 
             self._critique_client = MechanicalTurkCritiqueClient()
         elif critique_type == "surgeai":
-            from helm.proxy.clients.surge_ai_critique_client import SurgeAICritiqueClient
+            from helm.proxy.clients.surge_ai_critique_client import (
+                SurgeAICritiqueClient,
+            )
 
             surgeai_credentials = self.credentials.get("surgeaiApiKey")
             if not surgeai_credentials:
