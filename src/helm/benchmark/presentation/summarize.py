@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 """Reads the output of the benchmark runs and produces:
 - JSON files for the frontend
 - Tables for the paper
@@ -817,7 +818,9 @@ class Summarizer:
 
                 header_name = header_field.get_short_display_name()
                 description = (run_group.description + "\n\n" if run_group.description is not None else "") + (
-                    header_field.display_name + ": " + header_field.description
+                    (header_field.display_name if header_field.display_name else header_field.name)
+                    + ": "
+                    + (header_field.description if header_field.description is not None else "")
                 )
 
                 if matcher.perturbation_name is not None:
@@ -825,7 +828,7 @@ class Summarizer:
                     header_name += " (" + perturbation_field.get_short_display_name() + ")"
                     description += (
                         "\n- Perturbation "
-                        + perturbation_field.display_name
+                        + (perturbation_field.display_name or perturbation_field.name)
                         + ": "
                         + (perturbation_field.description or "???")
                     )

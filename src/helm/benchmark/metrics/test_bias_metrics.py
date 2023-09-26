@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 

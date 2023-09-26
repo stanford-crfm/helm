@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from dataclasses import replace, asdict
 from typing import Any, Dict, List, Optional, cast
 

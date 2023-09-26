@@ -28,7 +28,7 @@ class LanguageModelingAdapter(Adapter):
     @htrack(None)
     def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
         """
-        Takes a a list of `Instance`s and builds a list of corresponding `RequestState`s.
+        Takes a list of `Instance`s and builds a list of corresponding `RequestState`s.
         Only requires eval instances.
         """
         # Pick out evaluation instances. This includes both valid and test splits.
@@ -73,7 +73,7 @@ class LanguageModelingAdapter(Adapter):
         # Why is this limit needed ?
         # Because some vendors like Anthropic have this limit in their backend set to something lower than
         # max_sequence_length + max_generated_tokens_length.
-        # Note that max_generated_tokens_length is not explicitely set and checked in our codebase.
+        # Note that max_generated_tokens_length is not explicitly set and checked in our codebase.
         # This will be handled by the vendor backend.
 
         max_sequence_length: int = self.window_service.max_sequence_length

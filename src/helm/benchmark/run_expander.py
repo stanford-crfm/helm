@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import Any, List, Dict, Optional, Tuple, Type
@@ -62,35 +63,6 @@ class ReplaceValueRunExpander(RunExpander):
                 run_spec,
                 name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={sanitize(value)}",
                 adapter_spec=replace(run_spec.adapter_spec, **{self.name: value}),
-            )
-            for value in self.values
-        ]
-
-
-class ReplaceRunSpecValueRunExpander(RunExpander):
-    """
-    Replace a single field (e.g., max_train_instances) with a list of values (e.g., 0, 1, 2).
-    """
-
-    def __init__(self, value):
-        """
-        `value` is either the actual value to use or a lookup into the values dict.
-        """
-        self.name = type(self).name
-        if value in type(self).values_dict:
-            self.values = type(self).values_dict[value]
-        else:
-            self.values = [value]
-
-    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        def sanitize(value):
-            return str(value).replace("/", "_")
-
-        return [
-            replace(
-                run_spec,
-                name=f"{run_spec.name},{self.name}={sanitize(value)}",
-                metrics=value,
             )
             for value in self.values
         ]
@@ -530,7 +502,7 @@ def gender(
     source_class: str,
     target_class: str,
     mapping_file_path: Optional[str] = None,
-    mapping_file_genders: Tuple[str] = None,
+    mapping_file_genders: Optional[Tuple[str]] = None,
     bidirectional: bool = False,
 ) -> PerturbationSpec:
     return PerturbationSpec(
@@ -544,6 +516,61 @@ def gender(
             "mapping_file_genders": mapping_file_genders,
             "bidirectional": bidirectional,
         },
+    )
+
+
+def cleva_mild_mix() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.CLEVAMildMixPerturbation",
+        args={},
+    )
+
+
+def cleva_gender(
+    mode: str,
+    prob: float,
+    source_class: str,
+    target_class: str,
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.ChineseGenderPerturbation",
+        args={
+            "mode": mode,
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+        },
+    )
+
+
+def cleva_person_name(
+    prob: float,
+    source_class: Dict[str, str],
+    target_class: Dict[str, str],
+    preserve_gender: bool = True,
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.ChinesePersonNamePerturbation",
+        args={
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+            "preserve_gender": preserve_gender,
+        },
+    )
+
+
+def simplified_to_traditional() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.SimplifiedToTraditionalPerturbation",
+        args={},
+    )
+
+
+def mandarin_to_cantonese() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.cleva_perturbation.MandarinToCantonesePerturbation",
+        args={},
     )
 
 
@@ -708,6 +735,34 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             space(max_spaces=3),
             synonym(prob=0.1),
             typo(prob=0.01),
+        ]
+    },
+    "cleva_robustness": {"robustness": [cleva_mild_mix()]},
+    "cleva_fairness": {
+        "fairness": [
+            cleva_gender(mode="pronouns", prob=1.0, source_class="male", target_class="female"),
+            cleva_person_name(
+                prob=1.0,
+                source_class={"gender": "male"},
+                target_class={"gender": "female"},
+                preserve_gender=True,
+            ),
+            simplified_to_traditional(),
+            mandarin_to_cantonese(),
+        ]
+    },
+    "cleva": {
+        "cleva": [
+            cleva_mild_mix(),
+            cleva_gender(mode="pronouns", prob=1.0, source_class="male", target_class="female"),
+            cleva_person_name(
+                prob=1.0,
+                source_class={"gender": "male"},
+                target_class={"gender": "female"},
+                preserve_gender=True,
+            ),
+            simplified_to_traditional(),
+            mandarin_to_cantonese(),
         ]
     },
 }
