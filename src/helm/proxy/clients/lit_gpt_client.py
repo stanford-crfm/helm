@@ -129,7 +129,7 @@ class LitGPTClient(Client):
         with fabric.init_tensor():
             # enable the kv cache
             model.set_kv_cache(batch_size=1)
-        tokens, logprobs, top_logprobs = generate(
+        tokens, _, _ = generate(
             model,
             encoded,
             max_returned_tokens,
