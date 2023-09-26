@@ -92,7 +92,7 @@ class LitGPTClient(Client):
         cache_config: CacheConfig,
         checkpoint_dir: str = "",
         precision: str = "bf16-true",
-        device="auto",
+        device: str = "auto",
         devices: int = 1,
         strategy: str = "auto",
         quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
