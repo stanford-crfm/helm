@@ -41,7 +41,7 @@ class ModelDeployment:
     tokenizer_name: Optional[str] = None
     """Tokenizer for this model deployment.
 
-    If unset, defaults to the same value as `model_name`."""
+    If unset, auto-inferred by the WindowService."""
 
     window_service_spec: Optional[WindowServiceSpec] = None
     """Specification for instantiating the window service for this model deplooyment"""
