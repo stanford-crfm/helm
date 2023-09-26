@@ -1,5 +1,6 @@
 import os
 from dataclasses import replace
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
 
 from retrying import Attempt, RetryError
@@ -180,7 +181,7 @@ class AutoClient(Client):
 
                 client = LitGPTClient(
                     cache_config=cache_config,
-                    checkpoint_dir=os.environ.get("LIT_GPT_CHECKPOINT_DIR", ""),
+                    checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
                     precision=os.environ.get("LIT_GPT_PRECISION", "bf16-true"),
                 )
 

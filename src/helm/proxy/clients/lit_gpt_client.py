@@ -51,7 +51,7 @@ class SingletonMeta(type):
 class LitGPT(metaclass=SingletonMeta):
     def __init__(
         self,
-        checkpoint_dir: str = "",
+        checkpoint_dir: Path = Path(""),
         precision: str = "bf16-true",
         device: str = "auto",
         devices: int = 1,
@@ -66,7 +66,6 @@ class LitGPT(metaclass=SingletonMeta):
         fabric.launch()
         logger.info("Using device: {}".format(fabric.device))
 
-        checkpoint_dir: Path = Path(checkpoint_dir)
         check_valid_checkpoint_dir(checkpoint_dir)
 
         with open(checkpoint_dir / "lit_config.json") as fp:
@@ -92,7 +91,7 @@ class LitGPTClient(Client):
     def __init__(
         self,
         cache_config: CacheConfig,
-        checkpoint_dir: str = "",
+        checkpoint_dir: Path = Path(""),
         precision: str = "bf16-true",
         device: str = "auto",
         devices: int = 1,
