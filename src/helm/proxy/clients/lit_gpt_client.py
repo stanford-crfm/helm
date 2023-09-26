@@ -66,7 +66,7 @@ class LitGPT(metaclass=SingletonMeta):
         fabric.launch()
         logger.info("Using device: {}".format(fabric.device))
 
-        checkpoint_dir = Path(checkpoint_dir)
+        checkpoint_dir: Path = Path(checkpoint_dir)
         check_valid_checkpoint_dir(checkpoint_dir)
 
         with open(checkpoint_dir / "lit_config.json") as fp:
