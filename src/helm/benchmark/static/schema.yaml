@@ -356,6 +356,16 @@ models:
     release_date: 2023-01-23
     todo: true
 
+  # Lightning AI's Lit-GPT
+  - name: lightningai/lit-gpt
+    display_name: Lit-GPT
+    description: Lit-GPT is an optimized collection of open-source LLMs for finetuning and inference. It supports – Falcon, Llama 2, Vicuna, LongChat, and other top-performing open-source large language models.
+    creator_organization: Lightning AI
+    access: open
+    num_parameters: 1
+    release_date: 2023-04-04
+
+
   # Meta
   - name: together/opt-iml-175b
     display_name: OPT-IML (175B)
