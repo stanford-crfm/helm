@@ -124,7 +124,7 @@ class LitGPTClient(Client):
         t0 = time.perf_counter()
         # helm doesn't have anything equivalent to top_k at the moment
         # TODO: allow temperature=0, pick the top token rather than sampling.
-        stop_tokens: List[torch.int] = [tokenizer.encode(e, device=fabric.device) for e in request.stop_sequences]
+        stop_tokens: List[torch.Tensor] = [tokenizer.encode(e, device=fabric.device) for e in request.stop_sequences]
 
         with fabric.init_tensor():
             # enable the kv cache
