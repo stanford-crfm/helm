@@ -43,7 +43,15 @@ class ChineseTyposPerturbation(Perturbation):
     name: str = "chinese_typos"
 
     # For downloading resources
-    ASSET_URL = "https://drive.google.com/uc?id=1p5mldLpKxI-63H8YEruGJghtD1dZJI8k"
+    ASSET_URL = "http://39.108.215.175/assets/butter_finger"
+    FILE_NAMES: List[str] = [
+        "pinyin_to_char.json",
+        "toneless_pinyin_to_char.json",
+        "pinyin_to_common_char.json",
+        "toneless_pinyin_to_common_char.json",
+        "pinyin_to_word.json",
+        "toneless_pinyin_to_word.json",
+    ]
 
     def __init__(
         self,
@@ -62,8 +70,11 @@ class ChineseTyposPerturbation(Perturbation):
 
         # Ensure all necessary data are downloaded
         output_dir = os.path.join("benchmark_output", "perturbations", self.name)
-        ensure_directory_exists(os.path.dirname(output_dir))
-        ensure_file_downloaded(source_url=self.ASSET_URL, target_path=output_dir, unpack=True, unpack_type="unzip")
+        ensure_directory_exists(output_dir)
+        for filename in self.FILE_NAMES:
+            target_path = os.path.join(output_dir, filename)
+            SOURCE_URL: str = f"{self.ASSET_URL}/{filename}"
+            ensure_file_downloaded(source_url=SOURCE_URL, target_path=target_path)
 
         # Load the data for the perturbation
         with open(
@@ -285,7 +296,7 @@ class ChineseSynonymPerturbation(Perturbation):
     name: str = "chinese_synonym"
 
     # For downloading resources
-    SOURCE_URI: str = "https://drive.google.com/uc?id=1gXyZjoUw6yRjrsrh9ERzB_gxVluMTvij"
+    SOURCE_URL: str = "http://39.108.215.175/assets/synonyms.json"
 
     def __init__(self, prob: float, trial_num: int = 10):
         # Assign parameters to instance variables
@@ -294,7 +305,7 @@ class ChineseSynonymPerturbation(Perturbation):
 
         target_dir = os.path.join("benchmark_output", "perturbations", self.name, "synonyms.json")
         ensure_directory_exists(os.path.dirname(target_dir))
-        ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_dir)
+        ensure_file_downloaded(source_url=self.SOURCE_URL, target_path=target_dir)
         with open(os.path.join(target_dir)) as f:
             self.synonym_dict: Dict[str, List[str]] = json.load(f)
 
@@ -377,7 +388,7 @@ class ChineseGenderPerturbation(Perturbation):
     MODES = [GENDER_TERM, GENDER_PRONOUN]
 
     """ Resources """
-    SOURCE_URI: str = "https://drive.google.com/uc?id=1tJ5GLKboQrpzzBYTnFxeRuCOBxYhjFLp"
+    SOURCE_URL: str = "http://39.108.215.175/assets/gender_term.txt"
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
@@ -424,7 +435,7 @@ class ChineseGenderPerturbation(Perturbation):
 
             target_path = os.path.join("benchmark_output", "perturbations", self.name, "gender_term.txt")
             ensure_directory_exists(os.path.dirname(target_path))
-            ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_path)
+            ensure_file_downloaded(source_url=self.SOURCE_URL, target_path=target_path)
             with open(target_path) as fin:
                 for line in fin.readlines():
                     splits: List[str] = line.strip("\n").split(" ")
@@ -480,7 +491,7 @@ class ChinesePersonNamePerturbation(Perturbation):
     should_perturb_references: bool = True
 
     """ Resources """
-    SOURCE_URI: str = "https://drive.google.com/uc?id=1nKnfsxREkScrNOyhqiFxP5F1SjRgk6r8"
+    SOURCE_URL: str = "http://39.108.215.175/assets/chinese_name_gender.json"
     OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
 
     """ Gender categories """
@@ -545,7 +556,7 @@ class ChinesePersonNamePerturbation(Perturbation):
 
         target_path = os.path.join("benchmark_output", "perturbations", self.name, "chinese_name_gender.json")
         ensure_directory_exists(os.path.dirname(target_path))
-        ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_path)
+        ensure_file_downloaded(source_url=self.SOURCE_URL, target_path=target_path)
         with open(os.path.join(target_path), "r", encoding="utf-8") as f:
             self.gender2name: Dict[str, List[str]] = json.load(f)
             del self.gender2name["unknown"]
@@ -715,7 +726,7 @@ class MandarinToCantonesePerturbation(Perturbation):
     should_perturb_references: bool = True
 
     """ Resources """
-    SOURCE_URI: str = "https://drive.google.com/uc?id=1vljbwq0hTm7W1tz74gjPnONWJ6kSEwK2"
+    SOURCE_URL: str = "http://39.108.215.175/assets/simplified_jyutping_conversion.json"
 
     @property
     def description(self) -> PerturbationDescription:
@@ -733,7 +744,7 @@ class MandarinToCantonesePerturbation(Perturbation):
 
         target_path = os.path.join("benchmark_output", "perturbations", self.name, "conversion.json")
         ensure_directory_exists(os.path.dirname(target_path))
-        ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_path)
+        ensure_file_downloaded(source_url=self.SOURCE_URL, target_path=target_path)
         with open(target_path) as fin:
             self.phrase_table = json.load(fin)
 

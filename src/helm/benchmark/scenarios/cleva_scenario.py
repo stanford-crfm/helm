@@ -16,7 +16,7 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CO
 from .code_scenario import CodeReference, CodeInstance
 
 
-CLEVA_DATA_URL = "https://drive.google.com/uc?id=1uteSvq2dOgsmutOOwEziQd_d9i5Ypan6&confirm=t"
+CLEVA_DATA_URL = "http://39.108.215.175/data"
 CLEVA_DATA_PATH = "benchmark_output/scenarios/cleva"
 
 
@@ -410,10 +410,11 @@ class CLEVAScenario(Scenario):
         pass
 
     @classmethod
-    def download_dataset(cls):
-        target_dir = os.path.join(CLEVA_DATA_PATH, "data")
-        ensure_directory_exists(CLEVA_DATA_PATH)
-        ensure_file_downloaded(source_url=CLEVA_DATA_URL, target_path=target_dir, unpack=True, unpack_type="untar")
+    def download_dataset(cls, task, version):
+        source_url: str = CLEVA_DATA_URL + f"/{version}/{task}.zip"
+        target_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version)
+        ensure_directory_exists(target_dir)
+        ensure_file_downloaded(source_url=source_url, target_path=os.path.join(target_dir, f"{task}.zip"), unpack=True)
 
     def load_dataset(self) -> Dict[str, List[Dict[str, Any]]]:
         data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version, self.task)
