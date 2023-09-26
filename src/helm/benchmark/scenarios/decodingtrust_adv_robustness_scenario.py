@@ -68,7 +68,7 @@ class AdvRobustnessScenario(Scenario):
         super().__init__()
 
         if glue_task not in TASK_TO_KEYS.keys():
-            raise ValueError("Invalid GLUE task name specified!")
+            raise ValueError(f"Invalid GLUE task name specified, valid options are: {TASK_TO_KEYS.keys()}")
 
         self.glue_task = glue_task
 
