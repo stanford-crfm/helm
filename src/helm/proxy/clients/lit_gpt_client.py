@@ -35,6 +35,7 @@ logging.basicConfig(level=logging.INFO)
 
 QuantizationType = Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]
 
+
 class SingletonMeta(type):
     _instances = {}
     _lock: Lock = Lock()
@@ -52,7 +53,7 @@ class LitGPT(metaclass=SingletonMeta):
         self,
         checkpoint_dir: str = "",
         precision: str = "bf16-true",
-        device: str="auto",
+        device: str = "auto",
         devices: int = 1,
         strategy: str = "auto",
         quantize: Optional[QuantizationType] = None,
