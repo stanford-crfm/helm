@@ -2347,7 +2347,7 @@ def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, desc
 @run_spec_function("ood_robustness")
 def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int = -1, idk: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.OoDRobustnessScenario",
+        class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.OODRobustnessScenario",
         args={"ood_type": ood_type, "task": task, "demo_name": demo_name, "run_id": run_id, "idk": idk},
     )
     print(scenario_spec)
