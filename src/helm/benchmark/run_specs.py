@@ -2380,7 +2380,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int = 0) -> RunSpec:
     from .scenarios.cleva_scenario import CLEVAScenario  # noqa
 
-    CLEVAScenario.download_dataset()
+    CLEVAScenario.download_dataset(task, version)
 
     _, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
     inference_parameters = CLEVAScenario.load_inference_parameters(task, subtask, version, prompt_id)
