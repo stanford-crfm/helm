@@ -726,7 +726,7 @@ class MandarinToCantonesePerturbation(Perturbation):
     should_perturb_references: bool = True
 
     """ Resources """
-    SOURCE_URL: str = "http://39.108.215.175/assets/simplified_jyutping_conversion.json"
+    SOURCE_URL: str = "http://39.108.215.175/assets/conversion.json"
 
     @property
     def description(self) -> PerturbationDescription:
