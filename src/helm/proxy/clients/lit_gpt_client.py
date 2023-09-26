@@ -19,7 +19,7 @@ from helm.common.tokenization_request import (
 )
 
 from .client import Client
-from .lit_gpt_generate import generate
+from .lit_gpt_generate import generate  # type: ignore
 
 try:
     import lightning as L
@@ -52,7 +52,7 @@ class LitGPT(metaclass=SingletonMeta):
     def __init__(
         self,
         checkpoint_dir: Path = Path(""),
-        precision: str = "bf16-true",  # TODO: need to ignore this
+        precision: str = "bf16-true",
         device: str = "auto",
         devices: int = 1,
         strategy: Union[str, FSDPStrategy] = "auto",
@@ -62,7 +62,7 @@ class LitGPT(metaclass=SingletonMeta):
 
         if strategy == "fsdp":
             strategy = FSDPStrategy(auto_wrap_policy={Block}, cpu_offload=False)
-        fabric = L.Fabric(devices=devices, accelerator=device, precision=precision, strategy=strategy)
+        fabric = L.Fabric(devices=devices, accelerator=device, precision=precision, strategy=strategy)  # type: ignore
         fabric.launch()
         logger.info("Using device: {}".format(fabric.device))
 
