@@ -410,7 +410,7 @@ class CLEVAScenario(Scenario):
         pass
 
     @classmethod
-    def download_dataset(cls, task, version):
+    def download_dataset(cls, task: str, version: str):
         source_url: str = CLEVA_DATA_URL + f"/{version}/{task}.zip"
         target_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version)
         ensure_directory_exists(target_dir)
