@@ -1,4 +1,4 @@
-from helm.benchmark.model_deployment_registry import get_model_deployment
+from helm.benchmark.model_deployment_registry import WindowServiceSpec, get_model_deployment
 from helm.proxy.clients.huggingface_model_registry import HuggingFaceHubModelConfig
 from helm.proxy.models import (
     get_model,
@@ -20,6 +20,7 @@ from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.remote_model_registry import get_remote_model
+from helm.common.object_spec import create_object, inject_object_spec_args
 
 
 class WindowServiceFactory:
@@ -40,17 +41,24 @@ class WindowServiceFactory:
         # TODO: Migrate all window services to use use model deployments
         model_deployment = get_model_deployment(model_name)
         if model_deployment:
-            # TODO: Allow tokenizer name auto-inference in some cases.
-            if not model_deployment.tokenizer_name:
-                raise Exception("Tokenizer name must be set on model deplyment")
-            tokenizer_name = model_deployment.tokenizer_name
-            # Only use HuggingFaceWindowService for now.
-            # TODO: Allow using other window services.
-            window_service = HuggingFaceWindowService(
-                service=service,
-                model_config=HuggingFaceHubModelConfig.from_string(tokenizer_name),
-                max_sequence_length=model_deployment.max_sequence_length,
+            # If the model deployment specifies a WindowServiceSpec, instantiate it.
+            window_service_spec: WindowServiceSpec
+            if model_deployment.window_service_spec:
+                window_service_spec = model_deployment.window_service_spec
+            else:
+                window_service_spec = WindowServiceSpec(
+                    class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService", args={}
+                )
+            window_service_spec = inject_object_spec_args(
+                window_service_spec,
+                {
+                    "service": service,
+                    "tokenizer_name": model_deployment.tokenizer_name,
+                    "max_sequence_length": model_deployment.max_sequence_length,
+                    "max_request_length": model_deployment.max_request_length,
+                },
             )
+            window_service = create_object(window_service_spec)
         elif get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
         elif organization == "neurips":

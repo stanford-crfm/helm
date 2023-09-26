@@ -123,7 +123,6 @@ class HTTPModelClient(Client):
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         # raise NotImplementedError("Not implemented yet.")
         cache_key = asdict(request)
-
         try:
 
             def do_it():
