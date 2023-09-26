@@ -414,7 +414,7 @@ class CLEVAScenario(Scenario):
         source_url: str = CLEVA_DATA_URL + f"/{version}/{task}.zip"
         target_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version)
         ensure_directory_exists(target_dir)
-        ensure_file_downloaded(source_url=source_url, target_path=os.path.join(target_dir, f"{task}.zip"), unpack=True)
+        ensure_file_downloaded(source_url=source_url, target_path=os.path.join(target_dir, task), unpack=True)
 
     def load_dataset(self) -> Dict[str, List[Dict[str, Any]]]:
         data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version, self.task)
