@@ -3,7 +3,7 @@ import logging
 import time
 from pathlib import Path
 from threading import Lock
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Dict, Union
 
 import torch
 
@@ -37,7 +37,7 @@ QuantizationType = Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bn
 
 
 class SingletonMeta(type):
-    _instances = {}
+    _instances: Dict[type, type] = {}
     _lock: Lock = Lock()
 
     def __call__(cls, *args, **kwargs):
@@ -52,10 +52,10 @@ class LitGPT(metaclass=SingletonMeta):
     def __init__(
         self,
         checkpoint_dir: Path = Path(""),
-        precision: str = "bf16-true",
+        precision: str = "bf16-true",  # TODO: need to ignore this
         device: str = "auto",
         devices: int = 1,
-        strategy: str = "auto",
+        strategy: Union[str, FSDPStrategy] = "auto",
         quantize: Optional[QuantizationType] = None,
     ):
         torch.set_float32_matmul_precision("high")
@@ -110,7 +110,7 @@ class LitGPTClient(Client):
         fabric = self.fabric
         encoded = tokenizer.encode(request.prompt, bos=True, eos=False, device=fabric.device)
         prompt_length = encoded.size(0)
-        max_returned_tokens = prompt_length + request.max_tokens
+        max_returned_tokens: int = prompt_length + request.max_tokens
         assert max_returned_tokens <= model.config.block_size, (
             max_returned_tokens,
             model.config.block_size,
