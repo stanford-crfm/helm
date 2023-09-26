@@ -2386,11 +2386,20 @@ def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: in
     )
 
 
-@run_spec_function("fairness")
-def get_fairness_spec(task: str, train_br: float, test_br: float, num_train: int, num_test: int) -> RunSpec:
+@run_spec_function("decodingtrust_fairness")
+def get_fairness_spec(
+        task: str,
+        train_base_rate: float,
+        test_base_rate: float,
+        num_train: int,
+        num_test: int
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_fairness_scenario.FairnessScenario",
-        args={"task": task, "train_br": train_br, "test_br": test_br, "num_train": num_train, "num_test": num_test},
+        args={
+            "task": task, "train_base_rate": train_base_rate, "test_base_rate": test_base_rate, "num_train": num_train,
+            "num_test": num_test
+        },
     )
 
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
