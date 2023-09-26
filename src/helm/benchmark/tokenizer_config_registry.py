@@ -31,7 +31,7 @@ class TokenizerConfig:
 
 @dataclass(frozen=True)
 class TokenizerConfigs:
-    tokenizers: List[TokenizerConfig]
+    tokenizer_configs: List[TokenizerConfig]
 
 
 _name_to_tokenizer_config: Dict[str, TokenizerConfig] = {}
