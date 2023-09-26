@@ -738,7 +738,7 @@ models:
     num_parameters: 6700000000
     release_date: 2023-05-05
     todo: true
-  - name: mosaicml/mpt-7b-instruct
+  - name: mosaicml/mpt-instruct-7b
     display_name: MPT-Instruct (7B)
     description: MPT-Instruct (7B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
@@ -760,7 +760,7 @@ models:
     num_parameters: 30000000000
     release_date: 2023-06-22
     todo: true
-  - name: mosaicml/mpt-30b-instruct
+  - name: mosaicml/mpt-instruct-30b
     display_name: MPT-Instruct (30B)
     description: MPT-Instruct (30B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
     creator_organization: MosaicML
@@ -770,29 +770,29 @@ models:
 
   # TII UAE
   - name: tiiuae/falcon-7b
-    display_name: Falcon LLM (7B)
+    display_name: Falcon (7B)
     description: Falcon-7B is a 7B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
     creator_organization: TII UAE
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-15
   - name: tiiuae/falcon-7b-instruct
-    display_name: Falcon LLM (7B)
+    display_name: Falcon-Instruct (7B)
     description: Falcon-7B-Instruct is a 7B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
     creator_organization: TII UAE
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-15
   - name: tiiuae/falcon-40b
-    display_name: Falcon LLM (40B)
+    display_name: Falcon (40B)
     description: Falcon-40B is a 40B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
     creator_organization: TII UAE
     access: open
     num_parameters: 40000000000
     release_date: 2023-05-25
   - name: tiiuae/falcon-40b-instruct
-    display_name: Falcon LLM (40B)
-    description: Falcon-7B-Instruct is a 40B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
+    display_name: Falcon-Instruct (40B)
+    description: Falcon-40B-Instruct is a 40B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
     creator_organization: TII UAE
     access: open
     num_parameters: 40000000000
