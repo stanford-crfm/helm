@@ -2994,7 +2994,7 @@ run_groups:
 
   - name: cleva_summarization
     display_name: CLEVA (Chinese) summarization
-    description: Summarize a dialogue between a customer representative and a customer.
+    description: "Contains one subtask so far: summarize a dialogue between a customer representative and a customer."
     metric_groups:
       - cleva_summarization_metrics
       - general_information
@@ -3004,7 +3004,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: summarization
-      what: e-commercial
+      what: e-commerce dialogues
       who: customers and representatives
       when: n/a
       language: Chinese
@@ -3046,7 +3046,7 @@ run_groups:
 
   - name: cleva_data_to_text_generation
     display_name: CLEVA (Chinese) data to text generation
-    description: Generate a product description based on structured data containing various product properties.
+    description: "Contains one subtask so far: Generate a product description based on structured data containing various product properties."
     metric_groups:
       - cleva_data_to_text_generation_metrics
       - general_information
@@ -3063,7 +3063,7 @@ run_groups:
 
   - name: cleva_dialogue_generation
     display_name: CLEVA (Chinese) dialogue generation
-    description: Task-oriented dialogue between a user and a system.
+    description: "Contains one subtask so far: Task-oriented dialogue between a user and a system."
     metric_groups:
       - cleva_dialogue_generation_metrics
       - general_information
@@ -3080,7 +3080,7 @@ run_groups:
 
   - name: cleva_opinion_mining
     display_name: CLEVA (Chinese) opinion mining
-    description: Extract the target of an opinion.
+    description: "Contains one subtask so far: Extract the target of an opinion."
     metric_groups:
       - accuracy
       - efficiency
@@ -3125,7 +3125,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: paraphrase identification
-      what: finance or chitchat
+      what: financial questions or chitchat
       who: n/a
       when: n/a
       language: Chinese
@@ -3161,7 +3161,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: sentiment analysis
-      what: product review
+      what: product reviews
       who: customers
       when: 2021 or before
       language: Chinese
@@ -3169,7 +3169,7 @@ run_groups:
 # Language
   - name: cleva_language_modeling
     display_name: CLEVA (Chinese) language modeling
-    description: Scenario for measuring lanugage model performance across various domains (Wiki and news).
+    description: Scenario for measuring language model performance across various domains (Wiki and news).
     metric_groups:
       - accuracy
       - calibration
@@ -3180,7 +3180,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: language modeling
-      what: Wikipedia and websites
+      what: Wikipedia and news
       who: n/a
       when: 2010s
       language: Chinese
@@ -3233,7 +3233,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: multiple-choice
-      what: books
+      what: contemporary Chinese literary works
       who: n/a
       when: n/a
       language: Chinese
@@ -3288,7 +3288,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: multiple-choice
-      what: Chinese idioms
+      what: Various passages containing Chinese idioms
       who: n/a
       when: n/a
       language: Chinese
@@ -3296,7 +3296,7 @@ run_groups:
 # Reasoning
   - name: cleva_reasoning_primitive
     display_name: CLEVA (Chinese) reasoning primitive
-    description: Scenario focused on primitive reasoning, including dyck lanaguage continuation, variable subsituation, pattern induction, and pattern matching four subtasks ([Wu et al., 2021](https://proceedings.mlr.press/v139/wu21c.html); [Suzgun et al., 2019](https://aclanthology.org/W19-3905/)).
+    description: Scenario focused on primitive reasoning, including dyck language continuation, variable substitution, pattern induction, and pattern matching four subtasks ([Wu et al., 2021](https://proceedings.mlr.press/v139/wu21c.html); [Suzgun et al., 2019](https://aclanthology.org/W19-3905/)).
     metric_groups:
       - accuracy
       - calibration
