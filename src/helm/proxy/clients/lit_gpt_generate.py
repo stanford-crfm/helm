@@ -1,3 +1,4 @@
+# noqa
 from typing import List, Optional
 
 import torch
@@ -72,7 +73,6 @@ def generate(
         # if <eos> token is triggered, return the output (stop generation)
         for eos_id in stop_tokens:
             if torch.equal(idx_next, eos_id):
-                # TODO: ignore typing
                 return idx[: input_pos - 1]  # exclude the EOS token
     # TODO: implement logprob in a future PR
     return idx
