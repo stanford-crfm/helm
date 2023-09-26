@@ -33,6 +33,7 @@ except ModuleNotFoundError as e:
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+QuantizationType = Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]
 
 class SingletonMeta(type):
     _instances = {}
@@ -51,10 +52,10 @@ class LitGPT(metaclass=SingletonMeta):
         self,
         checkpoint_dir: str = "",
         precision: str = "bf16-true",
-        device="auto",
+        device: str="auto",
         devices: int = 1,
         strategy: str = "auto",
-        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+        quantize: Optional[QuantizationType] = None,
     ):
         torch.set_float32_matmul_precision("high")
 
@@ -95,7 +96,7 @@ class LitGPTClient(Client):
         device: str = "auto",
         devices: int = 1,
         strategy: str = "auto",
-        quantize: Optional[Literal["bnb.nf4", "bnb.nf4-dq", "bnb.fp4", "bnb.fp4-dq", "bnb.int8", "gptq.int4"]] = None,
+        quantize: Optional[QuantizationType] = None,
     ):
         self.cache = Cache(cache_config)
         lit_gpt = LitGPT(checkpoint_dir, precision, device, devices, strategy, quantize)
