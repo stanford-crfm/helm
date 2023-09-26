@@ -12,7 +12,7 @@ def generate(
     temperature: float = 1.0,
     top_k: Optional[int] = None,
     stop_tokens: List[torch.Tensor] = [],
-) -> Tuple[List[int], int, int]:
+) -> List[int]:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
 
     The implementation of this function is modified from A. Karpathy's nanoGPT.
@@ -72,6 +72,6 @@ def generate(
         # if <eos> token is triggered, return the output (stop generation)
         for eos_id in stop_tokens:
             if torch.equal(idx_next, eos_id):
-                return idx[: input_pos - 1], 0, 0  # exclude the EOS token
+                return idx[: input_pos - 1]  # exclude the EOS token
     # TODO: implement logprob in a future PR
-    return idx, 0, 0
+    return idx
