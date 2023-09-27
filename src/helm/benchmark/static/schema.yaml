@@ -3204,7 +3204,7 @@ run_groups:
 
   - name: cleva_classical_chinese_understanding
     display_name: CLEVA (Chinese) classical Chinese understanding
-    description: Scenario for evaluating the understanding of classical Chinese by selecting the appropriate modern Chinese translation for a given classical Chinese sentence.
+    description: Scenario for evaluating the understanding of classical Chinese by selecting the appropriate classical Chinese translation for a given modern Chinese sentence.
     metric_groups:
       - accuracy
       - calibration
