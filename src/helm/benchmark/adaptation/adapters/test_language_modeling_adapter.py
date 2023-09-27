@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from typing import List
 
 from helm.common.tokenization_request import TokenizationToken

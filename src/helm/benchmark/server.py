@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 """
 Starts a local HTTP server to display benchmarking assets.
 """

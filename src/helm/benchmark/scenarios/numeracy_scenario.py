@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 # flake8: noqa
 from collections import defaultdict
 from dataclasses import dataclass, field

@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 """Diversity metrics for the disinformation scenario."""
 
 import json
