@@ -3150,7 +3150,7 @@ run_groups:
 
   - name: cleva_sentiment_analysis
     display_name: CLEVA (Chinese) sentiment analysis
-    description: Chinese sentiment analysis for product reviews [(Xu et al., 2021)](https://arxiv.org/abs/2107.07498).
+    description: Chinese sentiment analysis for product reviews.
     metric_groups:
       - accuracy
       - calibration
@@ -3204,7 +3204,7 @@ run_groups:
 
   - name: cleva_classical_chinese_understanding
     display_name: CLEVA (Chinese) classical Chinese understanding
-    description: Scenario for evaluating the understanding of classical Chinese by selecting the appropriate modern Chinese translation for a given classical Chinese sentence [(Li et al., 2021)](https://arxiv.org/abs/2106.01979).
+    description: Scenario for evaluating the understanding of classical Chinese by selecting the appropriate classical Chinese translation for a given modern Chinese sentence.
     metric_groups:
       - accuracy
       - calibration
@@ -3222,7 +3222,7 @@ run_groups:
 
   - name: cleva_coreference_resolution
     display_name: CLEVA (Chinese) coreference resolution
-    description: Scenario for testing models on solving coreference resolution problems [(Xu et al., 2020)](https://arxiv.org/abs/2004.05986).
+    description: Scenario for testing models on solving coreference resolution problems.
     metric_groups:
       - accuracy
       - calibration
@@ -3240,7 +3240,7 @@ run_groups:
 
   - name: cleva_intent_understanding
     display_name: CLEVA (Chinese) intent understanding
-    description: Tests whether the model could capture the writing intention of the authors after reading an article. Data are collected by [(Li et al., 2023)](https://arxiv.org/abs/2308.04813)
+    description: Tests whether the model could capture the writing intention of the authors after reading an article.
     metric_groups:
       - accuracy
       - calibration
@@ -3277,7 +3277,7 @@ run_groups:
 
   - name: cleva_cultural_knowledge
     display_name: CLEVA (Chinese) cultural knowledge
-    description: Scenario for evaluating models' understanding of Chinese culture. It has a Chinese-idiom-focused subtask [(Zheng et al., 2019)](https://aclanthology.org/P19-1075/).
+    description: "Scenario for evaluating models' understanding of Chinese culture. It has a Chinese-idiom-focused subtask."
     metric_groups:
       - accuracy
       - calibration
@@ -3296,7 +3296,7 @@ run_groups:
 # Reasoning
   - name: cleva_reasoning_primitive
     display_name: CLEVA (Chinese) reasoning primitive
-    description: Scenario focused on primitive reasoning, including dyck language continuation, variable substitution, pattern induction, and pattern matching four subtasks ([Wu et al., 2021](https://proceedings.mlr.press/v139/wu21c.html); [Suzgun et al., 2019](https://aclanthology.org/W19-3905/)).
+    description: Scenario focused on primitive reasoning, including dyck language continuation, variable substitution, pattern induction, and pattern matching four subtasks.
     metric_groups:
       - accuracy
       - calibration
@@ -3314,7 +3314,7 @@ run_groups:
 
   - name: cleva_deductive_reasoning
     display_name: CLEVA (Chinese) deductive reasoning
-    description: Scenario that gauges model's ability to reason deductive arguments. It includes a modus tollens subtask.
+    description: "Scenario that gauges model's ability to reason deductive arguments. It includes a modus tollens subtask."
     metric_groups:
       - accuracy
       - calibration
@@ -3332,7 +3332,7 @@ run_groups:
 
   - name: cleva_inductive_reasoning
     display_name: CLEVA (Chinese) inductive reasoning
-    description: Scenario that tests models' ability to conclude rules from demonstrations and apply them to unseen test instances.
+    description: "Scenario that tests models' ability to conclude rules from demonstrations and apply them to unseen test instances."
     metric_groups:
       - accuracy
       - calibration
@@ -3368,7 +3368,7 @@ run_groups:
 
   - name: cleva_commonsense_reasoning
     display_name: CLEVA (Chinese) commonsense reasoning
-    description: "Scenario that tests models' commonsense reasoning ability. There are two subtasks: textual entailment [(Hu et al., 2020)](https://arxiv.org/abs/2010.05444) and commonsense question answering."
+    description: "Scenario that tests models' commonsense reasoning ability. There are two subtasks: textual entailment and commonsense question answering."
     metric_groups:
       - accuracy
       - calibration
@@ -3386,7 +3386,7 @@ run_groups:
 
   - name: cleva_mathematical_reasoning
     display_name: CLEVA (Chinese) mathematical reasoning
-    description: Scenario that tests models' mathematical reasoning ability with chain-of-thoughts style reasoning. It contains a math word problem solving subtask [(Wang et al., 2017)](https://aclanthology.org/D17-1088.pdf).
+    description: "Scenario that tests models' mathematical reasoning ability with chain-of-thoughts style reasoning. It contains a math word problem solving subtask."
     metric_groups:
       - cleva_mathematical_reasoning_metrics
       - general_information
@@ -3403,7 +3403,7 @@ run_groups:
 
   - name: cleva_conceptual_generalization
     display_name: CLEVA (Chinese) conceptual generalization
-    description: Scenario that assesses whether models could generalize physical relations to a synthetic grid world based on [Patel and Pavlick, (2022)](https://openreview.net/pdf?id=gJcEM8sxHK).
+    description: Scenario that assesses whether models could generalize physical relations to a synthetic grid world.
     metric_groups:
       - calibration
       - efficiency
@@ -3422,7 +3422,7 @@ run_groups:
 # Harms
   - name: cleva_toxicity_detection
     display_name: CLEVA (Chinese) toxicity detection
-    description: Ask models about the offensiveness of the given text [(Deng et al., 2022)](https://aclanthology.org/2022.emnlp-main.796/).
+    description: Ask models about the offensiveness of the given text.
     metric_groups:
       - accuracy
       - calibration
@@ -3440,7 +3440,7 @@ run_groups:
 
   - name: cleva_bias
     display_name: CLEVA (Chinese) bias
-    description: Scenarios that follows [Zhou et al., (2022)](https://arxiv.org/abs/2202.08011) to gauge bias of four demographic categories in dialogues, including race, gender, region, and occupation.
+    description: Scenario that gauges bias of four demographic categories in dialogues, including race, gender, region, and occupation.
     metric_groups:
       - accuracy
       - calibration
@@ -3459,7 +3459,7 @@ run_groups:
 
   - name: cleva_copyright
     display_name: CLEVA (Chinese) copyright
-    description: Scenarios that measures copyright and memorization behavior for Chinese books and code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
+    description: Scenario that measures copyright and memorization behavior for Chinese books and code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
     metric_groups:
       - copyright_metrics
       - general_information
@@ -3475,7 +3475,7 @@ run_groups:
 
   - name: cleva_fact_checking
     display_name: CLEVA (Chinese) fact checking
-    description: Scenarios that lets models identify whether the given fact is true to test their factuality [(Hu et al., 2022)](https://github.com/THU-BPM/CHEF).
+    description: Scenario that lets models identify whether the given fact is true to test their factuality.
     metric_groups:
       - accuracy
       - calibration
@@ -3495,7 +3495,7 @@ run_groups:
 # Others
   - name: cleva_instruction_following
     display_name: CLEVA (Chinese) instruction following
-    description: "Scenario that examines whether models could follow human instructions, mainly uncommon ones. It contains 'redefine' and 'pattern_matching_suppression' two subtasks, following [McKenzie et al., (2023)](https://arxiv.org/abs/2306.09479)."
+    description: "Scenario that examines whether models could follow human instructions, mainly uncommon ones. It contains 'redefine' and 'pattern_matching_suppression' two subtasks."
     metric_groups:
       - accuracy
       - calibration
