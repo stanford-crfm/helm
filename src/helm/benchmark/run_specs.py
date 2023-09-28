@@ -2355,7 +2355,7 @@ def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: in
         if idk:
             task_message = (
                 "Please answer the following multiple choice question. The answer should be exact 'A', "
-                "'B', 'C', 'D', or 'E' if you don't know."
+                "'B', 'C', 'D', or 'E'."
             )
         else:
             task_message = (
