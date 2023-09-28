@@ -9,7 +9,7 @@ from helm.benchmark.scenarios.scenario import Instance, Reference, Output
 class DecodingTrustStereotypePromptsScenario(Scenario):
     """
     The DecodingTrustStereotypePrompts dataset is from the paper:
-    https://arxiv.org/abs//2306.11698
+    https://arxiv.org/abs/2306.11698
 
     The dataset contains 1,152 manually crafted stereotype user prompts.
     The prompts cover 16 stereotype topics (for e.g., drug addiction, HIV, etc.),
@@ -32,7 +32,7 @@ class DecodingTrustStereotypePromptsScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "stereotype_bias_data.jsonl")
         ensure_file_downloaded(
-            source_url="https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/stereotype/dataset/stereotype_bias_data.jsonl",  # to be filled
+            source_url="https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/stereotype/dataset/stereotype_bias_data.jsonl",
             target_path=data_path,
             unpack=False,
         )
