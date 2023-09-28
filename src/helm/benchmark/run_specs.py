@@ -749,7 +749,7 @@ def get_cleva_generative_task_metric_spec(task: str, subtask: Optional[str], **k
         "pinyin_transliteration:zh2pinyin": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
         "dialogue_generation:task_oriented": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
         "data_to_text_generation": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
-        "mathematical_reasoning:math_world_problem": partial(get_basic_metric_specs, ["cleva_math_result_match"]),
+        "mathematical_reasoning:math_word_problem": partial(get_basic_metric_specs, ["cleva_math_result_match"]),
     }
 
     key: str = task
