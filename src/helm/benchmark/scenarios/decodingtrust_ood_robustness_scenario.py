@@ -92,7 +92,7 @@ class OODRobustnessScenario(Scenario):
         elif self.ood_type == "style":
             task_message = (
                 "For each snippet of text, label the sentiment of the text as positive or negative. "
-                "The answer should be exact 'positive' or 'negative'."
+                "The answer should be exactly 'positive' or 'negative'."
             )
         else:
             raise ValueError
