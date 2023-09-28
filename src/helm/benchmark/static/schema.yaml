@@ -1684,14 +1684,6 @@ metric_groups:
       - name: classification_micro_f1
         split: ${main_split}
 
-  - name: multiple_choice_classification_metrics
-    display_name: Multiple-choice classification metrics
-    metrics:
-      - name: multiple_choice_classification_macro_f1
-        split: ${main_split}
-      - name: multiple_choice_classification_micro_f1
-        split: ${main_split}
-
   - name: cleva_paraphrase_generation_metrics
     display_name: CLEVA (Chinese) paraphrase generation metrics
     metrics:
@@ -3004,7 +2996,7 @@ run_groups:
 
   - name: cleva_summarization
     display_name: CLEVA (Chinese) summarization
-    description: "Contains one subtask so far: summarize a dialogue between a customer representative and a customer."
+    description: "Summarize a dialogue between a customer representative and a customer."
     metric_groups:
       - cleva_summarization_metrics
       - general_information
@@ -3021,7 +3013,7 @@ run_groups:
 
   - name: cleva_text_classification
     display_name: CLEVA (Chinese) text classification
-    description: This scenario has two subtask. Classify if an utterance is humorous and identify news topic based on its title.
+    description: This scenario has two subtasks. Classify if an utterance is humorous and identify news topic based on its title.
     metric_groups:
       - accuracy
       - calibration
@@ -3056,7 +3048,7 @@ run_groups:
 
   - name: cleva_data_to_text_generation
     display_name: CLEVA (Chinese) data to text generation
-    description: "Contains one subtask so far: Generate a product description based on structured data containing various product properties."
+    description: "Generate a product description based on structured data containing various product properties."
     metric_groups:
       - cleva_data_to_text_generation_metrics
       - general_information
@@ -3073,7 +3065,7 @@ run_groups:
 
   - name: cleva_dialogue_generation
     display_name: CLEVA (Chinese) dialogue generation
-    description: "Contains one subtask so far: Task-oriented dialogue between a user and a system."
+    description: "Task-oriented dialogue between a user and a system."
     metric_groups:
       - cleva_dialogue_generation_metrics
       - general_information
@@ -3090,7 +3082,7 @@ run_groups:
 
   - name: cleva_opinion_mining
     display_name: CLEVA (Chinese) opinion mining
-    description: "Contains one subtask so far: Extract the target of an opinion."
+    description: "Extract the target of an opinion."
     metric_groups:
       - accuracy
       - efficiency
@@ -3179,7 +3171,7 @@ run_groups:
 # Language
   - name: cleva_language_modeling
     display_name: CLEVA (Chinese) language modeling
-    description: Scenario for measuring language model performance across various domains (Wiki and news).
+    description: Scenario for measuring language model performance across various domains (wikipedia and news).
     metric_groups:
       - accuracy
       - calibration
@@ -3224,7 +3216,7 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multiple-choice
+      task: translation
       what: n/a
       who: n/a
       when: n/a
@@ -3232,7 +3224,7 @@ run_groups:
 
   - name: cleva_coreference_resolution
     display_name: CLEVA (Chinese) coreference resolution
-    description: Scenario for testing models on solving coreference resolution problems.
+    description: Scenario for testing models on solving coreference resolution problems (the winograd schema challenge).
     metric_groups:
       - accuracy
       - calibration
@@ -3242,7 +3234,7 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multiple-choice
+      task: multiple-choice question answering
       what: contemporary Chinese literary works
       who: n/a
       when: n/a
@@ -3260,7 +3252,7 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multiple-choice
+      task: multiple-choice question answering
       what: exam
       who: n/a
       when: 1990-2022
@@ -3297,7 +3289,7 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multiple-choice
+      task: multiple-choice question answering
       what: Various passages containing Chinese idioms
       who: n/a
       when: n/a
@@ -3306,7 +3298,7 @@ run_groups:
 # Reasoning
   - name: cleva_reasoning_primitive
     display_name: CLEVA (Chinese) reasoning primitive
-    description: Scenario focused on primitive reasoning, including dyck language continuation, variable substitution, pattern induction, and pattern matching four subtasks.
+    description: Scenario focused on primitive reasoning, including dyck language continuation, variable substitution, pattern induction, and pattern matching.
     metric_groups:
       - accuracy
       - calibration
@@ -3334,7 +3326,7 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multiple-choice
+      task: multiple-choice question answering
       what: natural language questions
       who: n/a
       when: n/a
@@ -3388,7 +3380,7 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multiple-choice
+      task: multiple-choice question answering
       what: n/a
       who: n/a
       when: n/a
@@ -3456,12 +3448,12 @@ run_groups:
       - calibration
       - efficiency
       - general_information
-      - multiple_choice_classification_metrics
+      - classification_metrics
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multiple-choice
+      task: multiple-choice question answering
       what: short Chinese dialogues from social media
       who: web users
       when: n/a
@@ -3491,12 +3483,12 @@ run_groups:
       - calibration
       - efficiency
       - general_information
-      - multiple_choice_classification_metrics
+      - classification_metrics
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multiple-choice
+      task: multiple-choice question answering
       what: factual statements in natural language form
       who: n/a
       when: n/a
@@ -3505,7 +3497,7 @@ run_groups:
 # Others
   - name: cleva_instruction_following
     display_name: CLEVA (Chinese) instruction following
-    description: "Scenario that examines whether models could follow human instructions, mainly uncommon ones. It contains 'redefine' and 'pattern_matching_suppression' two subtasks."
+    description: "Scenario that examines whether models could follow human instructions, mainly uncommon ones. It contains two subtasks: 'redefine' and 'pattern_matching_suppression'."
     metric_groups:
       - accuracy
       - calibration
@@ -3515,7 +3507,7 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: multiple-choice
+      task: multiple-choice question answering
       what: natural language questions
       who: automatically generated from templates
       when: n/a
