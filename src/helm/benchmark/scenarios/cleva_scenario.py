@@ -1484,7 +1484,7 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     For example, we use "所以答案是（只给出数字即可）" (English: Thus, the answer is:) before the answer,
     and remove line breaks within the answer.
 
-    An example of the math_world_problem subtask is:
+    An example of the math_word_problem subtask is:
         回答以下数学问题
 
         问题：甲数是168，乙数是甲数的4倍，乙数=？请一步一步给出推理过程。
