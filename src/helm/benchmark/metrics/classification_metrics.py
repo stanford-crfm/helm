@@ -98,10 +98,6 @@ class MultipleChoiceClassificationMetric(Metric):
             y_pred.append(pred)
 
         return [
-            Stat(MetricName("classification_macro_f1")).add(
-                f1_score(y_pred=y_pred, y_true=y_true, average="macro")
-            ),
-            Stat(MetricName("classification_micro_f1")).add(
-                f1_score(y_pred=y_pred, y_true=y_true, average="micro")
-            ),
+            Stat(MetricName("classification_macro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="macro")),
+            Stat(MetricName("classification_micro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="micro")),
         ]
