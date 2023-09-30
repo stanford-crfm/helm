@@ -3037,7 +3037,7 @@ run_groups:
       - general_information
       - efficiency
     environment:
-      main_name: bleu
+      main_name: cleva_machine_translation_bleu
       main_split: test
     taxonomy:
       task: translation
