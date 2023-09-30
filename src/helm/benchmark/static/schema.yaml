@@ -1416,16 +1416,38 @@ metrics:
     lower_is_better: false
 
   # CLEVA (Chinese) metrics:
-  # TODO: Fill in display_name, short_display_name, description, lower_is_better fields
+  # Accuracy metrics (Chinese)
   - name: chinese_ibleu
+    display_name: Chinese iBLEU
+    short_display_name: iBLEU (Chinese)
+    description: A special BLEU score [(Sun and Zhou, 2008)](https://aclanthology.org/P12-2008.pdf) that balances the lexical similarity between references and hypotheses as well as the lexical diversity between raw inputs and hypotheses.
+    lower_is_better: false
   - name: cleva_top1_accuracy
-  - name: bleu
+    display_name: Chinese Top-1 Accuracy
+    short_display_name: Acc@Top-1 (Chinese)
+    description: A special accuracy [(Patel and Pavlick, 2022)](https://openreview.net/pdf?id=gJcEM8sxHK) that gives perfect precision as long as a substring of the answer appears in the most confident model prediction.
+    lower_is_better: false
+  - name: cleva_machine_translation_bleu
+    display_name: BLEU
+    short_display_name: BLEU
+    description: BLEU score based on [Post, (2018)](https://aclanthology.org/W18-6319/).
+    lower_is_better: false
   - name: chinese_rouge_2
+    display_name: Chinese ROUGE-2 score
+    short_display_name: ROUGE-2 (Chinese)
+    description: ROUGE-2 score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on a Chinese tokenizer that segments Chinese strings by character.
+    lower_is_better: false
   - name: chinese_bleu_1
-  - name: chinese_bleu_1
-  - name: chinese_bleu_1
+    display_name: Chinese BLEU-1 score
+    short_display_name: BLEU-1 (Chinese)
+    description: BLEU-1 score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on a Chinese tokenizer that segments Chinese strings by character.
+    lower_is_better: false
   - name: cleva_math_result_match
-  # TODO: Add bias metrics
+    display_name: CLEVA Math Exact Match
+    short_display_name: EM (Math)
+    description: Exact match that cares only the last math expression (numbers and fractions) in the model's prediction.
+    lower_is_better: false
+  # CLEVA Chinese bias, copyright and toxicity metrics share the same name as the original HELM metrics
 
 ############################################################
 perturbations:
@@ -1692,22 +1714,22 @@ metric_groups:
       - name: chinese_bleu_1
         split: ${main_split}
 
+  - name: cleva_mathematical_reasoning_metrics
+    display_name: CLEVA (Chinese) mathematical reasoning metrics
+    metrics:
+      - name: cleva_math_result_match
+        split: ${main_split}
+
   - name: cleva_dialogue_generation_metrics
-    display_name: CLEVA (Chinese) pinyin metrics
+    display_name: CLEVA (Chinese) dialogue generation metrics
     metrics:
       - name: chinese_bleu_1
         split: ${main_split}
 
   - name: cleva_data_to_text_generation_metrics
-    display_name: CLEVA (Chinese) pinyin metrics
+    display_name: CLEVA (Chinese) dialogue generation metrics
     metrics:
       - name: chinese_bleu_1
-        split: ${main_split}
-
-  - name: cleva_mathematical_reasoning_metrics
-    display_name: CLEVA (Chinese) pinyin metrics
-    metrics:
-      - name: cleva_math_result_match
         split: ${main_split}
 
 ############################################################
@@ -2954,540 +2976,560 @@ run_groups:
       language: synthetic
 
 ## CLEVA (Chinese) Scenarios
-# TODO: Fill in description and taxonomy
-  - name: cleva_bias
-    display_name: CLEVA (Chinese) bias
-    description: CLEVA (Chinese) bias
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_classical_chinese_understanding
-    display_name: CLEVA (Chinese) classical Chinese understanding
-    description: CLEVA (Chinese) classical Chinese understanding
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
+# Applications
   - name: cleva_closed_book_question_answering
     display_name: CLEVA (Chinese) closed book question answering
-    description: CLEVA (Chinese) closed book question answering
+    description: Closed-book question answering task comprises three subtasks. One is for the medical domain, another for open-domain, and the last measures if a model generates truthful answers.
     metric_groups:
       - accuracy
-      - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
       task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      what: medical, open-domain, or truthful qa
+      who: n/a
+      when: 2022 or before
       language: Chinese
+
+  - name: cleva_summarization
+    display_name: CLEVA (Chinese) summarization
+    description: "Summarize a dialogue between a customer representative and a customer."
+    metric_groups:
+      - cleva_summarization_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_rouge_2
+      main_split: test
+    taxonomy:
+      task: summarization
+      what: e-commerce dialogues
+      who: customers and representatives
+      when: 2021 or before
+      language: Chinese
+
+  - name: cleva_text_classification
+    display_name: CLEVA (Chinese) text classification
+    description: This scenario has two subtasks. Classify if an utterance is humorous and identify news topic based on its title.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: text classification
+      what: news or chitchat
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_translation
+    display_name: CLEVA (Chinese) translation
+    description: Scenario for measuring the translation quality between Chinese and English.
+    metric_groups:
+      - cleva_translation_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: cleva_machine_translation_bleu
+      main_split: test
+    taxonomy:
+      task: translation
+      what: news
+      who: n/a
+      when: 2022 or before
+      language: Chinese, English
+
+  - name: cleva_data_to_text_generation
+    display_name: CLEVA (Chinese) data to text generation
+    description: "Generate a product description based on structured data containing various product properties."
+    metric_groups:
+      - cleva_data_to_text_generation_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_bleu_1
+      main_split: test
+    taxonomy:
+      task: data-to-text generation
+      what: product description
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_dialogue_generation
+    display_name: CLEVA (Chinese) dialogue generation
+    description: "Task-oriented dialogue between a user and a system."
+    metric_groups:
+      - cleva_dialogue_generation_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_bleu_1
+      main_split: test
+    taxonomy:
+      task: dialogue generation
+      what: task-oriented dialogue on hotel, restaurant, attraction, metro, and taxi domain
+      who: user and assistant
+      when: 2020 or before
+      language: Chinese
+
+  - name: cleva_opinion_mining
+    display_name: CLEVA (Chinese) opinion mining
+    description: "Extract the target of an opinion."
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: opinion target extraction
+      what: n/a
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_paraphrase_generation
+    display_name: CLEVA (Chinese) paraphrase generation
+    description: Generate a paraphrase of a given sentence.
+    metric_groups:
+      - cleva_paraphrase_generation_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_ibleu
+      main_split: test
+    taxonomy:
+      task: paraphrase generation
+      what: n/a
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_paraphrase_identification
+    display_name: CLEVA (Chinese) paraphrase identification
+    description: Identify if two sentences, from a dialogue or from the finance domain, share the same meaning.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: paraphrase identification
+      what: financial questions or chitchat
+      who: n/a
+      when: 2020 or before
+      language: Chinese
+
+  - name: cleva_reading_comprehension
+    display_name: CLEVA (Chinese) reading comprehension
+    description: Answer a multiple-choice question based on a given paragraph.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: 2019 or before
+      language: Chinese
+
+  - name: cleva_sentiment_analysis
+    display_name: CLEVA (Chinese) sentiment analysis
+    description: Chinese sentiment analysis for product reviews.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: sentiment analysis
+      what: product reviews
+      who: customers
+      when: 2021 or before
+      language: Chinese
+
+# Language
+  - name: cleva_language_modeling
+    display_name: CLEVA (Chinese) language modeling
+    description: Scenario for measuring language model performance across various domains (wikipedia and news).
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+    taxonomy:
+      task: language modeling
+      what: Wikipedia and news
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+  - name: cleva_pinyin_transliteration
+    display_name: CLEVA (Chinese) pinyin transliteration
+    description: Scenario that asks the model to translate between Chinese and Pinyin.
+    metric_groups:
+      - cleva_pinyin_transliteration_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: chinese_bleu_1
+      main_split: test
+    taxonomy:
+      task: pinyin transliteration
+      what: n/a
+      who: automatically generated by algorithm
+      when: '2023'
+      language: Chinese, Pinyin
+
+  - name: cleva_classical_chinese_understanding
+    display_name: CLEVA (Chinese) classical Chinese understanding
+    description: Scenario for evaluating the understanding of classical Chinese by selecting the appropriate classical Chinese translation for a given modern Chinese sentence.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: translation
+      what: n/a
+      who: n/a
+      when: 2021 or before
+      language: Classical Chinese
+
+  - name: cleva_coreference_resolution
+    display_name: CLEVA (Chinese) coreference resolution
+    description: Scenario for testing models on solving coreference resolution problems (the winograd schema challenge).
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: contemporary Chinese literary works
+      who: n/a
+      when: 2020 or before
+      language: Chinese
+
+  - name: cleva_intent_understanding
+    display_name: CLEVA (Chinese) intent understanding
+    description: Tests whether the model could capture the writing intention of the authors after reading an article.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: exam
+      who: n/a
+      when: 1990-2022
+      language: Chinese
+
+# Knowledge
+  - name: cleva_subject_knowledge
+    display_name: CLEVA (Chinese) subject knowledge
+    description: Scenario inspired by [Petroni et al. (2019)](https://aclanthology.org/D19-1250/) to extensively test factual knowledge in Chinese. It contains 13 subjects and a general domain.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: knowledge base completion
+      what: entity-relation-entity triples in natural language form
+      who: automatically generated from templates
+      when: 2022 or before
+      language: structured Chinese
+
+  - name: cleva_cultural_knowledge
+    display_name: CLEVA (Chinese) cultural knowledge
+    description: "Scenario for evaluating models' understanding of Chinese culture. It has a Chinese-idiom-focused subtask."
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: Various passages containing Chinese idioms
+      who: n/a
+      when: 2010s
+      language: Chinese
+
+# Reasoning
+  - name: cleva_reasoning_primitive
+    display_name: CLEVA (Chinese) reasoning primitive
+    description: Scenario focused on primitive reasoning, including dyck language continuation, variable substitution, pattern induction, and pattern matching.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: n/a
+      who: automatically generated from templates
+      when: '2023'
+      language: synthetic
+
+  - name: cleva_deductive_reasoning
+    display_name: CLEVA (Chinese) deductive reasoning
+    description: "Scenario that gauges model's ability to reason deductive arguments. It includes a modus tollens subtask."
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: natural language questions
+      who: n/a
+      when: '2023'
+      language: structured Chinese
+
+  - name: cleva_inductive_reasoning
+    display_name: CLEVA (Chinese) inductive reasoning
+    description: "Scenario that tests models' ability to conclude rules from demonstrations and apply them to unseen test instances."
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: n/a
+      who: automatically generated by algorithm
+      when: '2023'
+      language: synthetic
 
   - name: cleva_code_synthesis
     display_name: CLEVA (Chinese) code synthesis
-    description: CLEVA (Chinese) code synthesis
+    description: Scenario for measuring functional correctness for synthesizing programs from Chinese docstrings.
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
+      task: next-word prediction
+      what: n/a
+      who: n/a
+      when: '2023'
+      language: synthetic
 
   - name: cleva_commonsense_reasoning
     display_name: CLEVA (Chinese) commonsense reasoning
-    description: CLEVA (Chinese) commonsense reasoning
+    description: "Scenario that tests models' commonsense reasoning ability. There are two subtasks: textual entailment and commonsense question answering."
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: multiple-choice question answering
+      what: n/a
+      who: n/a
+      when: 2023 or before
+      language: Chinese
+
+  - name: cleva_mathematical_reasoning
+    display_name: CLEVA (Chinese) mathematical reasoning
+    description: "Scenario that tests models' mathematical reasoning ability with chain-of-thoughts style reasoning. It contains a math word problem solving subtask."
+    metric_groups:
+      - cleva_mathematical_reasoning_metrics
+      - general_information
+      - efficiency
+    environment:
+      main_name: cleva_math_result_match
+      main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: exam
+      who: n/a
+      when: 2010s
       language: Chinese
 
   - name: cleva_conceptual_generalization
     display_name: CLEVA (Chinese) conceptual generalization
-    description: CLEVA (Chinese) conceptual generalization
+    description: Scenario that assesses whether models could generalize physical relations to a synthetic grid world.
     metric_groups:
-      - accuracy
       - calibration
+      - efficiency
       - cleva_conceptual_generalization_metrics
       - general_information
     environment:
       main_name: cleva_top1_accuracy
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: next-word prediction
+      what: n/a
+      who: automatically generated by algorithm
+      when: '2023'
+      language: synthetic
+
+# Harms
+  - name: cleva_toxicity_detection
+    display_name: CLEVA (Chinese) toxicity detection
+    description: Ask models about the offensiveness of the given text.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: toxicity classification
+      what: text from Chinese social media 
+      who: web users
+      when: 2022 or before
+      language: Chinese
+
+  - name: cleva_bias
+    display_name: CLEVA (Chinese) bias
+    description: Scenario that gauges bias of four demographic categories in dialogues, including race, gender, region, and occupation.
+    metric_groups:
+      - accuracy
+      - calibration
+      - efficiency
+      - general_information
+      - classification_metrics
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: short Chinese dialogues from social media
+      who: web users
+      when: 2022 or before
       language: Chinese
 
   - name: cleva_copyright
     display_name: CLEVA (Chinese) copyright
-    description: CLEVA (Chinese) copyright
+    description: Scenario that measures copyright and memorization behavior for Chinese books and code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
     metric_groups:
-      - accuracy
-      - calibration
+      - copyright_metrics
       - general_information
+      - efficiency
     environment:
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_coreference_resolution
-    display_name: CLEVA (Chinese) coreference resolution
-    description: CLEVA (Chinese) coreference resolution
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_cultural_knowledge
-    display_name: CLEVA (Chinese) cultural knowledge
-    description: CLEVA (Chinese) cultural knowledge
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_data_to_text_generation
-    display_name: CLEVA (Chinese) data to text generation
-    description: CLEVA (Chinese) data to text generation
-    metric_groups:
-      - accuracy
-      - calibration
-      - cleva_data_to_text_generation_metrics
-      - general_information
-    environment:
-      main_name: chinese_bleu_1
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_deductive_reasoning
-    display_name: CLEVA (Chinese) deductive reasoning
-    description: CLEVA (Chinese) deductive reasoning
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_dialogue_generation
-    display_name: CLEVA (Chinese) dialogue generation
-    description: CLEVA (Chinese) dialogue generation
-    metric_groups:
-      - accuracy
-      - calibration
-      - cleva_dialogue_generation_metrics
-      - general_information
-    environment:
-      main_name: chinese_bleu_1
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: next-word prediction
+      what: books and code
+      who: n/a
+      when: 2023 or before
       language: Chinese
 
   - name: cleva_fact_checking
     display_name: CLEVA (Chinese) fact checking
-    description: CLEVA (Chinese) fact checking
+    description: Scenario that lets models identify whether the given fact is true to test their factuality.
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
+      - classification_metrics
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: multiple-choice question answering
+      what: factual statements in natural language form
+      who: n/a
+      when: 2022 or before
       language: Chinese
 
-  - name: cleva_inductive_reasoning
-    display_name: CLEVA (Chinese) inductive reasoning
-    description: CLEVA (Chinese) inductive reasoning
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
+# Others
   - name: cleva_instruction_following
     display_name: CLEVA (Chinese) instruction following
-    description: CLEVA (Chinese) instruction following
+    description: "Scenario that examines whether models could follow human instructions, mainly uncommon ones. It contains two subtasks: 'redefine' and 'pattern_matching_suppression'."
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_intent_understanding
-    display_name: CLEVA (Chinese) intent understanding
-    description: CLEVA (Chinese) intent understanding
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_language_modeling
-    display_name: CLEVA (Chinese) language modeling
-    description: CLEVA (Chinese) language modeling
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: bits_per_byte
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
+      task: multiple-choice question answering
+      what: natural language questions
+      who: automatically generated from templates
+      when: '2023'
+      language: synthetic
 
   - name: cleva_mathematical_calculation
     display_name: CLEVA (Chinese) mathematical calculation
-    description: CLEVA (Chinese) mathematical calculation
+    description: "Scenario that evaluates the calculation ability of models. It has four subtasks: three-digit addition, three-digit subtraction, two-digit multiplication, and significant figures."
     metric_groups:
       - accuracy
       - calibration
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_mathematical_reasoning
-    display_name: CLEVA (Chinese) mathematical reasoning
-    description: CLEVA (Chinese) mathematical reasoning
-    metric_groups:
-      - accuracy
-      - calibration
-      - cleva_mathematical_reasoning_metrics
-      - general_information
-    environment:
-      main_name: cleva_math_result_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_opinion_mining
-    display_name: CLEVA (Chinese) opinion mining
-    description: CLEVA (Chinese) opinion mining
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_paraphrase_generation
-    display_name: CLEVA (Chinese) paraphrase generation
-    description: CLEVA (Chinese) paraphrase generation
-    metric_groups:
-      - accuracy
-      - calibration
-      - cleva_paraphrase_generation_metrics
-      - general_information
-    environment:
-      main_name: chinese_ibleu
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_paraphrase_identification
-    display_name: CLEVA (Chinese) paraphrase identification
-    description: CLEVA (Chinese) paraphrase identification
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_pinyin_transliteration
-    display_name: CLEVA (Chinese) pinyin transliteration
-    description: CLEVA (Chinese) pinyin transliteration
-    metric_groups:
-      - accuracy
-      - calibration
-      - cleva_pinyin_transliteration_metrics
-      - general_information
-    environment:
-      main_name: chinese_bleu_1
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_reading_comprehension
-    display_name: CLEVA (Chinese) reading comprehension
-    description: CLEVA (Chinese) reading comprehension
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_reasoning_primitive
-    display_name: CLEVA (Chinese) reasoning primitive
-    description: CLEVA (Chinese) reasoning primitive
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_sentiment_analysis
-    display_name: CLEVA (Chinese) sentiment analysis
-    description: CLEVA (Chinese) sentiment analysis
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_subject_knowledge
-    display_name: CLEVA (Chinese) subject knowledge
-    description: CLEVA (Chinese) subject knowledge
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_summarization
-    display_name: CLEVA (Chinese) summarization
-    description: CLEVA (Chinese) summarization
-    metric_groups:
-      - accuracy
-      - calibration
-      - cleva_summarization_metrics
-      - general_information
-    environment:
-      main_name: chinese_rouge_2
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_text_classification
-    display_name: CLEVA (Chinese) text classification
-    description: CLEVA (Chinese) text classification
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_toxicity_detection
-    display_name: CLEVA (Chinese) toxicity detection
-    description: CLEVA (Chinese) toxicity detection
-    metric_groups:
-      - accuracy
-      - calibration
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
-
-  - name: cleva_translation
-    display_name: CLEVA (Chinese) translation
-    description: CLEVA (Chinese) translation
-    metric_groups:
-      - accuracy
-      - calibration
-      - cleva_translation_metrics
-      - general_information
-    environment:
-      main_name: bleu
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "?"
-      language: Chinese
+      task: next-word prediction
+      what: natural language math questions or pure math expressions
+      who: automatically generated from templates
+      when: '2023'
+      language: synthetic
 
 ## Aspirational scenarios
 # Task coverage

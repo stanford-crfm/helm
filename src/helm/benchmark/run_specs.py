@@ -749,7 +749,7 @@ def get_cleva_generative_task_metric_spec(task: str, subtask: Optional[str], **k
         "pinyin_transliteration:zh2pinyin": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
         "dialogue_generation:task_oriented": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
         "data_to_text_generation": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
-        "mathematical_reasoning:math_world_problem": partial(get_basic_metric_specs, ["cleva_math_result_match"]),
+        "mathematical_reasoning:math_word_problem": partial(get_basic_metric_specs, ["cleva_math_result_match"]),
     }
 
     key: str = task
@@ -2380,7 +2380,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int = 0) -> RunSpec:
     from .scenarios.cleva_scenario import CLEVAScenario  # noqa
 
-    CLEVAScenario.download_dataset()
+    CLEVAScenario.download_dataset(task, version)
 
     _, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
     inference_parameters = CLEVAScenario.load_inference_parameters(task, subtask, version, prompt_id)
@@ -2430,7 +2430,7 @@ def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int 
                     output_suffix=prompt_setting.output_suffix,
                     max_train_instances=inference_parameters.get("max_train_instances", 5),
                     num_outputs=inference_parameters.get("num_outputs", 5),
-                    max_tokens=inference_parameters.get("max_tokens", 5),
+                    max_tokens=inference_parameters.get("max_tokens", 1),
                     temperature=inference_parameters.get("temperature", 0.0),
                     stop_sequences=inference_parameters.get("stop_sequences", ["\n"]),
                     sample_train=inference_parameters.get("sample_train", True),

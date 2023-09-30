@@ -16,7 +16,7 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CO
 from .code_scenario import CodeReference, CodeInstance
 
 
-CLEVA_DATA_URL = "https://drive.google.com/uc?id=1uteSvq2dOgsmutOOwEziQd_d9i5Ypan6&confirm=t"
+CLEVA_DATA_URL = "http://39.108.215.175/data"
 CLEVA_DATA_PATH = "benchmark_output/scenarios/cleva"
 
 
@@ -410,10 +410,11 @@ class CLEVAScenario(Scenario):
         pass
 
     @classmethod
-    def download_dataset(cls):
-        target_dir = os.path.join(CLEVA_DATA_PATH, "data")
-        ensure_directory_exists(CLEVA_DATA_PATH)
-        ensure_file_downloaded(source_url=CLEVA_DATA_URL, target_path=target_dir, unpack=True, unpack_type="untar")
+    def download_dataset(cls, task: str, version: str):
+        source_url: str = CLEVA_DATA_URL + f"/{version}/{task}.zip"
+        target_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version)
+        ensure_directory_exists(target_dir)
+        ensure_file_downloaded(source_url=source_url, target_path=os.path.join(target_dir, task), unpack=True)
 
     def load_dataset(self) -> Dict[str, List[Dict[str, Any]]]:
         data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version, self.task)
@@ -1483,7 +1484,7 @@ class CLEVAMathematicalReasoningScenario(CLEVAScenario):
     For example, we use "所以答案是（只给出数字即可）" (English: Thus, the answer is:) before the answer,
     and remove line breaks within the answer.
 
-    An example of the math_world_problem subtask is:
+    An example of the math_word_problem subtask is:
         回答以下数学问题
 
         问题：甲数是168，乙数是甲数的4倍，乙数=？请一步一步给出推理过程。
