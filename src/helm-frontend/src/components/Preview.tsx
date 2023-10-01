@@ -5,7 +5,7 @@ interface Props {
   value: string;
 }
 
-export default function PreView({ value }: Props) {
+export default function Preview({ value }: Props) {
   const [showButton, setShowButton] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 

@@ -1,6 +1,6 @@
 import { List, ListItem } from "@tremor/react";
 import type DisplayRequest from "@/types/DisplayRequest";
-import PreView from "./PreView";
+import Preview from "./Preview";
 
 type Props = {
   request: DisplayRequest;
@@ -25,7 +25,7 @@ export default function Request({ request }: Props) {
   return (
     <div>
       <h3 className="block text text-gray-400">Prompt</h3>
-      <PreView value={request.request.prompt} />
+      <Preview value={request.request.prompt} />
 
       <List>
         {(Object.keys(request.request) as (keyof typeof request.request)[])

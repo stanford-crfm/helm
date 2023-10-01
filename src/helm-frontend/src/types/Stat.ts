@@ -1,3 +1,5 @@
+import type Perturbation from "@/types/Perturbation";
+
 export default interface Stat {
   count: number;
   max: number;
@@ -7,18 +9,7 @@ export default interface Stat {
     name: string;
     split?: string;
     sub_split?: string;
-    perturbation?: {
-      computed_on: string;
-      fairness: boolean;
-      name: string;
-      name_file_path: string;
-      person_name_type: string;
-      preserve_gender: boolean;
-      prob: number;
-      robustness: boolean;
-      source_class: string;
-      target_class: string;
-    };
+    perturbation?: Perturbation;
   };
   stddev: number;
   sum: number;

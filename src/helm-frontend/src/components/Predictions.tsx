@@ -6,7 +6,7 @@ import Request from "@/components/Request";
 import { List, ListItem } from "@tremor/react";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
-import PreView from "@/components/PreView";
+import Preview from "@/components/Preview";
 
 type Props = {
   predictions: DisplayPrediction[];
@@ -40,7 +40,7 @@ export default function Predictions({ predictions, requests }: Props) {
                 </span>
                 <Indicator stats={prediction.stats} />
               </h3>
-              <PreView value={prediction.predicted_text} />
+              <Preview value={prediction.predicted_text} />
             </div>
             <div className="my-4">
               <Tabs>
