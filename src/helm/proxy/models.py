@@ -885,11 +885,6 @@ ALL_MODELS = [
     ),
     # Vision-language models (VLMs)
     Model(
-        group="vilt",
-        name="dandelin/vilt-b32-finetuned-vqa",
-        tags=[VISION_LANGUAGE_MODEL_TAG],
-    ),
-    Model(
         group="idefics",
         name="HuggingFaceM4/idefics-9b",
         tags=[VISION_LANGUAGE_MODEL_TAG],

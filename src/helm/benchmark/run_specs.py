@@ -811,6 +811,7 @@ def run_spec_function(name: str) -> Callable[[F], F]:
 
 # VHELM - VLM run specs
 
+
 @run_spec_function("vqa")
 def get_vqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -840,6 +841,7 @@ def get_vqa_spec() -> RunSpec:
 
 
 # Text-only run specs
+
 
 @run_spec_function("simple1")
 def get_simple1_spec() -> RunSpec:
