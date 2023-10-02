@@ -14,6 +14,12 @@ from helm.proxy.models import (
 )
 
 from helm.benchmark.window_services.huggingface_window_service import HuggingFaceWindowService
+from helm.benchmark.window_services.idefics_window_service import (
+    IDEFICS9bWindowService,
+    IDEFICS9bInstructWindowService,
+    IDEFICS80bWindowService,
+    IDEFICS80bInstructWindowService,
+)
 from helm.benchmark.window_services.gpt2_window_service import GPT2WindowService
 from helm.benchmark.window_services.remote_window_service import get_remote_window_service
 from helm.benchmark.window_services.window_service import WindowService
@@ -285,6 +291,14 @@ class WindowServiceFactory:
             from helm.benchmark.window_services.lit_gpt_window_service import LitGPTWindowServce
 
             window_service = LitGPTWindowServce(service)
+        elif model_name == "HuggingFaceM4/idefics-9b":
+            window_service = IDEFICS9bWindowService(service)
+        elif model_name == "HuggingFaceM4/idefics-9b-instruct":
+            window_service = IDEFICS9bInstructWindowService(service)
+        elif model_name == "HuggingFaceM4/idefics-80b":
+            window_service = IDEFICS80bWindowService(service)
+        elif model_name == "HuggingFaceM4/idefics-80b-instruct":
+            window_service = IDEFICS80bInstructWindowService(service)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 

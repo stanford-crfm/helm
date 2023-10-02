@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
+from helm.common.multimodal_content import MultimodalContent
 from helm.proxy.models import Model, get_model
 from .general import indent_lines, format_text
 
@@ -58,6 +59,9 @@ class Request:
     """Used for chat models. (OpenAI only for now).
     if messages is specified for a chat model, the prompt is ignored.
     Otherwise, the client should convert the prompt into a message."""
+
+    multimodal_prompt: Optional[MultimodalContent] = None
+    """Multimodal content interleaved (e.g., text, image, text, image, ...)"""
 
     @property
     def model_organization(self) -> str:

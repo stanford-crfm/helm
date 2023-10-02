@@ -184,6 +184,10 @@ class AutoClient(Client):
                     checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
                     precision=os.environ.get("LIT_GPT_PRECISION", "bf16-true"),
                 )
+            elif organization == "HuggingFaceM4":
+                from helm.proxy.clients.vision_language.idefics_client import IDEFICSClient
+
+                client = IDEFICSClient(cache_config)
 
             else:
                 raise ValueError(f"Could not find client for model: {model}")
@@ -192,7 +196,7 @@ class AutoClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         """
-        Dispatch based on the the name of the model (e.g., openai/davinci).
+        Dispatch based on the name of the model (e.g., openai/davinci).
         Retries if request fails.
         """
 
@@ -287,7 +291,10 @@ class AutoClient(Client):
 
             elif organization == "lightningai":
                 client = self._get_client(tokenizer)
+            elif organization == "HuggingFaceM4":
+                from helm.proxy.clients.vision_language.idefics_client import IDEFICSClient
 
+                client = IDEFICSClient(cache_config)
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client
