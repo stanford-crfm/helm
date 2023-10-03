@@ -2,6 +2,9 @@ import os
 import signal
 from typing import List, Optional
 
+from helm.benchmark.model_metadata_registry import maybe_register_model_metadata_from_base_path
+from helm.benchmark.model_deployment_registry import maybe_register_model_deployments_from_base_path
+from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon, get_credentials
@@ -44,6 +47,10 @@ class ServerService(Service):
         cache_path = os.path.join(base_path, CACHE_DIR)
         ensure_directory_exists(cache_path)
         accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
+
+        maybe_register_model_metadata_from_base_path(base_path)
+        maybe_register_model_deployments_from_base_path(base_path)
+        maybe_register_tokenizer_configs_from_base_path(base_path)
 
         self.client = AutoClient(credentials, cache_path, mongo_uri)
         self.token_counter = AutoTokenCounter(self.client.get_huggingface_client())

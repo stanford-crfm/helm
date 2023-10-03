@@ -6,9 +6,10 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
 from retrying import Attempt, RetryError
 
 from helm.benchmark.model_deployment_registry import get_model_deployment
+from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
-from helm.common.object_spec import create_object
+from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -71,18 +72,35 @@ class AutoClient(Client):
             # TODO: Migrate all clients to use model deployments
             model_deployment = get_model_deployment(model)
             if model_deployment:
-                api_key = None
-                if "deployments" not in self.credentials:
-                    raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
-                deployment_api_keys = self.credentials["deployments"]
-                if model not in deployment_api_keys:
-                    raise AuthenticationError(
-                        f"Could not find key '{model}' under key 'deployments' in credentials.conf"
-                    )
-                api_key = deployment_api_keys[model]
-                client = create_object(
-                    model_deployment.client_spec, additional_args={"cache_config": cache_config, "api_key": api_key}
+
+                def provide_api_key():
+                    if "deployments" not in self.credentials:
+                        raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
+                    deployment_api_keys = self.credentials["deployments"]
+                    if model not in deployment_api_keys:
+                        raise AuthenticationError(
+                            f"Could not find key '{model}' under key 'deployments' in credentials.conf"
+                        )
+                    return deployment_api_keys[model]
+
+                # Perform dependency injection to fill in remaining arguments.
+                # Dependency injection is needed here for these reasons:
+                #
+                # 1. Different clients have different parameters. Dependency injection provides arguments
+                #    that match the parameters of the client.
+                # 2. Some arguments, such as the tokenizer, are not static data objects that can be
+                #    in the users configuration file. Instead, they have to be constructed dynamically at
+                #    runtime.
+                # 3. The providers must be lazily-evaluated, because eager evaluation can result in an
+                #    exception. For instance, some clients do not require an API key, so trying to fetch
+                #    the API key from configuration eagerly will result in an exception because the user
+                #    will not have configured an API key.
+                client_spec = inject_object_spec_args(
+                    model_deployment.client_spec,
+                    constant_bindings={"cache_config": cache_config},
+                    provider_bindings={"api_key": provide_api_key},
                 )
+                client = create_object(client_spec)
 
             elif get_huggingface_model_config(model):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
@@ -222,7 +240,14 @@ class AutoClient(Client):
 
         if client is None:
             cache_config: CacheConfig = self._build_cache_config(organization)
-            if get_huggingface_model_config(tokenizer):
+            # TODO: Migrate all clients to use tokenizer configs
+            tokenizer_config = get_tokenizer_config(tokenizer)
+            if tokenizer_config:
+                tokenizer_spec = inject_object_spec_args(
+                    tokenizer_config.tokenizer_spec, constant_bindings={"cache_config": cache_config}
+                )
+                client = create_object(tokenizer_spec)
+            elif get_huggingface_model_config(tokenizer):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
