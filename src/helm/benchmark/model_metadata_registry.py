@@ -65,6 +65,7 @@ def register_model_metadata_from_path(path: str) -> None:
 
 
 def maybe_register_model_metadata_from_base_path(base_path: str) -> None:
+    """Register model metadata from prod_env/model_metadata.yaml"""
     path = os.path.join(base_path, MODEL_METADATA_FILE)
     if os.path.exists(path):
         register_model_metadata_from_path(path)

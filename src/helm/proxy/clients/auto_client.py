@@ -82,6 +82,18 @@ class AutoClient(Client):
                         )
                     return deployment_api_keys[model]
 
+                # Perform dependency injection to fill in remaining arguments.
+                # Dependency injection is needed here for these reasons:
+                #
+                # 1. Different clients have different parameters. Dependency injection provides arguments
+                #    that match the parameters of the client.
+                # 2. Some arguments, such as the tokenizer, are not static data objects that can be
+                #    in the users configuration file. Instead, they have to be constructed dynamically at
+                #    runtime.
+                # 3. The providers must be lazily-evaluated, because eager evaluation can result in an
+                #    exception. For instance, some clients do not require an API key, so trying to fetch
+                #    the API key from configuration eagerly will result in an exception because the user
+                #    will not have configured an API key.
                 client_spec = inject_object_spec_args(
                     model_deployment.client_spec,
                     constant_bindings={"cache_config": cache_config},

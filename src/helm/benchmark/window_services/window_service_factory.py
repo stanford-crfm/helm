@@ -48,6 +48,13 @@ class WindowServiceFactory:
                 window_service_spec = WindowServiceSpec(
                     class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService", args={}
                 )
+            # Perform dependency injection to fill in remaining arguments.
+            # Dependency injection is needed here for these reasons:
+            #
+            # 1. Different window services have different parameters. Dependency injection provides arguments
+            #    that match the parameters of the window services.
+            # 2. Some arguments, such as the tokenizer service, are not static data objects that can be
+            #    in the users configuration file. Instead, they have to be constructed dynamically at runtime.
             window_service_spec = inject_object_spec_args(
                 window_service_spec,
                 {
