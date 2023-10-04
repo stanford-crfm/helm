@@ -57,6 +57,7 @@ class SimpleClient(Client):
             embedding=[],
         )
 
+    # TODO(josselin): make this a tokenizer
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         if request.tokenizer == "simple/model1":
             raw_tokens: List[str] = SimpleClient.tokenize_by_space(request.text)

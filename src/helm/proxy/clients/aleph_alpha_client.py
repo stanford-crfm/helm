@@ -125,6 +125,7 @@ class AlephAlphaClient(Client):
             embedding=[],
         )
 
+    # TODO(josselin): make this a tokenizer
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """
         Encode the text using Aleph Alpha's tokenizer library:

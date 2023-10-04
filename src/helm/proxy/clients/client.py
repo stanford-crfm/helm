@@ -4,16 +4,29 @@ from abc import ABC, abstractmethod
 from typing import Callable, Any, Dict, List, Optional
 
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, Sequence, Token, wrap_request_time
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
 )
+from helm.common.cache import Cache, CacheConfig
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 class Client(ABC):
+    def __init__(self, cache_config: Optional[CacheConfig] = None, tokenizer: Optional[Tokenizer] = None) -> None:
+        """Initializes the client.
+
+        For most clients, both the cache config and tokenizer are required.
+        However, some clients, such as the auto client, handle multiple tokenizers,
+        and organizations so the cache and tokenizer cannot be initialized until
+        the request is made.
+        """
+        self.cache = Cache(cache_config) if cache_config is not None else None
+        self.tokenizer = tokenizer
+
     @staticmethod
     def make_cache_key(raw_request: Dict, request: Request) -> Dict:
         """
@@ -27,31 +40,37 @@ class Client(ABC):
             cache_key = raw_request
         return cache_key
 
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        """Tokenizes `request.text` using `request.tokenizer`.
+
+        This simply calls the `tokenize` method of the tokenizer.
+        Some exceptions can be made (but should be avoided).
+        This is the case for the auto client, which needs to handle
+        tokenization for multiple tokenizers.
+        """
+        if self.tokenizer is None:
+            raise ValueError("Tokenizer is required")
+        return self.tokenizer.tokenize(request)
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        """Decodes `request.tokens` using `request.tokenizer`.
+
+        This simply calls the `decode` method of the tokenizer.
+        Some exceptions can be made (but should be avoided).
+        This is the case for the auto client, which needs to handle
+        tokenization for multiple tokenizers.
+        """
+        if self.tokenizer is None:
+            raise ValueError("Tokenizer is required")
+        return self.tokenizer.decode(request)
+
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
+        """Makes a request to the model.
+
+        For LLM, this usually corresponds to a single call to the model (completion).
+        """
         pass
-
-    @abstractmethod
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        pass
-
-    @abstractmethod
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        pass
-
-
-def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
-    """Return a version of `compute` that puts `request_time` into its output."""
-
-    def wrapped_compute():
-        start_time = time.time()
-        response = compute()
-        end_time = time.time()
-        response["request_time"] = end_time - start_time
-        response["request_datetime"] = int(start_time)
-        return response
-
-    return wrapped_compute
 
 
 def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:

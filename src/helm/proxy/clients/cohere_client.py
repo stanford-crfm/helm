@@ -182,6 +182,7 @@ class CohereClient(Client):
             embedding=[],
         )
 
+    # TODO(josselin): make this a tokenizer
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         text: str = request.text
         assert (

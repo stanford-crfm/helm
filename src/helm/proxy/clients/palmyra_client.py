@@ -141,9 +141,3 @@ class PalmyraClient(Client):
             completions=completions,
             embedding=[],
         )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use HuggingFaceClient to tokenize")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use HuggingFaceClient to decode")

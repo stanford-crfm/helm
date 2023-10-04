@@ -35,6 +35,7 @@ class MegatronClient(HuggingFaceClient):
             raise ValueError(f"{response}: {response.text}")
         return out
 
+    # TODO(josselin): Check what this is doing
     def _tokenize_response(self, text: str) -> List[Token]:
         tokenized_text = self.tokenize(TokenizationRequest(text, tokenizer="huggingface/gpt2"))
 

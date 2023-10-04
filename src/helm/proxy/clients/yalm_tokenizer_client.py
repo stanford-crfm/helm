@@ -13,6 +13,7 @@ from .client import Client, wrap_request_time, cleanup_tokens
 from .yalm_tokenizer.yalm_tokenizer import YaLMTokenizer
 
 
+# TODO(josselin): make this a tokenizer
 class YaLMTokenizerClient(Client):
     """
     The tokenizer for YaLM, which was trained on Russian and English text.

@@ -163,6 +163,7 @@ class LitGPTClient(Client):
             request_time=t,
         )
 
+    # TODO(josselin): make this a tokenizer
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         fabric = self.fabric
         logger.debug("Using device: {}".format(fabric.device))

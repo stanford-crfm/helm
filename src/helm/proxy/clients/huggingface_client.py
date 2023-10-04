@@ -240,6 +240,7 @@ class HuggingFaceClient(Client):
             embedding=[],
         )
 
+    # TODO(josselin): make this a tokenizer
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         tokenizer = HuggingFaceTokenizers.get_tokenizer(request.tokenizer)
         cache_key = asdict(request)

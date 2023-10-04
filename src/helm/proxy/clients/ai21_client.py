@@ -151,6 +151,7 @@ class AI21Client(Client):
             embedding=[],
         )
 
+    # TODO(josselin): make this a tokenizer
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """
         Tokenizes the text by using the AI21 endpoint: https://api.ai21.com/studio/v1/tokenize.

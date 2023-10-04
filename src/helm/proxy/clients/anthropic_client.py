@@ -197,6 +197,7 @@ class AnthropicClient(Client):
             embedding=[],
         )
 
+    # TODO(josselin): make this a tokenizer
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         # Method copied from HuggingFaceClient.
         # TODO: Unify this with HuggingFaceClient.

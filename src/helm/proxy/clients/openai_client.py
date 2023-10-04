@@ -9,10 +9,8 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationToken,
 )
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import Client, truncate_sequence, wrap_request_time
 
 try:
@@ -30,14 +28,15 @@ class OpenAIClient(Client):
 
     def __init__(
         self,
+        tokenizer: Tokenizer,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.org_id: Optional[str] = org_id
         self.api_key: Optional[str] = api_key
         self.api_base: str = "https://api.openai.com/v1"
-        self.cache = Cache(cache_config)
 
     def _is_chat_model_engine(self, model_engine: str):
         return model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4")
@@ -155,7 +154,7 @@ class OpenAIClient(Client):
                 raw_completion_content = raw_completion["message"]["content"]
                 text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
                 # The OpenAI chat completion API doesn't return us tokens or logprobs, so we tokenize ourselves.
-                tokenization_result: TokenizationRequestResult = self.tokenize(
+                tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
                     TokenizationRequest(
                         text, tokenizer="openai/" + tiktoken.encoding_for_model(request.model_engine).name
                     )
@@ -205,78 +204,3 @@ class OpenAIClient(Client):
             completions=completions,
             embedding=embedding,
         )
-
-    @staticmethod
-    def _get_tokenizer_name(tokenizer: str) -> str:
-        return tokenizer.split("/")[1]
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        # For reproducibility purposes, we use huggingface/gpt2 as the default tokenizer.
-        # except for gpt-3.5 turbo models and gpt-4 that use the tiktoken library.
-
-        if request.tokenizer != "openai/cl100k_base":
-            raise ValueError(
-                f"{request.tokenizer} is not supported." + "Only openai/cl100k-base is supported in HELM for now."
-            )
-
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
-                tokens = tokenizer.encode(request.text)
-                if not request.encode:
-                    tokens = [tokenizer.decode([token]) for token in tokens]
-                if request.truncation:
-                    tokens = tokens[: request.max_length]
-                return {"tokens": tokens}
-
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-
-            result = TokenizationRequestResult(
-                success=True,
-                cached=cached,
-                text=request.text,
-                tokens=[TokenizationToken(value) for value in response["tokens"]],
-                request_time=response["request_time"],
-                error=None,
-            )
-            return result
-        except Exception as error:
-            raise ValueError(
-                f"Error encoding with tiktoken: {error}." + "You might want to consider using huggingface/gpt2."
-            )
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        # For reproducibility purposes, we use huggingface/gpt2 as the default tokenizer.
-        # except for gpt-3.5 turbo models and gpt-4 that use the tiktoken library.
-
-        if request.tokenizer != "openai/cl100k_base":
-            raise ValueError(
-                f"{request.tokenizer} is not supported." + "Only openai/cl100k-base is supported in HELM for now."
-            )
-
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
-                tokens = [token if isinstance(token, int) else tokenizer.encode(token)[0] for token in request.tokens]
-                text = tokenizer.decode(tokens)
-                return {"text": text}
-
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-
-            return DecodeRequestResult(
-                success=True,
-                cached=cached,
-                text=str(response["text"]),
-                request_time=response["request_time"],
-                error=None,
-            )
-        except Exception as error:
-            raise ValueError(
-                f"Error decoding with tiktoken: {error}." + "You might want to consider using huggingface/gpt2."
-            )

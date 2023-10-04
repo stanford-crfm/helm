@@ -1,5 +1,6 @@
+import time
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import Any, Callable, List, Optional, Dict
 
 from helm.proxy.models import Model, get_model
 from .general import indent_lines, format_text
@@ -209,3 +210,17 @@ EMBEDDING_UNAVAILABLE_REQUEST_RESULT = RequestResult(
     completions=[],
     embedding=[],
 )
+
+
+def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
+    """Return a version of `compute` that puts `request_time` into its output."""
+
+    def wrapped_compute():
+        start_time = time.time()
+        response = compute()
+        end_time = time.time()
+        response["request_time"] = end_time - start_time
+        response["request_datetime"] = int(start_time)
+        return response
+
+    return wrapped_compute

@@ -80,9 +80,3 @@ class GoogleClient(Client):
             completions=completions,
             embedding=[],
         )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to decode.")

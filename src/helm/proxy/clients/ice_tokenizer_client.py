@@ -14,6 +14,7 @@ from helm.common.tokenization_request import (
 from .client import Client, wrap_request_time, cleanup_tokens
 
 
+# TODO(josselin): this should not be a client anymore, but a tokenizer
 class ICETokenizerClient(Client):
     """
     The ICE Tokenizer is a unified tokenization tool for images, Chinese, and English.

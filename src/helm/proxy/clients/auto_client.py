@@ -22,6 +22,7 @@ from helm.proxy.clients.critique_client import CritiqueClient
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 from .http_model_client import HTTPModelClient
 
@@ -114,6 +115,7 @@ class AutoClient(Client):
                 org_id = self.credentials.get("openaiOrgId", None)
                 api_key = self.credentials.get("openaiApiKey", None)
                 client = OpenAIClient(
+                    tokenizer=self._get_tokenizer("openai/cl100k_base"),
                     cache_config=cache_config,
                     api_key=api_key,
                     org_id=org_id,
@@ -233,6 +235,17 @@ class AutoClient(Client):
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
+    def _get_tokenizer(self, tokenizer: str) -> Tokenizer:
+        organization: str = tokenizer.split("/")[0]
+        cache_config: CacheConfig = self._build_cache_config(organization)
+
+        if tokenizer == "openai/cl100k_base":
+            from helm.proxy.tokenizers.tiktoken_tokenizer import TiktokenTokenizer
+
+            return TiktokenTokenizer(cache_config)
+
+        raise ValueError(f"Could not find tokenizer for model: {tokenizer}")
+
     def _get_tokenizer_client(self, tokenizer: str) -> Client:
         """Return a client based on the tokenizer, creating it if necessary."""
         organization: str = tokenizer.split("/")[0]
@@ -321,13 +334,13 @@ class AutoClient(Client):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
 
-        def tokenize_with_retry(client: Client, request: TokenizationRequest) -> TokenizationRequestResult:
-            return client.tokenize(request)
+        def tokenize_with_retry(tokenizer: Tokenizer, request: TokenizationRequest) -> TokenizationRequestResult:
+            return tokenizer.tokenize(request)
 
-        client: Client = self._get_tokenizer_client(request.tokenizer)
+        tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer)
 
         try:
-            return tokenize_with_retry(client=client, request=request)
+            return tokenize_with_retry(tokenizer=tokenizer, request=request)
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = f"Failed to tokenize after retrying {last_attempt.attempt_number} times"
@@ -337,13 +350,13 @@ class AutoClient(Client):
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
 
-        def decode_with_retry(client: Client, request: DecodeRequest) -> DecodeRequestResult:
-            return client.decode(request)
+        def decode_with_retry(tokenizer: Tokenizer, request: DecodeRequest) -> DecodeRequestResult:
+            return tokenizer.decode(request)
 
-        client: Client = self._get_tokenizer_client(request.tokenizer)
+        tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer)
 
         try:
-            return decode_with_retry(client=client, request=request)
+            return decode_with_retry(tokenizer=tokenizer, request=request)
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = f"Failed to decode after retrying {last_attempt.attempt_number} times"

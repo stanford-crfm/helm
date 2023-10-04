@@ -87,6 +87,7 @@ class HTTPModelClient(Client):
             error: str = f"Request error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
+    # TODO(josselin): make this a tokenizer
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         cache_key = asdict(request)
         raw_request = {
