@@ -93,7 +93,9 @@ class SageMakerClient(Client):
 
             encodedPayload = json.dumps(payload).encode("utf-8")
             print("Endpoint: ", self.sagemaker_endpoint_name)
-            runtime = boto3.Session(region_name='us-west-2').client('sagemaker-runtime')
+#            runtime = boto3.Session(region_name='us-west-2').client('sagemaker-runtime')
+            runtime = boto3.client('sagemaker-runtime')
+
             response = runtime.invoke_endpoint(
                 EndpointName=self.sagemaker_endpoint_name,
                 ContentType='application/json',
@@ -136,7 +138,7 @@ class SageMakerClient(Client):
         for token_text in result[0]["generated_text"]:
             tokens.append(Token(text=token_text, logprob=0.0, top_logprobs={}))
 
-        completion = Sequence(text=result[0]["generated_text"], logprob=0.5, tokens=tokens)
+        completion = Sequence(text=result[0]["generated_text"], logprob=0.0, tokens=tokens)
 
         completions.append(completion)
         return RequestResult(
