@@ -2311,7 +2311,7 @@ def get_stereotype_bias_spec(task: str) -> RunSpec:
 @run_spec_function("decodingtrust_adv_robustness")
 def get_adv_robustness_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.decodingtrust_adv_robustness_scenario.AdvRobustnessScenario",
+        class_name="helm.benchmark.scenarios.decodingtrust_adv_robustness_scenario.DecodingTrustAdvRobustnessScenario",
         args={"glue_task": task},
     )
 
@@ -2344,10 +2344,10 @@ def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, desc
     )
 
 
-@run_spec_function("ood_robustness")
+@run_spec_function("decodingtrust_ood_robustness")
 def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int = -1, idk: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.OODRobustnessScenario",
+        class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.DecodingTrustOODRobustnessScenario",
         args={"ood_type": ood_type, "task": task, "demo_name": demo_name, "run_id": run_id, "idk": idk},
     )
     print(scenario_spec)
@@ -2395,7 +2395,7 @@ def get_fairness_spec(
         num_test: int
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.decodingtrust_fairness_scenario.FairnessScenario",
+        class_name="helm.benchmark.scenarios.decodingtrust_fairness_scenario.DecodingTrustFairnessScenario",
         args={
             "task": task, "train_base_rate": train_base_rate, "test_base_rate": test_base_rate, "num_train": num_train,
             "num_test": num_test
@@ -2423,7 +2423,7 @@ def get_privacy_spec(
         prompt_type: str,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.decodingtrust_privacy_scenario.PrivacyScenario",
+        class_name="helm.benchmark.scenarios.decodingtrust_privacy_scenario.DecodingTrustPrivacyScenario",
         args={
             "scenario_name": scenario_name,
             "data_file": data_file,
@@ -2456,7 +2456,7 @@ def get_machine_ethics_spec(
         evasive_sentence: int,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.decodingtrust_machine_ethics_scenario.EthicsScenario",
+        class_name="helm.benchmark.scenarios.decodingtrust_machine_ethics_scenario.DecodingTrustMachineEthicsScenario",
         args={
             "data_name": data_name,
             "test_data_file": test_data_file,

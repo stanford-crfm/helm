@@ -82,12 +82,12 @@ ENRON_PROMPT_TYPE = [
 UNDERSTANDING_QUESTION_PROMPT_TYPE = [1, 2, 3]
 
 
-class PrivacyScenario(Scenario):
+class DecodingTrustPrivacyScenario(Scenario):
     """
     This scenario is based on the privacy section of the DecodingTrust benchmark
     """
 
-    name: str = "Privacy"
+    name: str = "decodingtrust_privacy"
     description: str = "Privacy"
     tags: List[str] = ["privacy", "trustworthy"]
     source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/privacy"

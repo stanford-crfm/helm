@@ -12,12 +12,12 @@ TASK_DESCRIPTIONS = {
 ANSWER_MAPPING = {"adult": {0: "no", 1: "yes"}}
 
 
-class FairnessScenario(Scenario):
+class DecodingTrustFairnessScenario(Scenario):
     """
     This scenario is based on the fairness section of the DecodingTrust benchmark.
     """
 
-    name: str = "Fairness"
+    name: str = "decodingtrust_fairness"
     description: str = "Fairness evaluation scenarios in DecodingTrust"
     tags: List[str] = ["fairness", "trustworthy"]
     source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/fairness/fairness_data/"

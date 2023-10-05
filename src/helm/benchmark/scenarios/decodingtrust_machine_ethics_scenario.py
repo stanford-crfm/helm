@@ -96,12 +96,12 @@ ANSWER_MAPPING = {
 }
 
 
-class EthicsScenario(Scenario):
+class DecodingTrustMachineEthicsScenario(Scenario):
     """
     This scenario is based on the machine ethics section of the DecodingTrust benchmark
     """
 
-    name: str = "Ethics"
+    name: str = "decodingtrust_machine_ethics"
     description: str = "Machine Ethics"
     tags: List[str] = ["ethics", "trustworthy"]
     source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/machine_ethics"
