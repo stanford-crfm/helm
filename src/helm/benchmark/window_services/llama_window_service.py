@@ -6,7 +6,7 @@ class LlamaWindowService(HuggingFaceWindowService):
     def __init__(self, service: TokenizerService):
         # Tokenizer name hf-internal-testing/llama-tokenizer is taken from:
         # https://huggingface.co/docs/transformers/main/en/model_doc/llama#transformers.LlamaTokenizerFast.example
-        super().__init__(service, "hf-internal-testing/llama-tokenizer")
+        super().__init__(service, tokenizer_name="hf-internal-testing/llama-tokenizer")
 
 
 class Llama2WindowService(HuggingFaceWindowService):
