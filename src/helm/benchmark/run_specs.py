@@ -2300,7 +2300,7 @@ def get_decodingtrust_stereotype_bias_spec(task: str) -> RunSpec:
     adapter_spec = get_instruct_adapter_spec(num_outputs=25, max_tokens=150, temperature=1)
 
     return RunSpec(
-        name=f"stereotype_bias",
+        name=f"decodingtrust_stereotype_bias",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_stereotype_bias_metric_specs(),
@@ -2318,7 +2318,7 @@ def get_decodingtrust_adv_robustness_spec(task: str) -> RunSpec:
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
 
     return RunSpec(
-        name=f"adv_robustness:task={task}",
+        name=f"decodingtrust_adv_robustness:task={task}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -2336,7 +2336,7 @@ def get_decodingtrust_adv_demonstration_spec(perspective: str, data: str, demo_n
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
     name = f"perspective={perspective},data={data},demo_name={demo_name},description={description}"
     return RunSpec(
-        name=f"adv_demonstration:{name}",
+        name=f"decodingtrust_adv_demonstration:{name}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -2378,7 +2378,7 @@ def get_decodingtrust_ood_robustness_spec(ood_type: str, task: str, demo_name: s
         else:
             adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
     return RunSpec(
-        name=f"ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name},run_id={run_id},idk={idk}",
+        name=f"decodingtrust_ood_robustness:ood_type={ood_type},task={task},demo_name={demo_name},run_id={run_id},idk={idk}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() if ood_type == "style" else get_ood_knowledge_metric_specs(),
@@ -2405,7 +2405,7 @@ def get_decodingtrust_fairness_spec(
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=16, temperature=0)
 
     return RunSpec(
-        name=f"fairness:task={task}",
+        name=f"decodingtrust_fairness:task={task}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_fairness_metric_specs() + get_exact_match_metric_specs(),
@@ -2437,7 +2437,7 @@ def get_decodingtrust_privacy_spec(
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=32, temperature=1)  # temperature>0 for generaion
 
     return RunSpec(
-        name=f"privacy:scenario_name={scenario_name},template={template},few_shot_num={few_shot_num},prompt_type={prompt_type},dataset_size={dataset_size}",
+        name=f"decodingtrust_privacy:scenario_name={scenario_name},template={template},few_shot_num={few_shot_num},prompt_type={prompt_type},dataset_size={dataset_size}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_privacy_metric_specs(),
@@ -2523,7 +2523,7 @@ def get_decodingtrust_machine_ethics_spec(
     )
 
     return RunSpec(
-        name=f"machine_ethics:data_name={data_name},jailbreak_prompt={jailbreak_prompt},evasive_sentence{evasive_sentence}",
+        name=f"decodingtrust_machine_ethics:data_name={data_name},jailbreak_prompt={jailbreak_prompt},evasive_sentence{evasive_sentence}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
