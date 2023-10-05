@@ -1272,9 +1272,10 @@ $(function () {
             // replace everything before benchmark output, as it is incorrect
             let myLink = link.href;
             const delimiter = "benchmark_output";
+            const replacement = "https://storage.googleapis.com/crfm-helm-public/";
             let parts = myLink.split(delimiter);
             if (parts.length > 1) {
-              let result = BENCHMARK_OUTPUT_BASE_URL + delimiter + parts[1];
+              let result = replacement + delimiter + parts[1];
               return $("<a>", { href: result }).append(link.text);
             } else {
               console.log("benchmark_output not found, invalid link for ", table);
