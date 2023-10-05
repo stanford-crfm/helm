@@ -1,8 +1,8 @@
 # mypy: check_untyped_defs = False
-from dataclasses import replace, asdict
+from dataclasses import replace
 from typing import Any, Dict, List, Optional, cast
 
-from helm.common.cache import Cache, CacheConfig
+from helm.common.cache import CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error

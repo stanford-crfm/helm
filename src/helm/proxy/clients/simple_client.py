@@ -9,19 +9,15 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import Client, wrap_request_time
 
 
 class SimpleClient(Client):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
-    def __init__(self, cache_config: CacheConfig):
-        self.cache = Cache(cache_config)
-
-    @staticmethod
-    def tokenize_by_space(text: str) -> List[str]:
-        """Simply tokenizes by a single white space."""
-        return text.split(" ")
+    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {
@@ -56,19 +52,6 @@ class SimpleClient(Client):
             completions=completions,
             embedding=[],
         )
-
-    # TODO(josselin): make this a tokenizer
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        if request.tokenizer == "simple/model1":
-            raw_tokens: List[str] = SimpleClient.tokenize_by_space(request.text)
-            return TokenizationRequestResult(
-                success=True, cached=False, tokens=[TokenizationToken(text) for text in raw_tokens], text=request.text
-            )
-        else:
-            raise ValueError("Unknown model")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError
 
     def invoke_model1(self, raw_request: Dict) -> Dict:
         """

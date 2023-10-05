@@ -1,15 +1,22 @@
+# mypy: check_untyped_defs = False
+from typing import Any, Callable, Dict, Optional
 import os
-from typing import Any, Dict, Optional
 
 from transformers import AutoTokenizer
 
-from helm.common.hierarchical_logger import htrack_block, hlog
-
+from helm.common.hierarchical_logger import hlog
+from helm.common.tokenization_request import (
+    TokenizationRequest,
+    DecodeRequest,
+)
 from helm.proxy.clients.huggingface_model_registry import (
     get_huggingface_model_config,
     HuggingFaceHubModelConfig,
     HuggingFaceLocalModelConfig,
 )
+from helm.common.hierarchical_logger import htrack_block, hlog
+from .cachable_tokenizer import CachableTokenizer
+from .tokenizer import cleanup_tokens
 
 
 # Map of HELM tokenizer name to Hugging Face Hub tokenizer name where they differ.
@@ -19,7 +26,7 @@ _KNOWN_TOKENIZER_ALIASES: Dict[str, str] = {
 }
 
 
-class HuggingFaceTokenizers:
+class HuggingFaceTokenizer(CachableTokenizer):
     tokenizers: Dict[str, Any] = {}
 
     @staticmethod
@@ -53,7 +60,7 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name, local_files_only=False, use_fast=True, **tokenizer_kwargs
                 )
 
-        if tokenizer_name not in HuggingFaceTokenizers.tokenizers:
+        if tokenizer_name not in HuggingFaceTokenizer.tokenizers:
             with htrack_block(f"Loading {tokenizer_name} with Hugging Face Transformers"):
                 # To avoid deadlocks when using HuggingFace tokenizers with multiple processes
                 os.environ["TOKENIZERS_PARALLELISM"] = "False"
@@ -79,6 +86,48 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name = tokenizer_name
 
                 # Keep the tokenizer in memory, so we don't recreate it for future requests
-                HuggingFaceTokenizers.tokenizers[tokenizer_name] = load_tokenizer(hf_tokenizer_name, revision)
+                HuggingFaceTokenizer.tokenizers[tokenizer_name] = load_tokenizer(hf_tokenizer_name, revision)
 
-        return HuggingFaceTokenizers.tokenizers[tokenizer_name]
+        return HuggingFaceTokenizer.tokenizers[tokenizer_name]
+
+    def _tokenize_do_it(self, request: TokenizationRequest) -> Callable[[], Dict[str, Any]]:
+        _tokenizer = HuggingFaceTokenizer.get_tokenizer(request.tokenizer)
+        if request.encode:
+            if request.truncation:
+                tokens = _tokenizer.encode(
+                    request.text,
+                    truncation=request.truncation,
+                    max_length=request.max_length,
+                    add_special_tokens=False,
+                )
+            else:
+                tokens = _tokenizer.encode(request.text, add_special_tokens=False)
+            return {"token_ids": tokens}
+        else:
+            if "gpt" in request.tokenizer or request.tokenizer in [
+                "bigscience/bloom",
+                "Writer/palmyra-base",
+                "facebook/opt-66b",
+            ]:
+                # These models already handle the "▁" character correctly with the
+                # convert_tokens_to_string method. We prefer to use this method instead
+                # of the hacky cleanup_tokens method below as it might handle cases
+                # we haven't thought of in cleanup_tokens.
+                tokens = [_tokenizer.convert_tokens_to_string([token]) for token in _tokenizer.tokenize(request.text)]
+            else:
+                # Tokenizes the text and returns the tokens as a list of strings,
+                # not a list of token objects (otherwise "Hello world" would be"
+                # ["Hello", "▁world"] and not ["Hello", " world"])
+                # We could do this with a simple replace like this:
+                # tokens = [_tokenizer.convert_tokens_to_string([i]) for i in _tokenizer.tokenize(request.text)]
+                # But this replaces all the "▁" characters by "", which is not what we want.
+                # This would be problematic as tokenize(" Hello", encode=False) would return ["Hello"]
+                # Just like tokenize("Hello", encode=False) would return ["Hello"].
+                tokens = _tokenizer.tokenize(request.text)
+                tokens = cleanup_tokens(tokens, request.tokenizer)
+            return {"token_strings": tokens}
+
+    def _decode_do_it(self, request: DecodeRequest) -> Callable[[], Dict[str, Any]]:
+        _tokenizer = HuggingFaceTokenizer.get_tokenizer(request.tokenizer)
+        text = _tokenizer.decode(request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces)
+        return {"text": text}

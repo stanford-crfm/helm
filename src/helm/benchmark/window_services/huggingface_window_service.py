@@ -1,5 +1,5 @@
 from typing import Optional
-from helm.proxy.clients.huggingface_tokenizer import HuggingFaceTokenizers
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 
@@ -14,7 +14,7 @@ class HuggingFaceWindowService(LocalWindowService):
     ):
         super().__init__(service)
         self._tokenizer_name = tokenizer_name
-        tokenizer = HuggingFaceTokenizers.get_tokenizer(self._tokenizer_name)
+        tokenizer = HuggingFaceTokenizer.get_tokenizer(self._tokenizer_name)
         self._prefix_token = tokenizer.bos_token
         self._end_of_text_token = tokenizer.eos_token
         # Override max_sequence_length if provided as an argument.

@@ -4,9 +4,7 @@ import requests
 import time
 import urllib.parse
 
-import threading
-
-from helm.common.cache import Cache, CacheConfig
+from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
@@ -20,13 +18,9 @@ from helm.common.request import (
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationToken,
 )
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import Client, wrap_request_time, truncate_sequence
-from transformers import PreTrainedTokenizerBase, PreTrainedTokenizerFast
-from dataclasses import asdict
 
 try:
     import anthropic
@@ -60,15 +54,10 @@ class AnthropicClient(Client):
     )
     ADDITIONAL_TOKENS: int = 5
     PROMPT_ANSWER_START: str = "The answer is "
-    LOCK: threading.Lock = threading.Lock()
 
-    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, api_key: Optional[str] = None):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.api_key: Optional[str] = api_key
-        self.cache = Cache(cache_config)
-        with AnthropicClient.LOCK:
-            self.tokenizer: PreTrainedTokenizerBase = PreTrainedTokenizerFast(
-                tokenizer_object=anthropic.get_tokenizer()
-            )
         self._client = anthropic.Client(api_key) if api_key else None
 
     def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
@@ -197,67 +186,6 @@ class AnthropicClient(Client):
             embedding=[],
         )
 
-    # TODO(josselin): make this a tokenizer
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        # Method copied from HuggingFaceClient.
-        # TODO: Unify this with HuggingFaceClient.
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                if request.encode:
-                    if request.truncation:
-                        tokens = self.tokenizer.encode(
-                            request.text,
-                            truncation=request.truncation,
-                            max_length=request.max_length,
-                            add_special_tokens=False,
-                        )
-                    else:
-                        tokens = self.tokenizer.encode(request.text, add_special_tokens=False)
-                else:
-                    tokens = [
-                        self.tokenizer.convert_tokens_to_string([i]) for i in self.tokenizer.tokenize(request.text)
-                    ]
-                return {"tokens": tokens}
-
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"HuggingFace error: {e}"
-            return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
-
-        return TokenizationRequestResult(
-            success=True,
-            cached=cached,
-            text=request.text,
-            tokens=[TokenizationToken(value) for value in result["tokens"]],
-            request_time=result["request_time"],
-        )
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        # Method copied from HuggingFaceClient.
-        # TODO: Unify this with HuggingFaceClient
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                return {
-                    "text": self.tokenizer.decode(
-                        request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces
-                    )
-                }
-
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"HuggingFace error: {e}"
-            return DecodeRequestResult(success=False, cached=False, error=error, text="")
-
-        return DecodeRequestResult(
-            success=True, cached=cached, text=result["text"], request_time=result["request_time"]
-        )
-
 
 class AnthropicRequestError(Exception):
     pass
@@ -310,10 +238,10 @@ class AnthropicLegacyClient(Client):
             hlog(f"Invalid logprobs response: {raw_response}")
             return False
 
-    def __init__(self, api_key: str, cache_config: CacheConfig):
+    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
         hlog("This client is deprecated. Please use AnthropicClient instead.")
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.api_key = api_key
-        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -556,9 +484,3 @@ class AnthropicLegacyClient(Client):
         if not AnthropicLegacyClient.is_valid_logprobs_response(raw_response):
             raise AnthropicRequestError(f"Invalid logprobs response: {raw_response}")
         return json.loads(raw_response)
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to decode.")

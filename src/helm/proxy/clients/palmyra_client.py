@@ -3,15 +3,14 @@ import json
 import requests
 from typing import Any, Dict, List
 
-from helm.common.cache import Cache, CacheConfig
+from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence, Token, ErrorFlags
 from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
     TokenizationRequest,
     TokenizationRequestResult,
 )
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import Client, wrap_request_time, truncate_sequence
 
 
@@ -29,9 +28,9 @@ def _is_content_moderation_failure(response: Dict) -> bool:
 
 
 class PalmyraClient(Client):
-    def __init__(self, api_key: str, cache_config: CacheConfig, tokenizer_client: Client):
+    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig, tokenizer_client: Client):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.api_key: str = api_key
-        self.cache = Cache(cache_config)
         self._tokenizer_client = tokenizer_client
 
     def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:

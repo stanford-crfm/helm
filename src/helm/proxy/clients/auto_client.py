@@ -23,6 +23,7 @@ from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
 from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 from .http_model_client import HTTPModelClient
 
@@ -301,10 +302,12 @@ class AutoClient(Client):
             elif organization == "TsinghuaKEG":
                 from helm.proxy.clients.ice_tokenizer_client import ICETokenizerClient
 
+                # TODO(josselin): does not exist anymore
                 client = ICETokenizerClient(cache_config=cache_config)
             elif organization == "Yandex":
                 from helm.proxy.clients.yalm_tokenizer_client import YaLMTokenizerClient
 
+                # TODO(josselin): does not exist anymore
                 client = YaLMTokenizerClient(cache_config=cache_config)
             elif organization == "ai21":
                 from helm.proxy.clients.ai21_client import AI21Client
@@ -428,5 +431,7 @@ class AutoClient(Client):
         if self._huggingface_client:
             assert isinstance(self._huggingface_client, HuggingFaceClient)
             return self._huggingface_client
-        self._huggingface_client = HuggingFaceClient(self._build_cache_config("huggingface"))
+        cache_config = self._build_cache_config("huggingface")
+        tokenizer = HuggingFaceTokenizer(cache_config)
+        self._huggingface_client = HuggingFaceClient(tokenizer=tokenizer, cache_config=cache_config)
         return self._huggingface_client

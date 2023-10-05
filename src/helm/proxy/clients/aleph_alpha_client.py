@@ -3,9 +3,8 @@ import requests
 from typing import Any, Dict, List
 
 from aleph_alpha_client import Client as AlephAlphaPythonClient
-from tokenizers import Tokenizer, Encoding
 
-from helm.common.cache import Cache, CacheConfig
+from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
@@ -15,35 +14,17 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import Client, wrap_request_time, truncate_sequence
 
 
 class AlephAlphaClient(Client):
     COMPLETION_ENDPOINT: str = "complete"
-    TOKENIZE_ENDPOINT: str = "tokenize"
-    DETOKENIZE_ENDPOINT: str = "detokenize"
 
-    VALID_TOKENIZERS: List[str] = [
-        "luminous-base",
-        "luminous-extended",
-        "luminous-supreme",
-    ]
-
-    def __init__(self, api_key: str, cache_config: CacheConfig):
+    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.api_key: str = api_key
-        self.cache = Cache(cache_config)
         self._aleph_alpha_client = AlephAlphaPythonClient(token=api_key)
-        self._tokenizer_name_to_tokenizer: Dict[str, Tokenizer] = {}
-
-    def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
-        if tokenizer_name not in self.VALID_TOKENIZERS:
-            raise ValueError(f"Invalid tokenizer: {tokenizer_name}")
-
-        # Check if the tokenizer is cached
-        if tokenizer_name not in self._tokenizer_name_to_tokenizer:
-            self._tokenizer_name_to_tokenizer[tokenizer_name] = self._aleph_alpha_client.tokenizer(tokenizer_name)
-            hlog(f"Initialized tokenizer: {tokenizer_name}")
-        return self._tokenizer_name_to_tokenizer[tokenizer_name]
 
     def _send_request(self, endpoint: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(

@@ -6,12 +6,7 @@ import openai as turing
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-)
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import Client, wrap_request_time, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
@@ -45,10 +40,13 @@ class MicrosoftClient(Client):
     def __init__(
         self,
         lock_file_path: str,
+        tokenizer: Tokenizer,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -61,8 +59,6 @@ class MicrosoftClient(Client):
         self.api_key: Optional[str] = api_key
         self.api_base: str = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
-
-        self.cache = Cache(cache_config)
 
         # The Microsoft Turing server only allows a single request at a time, so acquire a
         # process-safe lock before making a request.

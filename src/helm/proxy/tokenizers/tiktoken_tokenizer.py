@@ -7,7 +7,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
 )
-from .tokenizer import Tokenizer
+from .cachable_tokenizer import CachableTokenizer
 
 try:
     import tiktoken
@@ -15,28 +15,17 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
 
 
-class TiktokenTokenizer(Tokenizer):
-    @property
-    def supported_tokenizers(self) -> List[str]:
-        return ["openai/cl100k_base"]
+class TiktokenTokenizer(CachableTokenizer):
+    def _tokenize_do_it(self, request: TokenizationRequest) -> Callable[[], Dict[str, Any]]:
+        tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
+        tokens = tokenizer.encode(request.text)
+        if not request.encode:
+            tokens = [tokenizer.decode([token]) for token in tokens]
+            return {"token_strings": tokens}
+        return {"token_ids": tokens}
 
-    def _get_tokenize_do_it(self, request: TokenizationRequest) -> Callable[[], Dict[str, Any]]:
-        def do_it():
-            tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
-            tokens = tokenizer.encode(request.text)
-            if not request.encode:
-                tokens = [tokenizer.decode([token]) for token in tokens]
-            if request.truncation:
-                tokens = tokens[: request.max_length]
-            return {"tokens": tokens}
-
-        return do_it
-
-    def _get_decode_do_it(self, request: DecodeRequest) -> Callable[[], Dict[str, Any]]:
-        def do_it():
-            tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
-            tokens = [token if isinstance(token, int) else tokenizer.encode(token)[0] for token in request.tokens]
-            text = tokenizer.decode(tokens)
-            return {"text": text}
-
-        return do_it
+    def _decode_do_it(self, request: DecodeRequest) -> Callable[[], Dict[str, Any]]:
+        tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
+        tokens = [token if isinstance(token, int) else tokenizer.encode(token)[0] for token in request.tokens]
+        text = tokenizer.decode(tokens)
+        return {"text": text}

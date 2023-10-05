@@ -2,14 +2,9 @@ from typing import List, Optional
 
 import openai as gooseai
 
-from helm.common.cache import Cache, CacheConfig
+from helm.common.cache import CacheConfig
 from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-)
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import Client, wrap_request_time, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
@@ -21,12 +16,11 @@ class GooseAIClient(Client):
     - Supported models: https://goose.ai/docs/models
     """
 
-    def __init__(self, api_key: str, cache_config: CacheConfig, org_id: Optional[str] = None):
+    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig, org_id: Optional[str] = None):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://api.goose.ai/v1"
-
-        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         """
