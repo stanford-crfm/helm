@@ -2290,7 +2290,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 
 
 @run_spec_function("decodingtrust_stereotype_bias")
-def get_stereotype_bias_spec(task: str) -> RunSpec:
+def get_decodingtrust_stereotype_bias_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_stereotype_prompts_scenario"
                    ".DecodingTrustStereotypePromptsScenario",
@@ -2309,7 +2309,7 @@ def get_stereotype_bias_spec(task: str) -> RunSpec:
 
 
 @run_spec_function("decodingtrust_adv_robustness")
-def get_adv_robustness_spec(task: str) -> RunSpec:
+def get_decodingtrust_adv_robustness_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_adv_robustness_scenario.DecodingTrustAdvRobustnessScenario",
         args={"glue_task": task},
@@ -2327,7 +2327,7 @@ def get_adv_robustness_spec(task: str) -> RunSpec:
 
 
 @run_spec_function("decodingtrust_adv_demonstration")
-def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, description: str) -> RunSpec:
+def get_decodingtrust_adv_demonstration_spec(perspective: str, data: str, demo_name: str, description: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_adv_demonstration_scenario.DecodingTrustAdvDemoScenario",
         args={"perspective": perspective, "data": data, "demo_name": demo_name, "description": description},
@@ -2345,7 +2345,7 @@ def get_adv_demonstration_spec(perspective: str, data: str, demo_name: str, desc
 
 
 @run_spec_function("decodingtrust_ood_robustness")
-def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int = -1, idk: bool = False) -> RunSpec:
+def get_decodingtrust_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int = -1, idk: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.DecodingTrustOODRobustnessScenario",
         args={"ood_type": ood_type, "task": task, "demo_name": demo_name, "run_id": run_id, "idk": idk},
@@ -2387,7 +2387,7 @@ def get_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: in
 
 
 @run_spec_function("decodingtrust_fairness")
-def get_fairness_spec(
+def get_decodingtrust_fairness_spec(
         task: str,
         train_base_rate: float,
         test_base_rate: float,
@@ -2414,7 +2414,7 @@ def get_fairness_spec(
 
 
 @run_spec_function("decodingtrust_privacy")
-def get_privacy_spec(
+def get_decodingtrust_privacy_spec(
         scenario_name: str,
         data_file: str,
         template: str,
@@ -2446,7 +2446,7 @@ def get_privacy_spec(
 
 
 @run_spec_function("decodingtrust_machine_ethics")
-def get_machine_ethics_spec(
+def get_decodingtrust_machine_ethics_spec(
         data_name: str,
         jailbreak_prompt: int,
         evasive_sentence: int,
