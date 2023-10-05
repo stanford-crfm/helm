@@ -59,21 +59,11 @@ export default function Home() {
 
   return (
     <>
-      <img
-        src={helmLogo}
-        alt="HELM Logo"
-        className="mx-auto"
-      />
+      <img src={helmLogo} alt="HELM Logo" className="mx-auto" />
       <div className="flex flex-col sm:flex-row justify-center mt-16 mb-32 flex gap-2 sm:gap-8 md:gap-32">
-        <button className="px-10 btn btn-primary">
-          Blog post
-        </button>
-        <button className="px-10 btn btn-primary">
-          Paper
-        </button>
-        <button className="px-10 btn btn-primary">
-          GitHub
-        </button>
+        <button className="px-10 btn btn-primary">Blog post</button>
+        <button className="px-10 btn btn-primary">Paper</button>
+        <button className="px-10 btn btn-primary">GitHub</button>
       </div>
       <div className="container mx-auto text-lg">
         <p>
@@ -96,8 +86,7 @@ export default function Home() {
 
         <ol className="mt-12 flex flex-col gap-32">
           <li>
-            <strong>Broad coverage and recognition of incompleteness.</strong>
-            {" "}
+            <strong>Broad coverage and recognition of incompleteness.</strong>{" "}
             We define a taxonomy over the scenarios we would ideally like to
             evaluate, select scenarios and metrics to cover the space and make
             explicit what is missing.
@@ -108,11 +97,10 @@ export default function Home() {
             />
           </li>
           <li>
-            <strong>Multi-metric measurement.</strong>{" "}
-            Rather than focus on isolated metrics such as accuracy, we
-            simultaneously measure multiple metrics (e.g., accuracy, robustness,
-            calibration, efficiency) for each scenario, allowing analysis of
-            tradeoffs.
+            <strong>Multi-metric measurement.</strong> Rather than focus on
+            isolated metrics such as accuracy, we simultaneously measure
+            multiple metrics (e.g., accuracy, robustness, calibration,
+            efficiency) for each scenario, allowing analysis of tradeoffs.
             <img
               src={scenariosByMetrics}
               alt="Scenarios by metrics table"
@@ -120,12 +108,11 @@ export default function Home() {
             />
           </li>
           <li>
-            <strong>Standardization.</strong>{" "}
-            We evaluate all the models that we have access to on the same
-            scenarios with the same adaptation strategy (e.g., prompting),
-            allowing for controlled comparisons. Thanks to all the companies for
-            providing API access to the limited-access and closed models and
-            {" "}
+            <strong>Standardization.</strong> We evaluate all the models that we
+            have access to on the same scenarios with the same adaptation
+            strategy (e.g., prompting), allowing for controlled comparisons.
+            Thanks to all the companies for providing API access to the
+            limited-access and closed models and{" "}
             <a target="_black" href="https://together.xyz/">
               Together
             </a>{" "}

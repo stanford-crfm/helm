@@ -10,15 +10,18 @@ interface Props {
   sortable?: boolean;
 }
 
-export default function GroupsTables(
-  { groupsTables, activeGroup, ignoreHref = false, sortable = true }: Props,
-) {
+export default function GroupsTables({
+  groupsTables,
+  activeGroup,
+  ignoreHref = false,
+  sortable = true,
+}: Props) {
   const [activeSortColumn, setActiveSortColumn] = useState<
     number | undefined
   >();
-  const [activeGroupsTable, setActiveGroupsTable] = useState<GroupsTable>(
-    { ...groupsTables[activeGroup] },
-  );
+  const [activeGroupsTable, setActiveGroupsTable] = useState<GroupsTable>({
+    ...groupsTables[activeGroup],
+  });
   const [sortDirection, setSortDirection] = useState<number>(1);
 
   useEffect(() => {
@@ -77,16 +80,11 @@ export default function GroupsTables(
               >
                 <div className="flex gap-2 items-center">
                   <span>{headerValue.value}</span>
-                  {sortable
-                    ? (
-                      <button
-                        className="link"
-                        onClick={() => handleSort(idx)}
-                      >
-                        <ChevronUpDownIcon className="w-6 h-6" />
-                      </button>
-                    )
-                    : null}
+                  {sortable ? (
+                    <button className="link" onClick={() => handleSort(idx)}>
+                      <ChevronUpDownIcon className="w-6 h-6" />
+                    </button>
+                  ) : null}
                 </div>
               </th>
             ))}

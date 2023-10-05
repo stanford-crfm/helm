@@ -6,11 +6,19 @@ interface BadgeProps {
 }
 
 function BadgeSuccess({ value }: BadgeProps) {
-  return <Badge icon={CheckCircleIcon} color="green">{value}</Badge>;
+  return (
+    <Badge icon={CheckCircleIcon} color="green">
+      {value}
+    </Badge>
+  );
 }
 
 function BadgeError({ value }: BadgeProps) {
-  return <Badge icon={XCircleIcon} color="red">{value}</Badge>;
+  return (
+    <Badge icon={XCircleIcon} color="red">
+      {value}
+    </Badge>
+  );
 }
 
 interface Props {

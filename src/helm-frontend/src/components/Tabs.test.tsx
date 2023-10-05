@@ -8,7 +8,9 @@ test("display tabs", () => {
     <Tabs>
       <Tab onClick={() => {}}>Link One</Tab>
       <Tab onClick={() => {}}>Link Two</Tab>
-      <Tab onClick={() => {}} active={true}>Link Three</Tab>
+      <Tab onClick={() => {}} active={true}>
+        Link Three
+      </Tab>
     </Tabs>,
   );
 

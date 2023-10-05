@@ -55,9 +55,7 @@ export default function Group() {
           className="mr-8"
         />
         <div className="divider"></div>
-        <p className="text-center mt-8">
-          Group currently has no results.
-        </p>
+        <p className="text-center mt-8">Group currently has no results.</p>
       </>
     );
   }
@@ -79,34 +77,30 @@ export default function Group() {
         </button>
       </div>
       <div className="overflow-x-auto">
-        {groupsTables.length > 1
-          ? (
-            <Tabs>
-              {groupsTables.map(
-                (groupsTable, idx) => (
-                  <Tab
-                    key={idx}
-                    active={idx === activeGroup}
-                    onClick={() => setActiveGroup(idx)}
-                  >
-                    {groupsTable.title}
-                  </Tab>
-                ),
-              )}
-            </Tabs>
-          )
-          : null}
+        {groupsTables.length > 1 ? (
+          <Tabs>
+            {groupsTables.map((groupsTable, idx) => (
+              <Tab
+                key={idx}
+                active={idx === activeGroup}
+                onClick={() => setActiveGroup(idx)}
+              >
+                {groupsTable.title}
+              </Tab>
+            ))}
+          </Tabs>
+        ) : null}
       </div>
 
-      {showChart
-        ? <GroupsCharts groupsTables={groupsTables} activeGroup={activeGroup} />
-        : (
-          <GroupsTables
-            groupsTables={groupsTables}
-            activeGroup={activeGroup}
-            ignoreHref={true}
-          />
-        )}
+      {showChart ? (
+        <GroupsCharts groupsTables={groupsTables} activeGroup={activeGroup} />
+      ) : (
+        <GroupsTables
+          groupsTables={groupsTables}
+          activeGroup={activeGroup}
+          ignoreHref={true}
+        />
+      )}
     </>
   );
 }

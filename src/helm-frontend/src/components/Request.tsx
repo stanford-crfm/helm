@@ -16,9 +16,7 @@ function formatArray(arr: any): any {
     return "";
   }
 
-  return String(
-    `[${arr.map((x) => String(x).replace(/\n/, "\\n")).join(", ")}]`,
-  );
+  return String(`[${arr.map((x) => String(x).replace(/\n/, "\\n")).join(", ")}]`);
 }
 
 export default function Request({ request }: Props) {
@@ -32,9 +30,7 @@ export default function Request({ request }: Props) {
           .filter((key) => key !== "prompt")
           .map((key, idx) => (
             <ListItem key={idx + 1}>
-              <span>
-                {key}:
-              </span>
+              <span>{key}:</span>
               <span>{formatArray(request.request[key])}</span>
             </ListItem>
           ))}

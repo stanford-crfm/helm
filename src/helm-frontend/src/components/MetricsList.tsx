@@ -14,18 +14,16 @@ export default function MetricList({ metrics, metricGroups }: Props) {
         {metricGroups.map((metricGroup, idx) => (
           <li key={idx}>
             {metrics.filter((metric) =>
-                metricGroup.metrics.some((m) => m.name === metric.name)
-              ).length > 0
-              ? (
-                <h4>
-                  {metricGroup.display_name} ({metricGroup.name})
-                </h4>
-              )
-              : null}
+              metricGroup.metrics.some((m) => m.name === metric.name),
+            ).length > 0 ? (
+              <h4>
+                {metricGroup.display_name} ({metricGroup.name})
+              </h4>
+            ) : null}
             <ul>
               {metrics
                 .filter((metric) =>
-                  metricGroup.metrics.some((m) => m.name === metric.name)
+                  metricGroup.metrics.some((m) => m.name === metric.name),
                 )
                 .map((metric, idx) => {
                   return (

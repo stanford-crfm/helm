@@ -94,25 +94,30 @@ export default function Run() {
       setCurrentMetricsPage(
         Math.max(Math.min(metricPage, totalMetricsPages), 1),
       );
-      setDisplayPredictionsMap(displayPredictions.reduce((acc, cur) => {
-        if (acc[cur.instance_id] === undefined) {
-          acc[cur.instance_id] = [];
-        }
-        acc[cur.instance_id].push(cur);
-        return acc;
-      }, {} as DisplayPredictionsMap));
-      setDisplayRequestsMap(displayRequests.reduce((acc, cur) => {
-        if (acc[cur.instance_id] === undefined) {
-          acc[cur.instance_id] = [];
-        }
-        acc[cur.instance_id].push(cur);
-        return acc;
-      }, {} as DisplayRequestsMap));
+      setDisplayPredictionsMap(
+        displayPredictions.reduce((acc, cur) => {
+          if (acc[cur.instance_id] === undefined) {
+            acc[cur.instance_id] = [];
+          }
+          acc[cur.instance_id].push(cur);
+          return acc;
+        }, {} as DisplayPredictionsMap),
+      );
+      setDisplayRequestsMap(
+        displayRequests.reduce((acc, cur) => {
+          if (acc[cur.instance_id] === undefined) {
+            acc[cur.instance_id] = [];
+          }
+          acc[cur.instance_id].push(cur);
+          return acc;
+        }, {} as DisplayRequestsMap),
+      );
       const schema = await getSchema(signal);
       setModel(
-        schema.models.find((m) =>
-          m.name ===
-            runSpecs.find((rs) => rs.name === runName)?.adapter_spec.model
+        schema.models.find(
+          (m) =>
+            m.name ===
+            runSpecs.find((rs) => rs.name === runName)?.adapter_spec.model,
         ),
       );
     }
@@ -123,8 +128,10 @@ export default function Run() {
   }, [runName, searchParams]);
 
   if (
-    runSpec === undefined || displayPredictionsMap === undefined ||
-    displayRequestsMap === undefined || scenario === undefined
+    runSpec === undefined ||
+    displayPredictionsMap === undefined ||
+    displayRequestsMap === undefined ||
+    scenario === undefined
   ) {
     return <Loading />;
   }
@@ -188,9 +195,7 @@ export default function Run() {
             {Object.entries(runSpec.adapter_spec).map(([key, value], idx) => (
               <ListItem className={idx < 3 ? "!border-0" : ""}>
                 <strong className="mr-1">{`${key}: `}</strong>
-                <span className="overflow-x-auto">
-                  {value}
-                </span>
+                <span className="overflow-x-auto">{value}</span>
               </ListItem>
             ))}
           </List>
@@ -214,97 +219,96 @@ export default function Run() {
           </Tab>
         </Tabs>
       </div>
-      {activeTab === 0
-        ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {pagedInstances.map((instance, idx) => (
-                <InstanceData
-                  key={`${instance.id}-${idx}`}
-                  instance={instance}
-                  requests={displayRequestsMap[instance.id]}
-                  predictions={displayPredictionsMap[instance.id]}
-                />
-              ))}
-            </div>
-            <Pagination
-              className="flex justify-center my-8"
-              onNextPage={() => {
-                const nextInstancePage = Math.min(
-                  currentInstancesPage + 1,
-                  totalInstancesPages,
-                );
-                setCurrentInstancesPage(nextInstancePage);
-                searchParams.set("instancesPage", String(nextInstancePage));
-                setSearchParams(searchParams);
-              }}
-              onPrevPage={() => {
-                const prevInstancePage = Math.max(currentInstancesPage - 1, 1);
-                setCurrentInstancesPage(prevInstancePage);
-                searchParams.set("instancesPage", String(prevInstancePage));
-                setSearchParams(searchParams);
-              }}
-              currentPage={currentInstancesPage}
-              totalPages={totalInstancesPages}
-            />
-          </>
-        )
-        : (
-          <div>
-            <div className="overflow-x-auto">
-              <table className="table">
-                <thead>
-                  <tr>
-                    {Object.keys(stats[0]).map((key) => <th key={key}>{key}
-                    </th>)}
-                  </tr>
-                </thead>
-                <tbody>
-                  {pagedMetrics.map((stat) => (
-                    <tr>
-                      {Object.entries(stat).map(([key, value]) => {
-                        if (key === "name") {
-                          return (
-                            <td key={key}>
-                              <StatNameDisplay stat={stat} />
-                              <div className="text-sm text-gray-500">
-                                {
-                                  /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
-                                  value.name
-                                }
-                              </div>
-                            </td>
-                          );
-                        }
-                        return <td>{value}</td>;
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <Pagination
-              className="flex justify-center my-8"
-              onNextPage={() => {
-                const nextMetricsPage = Math.min(
-                  currentMetricsPage + 1,
-                  totalMetricsPages,
-                );
-                setCurrentMetricsPage(nextMetricsPage);
-                searchParams.set("metricsPage", String(nextMetricsPage));
-                setSearchParams(searchParams);
-              }}
-              onPrevPage={() => {
-                const prevMetricsPage = Math.max(currentMetricsPage - 1, 1);
-                setCurrentMetricsPage(prevMetricsPage);
-                searchParams.set("metricsPage", String(prevMetricsPage));
-                setSearchParams(searchParams);
-              }}
-              currentPage={currentMetricsPage}
-              totalPages={totalMetricsPages}
-            />
+      {activeTab === 0 ? (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {pagedInstances.map((instance, idx) => (
+              <InstanceData
+                key={`${instance.id}-${idx}`}
+                instance={instance}
+                requests={displayRequestsMap[instance.id]}
+                predictions={displayPredictionsMap[instance.id]}
+              />
+            ))}
           </div>
-        )}
+          <Pagination
+            className="flex justify-center my-8"
+            onNextPage={() => {
+              const nextInstancePage = Math.min(
+                currentInstancesPage + 1,
+                totalInstancesPages,
+              );
+              setCurrentInstancesPage(nextInstancePage);
+              searchParams.set("instancesPage", String(nextInstancePage));
+              setSearchParams(searchParams);
+            }}
+            onPrevPage={() => {
+              const prevInstancePage = Math.max(currentInstancesPage - 1, 1);
+              setCurrentInstancesPage(prevInstancePage);
+              searchParams.set("instancesPage", String(prevInstancePage));
+              setSearchParams(searchParams);
+            }}
+            currentPage={currentInstancesPage}
+            totalPages={totalInstancesPages}
+          />
+        </>
+      ) : (
+        <div>
+          <div className="overflow-x-auto">
+            <table className="table">
+              <thead>
+                <tr>
+                  {Object.keys(stats[0]).map((key) => (
+                    <th key={key}>{key}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {pagedMetrics.map((stat) => (
+                  <tr>
+                    {Object.entries(stat).map(([key, value]) => {
+                      if (key === "name") {
+                        return (
+                          <td key={key}>
+                            <StatNameDisplay stat={stat} />
+                            <div className="text-sm text-gray-500">
+                              {
+                                /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
+                                value.name
+                              }
+                            </div>
+                          </td>
+                        );
+                      }
+                      return <td>{value}</td>;
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            className="flex justify-center my-8"
+            onNextPage={() => {
+              const nextMetricsPage = Math.min(
+                currentMetricsPage + 1,
+                totalMetricsPages,
+              );
+              setCurrentMetricsPage(nextMetricsPage);
+              searchParams.set("metricsPage", String(nextMetricsPage));
+              setSearchParams(searchParams);
+            }}
+            onPrevPage={() => {
+              const prevMetricsPage = Math.max(currentMetricsPage - 1, 1);
+              setCurrentMetricsPage(prevMetricsPage);
+              searchParams.set("metricsPage", String(prevMetricsPage));
+              setSearchParams(searchParams);
+            }}
+            currentPage={currentMetricsPage}
+            totalPages={totalMetricsPages}
+          />
+        </div>
+      )}
     </>
   );
 }
