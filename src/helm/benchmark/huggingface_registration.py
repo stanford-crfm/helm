@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 from helm.benchmark.model_deployment_registry import (
@@ -40,8 +41,8 @@ def register_huggingface_model(
     register_tokenizer_config(tokenizer_config)
 
 
-def register_huggingface_hub_model_from_flag_value(flag_value: str) -> None:
-    raw_model_string_parts = flag_value.split("@")
+def register_huggingface_hub_model_from_flag_value(raw_model_string: str) -> None:
+    raw_model_string_parts = raw_model_string.split("@")
     pretrained_model_name_or_path: str
     revision: Optional[str]
     if len(raw_model_string_parts) == 1:
@@ -50,26 +51,22 @@ def register_huggingface_hub_model_from_flag_value(flag_value: str) -> None:
         pretrained_model_name_or_path, revision = raw_model_string_parts
     else:
         raise ValueError(
-            f"Could not parse Hugging Face flag value: '{flag_value}'; "
+            f"Could not parse Hugging Face flag value: '{raw_model_string}'; "
             "Expected format: namespace/model_engine[@revision]"
         )
     register_huggingface_model(
-        helm_model_name=flag_value,
+        helm_model_name=raw_model_string,
         pretrained_model_name_or_path=pretrained_model_name_or_path,
         revision=revision,
     )
 
 
-def register_huggingface_local_model_from_flag_value(flag_value: str) -> None:
-    raw_model_string_parts = flag_value.split("@")
-    pretrained_model_name_or_path: str
-    revision: Optional[str]
-    if len(raw_model_string_parts) == 1:
-        pretrained_model_name_or_path, revision = raw_model_string_parts[0], None
-    elif len(raw_model_string_parts) == 2:
-        pretrained_model_name_or_path, revision = raw_model_string_parts
+def register_huggingface_local_model_from_flag_value(path: str) -> None:
+    if not path:
+        raise ValueError("Path to Hugging Face model must be non-empty")
+    path_parts = os.path.split(path)
+    helm_model_name = f"huggingface/{path_parts[-1]}"
     register_huggingface_model(
-        helm_model_name=flag_value,
-        pretrained_model_name_or_path=pretrained_model_name_or_path,
-        revision=revision,
+        helm_model_name=helm_model_name,
+        pretrained_model_name_or_path=path,
     )
