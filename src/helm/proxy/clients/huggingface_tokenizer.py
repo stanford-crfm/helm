@@ -54,7 +54,10 @@ class HuggingFaceTokenizers:
         """
         with HuggingFaceTokenizers._tokenizers_lock:
             if helm_tokenizer_name not in HuggingFaceTokenizers._tokenizers:
-                with htrack_block(f"Loading {helm_tokenizer_name} with Hugging Face Transformers"):
+                with htrack_block(
+                    f"Loading {pretrained_model_name_or_path} (revision={revision}) "
+                    f"for HELM tokenizer {helm_tokenizer_name} with Hugging Face Transformers"
+                ):
 
                     # Keep the tokenizer in memory, so we don't recreate it for future requests
                     HuggingFaceTokenizers._tokenizers[helm_tokenizer_name] = HuggingFaceTokenizers.create_tokenizer(

@@ -19,6 +19,14 @@ from .huggingface_tokenizer import HuggingFaceTokenizers
 from threading import Lock
 
 
+_KNOWN_MODEL_ALIASES: Dict[str, str] = {
+    "google/t5-11b": "t5-11b",
+    "huggingface/gpt2": "gpt2",
+    "huggingface/santacoder": "bigcode/santacoder",
+    "huggingface/starcoder": "bigcode/starcoder",
+}
+
+
 class HuggingFaceServer:
     """A thin wrapper around a Hugging Face AutoModelForCausalLM for HuggingFaceClient to call."""
 
@@ -133,9 +141,13 @@ class HuggingFaceServerFactory:
         """
         with HuggingFaceServerFactory._servers_lock:
             if helm_model_name not in HuggingFaceServerFactory._servers:
-                HuggingFaceServerFactory._servers[helm_model_name] = HuggingFaceServer(
-                    pretrained_model_name_or_path, revision
-                )
+                with htrack_block(
+                    f"Loading {pretrained_model_name_or_path} (revision={revision}) "
+                    f"for HELM model {helm_model_name} with Hugging Face Transformers"
+                ):
+                    HuggingFaceServerFactory._servers[helm_model_name] = HuggingFaceServer(
+                        pretrained_model_name_or_path, revision
+                    )
 
         return HuggingFaceServerFactory._servers[helm_model_name]
 
