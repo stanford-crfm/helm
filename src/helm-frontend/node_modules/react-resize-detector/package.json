@@ -1,0 +1,81 @@
+{
+  "name": "react-resize-detector",
+  "version": "8.1.0",
+  "description": "React resize detector",
+  "main": "build/index.js",
+  "module": "build/index.esm.js",
+  "files": [
+    "build"
+  ],
+  "types": "build/types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maslianok/react-resize-detector.git"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "link": "npm link react react-dom",
+    "prettier": "prettier --write .",
+    "lint": "eslint .",
+    "lint-fix": "eslint --fix",
+    "fix": "npm run prettier && npm run lint-fix",
+    "prerelease": "npm version prerelease --preid=rc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@types/lodash": "^4.14.192",
+    "@types/react": "^18.0.33",
+    "@types/react-dom": "^18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-react": "^7.32.2",
+    "prettier": "^2.8.7",
+    "rollup": "^3.20.2",
+    "rollup-plugin-node-externals": "^5.1.2",
+    "typescript": "^5.0.4"
+  },
+  "peerDependencies": {
+    "react": "^16.0.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.0.0 || ^17.0.0 || ^18.0.0"
+  },
+  "author": "Vitalii Maslianok <maslianok@gmail.com> (https://github.com/maslianok)",
+  "bugs": {
+    "url": "https://github.com/maslianok/react-resize-detector/issues"
+  },
+  "directories": {
+    "example": "example"
+  },
+  "homepage": "https://github.com/maslianok/react-resize-detector",
+  "keywords": [
+    "react",
+    "resize",
+    "detector",
+    "resizeObserver",
+    "observer"
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "maintainers": [
+    {
+      "name": "Vitalii Maslianok",
+      "email": "maslianok@gmail.com"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "James J. Womack (@james_womack)"
+    },
+    {
+      "name": "Roman Zhuravlov (@snelsi)"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+import React from "react";
+import { BaseInputProps } from "../BaseInput";
+export type TextInputProps = Omit<BaseInputProps, "stepper" | "makeInputClassName"> & {
+    type?: "text" | "password" | "email" | "url";
+    defaultValue?: string;
+    value?: string;
+    icon?: React.ElementType | React.JSXElementConstructor<any>;
+    error?: boolean;
+    errorMessage?: string;
+    disabled?: boolean;
+};
+declare const TextInput: React.ForwardRefExoticComponent<Omit<BaseInputProps, "stepper" | "makeInputClassName"> & {
+    type?: "text" | "url" | "email" | "password" | undefined;
+    defaultValue?: string | undefined;
+    value?: string | undefined;
+    icon?: React.JSXElementConstructor<any> | React.ElementType<any> | undefined;
+    error?: boolean | undefined;
+    errorMessage?: string | undefined;
+    disabled?: boolean | undefined;
+} & React.RefAttributes<HTMLInputElement>>;
+export default TextInput;

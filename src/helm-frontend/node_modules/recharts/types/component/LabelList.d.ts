@@ -1,0 +1,31 @@
+import React, { ReactElement, SVGProps } from 'react';
+import { ContentType, Props as LabelProps } from './Label';
+import { DataKey, ViewBox } from '../util/types';
+interface Data {
+    value?: number | string | Array<number | string>;
+    payload?: any;
+    parentViewBox?: ViewBox;
+}
+interface LabelListProps<T extends Data> {
+    id?: string;
+    data?: Array<T>;
+    valueAccessor?: Function;
+    clockWise?: boolean;
+    dataKey?: DataKey<T>;
+    content?: ContentType;
+    textBreakAll?: boolean;
+    position?: LabelProps['position'];
+    angle?: number;
+    formatter?: Function;
+}
+export declare type Props<T extends Data> = SVGProps<SVGElement> & LabelListProps<T>;
+export declare type ImplicitLabelListType<T extends Data> = boolean | ReactElement<SVGElement> | ((props: any) => ReactElement<SVGElement>) | Props<T>;
+export declare function LabelList<T extends Data>({ valueAccessor, ...restProps }: Props<T>): React.JSX.Element;
+export declare namespace LabelList {
+    var displayName: string;
+    var renderCallByParent: <T extends Data>(parentProps: {
+        children?: React.ReactNode;
+        label?: unknown;
+    }, data: T[], checkPropsLabel?: boolean) => React.JSX.Element[];
+}
+export {};
