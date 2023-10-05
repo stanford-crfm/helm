@@ -19,12 +19,20 @@ from .huggingface_tokenizer import HuggingFaceTokenizers
 from threading import Lock
 
 
-_KNOWN_MODEL_ALIASES: Dict[str, str] = {
+# TODO: Delete this.
+_MODEL_NAME_ALIASES: Dict[str, str] = {
     "google/t5-11b": "t5-11b",
     "huggingface/gpt2": "gpt2",
     "huggingface/santacoder": "bigcode/santacoder",
     "huggingface/starcoder": "bigcode/starcoder",
 }
+"""Mapping of some HELM model names to Hugging Face pretrained model name."""
+
+
+# TODO: Delete this.
+def resolve_alias(model_name: str) -> str:
+    """Resolve some HELM model names to Hugging Face pretrained model name."""
+    return _MODEL_NAME_ALIASES.get(model_name, model_name)
 
 
 class HuggingFaceServer:
@@ -188,7 +196,7 @@ class HuggingFaceClient(Client):
         if self._pretrained_model_name_or_path:
             pretrained_model_name_or_path = self._pretrained_model_name_or_path
         else:
-            pretrained_model_name_or_path = request.model
+            pretrained_model_name_or_path = resolve_alias(request.model)
         huggingface_model: HuggingFaceServer = HuggingFaceServerFactory.get_server(
             helm_model_name=request.model,
             pretrained_model_name_or_path=pretrained_model_name_or_path,
@@ -244,7 +252,7 @@ class HuggingFaceClient(Client):
         if self._pretrained_model_name_or_path:
             pretrained_model_name_or_path = self._pretrained_model_name_or_path
         else:
-            pretrained_model_name_or_path = request.tokenizer
+            pretrained_model_name_or_path = resolve_alias(request.tokenizer)
         tokenizer = HuggingFaceTokenizers.get_tokenizer(
             helm_tokenizer_name=request.tokenizer,
             pretrained_model_name_or_path=pretrained_model_name_or_path,
@@ -309,7 +317,7 @@ class HuggingFaceClient(Client):
         if self._pretrained_model_name_or_path:
             pretrained_model_name_or_path = self._pretrained_model_name_or_path
         else:
-            pretrained_model_name_or_path = request.tokenizer
+            pretrained_model_name_or_path = resolve_alias(request.tokenizer)
         tokenizer = HuggingFaceTokenizers.get_tokenizer(
             helm_tokenizer_name=request.tokenizer,
             pretrained_model_name_or_path=pretrained_model_name_or_path,
