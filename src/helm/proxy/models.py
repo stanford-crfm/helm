@@ -59,9 +59,6 @@ NO_NEWLINES_TAG: str = "no_newlines"
 # prompts to indicate the mode before doing inference.
 NLG_PREFIX_TAG: str = "nlg_prefix_tag"
 
-# Whether the HuggingFace model needs to be loaded locally
-LOCAL_HUGGINGFACE_MODEL_TAG: str = "local_huggingface_model"
-
 # Some models can follow instructions.
 INSTRUCTION_FOLLOWING_MODEL_TAG: str = "instruction_following"
 
@@ -447,18 +444,6 @@ ALL_MODELS = [
         group="huggingface",
         name="huggingface/starcoder",
         tags=[CODE_MODEL_TAG],
-    ),
-    # Local HuggingFace models
-    # Copy these models (in HuggingFace format) to ./huggingface_models
-    Model(
-        group="huggingface",
-        name="huggingface/llama-7b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
-    ),
-    Model(
-        group="huggingface",
-        name="huggingface/alpaca-7b",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, LOCAL_HUGGINGFACE_MODEL_TAG],
     ),
     # Google
     Model(
