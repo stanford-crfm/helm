@@ -52,7 +52,11 @@ export default function Predictions({ predictions, requests }: Props) {
             </div>
             {openDetails ? (
               <List>
-                {(Object.keys(prediction.stats) as (keyof typeof prediction.stats)[]).map((statKey, idx) => (
+                {(
+                  Object.keys(
+                    prediction.stats,
+                  ) as (keyof typeof prediction.stats)[]
+                ).map((statKey, idx) => (
                   <ListItem key={idx}>
                     <span>{statKey}:</span>
                     <span>{prediction.stats[statKey]}</span>
@@ -60,7 +64,9 @@ export default function Predictions({ predictions, requests }: Props) {
                 ))}
               </List>
             ) : null}
-            <div className="overflow-auto">{openRequests ? <Request request={requests[idx]} /> : null}</div>
+            <div className="overflow-auto">
+              {openRequests ? <Request request={requests[idx]} /> : null}
+            </div>
           </div>
         ))}
       </div>

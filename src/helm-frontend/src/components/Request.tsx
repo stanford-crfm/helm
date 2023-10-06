@@ -16,7 +16,9 @@ function formatArray(arr: any): any {
     return "";
   }
 
-  return String(`[${arr.map((x) => String(x).replace(/\n/, "\\n")).join(", ")}]`);
+  return String(
+    `[${arr.map((x) => String(x).replace(/\n/, "\\n")).join(", ")}]`,
+  );
 }
 
 export default function Request({ request }: Props) {

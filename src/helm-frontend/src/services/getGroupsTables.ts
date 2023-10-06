@@ -14,7 +14,7 @@ export default async function getGroupsTables(
   try {
     const groups = await fetch(getGroupsTablesJsonUrl(), { signal });
 
-    return await groups.json() as GroupsTable[];
+    return (await groups.json()) as GroupsTable[];
   } catch (error) {
     console.log(error);
     return [];

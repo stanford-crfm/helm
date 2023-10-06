@@ -14,7 +14,7 @@ export default async function getRunSpecByName(
   try {
     const runSpec = await fetch(getRunSpecByNameUrl(runName), { signal });
 
-    return await runSpec.json() as RunSpec;
+    return (await runSpec.json()) as RunSpec;
   } catch (error) {
     console.log(error);
     return undefined;

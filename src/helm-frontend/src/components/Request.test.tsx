@@ -26,5 +26,7 @@ it("renders correctly", () => {
   render(<Request request={request} />);
 
   expect(screen.getByText("Prompt"));
-  expect(screen.getAllByText("Passage: Mice are afraid of cats.").length).toBe(2);
+  expect(screen.getAllByText("Passage: Mice are afraid of cats.").length).toBe(
+    2,
+  );
 });

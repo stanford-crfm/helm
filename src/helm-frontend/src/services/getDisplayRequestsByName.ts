@@ -14,7 +14,7 @@ export default async function getDisplayRequestssByName(
       { signal },
     );
 
-    return await displayRequest.json() as DisplayRequest[];
+    return (await displayRequest.json()) as DisplayRequest[];
   } catch (error) {
     console.log(error);
     return [];
