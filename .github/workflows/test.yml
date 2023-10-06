@@ -2,7 +2,11 @@ name: Test
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'src/helm-frontend/**'
   pull_request:
+    paths-ignore:
+      - 'src/helm-frontend/**'
 
 jobs:
   install:
