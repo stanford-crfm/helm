@@ -130,11 +130,15 @@ $(function () {
 
     function renderPlot(name, title) {
       const plot = $("<div>", { class: "plot" });
-      const caption = $("<div>", { class: "plot-caption" }).append(plotCaptions[name]);
+      const caption = $("<div>", { class: "plot-caption" }).append(
+        plotCaptions[name],
+      );
 
       plot.append($("<h3>").append($("<a>", { id: title }).append(title)));
       plot.append(caption);
-      plot.append($("<img>", { src: plotUrl(release, name), class: "img-fluid" }));
+      plot.append(
+        $("<img>", { src: plotUrl(release, name), class: "img-fluid" }),
+      );
       container.append(plot);
       tableLinks.push($("<a>", { href: "#" + title }).append(title));
     }
@@ -148,11 +152,17 @@ $(function () {
     renderPlot("accuracy_v_access", "Accuracy as a function of model access");
     renderPlot("accuracy_over_num_parameters", "Accuracy across model sizes");
     renderPlot("accuracy_over_release_date", "Accuracy over time");
-    renderPlot("accuracy_over_the_pile_perplexity", "Accuracy as a function of The Pile perplexity");
+    renderPlot(
+      "accuracy_over_the_pile_perplexity",
+      "Accuracy as a function of The Pile perplexity",
+    );
 
     renderPlot("targeted_evals", "Targeted evaluations");
 
-    renderPlot("in_context_ablations", "Number of in-context examples ablation");
+    renderPlot(
+      "in_context_ablations",
+      "Number of in-context examples ablation",
+    );
     renderPlot("mc_ablations", "Multiple-choice adaptation ablation");
 
     links.append(renderItems(tableLinks));
@@ -162,12 +172,18 @@ $(function () {
 
   function renderRunsOverview(runSpecs) {
     let query = "";
-    const $search = $("<input>", { type: "text", size: 40, placeholder: "Enter regex query (enter to open all)" });
+    const $search = $("<input>", {
+      type: "text",
+      size: 40,
+      placeholder: "Enter regex query (enter to open all)",
+    });
     console.log(urlParams);
     $search.keyup((e) => {
       // Open up all match specs
       if (e.keyCode === 13) {
-        const href = encodeUrlParams(Object.assign({}, urlParams, { runSpecRegex: ".*" + query + ".*" }));
+        const href = encodeUrlParams(
+          Object.assign({}, urlParams, { runSpecRegex: ".*" + query + ".*" }),
+        );
         console.log(urlParams, href);
         window.open(href);
       }
@@ -188,7 +204,9 @@ $(function () {
         if (!new RegExp(query).test(runSpec.name)) {
           return;
         }
-        const href = encodeUrlParams(Object.assign({}, urlParams, { runSpec: runSpec.name }));
+        const href = encodeUrlParams(
+          Object.assign({}, urlParams, { runSpec: runSpec.name }),
+        );
         const $row = $("<tr>")
           .append($("<td>").append($("<a>", { href }).append(runSpec.name)))
           .append($("<td>").append(runSpec.adapter_spec.method));
@@ -233,7 +251,11 @@ $(function () {
     schema.run_groups.forEach((runGroup) => {
       const name = runGroup.environment && runGroup.environment.main_name;
       if (!["bits_per_byte"].includes(name)) {
-        metricJudgements[name] = { wrongThreshold: 0, correctThreshold: 1, lowerIsBetter: false };
+        metricJudgements[name] = {
+          wrongThreshold: 0,
+          correctThreshold: 1,
+          lowerIsBetter: false,
+        };
       }
     });
     return metricJudgements;
@@ -278,9 +300,9 @@ $(function () {
     if (nameCompare !== 0) {
       return nameCompare;
     }
-    const perturbationCompare = (k1.perturbation ? k1.perturbation.name : "").localeCompare(
-      k2.perturbation ? k2.perturbation.name : ""
-    );
+    const perturbationCompare = (
+      k1.perturbation ? k1.perturbation.name : ""
+    ).localeCompare(k2.perturbation ? k2.perturbation.name : "");
     if (perturbationCompare !== 0) {
       return perturbationCompare;
     }
@@ -302,18 +324,27 @@ $(function () {
       }
 
       const displayKey = renderMetricName(key);
-      if (query !== "" && !query.split(" ").every((q) => displayKey.includes(q))) {
+      if (
+        query !== "" &&
+        !query.split(" ").every((q) => displayKey.includes(q))
+      ) {
         return;
       }
 
       const field = schema.metricsField(key.name);
       const helpText = describeMetricName(field, key);
-      const $key = $("<td>").append($("<span>").append(helpIcon(helpText)).append(" ").append(displayKey));
+      const $key = $("<td>").append(
+        $("<span>").append(helpIcon(helpText)).append(" ").append(displayKey),
+      );
       const $row = $("<tr>").append($("<td>").append($key));
       statsList.forEach((stats) => {
         // stats: list of statistics corresponding to one run (column)
         const stat = stats.find((stat) => metricNameEquals(stat.name, key));
-        $row.append($("<td>").append(stat ? renderFieldValue(field, round(stat.mean, 3)) : "?"));
+        $row.append(
+          $("<td>").append(
+            stat ? renderFieldValue(field, round(stat.mean, 3)) : "?",
+          ),
+        );
       });
       $output.append($row);
     });
@@ -322,7 +353,11 @@ $(function () {
     $output.append(
       $("<tr>")
         .append($("<td>"))
-        .append(statsPaths.map((statsPath) => $("<td>").append($("<a>", { href: statsPath }).append("JSON"))))
+        .append(
+          statsPaths.map((statsPath) =>
+            $("<td>").append($("<a>", { href: statsPath }).append("JSON")),
+          ),
+        ),
     );
     return $output;
   }
@@ -337,7 +372,9 @@ $(function () {
     });
     return text
       .split(" ")
-      .map((word) => (!word.trim() || origWords[word] ? word : "<u>" + word + "</u>"))
+      .map((word) =>
+        !word.trim() || origWords[word] ? word : "<u>" + word + "</u>",
+      )
       .join(" ");
   }
 
@@ -355,7 +392,9 @@ $(function () {
       links.push($("<a>", { href: scenarioPath }).append("Scenario JSON"));
     }
     links.push($("<a>", { href: "#adapter" }).append("Adapter specification"));
-    links.push($("<a>", { href: "#instances" }).append("Instances + predictions"));
+    links.push(
+      $("<a>", { href: "#instances" }).append("Instances + predictions"),
+    );
     links.push($("<a>", { href: "#metrics" }).append("All metrics"));
     $output.append(renderItems(links));
 
@@ -372,12 +411,19 @@ $(function () {
           groupName += " / " + urlParams.subgroup;
         }
         $output.append($("<h3>").append(groupName));
-        $output.append($("<div>").append($("<i>").append(renderMarkdown(group.description))));
+        $output.append(
+          $("<div>").append($("<i>").append(renderMarkdown(group.description))),
+        );
         if (group.taxonomy) {
           const $rows = Object.entries(group.taxonomy).map(([k, v]) => {
-            return $("<tr>").append([$("<td>").append(`<b>${k}</b>`), $("<td>").append(v)]);
+            return $("<tr>").append([
+              $("<td>").append(`<b>${k}</b>`),
+              $("<td>").append(v),
+            ]);
           });
-          $output.append($("<table>", { class: "taxonomy-table" }).append($rows));
+          $output.append(
+            $("<table>", { class: "taxonomy-table" }).append($rows),
+          );
         }
       }
     });
@@ -386,8 +432,12 @@ $(function () {
 
   function renderScenarioHeader(scenario, scenarioSpec) {
     const $output = $("<div>");
-    $output.append($("<h3>").append(renderScenarioDisplayName(scenario, scenarioSpec)));
-    $output.append($("<div>").append($("<i>").append(renderMarkdown(scenario.description))));
+    $output.append(
+      $("<h3>").append(renderScenarioDisplayName(scenario, scenarioSpec)),
+    );
+    $output.append(
+      $("<div>").append($("<i>").append(renderMarkdown(scenario.description))),
+    );
     return $output;
   }
 
@@ -397,11 +447,17 @@ $(function () {
   }
 
   function predictionInstanceKey(prediction) {
-    return JSON.stringify([prediction.instance_id, prediction.perturbation || "original"]);
+    return JSON.stringify([
+      prediction.instance_id,
+      prediction.perturbation || "original",
+    ]);
   }
 
   function displayRequestInstanceKey(displayRequest) {
-    return JSON.stringify([displayRequest.instance_id, displayRequest.perturbation || "original"]);
+    return JSON.stringify([
+      displayRequest.instance_id,
+      displayRequest.perturbation || "original",
+    ]);
   }
 
   Handlebars.registerHelper("highlightNewWords", (perturbed, unperturbed) => {
@@ -500,7 +556,7 @@ $(function () {
           keys.length +
           ") !== divs length (" +
           $divs.length +
-          ")"
+          ")",
       );
     } else {
       keys.forEach((key, index) => {
@@ -510,7 +566,12 @@ $(function () {
     return instanceKeyToDiv;
   }
 
-  function loadAndRenderRequests(runSpec, suite, instanceKeyToDiv, predictedIndex) {
+  function loadAndRenderRequests(
+    runSpec,
+    suite,
+    instanceKeyToDiv,
+    predictedIndex,
+  ) {
     if (runSpecsNamesWithLoadedRequests.includes(runSpec.name)) {
       return;
     }
@@ -532,7 +593,10 @@ $(function () {
     const $requestTableHeader = $("<h6>").append("Request");
     $requestTable.append($requestTableHeader);
 
-    const $promptRow = $("<tr>").append([$("<td>").append("prompt"), $('<td class="prompt">').text(request.prompt)]);
+    const $promptRow = $("<tr>").append([
+      $("<td>").append("prompt"),
+      $('<td class="prompt">').text(request.prompt),
+    ]);
     $requestTable.append($promptRow);
 
     for (let requestKey in request) {
@@ -542,7 +606,9 @@ $(function () {
       const $requestRow = $("<tr>").append([
         $("<td>").append(requestKey),
         $("<td>").append(
-          typeof request[requestKey] === "string" ? request[requestKey] : JSON.stringify(request[requestKey])
+          typeof request[requestKey] === "string"
+            ? request[requestKey]
+            : JSON.stringify(request[requestKey]),
         ),
       ]);
       $requestTable.append($requestRow);
@@ -584,7 +650,14 @@ $(function () {
     <div class="request" style="display: none">Loading...</div>
   `);
 
-  function renderPredictions(runSpec, runSuite, runDisplayName, predictions, instanceKeyToDiv, $instances) {
+  function renderPredictions(
+    runSpec,
+    runSuite,
+    runDisplayName,
+    predictions,
+    instanceKeyToDiv,
+    $instances,
+  ) {
     // Add the predictions and statistics from `scenarioState` and `perInstanceStats` to the appropriate divs for each instance.
     // Each instance give rises to multiple requests (whose results are in `scenarioState`):
     //
@@ -598,7 +671,11 @@ $(function () {
     // - for adapter method = multiple_choice_separate_original, have one request per reference
     // - for adapter method = multiple_choice_separate_calibrated, have two requests per reference
     const method = runSpec.adapter_spec.method;
-    const numTrainTrials = predictions.reduce((m, prediction) => Math.max(m, prediction.train_trial_index), -1) + 1;
+    const numTrainTrials =
+      predictions.reduce(
+        (m, prediction) => Math.max(m, prediction.train_trial_index),
+        -1,
+      ) + 1;
 
     // Look for the default metrics for the group
     const metricNames = [];
@@ -641,7 +718,9 @@ $(function () {
         if (prediction.mapped_output !== undefined) {
           predictedText = truncateMiddle(prediction.mapped_output.trim(), 30);
         } else {
-          predictedText = truncateMiddle(predictedText, 30) + '<span style="color: gray"> (unmapped)</span>';
+          predictedText =
+            truncateMiddle(predictedText, 30) +
+            '<span style="color: gray"> (unmapped)</span>';
         }
       } else if (method.startsWith("multiple_choice_separate_")) {
         // For adapter method = separate, prediction starts with the prompt, strip it out
@@ -650,15 +729,24 @@ $(function () {
             '<span style="color: lightgray">...</span> ' +
             truncateMiddle(prediction.truncated_predicted_text.trim(), 30);
         } else {
-          console.warn("Prompt was not stripped from predicted text", predictedText);
+          console.warn(
+            "Prompt was not stripped from predicted text",
+            predictedText,
+          );
           predictedText = truncateMiddle(predictedText, 30);
         }
       } else if (method === "language_modeling") {
         // For language modeling, first token is just padding, so strip it out
         if (prediction.truncated_predicted_text !== undefined) {
-          predictedText = truncateMiddle(prediction.truncated_predicted_text.trim(), 30);
+          predictedText = truncateMiddle(
+            prediction.truncated_predicted_text.trim(),
+            30,
+          );
         } else {
-          console.warn("First token was not stripped from predicted text", predictedText);
+          console.warn(
+            "First token was not stripped from predicted text",
+            predictedText,
+          );
           predictedText = truncateMiddle(predictedText, 30);
         }
       }
@@ -668,7 +756,11 @@ $(function () {
         if (metricValue !== undefined) {
           const displayName = schema.metricsField(metricName).display_name;
           const statClass = getStatClass(metricName, metricValue);
-          metrics.push({ name: displayName, value: metricValue, class: statClass });
+          metrics.push({
+            name: displayName,
+            value: metricValue,
+            class: statClass,
+          });
         }
       });
       $instance.append(
@@ -678,7 +770,7 @@ $(function () {
           predictedText,
           numTrainTrials,
           metrics,
-        })
+        }),
       );
     });
     $instances.find("a.load-requests").click((event) => {
@@ -703,20 +795,34 @@ $(function () {
 
     // Paths (parallel arrays corresponding to `runSpecs`)
     const statsPaths = runSpecs.map((runSpec) => {
-      return statsJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name), runSpec.name);
+      return statsJsonUrl(
+        getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name),
+        runSpec.name,
+      );
     });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
-      return scenarioStateJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name), runSpec.name);
+      return scenarioStateJsonUrl(
+        getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name),
+        runSpec.name,
+      );
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
-      return runSpecJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name), runSpec.name);
+      return runSpecJsonUrl(
+        getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name),
+        runSpec.name,
+      );
     });
     const predictionsPaths = runSpecs.map((runSpec) => {
-      return predictionsJsonUrl(getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name), runSpec.name);
+      return predictionsJsonUrl(
+        getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name),
+        runSpec.name,
+      );
     });
 
     // Figure out short names for the runs based on where they differ
-    const runDisplayNames = findDiff(runSpecs.map((runSpec) => runSpec.adapter_spec)).map(renderDict);
+    const runDisplayNames = findDiff(
+      runSpecs.map((runSpec) => runSpec.adapter_spec),
+    ).map(renderDict);
 
     // Setup the basic HTML elements
     const $root = $("<div>");
@@ -725,25 +831,37 @@ $(function () {
     $root.append($scenarioInfo);
 
     // Adapter
-    $root.append($("<a>", { name: "adapter" }).append($("<h5>").append("Adapter specification")));
+    $root.append(
+      $("<a>", { name: "adapter" }).append(
+        $("<h5>").append("Adapter specification"),
+      ),
+    );
     const $adapterSpec = $("<table>");
     if (runSpecs.length > 1) {
       $adapterSpec.append(
         $("<tr>")
           .append($("<td>"))
-          .append(runDisplayNames.map((name) => $("<td>").append(name)))
+          .append(runDisplayNames.map((name) => $("<td>").append(name))),
       );
     }
     $root.append($("<div>", { class: "table-container" }).append($adapterSpec));
 
     // Instances
-    $root.append($("<a>", { name: "instances" }).append($("<h5>").append("Instances + predictions")));
+    $root.append(
+      $("<a>", { name: "instances" }).append(
+        $("<h5>").append("Instances + predictions"),
+      ),
+    );
     const $instancesContainer = $("<div>");
-    $instancesContainer.addClass("table-container").text("Loading instances...");
+    $instancesContainer
+      .addClass("table-container")
+      .text("Loading instances...");
     $root.append($instancesContainer);
 
     // Metrics
-    $root.append($("<a>", { name: "metrics" }).append($("<h5>").append("All metrics")));
+    $root.append(
+      $("<a>", { name: "metrics" }).append($("<h5>").append("All metrics")),
+    );
     const $statsContainer = $("<div>");
     $statsContainer.addClass("table-container").text("Loading metrics...");
     $root.append($statsContainer);
@@ -755,21 +873,33 @@ $(function () {
         .append(
           scenarioStatePaths.map((scenarioStatePath, index) => {
             return $("<td>")
-              .append($("<a>", { href: runSpecPaths[index] }).append("Spec JSON"))
+              .append(
+                $("<a>", { href: runSpecPaths[index] }).append("Spec JSON"),
+              )
               .append(" | ")
-              .append($("<a>", { href: scenarioStatePaths[index] }).append("Full JSON"));
-          })
-        )
+              .append(
+                $("<a>", { href: scenarioStatePaths[index] }).append(
+                  "Full JSON",
+                ),
+              );
+          }),
+        ),
     );
-    const keys = canonicalizeList(runSpecs.map((runSpec) => Object.keys(runSpec.adapter_spec)));
+    const keys = canonicalizeList(
+      runSpecs.map((runSpec) => Object.keys(runSpec.adapter_spec)),
+    );
     sortListWithReferenceOrder(keys, schema.adapterFieldNames);
     keys.forEach((key) => {
       const field = schema.adapterField(key);
       const helpText = describeField(field);
-      const $key = $("<td>").append($("<span>").append(helpIcon(helpText)).append(" ").append(key));
+      const $key = $("<td>").append(
+        $("<span>").append(helpIcon(helpText)).append(" ").append(key),
+      );
       const $row = $("<tr>").append($key);
       runSpecs.forEach((runSpec) => {
-        $row.append($("<td>").append(renderFieldValue(field, runSpec.adapter_spec[key])));
+        $row.append(
+          $("<td>").append(renderFieldValue(field, runSpec.adapter_spec[key])),
+        );
       });
       $adapterSpec.append($row);
     });
@@ -780,26 +910,34 @@ $(function () {
       (statsList) => {
         console.log("metrics", statsList);
         if (statsList.length && statsList.every((stat) => stat.length === 0)) {
-          $statsContainer.empty().text("Metrics are currently unavailable. Please try again later.");
+          $statsContainer
+            .empty()
+            .text("Metrics are currently unavailable. Please try again later.");
           return;
         }
         const $stats = $("<table>");
-        const $statsSearch = $("<input>", { type: "text", size: 40, placeholder: "Enter keywords to filter metrics" });
+        const $statsSearch = $("<input>", {
+          type: "text",
+          size: 40,
+          placeholder: "Enter keywords to filter metrics",
+        });
         if (runSpecs.length > 1) {
           $stats.append(
             $("<tr>")
               .append($("<td>"))
-              .append(runDisplayNames.map((name) => $("<td>").append(name)))
+              .append(runDisplayNames.map((name) => $("<td>").append(name))),
           );
         }
         const keys = canonicalizeList(
           statsList.map((stats) => stats.map((stat) => stat.name)),
-          metricNameCompare
+          metricNameCompare,
         );
         keys.sort(metricNameCompare);
 
         function update() {
-          $stats.empty().append(renderGlobalStats(query, keys, statsList, statsPaths));
+          $stats
+            .empty()
+            .append(renderGlobalStats(query, keys, statsList, statsPaths));
         }
 
         // Filter
@@ -812,45 +950,51 @@ $(function () {
         update();
         $statsContainer.empty().append($statsSearch).append($stats);
       },
-      []
+      [],
     );
 
     // Render scenario header
     const scenarioPath = scenarioJsonUrl(
       getRunSuite(usingRelease, version, runsToRunSuites, runSpecs[0].name),
-      runSpecs[0].name
+      runSpecs[0].name,
     );
     $.get(scenarioPath, {}, (scenario) => {
       console.log("scenario", scenario);
-      $scenarioInfo.empty().append(renderRunsHeader(scenario, scenarioPath, runSpecs[0].scenario_spec));
+      $scenarioInfo
+        .empty()
+        .append(
+          renderRunsHeader(scenario, scenarioPath, runSpecs[0].scenario_spec),
+        );
     });
 
     // Render scenario instances and predictions
     const instancesPath = instancesJsonUrl(
       getRunSuite(usingRelease, version, runsToRunSuites, runSpecs[0].name),
-      runSpecs[0].name
+      runSpecs[0].name,
     );
     const instancesPromise = $.getJSON(instancesPath, {});
     const predictionsPromise = getJSONList(predictionsPaths);
-    $.when(instancesPromise, predictionsPromise).then((instancesResult, predictions) => {
-      const instances = instancesResult[0];
-      console.log("instances", instances);
-      console.log("predictions", predictions);
-      const $instances = $("<div>");
-      const instanceKeyToDiv = renderScenarioInstances(instances, $instances);
-      // For each run / model...
-      runSpecs.forEach((runSpec, index) => {
-        renderPredictions(
-          runSpec,
-          getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name),
-          runDisplayNames[index],
-          predictions[index],
-          instanceKeyToDiv,
-          $instances
-        );
-      });
-      $instancesContainer.empty().append($instances);
-    });
+    $.when(instancesPromise, predictionsPromise).then(
+      (instancesResult, predictions) => {
+        const instances = instancesResult[0];
+        console.log("instances", instances);
+        console.log("predictions", predictions);
+        const $instances = $("<div>");
+        const instanceKeyToDiv = renderScenarioInstances(instances, $instances);
+        // For each run / model...
+        runSpecs.forEach((runSpec, index) => {
+          renderPredictions(
+            runSpec,
+            getRunSuite(usingRelease, version, runsToRunSuites, runSpec.name),
+            runDisplayNames[index],
+            predictions[index],
+            instanceKeyToDiv,
+            $instances,
+          );
+        });
+        $instancesContainer.empty().append($instances);
+      },
+    );
     return $root;
   }
 
@@ -859,16 +1003,26 @@ $(function () {
   }
 
   function modelUrl(model) {
-    return encodeUrlParams(Object.assign({}, urlParams, { scenarios: null, models: 1 }));
+    return encodeUrlParams(
+      Object.assign({}, urlParams, { scenarios: null, models: 1 }),
+    );
   }
 
   function groupUrl(group) {
-    return encodeUrlParams(Object.assign({}, urlParams, { scenarios: null, group }));
+    return encodeUrlParams(
+      Object.assign({}, urlParams, { scenarios: null, group }),
+    );
   }
 
   function metricUrl(group) {
     // e.g., Calibration
-    return encodeUrlParams(Object.assign({}, urlParams, { group: "core_scenarios" })) + "#" + group.display_name;
+    return (
+      encodeUrlParams(
+        Object.assign({}, urlParams, { group: "core_scenarios" }),
+      ) +
+      "#" +
+      group.display_name
+    );
   }
 
   function groupShortDisplayName(group) {
@@ -878,7 +1032,9 @@ $(function () {
   function metricDisplayName(metric) {
     return (
       (metric.display_name || metric.name) +
-      (metric.perturbation_name ? " (perturbation: " + metric.perturbation_name + ")" : "")
+      (metric.perturbation_name
+        ? " (perturbation: " + metric.perturbation_name + ")"
+        : "")
     );
   }
 
@@ -886,10 +1042,13 @@ $(function () {
     const $result = $("<div>", { class: "col-sm-3" });
     const models = schema.models;
     const numModels = models.filter((model) => !model.todo).length;
-    $result.append($("<div>", { class: "list-header" }).append(`${numModels} models`));
+    $result.append(
+      $("<div>", { class: "list-header" }).append(`${numModels} models`),
+    );
     models.forEach((model) => {
       const extra = model.todo ? " list-item-todo" : "";
-      const display_name = model.creator_organization + " / " + model.display_name;
+      const display_name =
+        model.creator_organization + " / " + model.display_name;
       const $item = $("<a>", {
         href: modelUrl(model.name),
         class: "list-item" + extra,
@@ -913,7 +1072,10 @@ $(function () {
     // 2) Scenario-level groups (e.g., mmlu)
     const topGroups = schema.run_groups.filter((group) => {
       // Must have subgroups
-      return group.subgroups && ["Core scenarios", "Targeted evaluations"].includes(group.category);
+      return (
+        group.subgroups &&
+        ["Core scenarios", "Targeted evaluations"].includes(group.category)
+      );
     });
 
     const scenarioGroupNames = {};
@@ -926,13 +1088,17 @@ $(function () {
     });
     const numScenarios = Object.keys(scenarioGroupNames).length;
 
-    $result.append($("<div>", { class: "list-header" }).append(`${numScenarios} scenarios`));
+    $result.append(
+      $("<div>", { class: "list-header" }).append(`${numScenarios} scenarios`),
+    );
     topGroups.forEach((group) => {
       const $group = $("<div>");
       $group.append(
-        $("<a>", { href: groupUrl(group.name), class: "list-item", title: group.description }).append(
-          groupShortDisplayName(group)
-        )
+        $("<a>", {
+          href: groupUrl(group.name),
+          class: "list-item",
+          title: group.description,
+        }).append(groupShortDisplayName(group)),
       );
       $group.append(
         $("<ul>").append(
@@ -945,8 +1111,8 @@ $(function () {
               title: subgroup.description,
             }).append(groupShortDisplayName(subgroup));
             return $("<li>").append($item);
-          })
-        )
+          }),
+        ),
       );
       $result.append($group);
     });
@@ -973,7 +1139,9 @@ $(function () {
           if (group.environment.main_name) {
             const old = metricGroupToMainNames[metricGroup] || [];
             if (!old.includes(group.environment.main_name)) {
-              metricGroupToMainNames[metricGroup] = old.concat([group.environment.main_name]);
+              metricGroupToMainNames[metricGroup] = old.concat([
+                group.environment.main_name,
+              ]);
             }
           }
         });
@@ -983,14 +1151,18 @@ $(function () {
     const metricGroups = schema.metric_groups
       .filter((group) => {
         // Skip a group if "_detailed" exists.
-        return !schema.metric_groups.some((group2) => group2.name === group.name + "_detailed");
+        return !schema.metric_groups.some(
+          (group2) => group2.name === group.name + "_detailed",
+        );
       })
       .map((group) => {
         // Expand the metrics for this metric group
         const newMetrics = [];
         group.metrics.forEach((metric) => {
           if (metric.name === "${main_name}") {
-            (metricGroupToMainNames[group.name.replace("_detailed", "")] || []).forEach((name) => {
+            (
+              metricGroupToMainNames[group.name.replace("_detailed", "")] || []
+            ).forEach((name) => {
               newMetrics.push(Object.assign({}, metric, { name }));
             });
           } else {
@@ -1009,23 +1181,34 @@ $(function () {
     });
     const numMetrics = Object.keys(metricNames).length;
 
-    $result.append($("<div>", { class: "list-header" }).append(`${numMetrics} metrics`));
+    $result.append(
+      $("<div>", { class: "list-header" }).append(`${numMetrics} metrics`),
+    );
     metricGroups.forEach((group) => {
       const $group = $("<div>");
       $group.append(
-        $("<a>", { href: metricUrl(group), class: "list-item", title: group.description }).append(
-          groupShortDisplayName(group)
-        )
+        $("<a>", {
+          href: metricUrl(group),
+          class: "list-item",
+          title: group.description,
+        }).append(groupShortDisplayName(group)),
       );
       $group.append(
         $("<ul>").append(
           group.metrics.map((metricRef) => {
             // Get the information from the metric (name, display_name, description)
-            const metric = Object.assign({}, metricRef, nameToMetric[metricRef.name] || metricRef);
-            const $item = $("<a>", { class: "list-item", title: metric.description }).append(metricDisplayName(metric));
+            const metric = Object.assign(
+              {},
+              metricRef,
+              nameToMetric[metricRef.name] || metricRef,
+            );
+            const $item = $("<a>", {
+              class: "list-item",
+              title: metric.description,
+            }).append(metricDisplayName(metric));
             return $("<li>").append($item);
-          })
-        )
+          }),
+        ),
       );
       $result.append($group);
     });
@@ -1034,12 +1217,18 @@ $(function () {
 
   function helmLogo() {
     return $("<a>", { href: rootUrl() }).append(
-      $("<img>", { src: "images/helm-logo.png", width: "500px", class: "mx-auto d-block" })
+      $("<img>", {
+        src: "images/helm-logo.png",
+        width: "500px",
+        class: "mx-auto d-block",
+      }),
     );
   }
 
   function button(text, href) {
-    return $("<a>", { href, class: "main-link btn btn-lg m-5 px-5" }).append(text);
+    return $("<a>", { href, class: "main-link btn btn-lg m-5 px-5" }).append(
+      text,
+    );
   }
 
   function renderMainPage() {
@@ -1047,17 +1236,26 @@ $(function () {
 
     $result.append($("<div>", { class: "col-sm-12" }).append(helmLogo()));
 
-    const $blog = button("Blog post", "https://crfm.stanford.edu/2022/11/17/helm.html");
+    const $blog = button(
+      "Blog post",
+      "https://crfm.stanford.edu/2022/11/17/helm.html",
+    );
     const $paper = button("Paper", "https://arxiv.org/pdf/2211.09110.pdf");
     const $code = button("GitHub", "https://github.com/stanford-crfm/helm");
     $result.append(
-      $("<div>", { class: "col-sm-12" }).append($("<div>", { class: "text-center" }).append([$blog, $paper, $code]))
+      $("<div>", { class: "col-sm-12" }).append(
+        $("<div>", { class: "text-center" }).append([$blog, $paper, $code]),
+      ),
     );
 
     const $description = $("<div>", { class: "col-sm-8" }).append([
       "A language model takes in text and produces text:",
       $("<div>", { class: "text-center" }).append(
-        $("<img>", { src: "images/language-model-helm.png", width: "600px", style: "width: 600px; margin-left: 130px" })
+        $("<img>", {
+          src: "images/language-model-helm.png",
+          width: "600px",
+          style: "width: 600px; margin-left: 130px",
+        }),
       ),
       "Despite their simplicity, language models are increasingly functioning as the foundation for almost all language technologies from question answering to summarization.",
       " ",
@@ -1067,28 +1265,78 @@ $(function () {
     ]);
 
     function organization(src, href, height) {
-      return $("<div>", { class: "logo-item" }).append($("<a>", { href }).append($("<img>", { src, height })));
+      return $("<div>", { class: "logo-item" }).append(
+        $("<a>", { href }).append($("<img>", { src, height })),
+      );
     }
     const defaultSize = 36;
     const largerSize = 50;
     const $organizations = $("<div>", { class: "logo-container" }).append([
-      organization("images/organizations/ai21.png", "https://www.ai21.com/", defaultSize),
-      organization("images/organizations/anthropic.png", "https://www.anthropic.com/", defaultSize),
-      organization("images/organizations/bigscience.png", "https://bigscience.huggingface.co/", largerSize),
-      organization("images/organizations/cohere.png", "https://cohere.ai/", defaultSize),
-      organization("images/organizations/eleutherai.png", "https://www.eleuther.ai/", largerSize),
-      organization("images/organizations/google.png", "https://ai.google/", defaultSize),
-      organization("images/organizations/meta.png", "https://ai.facebook.com/", largerSize),
-      organization("images/organizations/microsoft.png", "https://turing.microsoft.com/", defaultSize),
+      organization(
+        "images/organizations/ai21.png",
+        "https://www.ai21.com/",
+        defaultSize,
+      ),
+      organization(
+        "images/organizations/anthropic.png",
+        "https://www.anthropic.com/",
+        defaultSize,
+      ),
+      organization(
+        "images/organizations/bigscience.png",
+        "https://bigscience.huggingface.co/",
+        largerSize,
+      ),
+      organization(
+        "images/organizations/cohere.png",
+        "https://cohere.ai/",
+        defaultSize,
+      ),
+      organization(
+        "images/organizations/eleutherai.png",
+        "https://www.eleuther.ai/",
+        largerSize,
+      ),
+      organization(
+        "images/organizations/google.png",
+        "https://ai.google/",
+        defaultSize,
+      ),
+      organization(
+        "images/organizations/meta.png",
+        "https://ai.facebook.com/",
+        largerSize,
+      ),
+      organization(
+        "images/organizations/microsoft.png",
+        "https://turing.microsoft.com/",
+        defaultSize,
+      ),
       organization(
         "images/organizations/nvidia.png",
         "https://www.nvidia.com/en-us/research/machine-learning-artificial-intelligence/",
-        largerSize
+        largerSize,
       ),
-      organization("images/organizations/openai.png", "https://openai.com/", defaultSize),
-      organization("images/organizations/tsinghua-keg.png", "https://keg.cs.tsinghua.edu.cn/", largerSize),
-      organization("images/organizations/yandex.png", "https://yandex.com/", defaultSize),
-      organization("images/organizations/together.png", "https://together.xyz/", defaultSize),
+      organization(
+        "images/organizations/openai.png",
+        "https://openai.com/",
+        defaultSize,
+      ),
+      organization(
+        "images/organizations/tsinghua-keg.png",
+        "https://keg.cs.tsinghua.edu.cn/",
+        largerSize,
+      ),
+      organization(
+        "images/organizations/yandex.png",
+        "https://yandex.com/",
+        defaultSize,
+      ),
+      organization(
+        "images/organizations/together.png",
+        "https://together.xyz/",
+        defaultSize,
+      ),
     ]);
     $result.append($organizations);
 
@@ -1096,34 +1344,44 @@ $(function () {
       $("<ol>").append([
         $("<li>")
           .append(
-            "<b>Broad coverage and recognition of incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to evaluate, select scenarios and metrics to cover the space and make explicit what is missing."
+            "<b>Broad coverage and recognition of incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to evaluate, select scenarios and metrics to cover the space and make explicit what is missing.",
           )
           .append(
             $("<div>", { class: "text-center" }).append(
-              $("<img>", { src: "images/taxonomy-scenarios.png", width: "300px" })
-            )
+              $("<img>", {
+                src: "images/taxonomy-scenarios.png",
+                width: "300px",
+              }),
+            ),
           ),
         $("<li>")
           .append(
-            "<b>Multi-metric measurement</b>. Rather than focus on isolated metrics such as accuracy, we simultaneously measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs."
+            "<b>Multi-metric measurement</b>. Rather than focus on isolated metrics such as accuracy, we simultaneously measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.",
           )
           .append(
             $("<div>", { class: "text-center" }).append(
-              $("<img>", { src: "images/scenarios-by-metrics.png", width: "300px" })
-            )
+              $("<img>", {
+                src: "images/scenarios-by-metrics.png",
+                width: "300px",
+              }),
+            ),
           ),
         $("<li>")
           .append(
-            '<b>Standardization</b>. We evaluate all the models that we have access to on the same scenarios with the same adaptation strategy (e.g., prompting), allowing for controlled comparisons. Thanks to all the companies for providing API access to the limited-access and closed models and <a href="https://together.xyz">Together</a> for providing the infrastructure to run the open models.'
+            '<b>Standardization</b>. We evaluate all the models that we have access to on the same scenarios with the same adaptation strategy (e.g., prompting), allowing for controlled comparisons. Thanks to all the companies for providing API access to the limited-access and closed models and <a href="https://together.xyz">Together</a> for providing the infrastructure to run the open models.',
           )
           .append($organizations),
         $("<li>").append(
-          "<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website. We invite you to click below to explore!"
+          "<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website. We invite you to click below to explore!",
         ),
-      ])
+      ]),
     );
 
-    $result.append([$("<div>", { class: "col-sm-2" }), $description, $("<div>", { class: "col-sm-2" })]);
+    $result.append([
+      $("<div>", { class: "col-sm-2" }),
+      $description,
+      $("<div>", { class: "col-sm-2" }),
+    ]);
 
     const $models = renderModelList();
     const $scenarios = renderScenarioList();
@@ -1166,7 +1424,9 @@ $(function () {
     if (cell.description) {
       $value.attr("title", cell.description);
     }
-    const $linkedValue = cell.href ? $("<a>", { href: cell.href }).append($value) : $value;
+    const $linkedValue = cell.href
+      ? $("<a>", { href: cell.href }).append($value)
+      : $value;
     return $("<td>").append($linkedValue);
   }
 
@@ -1175,7 +1435,12 @@ $(function () {
     const $row = $("<tr>").append(
       table.header.map((cell, index) => {
         const $cell = renderCell(cell);
-        const sortOrder = cell.lower_is_better === false ? "desc" : cell.lower_is_better === true ? "asc" : "";
+        const sortOrder =
+          cell.lower_is_better === false
+            ? "desc"
+            : cell.lower_is_better === true
+            ? "asc"
+            : "";
         if (sortOrder) {
           const $sortLink = $("<a>", { href: "#" })
             .append("sort")
@@ -1193,7 +1458,7 @@ $(function () {
           $cell.addClass("table-sort-column");
         }
         return $cell;
-      })
+      }),
     );
     $tableHeader.append($row);
     return $tableHeader;
@@ -1244,7 +1509,9 @@ $(function () {
 
   function renderTable(table) {
     const $output = $("<div>");
-    $output.append($("<h3>").append($("<a>", { name: table.title }).append(table.title)));
+    $output.append(
+      $("<h3>").append($("<a>", { name: table.title }).append(table.title)),
+    );
     const $table = $("<table>", { class: "query-table results-table" });
     let sortColumnIndex = undefined;
     let sortOrder = undefined;
@@ -1277,10 +1544,13 @@ $(function () {
               let result = BENCHMARK_OUTPUT_BASE_URL + delimiter + parts[1];
               return $("<a>", { href: result }).append(link.text);
             } else {
-              console.log("benchmark_output not found, invalid link for ", table);
+              console.log(
+                "benchmark_output not found, invalid link for ",
+                table,
+              );
             }
-          })
-        )
+          }),
+        ),
       );
     }
     return $output;
@@ -1288,7 +1558,6 @@ $(function () {
 
   function renderTables(tables, path) {
     const $output = $("<div>");
-
     // Links to tables
     const $jsonLink = $("<a>", { href: path }).append("JSON");
     $output.append(
@@ -1297,14 +1566,16 @@ $(function () {
           .map((table) => {
             return $("<a>", { href: "#" + table.title }).append(table.title);
           })
-          .concat([$jsonLink])
-      )
+          .concat([$jsonLink]),
+      ),
     );
 
     $output.append(
       tables.map((table) => {
-        return $("<div>", { class: "table-container", id: table.title }).append(renderTable(table));
-      })
+        return $("<div>", { class: "table-container", id: table.title }).append(
+          renderTable(table),
+        );
+      }),
     );
 
     return $output;
@@ -1333,15 +1604,23 @@ $(function () {
       schema = new Schema(raw);
     });
 
-    const summaryPromise = $.get(summaryJsonUrl(version, usingRelease), {}, (response) => {
-      console.log("summary", response);
-      summary = response;
-      if (usingRelease) {
-        $summary.append(`Release ${summary.release} (last updated ${summary.date})`);
-      } else {
-        $summary.append(`Suite ${summary.suite} (last updated ${summary.date})`);
-      }
-    });
+    const summaryPromise = $.get(
+      summaryJsonUrl(version, usingRelease),
+      {},
+      (response) => {
+        console.log("summary", response);
+        summary = response;
+        if (usingRelease) {
+          $summary.append(
+            `Release ${summary.release} (last updated ${summary.date})`,
+          );
+        } else {
+          $summary.append(
+            `Suite ${summary.suite} (last updated ${summary.date})`,
+          );
+        }
+      },
+    );
 
     const getRunToRunSuitesPromise = usingRelease
       ? $.get(runsToRunSuitesJsonUrl(version, usingRelease), {})
@@ -1366,7 +1645,11 @@ $(function () {
         $main.empty();
         $main.append(renderHeader("Plots", renderPlots()));
         refreshHashLocation();
-      } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
+      } else if (
+        urlParams.runSpec ||
+        urlParams.runSpecs ||
+        urlParams.runSpecRegex
+      ) {
         // Predictions for a set of run specs (matching a regular expression)
         $main.text("Loading runs...");
         $.getJSON(runSpecsJsonUrl(version, usingRelease), {}, (response) => {
