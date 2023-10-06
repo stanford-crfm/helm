@@ -1571,6 +1571,11 @@ $(function () {
     return $output;
   }
 
+  // Function to track pageviews
+  function trackPageView(pagePath) {
+    gtag("config", "G-T0MW28MP3W", { page_path: pagePath });
+  }
+
   //////////////////////////////////////////////////////////////////////////////
   //                                   Main                                   //
   //////////////////////////////////////////////////////////////////////////////
@@ -1625,16 +1630,19 @@ $(function () {
         $main.empty();
         $main.append(renderHeader("Models", renderModels()));
         refreshHashLocation();
+        trackPageView("/models");
       } else if (urlParams.scenarios) {
         // Models
         $main.empty();
         $main.append(renderHeader("Scenarios", renderScenarios()));
         refreshHashLocation();
+        trackPageView("/scenarios");
       } else if (urlParams.plots) {
         // Plots
         $main.empty();
         $main.append(renderHeader("Plots", renderPlots()));
         refreshHashLocation();
+        trackPageView("/plots");
       } else if (
         urlParams.runSpec ||
         urlParams.runSpecs ||
@@ -1654,6 +1662,7 @@ $(function () {
             // List
             const selectedRunSpecs = JSON.parse(urlParams.runSpecs);
             matcher = (runSpec) => selectedRunSpecs.includes(runSpec.name);
+            trackPageView("/runspecs");
           } else if (urlParams.runSpecRegex) {
             // Regular expression
             const regex = new RegExp("^" + urlParams.runSpecRegex + "$");
@@ -1677,6 +1686,7 @@ $(function () {
           console.log("runSpecs", runSpecs);
           $main.append(renderHeader("Runs", renderRunsOverview(runSpecs)));
         });
+        trackPageView("/runs");
       } else if (urlParams.groups) {
         // All groups
         $main.text("Loading groups...");
@@ -1687,6 +1697,7 @@ $(function () {
           $main.append(renderTables(tables, path));
           refreshHashLocation();
         });
+        trackPageView("/groups");
       } else if (urlParams.group) {
         // Specific group
         $main.text("Loading group...");
@@ -1702,6 +1713,7 @@ $(function () {
         // Main landing page
         $main.empty();
         $main.append(renderMainPage());
+        trackPageView("/");
       }
     });
   });
