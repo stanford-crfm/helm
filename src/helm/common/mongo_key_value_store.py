@@ -2,10 +2,14 @@ import json
 from typing import Dict, Generator, Iterable, Optional, Tuple
 
 from helm.common.key_value_store import KeyValueStore
+from helm.common.optional_dependencies import handle_module_not_found_error
 
-from bson.errors import InvalidDocument
-from bson.son import SON
-from pymongo import MongoClient, ReplaceOne
+try:
+    from bson.errors import InvalidDocument
+    from bson.son import SON
+    from pymongo import MongoClient, ReplaceOne
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 class MongoKeyValueStore(KeyValueStore):
