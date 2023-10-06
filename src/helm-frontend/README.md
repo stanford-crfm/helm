@@ -38,6 +38,18 @@ npm run test
 npm run build
 ```
 
+### Linting
+
+```bash
+npm run lint
+```
+
+### Formatting
+
+```bash
+npm run format
+```
+
 ### Environment Variables
 
 Requires the following environment variables for development and deployment. In development these can be placed in a `.env.local` file with the following:
