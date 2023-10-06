@@ -278,10 +278,11 @@ class Summarizer:
         A note on the relation between `release`, `suites`, and `suite`:
         There are two modes for releasing runs: `release` and `suite`.
         `releases` contain a package of suites. When the `release` mode
-        is used, `release` and `suites` will not be None and `suite`will be None.
+        is used, `release` and `suites` will not be None and `suite` will be None.
         When `suite` mode is used, `suite` will not be None and `release`
         and `suites` will be None
         """
+        # TODO(yifanmai): Delete the `suite` argument.
         self.output_path: str = output_path
         self.run_release_path: str
         self.suites: List[str]
@@ -1250,6 +1251,30 @@ class Summarizer:
             os.unlink(symlink_path)
         os.symlink(os.path.abspath(self.run_release_path), symlink_path)
 
+    def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
+        """Run the entire summarization pipeline pipeline."""
+        self.read_runs()
+        self.check_metrics_defined()
+
+        self.write_run_display_json(skip_completed)
+
+        # Must happen after summarizer.write_run_display_json()
+        # because it uses instances.json files
+        self.read_scenario_spec_instance_ids(num_instances)
+
+        # Must happen after summarizer.read_scenario_spec_instance_ids()
+        # because it uses self.scenario_spec_instance_id_dict
+        self.read_overlap_stats()
+
+        self.write_executive_summary()
+        self.write_runs()
+        self.write_run_specs()
+        self.write_runs_to_run_suites()
+        self.write_groups()
+        self.write_cost_report()
+
+        self.symlink_latest()
+
 
 @htrack(None)
 def main():
@@ -1319,27 +1344,7 @@ def main():
         verbose=args.debug,
         num_threads=args.num_threads,
     )
-    summarizer.read_runs()
-    summarizer.check_metrics_defined()
-
-    summarizer.write_run_display_json(skip_completed=args.skip_completed_run_display_json)
-
-    # Must happen after summarizer.write_run_display_json()
-    # because it uses instances.json files
-    summarizer.read_scenario_spec_instance_ids(args.num_instances)
-
-    # Must happen after summarizer.read_scenario_spec_instance_ids()
-    # because it uses self.scenario_spec_instance_id_dict
-    summarizer.read_overlap_stats()
-
-    summarizer.write_executive_summary()
-    summarizer.write_runs()
-    summarizer.write_run_specs()
-    summarizer.write_runs_to_run_suites()
-    summarizer.write_groups()
-    summarizer.write_cost_report()
-
-    summarizer.symlink_latest()
+    summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json, num_instances=args.num_instances)
     hlog("Done.")
 
 

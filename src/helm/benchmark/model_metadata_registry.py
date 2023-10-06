@@ -1,3 +1,4 @@
+import os
 from typing import Optional, List
 from dataclasses import dataclass, field
 from datetime import date
@@ -6,6 +7,9 @@ import dacite
 import yaml
 
 from helm.proxy.models import ALL_MODELS, MODEL_NAME_TO_MODEL, Model
+
+
+MODEL_METADATA_FILE = "model_metadata.yaml"
 
 
 @dataclass(frozen=True)
@@ -58,3 +62,10 @@ def register_model_metadata_from_path(path: str) -> None:
         )
         MODEL_NAME_TO_MODEL[model_metadata.name] = model
         ALL_MODELS.append(model)
+
+
+def maybe_register_model_metadata_from_base_path(base_path: str) -> None:
+    """Register model metadata from prod_env/model_metadata.yaml"""
+    path = os.path.join(base_path, MODEL_METADATA_FILE)
+    if os.path.exists(path):
+        register_model_metadata_from_path(path)
