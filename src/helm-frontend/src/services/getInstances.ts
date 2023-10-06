@@ -14,7 +14,7 @@ export default async function getInstancesByRunName(
       { signal },
     );
 
-    return await instances.json() as Instance[];
+    return (await instances.json()) as Instance[];
   } catch (error) {
     console.log(error);
     return [];

@@ -14,7 +14,7 @@ export default async function getDisplayPredictionsByName(
       { signal },
     );
 
-    return await displayPrediction.json() as DisplayPrediction[];
+    return (await displayPrediction.json()) as DisplayPrediction[];
   } catch (error) {
     console.log(error);
     return [];

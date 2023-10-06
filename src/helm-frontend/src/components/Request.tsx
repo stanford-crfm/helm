@@ -32,9 +32,7 @@ export default function Request({ request }: Props) {
           .filter((key) => key !== "prompt")
           .map((key, idx) => (
             <ListItem key={idx + 1}>
-              <span>
-                {key}:
-              </span>
+              <span>{key}:</span>
               <span>{formatArray(request.request[key])}</span>
             </ListItem>
           ))}

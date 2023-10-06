@@ -28,26 +28,19 @@ export default function Nav() {
               <Link to="groups">Results</Link>
             </li>
             <li>
-              <Link to="runs" className="whitespace-nowrap">Raw Runs</Link>
+              <Link to="runs" className="whitespace-nowrap">
+                Raw Runs
+              </Link>
             </li>
           </ul>
         </div>
       </div>
       <div className="flex-1 items-center">
-        <Link
-          to="https://crfm.stanford.edu/"
-          className="w-24"
-        >
-          <img
-            src={crfmLogo}
-            className="object-contain"
-          />
+        <Link to="https://crfm.stanford.edu/" className="w-24">
+          <img src={crfmLogo} className="object-contain" />
         </Link>
         <Link to="/" className="ml-4 w-24">
-          <img
-            src={helmLogo}
-            className="object-contain"
-          />
+          <img src={helmLogo} className="object-contain" />
         </Link>
       </div>
       <div className="flex-none hidden md:block">

@@ -20,7 +20,7 @@ export default function Scenarios() {
        */
       setRunGroups(
         schema.run_groups.filter(
-          (runGroup) => (!runGroup.todo && runGroup.taxonomy),
+          (runGroup) => !runGroup.todo && runGroup.taxonomy,
         ),
       );
     }
@@ -29,20 +29,25 @@ export default function Scenarios() {
     return () => controller.abort();
   }, []);
 
-  const taskBuckets = Object.values(runGroups.reduce((acc, runGroup) => {
-    const task = runGroup.taxonomy?.task || "Unknown";
-    if (acc[task] === undefined) {
-      acc[task] = {
-        name: task,
-        value: 1,
-      };
+  const taskBuckets = Object.values(
+    runGroups.reduce(
+      (acc, runGroup) => {
+        const task = runGroup.taxonomy?.task || "Unknown";
+        if (acc[task] === undefined) {
+          acc[task] = {
+            name: task,
+            value: 1,
+          };
 
-      return acc;
-    }
+          return acc;
+        }
 
-    acc[task].value += 1;
-    return acc;
-  }, {} as Record<string, { name: string; value: number }>));
+        acc[task].value += 1;
+        return acc;
+      },
+      {} as Record<string, { name: string; value: number }>,
+    ),
+  );
 
   if (runGroups.length === 0) {
     return <Loading />;

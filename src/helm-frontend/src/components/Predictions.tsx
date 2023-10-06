@@ -35,46 +35,35 @@ export default function Predictions({ predictions, requests }: Props) {
           <div className="w-full" key={idx}>
             <div className="mt-2 w-full">
               <h3>
-                <span className="mr-4">
-                  {`Prediction [trial ${prediction.train_trial_index}]`}
-                </span>
+                <span className="mr-4">{`Prediction [trial ${prediction.train_trial_index}]`}</span>
                 <Indicator stats={prediction.stats} />
               </h3>
               <Preview value={prediction.predicted_text} />
             </div>
             <div className="my-4">
               <Tabs>
-                <Tab
-                  onClick={handleToggle}
-                  active={openDetails}
-                >
+                <Tab onClick={handleToggle} active={openDetails}>
                   Details
                 </Tab>
-                <Tab
-                  onClick={handleToggle}
-                  active={openRequests}
-                >
+                <Tab onClick={handleToggle} active={openRequests}>
                   Requests
                 </Tab>
               </Tabs>
             </div>
-            {openDetails
-              ? (
-                <List>
-                  {(Object.keys(
+            {openDetails ? (
+              <List>
+                {(
+                  Object.keys(
                     prediction.stats,
-                  ) as (keyof typeof prediction.stats)[]).map((
-                    statKey,
-                    idx,
-                  ) => (
-                    <ListItem key={idx}>
-                      <span>{statKey}:</span>
-                      <span>{prediction.stats[statKey]}</span>
-                    </ListItem>
-                  ))}
-                </List>
-              )
-              : null}
+                  ) as (keyof typeof prediction.stats)[]
+                ).map((statKey, idx) => (
+                  <ListItem key={idx}>
+                    <span>{statKey}:</span>
+                    <span>{prediction.stats[statKey]}</span>
+                  </ListItem>
+                ))}
+              </List>
+            ) : null}
             <div className="overflow-auto">
               {openRequests ? <Request request={requests[idx]} /> : null}
             </div>
