@@ -49,12 +49,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0MW28MP3W"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
+      var host = window.location.hostname;
+      if(host != "localhost")
+      {
+        window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', 'G-T0MW28MP3W');
       }
-      gtag('js', new Date());
-      gtag('config', 'G-T0MW28MP3W');
     </script>
     <script src="general.js"></script>
     <script src="utils.js"></script>
