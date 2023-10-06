@@ -1536,12 +1536,24 @@ $(function () {
       $output.append(
         renderItems(
           table.links.map((link) => {
+            // replace everything before benchmark output, as it is incorrect
+            let myLink = link.href;
+            const delimiter = "benchmark_output";
+            let parts = myLink.split(delimiter);
+            if (parts.length > 1) {
+              let result = BENCHMARK_OUTPUT_BASE_URL + delimiter + parts[1];
+              return $("<a>", { href: result }).append(link.text);
+            } else {
+              console.log(
+                "benchmark_output not found, invalid link for ",
+                table,
+              );
+            }
             return $("<a>", { href: link.href }).append(link.text);
           }),
         ),
       );
     }
-
     return $output;
   }
 
