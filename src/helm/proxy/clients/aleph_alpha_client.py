@@ -5,20 +5,12 @@ from typing import Any, Dict, List
 from aleph_alpha_client import Client as AlephAlphaPythonClient
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-    TokenizationToken,
-)
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import CachableClient, truncate_sequence
 
 
-class AlephAlphaClient(Client):
+class AlephAlphaClient(CachableClient):
     COMPLETION_ENDPOINT: str = "complete"
 
     def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
@@ -104,60 +96,4 @@ class AlephAlphaClient(Client):
             request_datetime=response["request_datetime"],
             completions=completions,
             embedding=[],
-        )
-
-    # TODO(josselin): make this a tokenizer
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """
-        Encode the text using Aleph Alpha's tokenizer library:
-        https://aleph-alpha-client.readthedocs.io/en/latest/aleph_alpha_client.html#aleph_alpha_client.Client.tokenizer
-        """
-        try:
-
-            def do_it():
-                tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer_name)
-                result: Encoding = tokenizer.encode(request.text, add_special_tokens=False)
-                return {"token_ids": result.ids, "tokens": result.tokens}
-
-            cache_key = {"model": request.tokenizer_name, "prompt": request.text, "tokens": True, "token_ids": True}
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except RuntimeError as e:
-            error: str = f"AlephAlphaClient tokenize error: {e}"
-            return TokenizationRequestResult(error=error, success=False, cached=False, text="", tokens=[])
-
-        tokens = response["token_ids" if request.encode else "tokens"]
-        if request.truncation:
-            tokens = tokens[: request.max_length]
-
-        return TokenizationRequestResult(
-            success=True,
-            cached=cached,
-            tokens=[TokenizationToken(value) for value in tokens],
-            text=request.text,
-            request_time=response["request_time"],
-        )
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """
-        Decode the tokens using Aleph Alpha's tokenizer library:
-        https://aleph-alpha-client.readthedocs.io/en/latest/aleph_alpha_client.html#aleph_alpha_client.Client.tokenizer
-        """
-        try:
-
-            def do_it():
-                tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer_name)
-                return {"result": tokenizer.decode(request.tokens)}
-
-            cache_key = {"model": request.tokenizer_name, "token_ids": request.tokens}
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except RuntimeError as e:
-            error: str = f"AlephAlphaClient decode error: {e}"
-            return DecodeRequestResult(error=error, success=False, cached=False, text="")
-
-        return DecodeRequestResult(
-            success=True,
-            cached=cached,
-            # The text always seems to start with a single whitespace when encoding/decoding.
-            text=response["result"].replace(" ", "", 1),
-            request_time=response["request_time"],
         )

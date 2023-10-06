@@ -3,13 +3,20 @@ from typing import List, Optional
 import openai as gooseai
 
 from helm.common.cache import CacheConfig
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
+from helm.common.request import (
+    wrap_request_time,
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
+)
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import CachableClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
-class GooseAIClient(Client):
+class GooseAIClient(CachableClient):
     """
     GooseAI API Client
     - How to use the API: https://goose.ai/docs/api
@@ -56,7 +63,7 @@ class GooseAIClient(Client):
                 gooseai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
                 return gooseai.Completion.create(**raw_request)
 
-            cache_key = Client.make_cache_key(raw_request, request)
+            cache_key = CachableClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except gooseai.error.OpenAIError as e:
             error: str = f"OpenAI (GooseAI API) error: {e}"

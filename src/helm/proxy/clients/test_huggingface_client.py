@@ -11,6 +11,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from .huggingface_client import HuggingFaceClient
 
 
@@ -18,7 +19,10 @@ class TestHuggingFaceClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.client = HuggingFaceClient(SqliteCacheConfig(self.cache_path))
+        self.client = HuggingFaceClient(
+            tokenizer=HuggingFaceTokenizer(SqliteCacheConfig(self.cache_path)),
+            cache_config=SqliteCacheConfig(self.cache_path),
+        )
 
     def teardown_method(self, method):
         os.remove(self.cache_path)

@@ -4,14 +4,21 @@ from filelock import FileLock
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
 
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
+from helm.common.cache import CacheConfig
+from helm.common.request import (
+    wrap_request_time,
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
+)
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import CachableClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
-class MicrosoftClient(Client):
+class MicrosoftClient(CachableClient):
     """
     Client for the Microsoft's Megatron-Turing NLG models (https://arxiv.org/abs/2201.11990).
 
@@ -134,7 +141,9 @@ class MicrosoftClient(Client):
 
                 # We want to make `request.num_completions` fresh requests,
                 # cache key should contain the completion_index.
-                cache_key = Client.make_cache_key({"completion_index": completion_index, **raw_request}, request)
+                cache_key = CachableClient.make_cache_key(
+                    {"completion_index": completion_index, **raw_request}, request
+                )
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it if self.api_key else fail))
             except turing.error.OpenAIError as e:
                 error: str = f"OpenAI (Turing API) error: {e}"

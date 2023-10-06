@@ -5,8 +5,15 @@ from typing import Any, Dict, List
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
-from .client import Client, wrap_request_time, truncate_sequence
+from helm.common.request import (
+    wrap_request_time,
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
+)
+from .client import CachableClient, truncate_sequence
 from helm.proxy.clients.huggingface_model_registry import (
     get_huggingface_model_config,
     HuggingFaceModelConfig,
@@ -148,7 +155,7 @@ def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceSe
     return _servers[model_config.model_id]
 
 
-class HuggingFaceClient(Client):
+class HuggingFaceClient(CachableClient):
     def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
@@ -193,7 +200,7 @@ class HuggingFaceClient(Client):
             def do_it():
                 return model_server_instance.serve_request(raw_request)
 
-            cache_key = Client.make_cache_key(raw_request, request)
+            cache_key = CachableClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:  # Do something if error is encountered.
             error: str = f"HuggingFace error: {e}"

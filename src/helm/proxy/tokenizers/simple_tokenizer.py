@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List
 
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -28,5 +28,4 @@ class SimpleTokenizer(Tokenizer):
             raise ValueError("Unknown model")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        text = " ".join([token.text for token in request.tokens])
-        return DecodeRequestResult(success=True, cached=False, text=text)
+        raise NotImplementedError

@@ -1,10 +1,9 @@
-import time
 import json
 from abc import ABC, abstractmethod
-from typing import Callable, Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request, RequestResult, Sequence, Token, wrap_request_time
+from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -16,7 +15,37 @@ from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 class Client(ABC):
-    def __init__(self, cache_config: Optional[CacheConfig] = None, tokenizer: Optional[Tokenizer] = None) -> None:
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        """Tokenizes `request.text` using `request.tokenizer`.
+
+        This simply calls the `tokenize` method of the tokenizer.
+        Some exceptions can be made (but should be avoided).
+        This is the case for the auto client, which needs to handle
+        tokenization for multiple tokenizers.
+        """
+        raise ValueError("Tokenizer is required")
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        """Decodes `request.tokens` using `request.tokenizer`.
+
+        This simply calls the `decode` method of the tokenizer.
+        Some exceptions can be made (but should be avoided).
+        This is the case for the auto client, which needs to handle
+        tokenization for multiple tokenizers.
+        """
+        raise ValueError("Tokenizer is required")
+
+    @abstractmethod
+    def make_request(self, request: Request) -> RequestResult:
+        """Makes a request to the model.
+
+        For LLM, this usually corresponds to a single call to the model (completion).
+        """
+        pass
+
+
+class CachableClient(Client):
+    def __init__(self, cache_config: CacheConfig, tokenizer: Tokenizer) -> None:
         """Initializes the client.
 
         For most clients, both the cache config and tokenizer are required.
@@ -41,36 +70,14 @@ class Client(ABC):
         return cache_key
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes `request.text` using `request.tokenizer`.
-
-        This simply calls the `tokenize` method of the tokenizer.
-        Some exceptions can be made (but should be avoided).
-        This is the case for the auto client, which needs to handle
-        tokenization for multiple tokenizers.
-        """
-        if self.tokenizer is None:
-            raise ValueError("Tokenizer is required")
+        # Deprecated - use `self.tokenizer.tokenize` instead. Warn the user.
+        hlog("WARNING: CachableClient.tokenize is deprecated, use self.tokenizer.tokenize instead")
         return self.tokenizer.tokenize(request)
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes `request.tokens` using `request.tokenizer`.
-
-        This simply calls the `decode` method of the tokenizer.
-        Some exceptions can be made (but should be avoided).
-        This is the case for the auto client, which needs to handle
-        tokenization for multiple tokenizers.
-        """
-        if self.tokenizer is None:
-            raise ValueError("Tokenizer is required")
+        # Deprecated - use `self.tokenizer.decode` instead. Warn the user.
+        hlog("WARNING: CachableClient.decode is deprecated, use self.tokenizer.decode instead")
         return self.tokenizer.decode(request)
-
-    @abstractmethod
-    def make_request(self, request: Request) -> RequestResult:
-        """Makes a request to the model.
-
-        For LLM, this usually corresponds to a single call to the model (completion).
-        """
-        pass
 
 
 def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:

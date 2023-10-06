@@ -3,14 +3,21 @@ import requests
 from typing import List
 
 from helm.common.cache import CacheConfig
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
+from helm.common.request import (
+    wrap_request_time,
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
+)
 from helm.proxy.models import get_models_by_organization
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import CachableClient, truncate_sequence
 from .cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
 
 
-class CohereClient(Client):
+class CohereClient(CachableClient):
     ORGANIZATION: str = "cohere"
     GENERATE_ENDPOINT: str = "generate"
 

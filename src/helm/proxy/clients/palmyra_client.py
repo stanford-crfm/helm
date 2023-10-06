@@ -5,13 +5,13 @@ from typing import Any, Dict, List
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request, RequestResult, Sequence, Token, ErrorFlags
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token, ErrorFlags
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import CachableClient, truncate_sequence
 
 
 _CONTENT_MODERATION_KEY = "fail.content.moderation.failed"
@@ -27,11 +27,10 @@ def _is_content_moderation_failure(response: Dict) -> bool:
     return errors[0].get("key") == _CONTENT_MODERATION_KEY
 
 
-class PalmyraClient(Client):
-    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig, tokenizer_client: Client):
+class PalmyraClient(CachableClient):
+    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.api_key: str = api_key
-        self._tokenizer_client = tokenizer_client
 
     def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -86,7 +85,7 @@ class PalmyraClient(Client):
                 # requests, cache key should contain the completion_index.
                 # Echoing the original prompt is not officially supported by Writer. We instead prepend the
                 # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
-                cache_key = Client.make_cache_key(
+                cache_key = CachableClient.make_cache_key(
                     {
                         "engine": request.model_engine,
                         "completion_index": completion_index,
@@ -118,7 +117,7 @@ class PalmyraClient(Client):
             # The Writer API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
             # The Writer API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self._tokenizer_client.tokenize(
+            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
                 # Writer uses the GPT-2 tokenizer
                 TokenizationRequest(text, tokenizer="huggingface/gpt2")
             )

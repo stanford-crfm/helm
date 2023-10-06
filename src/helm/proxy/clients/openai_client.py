@@ -3,7 +3,7 @@ from dataclasses import replace
 from typing import Any, Dict, List, Optional, cast
 
 from helm.common.cache import CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
@@ -11,7 +11,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import Client, truncate_sequence, wrap_request_time
+from .client import CachableClient, truncate_sequence
 
 try:
     import openai
@@ -23,7 +23,7 @@ except ModuleNotFoundError as e:
 ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 
 
-class OpenAIClient(Client):
+class OpenAIClient(CachableClient):
     END_OF_TEXT: str = "<|endoftext|>"
 
     def __init__(
@@ -132,7 +132,7 @@ class OpenAIClient(Client):
                     openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
                     return openai.Completion.create(**raw_request)
 
-            cache_key = Client.make_cache_key(raw_request, request)
+            cache_key = CachableClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
             error: str = f"OpenAI error: {e}"

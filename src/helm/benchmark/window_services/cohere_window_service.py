@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from helm.proxy.clients.cohere_client import CohereClient
+from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
 from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 from .window_service import EncodeResult
@@ -62,7 +62,7 @@ class CohereWindowService(LocalWindowService):
 
         response: TokenizationRequestResult
         tokens: List[TokenizationToken] = []
-        if truncation or len(text) <= CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH:
+        if truncation or len(text) <= CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH:
             response = self.service.tokenize(
                 TokenizationRequest(
                     text,
@@ -80,7 +80,7 @@ class CohereWindowService(LocalWindowService):
             # and make a request for each chunk.
             # This can potentially break up valid tokens at the end of the chunk, but the chunk size
             # is large enough that this happens infrequently.
-            chunk_size: int = CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH
+            chunk_size: int = CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH
             for i in range(0, len(text), chunk_size):
                 chunk: str = text[i : chunk_size + i]
                 response = self.service.tokenize(
@@ -120,7 +120,7 @@ class CohereWindowService(LocalWindowService):
         so first check if the text has fewer than 65,536 characters.
         """
         return (
-            len(text) <= CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH
+            len(text) <= CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH
             and self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
         )
 
@@ -130,7 +130,7 @@ class CohereWindowService(LocalWindowService):
         minus the expected completion length (defaults to 0).
         """
         # First truncate the text so it's within `CohereClient.TOKENIZE_MAX_TEXT_LENGTH` length.
-        text = text[: CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH]
+        text = text[: CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH]
 
         max_length: int = self.max_request_length - expected_completion_token_length
         result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)

@@ -8,6 +8,7 @@ from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
+    wrap_request_time,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
@@ -20,7 +21,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import Client, wrap_request_time, truncate_sequence
+from .client import CachableClient, truncate_sequence
 
 try:
     import anthropic
@@ -29,7 +30,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
 
 
-class AnthropicClient(Client):
+class AnthropicClient(CachableClient):
     """
     Client for the Anthropic models (https://arxiv.org/abs/2204.05862).
     They use their own tokenizer.
@@ -125,7 +126,7 @@ class AnthropicClient(Client):
                 # requests, cache key should contain the completion_index.
                 # Echoing the original prompt is not officially supported by Anthropic. We instead prepend the
                 # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
-                cache_key = Client.make_cache_key(
+                cache_key = CachableClient.make_cache_key(
                     {
                         "completion_index": completion_index,
                         **raw_request,
@@ -191,7 +192,7 @@ class AnthropicRequestError(Exception):
     pass
 
 
-class AnthropicLegacyClient(Client):
+class AnthropicLegacyClient(CachableClient):
     """
     Legacy client for the Anthropic models (https://arxiv.org/abs/2204.05862).
     This was used before they officially released their API on March 17, 2023.
@@ -402,7 +403,7 @@ class AnthropicLegacyClient(Client):
                 # requests, cache key should contain the completion_index.
                 # Echoing the original prompt is not officially supported by Anthropic. We instead prepend the
                 # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
-                cache_key = Client.make_cache_key(
+                cache_key = CachableClient.make_cache_key(
                     {
                         "engine": request.model_engine,
                         "echo_prompt": request.echo_prompt,

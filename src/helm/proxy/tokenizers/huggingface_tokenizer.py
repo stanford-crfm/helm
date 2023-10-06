@@ -1,10 +1,10 @@
 # mypy: check_untyped_defs = False
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Dict, Optional
 import os
 
 from transformers import AutoTokenizer
 
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import htrack_block, hlog
 from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
@@ -14,7 +14,6 @@ from helm.proxy.clients.huggingface_model_registry import (
     HuggingFaceHubModelConfig,
     HuggingFaceLocalModelConfig,
 )
-from helm.common.hierarchical_logger import htrack_block, hlog
 from .cachable_tokenizer import CachableTokenizer
 from .tokenizer import cleanup_tokens
 
@@ -90,7 +89,7 @@ class HuggingFaceTokenizer(CachableTokenizer):
 
         return HuggingFaceTokenizer.tokenizers[tokenizer_name]
 
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Callable[[], Dict[str, Any]]:
+    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
         _tokenizer = HuggingFaceTokenizer.get_tokenizer(request.tokenizer)
         if request.encode:
             if request.truncation:
@@ -127,7 +126,7 @@ class HuggingFaceTokenizer(CachableTokenizer):
                 tokens = cleanup_tokens(tokens, request.tokenizer)
             return {"token_strings": tokens}
 
-    def _decode_do_it(self, request: DecodeRequest) -> Callable[[], Dict[str, Any]]:
+    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
         _tokenizer = HuggingFaceTokenizer.get_tokenizer(request.tokenizer)
         text = _tokenizer.decode(request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces)
         return {"text": text}

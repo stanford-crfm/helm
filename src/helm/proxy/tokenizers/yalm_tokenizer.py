@@ -1,5 +1,5 @@
 # mypy: check_untyped_defs = False
-from typing import Any, Callable, Dict
+from typing import Any, Dict
 
 from helm.common.cache import CacheConfig
 from helm.common.tokenization_request import (
@@ -16,7 +16,7 @@ class YaLMTokenizer(CachableTokenizer):
         super().__init__(cache_config)
         self._tokenizer = YaLMTokenizerInternal()
 
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Callable[[], Dict[str, Any]]:
+    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
         token_ids = self._tokenizer.tokenize(request.text)
         if request.truncation:
             token_ids = token_ids[: request.max_length]
@@ -32,6 +32,6 @@ class YaLMTokenizer(CachableTokenizer):
         tokens = cleanup_tokens(self._tokenizer.convert_ids_to_tokens(token_ids), request.tokenizer)
         return {"token_strings": tokens}
 
-    def _decode_do_it(self, request: DecodeRequest) -> Callable[[], Dict[str, Any]]:
+    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
         text = self._tokenizer.decode(request.tokens)
         return {"text": text}

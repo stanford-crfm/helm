@@ -3,6 +3,7 @@ from dataclasses import asdict
 from typing import Optional
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.request import wrap_request_time
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -10,13 +11,12 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
-from helm.proxy.clients.client import wrap_request_time
 from .tokenizer import Tokenizer
 
 import requests
 
 
-class TiktokenTokenizer(Tokenizer):
+class HTTPModelTokenizer(Tokenizer):
     def __init__(
         self,
         cache_config: CacheConfig,

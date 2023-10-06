@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import asdict
-from typing import Callable, Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import wrap_request_time

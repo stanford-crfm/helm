@@ -1,6 +1,6 @@
 import json
 import requests
-from typing import Any, Callable, Dict
+from typing import Any, Dict
 
 from helm.common.cache import CacheConfig
 from helm.common.tokenization_request import (
@@ -39,7 +39,7 @@ class CohereTokenizer(CachableTokenizer):
         """
         return False
 
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Callable[[], Dict[str, Any]]:
+    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
         """
         Send the request to the Cohere Tokenize API.
 
@@ -71,7 +71,7 @@ class CohereTokenizer(CachableTokenizer):
         assert "tokens" in result and "token_strings" in result, f"Invalid response: {result}"
         return {"token_ids": result["tokens"], "token_strings": result["token_strings"]}
 
-    def _decode_do_it(self, request: DecodeRequest) -> Callable[[], Dict[str, Any]]:
+    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
         pass
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:

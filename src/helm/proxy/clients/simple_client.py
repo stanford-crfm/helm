@@ -1,19 +1,13 @@
 from typing import List, Dict
 
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-    TokenizationToken,
-)
+from helm.common.cache import CacheConfig
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import Client, wrap_request_time
+from .client import CachableClient
 
 
-class SimpleClient(Client):
+class SimpleClient(CachableClient):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
     def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
@@ -31,7 +25,7 @@ class SimpleClient(Client):
             def do_it():
                 return self.invoke_model1(raw_request)
 
-            cache_key = Client.make_cache_key(raw_request, request)
+            cache_key = CachableClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             completions = [
                 Sequence(
@@ -61,7 +55,7 @@ class SimpleClient(Client):
         - 4
         - 2
         """
-        prompt_tokens: List[str] = SimpleClient.tokenize_by_space(raw_request["prompt"])
+        prompt_tokens: List[str] = SimpleTokenizer.tokenize_by_space(raw_request["prompt"])
         choices = reversed(prompt_tokens[-raw_request["n"] :])
         response = {"completions": dict((text, -i) for i, text in enumerate(choices))}
         return response

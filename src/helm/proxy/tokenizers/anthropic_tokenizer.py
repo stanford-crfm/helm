@@ -1,10 +1,9 @@
 # mypy: check_untyped_defs = False
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict
 
 import threading
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -29,7 +28,7 @@ class AnthropicTokenizer(CachableTokenizer):
                 tokenizer_object=anthropic.get_tokenizer()
             )
 
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Callable[[], Dict[str, Any]]:
+    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
         if request.encode:
             if request.truncation:
                 tokens = self._tokenizer.encode(
@@ -43,9 +42,9 @@ class AnthropicTokenizer(CachableTokenizer):
             return {"token_ids": tokens}
 
         # No encoding, just return the token strings
-        tokens = [self._tokenizer.convert_tokens_to_string([i]) for i in self.tokenizer.tokenize(request.text)]
+        tokens = [self._tokenizer.convert_tokens_to_string([i]) for i in self._tokenizer.tokenize(request.text)]
         return {"token_strings": tokens}
 
-    def _decode_do_it(self, request: DecodeRequest) -> Callable[[], Dict[str, Any]]:
+    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
         text = self._tokenizer.decode(request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces)
         return {"text": text}
