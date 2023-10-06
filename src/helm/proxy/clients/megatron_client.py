@@ -43,7 +43,7 @@ class MegatronClient(HuggingFaceClient):
         return out
 
     def _tokenize_response(self, text: str) -> List[Token]:
-        tokenized_text = self.tokenize(TokenizationRequest(text, tokenizer="huggingface/gpt2"))
+        tokenized_text = self.tokenizer.tokenize(TokenizationRequest(text, tokenizer="huggingface/gpt2"))
 
         # TODO(tgale): Support logprobs.
         tokens = [Token(text=str(token), logprob=0, top_logprobs={}) for token in tokenized_text.raw_tokens]

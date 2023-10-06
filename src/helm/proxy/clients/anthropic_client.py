@@ -162,7 +162,7 @@ class AnthropicClient(CachableClient):
             # The Anthropic API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response["completion"] if request.echo_prompt else response["completion"]
             # The Anthropic API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenize(
+            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
                 # Anthropic uses their own tokenizer
                 TokenizationRequest(text, tokenizer=request.model_engine)
             )
