@@ -76,10 +76,7 @@ export default function Runs() {
 
   return (
     <>
-      <PageTitle
-        title="Runs"
-        subtitle="All benchmark runs"
-      />
+      <PageTitle title="Runs" subtitle="All benchmark runs" />
       <form className="flex mb-8" onSubmit={handleSearch}>
         <div className="form-control">
           <input
@@ -132,34 +129,35 @@ export default function Runs() {
                 <td>{runSpec.adapter_spec.method}</td>
                 <td>
                   {runSpec.scenario_spec.args.subject ||
-                    runSpec.scenario_spec.args.task || "-"}
+                    runSpec.scenario_spec.args.task ||
+                    "-"}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {totalPages > 0
-        ? (
-          <Pagination
-            className="flex justify-center my-8"
-            onNextPage={() => {
-              const nextPage = Math.min(currentPage + 1, totalPages);
-              setCurrentPage(nextPage);
-              searchParams.set("page", String(nextPage));
-              setSearchParams(searchParams);
-            }}
-            onPrevPage={() => {
-              const prevPage = Math.max(currentPage - 1, 1);
-              setCurrentPage(prevPage);
-              searchParams.set("page", String(prevPage));
-              setSearchParams(searchParams);
-            }}
-            currentPage={currentPage}
-            totalPages={totalPages}
-          />
-        )
-        : <div className="my-8 text-center">No results</div>}
+      {totalPages > 0 ? (
+        <Pagination
+          className="flex justify-center my-8"
+          onNextPage={() => {
+            const nextPage = Math.min(currentPage + 1, totalPages);
+            setCurrentPage(nextPage);
+            searchParams.set("page", String(nextPage));
+            setSearchParams(searchParams);
+          }}
+          onPrevPage={() => {
+            const prevPage = Math.max(currentPage - 1, 1);
+            setCurrentPage(prevPage);
+            searchParams.set("page", String(prevPage));
+            setSearchParams(searchParams);
+          }}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
+      ) : (
+        <div className="my-8 text-center">No results</div>
+      )}
     </>
   );
 }

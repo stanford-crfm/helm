@@ -14,7 +14,7 @@ export default async function getScenarioByName(
       { signal },
     );
 
-    return await scenario.json() as Scenario;
+    return (await scenario.json()) as Scenario;
   } catch (error) {
     console.log(error);
     return undefined;

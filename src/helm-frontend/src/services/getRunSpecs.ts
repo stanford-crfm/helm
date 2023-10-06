@@ -13,7 +13,7 @@ export default async function getRunSpecs(
       { signal },
     );
 
-    return await runSpecs.json() as RunSpec[];
+    return (await runSpecs.json()) as RunSpec[];
   } catch (error) {
     console.log(error);
     return [];

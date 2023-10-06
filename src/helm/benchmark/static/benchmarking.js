@@ -1549,6 +1549,7 @@ $(function () {
                 table,
               );
             }
+            return $("<a>", { href: link.href }).append(link.text);
           }),
         ),
       );
@@ -1558,6 +1559,7 @@ $(function () {
 
   function renderTables(tables, path) {
     const $output = $("<div>");
+
     // Links to tables
     const $jsonLink = $("<a>", { href: path }).append("JSON");
     $output.append(

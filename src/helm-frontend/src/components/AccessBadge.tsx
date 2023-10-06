@@ -11,15 +11,15 @@ type BadgeAccessMap = {
 };
 
 const badgeColorMap: BadgeColorMap = {
-  "open": "green",
-  "limited": "yellow",
-  "closed": "red",
+  open: "green",
+  limited: "yellow",
+  closed: "red",
 };
 
 const badgeNameMap: BadgeAccessMap = {
-  "open": "Open",
-  "limited": "Limited",
-  "closed": "Closed",
+  open: "Open",
+  limited: "Limited",
+  closed: "Closed",
 };
 
 interface Props {

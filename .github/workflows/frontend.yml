@@ -28,6 +28,9 @@ jobs:
     - name: Run lint
       working-directory: ./src/helm-frontend
       run: npm run lint
+    - name: Run check format
+      working-directory: ./src/helm-frontend
+      run: npm run format:check
     - name: Run tests
       working-directory: ./src/helm-frontend
       run: npm run test

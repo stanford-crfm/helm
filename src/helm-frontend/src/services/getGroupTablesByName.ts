@@ -14,7 +14,7 @@ export default async function getGroupsTablesByName(
       { signal },
     );
 
-    return await group.json() as GroupsTable[];
+    return (await group.json()) as GroupsTable[];
   } catch (error) {
     console.log(error);
     return [];

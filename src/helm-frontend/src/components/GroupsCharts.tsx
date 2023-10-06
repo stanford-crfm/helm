@@ -36,14 +36,20 @@ interface Props {
 
 function transformData(groupsTables: GroupsTable[], activeGroup: number) {
   return groupsTables[activeGroup].rows.map((row) => ({
-    ...row.slice(1).reduce((acc, cur, idx) => {
-      acc[groupsTables[activeGroup].header[idx + 1].value] =
-        isNaN(Number(cur.value)) ? 0 : cur.value;
+    ...row.slice(1).reduce(
+      (acc, cur, idx) => {
+        acc[groupsTables[activeGroup].header[idx + 1].value] = isNaN(
+          Number(cur.value),
+        )
+          ? 0
+          : cur.value;
 
-      return acc;
-    }, {} as {
-      [key: string]: string | number;
-    }),
+        return acc;
+      },
+      {} as {
+        [key: string]: string | number;
+      },
+    ),
     ...{ name: row[0].value },
   }));
 }
@@ -76,9 +82,7 @@ export default function GroupsCharts({ groupsTables, activeGroup }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLegendClick = (e: LegendPayload & { dataKey?: DataKey<any> }) => {
     const { dataKey } = e;
-    if (
-      dataKey === undefined || typeof dataKey !== "string"
-    ) {
+    if (dataKey === undefined || typeof dataKey !== "string") {
       return;
     }
     setActiveBars((prev) => {
@@ -89,9 +93,9 @@ export default function GroupsCharts({ groupsTables, activeGroup }: Props) {
     });
   };
 
-  const sections = groupsTables[activeGroup].header.slice(1).map((header) =>
-    header.value
-  );
+  const sections = groupsTables[activeGroup].header
+    .slice(1)
+    .map((header) => header.value);
 
   /**
    * Adjusting height of the chart to fit aggll the
@@ -99,20 +103,18 @@ export default function GroupsCharts({ groupsTables, activeGroup }: Props) {
    * about the same size regardless of the number
    * of total data points.
    */
-  const height = 10 * data.length * Math.min(
-    [...activeBars.values()].filter((v) => v).length,
-    Object.keys(data[0]).length - 1,
-  );
+  const height =
+    10 *
+    data.length *
+    Math.min(
+      [...activeBars.values()].filter((v) => v).length,
+      Object.keys(data[0]).length - 1,
+    );
 
   return (
     <div style={{ height: `${height}px` }} className="w-full">
       <ResponsiveContainer className="h-full w-full">
-        <BarChart
-          layout="vertical"
-          width={500}
-          height={height}
-          data={data}
-        >
+        <BarChart layout="vertical" width={500} height={height} data={data}>
           <Legend
             onClick={handleLegendClick}
             iconType="circle"
@@ -121,11 +123,7 @@ export default function GroupsCharts({ groupsTables, activeGroup }: Props) {
           />
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="number" />
-          <YAxis
-            dataKey="name"
-            type="category"
-            width={180}
-          />
+          <YAxis dataKey="name" type="category" width={180} />
           <Tooltip />
           {sections.map((section, idx) => (
             <Bar

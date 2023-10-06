@@ -10,9 +10,11 @@ interface Props {
   predictions: DisplayPrediction[];
 }
 
-export default function InstanceData(
-  { instance, requests, predictions }: Props,
-) {
+export default function InstanceData({
+  instance,
+  requests,
+  predictions,
+}: Props) {
   return (
     <div className="border p-4">
       <h3 className="text-xl mb-4">
@@ -20,9 +22,9 @@ export default function InstanceData(
       </h3>
       <span className="text-gray-400">Input</span>
       <Preview value={instance.input.text} />
-      {predictions && requests
-        ? <Predictions predictions={predictions} requests={requests} />
-        : null}
+      {predictions && requests ? (
+        <Predictions predictions={predictions} requests={requests} />
+      ) : null}
     </div>
   );
 }
