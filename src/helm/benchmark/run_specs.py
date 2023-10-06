@@ -2413,31 +2413,28 @@ def get_decodingtrust_fairness_spec(
     )
 
 
+
 @run_spec_function("decodingtrust_privacy")
 def get_decodingtrust_privacy_spec(
         scenario_name: str,
-        data_file: str,
-        template: str,
-        dataset_size: int,
-        few_shot_num: int,
         prompt_type: str,
+        dataset_size: Optional[int] = None,
+        few_shot_num: Optional[int] = None,
+        data_file: Optional[str] = None,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_privacy_scenario.DecodingTrustPrivacyScenario",
         args={
             "scenario_name": scenario_name,
-            "data_file": data_file,
-            "template": template,
+            "prompt_type": prompt_type,
             "dataset_size": dataset_size,
             "few_shot_num": few_shot_num,
-            "prompt_type": prompt_type,
+            "data_file": data_file,    
         },
     )
-
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=32, temperature=1)  # temperature>0 for generaion
-
     return RunSpec(
-        name=f"decodingtrust_privacy:scenario_name={scenario_name},template={template},few_shot_num={few_shot_num},prompt_type={prompt_type},dataset_size={dataset_size}",
+        name=f"decodingtrust_privacy:scenario_name={scenario_name},few_shot_num={few_shot_num},prompt_type={prompt_type},dataset_size={dataset_size},data_file={data_file}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_privacy_metric_specs(),
