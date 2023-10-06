@@ -20,20 +20,18 @@ export default function Preview({ value }: Props) {
           <pre>{value}</pre>
         </div>
 
-        {showButton
-          ? (
-            <button
-              className="bg-white absolute p-2 leading-none height-fit min-h-none right-1 bottom-1 shadow"
-              onClick={() => setShowModal(true)}
-            >
-              <ArrowsPointingOutIcon
-                fill="black"
-                color="black"
-                className="text w-4 h-4"
-              />
-            </button>
-          )
-          : null}
+        {showButton ? (
+          <button
+            className="bg-white absolute p-2 leading-none height-fit min-h-none right-1 bottom-1 shadow"
+            onClick={() => setShowModal(true)}
+          >
+            <ArrowsPointingOutIcon
+              fill="black"
+              color="black"
+              className="text w-4 h-4"
+            />
+          </button>
+        ) : null}
       </div>
       <dialog
         open={showModal}
