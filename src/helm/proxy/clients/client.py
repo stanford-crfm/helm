@@ -15,6 +15,7 @@ from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 class Client(ABC):
+    @abstractmethod
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes `request.text` using `request.tokenizer`.
 
@@ -23,8 +24,9 @@ class Client(ABC):
         This is the case for the auto client, which needs to handle
         tokenization for multiple tokenizers.
         """
-        raise ValueError("Tokenizer is required")
+        pass
 
+    @abstractmethod
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes `request.tokens` using `request.tokenizer`.
 
@@ -33,7 +35,7 @@ class Client(ABC):
         This is the case for the auto client, which needs to handle
         tokenization for multiple tokenizers.
         """
-        raise ValueError("Tokenizer is required")
+        pass
 
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
