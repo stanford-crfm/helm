@@ -29,6 +29,7 @@ class HTTPModelTokenizer(Tokenizer):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        # TODO: Does not support encoding
         cache_key = asdict(request)
         raw_request = {
             "text": request.text,

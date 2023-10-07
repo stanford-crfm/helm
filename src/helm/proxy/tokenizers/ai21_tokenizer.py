@@ -25,6 +25,7 @@ class AI21Tokenizer(Tokenizer):
         """
         Tokenizes the text by using the AI21 endpoint: https://api.ai21.com/studio/v1/tokenize.
         """
+        # TODO: Does not support encoding
         raw_request: Dict[str, str] = {"text": request.text}
 
         def do_it():

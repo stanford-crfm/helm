@@ -19,6 +19,7 @@ class SimpleTokenizer(Tokenizer):
         return text.split(" ")
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        # TODO: Does not support encoding
         if request.tokenizer == "simple/model1":
             raw_tokens: List[str] = SimpleTokenizer.tokenize_by_space(request.text)
             return TokenizationRequestResult(
