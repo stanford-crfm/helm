@@ -5,7 +5,7 @@ from typing import List, Optional
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance, Reference
 from helm.common.hierarchical_logger import hlog
-from helm.common.multimodal_content import MultimodalContent
+from helm.common.media_object import MediaObject, add_textual_prefix, add_textual_suffix, extract_text
 from helm.common.request import Request
 from helm.benchmark.adaptation.adapters.in_context_learning_adapter import InContextLearningAdapter
 from .multimodal_prompt import MultimodalPrompt
@@ -66,13 +66,13 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
         instructions_block: str = self.adapter_spec.instructions
 
         # Text for in-context training instances
-        train_instance_blocks: List[MultimodalContent] = [
+        train_instance_blocks: List[List[MediaObject]] = [
             self.construct_example_multimodal_prompt(inst, include_output=True, reference_index=None)
             for inst in train_instances
         ]
 
         # Eval example text
-        eval_instance_block: MultimodalContent = self.construct_example_multimodal_prompt(
+        eval_instance_block: List[MediaObject] = self.construct_example_multimodal_prompt(
             eval_instance, include_output=include_output, reference_index=reference_index
         )
 
@@ -100,7 +100,7 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
         orig_train_instances_count: int = prompt.num_train_instances
         while prompt.num_train_instances > 0:
             if self.window_service.fits_within_context_window(
-                text=prompt.content.text,
+                text=extract_text(prompt.content),
                 expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
                 removed_train_instances_count: int = orig_train_instances_count - prompt.num_train_instances
@@ -120,14 +120,14 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
 
     def construct_example_multimodal_prompt(
         self, instance: Instance, include_output: bool, reference_index: Optional[int]
-    ) -> MultimodalContent:
+    ) -> List[MediaObject]:
         """
         Returns a single example of the prompt. `include_output` controls whether the gold output is included.
         """
         # Input
         assert instance.input.content is not None
-        result: MultimodalContent = instance.input.content.add_textual_prefix(self.adapter_spec.input_prefix)
-        result = result.add_textual_suffix(self.adapter_spec.input_suffix)
+        result: List[MediaObject] = add_textual_prefix(instance.input.content, self.adapter_spec.input_prefix)
+        result = add_textual_suffix(result, self.adapter_spec.input_suffix)
 
         # References (optionally) and output
         output: str
@@ -145,11 +145,11 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
             output = reference.output.text
 
         if include_output:
-            output_content: MultimodalContent = MultimodalContent([output])
-            output_content = output_content.add_textual_prefix(self.adapter_spec.output_prefix)
-            output_content = output_content.add_textual_suffix(self.adapter_spec.output_suffix)
-            result = result.combine(output_content)
+            output_content: List[MediaObject] = [MediaObject(text=output, content_type="text/plain")]
+            output_content = add_textual_prefix(output_content, self.adapter_spec.output_prefix)
+            output_content = add_textual_suffix(output_content, self.adapter_spec.output_suffix)
+            result.extend(output_content)
         else:
-            result = result.add_textual_suffix(self.adapter_spec.output_prefix.rstrip())
+            result = add_textual_suffix(result, self.adapter_spec.output_prefix.rstrip())
 
         return result

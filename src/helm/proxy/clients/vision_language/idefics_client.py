@@ -1,3 +1,4 @@
+from threading import Lock
 from typing import Dict, List, Optional, Tuple, Union
 
 import torch
@@ -6,7 +7,7 @@ from PIL import Image
 from transformers import IdeficsForVisionText2Text, AutoProcessor, IdeficsProcessor
 
 from helm.common.cache import CacheConfig, Cache
-from helm.common.file import File
+from helm.common.media_object import extract_text
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog
@@ -18,7 +19,15 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from helm.proxy.clients.client import Client, wrap_request_time, cleanup_tokens
+from helm.proxy.clients.client import Client, wrap_request_time, cleanup_tokens, generate_uid_for_multimodal_prompt
+
+_models_lock: Lock = Lock()
+_models: Dict[str, Tuple[Optional[IdeficsForVisionText2Text], Optional[AutoProcessor]]] = {
+    "HuggingFaceM4/idefics-9b": (None, None),
+    "HuggingFaceM4/idefics-9b-instruct": (None, None),
+    "HuggingFaceM4/idefics-80b": (None, None),
+    "HuggingFaceM4/idefics-80b-instruct": (None, None),
+}
 
 
 class IDEFICSClient(Client):
@@ -35,24 +44,25 @@ class IDEFICSClient(Client):
     def __init__(self, cache_config: CacheConfig):
         self._cache = Cache(cache_config)
         self._device: str = get_torch_device_name()
-        self._models: Dict[str, Tuple[Optional[IdeficsForVisionText2Text], Optional[AutoProcessor]]] = {
-            "HuggingFaceM4/idefics-9b": (None, None),
-            "HuggingFaceM4/idefics-9b-instruct": (None, None),
-            "HuggingFaceM4/idefics-80b": (None, None),
-            "HuggingFaceM4/idefics-80b-instruct": (None, None),
-        }
 
     def _get_model(self, checkpoint: str) -> Tuple[IdeficsForVisionText2Text, IdeficsProcessor]:
-        model, processor = self._models[checkpoint]
-        if model is None or processor is None:
-            hlog(f"Loading model {checkpoint} and caching...")
-            model = IdeficsForVisionText2Text.from_pretrained(checkpoint, torch_dtype=torch.bfloat16).to(self._device)
-            processor = AutoProcessor.from_pretrained(checkpoint)
-            self._models[checkpoint] = (model, processor)
+        global _models_lock
+        global _models
+
+        # Ensure that only one thread is loading the model at a time
+        with _models_lock:
+            model, processor = _models[checkpoint]
+            if model is None or processor is None:
+                hlog(f"Loading model {checkpoint} and caching...")
+                model = IdeficsForVisionText2Text.from_pretrained(checkpoint, torch_dtype=torch.bfloat16).to(
+                    self._device
+                )
+                processor = AutoProcessor.from_pretrained(checkpoint)
+                _models[checkpoint] = (model, processor)
         return model, processor
 
     def make_request(self, request: Request) -> RequestResult:
-        assert request.model in self._models, f"Not a valid model for this client: {request.model}"
+        assert request.model in _models, f"Not a valid model for this client: {request.model}"
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
         model, processor = self._get_model(request.model)
 
@@ -67,10 +77,10 @@ class IDEFICSClient(Client):
             generation_args["eos_token_id"] = exit_condition
 
         multimodal_prompt: List[Union[str, Image]] = [
-            open_image(content.location) if isinstance(content, File) else content
-            for content in request.multimodal_prompt.content
+            open_image(media_object.location) if media_object.type == "image" else media_object.text
+            for media_object in request.multimodal_prompt
         ]
-        prompt_text: str = request.multimodal_prompt.text.replace(self.END_OF_UTTERANCE_TOKEN, " ")
+        prompt_text: str = extract_text(request.multimodal_prompt).replace(self.END_OF_UTTERANCE_TOKEN, " ")
 
         try:
 
@@ -88,7 +98,12 @@ class IDEFICSClient(Client):
 
             # Include the prompt and model name in the cache key
             cache_key = Client.make_cache_key(
-                {"model": request.model, "prompt": str(request.multimodal_prompt), **generation_args}, request
+                raw_request={
+                    "model": request.model,
+                    "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
+                    **generation_args,
+                },
+                request=request,
             )
             result, cached = self._cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:

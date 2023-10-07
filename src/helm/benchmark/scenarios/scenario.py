@@ -4,7 +4,7 @@ from typing import List, Optional, Tuple
 from pathlib import PurePath
 import inspect
 
-from helm.common.multimodal_content import MultimodalContent
+from helm.common.media_object import MediaObject
 from helm.common.object_spec import ObjectSpec, create_object
 from helm.common.general import format_text, format_split, format_tags, indent_lines
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
@@ -59,8 +59,8 @@ class Input:
     text: str = ""
     """The text of the input (e.g, passage to summarize, text for sentiment analysis, etc.)"""
 
-    content: Optional[MultimodalContent] = None
-    """"A single input can consists of multimodal content interleaved (e.g., text, image, text, image, ...)"""
+    content: List[MediaObject] = field(default_factory=list)
+    """"A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
 @dataclass(frozen=True)
@@ -87,6 +87,10 @@ class Output:
     """
 
     text: str
+    """The text of the output."""
+
+    multimodal_content: List[MediaObject] = field(default_factory=list)
+    """The output can be multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
 @dataclass(frozen=True)

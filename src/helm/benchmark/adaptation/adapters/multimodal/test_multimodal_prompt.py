@@ -1,20 +1,28 @@
 from typing import List
 import unittest
 
-from helm.common.multimodal_content import MultimodalContent
-from helm.common.file import File, IMAGE_MEDIA_TYPE
+from helm.common.media_object import MediaObject
 from .multimodal_prompt import MultimodalPrompt
 
 
 class TestMultimodalContent(unittest.TestCase):
     def test_content(self):
-        train_instance_blocks: List[MultimodalContent] = [
-            MultimodalContent([File("http://dog.png", IMAGE_MEDIA_TYPE, "png"), "Which animal is this?", "dog"]),
-            MultimodalContent([File("http://mouse.png", IMAGE_MEDIA_TYPE, "png"), "Which animal is this?", "mouse"]),
+        train_instance_blocks: List[List[MediaObject]] = [
+            [
+                MediaObject(location="http://dog.png", content_type="image/png"),
+                MediaObject(text="Which animal is this?", content_type="text/plain"),
+                MediaObject(text="dog", content_type="text/plain"),
+            ],
+            [
+                MediaObject(location="http://mouse.png", content_type="image/png"),
+                MediaObject(text="Which animal is this?", content_type="text/plain"),
+                MediaObject(text="mouse", content_type="text/plain"),
+            ],
         ]
-        eval_instance_block = MultimodalContent(
-            [File("http://cat.png", IMAGE_MEDIA_TYPE, "png"), "Which animal is this?"]
-        )
+        eval_instance_block: List[MediaObject] = [
+            MediaObject(location="http://cat.png", content_type="image/png"),
+            MediaObject(text="Which animal is this?", content_type="text/plain"),
+        ]
 
         prompt = MultimodalPrompt(
             global_prefix="[START]",
@@ -24,27 +32,30 @@ class TestMultimodalContent(unittest.TestCase):
             eval_instance_block=eval_instance_block,
         )
         self.assertEqual(
-            prompt.content.content,
+            prompt.content,
             [
-                "[START]Please answer the following questions about the images.",
-                "\n",
-                File("http://dog.png", IMAGE_MEDIA_TYPE, "png"),
-                "Which animal is this?",
-                "dog",
-                "\n",
-                File("http://mouse.png", IMAGE_MEDIA_TYPE, "png"),
-                "Which animal is this?",
-                "mouse",
-                "\n",
-                File("http://cat.png", IMAGE_MEDIA_TYPE, "png"),
-                "Which animal is this?",
+                MediaObject(
+                    text="[START]Please answer the following questions about the images.", content_type="text/plain"
+                ),
+                MediaObject(text="\n", content_type="text/plain"),
+                MediaObject(location="http://dog.png", content_type="image/png"),
+                MediaObject(text="Which animal is this?", content_type="text/plain"),
+                MediaObject(text="dog", content_type="text/plain"),
+                MediaObject(text="\n", content_type="text/plain"),
+                MediaObject(location="http://mouse.png", content_type="image/png"),
+                MediaObject(text="Which animal is this?", content_type="text/plain"),
+                MediaObject(text="mouse", content_type="text/plain"),
+                MediaObject(text="\n", content_type="text/plain"),
+                MediaObject(location="http://cat.png", content_type="image/png"),
+                MediaObject(text="Which animal is this?", content_type="text/plain"),
             ],
         )
 
     def test_content_zero_shot(self):
-        eval_instance_block = MultimodalContent(
-            [File("http://cat.png", IMAGE_MEDIA_TYPE, "png"), "Which animal is this?"]
-        )
+        eval_instance_block: List[MediaObject] = [
+            MediaObject(location="http://cat.png", content_type="image/png"),
+            MediaObject(text="Which animal is this?", content_type="text/plain"),
+        ]
 
         prompt = MultimodalPrompt(
             global_prefix="",
@@ -54,5 +65,9 @@ class TestMultimodalContent(unittest.TestCase):
             eval_instance_block=eval_instance_block,
         )
         self.assertEqual(
-            prompt.content.content, [File("http://cat.png", IMAGE_MEDIA_TYPE, "png"), "Which animal is this?"]
+            prompt.content,
+            [
+                MediaObject(location="http://cat.png", content_type="image/png"),
+                MediaObject(text="Which animal is this?", content_type="text/plain"),
+            ],
         )

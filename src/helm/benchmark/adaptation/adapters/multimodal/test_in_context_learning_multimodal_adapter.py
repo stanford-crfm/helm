@@ -2,8 +2,7 @@ import shutil
 import tempfile
 import unittest
 
-from helm.common.multimodal_content import MultimodalContent
-from helm.common.file import File, IMAGE_MEDIA_TYPE
+from helm.common.media_object import MediaObject, extract_text
 from helm.benchmark.scenarios.scenario import Instance, Reference, Input, Output, TEST_SPLIT, TRAIN_SPLIT, CORRECT_TAG
 from helm.benchmark.window_services.test_utils import get_tokenizer_service
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -39,18 +38,20 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         train_instances = [
             Instance(
                 Input(
-                    content=MultimodalContent(
-                        [File("http://cat.png", IMAGE_MEDIA_TYPE, extension="png"), "Which animal?"]
-                    )
+                    content=[
+                        MediaObject(location="http://cat.png", content_type="image/png"),
+                        MediaObject(text="Which animal?", content_type="text/plain"),
+                    ]
                 ),
                 references=[Reference(Output(text="cat"), tags=[CORRECT_TAG])],
                 split=TRAIN_SPLIT,
             ),
             Instance(
                 Input(
-                    content=MultimodalContent(
-                        [File("http://owl.png", IMAGE_MEDIA_TYPE, extension="png"), "Which bird?"]
-                    )
+                    content=[
+                        MediaObject(location="http://owl.png", content_type="image/png"),
+                        MediaObject(text="Which bird?", content_type="text/plain"),
+                    ]
                 ),
                 references=[Reference(Output(text="owl"), tags=[CORRECT_TAG])],
                 split=TRAIN_SPLIT,
@@ -58,9 +59,10 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         ]
         eval_instance = Instance(
             Input(
-                content=MultimodalContent(
-                    [File("http://dog.png", IMAGE_MEDIA_TYPE, extension="png"), "Which fur animal?"]
-                )
+                content=[
+                    MediaObject(location="http://dog.png", content_type="image/png"),
+                    MediaObject(text="Which fur animal?", content_type="text/plain"),
+                ]
             ),
             references=[Reference(Output(text="dog"), tags=[CORRECT_TAG])],
             split=TEST_SPLIT,
@@ -70,7 +72,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         )
 
         self.assertEqual(
-            prompt.content.text,
+            extract_text(prompt.content),
             "[START]Please answer the following question about the images."
             "\nInput: Which animal?\nOutput: cat<end_of_utterance>"
             "\nInput: Which bird?\nOutput: owl<end_of_utterance>"
@@ -98,16 +100,13 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         train_instances = [
             Instance(
                 Input(
-                    content=MultimodalContent(
-                        [
-                            "What is in this image?",
-                            File(
-                                "https://upload.wikimedia.org/wikipedia/commons/8/86/Id%C3%A9fix.JPG",
-                                IMAGE_MEDIA_TYPE,
-                                extension="jpg",
-                            ),
-                        ]
-                    )
+                    content=[
+                        MediaObject(text="What is in this image?", content_type="text/plain"),
+                        MediaObject(
+                            location="https://upload.wikimedia.org/wikipedia/commons/8/86/Id%C3%A9fix.JPG",
+                            content_type="image/jpeg",
+                        ),
+                    ]
                 ),
                 references=[
                     Reference(
@@ -123,17 +122,14 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         ]
         eval_instance = Instance(
             Input(
-                content=MultimodalContent(
-                    [
-                        File(
-                            "https://static.wikia.nocookie.net/asterix/images/2/25/R22b.gif/"
-                            "revision/latest?cb=20110815073052",
-                            IMAGE_MEDIA_TYPE,
-                            extension="jpg",
-                        ),
-                        "And who is that?",
-                    ]
-                )
+                content=[
+                    MediaObject(
+                        location="https://static.wikia.nocookie.net/asterix/images/2/25/R22b.gif/"
+                        "revision/latest?cb=20110815073052",
+                        content_type="image/jpeg",
+                    ),
+                    MediaObject(text="And who is that?", content_type="text/plain"),
+                ]
             ),
             references=[Reference(Output(text="Julius Caesar"), tags=[CORRECT_TAG])],
             split=TEST_SPLIT,
@@ -142,7 +138,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
             train_instances, eval_instance, include_output=False, reference_index=None
         )
         self.assertEqual(
-            prompt.content.text,
+            extract_text(prompt.content),
             "User: What is in this image?"
             "<end_of_utterance>"
             "\nAssistant: This picture depicts Idefix, the dog of Obelix in Asterix and Obelix. defix is running "

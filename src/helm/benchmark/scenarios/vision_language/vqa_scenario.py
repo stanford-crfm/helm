@@ -13,9 +13,8 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Scenario,
 )
-from helm.common.file import File, IMAGE_MEDIA_TYPE
+from helm.common.media_object import MediaObject
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
-from helm.common.multimodal_content import MultimodalContent
 
 
 class VQAScenario(Scenario):
@@ -107,11 +106,14 @@ class VQAScenario(Scenario):
                 image_id = "0" * (12 - len(image_id)) + image_id
                 coco_split: str = "val" if split == VALID_SPLIT else split
                 image_path: str = os.path.join(images_path, f"COCO_{coco_split}2014_{image_id}.jpg")
-                image_file = File(location=image_path, media_type=IMAGE_MEDIA_TYPE, extension="jpg")
+                content: List[MediaObject] = [
+                    MediaObject(location=image_path, content_type="image/jpeg"),
+                    MediaObject(text=question_json["question"], content_type="text/plain"),
+                ]
 
                 instances.append(
                     Instance(
-                        Input(content=MultimodalContent([image_file, question_json["question"]])),
+                        Input(content=content),
                         references=[Reference(Output(text=answers_json["multiple_choice_answer"]), tags=[CORRECT_TAG])],
                         split=split,
                     )

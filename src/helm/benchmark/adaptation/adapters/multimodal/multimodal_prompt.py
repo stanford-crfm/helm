@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from helm.common.multimodal_content import MultimodalContent
+from helm.common.media_object import MediaObject, add_textual_prefix
 
 
 @dataclass(frozen=True)
@@ -18,31 +18,31 @@ class MultimodalPrompt:
     instructions_block: str
 
     # Train instance blocks for the prompt
-    train_instance_blocks: List[MultimodalContent]
+    train_instance_blocks: List[List[MediaObject]]
 
     # Evaluation instance
-    eval_instance_block: MultimodalContent
+    eval_instance_block: List[MediaObject]
 
     @property
-    def content(self) -> MultimodalContent:
+    def content(self) -> List[MediaObject]:
         """Construct the multimodal prompt given the train and eval multimodal content and adapter spec parameters"""
-        all_content: List[MultimodalContent] = (
-            [MultimodalContent([self.instructions_block])] if self.instructions_block else []
+        blocks: List[List[MediaObject]] = (
+            [[MediaObject(text=self.instructions_block, content_type="text/plain")]] if self.instructions_block else []
         )
-        all_content.extend(self.train_instance_blocks)
-        all_content.append(self.eval_instance_block)
+        blocks.extend(self.train_instance_blocks)
+        blocks.append(self.eval_instance_block)
 
         # Combine all the content
         # Add the instance prefix between the instruction block and instance blocks if one exists
-        result = MultimodalContent()
-        for i, content in enumerate(all_content):
-            result = result.combine(
-                content if i == 0 or not self.instance_prefix else content.add_textual_prefix(self.instance_prefix)
+        result: List[MediaObject] = []
+        for i, block in enumerate(blocks):
+            result.extend(
+                block if i == 0 or not self.instance_prefix else add_textual_prefix(block, self.instance_prefix)
             )
 
         # Add the global prefix if one exists
         if self.global_prefix:
-            result = result.add_textual_prefix(self.global_prefix)
+            result = add_textual_prefix(result, self.global_prefix)
 
         return result
 
