@@ -89,7 +89,7 @@ def ensure_file_downloaded(
                 handle_module_not_found_error(e)
             downloader_executable = "gdown"
         tmp_path: str = f"{target_path}.tmp"
-        shell([downloader_executable, source_url, "-O", tmp_path])
+        shell([downloader_executable, source_url, "-O", tmp_path, "--secure-protocol=TLSv1"])
 
         # Unpack (if needed) and put it in the right location
         if unpack:
