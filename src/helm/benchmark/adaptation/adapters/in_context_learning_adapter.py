@@ -224,16 +224,28 @@ class InContextLearningAdapter(Adapter, ABC):
         # Input
         result: str = self.adapter_spec.input_prefix + (instance.input.text or "") + self.adapter_spec.input_suffix
 
-        # References (optionally) and output
-        output: str
+        if include_output:
+            output: str = self.construct_output(instance, reference_index)
+            result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
+        else:
+            result += self.adapter_spec.output_prefix.rstrip()
 
-        delimiter = ", "
-        no_correct_references = "n/a"
+        return result
+
+    def construct_output(self, instance: Instance, reference_index: Optional[int]) -> str:
+        """
+        Returns the gold output text constructed from correct references.
+        If `multi_label` of `AdapterSpec` is true, all correct references are included.
+        """
+        delimiter: str = ", "
+        no_correct_references: str = "n/a"
+
+        output: str
         if reference_index is not None:
             reference = instance.references[reference_index]
             output = reference.output.text
-            # Put only the correct reference as the output
         elif self.adapter_spec.multi_label:
+            # Put only the correct references as part as the output
             correct_references: List[Reference] = instance.all_correct_references
             if not correct_references:
                 output = no_correct_references
@@ -245,13 +257,7 @@ class InContextLearningAdapter(Adapter, ABC):
                 output = no_correct_references
             else:
                 output = first_correct_reference.output.text
-
-        if include_output:
-            result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
-        else:
-            result += self.adapter_spec.output_prefix.rstrip()
-
-        return result
+        return output
 
     def _make_prompt_fit(self, prompt: Prompt) -> Prompt:
         """

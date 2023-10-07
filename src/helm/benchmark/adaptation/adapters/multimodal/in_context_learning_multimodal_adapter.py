@@ -3,7 +3,7 @@ from dataclasses import replace
 from typing import List, Optional
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.scenarios.scenario import Instance, Reference
+from helm.benchmark.scenarios.scenario import Instance
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import MediaObject, add_textual_prefix, add_textual_suffix, extract_text
 from helm.common.request import Request
@@ -129,22 +129,8 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
         result: List[MediaObject] = add_textual_prefix(instance.input.content, self.adapter_spec.input_prefix)
         result = add_textual_suffix(result, self.adapter_spec.input_suffix)
 
-        # References (optionally) and output
-        output: str
-
-        if reference_index is None:
-            # Put only the correct reference as the output
-            correct_references: List[Reference] = instance.all_correct_references
-            if not correct_references:
-                output = "n/a"
-            else:
-                delimiter = ","
-                output = delimiter.join([correct_reference.output.text for correct_reference in correct_references])
-        else:
-            reference = instance.references[reference_index]
-            output = reference.output.text
-
         if include_output:
+            output: str = self.construct_output(instance, reference_index)
             output_content: List[MediaObject] = [MediaObject(text=output, content_type="text/plain")]
             output_content = add_textual_prefix(output_content, self.adapter_spec.output_prefix)
             output_content = add_textual_suffix(output_content, self.adapter_spec.output_suffix)
