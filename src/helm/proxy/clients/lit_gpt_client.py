@@ -8,7 +8,7 @@ from typing import List, Literal, Optional, Dict, Union
 import torch
 
 from helm.common.cache import Cache, CacheConfig
-from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.optional_dependencies import OptionalDependencyNotInstalled
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -28,7 +28,12 @@ try:
     from lit_gpt.model import Block
     from lit_gpt.utils import check_valid_checkpoint_dir, lazy_load, quantization
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    # Provide manual instructions for installing lit-gpt from GitHub
+    # because PyPI does not allow installing dependencies directly from GitHub.
+    raise OptionalDependencyNotInstalled(
+        f"Optional dependency {e.name} is not installed. "
+        "Please run `pip install lit-gpt@git+https://github.com/Lightning-AI/lit-gpt@main` to install it."
+    ) from e
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
