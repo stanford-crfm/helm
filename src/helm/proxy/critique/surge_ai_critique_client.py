@@ -12,7 +12,7 @@ from helm.common.critique_request import (
 )
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.proxy.clients.critique_client import CritiqueClient
+from helm.proxy.critique.critique_client import CritiqueClient
 
 try:
     import surge
