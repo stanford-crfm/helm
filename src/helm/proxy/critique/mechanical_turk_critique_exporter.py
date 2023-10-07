@@ -9,7 +9,7 @@ import re
 from helm.common.critique_request import CritiqueQuestionTemplate, CritiqueRequest, CritiqueTaskTemplate, QuestionType
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
-from helm.proxy.clients.mechanical_turk_utils import replace_emoji_characters
+from helm.proxy.critique.mechanical_turk_utils import replace_emoji_characters
 
 
 def _indent_to_level(text: str, level: int) -> str:

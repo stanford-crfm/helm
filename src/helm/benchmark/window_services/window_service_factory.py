@@ -1,5 +1,4 @@
-from helm.benchmark.model_deployment_registry import get_model_deployment
-from helm.proxy.clients.huggingface_model_registry import HuggingFaceHubModelConfig
+from helm.benchmark.model_deployment_registry import WindowServiceSpec, get_model_deployment
 from helm.proxy.models import (
     get_model,
     get_model_names_with_tag,
@@ -26,6 +25,7 @@ from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.remote_model_registry import get_remote_model
+from helm.common.object_spec import create_object, inject_object_spec_args
 
 
 class WindowServiceFactory:
@@ -46,17 +46,31 @@ class WindowServiceFactory:
         # TODO: Migrate all window services to use use model deployments
         model_deployment = get_model_deployment(model_name)
         if model_deployment:
-            # TODO: Allow tokenizer name auto-inference in some cases.
-            if not model_deployment.tokenizer_name:
-                raise Exception("Tokenizer name must be set on model deplyment")
-            tokenizer_name = model_deployment.tokenizer_name
-            # Only use HuggingFaceWindowService for now.
-            # TODO: Allow using other window services.
-            window_service = HuggingFaceWindowService(
-                service=service,
-                model_config=HuggingFaceHubModelConfig.from_string(tokenizer_name),
-                max_sequence_length=model_deployment.max_sequence_length,
+            # If the model deployment specifies a WindowServiceSpec, instantiate it.
+            window_service_spec: WindowServiceSpec
+            if model_deployment.window_service_spec:
+                window_service_spec = model_deployment.window_service_spec
+            else:
+                window_service_spec = WindowServiceSpec(
+                    class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService", args={}
+                )
+            # Perform dependency injection to fill in remaining arguments.
+            # Dependency injection is needed here for these reasons:
+            #
+            # 1. Different window services have different parameters. Dependency injection provides arguments
+            #    that match the parameters of the window services.
+            # 2. Some arguments, such as the tokenizer service, are not static data objects that can be
+            #    in the users configuration file. Instead, they have to be constructed dynamically at runtime.
+            window_service_spec = inject_object_spec_args(
+                window_service_spec,
+                {
+                    "service": service,
+                    "tokenizer_name": model_deployment.tokenizer_name,
+                    "max_sequence_length": model_deployment.max_sequence_length,
+                    "max_request_length": model_deployment.max_request_length,
+                },
             )
+            window_service = create_object(window_service_spec)
         elif get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
         elif organization == "neurips":
@@ -64,7 +78,7 @@ class WindowServiceFactory:
 
             window_service = HTTPModelWindowServce(service)
         elif huggingface_model_config:
-            window_service = HuggingFaceWindowService(service=service, model_config=huggingface_model_config)
+            window_service = HuggingFaceWindowService(service=service, tokenizer_name=huggingface_model_config.model_id)
         elif organization == "openai":
             from helm.benchmark.window_services.openai_window_service import OpenAIWindowService
             from helm.benchmark.window_services.wider_openai_window_service import (
@@ -195,10 +209,7 @@ class WindowServiceFactory:
             "tiiuae/falcon-40b",
             "tiiuae/falcon-40b-instruct",
         ]:
-            window_service = HuggingFaceWindowService(
-                service=service,
-                model_config=HuggingFaceHubModelConfig(namespace="tiiuae", model_name="falcon-7b", revision=None),
-            )
+            window_service = HuggingFaceWindowService(service=service, tokenizer_name="tiiuae/falcon-7b")
         elif model_name in [
             "stabilityai/stablelm-base-alpha-3b",
             "stabilityai/stablelm-base-alpha-7b",

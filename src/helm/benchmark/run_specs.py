@@ -2578,7 +2578,13 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
-        model = get_model(run_spec.adapter_spec.model)
+        try:
+            model = get_model(run_spec.adapter_spec.model)
+        except ValueError:
+            # Models registered from configs cannot have expanders applied to them,
+            # because the models will not have been registered yet at this point.
+            # TODO: Figure out a cleaner way to deal with this.
+            return run_spec
         # For models that strip newlines, when we're generating, we need to set
         # the delimiter to be '###' so we stop properly.
         if NO_NEWLINES_TAG in model.tags and run_spec.adapter_spec.method in (
