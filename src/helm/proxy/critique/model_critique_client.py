@@ -10,11 +10,15 @@ from helm.common.critique_request import (
     CritiqueTaskTemplate,
 )
 from helm.common.hierarchical_logger import hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence
 from helm.proxy.clients.client import Client
-from helm.proxy.clients.critique_client import CritiqueClient
+from helm.proxy.critique.critique_client import CritiqueClient
 
-import anthropic
+try:
+    import anthropic
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 class CritiqueParseError(Exception):
