@@ -79,8 +79,8 @@ mpmath==1.2.1
 multidict==6.0.2
 multiprocess==0.70.13
 murmurhash==1.0.8
-mypy==0.982
-mypy-extensions==0.4.3
+mypy==1.5.1
+mypy-extensions==1.0.0
 networkx==2.8.7
 nltk==3.7
 nodeenv==1.7.0
