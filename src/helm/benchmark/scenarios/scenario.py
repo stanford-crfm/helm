@@ -59,7 +59,7 @@ class Input:
     text: str = ""
     """The text of the input (e.g, passage to summarize, text for sentiment analysis, etc.)"""
 
-    multimodal_content: Optional[MultimediaObject] = None
+    multimedia_content: Optional[MultimediaObject] = None
     """"A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
@@ -86,10 +86,10 @@ class Output:
     The output of a `Reference`.
     """
 
-    text: str
+    text: str = ""
     """The text of the output."""
 
-    multimodal_content: Optional[MultimediaObject] = None
+    multimedia_content: Optional[MultimediaObject] = None
     """The output can be multimodal content interleaved (e.g., text, image, text, ...)."""
 
 

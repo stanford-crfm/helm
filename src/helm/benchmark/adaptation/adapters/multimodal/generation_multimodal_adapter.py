@@ -7,7 +7,7 @@ from .in_context_learning_multimodal_adapter import InContextLearningMultimodalA
 from .multimodal_prompt import MultimodalPrompt
 
 
-class MultimodalGenerationAdapter(InContextLearningMultimodalAdapter):
+class GenerationMultimodalAdapter(InContextLearningMultimodalAdapter):
     """
     For generation, the multimodal model will generate the output for the following:
 

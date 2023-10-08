@@ -122,8 +122,8 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
         Returns a single example of the prompt. `include_output` controls whether the gold output is included.
         """
         # Input
-        assert instance.input.multimodal_content is not None
-        result: MultimediaObject = instance.input.multimodal_content.add_textual_prefix(self.adapter_spec.input_prefix)
+        assert instance.input.multimedia_content is not None
+        result: MultimediaObject = instance.input.multimedia_content.add_textual_prefix(self.adapter_spec.input_prefix)
         result = result.add_textual_suffix(self.adapter_spec.input_suffix)
 
         if include_output:

@@ -6,7 +6,7 @@ from helm.common.media_object import MediaObject, MultimediaObject
 from helm.benchmark.scenarios.scenario import Instance, Reference, Input, Output, TEST_SPLIT, TRAIN_SPLIT, CORRECT_TAG
 from helm.benchmark.window_services.test_utils import get_tokenizer_service
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_MULTIMODAL_GENERATION, AdapterFactory
+from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, AdapterFactory
 from .in_context_learning_multimodal_adapter import InContextLearningMultimodalAdapter
 from .multimodal_prompt import MultimodalPrompt
 
@@ -22,7 +22,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
     def test_construct_prompt(self):
         adapter_spec: AdapterSpec = AdapterSpec(
             model="simple/model1",
-            method=ADAPT_MULTIMODAL_GENERATION,
+            method=ADAPT_GENERATION_MULTIMODAL,
             global_prefix="[START]",
             instructions="Please answer the following question about the images.",
             input_prefix="Input: ",
@@ -38,7 +38,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         train_instances = [
             Instance(
                 Input(
-                    multimodal_content=MultimediaObject(
+                    multimedia_content=MultimediaObject(
                         [
                             MediaObject(location="http://cat.png", content_type="image/png"),
                             MediaObject(text="Which animal?", content_type="text/plain"),
@@ -53,7 +53,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
             ),
             Instance(
                 Input(
-                    multimodal_content=MultimediaObject(
+                    multimedia_content=MultimediaObject(
                         [
                             MediaObject(location="http://owl.png", content_type="image/png"),
                             MediaObject(text="Which bird?", content_type="text/plain"),
@@ -66,7 +66,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         ]
         eval_instance = Instance(
             Input(
-                multimodal_content=MultimediaObject(
+                multimedia_content=MultimediaObject(
                     [
                         MediaObject(location="http://dog.png", content_type="image/png"),
                         MediaObject(text="Which fur animal?", content_type="text/plain"),
@@ -91,7 +91,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
     def test_construct_prompt_multi_label(self):
         adapter_spec: AdapterSpec = AdapterSpec(
             model="simple/model1",
-            method=ADAPT_MULTIMODAL_GENERATION,
+            method=ADAPT_GENERATION_MULTIMODAL,
             global_prefix="[START]",
             instructions="Please answer the following question about the images.",
             input_prefix="Input: ",
@@ -108,7 +108,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         train_instances = [
             Instance(
                 Input(
-                    multimodal_content=MultimediaObject(
+                    multimedia_content=MultimediaObject(
                         [
                             MediaObject(location="http://cat.png", content_type="image/png"),
                             MediaObject(text="Which animal?", content_type="text/plain"),
@@ -124,7 +124,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
             ),
             Instance(
                 Input(
-                    multimodal_content=MultimediaObject(
+                    multimedia_content=MultimediaObject(
                         [
                             MediaObject(location="http://owl.png", content_type="image/png"),
                             MediaObject(text="Which bird?", content_type="text/plain"),
@@ -140,7 +140,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         ]
         eval_instance = Instance(
             Input(
-                multimodal_content=MultimediaObject(
+                multimedia_content=MultimediaObject(
                     [
                         MediaObject(location="http://dog.png", content_type="image/png"),
                         MediaObject(text="Which fur animal?", content_type="text/plain"),
@@ -171,7 +171,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         """
         adapter_spec: AdapterSpec = AdapterSpec(
             model="simple/model1",
-            method=ADAPT_MULTIMODAL_GENERATION,
+            method=ADAPT_GENERATION_MULTIMODAL,
             input_prefix="User: ",
             input_suffix="<end_of_utterance>",
             output_prefix="\nAssistant: ",
@@ -186,7 +186,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         train_instances = [
             Instance(
                 Input(
-                    multimodal_content=MultimediaObject(
+                    multimedia_content=MultimediaObject(
                         [
                             MediaObject(text="What is in this image?", content_type="text/plain"),
                             MediaObject(
@@ -210,7 +210,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         ]
         eval_instance = Instance(
             Input(
-                multimodal_content=MultimediaObject(
+                multimedia_content=MultimediaObject(
                     [
                         MediaObject(
                             location="https://static.wikia.nocookie.net/asterix/images/2/25/R22b.gif/"

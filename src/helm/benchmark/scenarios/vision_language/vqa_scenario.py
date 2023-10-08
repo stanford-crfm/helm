@@ -114,7 +114,7 @@ class VQAScenario(Scenario):
 
                 instances.append(
                     Instance(
-                        Input(multimodal_content=MultimediaObject(content)),
+                        Input(multimedia_content=MultimediaObject(content)),
                         references=[Reference(Output(text=answers_json["multiple_choice_answer"]), tags=[CORRECT_TAG])],
                         split=split,
                     )

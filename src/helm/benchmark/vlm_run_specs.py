@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from .adaptation.adapter_spec import AdapterSpec
-from .adaptation.adapters.adapter_factory import ADAPT_MULTIMODAL_GENERATION
+from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL
 from .metrics.metric import MetricSpec
 from .run_specs import run_spec_function, get_exact_match_metric_specs
 from .runner import RunSpec
@@ -23,7 +23,7 @@ def get_vlm_generation_adapter_spec(
     stop_sequences: Optional[List[str]] = None,
 ) -> AdapterSpec:
     return AdapterSpec(
-        method=ADAPT_MULTIMODAL_GENERATION,
+        method=ADAPT_GENERATION_MULTIMODAL,
         global_prefix="",
         instructions=instructions,
         input_prefix=input_prefix,

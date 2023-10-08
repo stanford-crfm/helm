@@ -9,7 +9,7 @@ from .multiple_choice_joint_adapter import MultipleChoiceJointAdapter
 from .multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
 from .multiple_choice_calibrated_adapter import MultipleChoiceCalibratedAdapter
 from .binary_ranking_adapter import BinaryRankingAdapter
-from .multimodal.multimodal_generation_adapter import MultimodalGenerationAdapter
+from .multimodal.generation_multimodal_adapter import GenerationMultimodalAdapter
 
 # Adaptation methods
 ADAPT_GENERATION: str = "generation"
@@ -25,7 +25,7 @@ ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS: List[str] = [
 ]
 
 # Multimodal adaptation methods
-ADAPT_MULTIMODAL_GENERATION: str = "multimodal_generation"
+ADAPT_GENERATION_MULTIMODAL: str = "generation_multimodal"
 
 
 class AdapterFactory:
@@ -49,8 +49,8 @@ class AdapterFactory:
             adapter = MultipleChoiceCalibratedAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_RANKING_BINARY:
             adapter = BinaryRankingAdapter(adapter_spec, tokenizer_service)
-        elif method == ADAPT_MULTIMODAL_GENERATION:
-            adapter = MultimodalGenerationAdapter(adapter_spec, tokenizer_service)
+        elif method == ADAPT_GENERATION_MULTIMODAL:
+            adapter = GenerationMultimodalAdapter(adapter_spec, tokenizer_service)
         else:
             raise ValueError(f"Invalid adaptation method: {method}")
 

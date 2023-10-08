@@ -91,7 +91,9 @@ class IDEFICSClient(Client):
             generation_args["eos_token_id"] = exit_condition
 
         multimodal_prompt: List[Union[str, Image]] = [
-            open_image(media_object.location) if media_object.type == "image" else media_object.text
+            open_image(media_object.location)
+            if media_object.is_type("image") and media_object.location
+            else media_object.text
             for media_object in request.multimodal_prompt.content
         ]
         prompt_text: str = request.multimodal_prompt.text.replace(self.END_OF_UTTERANCE_TOKEN, " ")

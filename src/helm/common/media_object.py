@@ -2,7 +2,10 @@ import os
 import urllib
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
-from typing import List
+from typing import List, Optional
+
+
+TEXT_TYPE = "text"
 
 
 @dataclass(frozen=True)
@@ -18,10 +21,10 @@ class MediaObject:
     https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
     """
 
-    text: str = ""
-    """When the media object is text."""
+    text: Optional[str] = None
+    """When the `type` of media object is text."""
 
-    location: str = ""
+    location: Optional[str] = None
     """When the media object is a file, specify the location of the media object, which can be a local path or URL."""
 
     @property
@@ -37,6 +40,8 @@ class MediaObject:
     @property
     def is_local_file(self) -> bool:
         """Returns `True` if the media object is a local file and False if `location` is a URL."""
+        if self.location is None:
+            return False
         return urllib.parse.urlparse(self.location).scheme not in ["http", "https"]
 
     def __post_init__(self):
@@ -44,9 +49,20 @@ class MediaObject:
         # Verify that the `mime_type` is in the correct format
         assert len(self.content_type.split("/")) == 2, f"Invalid MIME type: {self.content_type}"
 
-        if self.location and self.is_local_file:
+        if self.type == TEXT_TYPE:
+            assert self.text is not None
+            assert self.location is None
+        else:
+            assert self.text is None
+            assert self.location is not None
+
             # Checks that the `location` is a valid local file path
-            assert os.path.exists(self.location), f"Local file does not exist at path: {self.location}"
+            if self.is_local_file:
+                assert os.path.exists(self.location), f"Local file does not exist at path: {self.location}"
+
+    def is_type(self, media_type: str) -> bool:
+        """Returns `True` if the media object is of the specified type."""
+        return self.type == media_type
 
 
 @dataclass(frozen=True)
@@ -67,7 +83,7 @@ class MultimediaObject:
             return result
 
         start: MediaObject = result.content[0]
-        if start.type == "text":
+        if start.is_type(TEXT_TYPE) and start.text:
             result.content[0] = replace(result.content[0], text=prefix + start.text)
         else:
             result.content.insert(0, MediaObject(text=prefix, content_type="text/plain"))
@@ -84,7 +100,7 @@ class MultimediaObject:
             return result
 
         end: MediaObject = result.content[-1]
-        if end.type == "text":
+        if end.is_type(TEXT_TYPE) and end.text:
             result.content[-1] = replace(result.content[-1], text=end.text + suffix)
         else:
             result.content.append(MediaObject(text=suffix, content_type="text/plain"))
@@ -104,4 +120,4 @@ class MultimediaObject:
         Get the text-only part of this multimodal content.
         :return: The text-only representation.
         """
-        return "".join(item.text for item in self.content if item.text)
+        return "".join(item.text for item in self.content if item.is_type(TEXT_TYPE) and item.text)
