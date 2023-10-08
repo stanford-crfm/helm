@@ -36,7 +36,7 @@ ANSWER_MAPPING = {
 }
 
 
-class AdvRobustnessScenario(Scenario):
+class DecodingTrustAdvRobustnessScenario(Scenario):
     """
     This scenario is based on the adversarial robustness section (Section 5) of the DecodingTrust benchmark
     To evaluate the robustness of LLMs on textual adversarial attacks, we construct three evaluation sub-scenarios:
@@ -54,10 +54,11 @@ class AdvRobustnessScenario(Scenario):
     attacks in diverse settings.
     """
 
-    name: str = "AdvGLUE++"
+    name: str = "decodingtrust_adv_glue_plus_plus"
     description: str = "Adversarial Robustness"
     tags: List[str] = ["robustness", "trustworthy"]
-    source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/adv-glue-plus-plus/data/advglue_plus_plus.json"
+    source_url: str = ("https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/adv-glue-plus-plus/data"
+                       "/advglue_plus_plus.json")
 
     def __init__(self, glue_task: str) -> None:
         """

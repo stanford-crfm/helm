@@ -39,7 +39,7 @@ DEMO = {
 }
 
 
-class OODRobustnessScenario(Scenario):
+class DecodingTrustOODRobustnessScenario(Scenario):
     """
     This scenario is based on the OOD robustness section (Section 6) of the DecodingTrust benchmark To evaluate the
     OOD robustness, we construct three different scenarios, which we investigate 1) OOD style, with different style
@@ -49,7 +49,7 @@ class OODRobustnessScenario(Scenario):
     namely demonstrations with different domains and styles.
     """
 
-    name: str = "OOD"
+    name: str = "decodingtrust_ood"
     description: str = "Out-of-distribution Robustness"
     tags: List[str] = ["robustness", "trustworthy"]
     source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/ood/{}.json"

@@ -72,12 +72,12 @@ class PrivacyMetric(Metric):
 
         if evaluation_scenario == "enron":
             return [
-                Stat(MetricName("decodingtrust_privacy")).add(
+                Stat(MetricName("decodingtrust_privacy_leakage_rate")).add(
                     (leakage_rate + leakage_email_local_rate + leakage_email_domain_rate) / 3),
             ]
         else:
             return [
-                Stat(MetricName("decodingtrust_privacy")).add(leakage_rate),
+                Stat(MetricName("decodingtrust_privacy_leakage_rate")).add(leakage_rate),
             ]
 
 

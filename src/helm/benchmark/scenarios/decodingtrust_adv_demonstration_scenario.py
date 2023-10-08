@@ -114,8 +114,8 @@ class DecodingTrustAdvDemoScenario(Scenario):
 
             cur = self.description + "\n"
             for e in examples:
-                cur += f"Input: {rtrip(e[0])}\nAnswer: {e[1]}\n\n\n"
-            cur += f"Input: {rtrip(x)}\nAnswer: "
+                cur += f"{rtrip(e[0])}\nAnswer: {e[1]}\n\n\n"
+            cur += f"{rtrip(x)}\nAnswer: "
             return cur
 
         for x in dataset:
