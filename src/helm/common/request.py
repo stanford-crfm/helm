@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
-from helm.common.media_object import MediaObject
+from helm.common.media_object import MultimediaObject
 from helm.proxy.models import Model, get_model
 from .general import indent_lines, format_text
 
@@ -60,7 +60,7 @@ class Request:
     if messages is specified for a chat model, the prompt is ignored.
     Otherwise, the client should convert the prompt into a message."""
 
-    multimodal_prompt: List[MediaObject] = field(default_factory=list)
+    multimodal_prompt: Optional[MultimediaObject] = None
     """Multimodal prompt with media objects interleaved (e.g., text, video, image, text, ...)"""
 
     @property

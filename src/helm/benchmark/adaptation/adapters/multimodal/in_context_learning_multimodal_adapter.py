@@ -5,7 +5,7 @@ from typing import List, Optional
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.hierarchical_logger import hlog
-from helm.common.media_object import MediaObject, add_textual_prefix, add_textual_suffix, extract_text
+from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.request import Request
 from helm.benchmark.adaptation.adapters.in_context_learning_adapter import InContextLearningAdapter
 from .multimodal_prompt import MultimodalPrompt
@@ -25,7 +25,7 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
 
         request = Request(
             model=self.adapter_spec.model,
-            multimodal_prompt=prompt.content,
+            multimodal_prompt=prompt.multimedia_object,
             num_completions=self.adapter_spec.num_outputs,
             temperature=self.adapter_spec.temperature,
             max_tokens=self.adapter_spec.max_tokens,
@@ -62,24 +62,21 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
 
         Fits the prompt within the context window by removing in-context training examples.
         """
-        # Instruction text
-        instructions_block: str = self.adapter_spec.instructions
-
         # Text for in-context training instances
-        train_instance_blocks: List[List[MediaObject]] = [
+        train_instance_blocks: List[MultimediaObject] = [
             self.construct_example_multimodal_prompt(inst, include_output=True, reference_index=None)
             for inst in train_instances
         ]
 
         # Eval example text
-        eval_instance_block: List[MediaObject] = self.construct_example_multimodal_prompt(
+        eval_instance_block: MultimediaObject = self.construct_example_multimodal_prompt(
             eval_instance, include_output=include_output, reference_index=reference_index
         )
 
         # Prompt
         prompt = MultimodalPrompt(
             global_prefix=self.adapter_spec.global_prefix,
-            instructions_block=instructions_block,
+            instructions=self.adapter_spec.instructions,
             train_instance_blocks=train_instance_blocks,
             eval_instance_block=eval_instance_block,
             instance_prefix=self.adapter_spec.instance_prefix,
@@ -100,7 +97,7 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
         orig_train_instances_count: int = prompt.num_train_instances
         while prompt.num_train_instances > 0:
             if self.window_service.fits_within_context_window(
-                text=extract_text(prompt.content),
+                text=prompt.multimedia_object.text,
                 expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
                 removed_train_instances_count: int = orig_train_instances_count - prompt.num_train_instances
@@ -120,22 +117,22 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
 
     def construct_example_multimodal_prompt(
         self, instance: Instance, include_output: bool, reference_index: Optional[int]
-    ) -> List[MediaObject]:
+    ) -> MultimediaObject:
         """
         Returns a single example of the prompt. `include_output` controls whether the gold output is included.
         """
         # Input
-        assert instance.input.content is not None
-        result: List[MediaObject] = add_textual_prefix(instance.input.content, self.adapter_spec.input_prefix)
-        result = add_textual_suffix(result, self.adapter_spec.input_suffix)
+        assert instance.input.multimodal_content is not None
+        result: MultimediaObject = instance.input.multimodal_content.add_textual_prefix(self.adapter_spec.input_prefix)
+        result = result.add_textual_suffix(self.adapter_spec.input_suffix)
 
         if include_output:
             output: str = self.construct_output(instance, reference_index)
-            output_content: List[MediaObject] = [MediaObject(text=output, content_type="text/plain")]
-            output_content = add_textual_prefix(output_content, self.adapter_spec.output_prefix)
-            output_content = add_textual_suffix(output_content, self.adapter_spec.output_suffix)
-            result.extend(output_content)
+            output_content: MultimediaObject = MultimediaObject([MediaObject(text=output, content_type="text/plain")])
+            output_content = output_content.add_textual_prefix(self.adapter_spec.output_prefix)
+            output_content = output_content.add_textual_suffix(self.adapter_spec.output_suffix)
+            result = result.combine(output_content)
         else:
-            result = add_textual_suffix(result, self.adapter_spec.output_prefix.rstrip())
+            result = result.add_textual_suffix(self.adapter_spec.output_prefix.rstrip())
 
         return result

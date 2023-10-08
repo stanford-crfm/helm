@@ -1,7 +1,7 @@
 import os
 import urllib
 from copy import deepcopy
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import List
 
 
@@ -49,52 +49,59 @@ class MediaObject:
             assert os.path.exists(self.location), f"Local file does not exist at path: {self.location}"
 
 
-# Helper functions for `MediaObject`s
-def add_textual_prefix(multimodal_content: List[MediaObject], prefix: str) -> List[MediaObject]:
-    """
-    Add a prefix to the beginning of the multimodal sequence made up of `MediaObject`s.
+@dataclass(frozen=True)
+class MultimediaObject:
+    """Represents a sequence of `MediaObject`s."""
 
-    :param multimodal_content: The multimodal sequence of `MediaObject`s
-    :param prefix: The prefix to add.
-    :return: a list of `MediaObject`s with prefix.
-    """
-    result: List[MediaObject] = deepcopy(multimodal_content)
-    if not prefix:
+    content: List[MediaObject] = field(default_factory=list)
+    """The sequence of `MediaObject`s."""
+
+    def add_textual_prefix(self, prefix: str) -> "MultimediaObject":
+        """
+        Add a prefix to the beginning of the multimodal sequence.
+        :param prefix: The prefix to add.
+        :return: New multimodal object with prefix.
+        """
+        result: MultimediaObject = deepcopy(self)
+        if not prefix:
+            return result
+
+        start: MediaObject = result.content[0]
+        if start.type == "text":
+            result.content[0] = replace(result.content[0], text=prefix + start.text)
+        else:
+            result.content.insert(0, MediaObject(text=prefix, content_type="text/plain"))
         return result
 
-    start: MediaObject = result[0]
-    if start.type == "text":
-        result[0] = replace(result[0], text=prefix + start.text)
-    else:
-        result.insert(0, MediaObject(text=prefix, content_type="text/plain"))
-    return result
+    def add_textual_suffix(self, suffix: str) -> "MultimediaObject":
+        """
+        Add a suffix to the end of the multimodal sequence.
+        :param suffix: The suffix to add.
+        :return: New multimodal content with suffix.
+        """
+        result: MultimediaObject = deepcopy(self)
+        if not suffix:
+            return result
 
-
-def add_textual_suffix(multimodal_content: List[MediaObject], suffix: str) -> List[MediaObject]:
-    """
-    Add a suffix to the end of the multimodal sequence made up of `MediaObject`s.
-
-    :param multimodal_content: The multimodal sequence of `MediaObject`s
-    :param suffix: The suffix to add.
-    :return: a list of `MediaObject`s with suffix.
-    """
-    result: List[MediaObject] = deepcopy(multimodal_content)
-    if not suffix:
+        end: MediaObject = result.content[-1]
+        if end.type == "text":
+            result.content[-1] = replace(result.content[-1], text=end.text + suffix)
+        else:
+            result.content.append(MediaObject(text=suffix, content_type="text/plain"))
         return result
 
-    end: MediaObject = result[-1]
-    if end.type == "text":
-        result[-1] = replace(result[-1], text=end.text + suffix)
-    else:
-        result.append(MediaObject(text=suffix, content_type="text/plain"))
-    return result
+    def combine(self, other: "MultimediaObject") -> "MultimediaObject":
+        """
+        Combine this multimodal content with another multimodal content.
+        :param other: The other multimodal content.
+        :return: The combined multimodal content.
+        """
+        return MultimediaObject(content=self.content + other.content)
 
-
-def extract_text(multimodal_content: List[MediaObject]) -> str:
-    """
-    Extracts the text from a multimodal sequence of `MediaObject`s.
-
-    :param multimodal_content: The multimodal sequence of `MediaObject`s
-    :return: The text extracted from the multimodal sequence.
-    """
-    return "".join([m.text for m in multimodal_content if m.type == "text"])
+    @property
+    def text(self) -> str:
+        """
+        Get the text-only part of this multimodal content.
+        :return: The text-only representation.
+        """
+        return "".join(item.text for item in self.content if item.text)

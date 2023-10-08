@@ -13,7 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Scenario,
 )
-from helm.common.media_object import MediaObject
+from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 
 
@@ -114,7 +114,7 @@ class VQAScenario(Scenario):
 
                 instances.append(
                     Instance(
-                        Input(content=content),
+                        Input(multimodal_content=MultimediaObject(content)),
                         references=[Reference(Output(text=answers_json["multiple_choice_answer"]), tags=[CORRECT_TAG])],
                         split=split,
                     )

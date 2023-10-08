@@ -27,7 +27,7 @@ class MultimodalGenerationAdapter(InContextLearningMultimodalAdapter):
 
         request = Request(
             model=self.adapter_spec.model,
-            multimodal_prompt=prompt.content,
+            multimodal_prompt=prompt.multimedia_object,
             num_completions=self.adapter_spec.num_outputs,
             temperature=self.adapter_spec.temperature,
             max_tokens=self.adapter_spec.max_tokens,

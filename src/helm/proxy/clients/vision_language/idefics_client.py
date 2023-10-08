@@ -7,7 +7,6 @@ from PIL import Image
 from transformers import IdeficsForVisionText2Text, AutoProcessor, IdeficsProcessor
 
 from helm.common.cache import CacheConfig, Cache
-from helm.common.media_object import extract_text
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog
@@ -76,6 +75,7 @@ class IDEFICSClient(Client):
     def make_request(self, request: Request) -> RequestResult:
         assert request.model in _models, f"Not a valid model for this client: {request.model}"
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
+
         loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.model)
         model = loaded_model_processor.model
         processor = loaded_model_processor.processor
@@ -92,9 +92,9 @@ class IDEFICSClient(Client):
 
         multimodal_prompt: List[Union[str, Image]] = [
             open_image(media_object.location) if media_object.type == "image" else media_object.text
-            for media_object in request.multimodal_prompt
+            for media_object in request.multimodal_prompt.content
         ]
-        prompt_text: str = extract_text(request.multimodal_prompt).replace(self.END_OF_UTTERANCE_TOKEN, " ")
+        prompt_text: str = request.multimodal_prompt.text.replace(self.END_OF_UTTERANCE_TOKEN, " ")
 
         try:
 

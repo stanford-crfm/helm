@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from helm.common.media_object import MediaObject, add_textual_prefix
+from helm.common.media_object import MediaObject, MultimediaObject
 
 
 @dataclass(frozen=True)
@@ -15,34 +15,37 @@ class MultimodalPrompt:
     instance_prefix: str
 
     # Instructions for the task
-    instructions_block: str
+    instructions: str
 
     # Train instance blocks for the prompt
-    train_instance_blocks: List[List[MediaObject]]
+    train_instance_blocks: List[MultimediaObject]
 
     # Evaluation instance
-    eval_instance_block: List[MediaObject]
+    eval_instance_block: MultimediaObject
 
     @property
-    def content(self) -> List[MediaObject]:
-        """Construct the multimodal prompt given the train and eval multimodal content and adapter spec parameters"""
-        blocks: List[List[MediaObject]] = (
-            [[MediaObject(text=self.instructions_block, content_type="text/plain")]] if self.instructions_block else []
-        )
+    def multimedia_object(self) -> MultimediaObject:
+        """
+        Construct the multimodal prompt as a `MultimodalObject` given the train and eval multimodal content
+        and adapter spec parameters.
+        """
+        blocks: List[MultimediaObject] = []
+        if self.instructions:
+            blocks.append(MultimediaObject([MediaObject(text=self.instructions, content_type="text/plain")]))
         blocks.extend(self.train_instance_blocks)
         blocks.append(self.eval_instance_block)
 
         # Combine all the content
         # Add the instance prefix between the instruction block and instance blocks if one exists
-        result: List[MediaObject] = []
+        result: MultimediaObject = MultimediaObject()
         for i, block in enumerate(blocks):
-            result.extend(
-                block if i == 0 or not self.instance_prefix else add_textual_prefix(block, self.instance_prefix)
+            result = result.combine(
+                block if i == 0 or not self.instance_prefix else block.add_textual_prefix(self.instance_prefix)
             )
 
         # Add the global prefix if one exists
         if self.global_prefix:
-            result = add_textual_prefix(result, self.global_prefix)
+            result = result.add_textual_prefix(self.global_prefix)
 
         return result
 

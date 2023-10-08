@@ -1,19 +1,19 @@
 import unittest
 
-from .media_object import MediaObject, add_textual_prefix, add_textual_suffix, extract_text
+from .media_object import MediaObject, MultimediaObject
 
 
 class TestMediaObject(unittest.TestCase):
     def test_add_textual_prefix(self):
-        multimodal_content = [MediaObject(text="b", content_type="text/plain")]
-        multimodal_content = add_textual_prefix(multimodal_content, "a")
-        self.assertEqual(extract_text(multimodal_content), "ab")
+        multimodal_object = MultimediaObject([MediaObject(text="b", content_type="text/plain")])
+        multimodal_object = multimodal_object.add_textual_prefix("a")
+        self.assertEqual(multimodal_object.text, "ab")
 
     def test_add_textual_prefix_with_file(self):
-        multimodal_content = [MediaObject(location="http://some_image.png", content_type="image/png")]
-        multimodal_content = add_textual_prefix(multimodal_content, "a")
+        multimodal_object = MultimediaObject([MediaObject(location="http://some_image.png", content_type="image/png")])
+        multimodal_object = multimodal_object.add_textual_prefix("a")
         self.assertEqual(
-            multimodal_content,
+            multimodal_object.content,
             [
                 MediaObject(text="a", content_type="text/plain"),
                 MediaObject(location="http://some_image.png", content_type="image/png"),
@@ -21,15 +21,15 @@ class TestMediaObject(unittest.TestCase):
         )
 
     def test_add_textual_suffix(self):
-        multimodal_content = [MediaObject(text="a", content_type="text/plain")]
-        multimodal_content = add_textual_suffix(multimodal_content, "b")
-        self.assertEqual(extract_text(multimodal_content), "ab")
+        multimodal_object = MultimediaObject([MediaObject(text="a", content_type="text/plain")])
+        multimodal_object = multimodal_object.add_textual_suffix("b")
+        self.assertEqual(multimodal_object.text, "ab")
 
     def test_add_textual_suffix_with_file(self):
-        multimodal_content = [MediaObject(location="http://some_image.png", content_type="image/png")]
-        multimodal_content = add_textual_suffix(multimodal_content, "b")
+        multimodal_object = MultimediaObject([MediaObject(location="http://some_image.png", content_type="image/png")])
+        multimodal_object = multimodal_object.add_textual_suffix("b")
         self.assertEqual(
-            multimodal_content,
+            multimodal_object.content,
             [
                 MediaObject(location="http://some_image.png", content_type="image/png"),
                 MediaObject(text="b", content_type="text/plain"),
