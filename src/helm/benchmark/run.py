@@ -19,6 +19,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
 from .run_specs import construct_run_specs
+from .vlm_run_specs import *  # noqa
 
 
 def run_entries_to_run_specs(

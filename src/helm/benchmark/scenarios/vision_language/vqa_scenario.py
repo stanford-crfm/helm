@@ -22,7 +22,8 @@ class VQAScenario(Scenario):
     Visual Question Answering (VQA) is a dataset containing open-ended questions about images.
     These questions require an understanding of vision, language and commonsense knowledge to answer.
 
-    We use the v2.0 version released in 2017:
+    We use the v2.0 version released in 2017 by Goyal et al.
+    "Making the V in VQA Matter: Elevating the Role of Image Understanding in Visual Question Answering".
 
     Balanced Real Images - 204,721 COCO images
     (all of current train/val/test)

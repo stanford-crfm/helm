@@ -1,8 +1,8 @@
 from threading import Lock
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Union
 
 import torch
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from PIL import Image
 from transformers import IdeficsForVisionText2Text, AutoProcessor, IdeficsProcessor
 
@@ -21,12 +21,21 @@ from helm.common.tokenization_request import (
 )
 from helm.proxy.clients.client import Client, wrap_request_time, cleanup_tokens, generate_uid_for_multimodal_prompt
 
+
+@dataclass(frozen=True)
+class LoadedIDEFICSModelProcessor:
+    """Loaded model and processor for IDEFICS."""
+
+    model: IdeficsForVisionText2Text
+    processor: IdeficsProcessor
+
+
 _models_lock: Lock = Lock()
-_models: Dict[str, Tuple[Optional[IdeficsForVisionText2Text], Optional[AutoProcessor]]] = {
-    "HuggingFaceM4/idefics-9b": (None, None),
-    "HuggingFaceM4/idefics-9b-instruct": (None, None),
-    "HuggingFaceM4/idefics-80b": (None, None),
-    "HuggingFaceM4/idefics-80b-instruct": (None, None),
+_models: Dict[str, Optional[LoadedIDEFICSModelProcessor]] = {
+    "HuggingFaceM4/idefics-9b": None,
+    "HuggingFaceM4/idefics-9b-instruct": None,
+    "HuggingFaceM4/idefics-80b": None,
+    "HuggingFaceM4/idefics-80b-instruct": None,
 }
 
 
@@ -45,26 +54,31 @@ class IDEFICSClient(Client):
         self._cache = Cache(cache_config)
         self._device: str = get_torch_device_name()
 
-    def _get_model(self, checkpoint: str) -> Tuple[IdeficsForVisionText2Text, IdeficsProcessor]:
+    def _get_model(self, checkpoint: str) -> LoadedIDEFICSModelProcessor:
         global _models_lock
         global _models
 
         # Ensure that only one thread is loading the model at a time
         with _models_lock:
-            model, processor = _models[checkpoint]
-            if model is None or processor is None:
-                hlog(f"Loading model {checkpoint} and caching...")
+            loaded_model_processor = _models[checkpoint]
+            if loaded_model_processor is None:
+                hlog(f"Loading model {checkpoint} and caching in memory...")
                 model = IdeficsForVisionText2Text.from_pretrained(checkpoint, torch_dtype=torch.bfloat16).to(
                     self._device
                 )
                 processor = AutoProcessor.from_pretrained(checkpoint)
-                _models[checkpoint] = (model, processor)
-        return model, processor
+                _models[checkpoint] = LoadedIDEFICSModelProcessor(model, processor)
+                loaded_model_processor = _models[checkpoint]
+
+        assert loaded_model_processor is not None
+        return loaded_model_processor
 
     def make_request(self, request: Request) -> RequestResult:
         assert request.model in _models, f"Not a valid model for this client: {request.model}"
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
-        model, processor = self._get_model(request.model)
+        loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.model)
+        model = loaded_model_processor.model
+        processor = loaded_model_processor.processor
 
         input_args: Dict[str, Union[str, bool]] = {"return_tensors": "pt"}
         generation_args = {
@@ -119,8 +133,8 @@ class IDEFICSClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        _, processor = self._get_model(request.tokenizer)
-        tokenizer = processor.tokenizer
+        loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.tokenizer)
+        tokenizer = loaded_model_processor.processor.tokenizer
         cache_key = asdict(request)
 
         try:
@@ -155,8 +169,8 @@ class IDEFICSClient(Client):
         )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        _, processor = self._get_model(request.tokenizer)
-        tokenizer = processor.tokenizer
+        loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.tokenizer)
+        tokenizer = loaded_model_processor.processor.tokenizer
         cache_key = asdict(request)
 
         try:
