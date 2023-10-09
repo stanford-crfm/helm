@@ -14,7 +14,7 @@ export default async function getStatsByName(
       { signal },
     );
 
-    return await stats.json() as Stat[];
+    return (await stats.json()) as Stat[];
   } catch (error) {
     console.log(error);
     return [];

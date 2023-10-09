@@ -17,7 +17,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.clients.client import Client
-from helm.proxy.clients.critique_client import CritiqueClient
+from helm.proxy.critique.critique_client import CritiqueClient
 from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
@@ -369,17 +369,17 @@ class AutoClient(Client):
             return self._critique_client
         critique_type = self.credentials.get("critiqueType")
         if critique_type == "random":
-            from helm.proxy.clients.critique_client import RandomCritiqueClient
+            from helm.proxy.critique.critique_client import RandomCritiqueClient
 
             self._critique_client = RandomCritiqueClient()
         elif critique_type == "mturk":
-            from helm.proxy.clients.mechanical_turk_critique_client import (
+            from helm.proxy.critique.mechanical_turk_critique_client import (
                 MechanicalTurkCritiqueClient,
             )
 
             self._critique_client = MechanicalTurkCritiqueClient()
         elif critique_type == "surgeai":
-            from helm.proxy.clients.surge_ai_critique_client import (
+            from helm.proxy.critique.surge_ai_critique_client import (
                 SurgeAICritiqueClient,
             )
 
@@ -388,7 +388,7 @@ class AutoClient(Client):
                 raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
             self._critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
         elif critique_type == "model":
-            from helm.proxy.clients.model_critique_client import ModelCritiqueClient
+            from helm.proxy.critique.model_critique_client import ModelCritiqueClient
 
             model_name: Optional[str] = self.credentials.get("critiqueModelName")
             if model_name is None:
@@ -396,7 +396,7 @@ class AutoClient(Client):
             client: Client = self._get_client(model_name)
             self._critique_client = ModelCritiqueClient(client, model_name)
         elif critique_type == "scale":
-            from helm.proxy.clients.scale_critique_client import ScaleCritiqueClient
+            from helm.proxy.critique.scale_critique_client import ScaleCritiqueClient
 
             scale_credentials = self.credentials.get("scaleApiKey")
             scale_project = self.credentials.get("scaleProject", None)

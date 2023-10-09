@@ -7,9 +7,12 @@ interface Props {
   size?: "sm" | "md" | "lg" | "xl";
 }
 
-export default function Tab(
-  { active = false, onClick = (() => {}), size = "md", children }: Props,
-) {
+export default function Tab({
+  active = false,
+  onClick = () => {},
+  size = "md",
+  children,
+}: Props) {
   return (
     <div
       onClick={onClick}

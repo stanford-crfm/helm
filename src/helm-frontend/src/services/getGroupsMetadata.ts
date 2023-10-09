@@ -13,7 +13,7 @@ export default async function getGroupsMetadata(
       { signal },
     );
 
-    return await groups.json() as GroupsMetadata;
+    return (await groups.json()) as GroupsMetadata;
   } catch (error) {
     console.log(error);
     return {} as GroupsMetadata;

@@ -28,34 +28,42 @@ export default function Models() {
     return () => controller.abort();
   }, []);
 
-  const [open, limited, closed] = models.reduce((acc, model) => {
-    switch (model.access) {
-      case "open":
-        acc[0] += 1;
-        break;
-      case "limited":
-        acc[1] += 1;
-        break;
-      case "closed":
-        acc[2] += 1;
-        break;
-    }
-    return acc;
-  }, [0, 0, 0]);
-
-  const creators = Object.values(models.reduce((acc, model) => {
-    const creator = model.creator_organization;
-    if (acc[creator] === undefined) {
-      acc[creator] = {
-        name: creator,
-        models: 1,
-      };
+  const [open, limited, closed] = models.reduce(
+    (acc, model) => {
+      switch (model.access) {
+        case "open":
+          acc[0] += 1;
+          break;
+        case "limited":
+          acc[1] += 1;
+          break;
+        case "closed":
+          acc[2] += 1;
+          break;
+      }
       return acc;
-    }
+    },
+    [0, 0, 0],
+  );
 
-    acc[creator].models += 1;
-    return acc;
-  }, {} as Record<string, { name: string; models: number }>));
+  const creators = Object.values(
+    models.reduce(
+      (acc, model) => {
+        const creator = model.creator_organization;
+        if (acc[creator] === undefined) {
+          acc[creator] = {
+            name: creator,
+            models: 1,
+          };
+          return acc;
+        }
+
+        acc[creator].models += 1;
+        return acc;
+      },
+      {} as Record<string, { name: string; models: number }>,
+    ),
+  );
 
   if (models.length === 0) {
     return <Loading />;

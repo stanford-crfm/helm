@@ -13,7 +13,7 @@ from helm.common.critique_request import (
     CritiqueRequestResult,
 )
 from helm.common.hierarchical_logger import hlog
-from helm.proxy.clients.mechanical_turk_utils import replace_emoji_characters
+from helm.proxy.critique.mechanical_turk_utils import replace_emoji_characters
 
 # A representation of fields that can be used as a dict key.
 _CritiqueRequestKey = Tuple[Tuple[str, str], ...]

@@ -10,9 +10,15 @@ from helm.common.critique_request import (
     CritiqueTaskTemplate,
 )
 from helm.common.hierarchical_logger import hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence
 from helm.proxy.clients.client import Client
-from helm.proxy.clients.critique_client import CritiqueClient
+from helm.proxy.critique.critique_client import CritiqueClient
+
+try:
+    import anthropic
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 class CritiqueParseError(Exception):
@@ -61,6 +67,12 @@ class ModelCritiqueClient(CritiqueClient):
                 max_tokens = len(question.options) * 2
             else:
                 max_tokens = 1
+
+            # Special case for Anthropic to handle prefix and suffix.
+            # TODO(josselin): Fix this once refactor of HELM allows for automatic model prefix and suffix.
+            if self._model_name.startswith("anthropic"):
+                prompt = anthropic.HUMAN_PROMPT + prompt + anthropic.AI_PROMPT
+
             request = Request(
                 model=self._model_name,
                 prompt=prompt,

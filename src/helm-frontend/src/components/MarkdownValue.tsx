@@ -9,9 +9,7 @@ interface Props {
   value: string;
 }
 
-function Link(
-  { href, children }: PropsWithChildren<LinkProps>,
-) {
+function Link({ href, children }: PropsWithChildren<LinkProps>) {
   return (
     <a
       href={href}

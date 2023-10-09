@@ -1,14 +1,14 @@
 function assert(condition, message) {
   if (!condition) {
-    throw message || 'Assertion failed';
+    throw message || "Assertion failed";
   }
 }
 
 function encodeUrlParams(params) {
-  let s = '';
+  let s = "";
   for (let k in params) {
     if (params[k] != null) {
-      s += (s === '' ? '?' : '&') + k + '=' + encodeURIComponent(params[k]);
+      s += (s === "" ? "?" : "&") + k + "=" + encodeURIComponent(params[k]);
     }
   }
   return s;
@@ -16,8 +16,7 @@ function encodeUrlParams(params) {
 
 function decodeUrlParams(str) {
   const params = {};
-  if (str === '')
-    return params;
+  if (str === "") return params;
   const items = str.substring(1).split(/&/);
   for (let i = 0; i < items.length; i++) {
     const pair = items[i].split(/=/);
@@ -28,31 +27,34 @@ function decodeUrlParams(str) {
 
 function updateBrowserLocation(params) {
   // Update the address bar
-  window.history.pushState({}, '', window.location.pathname + encodeUrlParams(params));
+  window.history.pushState(
+    {},
+    "",
+    window.location.pathname + encodeUrlParams(params),
+  );
 }
 
 function createCookie(key, value, days) {
-  let expires = '';
+  let expires = "";
   if (days) {
     const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
     expires = "; expires=" + date.toUTCString();
   }
   document.cookie = key + "=" + value + expires + "; path=/";
 }
 
 function readCookie(key) {
-  let tokens = document.cookie.split(';');
+  let tokens = document.cookie.split(";");
   for (let i = 0; i < tokens.length; i++) {
-    const [k, v] = tokens[i].trim().split('=', 2);
-    if (key === k)
-      return v;
+    const [k, v] = tokens[i].trim().split("=", 2);
+    if (key === k) return v;
   }
   return null;
 }
 
 function eraseCookie(key) {
-	createCookie(key, '' , -1);
+  createCookie(key, "", -1);
 }
 
 function renderTimestamp(timestamp) {
@@ -67,7 +69,7 @@ function renderDict(data) {
 
 function loadScript(src, onload, onerror) {
   // Using jquery doesn't work, so do it in with our bare hands.
-  const s = document.createElement('script');
+  const s = document.createElement("script");
   s.src = src;
   s.onload = onload;
   s.onerror = onerror;
@@ -75,7 +77,8 @@ function loadScript(src, onload, onerror) {
 }
 
 function getRandomString() {
-  const vocab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const vocab =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let text = "";
   for (let i = 0; i < 6; i++)
     text += vocab.charAt(Math.floor(Math.random() * vocab.length));
@@ -88,19 +91,21 @@ function round(x, n) {
 }
 
 function multilineHtml(s) {
-  return s.replace(/\n/g, '<br>');
+  return s.replace(/\n/g, "<br>");
 }
 
 function renderError(e) {
-  return $('<div>').addClass('alert alert-danger').append(multilineHtml(e));
+  return $("<div>").addClass("alert alert-danger").append(multilineHtml(e));
 }
 
 function helpIcon(help, link) {
   // Show a ?
-  return $('<a>', {href: link, target: 'blank_', class: 'help-icon'}).append($('<img>', {src: 'info-icon.png', width: 15, title: help}));
+  return $("<a>", { href: link, target: "blank_", class: "help-icon" }).append(
+    $("<img>", { src: "info-icon.png", width: 15, title: help }),
+  );
 }
 
-const markdownConverter = new showdown.Converter({optionKey: 'value'});
+const markdownConverter = new showdown.Converter({ optionKey: "value" });
 function renderMarkdown(markdown) {
   return markdown && markdownConverter.makeHtml(markdown);
 }
@@ -111,7 +116,7 @@ function refreshHashLocation() {
   // hash location once all the anchors are generated.
   if (location.hash) {
     const hash = location.hash;
-    location.hash = '';
+    location.hash = "";
     location.hash = hash;
   }
 }

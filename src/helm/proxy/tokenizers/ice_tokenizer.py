@@ -1,4 +1,4 @@
-# mypy: check_untyped_defs = False
+import os
 from typing import Any, Dict
 
 from helm.common.tokenization_request import (
@@ -10,6 +10,9 @@ from .cachable_tokenizer import CachableTokenizer
 from .tokenizer import cleanup_tokens
 
 try:
+    # Fall back to pure Python protobufs to work around issue #1613,
+    # which is caused by icetk using C++ protobufs compiled with protobuf<3.19.
+    os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
     from icetk import icetk as icetk_tokenizer
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
