@@ -18,7 +18,7 @@ class TestICETokenizer:
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
         self.tokenizer_name = "TsinghuaKEG/ice"
-        self.client = ICETokenizer(SqliteCacheConfig(self.cache_path))
+        self.tokenizer = ICETokenizer(SqliteCacheConfig(self.cache_path))
 
         # The test cases were created using the examples from https://github.com/THUDM/icetk#tokenization
         self.test_prompt: str = "Hello World! I am icetk."
