@@ -19,7 +19,6 @@ from helm.common.tokenization_request import (
 )
 from helm.proxy.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
-from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
 
@@ -101,11 +100,6 @@ class AutoClient(Client):
                     provider_bindings={"api_key": provide_api_key},
                 )
                 client = create_object(client_spec)
-
-            elif get_huggingface_model_config(model):
-                from helm.proxy.clients.huggingface_client import HuggingFaceClient
-
-                client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "neurips":
                 client = HTTPModelClient(cache_config=cache_config)
             elif organization == "openai":
@@ -247,10 +241,6 @@ class AutoClient(Client):
                     tokenizer_config.tokenizer_spec, constant_bindings={"cache_config": cache_config}
                 )
                 client = create_object(tokenizer_spec)
-            elif get_huggingface_model_config(tokenizer):
-                from helm.proxy.clients.huggingface_client import HuggingFaceClient
-
-                client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "neurips":
                 client = HTTPModelClient(cache_config=cache_config)
             elif organization in [
