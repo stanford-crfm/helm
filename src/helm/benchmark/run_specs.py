@@ -2377,7 +2377,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 
 
 @run_spec_function("cleva")
-def get_cleva_spec(task: str, version: str, subtask: str = None, prompt_id: int = 0) -> RunSpec:
+def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, prompt_id: int = 0) -> RunSpec:
     from .scenarios.cleva_scenario import CLEVAScenario  # noqa
 
     CLEVAScenario.download_dataset(task, version)
