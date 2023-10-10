@@ -73,14 +73,11 @@ class AutoClient(Client):
                 if "deployments" not in self.credentials:
                     raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
                 deployment_api_keys = self.credentials["deployments"]
-                print("deployment_api_keys", deployment_api_keys)
                 if model not in deployment_api_keys:
                     raise AuthenticationError(
                         f"Could not find key '{model}' under key 'deployments' in credentials.conf"
                     )
                 api_key = deployment_api_keys[model]
-                #DEBUG PRINT
-                print("API_KEY_auto_client", api_key)
                 client = create_object(
                     model_deployment.client_spec, additional_args={"cache_config": cache_config, "api_key": api_key}
                 )
@@ -90,20 +87,7 @@ class AutoClient(Client):
 
                 client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "openai":
-                from helm.proxy.clients.chat_gpt_client import ChatGPTClient
                 from helm.proxy.clients.openai_client import OpenAIClient
-
-                # TODO: add ChatGPT to the OpenAIClient when it's supported.
-                #       We're using a separate client for now since we're using an unofficial Python library.
-                # See https://github.com/acheong08/ChatGPT/wiki/Setup on how to get a valid session token.
-                chat_gpt_client: ChatGPTClient = ChatGPTClient(
-                    session_token=self.credentials.get("chatGPTSessionToken", ""),
-                    lock_file_path=os.path.join(self.cache_path, "ChatGPT.lock"),
-                    # TODO: use `cache_config` above. Since this feature is still experimental,
-                    #       save queries and responses in a separate collection.
-                    cache_config=self._build_cache_config("ChatGPT"),
-                    tokenizer_client=self._get_tokenizer_client("huggingface"),
-                )
 
                 org_id = self.credentials.get("openaiOrgId", None)
                 api_key = self.credentials.get("openaiApiKey", None)
@@ -180,7 +164,6 @@ class AutoClient(Client):
                 client = MegatronClient(cache_config=cache_config)
             elif organization == "sagemaker":
                 from helm.proxy.clients.sagemaker_client import SageMakerClient
-                print("LOOK HERE for sagemaker endpoint name: ", self.credentials.get('deployments').get('sagemaker/gpt2'))
                 client = SageMakerClient(
                     sagemaker_endpoint_name=self.credentials.get('deployments').get('sagemaker/gpt2', ""),
                     cache_config=cache_config
