@@ -85,7 +85,10 @@ class IDEFICSClient(Client):
             "max_length": request.max_tokens,
             "bad_words_ids": processor.tokenizer(self.BAD_WORD_TOKENS, add_special_tokens=False).input_ids,
         }
+
         if self.END_OF_UTTERANCE_TOKEN in request.stop_sequences:
+            # Following https://huggingface.co/HuggingFaceM4/idefics-80b-instruct,
+            # specify <end_of_utterance> as an exit condition.
             input_args["add_end_of_utterance_token"] = False
             exit_condition = processor.tokenizer(self.END_OF_UTTERANCE_TOKEN, add_special_tokens=False).input_ids
             generation_args["eos_token_id"] = exit_condition
@@ -94,7 +97,7 @@ class IDEFICSClient(Client):
             open_image(media_object.location)
             if media_object.is_type("image") and media_object.location
             else media_object.text
-            for media_object in request.multimodal_prompt.content
+            for media_object in request.multimodal_prompt.media_objects
         ]
         prompt_text: str = request.multimodal_prompt.text.replace(self.END_OF_UTTERANCE_TOKEN, " ")
 

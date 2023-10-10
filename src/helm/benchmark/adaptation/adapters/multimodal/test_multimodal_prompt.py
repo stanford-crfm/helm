@@ -38,7 +38,7 @@ class TestMultimodalContent(unittest.TestCase):
             eval_instance_block=eval_instance_block,
         )
         self.assertEqual(
-            prompt.multimedia_object.content,
+            prompt.multimedia_object.media_objects,
             [
                 MediaObject(
                     text="[START]Please answer the following questions about the images.", content_type="text/plain"
@@ -73,7 +73,7 @@ class TestMultimodalContent(unittest.TestCase):
             eval_instance_block=eval_instance_block,
         )
         self.assertEqual(
-            prompt.multimedia_object.content,
+            prompt.multimedia_object.media_objects,
             [
                 MediaObject(location="http://cat.png", content_type="image/png"),
                 MediaObject(text="Which animal is this?", content_type="text/plain"),

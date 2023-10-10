@@ -21,11 +21,11 @@ def open_image(image_location: str) -> Image:
     return image.convert("RGB")
 
 
-def encode_base64(image_location: str) -> str:
+def encode_base64(image_location: str, format="JPEG") -> str:
     """Returns the base64 representation of an image file."""
     image_file = io.BytesIO()
     image: Image = open_image(image_location)
-    image.save(image_file, format="JPEG")
+    image.save(image_file, format=format)
     return base64.b64encode(image_file.getvalue()).decode("ascii")
 
 

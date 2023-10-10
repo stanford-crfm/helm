@@ -13,7 +13,7 @@ class TestMediaObject(unittest.TestCase):
         multimodal_object = MultimediaObject([MediaObject(location="http://some_image.png", content_type="image/png")])
         multimodal_object = multimodal_object.add_textual_prefix("a")
         self.assertEqual(
-            multimodal_object.content,
+            multimodal_object.media_objects,
             [
                 MediaObject(text="a", content_type="text/plain"),
                 MediaObject(location="http://some_image.png", content_type="image/png"),
@@ -29,7 +29,7 @@ class TestMediaObject(unittest.TestCase):
         multimodal_object = MultimediaObject([MediaObject(location="http://some_image.png", content_type="image/png")])
         multimodal_object = multimodal_object.add_textual_suffix("b")
         self.assertEqual(
-            multimodal_object.content,
+            multimodal_object.media_objects,
             [
                 MediaObject(location="http://some_image.png", content_type="image/png"),
                 MediaObject(text="b", content_type="text/plain"),

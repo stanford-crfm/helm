@@ -154,6 +154,6 @@ def generate_uid_for_multimodal_prompt(prompt: MultimediaObject) -> str:
     return "".join(
         [
             media_object.text if media_object.is_type(TEXT_TYPE) and media_object.text else str(media_object.location)
-            for media_object in prompt.content
+            for media_object in prompt.media_objects
         ]
     )

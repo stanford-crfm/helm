@@ -60,7 +60,7 @@ class Input:
     """The text of the input (e.g, passage to summarize, text for sentiment analysis, etc.)"""
 
     multimedia_content: Optional[MultimediaObject] = None
-    """"A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
+    """A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
 @dataclass(frozen=True)

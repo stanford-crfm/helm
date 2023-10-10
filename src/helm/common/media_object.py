@@ -13,8 +13,7 @@ class MediaObject:
     """A media object e.g., image, video, audio, etc."""
 
     content_type: str
-    """
-    A valid Multipurpose Internet Mail Extensions (MIME) type for this media object in the format `<type>/<subtype>`.
+    """A valid Multipurpose Internet Mail Extensions (MIME) type for this media object in the format `<type>/<subtype>`.
     IANA is the official registry of MIME media types and maintains a list of all the official MIME types:
     https://www.iana.org/assignments/media-types/media-types.xhtml
     Some common MIME types can be found here:
@@ -69,12 +68,12 @@ class MediaObject:
 class MultimediaObject:
     """Represents a sequence of `MediaObject`s."""
 
-    content: List[MediaObject] = field(default_factory=list)
+    media_objects: List[MediaObject] = field(default_factory=list)
     """The sequence of `MediaObject`s."""
 
     def add_textual_prefix(self, prefix: str) -> "MultimediaObject":
         """
-        Add a prefix to the beginning of the multimodal sequence.
+        Returns a new `MultimediaObject` with a textual prefix added to the beginning of the multimodal sequence.
         :param prefix: The prefix to add.
         :return: New multimodal object with prefix.
         """
@@ -82,16 +81,16 @@ class MultimediaObject:
         if not prefix:
             return result
 
-        start: MediaObject = result.content[0]
+        start: MediaObject = result.media_objects[0]
         if start.is_type(TEXT_TYPE) and start.text:
-            result.content[0] = replace(result.content[0], text=prefix + start.text)
+            result.media_objects[0] = replace(result.media_objects[0], text=prefix + start.text)
         else:
-            result.content.insert(0, MediaObject(text=prefix, content_type="text/plain"))
+            result.media_objects.insert(0, MediaObject(text=prefix, content_type="text/plain"))
         return result
 
     def add_textual_suffix(self, suffix: str) -> "MultimediaObject":
         """
-        Add a suffix to the end of the multimodal sequence.
+        Returns a new `MultimediaObject` with a textual suffix added to the end of the multimodal sequence.
         :param suffix: The suffix to add.
         :return: New multimodal content with suffix.
         """
@@ -99,20 +98,20 @@ class MultimediaObject:
         if not suffix:
             return result
 
-        end: MediaObject = result.content[-1]
+        end: MediaObject = result.media_objects[-1]
         if end.is_type(TEXT_TYPE) and end.text:
-            result.content[-1] = replace(result.content[-1], text=end.text + suffix)
+            result.media_objects[-1] = replace(result.media_objects[-1], text=end.text + suffix)
         else:
-            result.content.append(MediaObject(text=suffix, content_type="text/plain"))
+            result.media_objects.append(MediaObject(text=suffix, content_type="text/plain"))
         return result
 
     def combine(self, other: "MultimediaObject") -> "MultimediaObject":
         """
-        Combine this multimodal content with another multimodal content.
+        Return a new `MultimediaObject` that contains the contents of this object and the other object.
         :param other: The other multimodal content.
         :return: The combined multimodal content.
         """
-        return MultimediaObject(content=self.content + other.content)
+        return MultimediaObject(media_objects=self.media_objects + other.media_objects)
 
     @property
     def text(self) -> str:
@@ -120,4 +119,4 @@ class MultimediaObject:
         Get the text-only part of this multimodal content.
         :return: The text-only representation.
         """
-        return "".join(item.text for item in self.content if item.is_type(TEXT_TYPE) and item.text)
+        return "".join(item.text for item in self.media_objects if item.is_type(TEXT_TYPE) and item.text)
