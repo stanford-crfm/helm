@@ -872,6 +872,45 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
     )
 
 
+@run_spec_function("custom_mcqa")
+def get_custom_mcqa_spec(
+    name: str,
+    eval_path: str,
+    train_path: Optional[str] = None,
+    num_train_instances: int = 0,
+    description: str = "Custom multiple choice question answering",
+    tags: Optional[List[str]] = None,
+    method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
+) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.custom_mcqa_scenario.CustomMCQAScenario",
+        args={
+            "eval_path": eval_path,
+            "train_path": train_path,
+            "num_train_instances": num_train_instances,
+            "name": name,
+            "description": description,
+            "tags": tags,
+        },
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions=f"The following are multiple choice questions (with answers) about {name.replace('_', ' ')}.",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=num_train_instances,
+    )
+
+    return RunSpec(
+        name=f"{name},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["custom"],
+    )
+
+
 @run_spec_function("mmlu")
 def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
