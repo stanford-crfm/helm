@@ -882,6 +882,15 @@ def get_custom_mcqa_spec(
     tags: Optional[List[str]] = None,
     method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
 ) -> RunSpec:
+    # Check training data
+    if train_path is not None and num_train_instances == 0:
+        hlog(
+            f"WARNING: Training data provided for {name} but num_train_instances is 0. "
+            "This means no training will occur."
+        )
+    elif train_path is None and num_train_instances > 0:
+        raise ValueError(f"num_train_instances={num_train_instances} but no training data provided.")
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.custom_mcqa_scenario.CustomMCQAScenario",
         args={
