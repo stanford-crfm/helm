@@ -272,6 +272,8 @@ class AutoClient(Client):
             "google",
             "writer",  # Palmyra
             "nvidia",
+            "EleutherAI",
+            "facebook",
             # Together
             "together",
             "databricks",
@@ -282,6 +284,7 @@ class AutoClient(Client):
             "stabilityai",
             "stanford",
             "tiiuae",
+            "bigscience",
         ]:
             from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
@@ -321,6 +324,14 @@ class AutoClient(Client):
                 cache_config=cache_config,
                 checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
             )
+        elif organization == "TsinghuaKEG":
+            from helm.proxy.tokenizers.ice_tokenizer import ICETokenizer
+
+            return ICETokenizer(cache_config=cache_config)
+        elif organization == "Yandex":
+            from helm.proxy.tokenizers.yalm_tokenizer import YaLMTokenizer
+
+            return YaLMTokenizer(cache_config=cache_config)
 
         raise ValueError(f"Could not find tokenizer for model: {tokenizer}")
 
