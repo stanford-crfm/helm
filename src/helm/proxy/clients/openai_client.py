@@ -11,7 +11,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient, truncate_sequence
+from .client import CachingClient, truncate_sequence
 
 try:
     import openai
@@ -23,7 +23,7 @@ except ModuleNotFoundError as e:
 ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 
 
-class OpenAIClient(CachableClient):
+class OpenAIClient(CachingClient):
     END_OF_TEXT: str = "<|endoftext|>"
 
     def __init__(
@@ -132,7 +132,7 @@ class OpenAIClient(CachableClient):
                     openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
                     return openai.Completion.create(**raw_request)
 
-            cache_key = CachableClient.make_cache_key(raw_request, request)
+            cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
             error: str = f"OpenAI error: {e}"

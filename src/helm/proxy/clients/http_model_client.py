@@ -11,12 +11,12 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient
+from .client import CachingClient
 
 import requests
 
 
-class HTTPModelClient(CachableClient):
+class HTTPModelClient(CachingClient):
     """Implements a simple client for a model being served over HTTP."""
 
     def __init__(

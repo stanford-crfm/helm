@@ -46,7 +46,7 @@ class Client(ABC):
         pass
 
 
-class CachableClient(Client):
+class CachingClient(Client):
     def __init__(self, cache_config: CacheConfig, tokenizer: Tokenizer) -> None:
         """Initializes the client.
 
@@ -73,12 +73,12 @@ class CachableClient(Client):
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         # Deprecated - use `self.tokenizer.tokenize` instead. Warn the user.
-        hlog("WARNING: CachableClient.tokenize is deprecated, use self.tokenizer.tokenize instead")
+        hlog("WARNING: CachingClient.tokenize is deprecated, use self.tokenizer.tokenize instead")
         return self.tokenizer.tokenize(request)
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         # Deprecated - use `self.tokenizer.decode` instead. Warn the user.
-        hlog("WARNING: CachableClient.decode is deprecated, use self.tokenizer.decode instead")
+        hlog("WARNING: CachingClient.decode is deprecated, use self.tokenizer.decode instead")
         return self.tokenizer.decode(request)
 
 

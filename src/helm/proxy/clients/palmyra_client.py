@@ -11,7 +11,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient, truncate_sequence
+from .client import CachingClient, truncate_sequence
 
 
 _CONTENT_MODERATION_KEY = "fail.content.moderation.failed"
@@ -27,7 +27,7 @@ def _is_content_moderation_failure(response: Dict) -> bool:
     return errors[0].get("key") == _CONTENT_MODERATION_KEY
 
 
-class PalmyraClient(CachableClient):
+class PalmyraClient(CachingClient):
     def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.api_key: str = api_key
@@ -85,7 +85,7 @@ class PalmyraClient(CachableClient):
                 # requests, cache key should contain the completion_index.
                 # Echoing the original prompt is not officially supported by Writer. We instead prepend the
                 # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
-                cache_key = CachableClient.make_cache_key(
+                cache_key = CachingClient.make_cache_key(
                     {
                         "engine": request.model_engine,
                         "completion_index": completion_index,

@@ -12,7 +12,7 @@ from helm.common.optional_dependencies import OptionalDependencyNotInstalled
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.proxy.tokenizers.tokenizer import Tokenizer
 
-from .client import CachableClient
+from .client import CachingClient
 from .lit_gpt_generate import generate  # type: ignore
 
 try:
@@ -83,7 +83,7 @@ class LitGPT(metaclass=SingletonMeta):
         self.fabric = fabric
 
 
-class LitGPTClient(CachableClient):
+class LitGPTClient(CachingClient):
     """Client for evaluating Lit-GPT (from Lightning AI) supported LLMs"""
 
     def __init__(

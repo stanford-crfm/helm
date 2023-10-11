@@ -12,11 +12,11 @@ from helm.common.request import (
     Token,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient, truncate_sequence
+from .client import CachingClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
-class GooseAIClient(CachableClient):
+class GooseAIClient(CachingClient):
     """
     GooseAI API Client
     - How to use the API: https://goose.ai/docs/api
@@ -63,7 +63,7 @@ class GooseAIClient(CachableClient):
                 gooseai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
                 return gooseai.Completion.create(**raw_request)
 
-            cache_key = CachableClient.make_cache_key(raw_request, request)
+            cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except gooseai.error.OpenAIError as e:
             error: str = f"OpenAI (GooseAI API) error: {e}"

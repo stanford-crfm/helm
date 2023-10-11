@@ -13,11 +13,11 @@ from helm.common.request import (
 )
 from helm.proxy.models import get_models_by_organization
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient, truncate_sequence
+from .client import CachingClient, truncate_sequence
 from .cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
 
 
-class CohereClient(CachableClient):
+class CohereClient(CachingClient):
     ORGANIZATION: str = "cohere"
     GENERATE_ENDPOINT: str = "generate"
 

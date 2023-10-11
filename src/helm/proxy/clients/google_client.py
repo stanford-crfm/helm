@@ -3,10 +3,10 @@ from typing import List, Dict
 from helm.common.cache import CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient, truncate_sequence
+from .client import CachingClient, truncate_sequence
 
 
-class GoogleClient(CachableClient):
+class GoogleClient(CachingClient):
     """
     Client for the Google models. There isn't an API for their language models.
     We receive and process completions offline.
@@ -33,7 +33,7 @@ class GoogleClient(CachableClient):
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = GoogleClient.convert_to_raw_request(request)
-        cache_key: Dict = CachableClient.make_cache_key(raw_request, request)
+        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
 
         try:
 

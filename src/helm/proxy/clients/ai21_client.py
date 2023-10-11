@@ -11,11 +11,11 @@ from helm.common.request import (
     Token,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient, truncate_sequence, cleanup_str
+from .client import CachingClient, truncate_sequence, cleanup_str
 from .ai21_utils import AI21RequestError, handle_failed_request
 
 
-class AI21Client(CachableClient):
+class AI21Client(CachingClient):
     """
     AI21 Labs provides Jurassic models.
     https://studio.ai21.com/docs/api/
@@ -67,7 +67,7 @@ class AI21Client(CachableClient):
 
         try:
             # We need to include the engine's name to differentiate among requests made for different model engines
-            cache_key = CachableClient.make_cache_key({"engine": request.model_engine, **raw_request}, request)
+            cache_key = CachingClient.make_cache_key({"engine": request.model_engine, **raw_request}, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except AI21RequestError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])

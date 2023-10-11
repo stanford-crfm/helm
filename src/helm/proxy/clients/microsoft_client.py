@@ -14,11 +14,11 @@ from helm.common.request import (
     Token,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient, truncate_sequence
+from .client import CachingClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
-class MicrosoftClient(CachableClient):
+class MicrosoftClient(CachingClient):
     """
     Client for the Microsoft's Megatron-Turing NLG models (https://arxiv.org/abs/2201.11990).
 
@@ -141,9 +141,7 @@ class MicrosoftClient(CachableClient):
 
                 # We want to make `request.num_completions` fresh requests,
                 # cache key should contain the completion_index.
-                cache_key = CachableClient.make_cache_key(
-                    {"completion_index": completion_index, **raw_request}, request
-                )
+                cache_key = CachingClient.make_cache_key({"completion_index": completion_index, **raw_request}, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it if self.api_key else fail))
             except turing.error.OpenAIError as e:
                 error: str = f"OpenAI (Turing API) error: {e}"

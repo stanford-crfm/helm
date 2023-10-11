@@ -7,10 +7,10 @@ from aleph_alpha_client import Client as AlephAlphaPythonClient
 from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient, truncate_sequence
+from .client import CachingClient, truncate_sequence
 
 
-class AlephAlphaClient(CachableClient):
+class AlephAlphaClient(CachingClient):
     COMPLETION_ENDPOINT: str = "complete"
 
     def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):

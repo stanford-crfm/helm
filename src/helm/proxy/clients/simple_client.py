@@ -4,10 +4,10 @@ from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachableClient
+from .client import CachingClient
 
 
-class SimpleClient(CachableClient):
+class SimpleClient(CachingClient):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
     def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
@@ -25,7 +25,7 @@ class SimpleClient(CachableClient):
             def do_it():
                 return self.invoke_model1(raw_request)
 
-            cache_key = CachableClient.make_cache_key(raw_request, request)
+            cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             completions = [
                 Sequence(

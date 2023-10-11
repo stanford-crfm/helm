@@ -13,7 +13,7 @@ from helm.common.request import (
     Sequence,
     Token,
 )
-from .client import CachableClient, truncate_sequence
+from .client import CachingClient, truncate_sequence
 from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, resolve_alias
 from helm.proxy.tokenizers.tokenizer import Tokenizer
 from threading import Lock
@@ -144,7 +144,7 @@ class HuggingFaceServerFactory:
         return HuggingFaceServerFactory._servers[helm_model_name]
 
 
-class HuggingFaceClient(CachableClient):
+class HuggingFaceClient(CachingClient):
     def __init__(
         self,
         tokenizer: Tokenizer,
@@ -193,7 +193,7 @@ class HuggingFaceClient(CachableClient):
             def do_it():
                 return huggingface_model.serve_request(raw_request)
 
-            cache_key = CachableClient.make_cache_key(raw_request, request)
+            cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:  # Do something if error is encountered.
             error: str = f"HuggingFace error: {e}"

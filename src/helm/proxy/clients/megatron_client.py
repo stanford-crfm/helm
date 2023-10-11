@@ -13,7 +13,7 @@ from helm.common.request import (
 )
 from helm.common.tokenization_request import TokenizationRequest
 from helm.proxy.clients.huggingface_client import HuggingFaceClient
-from helm.proxy.clients.client import CachableClient, truncate_sequence
+from helm.proxy.clients.client import CachingClient, truncate_sequence
 
 
 class MegatronClient(HuggingFaceClient):
@@ -68,7 +68,7 @@ class MegatronClient(HuggingFaceClient):
             "top_k": request.top_k_per_token,
         }
 
-        cache_key = CachableClient.make_cache_key(raw_request, request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
         response, cached = self.cache.get(cache_key, wrap_request_time(lambda: self._send_request(raw_request)))
 
         # Verify we got a single response for the prompt.
