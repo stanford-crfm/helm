@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { BarList, Card, Metric, Text } from "@tremor/react";
 import type RunGroup from "@/types/RunGroup";
 import getSchema from "@/services/getSchema";
-import MarkdownValue from "@/components/MarkdownValue";
+import MarkdownValue from "@/components/MarkdownValue/MarkdownValue";
 import PageTitle from "@/components/PageTitle/PageTitle";
 import Link from "@/components/Link";
-import Loading from "@/components/MarkdownValue/Loading";
+import Loading from "@/components/Loading";
 
 export default function Scenarios() {
   const [runGroups, setRunGroups] = useState<RunGroup[]>([] as RunGroup[]);

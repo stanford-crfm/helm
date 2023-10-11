@@ -4,7 +4,7 @@ import getRunSpecs from "@/services/getRunSpecs";
 import type RunSpec from "@/types/RunSpec";
 import PageTitle from "@/components/PageTitle/PageTitle";
 import Link from "@/components/Link";
-import Loading from "@/components/MarkdownValue/Loading";
+import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 

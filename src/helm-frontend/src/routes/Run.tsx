@@ -20,10 +20,10 @@ import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs/Tabs";
 import InstanceData from "@/components/InstanceData";
-import Loading from "@/components/MarkdownValue/Loading";
+import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import Model from "@/types/Model";
-import MarkdownValue from "@/components/MarkdownValue";
+import MarkdownValue from "@/components/MarkdownValue/MarkdownValue";
 import StatNameDisplay from "@/components/StatNameDisplay";
 
 const INSTANCES_PAGE_SIZE = 10;

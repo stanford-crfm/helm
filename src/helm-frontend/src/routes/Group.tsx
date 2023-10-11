@@ -9,7 +9,7 @@ import type GroupsTable from "@/types/GroupsTable";
 import type GroupMetadata from "@/types/GroupMetadata";
 import getGroupsTablesByName from "@/services/getGroupTablesByName";
 import getGroupsMetadata from "@/services/getGroupsMetadata";
-import Loading from "@/components/MarkdownValue/Loading";
+import Loading from "@/components/Loading";
 
 export default function Group() {
   const { groupName } = useParams();

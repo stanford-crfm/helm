@@ -8,7 +8,7 @@ import PageTitle from "@/components/PageTitle/PageTitle";
 import Tabs from "@/components/Tabs/Tabs";
 import Tab from "@/components/Tab";
 import GroupsTables from "@/components/GroupsTables";
-import Loading from "@/components/MarkdownValue/Loading";
+import Loading from "@/components/Loading";
 
 export default function Groups() {
   const [activeGroup, setActiveGroup] = useState<number>(0);
