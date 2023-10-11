@@ -26,7 +26,6 @@ const colorNames = [
   "warning",
   "error",
 ];
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 const theme = daisyuiColors["[data-theme=business]"] as Record<string, string>; // eslint-disable-line @typescript-eslint/no-unnecessary-type-assertion
 
 interface Props {
