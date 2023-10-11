@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import PageTitle from "@/components/PageTitle";
+import PageTitle from "@/components/PageTitle/PageTitle";
 import Tab from "@/components/Tab";
-import Tabs from "@/components/Tabs";
+import Tabs from "@/components/Tabs/Tabs";
 import GroupsCharts from "@/components/GroupsCharts";
 import GroupsTables from "@/components/GroupsTables";
 import type GroupsTable from "@/types/GroupsTable";
 import type GroupMetadata from "@/types/GroupMetadata";
 import getGroupsTablesByName from "@/services/getGroupTablesByName";
 import getGroupsMetadata from "@/services/getGroupsMetadata";
-import Loading from "@/components/Loading";
+import Loading from "@/components/MarkdownValue/Loading";
 
 export default function Group() {
   const { groupName } = useParams();

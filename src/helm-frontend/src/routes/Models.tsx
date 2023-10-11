@@ -9,10 +9,10 @@ import {
 } from "@tremor/react";
 import type Model from "@/types/Model";
 import getSchema from "@/services/getSchema";
-import PageTitle from "@/components/PageTitle";
-import AccessBadge from "@/components/AccessBadge";
+import PageTitle from "@/components/PageTitle/PageTitle";
+import AccessBadge from "@/components/AccessBadge/AccessBadge";
 import MarkdownValue from "@/components/MarkdownValue";
-import Loading from "@/components/Loading";
+import Loading from "@/components/MarkdownValue/Loading";
 
 export default function Models() {
   const [models, setModels] = useState<Model[]>([] as Model[]);

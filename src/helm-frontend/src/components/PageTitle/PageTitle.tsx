@@ -1,4 +1,4 @@
-import MarkdownValue from "./MarkdownValue";
+import MarkdownValue from "../MarkdownValue";
 
 interface Props {
   title: string;
