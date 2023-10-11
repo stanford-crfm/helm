@@ -40,7 +40,7 @@ class TestHuggingFaceTokenizer:
         TestHuggingFaceTokenizer.verify_get_tokenizer("bigscience/T0pp", 58)
 
     def test_get_tokenizer_t511b(self):
-        TestHuggingFaceTokenizer.verify_get_tokenizer("google/t5-11b", 58)
+        TestHuggingFaceTokenizer.verify_get_tokenizer("google/t5-11b", 58, pretrained_model_name_or_path="t5-11b")
 
     def test_get_tokenizer_ul2(self):
         TestHuggingFaceTokenizer.verify_get_tokenizer("google/ul2", 58)
