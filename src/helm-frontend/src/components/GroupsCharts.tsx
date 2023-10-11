@@ -26,7 +26,8 @@ const colorNames = [
   "warning",
   "error",
 ];
-const theme = daisyuiColors["[data-theme=business]"] as Record<string, string>; // eslint-disable-line @typescript-eslint/no-unnecessary-type-assertion
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+const theme = daisyuiColors["[data-theme=business]"] as Record<string, string>;
 
 interface Props {
   groupsTables: GroupsTable[];
