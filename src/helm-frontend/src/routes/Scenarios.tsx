@@ -59,24 +59,6 @@ export default function Scenarios() {
         title="Scenarios"
         subtitle="Scenarios offer a broad coverage of diverse language-related tasks, helping to identify gaps in the model's capabilities. They aid in the standardization of model evaluation by creating a consistent benchmark, thereby ensuring fair and controlled comparisons across various models."
       />
-      <div className="grid md:grid-cols-4 gap-8">
-        <Card className="flex flex-col">
-          <Text>Total Scenarios</Text>
-          <Metric className="mx-auto my-6 md:mt-16 !text-[72px] md:!text-[96px]">
-            {runGroups.length}
-          </Metric>
-        </Card>
-        <Card className="col-span-3">
-          <div className="grid md:grid-cols-2 gap-x-12">
-            <BarList
-              data={taskBuckets.slice(0, Math.floor(taskBuckets.length / 2))}
-            />
-            <BarList
-              data={taskBuckets.slice(Math.ceil(taskBuckets.length / 2))}
-            />
-          </div>
-        </Card>
-      </div>
       <div className="overflow-x-auto mt-12">
         <table className="table">
           <thead>
@@ -111,6 +93,28 @@ export default function Scenarios() {
             ))}
           </tbody>
         </table>
+        <PageTitle
+          title="Analysis"
+          subtitle="Scenarios offer a broad coverage of diverse language-related tasks, helping to identify gaps in the model's capabilities. They aid in the standardization of model evaluation by creating a consistent benchmark, thereby ensuring fair and controlled comparisons across various models."
+        />
+        <div className="grid md:grid-cols-4 gap-8">
+          <Card className="flex flex-col">
+            <Text>Total Scenarios</Text>
+            <Metric className="mx-auto my-6 md:mt-16 !text-[72px] md:!text-[96px]">
+              {runGroups.length}
+            </Metric>
+          </Card>
+          <Card className="col-span-3">
+            <div className="grid md:grid-cols-2 gap-x-12">
+              <BarList
+                data={taskBuckets.slice(0, Math.floor(taskBuckets.length / 2))}
+              />
+              <BarList
+                data={taskBuckets.slice(Math.ceil(taskBuckets.length / 2))}
+              />
+            </div>
+          </Card>
+        </div>
       </div>
     </>
   );
