@@ -1,4 +1,4 @@
-from helm.proxy.tokenizers.yalm_tokenizer_src.yalm_tokenizer import YaLMTokenizer
+from helm.proxy.tokenizers.yalm_tokenizer_data.yalm_tokenizer import YaLMTokenizer
 from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 

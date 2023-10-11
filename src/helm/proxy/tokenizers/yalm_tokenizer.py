@@ -8,7 +8,7 @@ from helm.common.tokenization_request import (
 )
 from .cachable_tokenizer import CachableTokenizer
 from .tokenizer import cleanup_tokens
-from .yalm_tokenizer_src.yalm_tokenizer import YaLMTokenizer as YaLMTokenizerInternal
+from .yalm_tokenizer_data.yalm_tokenizer import YaLMTokenizer as YaLMTokenizerInternal
 
 
 class YaLMTokenizer(CachableTokenizer):
