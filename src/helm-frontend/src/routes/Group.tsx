@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import PageTitle from "@/components/PageTitle/PageTitle";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs/Tabs";
-import GroupsCharts from "@/components/GroupsCharts";
+//import GroupsCharts from "@/components/GroupsCharts";
 import GroupsTables from "@/components/GroupsTables";
 import type GroupsTable from "@/types/GroupsTable";
 import type GroupMetadata from "@/types/GroupMetadata";
@@ -18,7 +18,7 @@ export default function Group() {
     GroupMetadata | undefined
   >();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [showChart, setShowChart] = useState<boolean>(false);
+  //const [showChart, setShowChart] = useState<boolean>(false);
   const [activeGroup, setActiveGroup] = useState<number>(0);
 
   useEffect(() => {
@@ -69,12 +69,14 @@ export default function Group() {
           markdown={true}
           className="mr-8 mb-16"
         />
+        {/* 
         <button
           className="btn btn-xs btn-ghost self-end"
           onClick={() => setShowChart(!showChart)}
         >
           {showChart ? "Show Table" : "Show Chart"}
         </button>
+        */}
       </div>
       <div className="overflow-x-auto">
         {groupsTables.length > 1 ? (
@@ -92,15 +94,15 @@ export default function Group() {
         ) : null}
       </div>
 
-      {showChart ? (
+      {/*showChart ? (
         <GroupsCharts groupsTables={groupsTables} activeGroup={activeGroup} />
-      ) : (
-        <GroupsTables
-          groupsTables={groupsTables}
-          activeGroup={activeGroup}
-          ignoreHref={true}
-        />
-      )}
+      ) : ( */}
+      <GroupsTables
+        groupsTables={groupsTables}
+        activeGroup={activeGroup}
+        ignoreHref={true}
+      />
+      {/* )*/}
     </>
   );
 }
