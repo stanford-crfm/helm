@@ -1,3 +1,4 @@
+from typing import Optional
 from helm.common.general import singleton
 from .huggingface_tokenizer import HuggingFaceTokenizer
 
@@ -13,13 +14,18 @@ class TestHuggingFaceTokenizer:
     )
 
     @staticmethod
-    def verify_get_tokenizer(tokenizer_name: str, expected_num_tokens: int):
-        tokenizer = HuggingFaceTokenizer.get_tokenizer(tokenizer_name)
-        assert tokenizer_name in HuggingFaceTokenizer.tokenizers, "Tokenizer should be cached"
+    def verify_get_tokenizer(
+        tokenizer_name: str, expected_num_tokens: int, pretrained_model_name_or_path: Optional[str] = None
+    ):
+        tokenizer = HuggingFaceTokenizer.get_tokenizer(
+            helm_tokenizer_name=tokenizer_name,
+            pretrained_model_name_or_path=pretrained_model_name_or_path or tokenizer_name,
+        )
+        assert tokenizer_name in HuggingFaceTokenizer._tokenizers, "Tokenizer should be cached"
         assert len(tokenizer.encode(TestHuggingFaceTokenizer.TEST_PROMPT)) == expected_num_tokens
 
     def test_get_tokenizer_gpt2(self):
-        TestHuggingFaceTokenizer.verify_get_tokenizer("huggingface/gpt2", 51)
+        TestHuggingFaceTokenizer.verify_get_tokenizer("huggingface/gpt2", 51, pretrained_model_name_or_path="gpt2")
 
     def test_get_tokenizer_gptj(self):
         TestHuggingFaceTokenizer.verify_get_tokenizer("EleutherAI/gpt-j-6B", 51)
@@ -44,7 +50,7 @@ class TestHuggingFaceTokenizer:
 
     def test_gpt2_tokenize_eos(self):
         eos_token: str = "<|endoftext|>"
-        tokenizer = HuggingFaceTokenizer.get_tokenizer("huggingface/gpt2")
+        tokenizer = HuggingFaceTokenizer.get_tokenizer("huggingface/gpt2", pretrained_model_name_or_path="gpt2")
         token_ids = tokenizer.encode(eos_token)
         assert singleton(token_ids) == 50256
         assert tokenizer.decode(token_ids) == eos_token

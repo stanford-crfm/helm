@@ -37,6 +37,10 @@ class TokenizerConfigs:
 _name_to_tokenizer_config: Dict[str, TokenizerConfig] = {}
 
 
+def register_tokenizer_config(tokenizer_config: TokenizerConfig) -> None:
+    _name_to_tokenizer_config[tokenizer_config.name] = tokenizer_config
+
+
 def register_tokenizer_configs_from_path(path: str) -> None:
     global _name_to_tokenizer_config
     hlog(f"Reading tokenizer configs from {path}...")
@@ -44,7 +48,7 @@ def register_tokenizer_configs_from_path(path: str) -> None:
         raw = yaml.safe_load(f)
     tokenizer_configs: TokenizerConfigs = cattrs.structure(raw, TokenizerConfigs)
     for tokenizer_config in tokenizer_configs.tokenizer_configs:
-        _name_to_tokenizer_config[tokenizer_config.name] = tokenizer_config
+        register_tokenizer_config(tokenizer_config)
 
 
 def maybe_register_tokenizer_configs_from_base_path(base_path: str) -> None:

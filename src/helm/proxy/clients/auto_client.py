@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
 from retrying import Attempt, RetryError
 
 from helm.benchmark.model_deployment_registry import get_model_deployment
+from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
@@ -18,7 +19,6 @@ from helm.common.tokenization_request import (
 )
 from helm.proxy.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
-from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
 from helm.proxy.tokenizers.tokenizer import Tokenizer
@@ -103,11 +103,6 @@ class AutoClient(Client):
                     provider_bindings={"api_key": provide_api_key},
                 )
                 client = create_object(client_spec)
-
-            elif get_huggingface_model_config(model):
-                from helm.proxy.clients.huggingface_client import HuggingFaceClient
-
-                client = HuggingFaceClient(tokenizer=tokenizer, cache_config=cache_config)
             elif organization == "neurips":
                 client = HTTPModelClient(tokenizer=tokenizer, cache_config=cache_config)
             elif organization == "openai":
@@ -265,7 +260,14 @@ class AutoClient(Client):
         organization: str = tokenizer.split("/")[0]
         cache_config: CacheConfig = self._build_cache_config(organization)
 
-        if get_huggingface_model_config(tokenizer) or organization in [
+        # TODO: Migrate all clients to use tokenizer configs
+        tokenizer_config = get_tokenizer_config(tokenizer)
+        if tokenizer_config:
+            tokenizer_spec = inject_object_spec_args(
+                tokenizer_config.tokenizer_spec, constant_bindings={"cache_config": cache_config}
+            )
+            return create_object(tokenizer_spec)
+        elif organization in [
             "gooseai",
             "huggingface",
             "microsoft",
@@ -274,6 +276,8 @@ class AutoClient(Client):
             "nvidia",
             "EleutherAI",
             "facebook",
+            "meta-llama",
+            "hf-internal-testing",
             # Together
             "together",
             "databricks",
