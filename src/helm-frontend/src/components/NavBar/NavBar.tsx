@@ -3,7 +3,7 @@ import { Bars3Icon } from "@heroicons/react/24/outline";
 import crfmLogo from "@/assets/crfm-logo.png";
 import helmLogo from "@/assets/helm-logo-simple.png";
 
-export default function Nav() {
+export default function NavBar() {
   return (
     <nav className="navbar h-24 px-8 md:px-12 bg-base-100 max-w[1500]px">
       <div>
