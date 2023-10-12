@@ -3,7 +3,7 @@ import os
 from helm.common.object_spec import parse_object_spec
 from helm.benchmark.presentation.run_entry import read_run_entries
 from helm.benchmark.run_specs import construct_run_specs
-from helm.benchmark.vlm_run_specs import *  # noqa
+from helm.benchmark import vlm_run_specs  # noqa
 
 
 def test_read_all_specs():

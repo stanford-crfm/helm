@@ -205,8 +205,9 @@ class AutoClient(Client):
             elif organization == "HuggingFaceM4":
                 from helm.proxy.clients.vision_language.idefics_client import IDEFICSClient
 
-                client = IDEFICSClient(cache_config)
-
+                client = IDEFICSClient(
+                    cache_config, tokenizer_client=self._get_tokenizer_client("HuggingFaceM4/idefics-9b")
+                )
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client
@@ -269,6 +270,7 @@ class AutoClient(Client):
                 "microsoft",
                 "tiiuae",
                 "hf-internal-testing",
+                "HuggingFaceM4",
             ]:
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
@@ -316,10 +318,6 @@ class AutoClient(Client):
 
             elif organization == "lightningai":
                 client = self._get_client(tokenizer)
-            elif organization == "HuggingFaceM4":
-                from helm.proxy.clients.vision_language.idefics_client import IDEFICSClient
-
-                client = IDEFICSClient(cache_config)
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client

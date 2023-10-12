@@ -2,7 +2,7 @@ from threading import Lock
 from typing import Dict, List, Optional, Union
 
 import torch
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from PIL import Image
 from transformers import IdeficsForVisionText2Text, AutoProcessor, IdeficsProcessor
 
@@ -10,15 +10,14 @@ from helm.common.cache import CacheConfig, Cache
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
-    TokenizationToken,
 )
-from helm.proxy.clients.client import Client, wrap_request_time, cleanup_tokens, generate_uid_for_multimodal_prompt
+from helm.proxy.clients.client import Client, wrap_request_time, generate_uid_for_multimodal_prompt
 
 
 @dataclass(frozen=True)
@@ -49,9 +48,10 @@ class IDEFICSClient(Client):
     END_OF_UTTERANCE_TOKEN: str = "<end_of_utterance>"
     BAD_WORD_TOKENS: List[str] = ["<image>", "<fake_token_around_image>"]
 
-    def __init__(self, cache_config: CacheConfig):
+    def __init__(self, cache_config: CacheConfig, tokenizer_client: Client):
         self._cache = Cache(cache_config)
         self._device: str = get_torch_device_name()
+        self._tokenizer_client = tokenizer_client
 
     def _get_model(self, checkpoint: str) -> LoadedIDEFICSModelProcessor:
         global _models_lock
@@ -128,7 +128,15 @@ class IDEFICSClient(Client):
         except RuntimeError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
-        completions: List[Sequence] = [Sequence(text=result["output"], logprob=0, tokens=[])]
+        # TODO: Support multiple completions and figure out how get the log probs
+        # TODO: Together might support this model so use the TogetherClient
+        tokenization_result: TokenizationRequestResult = self._tokenizer_client.tokenize(
+            TokenizationRequest(result["output"], tokenizer=request.model)
+        )
+        tokens: List[Token] = [
+            Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
+        ]
+        completions: List[Sequence] = [Sequence(text=result["output"], logprob=0, tokens=tokens)]
         return RequestResult(
             success=True,
             cached=cached,
@@ -138,60 +146,7 @@ class IDEFICSClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.tokenizer)
-        tokenizer = loaded_model_processor.processor.tokenizer
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                if request.encode:
-                    if request.truncation:
-                        tokens = tokenizer.encode(
-                            request.text,
-                            truncation=request.truncation,
-                            max_length=request.max_length,
-                            add_special_tokens=False,
-                        )
-                    else:
-                        tokens = tokenizer.encode(request.text, add_special_tokens=False)
-                else:
-                    tokens = tokenizer.tokenize(request.text)
-                    tokens = cleanup_tokens(tokens, request.tokenizer)
-                return {"tokens": tokens}
-
-            result, cached = self._cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"HuggingFace tokenize error: {e}"
-            return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
-
-        return TokenizationRequestResult(
-            success=True,
-            cached=cached,
-            text=request.text,
-            tokens=[TokenizationToken(value) for value in result["tokens"]],
-            request_time=result["request_time"],
-        )
+        raise NotImplementedError("Use HuggingFaceClient to tokenize")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.tokenizer)
-        tokenizer = loaded_model_processor.processor.tokenizer
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                return {
-                    "text": tokenizer.decode(
-                        request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces
-                    )
-                }
-
-            result, cached = self._cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"HuggingFace decode error: {e}"
-            return DecodeRequestResult(success=False, cached=False, error=error, text="")
-
-        return DecodeRequestResult(
-            success=True, cached=cached, text=result["text"], request_time=result["request_time"]
-        )
+        raise NotImplementedError("Use HuggingFaceClient to decode")
