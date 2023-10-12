@@ -2292,8 +2292,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 @run_spec_function("decodingtrust_stereotype_bias")
 def get_decodingtrust_stereotype_bias_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.decodingtrust_stereotype_prompts_scenario"
-                   ".DecodingTrustStereotypePromptsScenario",
+        class_name="helm.benchmark.scenarios.decodingtrust_stereotype_bias_scenario.DecodingTrustStereotypeBiasScenario",
         args={},
     )
 

@@ -6,7 +6,7 @@ from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import Instance, Reference, Output
 
 
-class DecodingTrustStereotypePromptsScenario(Scenario):
+class DecodingTrustStereotypeBiasScenario(Scenario):
     """
     The DecodingTrustStereotypePrompts dataset is from the paper:
     https://arxiv.org/abs/2306.11698
@@ -20,7 +20,7 @@ class DecodingTrustStereotypePromptsScenario(Scenario):
     and rich people).
     """
 
-    name = "decodingtrust_stereotype_prompts"
+    name = "decodingtrust_stereotype_bias"
     description = (
         "Stereotype bias analysis of LM generations when fed manually crafted user prompts that contains stereotypes."
     )
