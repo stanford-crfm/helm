@@ -19,6 +19,7 @@ from helm.proxy.models import (
     GPTNEO_TOKENIZER_TAG,
     GPT4_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
+    VISION_LANGUAGE_MODEL_TAG,
 )
 from .runner import RunSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
@@ -370,6 +371,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
                 "openai/text-davinci-003",
             ],
             "opinions_qa_ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
+            "vlm": get_model_names_with_tag(VISION_LANGUAGE_MODEL_TAG),
         }
 
         # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")

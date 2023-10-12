@@ -62,6 +62,9 @@ NLG_PREFIX_TAG: str = "nlg_prefix_tag"
 # Some models can follow instructions.
 INSTRUCTION_FOLLOWING_MODEL_TAG: str = "instruction_following"
 
+# For Vision-langauge models (VLMs)
+VISION_LANGUAGE_MODEL_TAG: str = "vision_language"
+
 
 @dataclass
 class Model:
@@ -864,6 +867,27 @@ ALL_MODELS = [
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
             GPT2_TOKENIZER_TAG,
         ],
+    ),
+    # Vision-language models (VLMs)
+    Model(
+        group="idefics",
+        name="HuggingFaceM4/idefics-9b",
+        tags=[VISION_LANGUAGE_MODEL_TAG],
+    ),
+    Model(
+        group="idefics",
+        name="HuggingFaceM4/idefics-9b-instruct",
+        tags=[VISION_LANGUAGE_MODEL_TAG],
+    ),
+    Model(
+        group="idefics",
+        name="HuggingFaceM4/idefics-80b",
+        tags=[VISION_LANGUAGE_MODEL_TAG],
+    ),
+    Model(
+        group="idefics",
+        name="HuggingFaceM4/idefics-80b-instruct",
+        tags=[VISION_LANGUAGE_MODEL_TAG],
     ),
     # For debugging
     Model(
