@@ -2,8 +2,12 @@ from copy import deepcopy
 import torch
 from dataclasses import asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers.generation.stopping_criteria import StoppingCriteria, StoppingCriteriaList, \
-    STOPPING_CRITERIA_INPUTS_DOCSTRING, add_start_docstrings
+from transformers.generation.stopping_criteria import (
+    StoppingCriteria,
+    StoppingCriteriaList,
+    STOPPING_CRITERIA_INPUTS_DOCSTRING,
+    add_start_docstrings,
+)
 from typing import Any, Dict, List, Optional
 
 from helm.common.cache import Cache, CacheConfig
@@ -38,7 +42,7 @@ def resolve_alias(model_name: str) -> str:
 
 
 class StopAtSpecificTokenCriteria(StoppingCriteria):
-    def __init__(self, stop_sequence: List[int]= None):
+    def __init__(self, stop_sequence: List[int] = None):
         super().__init__()
         self.stop_sequence = stop_sequence
 
@@ -48,7 +52,7 @@ class StopAtSpecificTokenCriteria(StoppingCriteria):
         stop_sequence_tensor = torch.tensor(self.stop_sequence, device=input_ids.device, dtype=input_ids.dtype)
 
         # Check if the current sequence ends with the stop_sequence
-        current_sequence = input_ids[:, -len(self.stop_sequence):]
+        current_sequence = input_ids[:, -len(self.stop_sequence) :]
         return torch.all(current_sequence == stop_sequence_tensor).item()
 
 
@@ -106,8 +110,11 @@ class HuggingFaceServer:
             stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_ids.input_ids[0]))
 
         # Use HuggingFace's `generate` method.
-        output = self.model.generate(**encoded_input, **relevant_raw_request, 
-                                     stopping_criteria=stopping_criteria if len(stop_sequence_ids.input_ids[0])>1 else None)
+        output = self.model.generate(
+            **encoded_input,
+            **relevant_raw_request,
+            stopping_criteria=stopping_criteria if len(stop_sequence_ids.input_ids[0]) > 1 else None,
+        )
         sequences = output.sequences
         scores = output.scores
 
