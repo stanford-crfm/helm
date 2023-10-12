@@ -1668,6 +1668,22 @@ metric_groups:
       - name: classification_micro_f1
         split: ${main_split}
 
+  - name: decodingtrust_fairness_metrics
+    display_name: DecodingTrust Fairness
+    metrics:
+      - name: equalized_odds_difference
+        split: ${main_split}
+      - name: demographic_parity_difference
+        split: ${main_split}
+
+  - name: decodingtrust_ood_metrics
+    display_name: DecodingTrust OOD Accuracy
+    metrics:
+      - name: ood_knowledge_rr
+        split: ${main_split}
+      - name: ood_knowledge_macc
+        split: ${main_split}
+
 ############################################################
 run_groups:
 ## Top-level
@@ -3049,6 +3065,7 @@ run_groups:
       - calibration
       - efficiency
       - general_information
+      - decodingtrust_ood_metrics
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -3066,9 +3083,9 @@ run_groups:
     metric_groups:
       - accuracy
       - calibration
-      - fairness
       - efficiency
       - general_information
+      - decodingtrust_fairness_metrics
     environment:
       main_name: quasi_exact_match
       main_split: test
