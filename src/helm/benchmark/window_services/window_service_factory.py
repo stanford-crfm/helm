@@ -17,7 +17,6 @@ from helm.benchmark.window_services.gpt2_window_service import GPT2WindowService
 from helm.benchmark.window_services.remote_window_service import get_remote_window_service
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.proxy.clients.huggingface_client import get_huggingface_model_config
 from helm.proxy.clients.remote_model_registry import get_remote_model
 from helm.common.object_spec import create_object, inject_object_spec_args
 
@@ -34,8 +33,6 @@ class WindowServiceFactory:
         engine: str = model.engine
 
         window_service: WindowService
-        # Catch any HuggingFace models registered via the command line flags
-        huggingface_model_config = get_huggingface_model_config(model_name)
 
         # TODO: Migrate all window services to use use model deployments
         model_deployment = get_model_deployment(model_name)
@@ -71,8 +68,6 @@ class WindowServiceFactory:
             from helm.benchmark.window_services.http_model_window_service import HTTPModelWindowServce
 
             window_service = HTTPModelWindowServce(service)
-        elif huggingface_model_config:
-            window_service = HuggingFaceWindowService(service=service, tokenizer_name=huggingface_model_config.model_id)
         elif organization == "openai":
             from helm.benchmark.window_services.openai_window_service import OpenAIWindowService
             from helm.benchmark.window_services.wider_openai_window_service import (
