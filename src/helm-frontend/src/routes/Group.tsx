@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import PageTitle from "@/components/PageTitle/PageTitle";
+import PageTitle from "@/components/PageTitle";
 import Tab from "@/components/Tab";
-import Tabs from "@/components/Tabs/Tabs";
+import Tabs from "@/components/Tabs";
 //import GroupsCharts from "@/components/GroupsCharts";
 import GroupsTables from "@/components/GroupsTables";
 import type GroupsTable from "@/types/GroupsTable";

@@ -9,9 +9,9 @@ import {
 } from "@tremor/react";
 import type Model from "@/types/Model";
 import getSchema from "@/services/getSchema";
-import PageTitle from "@/components/PageTitle/PageTitle";
-import AccessBadge from "@/components/AccessBadge/AccessBadge";
-import MarkdownValue from "@/components/MarkdownValue/MarkdownValue";
+import PageTitle from "@/components/PageTitle";
+import AccessBadge from "@/components/AccessBadge";
+import MarkdownValue from "@/components/MarkdownValue";
 import Loading from "@/components/Loading";
 
 export default function Models() {

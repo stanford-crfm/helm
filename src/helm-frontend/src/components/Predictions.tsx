@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type DisplayPrediction from "@/types/DisplayPrediction";
 import type DisplayRequest from "@/types/DisplayRequest";
-import Indicator from "@/components/Indicator/Indicator";
-import Request from "@/components/Request/Request";
+import Indicator from "@/components/Indicator";
+import Request from "@/components/Request";
 import { List, ListItem } from "@tremor/react";
 import Tab from "@/components/Tab";
-import Tabs from "@/components/Tabs/Tabs";
+import Tabs from "@/components/Tabs";
 import Preview from "@/components/Preview";
 
 type Props = {

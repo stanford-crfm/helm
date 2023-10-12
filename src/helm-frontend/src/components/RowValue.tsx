@@ -1,4 +1,4 @@
-import MarkdownValue from "@/components/MarkdownValue/MarkdownValue";
+import MarkdownValue from "@/components/MarkdownValue";
 import type RowValueType from "@/types/RowValue";
 import Link from "@/components/Link";
 

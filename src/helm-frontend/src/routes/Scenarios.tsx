@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { BarList, Card, Metric, Text } from "@tremor/react";
 import type RunGroup from "@/types/RunGroup";
 import getSchema from "@/services/getSchema";
-import MarkdownValue from "@/components/MarkdownValue/MarkdownValue";
-import PageTitle from "@/components/PageTitle/PageTitle";
+import MarkdownValue from "@/components/MarkdownValue";
+import PageTitle from "@/components/PageTitle";
 import Link from "@/components/Link";
 import Loading from "@/components/Loading";
 
