@@ -129,6 +129,7 @@ class IDEFICSClient(Client):
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
         # TODO: Support multiple completions and figure out how get the log probs
+        # TODO: Does it make sense to support echo? Include these params in the cache key.
         # TODO: Together might support this model so use the TogetherClient
         tokenization_result: TokenizationRequestResult = self._tokenizer_client.tokenize(
             TokenizationRequest(result["output"], tokenizer=request.model)
