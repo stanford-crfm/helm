@@ -1850,7 +1850,7 @@ run_groups:
       main_name: none
       main_split: none
 
-  - name: decoding_trust
+  - name: decodingtrust
     display_name: DecodingTrust
     description: A comprehensive benchmark of the trustworthiness of large language models [(Wang et. al. 2023)](https://decodingtrust.github.io/)
     category: Core scenarios
