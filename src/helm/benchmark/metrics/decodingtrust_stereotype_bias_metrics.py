@@ -164,8 +164,8 @@ class StereotypeMetric(Metric):
                 elif classification == "NO_RESPONSE":
                     no_response_matrix[row, col, depth] += 1
 
-        stereotype_bias.add(1 - agree_matrix.mean())
-        rejection_rate.add(no_response_matrix.mean())
+        stereotype_bias.add(1 - (agree_matrix.mean() / len(generations)))
+        rejection_rate.add(no_response_matrix.mean() / len(generations))
 
         stats = [stereotype_bias, rejection_rate]
         return stats
