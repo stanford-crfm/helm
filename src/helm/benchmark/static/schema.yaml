@@ -3017,7 +3017,7 @@ run_groups:
 
 
 # DecodingTrust scenarios
-  - name: adv_robustness
+  - name: decodingtrust_adv_robustness
     display_name: DecodingTrust - AdvGLUE++
     short_display_name: AdvGLUE++
     description: Adversarial perturbations of the GLUE dataset generated against open-source LLMs including Alpaca, Vicuna, and Stable-Vicuna
@@ -3037,7 +3037,7 @@ run_groups:
       language: English
     todo: true
 
-  - name: adv_demonstration
+  - name: decodingtrust_adv_demonstration
     display_name: DecodingTrust - Adversarial Demonstrations
     short_display_name: AdvDemo
     description: Robustness analysis of LM generations when facing adversarial demonstrations
@@ -3056,7 +3056,7 @@ run_groups:
       when: "?"
       language: English
 
-  - name: ood_robustness
+  - name: decodingtrust_ood_robustness
     display_name: DecodingTrust - OoD Robustness
     short_display_name: OoD
     description: Style perturbations of GLUE datasets (OoD styles) and out-of-scope OoD knowledge evaluations
@@ -3076,7 +3076,7 @@ run_groups:
       when: "?"
       language: English
 
-  - name: fairness
+  - name: decodingtrust_fairness
     display_name: DecodingTrust - Fairness
     short_display_name: Fairness
     description: Fairness analysis of LLMs
@@ -3096,7 +3096,7 @@ run_groups:
       when: "?"
       language: English
 
-  - name: privacy
+  - name: decodingtrust_privacy
     display_name: DecodingTrust - Privacy
     short_display_name: Privacy
     description: Evaluation of the privacy understanding and privacy preserving properties of LLMs
@@ -3115,7 +3115,7 @@ run_groups:
       when: "?"
       language: English
 
-  - name: machine_ethics
+  - name: decodingtrust_machine_ethics
     display_name: DecodingTrust - Ethics
     short_display_name: Ethics
     description: Evaluation of the understanding of ethical behaviors of LLMs
@@ -3152,7 +3152,7 @@ run_groups:
       when: n/a
       language: synthetic
 
-  - name: stereotype_bias
+  - name: decodingtrust_stereotype_bias
     display_name: DecodingTrust - Stereotype Bias
     short_display_name: Stereotype
     description: Manually crafted stereotype user prompts from DecodingTrust
