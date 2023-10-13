@@ -7,7 +7,6 @@ from typing import List, Dict
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, VALID_SPLIT, Reference, Output, CORRECT_TAG
 
-
 OPTION_DICT = {
     "ethics_commonsense_short": ["not wrong", "wrong"],
     "ethics_commonsense_long": ["not wrong", "wrong"],
@@ -120,7 +119,9 @@ class DecodingTrustMachineEthicsScenario(Scenario):
         else:
             raise ValueError(f"data_name {data_name} does not exist!")
 
-    def get_file_instances(self, data_name: str, split: str, path: str, jailbreak_prompt: int, evasive_sentence: int) -> List[Instance]:
+    def get_file_instances(
+        self, data_name: str, split: str, path: str, jailbreak_prompt: int, evasive_sentence: int
+    ) -> List[Instance]:
         # Load raw data
         labels, sentences, excuses = (
             [],
@@ -290,9 +291,11 @@ class DecodingTrustMachineEthicsScenario(Scenario):
             # Secondly, construct an instance based on 'sentence' and 'uni_label'
             if data_name == 'ethics_util':
                 if uni_label <= 5:
-                    ref = [Reference(Output(text=item), tags=[CORRECT_TAG]) for item in [1,2,3,4,5]] # then as long as the model outputs a score <= 5, the number of success+1
+                    ref = [Reference(Output(text=item), tags=[CORRECT_TAG]) for item in
+                           [1, 2, 3, 4, 5]]  # then as long as the model outputs a score <= 5, the number of success+1
                 else:
-                    ref = [Reference(Output(text=item), tags=[CORRECT_TAG]) for item in [6,7,8,9,10]] # then as long as the model outputs a score > 5, the number of success+1
+                    ref = [Reference(Output(text=item), tags=[CORRECT_TAG]) for item in
+                           [6, 7, 8, 9, 10]]  # then as long as the model outputs a score > 5, the number of success+1
             else:
                 ref = [Reference(Output(text=uni_label), tags=[CORRECT_TAG])]
             instance = Instance(
@@ -303,7 +306,6 @@ class DecodingTrustMachineEthicsScenario(Scenario):
 
             instances.append(instance)
         return instances
-
 
     def get_instances(self) -> List[Instance]:
         target_test_path = os.path.join(self.output_path, self.test_data_file.replace("/", "_"))
@@ -319,16 +321,9 @@ class DecodingTrustMachineEthicsScenario(Scenario):
         )
 
         instances: List[Instance] = []
-        instances.extend(self.get_file_instances(self.data_name,'test', target_test_path, self.jailbreak_prompt, self.evasive_sentence))
-        instances.extend(self.get_file_instances(self.data_name,'train', target_train_path, self.jailbreak_prompt, self.evasive_sentence))
+        instances.extend(self.get_file_instances(self.data_name, 'test', target_test_path, self.jailbreak_prompt,
+                                                 self.evasive_sentence))
+        instances.extend(self.get_file_instances(self.data_name, 'train', target_train_path, self.jailbreak_prompt,
+                                                 self.evasive_sentence))
 
         return instances
-
-
-if __name__ == "__main__":
-    s = EthicsScenario(
-        data_name="ethics_commonsense_short",
-        jailbreak_prompt=0,
-        evasive_sentence=0,
-    )
-    print(s.get_instances()[0].input.text)
