@@ -58,7 +58,7 @@ jobs:
       # Installs dependencies and performs static code checks
       - run: python3 -m pip install virtualenv && python3 -m virtualenv -p python3 venv
       - run: source venv/bin/activate && ./install-dev.sh
-      - run: source venv/bin/activate && pre-commit
+      - run: source venv/bin/activate && ./pre-commit.sh
       - name: Run tests
         run: source venv/bin/activate && pytest
         env:
