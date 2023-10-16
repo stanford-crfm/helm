@@ -44,7 +44,6 @@ class StopAtSpecificTokenCriteria(StoppingCriteria):
         super().__init__()
         self.stop_sequence = stop_sequence
 
-    # @add_start_docstrings(STOPPING_CRITERIA_INPUTS_DOCSTRING)
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
         # Create a tensor from the stop_sequence
         stop_sequence_tensor = torch.tensor(self.stop_sequence, device=input_ids.device, dtype=input_ids.dtype)
@@ -86,14 +85,17 @@ class HuggingFaceServer:
         raw_request["output_scores"] = True
         top_k_per_token: int = raw_request["top_k_per_token"]
         del raw_request["top_k_per_token"]
+        stopping_criteria: Optional[StoppingCriteriaList] = None
         if len(raw_request["stop_sequences"]) > 0:
             stop_sequence_ids = self.tokenizer(
                 raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
             )
-            assert len(stop_sequence_ids.input_ids) == 1, "Total number of stop words should be 1."
-            # assert len(stop_sequence_ids.input_ids[0]) == 1, "Total number of tokens in each stop word should be 1."
+            assert len(stop_sequence_ids.input_ids) == 1, "Total number of stop sequences should be 1."
             if len(stop_sequence_ids.input_ids[0]) == 1:
                 raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
+            else:
+                stopping_criteria = StoppingCriteriaList()
+                stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_ids.input_ids[0]))
             del raw_request["stop_sequences"]
 
         # Strip out irrelevant parameters
@@ -103,15 +105,11 @@ class HuggingFaceServer:
             if key not in ["engine", "prompt", "echo_prompt", "stop_sequences"]
         }
 
-        stopping_criteria = StoppingCriteriaList()
-        if stop_sequence_ids is not None:
-            stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_ids.input_ids[0]))
-
         # Use HuggingFace's `generate` method.
         output = self.model.generate(
             **encoded_input,
             **relevant_raw_request,
-            stopping_criteria=stopping_criteria if len(stop_sequence_ids.input_ids[0]) > 1 else None,
+            stopping_criteria=stopping_criteria,
         )
         sequences = output.sequences
         scores = output.scores
