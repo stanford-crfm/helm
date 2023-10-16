@@ -95,6 +95,12 @@ models:
     access: closed
     num_parameters: 52000000000
     release_date: 2021-12-01
+  - name: anthropic/claude-2.0
+    display_name: Anthropic Claude 2.0
+    description: Claude 2.0 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-07-11
   - name: anthropic/claude-v1.3
     display_name: Anthropic Claude v1.3
     description: A model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
