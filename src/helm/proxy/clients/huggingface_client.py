@@ -5,8 +5,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation.stopping_criteria import (
     StoppingCriteria,
     StoppingCriteriaList,
-    STOPPING_CRITERIA_INPUTS_DOCSTRING,
-    add_start_docstrings,
 )
 from typing import Any, Dict, List, Optional
 
@@ -42,7 +40,7 @@ def resolve_alias(model_name: str) -> str:
 
 
 class StopAtSpecificTokenCriteria(StoppingCriteria):
-    def __init__(self, stop_sequence: List[int] = None):
+    def __init__(self, stop_sequence: List[int]):
         super().__init__()
         self.stop_sequence = stop_sequence
 
@@ -53,7 +51,7 @@ class StopAtSpecificTokenCriteria(StoppingCriteria):
 
         # Check if the current sequence ends with the stop_sequence
         current_sequence = input_ids[:, -len(self.stop_sequence) :]
-        return torch.all(current_sequence == stop_sequence_tensor).item()
+        return bool(torch.all(current_sequence == stop_sequence_tensor).item())
 
 
 class HuggingFaceServer:
@@ -106,7 +104,7 @@ class HuggingFaceServer:
         }
 
         stopping_criteria = StoppingCriteriaList()
-        if stop_sequence_ids != None:
+        if stop_sequence_ids is not None:
             stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_ids.input_ids[0]))
 
         # Use HuggingFace's `generate` method.
