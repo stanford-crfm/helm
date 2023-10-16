@@ -291,6 +291,13 @@ class WindowServiceFactory:
             from helm.benchmark.window_services.lit_gpt_window_service import LitGPTWindowServce
 
             window_service = LitGPTWindowServce(service)
+        elif model_name in [
+            "HuggingFaceM4/idefics-9b",
+            "HuggingFaceM4/idefics-9b-instruct",
+            "HuggingFaceM4/idefics-80b",
+            "HuggingFaceM4/idefics-80b-instruct",
+        ]:
+            window_service = HuggingFaceWindowService(service, model_name)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 
