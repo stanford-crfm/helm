@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, List, Optional, Dict
 
-from helm.proxy.models import Model, get_model
+from helm.benchmark.model_deployment_registry import get_model_deployment, ModelDeployment
 from .general import indent_lines, format_text
 
 
@@ -15,7 +15,8 @@ class Request:
     """
 
     model: str = "openai/text-davinci-002"
-    """Which model to query"""
+    """Which model to query.
+    Refers to a deployment in the model deployment registry."""
 
     embedding: bool = False
     """Whether to query embedding instead of text response"""
@@ -61,16 +62,16 @@ class Request:
     Otherwise, the client should convert the prompt into a message."""
 
     @property
-    def model_organization(self) -> str:
+    def model_host(self) -> str:
         """Example: 'openai/davinci' => 'openai'"""
-        model: Model = get_model(self.model)
-        return model.organization
+        deployment: ModelDeployment = get_model_deployment(self.model)
+        return deployment.host_group
 
     @property
     def model_engine(self) -> str:
         """Example: 'openai/davinci' => 'davinci'"""
-        model: Model = get_model(self.model)
-        return model.engine
+        deployment: ModelDeployment = get_model_deployment(self.model)
+        return deployment.engine
 
 
 @dataclass(frozen=True)

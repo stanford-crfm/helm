@@ -11,7 +11,7 @@ from helm.common.request import (
     Sequence,
     Token,
 )
-from helm.proxy.models import get_models_by_organization
+from helm.benchmark.model_deployment_registry import get_model_deployments_by_host_group
 from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence
 from .cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
@@ -45,7 +45,8 @@ class CohereClient(CachingClient):
             assert request.max_tokens > 0, "max_tokens can only be 0 if echo_prompt=True"
 
         # model: "Currently available models are small, medium, large, xlarge"
-        assert request.model in get_models_by_organization("cohere")
+        # TODO(PR): Check if we want deployments or metadata here
+        assert request.model in get_model_deployments_by_host_group("cohere")
         # temperature: "min value of 0.0, max value of 5.0"
         assert 0.0 <= request.temperature <= 5.0, f"Invalid temperature: {request.temperature}. Valid range: [0,5]"
         # num_generations: "min value of 1, max value of 5"

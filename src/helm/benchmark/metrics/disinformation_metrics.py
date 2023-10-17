@@ -87,7 +87,7 @@ def _compute_wedging_human_eval(
     results: List[Stat] = []
     instance_first_line = request_state.instance.input.text.splitlines()[0]
     human_evaluations = _fetch_human_evaluation_results(eval_cache_path, WEDGING_HUMAN_EVAL_FILE)
-    model_results = human_evaluations.get(adapter_spec.model)
+    model_results = human_evaluations.get(adapter_spec.model_deployment)
 
     if not model_results:
         # Trying to evaluate a model we don't have annotations for
@@ -126,7 +126,7 @@ def _compute_reiteration_human_eval(
     """
     results: List[Stat] = []
     human_evaluations = _fetch_human_evaluation_results(eval_cache_path, REITERATION_HUMAN_EVAL_FILE)
-    model_results = human_evaluations.get(adapter_spec.model)
+    model_results = human_evaluations.get(adapter_spec.model_deployment)
     if not model_results:
         # Trying to evaluate a model we don't have annotations for
         return results

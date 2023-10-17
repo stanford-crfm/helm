@@ -58,6 +58,8 @@ from helm.benchmark.presentation.contamination import (
     CONTAMINATION_LEVEL_STRONG,
 )
 from helm.benchmark.presentation.run_display import write_run_display_json
+from helm.benchmark.model_deployment_registry import get_metadata_for_deployment
+from helm.benchmark.model_metadata_registry import ModelMetadata
 
 
 OVERLAP_N_COUNT = 13
@@ -564,12 +566,12 @@ class Summarizer:
         # TODO: move to write_executive_summary()
         models_to_costs: Dict[str, Dict[str]] = defaultdict(lambda: defaultdict(int))
         for run in self.runs:
-            model: str = run.run_spec.adapter_spec.model
+            deployment: str = run.run_spec.adapter_spec.model_deployment
 
             for stat in run.stats:
                 stat_name = stat.name.name
                 if stat_name in Summarizer.COST_REPORT_FIELDS and not stat.name.split:
-                    models_to_costs[model][stat_name] += stat.sum
+                    models_to_costs[deployment][stat_name] += stat.sum
 
         # Do a second pass to add up the total number of tokens
         for costs in models_to_costs.values():
@@ -660,7 +662,7 @@ class Summarizer:
                 for subgroup in self.expand_subgroups(group):
                     for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
                         filtered_runs = self.filter_runs_by_visibility(runs, subgroup)
-                        models.add(adapter_spec.model)
+                        models.add(adapter_spec.model_deployment)
                         methods.add(adapter_spec.method)
                         for run in filtered_runs:
                             num_instances.extend(get_all_stats_by_name(run.stats, "num_instances"))
@@ -883,19 +885,12 @@ class Summarizer:
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            model_name: str = adapter_spec.model
-
-            # Get the model display name from the schema.
-            # Fall back to using the model name as the model display name if the model is not
-            # defined in the schema.
-            model_display_name = (
-                self.schema.name_to_model[model_name].display_name
-                if model_name in self.schema.name_to_model
-                else model_name
-            )
+            deployment: str = adapter_spec.model_deployment
+            metadata: ModelMetadata = get_metadata_for_deployment(deployment)
+            model_name: str = metadata.name
 
             runs = adapter_to_runs[adapter_spec]
-            display_name = get_method_display_name(model_display_name, info)
+            display_name = get_method_display_name(metadata.display_name, info)
 
             # Link to all the runs under this model
             if link_to_runs:

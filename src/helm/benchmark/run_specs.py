@@ -46,8 +46,10 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
-from helm.proxy.models import (
-    get_model,
+from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
+from helm.benchmark.model_metadata_registry import (
+    ModelMetadata,
+    get_model_metadata,
     NO_NEWLINES_TAG,
     NLG_PREFIX_TAG,
     CHATML_MODEL_TAG,
@@ -429,7 +431,7 @@ def get_adapter_spec1() -> AdapterSpec:
         max_eval_instances=10,
         num_outputs=3,
         num_train_trials=3,
-        model="simple/model1",
+        model_deployment="simple/model1",
         temperature=1,
         stop_sequences=["."],
     )
@@ -1847,7 +1849,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     # "metrics" is a required field. The default values were populated using the link above.
     adapter_spec = AdapterSpec(
         method=get_adaptation_method(big_bench_task["metrics"]),
-        model="openai/text-curie-001",  # Can override with the `ModelRunExpander`.
+        model_deployment="openai/text-curie-001",  # Can override with the `ModelRunExpander`.
         max_train_instances=5,  # Can override with the `MaxTrainInstancesRunExpander`.
         num_outputs=1,  # Can override with the `NumOutputsRunExpander`.
         # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",
@@ -2507,7 +2509,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs
+    print("EXPANDERS", expanders)
+    print("ARGS", args)
     run_specs = [CANONICAL_RUN_SPEC_FUNCS[name](**args)]
+    print("RUN SPECS", run_specs)
 
     # Apply expanders
     for expander in expanders:
@@ -2516,9 +2521,18 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
+        from toolbox.printing import print_visible, debug
+
+        print_visible("ALTER RUN SPEC")  # TODO(PR): Remove
         try:
-            model = get_model(run_spec.adapter_spec.model)
-        except ValueError:
+            deployment: ModelDeployment = get_model_deployment(run_spec.adapter_spec.model_deployment)
+            debug(deployment, visible=True)
+            model_name: str = deployment.model_name or deployment.name
+            model: ModelMetadata = get_model_metadata(model_name)
+            debug(model, visible=True)
+        except ValueError as e:
+            print_visible("EXCEPTION")  # TODO(PR): Remove
+            print_visible("Error: " + str(e))  # TODO(PR): Remove
             # Models registered from configs cannot have expanders applied to them,
             # because the models will not have been registered yet at this point.
             # TODO: Figure out a cleaner way to deal with this.
@@ -2547,6 +2561,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             run_spec = singleton(chatml_expander.expand(run_spec))
 
         if ANTHROPIC_MODEL_TAG in model.tags:
+            print_visible("ANTHROPIC MODEL TAG")  # TODO(PR): Remove
             try:
                 import anthropic
                 from helm.proxy.clients.anthropic_client import AnthropicClient

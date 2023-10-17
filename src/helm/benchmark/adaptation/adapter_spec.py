@@ -73,8 +73,8 @@ class AdapterSpec:
 
     # Decoding parameters (inherited by `Request`)
 
-    # Model to make the request to (need to fill in)
-    model: str = ""
+    # Model deployment to make the request to (need to fill in)
+    model_deployment: str = ""
 
     # Temperature to use
     temperature: float = 1

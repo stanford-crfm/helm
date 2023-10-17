@@ -67,15 +67,20 @@ class AutoClient(Client):
         client: Optional[Client] = self.clients.get(model)
 
         if client is None:
-            organization: str = model.split("/")[0]
-            cache_config: CacheConfig = self._build_cache_config(organization)
-            tokenizer: Tokenizer = self._get_tokenizer(organization)
+            host_group: str = model.split("/")[0]
+            cache_config: CacheConfig = self._build_cache_config(host_group)
+            tokenizer: Tokenizer = self._get_tokenizer(host_group)
 
             # TODO: Migrate all clients to use model deployments
+            # TODO(PR): Remove the TODO above.
             model_deployment = get_model_deployment(model)
             if model_deployment:
 
                 def provide_api_key():
+                    api_key_name = host_group + "ApiKey"
+                    if api_key_name in self.credentials:
+                        hlog(f"Using host_group api key defined in credentials.conf: {api_key_name}")
+                        return self.credentials[api_key_name]
                     if "deployments" not in self.credentials:
                         raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
                     deployment_api_keys = self.credentials["deployments"]
@@ -84,6 +89,16 @@ class AutoClient(Client):
                             f"Could not find key '{model}' under key 'deployments' in credentials.conf"
                         )
                     return deployment_api_keys[model]
+
+                # Get tokenizer from model deployment
+                tokenizer_name = model_deployment.tokenizer_name or model_deployment.name
+                tokenizer: Tokenizer = self._get_tokenizer(tokenizer_name)
+
+                # TODO(PR): Support the following arguments:
+                # - org_id (OpenAI, GooseAI, Microsoft)
+                # - lock_file_path (Microsoft)
+                # - checkpoint_dir (LitGPT)
+                # - precision (LitGPT)
 
                 # Perform dependency injection to fill in remaining arguments.
                 # Dependency injection is needed here for these reasons:
@@ -99,132 +114,134 @@ class AutoClient(Client):
                 #    will not have configured an API key.
                 client_spec = inject_object_spec_args(
                     model_deployment.client_spec,
-                    constant_bindings={"cache_config": cache_config},
+                    constant_bindings={"cache_config": cache_config, "tokenizer": tokenizer},
                     provider_bindings={"api_key": provide_api_key},
                 )
                 client = create_object(client_spec)
-            elif organization == "neurips":
-                client = HTTPModelClient(tokenizer=tokenizer, cache_config=cache_config)
-            elif organization == "openai":
-                from helm.proxy.clients.openai_client import OpenAIClient
 
-                org_id = self.credentials.get("openaiOrgId", None)
-                api_key = self.credentials.get("openaiApiKey", None)
-                client = OpenAIClient(
-                    tokenizer=tokenizer,
-                    cache_config=cache_config,
-                    api_key=api_key,
-                    org_id=org_id,
-                )
-            elif organization == "AlephAlpha":
-                from helm.proxy.clients.aleph_alpha_client import AlephAlphaClient
+            # TODO(PR): Remove all of this and set it up in the model deployment registry.
+            # elif host_group == "neurips":
+            #     client = HTTPModelClient(tokenizer=tokenizer, cache_config=cache_config)
+            # elif host_group == "openai":
+            #     from helm.proxy.clients.openai_client import OpenAIClient
 
-                client = AlephAlphaClient(
-                    tokenizer=tokenizer,
-                    api_key=self.credentials["alephAlphaKey"],
-                    cache_config=cache_config,
-                )
-            elif organization == "ai21":
-                from helm.proxy.clients.ai21_client import AI21Client
+            #     org_id = self.credentials.get("openaiOrgId", None)
+            #     api_key = self.credentials.get("openaiApiKey", None)
+            #     client = OpenAIClient(
+            #         tokenizer=tokenizer,
+            #         cache_config=cache_config,
+            #         api_key=api_key,
+            #         org_id=org_id,
+            #     )
+            # elif host_group == "AlephAlpha":
+            #     from helm.proxy.clients.aleph_alpha_client import AlephAlphaClient
 
-                client = AI21Client(
-                    tokenizer=tokenizer,
-                    api_key=self.credentials["ai21ApiKey"],
-                    cache_config=cache_config,
-                )
-            elif organization == "cohere":
-                from helm.proxy.clients.cohere_client import CohereClient
+            #     client = AlephAlphaClient(
+            #         tokenizer=tokenizer,
+            #         api_key=self.credentials["alephAlphaKey"],
+            #         cache_config=cache_config,
+            #     )
+            # elif host_group == "ai21":
+            #     from helm.proxy.clients.ai21_client import AI21Client
 
-                client = CohereClient(
-                    tokenizer=tokenizer,
-                    api_key=self.credentials["cohereApiKey"],
-                    cache_config=cache_config,
-                )
-            elif organization == "gooseai":
-                from helm.proxy.clients.goose_ai_client import GooseAIClient
+            #     client = AI21Client(
+            #         tokenizer=tokenizer,
+            #         api_key=self.credentials["ai21ApiKey"],
+            #         cache_config=cache_config,
+            #     )
+            # elif host_group == "cohere":
+            #     from helm.proxy.clients.cohere_client import CohereClient
 
-                org_id = self.credentials.get("gooseaiOrgId", None)
-                client = GooseAIClient(
-                    tokenizer=tokenizer,
-                    api_key=self.credentials["gooseaiApiKey"],
-                    cache_config=cache_config,
-                    org_id=org_id,
-                )
-            elif organization == "huggingface":
-                from helm.proxy.clients.huggingface_client import HuggingFaceClient
+            #     client = CohereClient(
+            #         tokenizer=tokenizer,
+            #         api_key=self.credentials["cohereApiKey"],
+            #         cache_config=cache_config,
+            #     )
+            # elif host_group == "gooseai":
+            #     from helm.proxy.clients.goose_ai_client import GooseAIClient
 
-                client = HuggingFaceClient(tokenizer=tokenizer, cache_config=cache_config)
-            elif organization == "anthropic":
-                from helm.proxy.clients.anthropic_client import AnthropicClient
+            #     org_id = self.credentials.get("gooseaiOrgId", None)
+            #     client = GooseAIClient(
+            #         tokenizer=tokenizer,
+            #         api_key=self.credentials["gooseaiApiKey"],
+            #         cache_config=cache_config,
+            #         org_id=org_id,
+            #     )
+            # elif host_group == "huggingface":
+            #     from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
-                client = AnthropicClient(
-                    api_key=self.credentials.get("anthropicApiKey", None),
-                    tokenizer=tokenizer,
-                    cache_config=cache_config,
-                )
-            elif organization == "microsoft":
-                from helm.proxy.clients.microsoft_client import MicrosoftClient
+            #     client = HuggingFaceClient(tokenizer=tokenizer, cache_config=cache_config)
+            # elif host_group == "anthropic":
+            #     from helm.proxy.clients.anthropic_client import AnthropicClient
 
-                org_id = self.credentials.get("microsoftOrgId", None)
-                lock_file_path: str = os.path.join(self.cache_path, f"{organization}.lock")
-                client = MicrosoftClient(
-                    api_key=self.credentials.get("microsoftApiKey", None),
-                    tokenizer=tokenizer,
-                    lock_file_path=lock_file_path,
-                    cache_config=cache_config,
-                    org_id=org_id,
-                )
-            elif organization == "google":
-                from helm.proxy.clients.google_client import GoogleClient
+            #     client = AnthropicClient(
+            #         api_key=self.credentials.get("anthropicApiKey", None),
+            #         tokenizer=tokenizer,
+            #         cache_config=cache_config,
+            #     )
+            # elif host_group == "microsoft":
+            #     from helm.proxy.clients.microsoft_client import MicrosoftClient
 
-                client = GoogleClient(
-                    tokenizer=tokenizer,
-                    cache_config=cache_config,
-                )
-            elif organization in [
-                "together",
-                "databricks",
-                "eleutherai",
-                "lmsys",
-                "meta",
-                "mosaicml",
-                "stabilityai",
-                "stanford",
-                "tiiuae",
-            ]:
-                from helm.proxy.clients.together_client import TogetherClient
+            #     org_id = self.credentials.get("microsoftOrgId", None)
+            #     lock_file_path: str = os.path.join(self.cache_path, f"{host_group}.lock")
+            #     client = MicrosoftClient(
+            #         api_key=self.credentials.get("microsoftApiKey", None),
+            #         tokenizer=tokenizer,
+            #         lock_file_path=lock_file_path,
+            #         cache_config=cache_config,
+            #         org_id=org_id,
+            #     )
+            # elif host_group == "google":
+            #     from helm.proxy.clients.google_client import GoogleClient
 
-                client = TogetherClient(
-                    api_key=self.credentials.get("togetherApiKey", None),
-                    tokenizer=tokenizer,
-                    cache_config=cache_config,
-                )
-            elif organization == "simple":
-                from helm.proxy.clients.simple_client import SimpleClient
+            #     client = GoogleClient(
+            #         tokenizer=tokenizer,
+            #         cache_config=cache_config,
+            #     )
+            # elif host_group in [
+            #     "together",
+            #     "databricks",
+            #     "eleutherai",
+            #     "lmsys",
+            #     "meta",
+            #     "mosaicml",
+            #     "stabilityai",
+            #     "stanford",
+            #     "tiiuae",
+            # ]:
+            #     from helm.proxy.clients.together_client import TogetherClient
 
-                client = SimpleClient(tokenizer=tokenizer, cache_config=cache_config)
-            elif organization == "writer":
-                from helm.proxy.clients.palmyra_client import PalmyraClient
+            #     client = TogetherClient(
+            #         api_key=self.credentials.get("togetherApiKey", None),
+            #         tokenizer=tokenizer,
+            #         cache_config=cache_config,
+            #     )
+            # elif host_group == "simple":
+            #     from helm.proxy.clients.simple_client import SimpleClient
 
-                client = PalmyraClient(
-                    api_key=self.credentials["writerApiKey"],
-                    tokenizer=tokenizer,
-                    cache_config=cache_config,
-                )
-            elif organization == "nvidia":
-                from helm.proxy.clients.megatron_client import MegatronClient
+            #     client = SimpleClient(tokenizer=tokenizer, cache_config=cache_config)
+            # elif host_group == "writer":
+            #     from helm.proxy.clients.palmyra_client import PalmyraClient
 
-                client = MegatronClient(tokenizer=tokenizer, cache_config=cache_config)
+            #     client = PalmyraClient(
+            #         api_key=self.credentials["writerApiKey"],
+            #         tokenizer=tokenizer,
+            #         cache_config=cache_config,
+            #     )
+            # elif host_group == "nvidia":
+            #     from helm.proxy.clients.megatron_client import MegatronClient
 
-            elif organization == "lightningai":
-                from helm.proxy.clients.lit_gpt_client import LitGPTClient
+            #     client = MegatronClient(tokenizer=tokenizer, cache_config=cache_config)
 
-                client = LitGPTClient(
-                    tokenizer=tokenizer,
-                    cache_config=cache_config,
-                    checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
-                    precision=os.environ.get("LIT_GPT_PRECISION", "bf16-true"),
-                )
+            # elif host_group == "lightningai":
+            #     from helm.proxy.clients.lit_gpt_client import LitGPTClient
+
+            #     client = LitGPTClient(
+            #         tokenizer=tokenizer,
+            #         cache_config=cache_config,
+            #         checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
+            #         precision=os.environ.get("LIT_GPT_PRECISION", "bf16-true"),
+            #     )
 
             else:
                 raise ValueError(f"Could not find client for model: {model}")
@@ -261,6 +278,8 @@ class AutoClient(Client):
         cache_config: CacheConfig = self._build_cache_config(organization)
 
         # TODO: Migrate all clients to use tokenizer configs
+        # TODO(PR): Do the migration in the tokenizer registry.
+        # And remove all of this.
         tokenizer_config = get_tokenizer_config(tokenizer)
         if tokenizer_config:
             tokenizer_spec = inject_object_spec_args(

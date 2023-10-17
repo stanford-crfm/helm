@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import Any, List, Dict, Optional, Tuple, Type
 
-from helm.proxy.models import (
+from helm.benchmark.model_metadata_registry import (
     get_all_instruction_following_models,
     get_all_code_models,
     get_all_models,
@@ -331,7 +331,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
     Note: we're assuming we don't have to change the decoding parameters for different models.
     """
 
-    name = "model"
+    name = "model_deployment"
 
     def __init__(self, value):
         """
@@ -905,10 +905,10 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
             self.all_values = [value]
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        # Find right tokenizer given model.
+        # Find right tokenizer given model deployment name.
         if isinstance(self.all_values, dict):
-            model: str = run_spec.adapter_spec.model
-            self.values = self.all_values[model] if model in self.all_values else []
+            deployment: str = run_spec.adapter_spec.model_deployment
+            self.values = self.all_values[deployment] if deployment in self.all_values else []
         else:
             self.values = self.all_values
         return super().expand(run_spec)
