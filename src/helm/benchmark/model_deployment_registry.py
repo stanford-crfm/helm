@@ -7,7 +7,14 @@ import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
-from helm.proxy.models import ALL_MODELS, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, MODEL_NAME_TO_MODEL, TEXT_MODEL_TAG, Model
+from helm.benchmark.model_metadata_registry import (
+    ModelMetadata,
+    ALL_MODELS_METADATA,
+    MODEL_NAME_TO_MODEL_METADATA,
+    get_model_metadata,
+    TEXT_MODEL_TAG,
+    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+)
 
 
 MODEL_DEPLOYMENTS_FILE = "model_deployments.yaml"
@@ -27,32 +34,49 @@ class ModelDeployment:
 
     A model can have multiple model deployments."""
 
+    # Name of the model deployment.
+    # Usually formatted as "<hosting_group>/<engine_name>"
+    # Example: "huggingface/t5-11b"
     name: str
-    """Name of the model deployment."""
 
+    # Specification for instantiating the client for this model deployment.
     client_spec: ClientSpec
-    """Specification for instantiating the client for this model deployment."""
 
+    # Name of the model that this model deployment is for.
+    # Refers to the field "name" in the Model class.
+    # If unset, defaults to the same value as `name`.
     model_name: Optional[str] = None
-    """Name of the model that this model deployment is for.
 
-    If unset, defaults to the the same value as `name`."""
-
+    # Tokenizer for this model deployment.
+    # If unset, auto-inferred by the WindowService.
     tokenizer_name: Optional[str] = None
-    """Tokenizer for this model deployment.
 
-    If unset, auto-inferred by the WindowService."""
-
+    # Specification for instantiating the window service for this model deployment.
     window_service_spec: Optional[WindowServiceSpec] = None
-    """Specification for instantiating the window service for this model deployment"""
 
+    # Maximum sequence length for this model deployment.
     max_sequence_length: Optional[int] = None
-    """Maximum sequence length for this model deployment."""
 
+    # Maximum request length for this model deployment.
+    # If unset, defaults to the same value as max_sequence_length.
     max_request_length: Optional[int] = None
-    """Maximum request length for this model deployment.
 
-    If unset, defaults to the same value as max_sequence_length."""
+    @property
+    def host_group(self) -> str:
+        """
+        Extracts the host group from the model deployment name.
+        Example: "huggingface" from "huggingface/t5-11b"
+        This can be different from the creator organization (for example "together")
+        """
+        return self.name.split("/")[0]
+
+    @property
+    def engine(self) -> str:
+        """
+        Extracts the model engine from the model deployment name.
+        Example: 'ai21/j1-jumbo' => 'j1-jumbo'
+        """
+        return self.name.split("/")[1]
 
 
 @dataclass(frozen=True)
@@ -60,28 +84,57 @@ class ModelDeployments:
     model_deployments: List[ModelDeployment]
 
 
-_name_to_model_deployment: Dict[str, ModelDeployment] = {}
+ALL_MODEL_DEPLOYMENTS: List[ModelDeployment] = [
+    ModelDeployment(
+        name="anthropic/claude-v1.3",
+        tokenizer_name="anthropic/claude",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.anthropic_client.AnthropicClient",
+            args={},  # api_key should be auto-filled
+        ),
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService",
+            args={},  # No args
+        ),
+    ),
+]
+
+DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT: Dict[str, ModelDeployment] = {
+    deployment.name: deployment for deployment in ALL_MODEL_DEPLOYMENTS
+}
 
 
+# ===================== REGISTRATION FUNCTIONS ==================== #
 def register_model_deployment(model_deployment: ModelDeployment) -> None:
     hlog(f"Registered model deployment {model_deployment.name}")
-    _name_to_model_deployment[model_deployment.name] = model_deployment
+    DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_deployment.name] = model_deployment
 
-    # Auto-register a model with this name if none exists
-    model_name = model_deployment.model_name or model_deployment.name
-    if model_name not in MODEL_NAME_TO_MODEL:
-        model = Model(
-            group="unknown",
+    model_name: str = model_deployment.model_name or model_deployment.name
+
+    try:
+        model_metadata: ModelMetadata = get_model_metadata(model_name)
+        if model_deployment.name not in model_metadata.deployment_names:
+            model_metadata.deployment_names.append(model_deployment.name)
+    except ValueError:
+        # No model metadata exists for this model name.
+        # Register a default model metadata.
+        model_metadata = ModelMetadata(
             name=model_name,
+            display_name=model_name,
+            description="",
+            access="limited",
+            todo=True,
+            num_parameters=-1,
+            release_date="unknown",
             tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+            deployment_names=[model_deployment.name],
         )
-        MODEL_NAME_TO_MODEL[model_name] = model
-        ALL_MODELS.append(model)
+        ALL_MODELS_METADATA.append(model_metadata)
+        MODEL_NAME_TO_MODEL_METADATA[model_name] = model_metadata
         hlog(f"Registered default metadata for model {model_name}")
 
 
 def register_model_deployments_from_path(path: str) -> None:
-    global _name_to_model_deployment
     hlog(f"Reading model deployments from {path}...")
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
@@ -97,5 +150,55 @@ def maybe_register_model_deployments_from_base_path(base_path: str) -> None:
         register_model_deployments_from_path(path)
 
 
+# ===================== UTIL FUNCTIONS ==================== #
 def get_model_deployment(name: str) -> Optional[ModelDeployment]:
-    return _name_to_model_deployment.get(name)
+    if name not in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
+        raise ValueError(f"Model deployment {name} not found")
+    return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT.get(name)
+
+
+def get_model_deployments_by_host_group(host_group: str) -> List[str]:
+    """
+    Gets models by host group.
+    Example:   together   =>   TODO
+    """
+    return [
+        deployment.name for deployment in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT if deployment.host_group == host_group
+    ]
+
+
+def get_model_deployment_host_group(name: str) -> str:
+    """
+    Extracts the host group from the model deployment name.
+    Example: "huggingface/t5-11b" => "huggingface"
+    """
+    deployment: ModelDeployment = get_model_deployment(name)
+    return deployment.host_group
+
+
+def get_default_deployment_for_model(model_metadata: ModelMetadata) -> ModelDeployment:
+    """
+    Given a model_metadata, returns the default model deployment.
+    The default model deployment for a model is either the deployment
+    with the same name as the model, or the first deployment for that model.
+
+    TODO: Make this logic more complex.
+    For example if several deplyments are available but only some can be used
+    given the API keys present, then we should choose the one that can be used.
+    """
+    if model_metadata.name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
+        return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_metadata.name]
+    elif len(model_metadata.deployment_names) > 0:
+        deployment_name: str = model_metadata.deployment_names[0]
+        if deployment_name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
+            return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[deployment_name]
+        raise ValueError(f"Model deployment {deployment_name} not found")
+    raise ValueError(f"No default model deployment for model {model_metadata.name}")
+
+
+def get_metadata_for_deployment(deployment_name: str) -> ModelMetadata:
+    """
+    Given a deployment name, returns the corresponding model metadata.
+    """
+    deployment: ModelDeployment = get_model_deployment(deployment_name)
+    return get_model_metadata(deployment.model_name or deployment.name)

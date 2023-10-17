@@ -237,7 +237,7 @@ $(function () {
     //
     // get_num_bytes() and convert_tokens_to_text() in src/helm/benchmark/basic_metrics.py are adapted from this function.
     const groups = [];
-    for (let i = 0; i < tokens.length; ) {
+    for (let i = 0; i < tokens.length;) {
       // Aggregate consecutive tokens while they're "bytes:..."
       const group = { tokens: [] };
       if (tokens[i].text.startsWith("bytes:")) {

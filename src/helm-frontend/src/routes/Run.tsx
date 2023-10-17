@@ -117,7 +117,7 @@ export default function Run() {
         schema.models.find(
           (m) =>
             m.name ===
-            runSpecs.find((rs) => rs.name === runName)?.adapter_spec.model,
+            runSpecs.find((rs) => rs.name === runName)?.adapter_spec.model_deployment,
         ),
       );
     }
@@ -154,7 +154,7 @@ export default function Run() {
           <h3 className="text-2xl">
             <MarkdownValue value={scenario.description} />
           </h3>
-          <h1 className="text mt-2">{runSpec.adapter_spec.model}</h1>
+          <h1 className="text mt-2">{runSpec.adapter_spec.model_deployment}</h1>
           <h3 className="text-sm text-gray-500">
             <MarkdownValue value={model?.description || ""} />
           </h3>

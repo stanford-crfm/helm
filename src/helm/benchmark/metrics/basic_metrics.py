@@ -583,7 +583,9 @@ class BasicMetric(Metric):
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
-        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
+        window_service: WindowService = WindowServiceFactory.get_window_service(
+            adapter_spec.model_deployment, tokenizer_service
+        )
         prompt: str = request_state.request.prompt
         num_prompt_tokens: int = window_service.get_num_tokens(prompt)
 
@@ -799,7 +801,7 @@ class BasicMetric(Metric):
         num_choices = len(references)
 
         tokenizer_service: TokenizerService = metric_service
-        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
+        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model_deployment, tokenizer_service)
         reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
         for request_state in reference_request_states:
             assert request_state.reference_index is not None and request_state.request_mode is not None

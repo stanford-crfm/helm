@@ -113,7 +113,7 @@ class LanguageModelingAdapter(Adapter):
             self.window_service.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
         )
         request = Request(
-            model=self.adapter_spec.model,
+            model=self.adapter_spec.model_deployment,
             prompt=prompt_text,
             num_completions=1,
             temperature=0,
@@ -161,7 +161,7 @@ class LanguageModelingAdapter(Adapter):
             )
 
             request = Request(
-                model=self.adapter_spec.model,
+                model=self.adapter_spec.model_deployment,
                 prompt=prompt_text,
                 num_completions=1,
                 temperature=0,

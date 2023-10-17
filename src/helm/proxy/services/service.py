@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.common.request import Request, RequestResult
-from helm.proxy.models import Model
+from helm.benchmark.model_metadata_registry import ModelMetadata
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.accounts import Authentication, Account
 
@@ -29,7 +29,7 @@ MAX_EXPANSION = 1000
 class GeneralInfo:
     version: str
     example_queries: List[Query]
-    all_models: List[Model]
+    all_models: List[ModelMetadata]
 
 
 def expand_environments(environments: Dict[str, List[str]]):

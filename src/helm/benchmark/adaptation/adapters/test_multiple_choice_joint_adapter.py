@@ -7,7 +7,9 @@ from .test_adapter import TestAdapter
 
 class TestMultipleChoiceJointAdapter(TestAdapter):
     def test_sample_examples(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", max_train_instances=4)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE_JOINT, model_deployment="openai/ada", max_train_instances=4
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
             Instance(Input(text="say no"), references=[Reference(Output(text="no"), tags=[CORRECT_TAG])]),
@@ -27,13 +29,17 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
         assert examples[3].input.text == "say yes3"
 
     def test_sample_examples_no_train_instances(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", max_train_instances=2)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE_JOINT, model_deployment="openai/ada", max_train_instances=2
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         examples = adapter.sample_examples(all_train_instances=[], seed=0)
         assert len(examples) == 0
 
     def test_sample_examples_greater_max_train_instances(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", max_train_instances=10)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE_JOINT, model_deployment="openai/ada", max_train_instances=10
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
             Instance(Input(text="say no"), references=[Reference(Output(text="no"), tags=[CORRECT_TAG])]),
@@ -45,7 +51,9 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
         assert len(examples) == 3
 
     def test_multiple_correct_reference(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", max_train_instances=10)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE_JOINT, model_deployment="openai/ada", max_train_instances=10
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         adapter.train_instances = [
             Instance(
@@ -96,7 +104,7 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
 
     def test_multiple_correct_reference_multi_label(self):
         adapter_spec = AdapterSpec(
-            method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", max_train_instances=10, multi_label=True
+            method=ADAPT_MULTIPLE_CHOICE_JOINT, model_deployment="openai/ada", max_train_instances=10, multi_label=True
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         adapter.train_instances = [
