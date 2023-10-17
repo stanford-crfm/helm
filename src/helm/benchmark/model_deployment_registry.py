@@ -160,7 +160,7 @@ def get_model_deployment(name: str) -> Optional[ModelDeployment]:
 def get_model_deployments_by_host_group(host_group: str) -> List[str]:
     """
     Gets models by host group.
-    Example:   together   =>   TODO
+    Example:   together   =>   TODO(PR)
     """
     return [
         deployment.name for deployment in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT if deployment.host_group == host_group
