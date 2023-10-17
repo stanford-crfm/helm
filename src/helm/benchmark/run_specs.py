@@ -1775,14 +1775,62 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
     )
 
 
+_CUSTOM_ENTITY_DATA_IMPUTATION_PREFIXES = {
+    "Restaurant": """What is the missing value?
+
+name: oceana. addr: 55 e. 54th st.. phone: 212/759-5941. type: seafood. city?
+Answer: new york
+
+name: oceana. addr: 55 e. 54th st.. phone: 212-759-5941. type: seafood. city?
+Answer: new york city
+
+name: jus. addr: roble ave.. phone: 212/759-6341. type: chinese. city?
+Answer: new york
+
+name: todos. addr: baxter pass. phone: 212-450-5921. type: mexican. city?
+Answer: new york city""",
+    "Buy": """What is the missing value?
+
+name: Transcend 8GB Compact Flash Card (133x) - TS8GCF133. description: Transcend 8GB CompactFlash Card (133x). manufacturer? 
+Answer: TRANSCEND INFORMATION
+
+name: LG 42LG30 42' LCD TV. description: LG 42LG30 42' LCD HDTV - 12,000:1 Dynamic Contrast Ratio - Invisible Speaker. manufacturer? 
+Answer: LG Electronics
+
+name: Speck Products SeeThru Case for Apple MacBook Air - MBA-PNK-SEE. description: Plastic - Pink. manufacturer?  
+Answer: Speck Products
+
+name: Peerless Universal Tilt Wall Mount. description: Peerless Smart Mount ST660P Universal Tilt Wall Mount for 37' to 60' Screens (Black) up to 200lbs. manufacturer?  
+Answer: Peerless
+
+name: Apple Time Capsule Network Hard Drive - MB277LL/A. description: 1TB - Type A USB. manufacturer?  
+Answer: Apple
+
+name: Sirius SUPH1 Sirius Universal Home Kit. description: Sirius Satellite Radio Receiver. manufacturer?  
+Answer: Sirius
+
+name: OmniMount TV Top Shelf Mount. description: OmniMount CCH1B Set-Top Center-Channel Shelf. manufacturer?  
+Answer: OMNIMOUNT SYSTEMS, INC
+
+name: Monster Cable iFreePlay Cordless Headphone - AI SH HPHONE. description: Connectivity: Wireless - Stereo - Behind-the-neck. manufacturer?  
+Answer: Monster
+
+name: Pure Digital Flip Mino Digital Camcorder - F360B. description: Flip Video Mino 60 min Black. manufacturer?  
+Answer: Pure Digital Technol
+
+name: Elgato EyeTV Hybrid Analog/Digital TV Tuner Stick - 10020630. description: Elgato EyeTV Hybrid TV Tuner Stick for Analog and HDTV Reception - USB. manufacturer? 
+Answer: ELGATO SYSTEMS""",
+}
+
+
 @run_spec_function("entity_data_imputation")
 def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.entity_data_imputation_scenario.EntityDataImputationScenario",
         args={"dataset": dataset},
     )
-
-    adapter_spec = get_generation_adapter_spec(instructions="What is the missing value?", output_noun="Answer")
+    instructions = _CUSTOM_ENTITY_DATA_IMPUTATION_PREFIXES.get(dataset, "What is the missing value?")
+    adapter_spec = get_generation_adapter_spec(instructions=instructions, output_noun="Answer", max_train_instances=0)
 
     return RunSpec(
         name=f"entity_data_imputation:dataset={dataset}",
