@@ -229,9 +229,7 @@ class AutoClient(Client):
             elif organization == "HuggingFaceM4":
                 from helm.proxy.clients.vision_language.idefics_client import IDEFICSClient
 
-                client = IDEFICSClient(
-                    cache_config, tokenizer_client=self._get_tokenizer_client("HuggingFaceM4/idefics-9b")
-                )
+                client = IDEFICSClient(tokenizer=tokenizer, cache_config=cache_config)
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client
