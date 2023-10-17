@@ -10,7 +10,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
 )
-from .cachable_tokenizer import CachableTokenizer
+from .caching_tokenizer import CachingTokenizer
 
 try:
     from lit_gpt import Tokenizer as InternalTokenizer
@@ -19,7 +19,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
 
 
-class LitGPTTokenizer(CachableTokenizer):
+class LitGPTTokenizer(CachingTokenizer):
     def __init__(self, cache_config: CacheConfig, checkpoint_dir: Path = Path(""), device: str = "auto") -> None:
         super().__init__(cache_config)
         check_valid_checkpoint_dir(checkpoint_dir)

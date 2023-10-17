@@ -6,12 +6,12 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
 )
-from .cachable_tokenizer import CachableTokenizer
+from .caching_tokenizer import CachingTokenizer
 from .tokenizer import cleanup_tokens
 from .yalm_tokenizer_data.yalm_tokenizer import YaLMTokenizer as YaLMTokenizerInternal
 
 
-class YaLMTokenizer(CachableTokenizer):
+class YaLMTokenizer(CachingTokenizer):
     def __init__(self, cache_config: CacheConfig) -> None:
         super().__init__(cache_config)
         self._tokenizer = YaLMTokenizerInternal()

@@ -9,10 +9,10 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.clients.cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
-from .cachable_tokenizer import CachableTokenizer
+from .caching_tokenizer import CachingTokenizer
 
 
-class CohereTokenizer(CachableTokenizer):
+class CohereTokenizer(CachingTokenizer):
     # From "https://docs.cohere.ai/versioning-reference",
     # "this version [2021-11-08] introduces multiple generations, meaning that the generations endpoint will
     # now accept a num_generations argument in the JSON and will always return an array of generations"

@@ -6,7 +6,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
 )
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .cachable_tokenizer import CachableTokenizer
+from .caching_tokenizer import CachingTokenizer
 from .tokenizer import cleanup_tokens
 
 try:
@@ -18,7 +18,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
 
 
-class ICETokenizer(CachableTokenizer):
+class ICETokenizer(CachingTokenizer):
     def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
         tokens = icetk_tokenizer.encode(request.text) if request.encode else icetk_tokenizer.tokenize(request.text)
         if not request.encode:

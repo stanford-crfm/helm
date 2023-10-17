@@ -10,7 +10,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
 )
-from .cachable_tokenizer import CachableTokenizer
+from .caching_tokenizer import CachingTokenizer
 from .tokenizer import cleanup_tokens
 
 
@@ -30,7 +30,7 @@ def resolve_alias(model_name: str) -> str:
     return _MODEL_NAME_ALIASES.get(model_name, model_name)
 
 
-class HuggingFaceTokenizer(CachableTokenizer):
+class HuggingFaceTokenizer(CachingTokenizer):
     _tokenizers: Dict[str, AutoTokenizer] = {}
     _tokenizers_lock: Lock = Lock()
 

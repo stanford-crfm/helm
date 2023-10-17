@@ -6,7 +6,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
 )
-from .cachable_tokenizer import CachableTokenizer
+from .caching_tokenizer import CachingTokenizer
 
 try:
     import tiktoken
@@ -14,7 +14,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
 
 
-class TiktokenTokenizer(CachableTokenizer):
+class TiktokenTokenizer(CachingTokenizer):
     def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
         tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request.tokenizer))
         token_ids: List[int] = tokenizer.encode(request.text)

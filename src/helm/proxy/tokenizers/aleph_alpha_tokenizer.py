@@ -10,7 +10,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
 )
-from .cachable_tokenizer import CachableTokenizer
+from .caching_tokenizer import CachingTokenizer
 
 try:
     from aleph_alpha_client import Client as AlephAlphaPythonClient
@@ -18,7 +18,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
 
 
-class AlephAlphaTokenizer(CachableTokenizer):
+class AlephAlphaTokenizer(CachingTokenizer):
     TOKENIZE_ENDPOINT: str = "tokenize"
     DETOKENIZE_ENDPOINT: str = "detokenize"
 

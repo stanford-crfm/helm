@@ -9,7 +9,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
 )
-from .cachable_tokenizer import CachableTokenizer
+from .caching_tokenizer import CachingTokenizer
 from transformers import PreTrainedTokenizerBase, PreTrainedTokenizerFast
 
 try:
@@ -18,7 +18,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
 
 
-class AnthropicTokenizer(CachableTokenizer):
+class AnthropicTokenizer(CachingTokenizer):
     LOCK: threading.Lock = threading.Lock()
 
     def __init__(self, cache_config: CacheConfig) -> None:

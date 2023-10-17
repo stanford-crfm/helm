@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
 from .tokenizer import Tokenizer
 
 
-class CachableTokenizer(Tokenizer):
+class CachingTokenizer(Tokenizer):
     def __init__(self, cache_config: CacheConfig) -> None:
         self.cache = Cache(cache_config)
 
