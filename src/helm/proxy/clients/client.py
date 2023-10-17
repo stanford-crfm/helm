@@ -16,6 +16,9 @@ from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 class Client(ABC):
+    # TODO: This method should be removed.
+    # This only kept for the AutoClient. Eventually, we should introduce an
+    # AutoTokenizer or TokenizerFactory class.
     @abstractmethod
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes `request.text` using `request.tokenizer`.
@@ -27,6 +30,9 @@ class Client(ABC):
         """
         pass
 
+    # TODO: This method should be removed.
+    # This only kept for the AutoClient. Eventually, we should introduce an
+    # AutoTokenizer or TokenizerFactory class.
     @abstractmethod
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes `request.tokens` using `request.tokenizer`.
