@@ -386,6 +386,12 @@ ALL_MODELS = [
         name="lmsys/vicuna-13b-v1.3",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     ),
+    # Mistral AI
+    Model(
+        group="mistralai",
+        name="mistralai/mistral-7b-v0.1",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
+    ),
     # MosaicML
     Model(
         group="together",
