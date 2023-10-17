@@ -2,6 +2,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, List, Optional, Dict
 
+from helm.common.media_object import MultimediaObject
 from helm.proxy.models import Model, get_model
 from .general import indent_lines, format_text
 
@@ -59,6 +60,9 @@ class Request:
     """Used for chat models. (OpenAI only for now).
     if messages is specified for a chat model, the prompt is ignored.
     Otherwise, the client should convert the prompt into a message."""
+
+    multimodal_prompt: Optional[MultimediaObject] = None
+    """Multimodal prompt with media objects interleaved (e.g., text, video, image, text, ...)"""
 
     @property
     def model_organization(self) -> str:

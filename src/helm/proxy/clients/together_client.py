@@ -36,6 +36,7 @@ MODEL_ALIASES: Dict[str, str] = {
     "llama-2-7b": "togethercomputer/llama-2-7b",
     "llama-2-13b": "togethercomputer/llama-2-13b",
     "llama-2-70b": "togethercomputer/llama-2-70b",
+    "mistral-7b-v0.1": "mistralai/Mistral-7B-v0.1",
     "mpt-7b": "togethercomputer/mpt-7b",
     "mpt-instruct-7b": "togethercomputer/mpt-7b-instruct",
     "mpt-30b": "togethercomputer/mpt-30b",

@@ -187,6 +187,7 @@ class AutoClient(Client):
                 "eleutherai",
                 "lmsys",
                 "meta",
+                "mistralai",
                 "mosaicml",
                 "stabilityai",
                 "stanford",
@@ -225,7 +226,12 @@ class AutoClient(Client):
                     checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
                     precision=os.environ.get("LIT_GPT_PRECISION", "bf16-true"),
                 )
+            elif organization == "HuggingFaceM4":
+                from helm.proxy.clients.vision_language.idefics_client import IDEFICSClient
 
+                client = IDEFICSClient(
+                    cache_config, tokenizer_client=self._get_tokenizer_client("HuggingFaceM4/idefics-9b")
+                )
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client
@@ -233,7 +239,7 @@ class AutoClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         """
-        Dispatch based on the the name of the model (e.g., openai/davinci).
+        Dispatch based on the name of the model (e.g., openai/davinci).
         Retries if request fails.
         """
 
@@ -278,6 +284,8 @@ class AutoClient(Client):
             "facebook",
             "meta-llama",
             "hf-internal-testing",
+            "mistralai",
+            "HuggingFaceM4",
             # Together
             "together",
             "databricks",
@@ -288,6 +296,7 @@ class AutoClient(Client):
             "stabilityai",
             "stanford",
             "tiiuae",
+            "bigcode",
             "bigscience",
         ]:
             from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
@@ -336,7 +345,6 @@ class AutoClient(Client):
             from helm.proxy.tokenizers.yalm_tokenizer import YaLMTokenizer
 
             return YaLMTokenizer(cache_config=cache_config)
-
         raise ValueError(f"Could not find tokenizer for model: {tokenizer}")
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

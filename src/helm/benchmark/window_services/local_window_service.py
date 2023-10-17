@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import List, Optional, cast
 
 from .window_service import WindowService, EncodeResult
@@ -12,7 +13,7 @@ from helm.common.tokenization_request import (
 from helm.proxy.clients.client import cleanup_tokens
 
 
-class LocalWindowService(WindowService):
+class LocalWindowService(WindowService, ABC):
     def __init__(self, service: TokenizerService):
         self.service: TokenizerService = service
 

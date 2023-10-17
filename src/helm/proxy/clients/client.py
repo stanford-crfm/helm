@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
 from helm.common.hierarchical_logger import hlog
+from helm.common.media_object import MultimediaObject, TEXT_TYPE
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -174,3 +175,13 @@ def cleanup_tokens(tokens: List[str], tokenizer_name: Optional[str] = None) -> L
     Applies `cleanup_str` to each token in `tokens`.
     """
     return [cleanup_str(token, tokenizer_name) for token in tokens]
+
+
+def generate_uid_for_multimodal_prompt(prompt: MultimediaObject) -> str:
+    """Generates a unique identifier for a given multimodal prompt."""
+    return "".join(
+        [
+            media_object.text if media_object.is_type(TEXT_TYPE) and media_object.text else str(media_object.location)
+            for media_object in prompt.media_objects
+        ]
+    )

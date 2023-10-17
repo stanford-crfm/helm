@@ -18,7 +18,8 @@ CHATML_MODEL_TAG: str = "chatml"
 OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
 
 # For Anthropic models
-ANTHROPIC_MODEL_TAG: str = "anthropic"
+ANTHROPIC_CLAUDE_1_MODEL_TAG: str = "claude_1"
+ANTHROPIC_CLAUDE_2_MODEL_TAG: str = "claude_2"
 
 # For OpenAI models with wider context windows
 # TODO(#1455): Simplify context window tags.
@@ -61,6 +62,9 @@ NLG_PREFIX_TAG: str = "nlg_prefix_tag"
 
 # Some models can follow instructions.
 INSTRUCTION_FOLLOWING_MODEL_TAG: str = "instruction_following"
+
+# For Vision-langauge models (VLMs)
+VISION_LANGUAGE_MODEL_TAG: str = "vision_language"
 
 
 @dataclass
@@ -194,9 +198,20 @@ ALL_MODELS = [
     ),
     Model(
         group="anthropic",
+        name="anthropic/claude-2.0",
+        tags=[
+            ANTHROPIC_CLAUDE_2_MODEL_TAG,
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            GPT2_TOKENIZER_TAG,
+            INSTRUCTION_FOLLOWING_MODEL_TAG,
+        ],
+    ),
+    Model(
+        group="anthropic",
         name="anthropic/claude-v1.3",
         tags=[
-            ANTHROPIC_MODEL_TAG,
+            ANTHROPIC_CLAUDE_1_MODEL_TAG,
             TEXT_MODEL_TAG,
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
             GPT2_TOKENIZER_TAG,
@@ -208,7 +223,7 @@ ALL_MODELS = [
         group="anthropic",
         name="anthropic/claude-instant-v1",
         tags=[
-            ANTHROPIC_MODEL_TAG,
+            ANTHROPIC_CLAUDE_1_MODEL_TAG,
             TEXT_MODEL_TAG,
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
             GPT2_TOKENIZER_TAG,
@@ -369,6 +384,12 @@ ALL_MODELS = [
     Model(
         group="together",
         name="lmsys/vicuna-13b-v1.3",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
+    ),
+    # Mistral AI
+    Model(
+        group="mistralai",
+        name="mistralai/mistral-7b-v0.1",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     ),
     # MosaicML
@@ -864,6 +885,27 @@ ALL_MODELS = [
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
             GPT2_TOKENIZER_TAG,
         ],
+    ),
+    # Vision-language models (VLMs)
+    Model(
+        group="idefics",
+        name="HuggingFaceM4/idefics-9b",
+        tags=[VISION_LANGUAGE_MODEL_TAG],
+    ),
+    Model(
+        group="idefics",
+        name="HuggingFaceM4/idefics-9b-instruct",
+        tags=[VISION_LANGUAGE_MODEL_TAG],
+    ),
+    Model(
+        group="idefics",
+        name="HuggingFaceM4/idefics-80b",
+        tags=[VISION_LANGUAGE_MODEL_TAG],
+    ),
+    Model(
+        group="idefics",
+        name="HuggingFaceM4/idefics-80b-instruct",
+        tags=[VISION_LANGUAGE_MODEL_TAG],
     ),
     # For debugging
     Model(
