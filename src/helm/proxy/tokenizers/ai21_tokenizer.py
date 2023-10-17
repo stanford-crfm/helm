@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 from typing import Dict, List
 import requests
 
@@ -18,8 +17,9 @@ from .tokenizer import Tokenizer
 
 
 class AI21Tokenizer(Tokenizer):
-    def __init__(self, cache_config: CacheConfig) -> None:
+    def __init__(self, api_key: str, cache_config: CacheConfig) -> None:
         self.cache = Cache(cache_config)
+        self.api_key: str = api_key
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """

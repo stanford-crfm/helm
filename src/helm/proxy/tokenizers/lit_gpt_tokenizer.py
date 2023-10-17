@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 from typing import Any, Dict
 from pathlib import Path
 
@@ -6,10 +5,6 @@ import torch
 
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    DecodeRequest,
-)
 from .caching_tokenizer import CachingTokenizer
 
 try:
@@ -26,19 +21,14 @@ class LitGPTTokenizer(CachingTokenizer):
         self._tokenizer = InternalTokenizer(checkpoint_dir)
         self._device = device
 
-    @property
-    def use_encode_in_cache_key(self) -> bool:
-        # Since encode is not used in the tokenization logic, we can safely ignore it
-        return False
-
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
+    def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
         # TODO: This does not support encoding
-        encoded = self._tokenizer.encode(request.text, bos=True, eos=False, device=self._device)
+        encoded = self._tokenizer.encode(request["text"], bos=True, eos=False, device=self._device)
         tokens = encoded.tolist()
-        if not request.encode:
+        if not request["encode"]:
             return {"token_strings": tokens}
         return {"token_ids": tokens}
 
-    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
-        text = self._tokenizer.decode(torch.as_tensor(request.tokens, dtype=torch.int))
+    def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        text = self._tokenizer.decode(torch.as_tensor(request["tokens"], dtype=torch.int))
         return {"text": text}

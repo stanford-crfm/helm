@@ -21,76 +21,88 @@ class CachingTokenizer(Tokenizer):
     def _get_tokenizer_name(self, tokenizer: str) -> str:
         return tokenizer.split("/")[-1]
 
-    @property
-    def use_encode_in_cache_key(self) -> bool:
-        """Whether to use the `encode` parameter in the cache key.
+    def _tokenization_request_to_cache_key(self, request: TokenizationRequest) -> Dict[str, Any]:
+        """Returns a dictionary that uniquely identifies the tokenization request.
+        This is used as the cache key for the tokenization request.
 
-        This is a small optimization as some tokenizers directly compute both
-        the token strings and the token ids, so the `encode` parameter is not
-        used in the tokenization logic.
+        Most Tokenizer use this simple implementation but it can be overriden
+        to implement some custom logic or preserve an existing Cache.
         """
-        return True
+        return asdict(request)
 
-    def _post_process_tokenization(
-        self, tokens: List[TokenizationToken], request: TokenizationRequest
+    def _decode_request_to_cache_key(self, request: DecodeRequest) -> Dict[str, Any]:
+        """Returns a dictionary that uniquely identifies the decode request.
+        This is used as the cache key for the decode request.
+
+        Most Tokenizer use this simple implementation but it can be overriden
+        to implement some custom logic or preserve an existing Cache.
+        """
+        return asdict(request)
+
+    def _tokenization_raw_response_to_tokens(
+        self, response: Dict[str, Any], request: Dict[str, Any]
     ) -> List[TokenizationToken]:
-        """Post-processes the tokens before returning them.
+        """Returns the list of tokens from the raw response.
+        This is used to extract the tokens from the raw response.
 
-        This method is called after tokenization and after caching.
-        It is useful to make this class more modular as some tokenizers need
-        special post-processing.
+        Most Tokenizer use this simple implementation but it can be overriden
+        to implement some custom logic or preserve an existing Cache.
         """
-        return tokens
+        return [TokenizationToken(token) for token in response["tokens"]]
 
-    def _post_process_decoding(self, text: str, request: DecodeRequest) -> str:
-        """Post-processes the decoded text before returning it.
+    def _decode_raw_response_to_text(self, response: Dict[str, Any], request: Dict[str, Any]) -> str:
+        """Returns the text from the raw response.
+        This is used to extract the text from the raw response.
 
-        This method is called after decoding and after caching.
-        It is useful to make this class more modular as some tokenizers need
-        special post-processing.
+        Most Tokenizer use this simple implementation but it can be overriden
+        to implement some custom logic or preserve an existing Cache.
         """
-        return text
+        return response["text"]
+
+    @abstractmethod
+    def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        """Callable that tokenizes the text and returns a dictionary.
+        This dictionnary will then be passed to `_tokenization_raw_response_to_tokens` to extract the tokens.
+        The input is a raw request obtained from `_tokenization_request_to_cache_key`.
+        """
+        pass
+
+    @abstractmethod
+    def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        """Callable that decodes the tokens and returns a dictionary.
+        This dictionnary will then be passed to `_decode_raw_response_to_text` to extract the text.
+        The input is a raw request obtained from `_decode_request_to_cache_key`.
+        """
+        pass
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes `request.text` using `request.tokenizer`.
 
         This method handles caching and returning the appropriate object while the actual tokenization
-        logic lies in the `_get_tokenize_do_it` method.
-        Most tokenizers hould simply implement `_get_tokenize_do_it` and leave this method as is.
+        logic lies in the `_get_tokenize_do_it` method. The input for `_get_tokenize_do_it` is a raw
+        request obtained from `_get_tokenization_request_to_cache_key`, and the output is post-processed
+        by `_post_process_tokenization`.
+        Most tokenizers should simply implement the three methods mentionned above and leave this method as is.
         However in some cases, such as the AI21 tokenizer, the tokenization logic is more complex and
         requires additional logic, so this method can be overridden.
 
         Returns a `TokenizationRequestResult` object.
         """
-        cache_key = {
-            "text": request.text,
-            "tokenizer": request.tokenizer,
-            "max_length": request.max_length if request.truncation else None,
-            "encode": request.encode if self.use_encode_in_cache_key else None,
-        }
+        raw_request = self._tokenization_request_to_cache_key(request)
 
         try:
+            # Get the tokens from the cache or compute them
+            response, cached = self.cache.get(raw_request, wrap_request_time(lambda: self._tokenize_do_it(raw_request)))
+            tokens: List[TokenizationToken] = self._tokenization_raw_response_to_tokens(response, raw_request)
+            if request.truncation:
+                tokens = tokens[: request.max_length]
 
-            def do_it():
-                response = self._tokenize_do_it(request)
-                if request.truncation:
-                    if "token_ids" in response:
-                        response["token_ids"] = response["token_ids"][: request.max_length]
-                    if "token_strings" in response:
-                        response["token_strings"] = response["token_strings"][: request.max_length]
-                return response
-
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-
-            if request.encode:
-                assert "token_ids" in response
-            else:
-                assert "token_strings" in response
-
-            # Post process tokens
-            token_values = response["token_ids"] if request.encode else response["token_strings"]
-            tokens = [TokenizationToken(value) for value in token_values]
-            tokens = self._post_process_tokenization(tokens, request)
+            # Internal check of the type of the first token
+            # This is to make sure that the tokenization is correct
+            if request.encode and len(tokens) > 0:
+                assert type(tokens[0].value) == int
+            elif not request.encode and len(tokens) > 0:
+                assert type(tokens[0].value) == str
 
             result = TokenizationRequestResult(
                 success=True,
@@ -108,19 +120,23 @@ class CachingTokenizer(Tokenizer):
         """Decodes `request.tokens` using `request.tokenizer`.
 
         This method handles caching and returning the appropriate object while the actual decoding
-        logic lies in the `_get_decode_do_it` method.
-        Most tokenizers hould simply implement `_get_decode_do_it` and leave this method as is.
+        logic lies in the `_get_decode_do_it` method. The input for `_get_decode_do_it` is a raw
+        request obtained from `_get_decode_request_to_cache_key`, and the output is post-processed
+        by `_post_process_decode`.
+        Most tokenizers hould simply implement the three methods mentionned above and leave this method as is.
         However in some cases, such as the AI21 tokenizer, the decoding logic is more complex and
         requires additional logic, so this method can be overridden.
         """
-        cache_key = asdict(request)
+        raw_request = self._decode_request_to_cache_key(request)
 
         try:
-            response, cached = self.cache.get(cache_key, wrap_request_time(lambda: self._decode_do_it(request)))
+            # Get the tokens from the cache or compute them
+            response, cached = self.cache.get(raw_request, wrap_request_time(lambda: self._decode_do_it(raw_request)))
+            text: str = self._decode_raw_response_to_text(response, raw_request)
 
-            # Post process text
-            text = str(response["text"])
-            text = self._post_process_decoding(text, request)
+            # Internal check of the type of the text
+            # This is to make sure that the decoding is correct
+            assert type(text) == str
 
             return DecodeRequestResult(
                 success=True,
@@ -131,28 +147,6 @@ class CachingTokenizer(Tokenizer):
             )
         except Exception as error:
             raise ValueError(f"Failed to decode tokens with {self.__class__.__name__} tokenizer: {error}") from error
-
-    @abstractmethod
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
-        """Callable that tokenizes the text and returns a dictionary with the expected key:
-            - "token_ids": a list of tokens ids (expected if `request.encode` is True)
-            - "token_strings": a list of tokens strings (expected if `request.encode` is False)
-        This function can return both keys if the tokenizer returns both token ids and token strings.
-        In that case make sure to set use_encode_in_cache_key to False to avoid double caching.
-
-        Additional keys can be added if a custom `tokenize` method is implemented. Otherwise, the
-        default implementation will ignore them.
-        """
-        pass
-
-    @abstractmethod
-    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
-        """Callable that decodes the tokens and returns a dictionary with the expected key:
-            - "text": the decoded text
-        Additional keys can be added if a custom `decode` method is implemented. Otherwise, the
-        default implementation will ignore them.
-        """
-        pass
 
 
 def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:

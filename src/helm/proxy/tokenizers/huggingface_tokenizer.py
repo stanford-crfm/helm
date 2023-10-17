@@ -6,10 +6,6 @@ from helm.common.cache import CacheConfig
 from transformers import AutoTokenizer
 
 from helm.common.hierarchical_logger import htrack_block, hlog
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    DecodeRequest,
-)
 from .caching_tokenizer import CachingTokenizer
 from .tokenizer import cleanup_tokens
 
@@ -91,34 +87,37 @@ class HuggingFaceTokenizer(CachingTokenizer):
                     HuggingFaceTokenizer._tokenizers[helm_tokenizer_name] = HuggingFaceTokenizer.create_tokenizer(
                         pretrained_model_name_or_path, revision
                     )
-
         return HuggingFaceTokenizer._tokenizers[helm_tokenizer_name]
 
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
+    def _get_tokenizer_for_request(self, request: Dict[str, Any]) -> AutoTokenizer:
+        """Method used in both _tokenize_do_it and _decode_do_it to get the tokenizer."""
         pretrained_model_name_or_path: str
         if self._pretrained_model_name_or_path:
             pretrained_model_name_or_path = self._pretrained_model_name_or_path
         else:
-            pretrained_model_name_or_path = resolve_alias(request.tokenizer)
+            pretrained_model_name_or_path = resolve_alias(request["tokenizer"])
         _tokenizer = HuggingFaceTokenizer.get_tokenizer(
-            helm_tokenizer_name=request.tokenizer,
+            helm_tokenizer_name=request["tokenizer"],
             pretrained_model_name_or_path=pretrained_model_name_or_path,
             revision=self._revision,
         )
+        return _tokenizer
 
-        if request.encode:
-            if request.truncation:
+    def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        _tokenizer = self._get_tokenizer_for_request(request)
+
+        if request["encode"]:
+            if request["truncation"]:
                 tokens = _tokenizer.encode(
-                    request.text,
-                    truncation=request.truncation,
-                    max_length=request.max_length,
+                    request["text"],
+                    truncation=request["truncation"],
+                    max_length=request["max_length"],
                     add_special_tokens=False,
                 )
             else:
-                tokens = _tokenizer.encode(request.text, add_special_tokens=False)
-            return {"token_ids": tokens}
+                tokens = _tokenizer.encode(request["text"], add_special_tokens=False)
         else:
-            if "gpt" in request.tokenizer or request.tokenizer in [
+            if "gpt" in request["tokenizer"] or request["tokenizer"] in [
                 "bigscience/bloom",
                 "Writer/palmyra-base",
                 "facebook/opt-66b",
@@ -127,31 +126,26 @@ class HuggingFaceTokenizer(CachingTokenizer):
                 # convert_tokens_to_string method. We prefer to use this method instead
                 # of the hacky cleanup_tokens method below as it might handle cases
                 # we haven't thought of in cleanup_tokens.
-                tokens = [_tokenizer.convert_tokens_to_string([token]) for token in _tokenizer.tokenize(request.text)]
+                tokens = [
+                    _tokenizer.convert_tokens_to_string([token]) for token in _tokenizer.tokenize(request["text"])
+                ]
             else:
                 # Tokenizes the text and returns the tokens as a list of strings,
                 # not a list of token objects (otherwise "Hello world" would be"
                 # ["Hello", "▁world"] and not ["Hello", " world"])
                 # We could do this with a simple replace like this:
-                # tokens = [_tokenizer.convert_tokens_to_string([i]) for i in _tokenizer.tokenize(request.text)]
+                # tokens = [_tokenizer.convert_tokens_to_string([i]) for i in _tokenizer.tokenize(request["text"])]
                 # But this replaces all the "▁" characters by "", which is not what we want.
                 # This would be problematic as tokenize(" Hello", encode=False) would return ["Hello"]
                 # Just like tokenize("Hello", encode=False) would return ["Hello"].
-                tokens = _tokenizer.tokenize(request.text)
-                tokens = cleanup_tokens(tokens, request.tokenizer)
-            return {"token_strings": tokens}
+                tokens = _tokenizer.tokenize(request["text"])
+                tokens = cleanup_tokens(tokens, request["tokenizer"])
+        return {"tokens": tokens}
 
-    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
-        pretrained_model_name_or_path: str
-        if self._pretrained_model_name_or_path:
-            pretrained_model_name_or_path = self._pretrained_model_name_or_path
-        else:
-            pretrained_model_name_or_path = resolve_alias(request.tokenizer)
-        _tokenizer = HuggingFaceTokenizer.get_tokenizer(
-            helm_tokenizer_name=request.tokenizer,
-            pretrained_model_name_or_path=pretrained_model_name_or_path,
-            revision=self._revision,
+    def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        _tokenizer = self._get_tokenizer_for_request(request)
+
+        text = _tokenizer.decode(
+            request["tokens"], clean_up_tokenization_spaces=request["clean_up_tokenization_spaces"]
         )
-
-        text = _tokenizer.decode(request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces)
         return {"text": text}

@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 from typing import Any, Dict, List
 
 from tokenizers import Tokenizer as InternalTokenizer, Encoding
@@ -9,6 +8,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
+    TokenizationToken,
 )
 from .caching_tokenizer import CachingTokenizer
 
@@ -44,23 +44,42 @@ class AlephAlphaTokenizer(CachingTokenizer):
             hlog(f"Initialized tokenizer: {tokenizer_name}")
         return self._tokenizer_name_to_tokenizer[tokenizer_name]
 
-    @property
-    def use_encode_in_cache_key(self) -> bool:
-        """Since the tokenization endpoint returns both the token IDs and the token strings, we don't need to
-        use the `encode` parameter in the cache key.
-        """
-        return False
+    def _tokenization_request_to_cache_key(self, request: TokenizationRequest) -> Dict[str, Any]:
+        # This cache key is used to preserve our existing Cache (10/17/2023)
+        cache_key: Dict[str, Any] = {
+            "model": request.tokenizer_name,
+            "prompt": request.text,
+            "tokens": True,
+            "token_ids": True,
+        }
+        return cache_key
 
-    def _post_process_decoding(self, text: str, request: DecodeRequest) -> str:
+    def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        tokenizer: InternalTokenizer = self._get_tokenizer(request["model"])
+        result: Encoding = tokenizer.encode(request["prompt"], add_special_tokens=False)
+        # This output using "token_ids" and "tokens" is used to preserve our existing Cache (10/17/2023)
+        return {"token_ids": result.ids, "tokens": result.tokens}
+
+    def _tokenization_raw_response_to_tokens(
+        self, response: Dict[str, Any], request: Dict[str, Any]
+    ) -> List[TokenizationToken]:
+        tokens: list = response["token_ids" if request["encode"] else "tokens"]
+        return [TokenizationToken(token) for token in tokens]
+
+    def _decode_request_to_cache_key(self, request: DecodeRequest) -> Dict[str, Any]:
+        # This cache key is used to preserve our existing Cache (10/17/2023)
+        cache_key: Dict[str, Any] = {
+            "model": request.tokenizer_name,
+            "token_ids": request.tokens,
+        }
+        return cache_key
+
+    def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        tokenizer: InternalTokenizer = self._get_tokenizer(request["model"])
+        text = tokenizer.decode(request["token_ids"])
+        # This output using "result" is used to preserve our existing Cache (10/17/2023)
+        return {"result": text}
+
+    def _decode_raw_response_to_text(self, response: Dict[str, Any], request: Dict[str, Any]) -> str:
         # The text always seems to start with a single whitespace when encoding/decoding.
-        return text.replace(" ", "", 1)
-
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
-        tokenizer: InternalTokenizer = self._get_tokenizer(request.tokenizer_name)
-        result: Encoding = tokenizer.encode(request.text, add_special_tokens=False)
-        return {"token_ids": result.ids, "token_strings": result.tokens}
-
-    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
-        tokenizer: InternalTokenizer = self._get_tokenizer(request.tokenizer_name)
-        text = tokenizer.decode(request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces)
-        return {"text": text}
+        return response["result"].replace(" ", "", 1)

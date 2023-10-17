@@ -17,6 +17,9 @@ import requests
 
 
 class HTTPModelTokenizer(Tokenizer):
+    # Does not inherit from CachingTokenizer because the parameter do_cache
+    # can be set to True or False.
+
     def __init__(
         self,
         cache_config: CacheConfig,

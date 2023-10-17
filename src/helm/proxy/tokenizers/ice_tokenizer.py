@@ -1,10 +1,6 @@
 import os
 from typing import Any, Dict
 
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    DecodeRequest,
-)
 from helm.common.optional_dependencies import handle_module_not_found_error
 from .caching_tokenizer import CachingTokenizer
 from .tokenizer import cleanup_tokens
@@ -19,13 +15,16 @@ except ModuleNotFoundError as e:
 
 
 class ICETokenizer(CachingTokenizer):
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
-        tokens = icetk_tokenizer.encode(request.text) if request.encode else icetk_tokenizer.tokenize(request.text)
-        if not request.encode:
-            tokens = cleanup_tokens(tokens, request.tokenizer)
-            return {"token_strings": tokens}
-        return {"token_ids": tokens}
+    def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        tokens = (
+            icetk_tokenizer.encode(request["text"]) if request["encode"] else icetk_tokenizer.tokenize(request["text"])
+        )
+        if not request["encode"]:
+            tokens = cleanup_tokens(tokens, request["tokenizer"])
+        if request["truncation"]:
+            tokens = tokens[: request["max_length"]]
+        return {"tokens": tokens}
 
-    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
-        text = icetk_tokenizer.decode(request.tokens)
+    def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        text = icetk_tokenizer.decode(request["tokens"])
         return {"text": text}

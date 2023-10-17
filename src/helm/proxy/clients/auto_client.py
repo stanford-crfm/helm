@@ -315,7 +315,7 @@ class AutoClient(Client):
         elif organization == "ai21":
             from helm.proxy.tokenizers.ai21_tokenizer import AI21Tokenizer
 
-            return AI21Tokenizer(cache_config=cache_config)
+            return AI21Tokenizer(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
         elif organization == "cohere":
             from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
 

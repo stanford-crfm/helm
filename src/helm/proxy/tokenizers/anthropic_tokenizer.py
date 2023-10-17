@@ -1,14 +1,9 @@
-# mypy: check_untyped_defs = False
 from typing import Any, Dict
 
 import threading
 
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    DecodeRequest,
-)
 from .caching_tokenizer import CachingTokenizer
 from transformers import PreTrainedTokenizerBase, PreTrainedTokenizerFast
 
@@ -28,23 +23,24 @@ class AnthropicTokenizer(CachingTokenizer):
                 tokenizer_object=anthropic.get_tokenizer()
             )
 
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
-        if request.encode:
-            if request.truncation:
+    def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        if request["encode"]:
+            if request["truncation"]:
                 tokens = self._tokenizer.encode(
-                    request.text,
-                    truncation=request.truncation,
-                    max_length=request.max_length,
+                    request["text"],
+                    truncation=request["truncation"],
+                    max_length=request["max_length"],
                     add_special_tokens=False,
                 )
             else:
-                tokens = self._tokenizer.encode(request.text, add_special_tokens=False)
-            return {"token_ids": tokens}
+                tokens = self._tokenizer.encode(request["text"], add_special_tokens=False)
+        else:
+            # No encoding, just return the token strings
+            tokens = [self._tokenizer.convert_tokens_to_string([i]) for i in self._tokenizer.tokenize(request["text"])]
+        return {"tokens": tokens}
 
-        # No encoding, just return the token strings
-        tokens = [self._tokenizer.convert_tokens_to_string([i]) for i in self._tokenizer.tokenize(request.text)]
-        return {"token_strings": tokens}
-
-    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
-        text = self._tokenizer.decode(request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces)
+    def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        text = self._tokenizer.decode(
+            request["tokens"], clean_up_tokenization_spaces=request["clean_up_tokenization_spaces"]
+        )
         return {"text": text}

@@ -1,12 +1,13 @@
 import json
 import requests
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from helm.common.cache import CacheConfig
 from helm.common.tokenization_request import (
     TokenizationRequest,
     DecodeRequest,
     DecodeRequestResult,
+    TokenizationToken,
 )
 from helm.proxy.clients.cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
 from .caching_tokenizer import CachingTokenizer
@@ -32,14 +33,11 @@ class CohereTokenizer(CachingTokenizer):
         super().__init__(cache_config)
         self.api_key: str = api_key
 
-    @property
-    def use_encode_in_cache_key(self) -> bool:
-        """Since the tokenization endpoint returns both the token IDs and the token strings, we don't need to
-        use the `encode` parameter in the cache key.
-        """
-        return False
+    def _tokenization_request_to_cache_key(self, request: TokenizationRequest) -> Dict[str, Any]:
+        # This cache key is used to preserve our existing Cache (10/17/2023)
+        return {"text": request.text}
 
-    def _tokenize_do_it(self, request: TokenizationRequest) -> Dict[str, Any]:
+    def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """
         Send the request to the Cohere Tokenize API.
 
@@ -50,11 +48,10 @@ class CohereTokenizer(CachingTokenizer):
             "token_strings": ["token", "ize", " me", "!", " :", "D"]
         }
         """
-        text: str = request.text
+        text: str = request["text"]
         assert (
             1 <= len(text) <= CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH
         ), f"Invalid text length: {len(text)}. Valid length: [1..{CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH:,d}]"
-        raw_request: Dict[str, str] = {"text": text}
 
         response = requests.request(
             method="POST",
@@ -64,15 +61,23 @@ class CohereTokenizer(CachingTokenizer):
                 "Content-Type": "application/json",
                 "Cohere-Version": DEFAULT_COHERE_API_VERSION,
             },
-            data=json.dumps(raw_request),
+            data=json.dumps(request),
         )
         result = json.loads(response.text)
         assert "message" not in result.keys(), f"Request failed with error {result['message']}"
         assert "tokens" in result and "token_strings" in result, f"Invalid response: {result}"
-        return {"token_ids": result["tokens"], "token_strings": result["token_strings"]}
+        # This output format is used to preserve our existing Cache (10/17/2023)
+        return result
 
-    def _decode_do_it(self, request: DecodeRequest) -> Dict[str, Any]:
-        pass
+    def _tokenization_raw_response_to_tokens(
+        self, response: Dict[str, Any], request: Dict[str, Any]
+    ) -> List[TokenizationToken]:
+        tokens = response["tokens" if request["encode"] else "token_strings"]
+        return [TokenizationToken(token) for token in tokens]
+
+    def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        # Defined for mypy but decode() already raises NotImplementedError
+        raise NotImplementedError("The Cohere API does not support decoding.")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         raise NotImplementedError("The Cohere API does not support decoding.")
