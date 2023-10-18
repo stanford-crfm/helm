@@ -21,7 +21,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
 
     def test_construct_prompt(self):
         adapter_spec: AdapterSpec = AdapterSpec(
-            model="simple/model1",
+            model_deployment="simple/model1",
             method=ADAPT_GENERATION_MULTIMODAL,
             global_prefix="[START]",
             instructions="Please answer the following question about the images.",
@@ -90,7 +90,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
 
     def test_construct_prompt_multi_label(self):
         adapter_spec: AdapterSpec = AdapterSpec(
-            model="simple/model1",
+            model_deployment="simple/model1",
             method=ADAPT_GENERATION_MULTIMODAL,
             global_prefix="[START]",
             instructions="Please answer the following question about the images.",
@@ -170,7 +170,7 @@ class TestInContextLearningMultimodalAdapter(unittest.TestCase):
         Constructing the same prompt from this example: https://huggingface.co/blog/idefics
         """
         adapter_spec: AdapterSpec = AdapterSpec(
-            model="simple/model1",
+            model_deployment="simple/model1",
             method=ADAPT_GENERATION_MULTIMODAL,
             input_prefix="User: ",
             input_suffix="<end_of_utterance>",

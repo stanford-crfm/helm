@@ -801,7 +801,9 @@ class BasicMetric(Metric):
         num_choices = len(references)
 
         tokenizer_service: TokenizerService = metric_service
-        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model_deployment, tokenizer_service)
+        window_service: WindowService = WindowServiceFactory.get_window_service(
+            adapter_spec.model_deployment, tokenizer_service
+        )
         reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
         for request_state in reference_request_states:
             assert request_state.reference_index is not None and request_state.request_mode is not None

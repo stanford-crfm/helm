@@ -24,7 +24,8 @@ from helm.proxy.retry import NonRetriableException, retry_request
 from helm.proxy.tokenizers.tokenizer import Tokenizer
 from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
-from .http_model_client import HTTPModelClient
+# TODO(PR): Remove this
+# from .http_model_client import HTTPModelClient
 
 if TYPE_CHECKING:
     import helm.proxy.clients.huggingface_client
@@ -69,7 +70,6 @@ class AutoClient(Client):
         if client is None:
             host_group: str = model.split("/")[0]
             cache_config: CacheConfig = self._build_cache_config(host_group)
-            tokenizer: Tokenizer = self._get_tokenizer(host_group)
 
             # TODO: Migrate all clients to use model deployments
             # TODO(PR): Remove the TODO above.

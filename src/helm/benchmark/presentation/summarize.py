@@ -886,11 +886,11 @@ class Summarizer:
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
             deployment: str = adapter_spec.model_deployment
-            metadata: ModelMetadata = get_metadata_for_deployment(deployment)
-            model_name: str = metadata.name
+            model_metadata: ModelMetadata = get_metadata_for_deployment(deployment)
+            model_name: str = model_metadata.name
 
             runs = adapter_to_runs[adapter_spec]
-            display_name = get_method_display_name(metadata.display_name, info)
+            display_name = get_method_display_name(model_metadata.display_name, info)
 
             # Link to all the runs under this model
             if link_to_runs:

@@ -1,7 +1,7 @@
 # TODO(PR): Delete this file.
 
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import List
 
 # TODO(PR): Move these to model_metadata_registry.py
 # # Different modalities
@@ -65,11 +65,9 @@ from typing import Dict, List
 
 # # Some models can follow instructions.
 # INSTRUCTION_FOLLOWING_MODEL_TAG: str = "instruction_following"
-from typing import Dict, List, Optional
-from helm.benchmark.model_deployment_registry import ModelDeployment
 
-# For Vision-langauge models (VLMs)
-VISION_LANGUAGE_MODEL_TAG: str = "vision_language"
+# # For Vision-langauge models (VLMs)
+# VISION_LANGUAGE_MODEL_TAG: str = "vision_language"
 
 
 @dataclass
@@ -110,12 +108,6 @@ class Model:
     # Tags corresponding to the properties of the model.
     tags: List[str] = field(default_factory=list)
 
-    # List of the model deployments for this model.
-    # Should at least contain one model deployment.
-    # Refers to the field "name" in the ModelDeployment class.
-    # Defaults to a single model deployment with the same name as the model.
-    deployment_names: Optional[List[str]] = None
-
     @property
     def creator_organization(self) -> str:
         """
@@ -140,7 +132,7 @@ class Model:
 
 # TODO(PR): Port all these models to the new format.
 
-ALL_MODELS = [
+ALL_MODELS: List[Model] = [
     # # Local Model
     # Model(
     #     group="neurips",
@@ -320,12 +312,14 @@ ALL_MODELS = [
     # Model(
     #     group="cohere",
     #     name="cohere/command-medium-beta",
-    #     tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
+    #     tags=[TEXT_MODEL_TAG,
+    # FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     # ),
     # Model(
     #     group="cohere",
     #     name="cohere/command-xlarge-beta",
-    #     tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
+    #     tags=[TEXT_MODEL_TAG,
+    # FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG],
     # ),
     # # EleutherAI
     # Model(

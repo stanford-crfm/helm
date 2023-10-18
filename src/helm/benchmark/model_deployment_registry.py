@@ -113,7 +113,10 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
 
     try:
         model_metadata: ModelMetadata = get_model_metadata(model_name)
-        if model_deployment.name not in model_metadata.deployment_names:
+        deployment_names: List[str] = model_metadata.deployment_names or [model_metadata.name]
+        if model_deployment.name not in deployment_names:
+            if model_metadata.deployment_names is None:
+                model_metadata.deployment_names = []
             model_metadata.deployment_names.append(model_deployment.name)
     except ValueError:
         # No model metadata exists for this model name.
@@ -151,10 +154,10 @@ def maybe_register_model_deployments_from_base_path(base_path: str) -> None:
 
 
 # ===================== UTIL FUNCTIONS ==================== #
-def get_model_deployment(name: str) -> Optional[ModelDeployment]:
+def get_model_deployment(name: str) -> ModelDeployment:
     if name not in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
         raise ValueError(f"Model deployment {name} not found")
-    return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT.get(name)
+    return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[name]
 
 
 def get_model_deployments_by_host_group(host_group: str) -> List[str]:
@@ -162,9 +165,7 @@ def get_model_deployments_by_host_group(host_group: str) -> List[str]:
     Gets models by host group.
     Example:   together   =>   TODO(PR)
     """
-    return [
-        deployment.name for deployment in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT if deployment.host_group == host_group
-    ]
+    return [deployment.name for deployment in ALL_MODEL_DEPLOYMENTS if deployment.host_group == host_group]
 
 
 def get_model_deployment_host_group(name: str) -> str:
@@ -188,7 +189,7 @@ def get_default_deployment_for_model(model_metadata: ModelMetadata) -> ModelDepl
     """
     if model_metadata.name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
         return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_metadata.name]
-    elif len(model_metadata.deployment_names) > 0:
+    elif model_metadata.deployment_names is not None and len(model_metadata.deployment_names) > 0:
         deployment_name: str = model_metadata.deployment_names[0]
         if deployment_name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
             return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[deployment_name]

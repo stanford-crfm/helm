@@ -70,11 +70,16 @@ NLG_PREFIX_TAG: str = "nlg_prefix_tag"
 # Some models can follow instructions.
 INSTRUCTION_FOLLOWING_MODEL_TAG: str = "instruction_following"
 
+# For Vision-langauge models (VLMs)
+VISION_LANGUAGE_MODEL_TAG: str = "vision_language"
+
 
 MODEL_METADATA_FILE = "model_metadata.yaml"
 
 
-@dataclass(frozen=True)
+# Frozen is set to false as the model_deployment_registry.py file
+# might populate the deployment_names field.
+@dataclass(frozen=False)
 class ModelMetadata:
     # Name of the model group (e.g. "openai/davinci").
     # This is the name of the model, not the name of the deployment.
@@ -144,7 +149,8 @@ ALL_MODELS_METADATA: List[ModelMetadata] = [
     ModelMetadata(
         name="anthropic/claude-v1.3",
         display_name="Anthropic Claude v1.3",
-        description="A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).",
+        description="A 52B parameter language model, trained using reinforcement learning from human feedback "
+        "[paper](https://arxiv.org/pdf/2204.05862.pdf).",
         access="limited",
         num_parameters=52000000000,
         release_date="2023-03-17",
@@ -216,7 +222,7 @@ def get_models_by_creator_organization(organization: str) -> List[str]:
     Gets models by creator organization.
     Example:   ai21   =>   ai21/j1-jumbo, ai21/j1-grande, ai21-large.
     """
-    return [model.name for model in MODEL_NAME_TO_MODEL_METADATA if model.creator_organization == organization]
+    return [model.name for model in ALL_MODELS_METADATA if model.creator_organization == organization]
 
 
 def get_model_names_with_tag(tag: str) -> List[str]:
