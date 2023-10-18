@@ -67,14 +67,14 @@ class TruthfulQAScenario(Scenario):
     def download_dataset(self):
         """Downloads the TruthfulQA dataset."""
         # Download the raw data
-        data_dir = os.path.join(self.output_path, "data")
+        data_dir = os.path.join(output_path, "data")
         url = "https://raw.githubusercontent.com/sylinrl/TruthfulQA/main/TruthfulQA.csv"
         ensure_directory_exists(data_dir)
         ensure_file_downloaded(source_url=url, target_path=os.path.join(data_dir, self.DATASET_FILE_NAME))
 
     def load_dataset(self) -> List[Dict[str, Any]]:
         """Loads the dataset downloaded in download_dataset()."""
-        file_path = os.path.join(self.output_path, "data", self.DATASET_FILE_NAME)
+        file_path = os.path.join(output_path, "data", self.DATASET_FILE_NAME)
         data = []
         with open(file_path, encoding="utf-8") as f:
             # Skip headers
@@ -93,7 +93,7 @@ class TruthfulQAScenario(Scenario):
                 data.append(data_point)
         return data
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """Returns the instances for this scenario."""
 
         def format_str(unformatted_str: str) -> str:

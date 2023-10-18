@@ -352,7 +352,7 @@ class MATHScenario(Scenario):
         if use_chain_of_thought:
             assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         dataset = {}
         data = typing.cast(DatasetDict, load_dataset("competition_math", ignore_verifications=True))
 

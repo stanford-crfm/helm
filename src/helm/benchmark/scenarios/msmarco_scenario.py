@@ -332,9 +332,9 @@ class MSMARCOScenario(Scenario):
         """Download the resource at urlstring and return the absolute path.
 
         Downloaded file is saved to a directory named 'data' in
-        self.output_path.
+        output_path.
         """
-        data_path = os.path.join(self.output_path, "data")
+        data_path = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
         target_file_path = os.path.join(data_path, target_file_name)
         ensure_file_downloaded(source_url=urlstring, target_path=target_file_path)
@@ -631,7 +631,7 @@ class MSMARCOScenario(Scenario):
         instances = [self.get_valid_instance(qid) for qid in qids]
         return instances
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """Get instances for this scenario.
 
         Refer to the documentation of the following methods for details on how

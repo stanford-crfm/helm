@@ -187,7 +187,7 @@ class LexGLUEScenario(Scenario):
     def get_instances_for_subset(self, config: str) -> List[Instance]:
         task_code = TASK_CODE_MAPPING[config]
         # Load dataset
-        cache_dir = str(Path(self.output_path) / "data")
+        cache_dir = str(Path(output_path) / "data")
         dataset: Any = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
 
         if task_code in [TaskType.SLTC, TaskType.QA]:
@@ -246,7 +246,7 @@ class LexGLUEScenario(Scenario):
 
         return generate_instances(TRAIN_SPLIT) + generate_instances(VALID_SPLIT) + generate_instances(TEST_SPLIT)
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         instances = []
         for subset in self.subsets:
             instances.extend(self.get_instances_for_subset(subset))

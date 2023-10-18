@@ -352,7 +352,7 @@ class SRNScenario(Scenario):
         )
         return rules, test_fact, test_rules_used, target_fact
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Read all the instances
         instances: List[Instance] = []
         random.seed(self.random_seed)

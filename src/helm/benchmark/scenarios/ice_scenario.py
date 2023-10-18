@@ -435,10 +435,10 @@ class ICEScenario(Scenario):
                 self.filter_by_metadata(
                     subset,
                     os.path.join(data_path, "Headers"),
-                    listdir_with_pinned_file_order(self.output_path, corpus_path),
+                    listdir_with_pinned_file_order(output_path, corpus_path),
                 )
                 if can_filter
-                else listdir_with_pinned_file_order(self.output_path, corpus_path)
+                else listdir_with_pinned_file_order(output_path, corpus_path)
             )
 
             for filename in selected_texts:

@@ -144,7 +144,7 @@ class DisinformationScenario(Scenario):
 
         return instances
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         if self.capability == "reiteration":
             data_url = REITERATION_DATA_URL
         elif self.capability == "wedging":
@@ -152,7 +152,7 @@ class DisinformationScenario(Scenario):
         else:
             raise ValueError(f"Unknown disinformation evaluation: {self.capability}")
 
-        data_path = os.path.join(self.output_path, self.capability)
+        data_path = os.path.join(output_path, self.capability)
         ensure_file_downloaded(source_url=data_url, target_path=data_path)
 
         data = []

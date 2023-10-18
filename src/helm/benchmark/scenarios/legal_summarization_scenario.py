@@ -134,7 +134,7 @@ class LegalSummarizationScenario(Scenario):
         self.doc_max_length = doc_max_length
 
     def _download_dataset(self, hf_name):
-        cache_dir = str(Path(self.output_path) / "data")
+        cache_dir = str(Path(output_path) / "data")
         if self.dataset_name == "EurLexSum":
             # IMPORTANT: change this once more languages should be supported
             dataset: Any = load_dataset(hf_name, "english", cache_dir=cache_dir)
@@ -166,7 +166,7 @@ class LegalSummarizationScenario(Scenario):
 
         return dataset, article_key, summary_key
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         dataset, article_key, summary_key = self._load_dataset(self.dataset_name)
 
         instances: List[Instance] = []

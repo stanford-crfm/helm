@@ -219,7 +219,7 @@ class Scenario(ABC):
         self.definition_path = "https://github.com/stanford-crfm/helm/blob/main/src/" + path
 
     @abstractmethod
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """
         Does the main work in the `Scenario` (e.g., download datasets, convert
         it into a list of instances).

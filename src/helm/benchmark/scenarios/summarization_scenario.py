@@ -91,7 +91,7 @@ class SummarizationScenario(Scenario):
         return False
 
     def _download_dataset(self, url, tag):
-        data_dir = os.path.join(self.output_path, "data")
+        data_dir = os.path.join(output_path, "data")
         ensure_directory_exists(data_dir)
         ensure_file_downloaded(source_url=url, target_path=os.path.join(data_dir, f"{tag}.pk"))
 
@@ -121,7 +121,7 @@ class SummarizationScenario(Scenario):
 
         return dataset, article_key, summary_key
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         dataset, article_key, summary_key = self._load_dataset(self.dataset_name)
 
         splits = {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}
