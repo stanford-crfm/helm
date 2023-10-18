@@ -51,7 +51,7 @@ class ThePileScenario(Scenario):
         self.subset = subset
 
     @htrack(None)
-    def load_and_cache_all_subsets(self, output_path: str):
+    def load_and_cache_all_subsets(self, output_path):
         data_path = os.path.join(output_path, "data")
         subsets = {subset: [] for subset in self.pile_subsets}
 

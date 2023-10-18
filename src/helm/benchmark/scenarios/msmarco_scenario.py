@@ -423,7 +423,7 @@ class MSMARCOScenario(Scenario):
         topk_dict = {k: v for k, v in topk_dict.items()}  # Convert the defaultdict to a regular dict
         return topk_dict
 
-    def prepare_data(self, output_path: str):
+    def prepare_data(self, output_path):
         """Download and load all the data."""
         # Passages
         self.document_dict = self.create_id_item_dict(self.download_helper(("documents",), output_path))
