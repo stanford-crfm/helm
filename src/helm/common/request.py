@@ -1,6 +1,6 @@
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, List, Optional, Dict
+from typing import Any, Callable, Dict, List, Optional
 
 from helm.common.media_object import MultimediaObject
 from helm.proxy.models import Model, get_model
@@ -216,7 +216,7 @@ EMBEDDING_UNAVAILABLE_REQUEST_RESULT = RequestResult(
 )
 
 
-def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
+def wrap_request_time(compute: Callable[[], Dict[str, Any]]) -> Callable[[], Any]:
     """Return a version of `compute` that puts `request_time` into its output."""
 
     def wrapped_compute():
