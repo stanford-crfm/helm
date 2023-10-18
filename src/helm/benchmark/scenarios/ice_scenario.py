@@ -401,7 +401,7 @@ class ICEScenario(Scenario):
         corpus_filenames = list(filter(lambda x: any([regex.match(x) for regex in regexes]), all_corpus_filenames))
         return sorted(corpus_filenames)
 
-    def get_instances(self, output_path: str, debug_cap: Union[int, None] = None) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
 
         for subset in self.subset:
@@ -461,8 +461,5 @@ class ICEScenario(Scenario):
 
                 for t in preprocessed_texts:
                     instances.append(Instance(Input(text=t), references=[], split=TEST_SPLIT))
-
-                    if debug_cap and len(instances) >= debug_cap:
-                        return instances
 
         return instances
