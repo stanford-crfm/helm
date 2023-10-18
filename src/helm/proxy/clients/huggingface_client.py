@@ -74,12 +74,12 @@ class HuggingFaceServer:
             stop_sequence_ids = self.tokenizer(
                 raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
             )
-            assert len(stop_sequence_ids.input_ids) == 1, "Total number of stop sequences should be 1."
-            if len(stop_sequence_ids.input_ids[0]) == 1:
+            if len(stop_sequence_ids.input_ids) == 1 and len(stop_sequence_ids.input_ids[0]) == 1:
                 raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
             else:
                 stopping_criteria = StoppingCriteriaList()
-                stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_ids.input_ids[0]))
+                for stop_sequence_input_ids in stop_sequence_ids.input_ids:
+                    stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_input_ids))
             del raw_request["stop_sequences"]
 
         # Strip out irrelevant parameters
@@ -186,10 +186,6 @@ class HuggingFaceClient(CachingClient):
         # Embedding not supported for this model
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
-
-        # Only a single stop sequence is supported as we can only pass in a single value for `eos_token_id`
-        if len(request.stop_sequences) > 1:
-            raise ValueError("More than one stop sequence is not supported.")
 
         raw_request = {
             "engine": request.model_engine,
