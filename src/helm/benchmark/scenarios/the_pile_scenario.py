@@ -51,7 +51,7 @@ class ThePileScenario(Scenario):
         self.subset = subset
 
     @htrack(None)
-    def load_and_cache_all_subsets(self):
+    def load_and_cache_all_subsets(self, output_path: str):
         data_path = os.path.join(output_path, "data")
         subsets = {subset: [] for subset in self.pile_subsets}
 
@@ -88,7 +88,7 @@ class ThePileScenario(Scenario):
 
         # If the target subset does not exist, load and cache all subsets to the directory
         if not os.path.exists(subset_path):
-            self.load_and_cache_all_subsets()
+            self.load_and_cache_all_subsets(output_path)
 
         # Read all the instances
         instances = []

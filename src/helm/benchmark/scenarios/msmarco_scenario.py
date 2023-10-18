@@ -328,7 +328,7 @@ class MSMARCOScenario(Scenario):
         self.topk_dicts: Dict[str, Dict[int, Dict[int, int]]] = {TRAIN_SPLIT: {}, VALID_SPLIT: {}}
         self.qids: Dict[str, List[int]] = {TRAIN_SPLIT: [], VALID_SPLIT: []}
 
-    def download_file(self, urlstring: str, target_file_name: str) -> str:
+    def download_file(self, urlstring: str, target_file_name: str, output_path: str) -> str:
         """Download the resource at urlstring and return the absolute path.
 
         Downloaded file is saved to a directory named 'data' in
@@ -340,12 +340,12 @@ class MSMARCOScenario(Scenario):
         ensure_file_downloaded(source_url=urlstring, target_path=target_file_path)
         return target_file_path
 
-    def download_helper(self, data_key: Tuple[str, str]) -> str:
+    def download_helper(self, data_key: Tuple[str, str], output_path: str) -> str:
         """Call download_file for self.DATA_URIS[data_key] and return the file path to the downloaded file."""
         # Download the file
         urlstring = self.DATA_URIS[data_key]
         target_file_name = f"{'_'.join(data_key)}.tsv"
-        file_path = self.download_file(urlstring, target_file_name)
+        file_path = self.download_file(urlstring, target_file_name, output_path)
 
         # Ensure that all the files are separated with a tab character.
         seperator = self.DATASET_SEPARATOR[data_key]
@@ -423,22 +423,28 @@ class MSMARCOScenario(Scenario):
         topk_dict = {k: v for k, v in topk_dict.items()}  # Convert the defaultdict to a regular dict
         return topk_dict
 
-    def prepare_data(self):
+    def prepare_data(self, output_path: str):
         """Download and load all the data."""
         # Passages
-        self.document_dict = self.create_id_item_dict(self.download_helper(("documents",)))
+        self.document_dict = self.create_id_item_dict(self.download_helper(("documents",), output_path))
         self.docids = list(self.document_dict.keys())
 
         # Train queries
-        self.query_dicts[TRAIN_SPLIT] = self.create_id_item_dict(self.download_helper((TRAIN_SPLIT, "queries")))
-        self.qrels_dicts[TRAIN_SPLIT] = self.create_qrels_dict(self.download_helper((TRAIN_SPLIT, "qrels")))
-        self.topk_dicts[TRAIN_SPLIT] = self.create_topk_dict(self.download_helper((TRAIN_SPLIT, "topk")))
+        self.query_dicts[TRAIN_SPLIT] = self.create_id_item_dict(
+            self.download_helper((TRAIN_SPLIT, "queries"), output_path)
+        )
+        self.qrels_dicts[TRAIN_SPLIT] = self.create_qrels_dict(
+            self.download_helper((TRAIN_SPLIT, "qrels"), output_path)
+        )
+        self.topk_dicts[TRAIN_SPLIT] = self.create_topk_dict(self.download_helper((TRAIN_SPLIT, "topk"), output_path))
         self.qids[TRAIN_SPLIT] = list(self.query_dicts[TRAIN_SPLIT].keys())
 
         # Validation queries
-        self.query_dicts[VALID_SPLIT] = self.create_id_item_dict(self.download_helper((self.track, "queries")))
-        self.qrels_dicts[VALID_SPLIT] = self.create_qrels_dict(self.download_helper((self.track, "qrels")))
-        self.topk_dicts[VALID_SPLIT] = self.create_topk_dict(self.download_helper((self.track, "topk")))
+        self.query_dicts[VALID_SPLIT] = self.create_id_item_dict(
+            self.download_helper((self.track, "queries"), output_path)
+        )
+        self.qrels_dicts[VALID_SPLIT] = self.create_qrels_dict(self.download_helper((self.track, "qrels"), output_path))
+        self.topk_dicts[VALID_SPLIT] = self.create_topk_dict(self.download_helper((self.track, "topk"), output_path))
         self.qids[VALID_SPLIT] = list(self.query_dicts[VALID_SPLIT].keys())
 
     def shuffle_ids(self):
@@ -640,7 +646,7 @@ class MSMARCOScenario(Scenario):
             * self.get_valid_instances
         """
         hlog("Preparing the datasets.")
-        self.prepare_data()
+        self.prepare_data(output_path)
 
         hlog("Shuffling Document and Query IDs.")
         self.shuffle_ids()

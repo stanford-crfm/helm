@@ -184,7 +184,7 @@ class LexGLUEScenario(Scenario):
         self.subsets = [subset] if subset != "all" else list(TASK_CODE_MAPPING.keys())
         self.random: random.Random = random.Random(42)
 
-    def get_instances_for_subset(self, config: str) -> List[Instance]:
+    def get_instances_for_subset(self, config: str, output_path: str) -> List[Instance]:
         task_code = TASK_CODE_MAPPING[config]
         # Load dataset
         cache_dir = str(Path(output_path) / "data")
@@ -249,5 +249,5 @@ class LexGLUEScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         instances = []
         for subset in self.subsets:
-            instances.extend(self.get_instances_for_subset(subset))
+            instances.extend(self.get_instances_for_subset(subset, output_path))
         return instances

@@ -105,7 +105,7 @@ class CommonSenseScenario(Scenario):
         assert correct_choice in [0, 1, 2]
         return question, answers, correct_answer
 
-    def download_dataset(self):
+    def download_dataset(self, output_path: str):
         # Download the raw data
         data_path = os.path.join(output_path, "data", self.dataset)
         ensure_directory_exists(data_path)
@@ -189,7 +189,7 @@ class CommonSenseScenario(Scenario):
         else:
             raise ValueError(f"Unknown dataset: {self.dataset}")
 
-    def load_dataset(self) -> List[List[str]]:
+    def load_dataset(self, output_path: str) -> List[List[str]]:
         data_path = os.path.join(output_path, "data", self.dataset)
 
         if self.dataset == "hellaswag":
@@ -236,8 +236,8 @@ class CommonSenseScenario(Scenario):
         return data
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        self.download_dataset()
-        data = self.load_dataset()
+        self.download_dataset(output_path)
+        data = self.load_dataset(output_path)
 
         splits = {
             "train": TRAIN_SPLIT,
