@@ -62,8 +62,8 @@ class CopyrightScenario(Scenario):
         self.datatag = datatag
         self.source_url = f"https://drive.google.com/uc?id={datatag2hash[datatag]}"
 
-    def get_instances(self) -> List[Instance]:
-        target_path: str = os.path.join(self.output_path, f"{self.datatag}.json")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        target_path: str = os.path.join(output_path, f"{self.datatag}.json")
         ensure_file_downloaded(self.source_url, target_path)
 
         with open(target_path, "r") as f:
