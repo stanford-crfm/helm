@@ -61,9 +61,9 @@ class AlephAlphaTokenizer(CachingTokenizer):
         return {"token_ids": result.ids, "tokens": result.tokens}
 
     def _tokenization_raw_response_to_tokens(
-        self, response: Dict[str, Any], request: Dict[str, Any]
+        self, response: Dict[str, Any], request: TokenizationRequest
     ) -> List[TokenizationToken]:
-        tokens: list = response["token_ids" if request["encode"] else "tokens"]
+        tokens: list = response["token_ids" if request.encode else "tokens"]
         return [TokenizationToken(token) for token in tokens]
 
     def _decode_request_to_cache_key(self, request: DecodeRequest) -> Dict[str, Any]:
@@ -80,6 +80,6 @@ class AlephAlphaTokenizer(CachingTokenizer):
         # This output using "result" is used to preserve our existing Cache (10/17/2023)
         return {"result": text}
 
-    def _decode_raw_response_to_text(self, response: Dict[str, Any], request: Dict[str, Any]) -> str:
+    def _decode_raw_response_to_text(self, response: Dict[str, Any], request: DecodeRequest) -> str:
         # The text always seems to start with a single whitespace when encoding/decoding.
         return response["result"].replace(" ", "", 1)

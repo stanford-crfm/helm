@@ -40,7 +40,7 @@ class CachingTokenizer(Tokenizer):
         return asdict(request)
 
     def _tokenization_raw_response_to_tokens(
-        self, response: Dict[str, Any], request: Dict[str, Any]
+        self, response: Dict[str, Any], request: TokenizationRequest
     ) -> List[TokenizationToken]:
         """Returns the list of tokens from the raw response.
         This is used to extract the tokens from the raw response.
@@ -50,7 +50,7 @@ class CachingTokenizer(Tokenizer):
         """
         return [TokenizationToken(token) for token in response["tokens"]]
 
-    def _decode_raw_response_to_text(self, response: Dict[str, Any], request: Dict[str, Any]) -> str:
+    def _decode_raw_response_to_text(self, response: Dict[str, Any], request: DecodeRequest) -> str:
         """Returns the text from the raw response.
         This is used to extract the text from the raw response.
 
@@ -88,12 +88,12 @@ class CachingTokenizer(Tokenizer):
 
         Returns a `TokenizationRequestResult` object.
         """
-        raw_request = self._tokenization_request_to_cache_key(request)
+        raw_request: Dict[str, Any] = self._tokenization_request_to_cache_key(request)
 
         try:
             # Get the tokens from the cache or compute them
             response, cached = self.cache.get(raw_request, wrap_request_time(lambda: self._tokenize_do_it(raw_request)))
-            tokens: List[TokenizationToken] = self._tokenization_raw_response_to_tokens(response, raw_request)
+            tokens: List[TokenizationToken] = self._tokenization_raw_response_to_tokens(response, request)
             if request.truncation:
                 tokens = tokens[: request.max_length]
 
@@ -127,12 +127,12 @@ class CachingTokenizer(Tokenizer):
         However in some cases, such as the AI21 tokenizer, the decoding logic is more complex and
         requires additional logic, so this method can be overridden.
         """
-        raw_request = self._decode_request_to_cache_key(request)
+        raw_request: Dict[str, Any] = self._decode_request_to_cache_key(request)
 
         try:
             # Get the tokens from the cache or compute them
             response, cached = self.cache.get(raw_request, wrap_request_time(lambda: self._decode_do_it(raw_request)))
-            text: str = self._decode_raw_response_to_text(response, raw_request)
+            text: str = self._decode_raw_response_to_text(response, request)
 
             # Internal check of the type of the text
             # This is to make sure that the decoding is correct

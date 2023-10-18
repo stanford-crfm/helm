@@ -70,9 +70,9 @@ class CohereTokenizer(CachingTokenizer):
         return result
 
     def _tokenization_raw_response_to_tokens(
-        self, response: Dict[str, Any], request: Dict[str, Any]
+        self, response: Dict[str, Any], request: TokenizationRequest
     ) -> List[TokenizationToken]:
-        tokens = response["tokens" if request["encode"] else "token_strings"]
+        tokens = response["tokens" if request.encode else "token_strings"]
         return [TokenizationToken(token) for token in tokens]
 
     def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
