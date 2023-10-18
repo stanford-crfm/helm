@@ -401,7 +401,7 @@ class ICEScenario(Scenario):
         corpus_filenames = list(filter(lambda x: any([regex.match(x) for regex in regexes]), all_corpus_filenames))
         return sorted(corpus_filenames)
 
-    def get_instances(self, debug_cap: Union[int, None] = None) -> List[Instance]:
+    def get_instances(self, output_path: str, debug_cap: Union[int, None] = None) -> List[Instance]:
         instances: List[Instance] = []
 
         for subset in self.subset:
