@@ -2564,6 +2564,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
 
         # Special handling for Anthropic Claude
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
+            print_visible("ANTHROPIC MODEL TAG")  # TODO(PR): Remove
             try:
                 import anthropic
                 from helm.proxy.clients.anthropic_client import AnthropicClient

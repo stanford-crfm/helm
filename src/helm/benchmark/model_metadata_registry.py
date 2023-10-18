@@ -149,7 +149,7 @@ ALL_MODELS_METADATA: List[ModelMetadata] = [
         num_parameters=52000000000,
         release_date="2023-03-17",
         tags=[
-            ANTHROPIC_MODEL_TAG,
+            ANTHROPIC_CLAUDE_1_MODEL_TAG,
             TEXT_MODEL_TAG,
             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
             GPT2_TOKENIZER_TAG,
