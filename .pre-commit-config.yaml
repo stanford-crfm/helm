@@ -9,4 +9,4 @@ repos:
   rev: 'fc260393cc4ec09f8fc0a5ba4437f481c8b55dc1'
   hooks:
     - id: prettier
-      types_or: [typescript, javascript]
+      types_or: [tsx, javascript]

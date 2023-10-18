@@ -1,3 +1,4 @@
+from typing import Optional
 from helm.common.general import singleton
 from .huggingface_tokenizer import HuggingFaceTokenizers
 
@@ -13,13 +14,18 @@ class TestHuggingFaceTokenizers:
     )
 
     @staticmethod
-    def verify_get_tokenizer(tokenizer_name: str, expected_num_tokens: int):
-        tokenizer = HuggingFaceTokenizers.get_tokenizer(tokenizer_name)
-        assert tokenizer_name in HuggingFaceTokenizers.tokenizers, "Tokenizer should be cached"
+    def verify_get_tokenizer(
+        tokenizer_name: str, expected_num_tokens: int, pretrained_model_name_or_path: Optional[str] = None
+    ):
+        tokenizer = HuggingFaceTokenizers.get_tokenizer(
+            helm_tokenizer_name=tokenizer_name,
+            pretrained_model_name_or_path=pretrained_model_name_or_path or tokenizer_name,
+        )
+        assert tokenizer_name in HuggingFaceTokenizers._tokenizers, "Tokenizer should be cached"
         assert len(tokenizer.encode(TestHuggingFaceTokenizers.TEST_PROMPT)) == expected_num_tokens
 
     def test_get_tokenizer_gpt2(self):
-        TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt2", 51)
+        TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt2", 51, pretrained_model_name_or_path="gpt2")
 
     def test_get_tokenizer_gptj(self):
         TestHuggingFaceTokenizers.verify_get_tokenizer("EleutherAI/gpt-j-6B", 51)
@@ -34,7 +40,7 @@ class TestHuggingFaceTokenizers:
         TestHuggingFaceTokenizers.verify_get_tokenizer("bigscience/T0pp", 58)
 
     def test_get_tokenizer_t511b(self):
-        TestHuggingFaceTokenizers.verify_get_tokenizer("google/t5-11b", 58)
+        TestHuggingFaceTokenizers.verify_get_tokenizer("google/t5-11b", 58, pretrained_model_name_or_path="t5-11b")
 
     def test_get_tokenizer_ul2(self):
         TestHuggingFaceTokenizers.verify_get_tokenizer("google/ul2", 58)
@@ -44,7 +50,7 @@ class TestHuggingFaceTokenizers:
 
     def test_gpt2_tokenize_eos(self):
         eos_token: str = "<|endoftext|>"
-        tokenizer = HuggingFaceTokenizers.get_tokenizer("huggingface/gpt2")
+        tokenizer = HuggingFaceTokenizers.get_tokenizer("huggingface/gpt2", pretrained_model_name_or_path="gpt2")
         token_ids = tokenizer.encode(eos_token)
         assert singleton(token_ids) == 50256
         assert tokenizer.decode(token_ids) == eos_token

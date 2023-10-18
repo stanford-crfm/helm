@@ -19,7 +19,6 @@ from helm.common.tokenization_request import (
 )
 from helm.proxy.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
-from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
 
@@ -101,11 +100,6 @@ class AutoClient(Client):
                     provider_bindings={"api_key": provide_api_key},
                 )
                 client = create_object(client_spec)
-
-            elif get_huggingface_model_config(model):
-                from helm.proxy.clients.huggingface_client import HuggingFaceClient
-
-                client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "neurips":
                 client = HTTPModelClient(cache_config=cache_config)
             elif organization == "openai":
@@ -169,6 +163,7 @@ class AutoClient(Client):
                 "eleutherai",
                 "lmsys",
                 "meta",
+                "mistralai",
                 "mosaicml",
                 "stabilityai",
                 "stanford",
@@ -202,7 +197,12 @@ class AutoClient(Client):
                     checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
                     precision=os.environ.get("LIT_GPT_PRECISION", "bf16-true"),
                 )
+            elif organization == "HuggingFaceM4":
+                from helm.proxy.clients.vision_language.idefics_client import IDEFICSClient
 
+                client = IDEFICSClient(
+                    cache_config, tokenizer_client=self._get_tokenizer_client("HuggingFaceM4/idefics-9b")
+                )
             else:
                 raise ValueError(f"Could not find client for model: {model}")
             self.clients[model] = client
@@ -210,7 +210,7 @@ class AutoClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         """
-        Dispatch based on the the name of the model (e.g., openai/davinci).
+        Dispatch based on the name of the model (e.g., openai/davinci).
         Retries if request fails.
         """
 
@@ -247,10 +247,6 @@ class AutoClient(Client):
                     tokenizer_config.tokenizer_spec, constant_bindings={"cache_config": cache_config}
                 )
                 client = create_object(tokenizer_spec)
-            elif get_huggingface_model_config(tokenizer):
-                from helm.proxy.clients.huggingface_client import HuggingFaceClient
-
-                client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "neurips":
                 client = HTTPModelClient(cache_config=cache_config)
             elif organization in [
@@ -263,8 +259,10 @@ class AutoClient(Client):
                 "huggingface",
                 "meta-llama",
                 "microsoft",
+                "mistralai",
                 "tiiuae",
                 "hf-internal-testing",
+                "HuggingFaceM4",
             ]:
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
@@ -312,7 +310,6 @@ class AutoClient(Client):
 
             elif organization == "lightningai":
                 client = self._get_client(tokenizer)
-
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client

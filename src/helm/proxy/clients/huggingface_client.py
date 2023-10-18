@@ -2,7 +2,11 @@ from copy import deepcopy
 import torch
 from dataclasses import asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from typing import Any, Dict, List
+from transformers.generation.stopping_criteria import (
+    StoppingCriteria,
+    StoppingCriteriaList,
+)
+from typing import Any, Dict, List, Optional
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
@@ -16,47 +20,60 @@ from helm.common.tokenization_request import (
 )
 from .client import Client, wrap_request_time, truncate_sequence, cleanup_tokens
 from .huggingface_tokenizer import HuggingFaceTokenizers
-from helm.proxy.clients.huggingface_model_registry import (
-    get_huggingface_model_config,
-    HuggingFaceModelConfig,
-    HuggingFaceHubModelConfig,
-    HuggingFaceLocalModelConfig,
-)
 from threading import Lock
 
 
-# Map of HELM model name to Hugging Face Hub model name where they differ.
-_KNOWN_MODEL_ALIASES: Dict[str, str] = {
+# TODO: Delete this.
+_MODEL_NAME_ALIASES: Dict[str, str] = {
+    "google/t5-11b": "t5-11b",
     "huggingface/gpt2": "gpt2",
+    "huggingface/santacoder": "bigcode/santacoder",
     "huggingface/starcoder": "bigcode/starcoder",
 }
+"""Mapping of some HELM model names to Hugging Face pretrained model name."""
+
+
+# TODO: Delete this.
+def resolve_alias(model_name: str) -> str:
+    """Resolve some HELM model names to Hugging Face pretrained model name."""
+    return _MODEL_NAME_ALIASES.get(model_name, model_name)
+
+
+class StopAtSpecificTokenCriteria(StoppingCriteria):
+    def __init__(self, stop_sequence: List[int]):
+        super().__init__()
+        self.stop_sequence = stop_sequence
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
+        # Create a tensor from the stop_sequence
+        stop_sequence_tensor = torch.tensor(self.stop_sequence, device=input_ids.device, dtype=input_ids.dtype)
+
+        # Check if the current sequence ends with the stop_sequence
+        current_sequence = input_ids[:, -len(self.stop_sequence) :]
+        return bool(torch.all(current_sequence == stop_sequence_tensor).item())
 
 
 class HuggingFaceServer:
-    def __init__(self, model_config: HuggingFaceModelConfig):
+    """A thin wrapper around a Hugging Face AutoModelForCausalLM for HuggingFaceClient to call."""
+
+    def __init__(self, pretrained_model_name_or_path: str, revision: Optional[str] = None):
         if torch.cuda.is_available():
             hlog("CUDA is available, initializing with a GPU...")
             self.device: str = "cuda:0"
         else:
             self.device = "cpu"
         model_kwargs = {}
-        # If the HuggingFace model is stored locally, it will have a path defined and we should load it from there.
-        # Otherwise, download it from the HuggingFace hub by passing in its identifier.
-        if isinstance(model_config, HuggingFaceLocalModelConfig):
-            model_name = model_config.path
-        elif isinstance(model_config, HuggingFaceHubModelConfig):
-            model_name = model_config.model_id
-            if model_config.revision:
-                model_kwargs["revision"] = model_config.revision
-        else:
-            raise Exception(f"Unknown type of model_config: {model_config}")
-        with htrack_block(f"Loading Hugging Face model for config {model_config}"):
+        if revision:
+            model_kwargs["revision"] = revision
+        with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
-            self.model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, **model_kwargs).to(
-                self.device
+            self.model = AutoModelForCausalLM.from_pretrained(
+                pretrained_model_name_or_path, trust_remote_code=True, **model_kwargs
+            ).to(self.device)
+        with htrack_block(f"Loading Hugging Face tokenizer for model {pretrained_model_name_or_path}"):
+            self.tokenizer: AutoTokenizer = HuggingFaceTokenizers.create_tokenizer(
+                pretrained_model_name_or_path, revision
             )
-        with htrack_block(f"Loading Hugging Face tokenizer model for config {model_config}"):
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name, **model_kwargs)
 
     def serve_request(self, raw_request: Dict[str, Any]):
         encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
@@ -68,14 +85,18 @@ class HuggingFaceServer:
         raw_request["output_scores"] = True
         top_k_per_token: int = raw_request["top_k_per_token"]
         del raw_request["top_k_per_token"]
+        stopping_criteria: Optional[StoppingCriteriaList] = None
         if len(raw_request["stop_sequences"]) > 0:
             stop_sequence_ids = self.tokenizer(
                 raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
             )
-            assert len(stop_sequence_ids.input_ids) == 1, "Total number of stop words should be 1."
-            assert len(stop_sequence_ids.input_ids[0]) == 1, "Total number of tokens in each stop word should be 1."
+            if len(stop_sequence_ids.input_ids) == 1 and len(stop_sequence_ids.input_ids[0]) == 1:
+                raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
+            else:
+                stopping_criteria = StoppingCriteriaList()
+                for stop_sequence_input_ids in stop_sequence_ids.input_ids:
+                    stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_input_ids))
             del raw_request["stop_sequences"]
-            raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
 
         # Strip out irrelevant parameters
         relevant_raw_request = {
@@ -85,7 +106,11 @@ class HuggingFaceServer:
         }
 
         # Use HuggingFace's `generate` method.
-        output = self.model.generate(**encoded_input, **relevant_raw_request)
+        output = self.model.generate(
+            **encoded_input,
+            **relevant_raw_request,
+            stopping_criteria=stopping_criteria,
+        )
         sequences = output.sequences
         scores = output.scores
 
@@ -136,49 +161,46 @@ class HuggingFaceServer:
         return {"completions": completions, "input_length": len(encoded_input.input_ids[0])}
 
 
-_servers_lock: Lock = Lock()
-_servers: Dict[str, HuggingFaceServer] = {}
+class HuggingFaceServerFactory:
+    """A factory that creates and caches HuggingFaceServer objects."""
 
+    _servers: Dict[str, HuggingFaceServer] = {}
+    _servers_lock: Lock = Lock()
 
-def _get_singleton_server(model_config: HuggingFaceModelConfig) -> HuggingFaceServer:
-    """Lookup or create a new HuggingFaceServer that will be shared among all threads.
+    @staticmethod
+    def get_server(helm_model_name: str, pretrained_model_name_or_path: str, revision: Optional[str] = None) -> Any:
+        """
+        Checks if the desired HuggingFaceModel is cached. Creates the HuggingFaceModel if it's not cached.
+        Returns the HuggingFaceModel.
+        """
+        with HuggingFaceServerFactory._servers_lock:
+            if helm_model_name not in HuggingFaceServerFactory._servers:
+                with htrack_block(
+                    f"Loading {pretrained_model_name_or_path} (revision={revision}) "
+                    f"for HELM model {helm_model_name} with Hugging Face Transformers"
+                ):
+                    HuggingFaceServerFactory._servers[helm_model_name] = HuggingFaceServer(
+                        pretrained_model_name_or_path, revision
+                    )
 
-    When --num-threads > 1, multiple threads will attempt to instantiate
-    `HuggingFaceServer`s simultaneously. Since we have limited GPU memory, we want to
-    just share a single copy of each model we are using. So, this function uses a lock
-    to make sure that for each model, only one thread creates a HuggingFaceServer.
-    The other threads can share that same server in the global _servers dictionary."""
-    global _servers_lock
-    global _servers
-    with _servers_lock:
-        if model_config.model_id not in _servers:
-            _servers[model_config.model_id] = HuggingFaceServer(model_config)
-    return _servers[model_config.model_id]
+        return HuggingFaceServerFactory._servers[helm_model_name]
 
 
 class HuggingFaceClient(Client):
-    def __init__(self, cache_config: CacheConfig):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        pretrained_model_name_or_path: Optional[str] = None,
+        revision: Optional[str] = None,
+    ):
         self.cache = Cache(cache_config)
-        self.model_server_instances: Dict[str, HuggingFaceServer] = {}
-
-    def get_model_server_instance(self, model: str) -> HuggingFaceServer:
-        model_config = get_huggingface_model_config(model)
-        # Special-case some models in so that users don't have to enable them with --enable-huggingface-models
-        if not model_config:
-            if model in _KNOWN_MODEL_ALIASES:
-                model_config = HuggingFaceHubModelConfig.from_string(_KNOWN_MODEL_ALIASES[model])
-            else:
-                model_config = HuggingFaceHubModelConfig.from_string(model)
-        return _get_singleton_server(model_config)
+        self._pretrained_model_name_or_path = pretrained_model_name_or_path
+        self._revision = revision
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
-
-        # Only a single stop sequence is supported as we can only pass in a single value for `eos_token_id`
-        if len(request.stop_sequences) > 1:
-            raise ValueError("More than one stop sequence is not supported.")
 
         raw_request = {
             "engine": request.model_engine,
@@ -192,14 +214,21 @@ class HuggingFaceClient(Client):
             "stop_sequences": request.stop_sequences,
         }
 
-        # Get cached model server instance if possible (to save on model and tokenizer
-        # loading times).
-        model_server_instance: HuggingFaceServer = self.get_model_server_instance(request.model)
+        pretrained_model_name_or_path: str
+        if self._pretrained_model_name_or_path:
+            pretrained_model_name_or_path = self._pretrained_model_name_or_path
+        else:
+            pretrained_model_name_or_path = resolve_alias(request.model)
+        huggingface_model: HuggingFaceServer = HuggingFaceServerFactory.get_server(
+            helm_model_name=request.model,
+            pretrained_model_name_or_path=pretrained_model_name_or_path,
+            revision=self._revision,
+        )
 
         try:
 
             def do_it():
-                return model_server_instance.serve_request(raw_request)
+                return huggingface_model.serve_request(raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
@@ -241,7 +270,16 @@ class HuggingFaceClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        tokenizer = HuggingFaceTokenizers.get_tokenizer(request.tokenizer)
+        pretrained_model_name_or_path: str
+        if self._pretrained_model_name_or_path:
+            pretrained_model_name_or_path = self._pretrained_model_name_or_path
+        else:
+            pretrained_model_name_or_path = resolve_alias(request.tokenizer)
+        tokenizer = HuggingFaceTokenizers.get_tokenizer(
+            helm_tokenizer_name=request.tokenizer,
+            pretrained_model_name_or_path=pretrained_model_name_or_path,
+            revision=self._revision,
+        )
         cache_key = asdict(request)
 
         try:
@@ -297,7 +335,16 @@ class HuggingFaceClient(Client):
         )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        tokenizer = HuggingFaceTokenizers.get_tokenizer(request.tokenizer)
+        pretrained_model_name_or_path: str
+        if self._pretrained_model_name_or_path:
+            pretrained_model_name_or_path = self._pretrained_model_name_or_path
+        else:
+            pretrained_model_name_or_path = resolve_alias(request.tokenizer)
+        tokenizer = HuggingFaceTokenizers.get_tokenizer(
+            helm_tokenizer_name=request.tokenizer,
+            pretrained_model_name_or_path=pretrained_model_name_or_path,
+            revision=self._revision,
+        )
         cache_key = asdict(request)
 
         try:

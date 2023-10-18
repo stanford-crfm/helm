@@ -44,7 +44,7 @@ class ModelDeployment:
     If unset, auto-inferred by the WindowService."""
 
     window_service_spec: Optional[WindowServiceSpec] = None
-    """Specification for instantiating the window service for this model deplooyment"""
+    """Specification for instantiating the window service for this model deployment"""
 
     max_sequence_length: Optional[int] = None
     """Maximum sequence length for this model deployment."""
@@ -63,6 +63,23 @@ class ModelDeployments:
 _name_to_model_deployment: Dict[str, ModelDeployment] = {}
 
 
+def register_model_deployment(model_deployment: ModelDeployment) -> None:
+    hlog(f"Registered model deployment {model_deployment.name}")
+    _name_to_model_deployment[model_deployment.name] = model_deployment
+
+    # Auto-register a model with this name if none exists
+    model_name = model_deployment.model_name or model_deployment.name
+    if model_name not in MODEL_NAME_TO_MODEL:
+        model = Model(
+            group="unknown",
+            name=model_name,
+            tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        )
+        MODEL_NAME_TO_MODEL[model_name] = model
+        ALL_MODELS.append(model)
+        hlog(f"Registered default metadata for model {model_name}")
+
+
 def register_model_deployments_from_path(path: str) -> None:
     global _name_to_model_deployment
     hlog(f"Reading model deployments from {path}...")
@@ -70,20 +87,7 @@ def register_model_deployments_from_path(path: str) -> None:
         raw = yaml.safe_load(f)
     model_deployments: ModelDeployments = cattrs.structure(raw, ModelDeployments)
     for model_deployment in model_deployments.model_deployments:
-        hlog(f"Registered model deployment {model_deployment.name}")
-        _name_to_model_deployment[model_deployment.name] = model_deployment
-
-        # Auto-register a model with this name if none exists
-        model_name = model_deployment.model_name or model_deployment.name
-        if model_name not in MODEL_NAME_TO_MODEL:
-            model = Model(
-                group="none",
-                name=model_name,
-                tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
-            )
-            MODEL_NAME_TO_MODEL[model_name] = model
-            ALL_MODELS.append(model)
-            hlog(f"Registered default metadata for model {model_name}")
+        register_model_deployment(model_deployment)
 
 
 def maybe_register_model_deployments_from_base_path(base_path: str) -> None:
