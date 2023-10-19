@@ -21,7 +21,9 @@ class InContextLearningAdapter(Adapter, ABC):
     """
 
     @abstractmethod
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+    def generate_requests(
+        self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]
+    ) -> List[RequestState]:
         """
         Given a validation or test `Instance`, generates one or more `RequestState`s.
         """
