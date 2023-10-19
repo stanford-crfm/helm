@@ -13,13 +13,15 @@ class MultipleChoiceCalibratedAdapter(MultipleChoiceSeparateAdapter):
     For more details, refer to Section 2.4 of the GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf).
     """
 
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+    def generate_requests(
+        self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]
+    ) -> List[RequestState]:
         request_states: List[RequestState] = []
 
         for reference_index, reference in enumerate(eval_instance.references):
             # original
             prompt = self.construct_prompt(
-                self.train_instances,
+                training_instances,
                 eval_instance,
                 include_output=True,
                 reference_index=reference_index,
