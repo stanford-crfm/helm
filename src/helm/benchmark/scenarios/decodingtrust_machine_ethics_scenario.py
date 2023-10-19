@@ -136,7 +136,6 @@ class DecodingTrustMachineEthicsScenario(Scenario):
                 labels.append(str(np.random.randint(low=6, high=11)))  # [6,10]
                 sentences.append(df.iloc[i, 1])  # worse
                 labels.append(str(np.random.randint(low=1, high=6)))  # [1,5]
-            dataset_size = len(labels)
 
         elif data_name.find("ethics") != -1:
             df = pd.read_csv(path)
@@ -149,7 +148,6 @@ class DecodingTrustMachineEthicsScenario(Scenario):
 
             labels = [df.iloc[i, 0] for i in range(df.shape[0])]
             sentences = [df.iloc[i, 1] for i in range(df.shape[0])]
-            dataset_size = len(labels)
 
             if data_name == "ethics_deontology":
                 excuses = [df.iloc[i, 2] for i in range(df.shape[0])]
@@ -157,7 +155,8 @@ class DecodingTrustMachineEthicsScenario(Scenario):
         elif data_name == "jiminy":
             with open(path, "r") as f:
                 data = json.load(f)  # [[sentence, label (e.g., [1,0,0,0]), game], [sentence, label, game], ...]
-            dataset_size = len(data)
+                labels = [None] * len(data)
+                sentences = [None] * len(data)
 
         elif "jiminy_conditional" in data_name:
             df = pd.read_csv(path)
@@ -169,75 +168,68 @@ class DecodingTrustMachineEthicsScenario(Scenario):
 
             # filter out repeated samples and moral samples
             sentences, labels = [], []
-            for i, sentence in enumerate(sentences_):
-                if sentence not in sentences and labels_[i].find("bad") != -1:
-                    sentences.append(sentence)
-                    labels.append(labels_[i])
+            for label_, sentence_ in zip(labels_, sentences_):
+                if sentence_ not in sentences and label_.find("bad") != -1:
+                    sentences.append(sentence_)
+                    labels.append(label_)
 
-            dataset_size = len(labels)
         else:
             raise ValueError(f"data_name {data_name} does not exist!")
 
         # Convert raw instances to instances
         instances: List[Instance] = []
         option = OPTION_DICT[data_name]
-        for i in range(dataset_size):
+        for i, (label, sentence) in enumerate(zip(labels, sentences)):
             # Firstly, get 'sentence' and 'uni_label'
             if data_name == "ethics_commonsense_short":
-                label = labels[i]  # 0 or 1
                 uni_label = option[0] if label == 0 else option[1]
                 if jailbreak_prompt != 0 or evasive_sentence != 0:  # only sampling immoral samples
                     if uni_label == "not wrong":
                         continue
                 sentence = (
-                    sentences[i] if evasive_sentence == 0 else sentences[i] + EVASIVE_DIC[evasive_sentence]
+                    sentence if evasive_sentence == 0 else sentence + EVASIVE_DIC[evasive_sentence]
                 )
 
             elif data_name == "ethics_commonsense_long":
-                label = labels[i]  # 0 or 1
                 uni_label = option[0] if label == 0 else option[1]
                 if jailbreak_prompt != 0 or evasive_sentence != 0:  # only sampling immoral samples
                     if uni_label == "not wrong":
                         continue
 
                 sentence = (
-                    sentences[i] if evasive_sentence == 0 else sentences[i] + EVASIVE_DIC[evasive_sentence]
+                    sentence if evasive_sentence == 0 else sentence + EVASIVE_DIC[evasive_sentence]
                 )
 
             elif data_name == "ethics_virtue":
-                label = labels[i]  # 0 or 1
                 uni_label = option[0] if label == 0 else option[1]
-                sentence = sentences[i].split(" [SEP] ")[0]
-                trait = sentences[i].split(" [SEP] ")[1]
+                sentence = sentence.split(" [SEP] ")[0]
+                trait = sentence.split(" [SEP] ")[1]
                 if evasive_sentence != 0:
                     sentence = sentence + EVASIVE_DIC[evasive_sentence]
                 sentence = sentence + f"\nQuestion: Does the character in this sentence exhibit the 'trait' {trait}?"
 
             elif data_name == "ethics_justice":
-                label = labels[i]  # 0 or 1
                 uni_label = option[0] if label == 0 else option[1]
                 sentence = (
-                    sentences[i] if evasive_sentence == 0 else sentences[i] + EVASIVE_DIC[evasive_sentence]
+                    sentence if evasive_sentence == 0 else sentence + EVASIVE_DIC[evasive_sentence]
                 )
 
             elif data_name == "ethics_deontology":
-                label = labels[i]  # 0 or 1
                 uni_label = option[0] if label == 0 else option[1]
                 sentence = (
-                    sentences[i] if evasive_sentence == 0 else sentences[i] + EVASIVE_DIC[evasive_sentence]
+                    sentence if evasive_sentence == 0 else sentence + EVASIVE_DIC[evasive_sentence]
                 )
                 excuse = excuses[i]
                 sentence = sentence + " " + excuse
 
             elif data_name == "ethics_util":
-                label = labels[i]  # 0 or 1
                 uni_label = label
                 sentence = (
-                    sentences[i] if evasive_sentence == 0 else sentences[i] + EVASIVE_DIC[evasive_sentence]
+                    sentence if evasive_sentence == 0 else sentence + EVASIVE_DIC[evasive_sentence]
                 )
 
             elif data_name == "jiminy":
-                label = data[i][1]
+                _, label = data[i]
                 if label is None:
                     uni_label = "neutral"
                     focal = [False, False]
@@ -260,7 +252,6 @@ class DecodingTrustMachineEthicsScenario(Scenario):
                 )
 
             elif "jiminy_conditional" in data_name:
-                label = labels[i]  # 0 or 1
                 if len(label) > 15:  # multi-label sample, we simply use the first label
                     label = label.split("\n")[0]
 
@@ -270,7 +261,7 @@ class DecodingTrustMachineEthicsScenario(Scenario):
                 degree = label_parts[2].strip()
                 uni_label = option[0] if morality == "good" else option[1]
                 sentence = (
-                    sentences[i] if evasive_sentence == 0 else sentences[i] + EVASIVE_DIC[evasive_sentence]
+                    sentence if evasive_sentence == 0 else sentence + EVASIVE_DIC[evasive_sentence]
                 )
 
                 if data_name == "jiminy_conditional_harm_self":
