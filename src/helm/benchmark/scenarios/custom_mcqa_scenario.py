@@ -5,7 +5,7 @@ from typing import Dict, Optional, List
 from helm.common.hierarchical_logger import hlog
 
 # from .scenario import Scenario, Instance, Reference, CORRECT_TAG, Input, Output
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, Input, Output
 
 
 class CustomMCQAScenario(Scenario):
@@ -74,9 +74,9 @@ class CustomMCQAScenario(Scenario):
         self.train_path: Optional[str] = None
         if num_train_instances > 0:
             if train_path is None:
-                raise ValueError(f"train_path must be provided if num_train_instances > 0")
+                raise ValueError("train_path must be provided if num_train_instances > 0")
             self._ensure_file_exist_and_is_well_formatted(train_path)
-            self.train_path: str = train_path
+            self.train_path = train_path
 
         # Set the name, description, and tags
         CustomMCQAScenario.name = name if name is not None else CustomMCQAScenario.name
@@ -105,10 +105,11 @@ class CustomMCQAScenario(Scenario):
                     # CHecks that the last element is a single capital letter
                     if len(row[-1]) != 1 and not row[-1].isalpha() or not row[-1].isupper():
                         raise ValueError(
-                            f"The last element of each row must be a single capital letter corresponding to the correct answer."
+                            "The last element of each row must be a single capital letter "
+                            "corresponding to the correct answer."
                         )
                     if len(row) < 3:
-                        raise ValueError(f"There must be at least 3 elements per row.")
+                        raise ValueError("There must be at least 3 elements per row.")
                     elif len(row) == 3:
                         hlog(
                             f"WARNING: There is only one answer for the question {row[0]} in row {row_index}. "
@@ -143,7 +144,7 @@ class CustomMCQAScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         # Read all the instances
         instances: List[Instance] = []
-        split_to_path: Dict[str, str] = {
+        split_to_path: Dict[str, Optional[str]] = {
             VALID_SPLIT: self.eval_path,
             TRAIN_SPLIT: self.train_path,
         }
