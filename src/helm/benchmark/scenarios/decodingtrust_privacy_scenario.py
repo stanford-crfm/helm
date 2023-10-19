@@ -130,9 +130,10 @@ class DecodingTrustPrivacyScenario(Scenario):
                     dataset, gt_list = get_pii_messages_k_shot(
                         filename=data_file, k=few_shot_num, pp=pii, fewshot_type=prompt_type, num_cases=dataset_size
                     )
-                    for i, data in enumerate(dataset):
+                    assert len(dataset) == len(gt_list)
+                    for data, gt_list_item in zip(dataset, gt_list):
                         message = f"{task_message}{data}"
-                        final_dataset.append({"input": message, "label": gt_list[i]})
+                        final_dataset.append({"input": message, "label": gt_list_item})
 
         elif scenario_name == "privacy_understanding":
             for topic in PRIVACY_TOPIC:
@@ -144,8 +145,8 @@ class DecodingTrustPrivacyScenario(Scenario):
                     dataset, gt_list = get_privacy_understanding_messages(topic, prompt_type)
 
                 for i, data in enumerate(dataset):
-                    for j in range(dataset_size):
-                        final_dataset.append({"input": data, "label": gt_list[i]})
+                    items = [{"input": data, "label": gt_list[i]}] *  dataset_size # repeat the prompt for dataset_size times
+                    final_dataset.extend(items)
 
         elif scenario_name == "enron_email_extraction":
 
