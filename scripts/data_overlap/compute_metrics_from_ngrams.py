@@ -134,7 +134,6 @@ def get_metrics(ngrams_path, scenario_path, out_path, filter_path, N):
         if len(entry_overlap_ngrams_dict[entry_data_overlap_key]) > 1:
             entry_overlap_ngrams_dict[entry_data_overlap_key] = merge_entries(entry_overlap_ngrams_dict[entry_data_overlap_key])
 
-
     # Read Scenarios
     light_scenarios = load_light_scenarios_from_jsonl(scenario_path)
     light_scenario_instance_dict = dict()
@@ -161,7 +160,7 @@ def get_metrics(ngrams_path, scenario_path, out_path, filter_path, N):
 
         metric_score = 0
 
-        for ngram in ngrams(tokens, 13):
+        for ngram in ngrams(tokens, N):
             count = ngram_counts_dict[ngram]
             if frequency == 0 or count <= frequency:
                 if count != 0:
@@ -198,7 +197,7 @@ def get_metrics(ngrams_path, scenario_path, out_path, filter_path, N):
         counts = 0
         weighted_score = 0
 
-        for ngram in ngrams(tokens, 13):
+        for ngram in ngrams(tokens, N):
             count = ngram_counts_dict[ngram]
             if frequency == 0 or count <= frequency:
                 if count != 0:
@@ -253,14 +252,14 @@ def get_metrics(ngrams_path, scenario_path, out_path, filter_path, N):
         weight = 0
         token_budget = 0
 
-        for ngram in ngrams(tokens, 13):
+        for ngram in ngrams(tokens, N):
             curr_count = ngram_counts_dict[ngram]
 
             # either no frequency, or check current count is less than frequency
             # or a previous contiguous count (weight != 0) less than frequency
             if frequency == 0 or curr_count <= frequency or (weight != 0 and weight <= frequency):
                 if curr_count != 0:
-                    token_budget = 13
+                    token_budget = N
                     if weight > 0:
                         weight = min(curr_count, weight)
                     else:
@@ -362,14 +361,12 @@ def get_args() -> Any:
     parser.add_argument("--scenario-path", type=str, required=True, help="Path to scenario data (benchmarking data)")
     parser.add_argument("--out-path", type=str, required=True, help="Path to the output metrics file")
     parser.add_argument("--filter-path", type=str, default='', help="Path to file for filtering a subset of tests")
+    parser.add_argument("--N", type=int, default=13, help="N of input ngrams")
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = get_args()
 
-    # hard code computing for n = 13 for now
-    N = 13
-       
     # Call the get_metrics function with the constructed arguments
-    get_metrics(args.ngrams_path, args.scenario_path, args.out_path, args.filter_path, N)
+    get_metrics(args.ngrams_path, args.scenario_path, args.out_path, args.filter_path, args.N)
 
