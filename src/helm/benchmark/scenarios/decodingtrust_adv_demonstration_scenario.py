@@ -83,7 +83,7 @@ class DecodingTrustAdvDemoScenario(Scenario):
         self.description = TASK_DESCRIPTIONS[description]
         self.seeds = SEEDS[perspective]
 
-    def _get_instances(self, data_path, note) -> List[Instance]:
+    def _get_instances(self, data_path: str, note: str) -> List[Instance]:
         instances: List[Instance] = []
         target_path = os.path.join(self.output_path, data_path)
         ensure_directory_exists(os.path.split(target_path)[0])
