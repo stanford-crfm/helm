@@ -1,5 +1,5 @@
 import random
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from dataclasses import replace
 from itertools import cycle
@@ -19,6 +19,13 @@ class InContextLearningAdapter(Adapter, ABC):
     An `Adapter`, guided by the `AdapterSpec`, takes a `Scenario` and produces
     a `ScenarioState`. It has additional logic surrounding in-context examples.
     """
+
+    @abstractmethod
+    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+        """
+        Given a validation or test `Instance`, generates one or more `RequestState`s.
+        """
+        pass
 
     @htrack(None)
     def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
