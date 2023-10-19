@@ -25,12 +25,19 @@ class MultipleChoiceSeparateAdapter(InContextLearningAdapter):
                 include_output=True,
                 reference_index=reference_index,
             )
-            request_states.append(self.construct_request_state(prompt, reference_index, eval_instance))
+            request_states.append(
+                self.construct_request_state(prompt, reference_index, eval_instance, train_trial_index)
+            )
 
         return request_states
 
     def construct_request_state(
-        self, prompt: Prompt, reference_index: int, eval_instance: Instance, request_mode: str = "original"
+        self,
+        prompt: Prompt,
+        reference_index: int,
+        eval_instance: Instance,
+        train_trial_index: int,
+        request_mode: str = "original",
     ) -> RequestState:
         request = Request(
             model=self.adapter_spec.model,

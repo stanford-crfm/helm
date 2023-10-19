@@ -26,7 +26,9 @@ class MultipleChoiceCalibratedAdapter(MultipleChoiceSeparateAdapter):
                 include_output=True,
                 reference_index=reference_index,
             )
-            request_states.append(self.construct_request_state(prompt, reference_index, eval_instance))
+            request_states.append(
+                self.construct_request_state(prompt, reference_index, eval_instance, train_trial_index)
+            )
 
             # calibration
             # Compute the logprobs of the reference without train instances and the input question.
@@ -37,7 +39,9 @@ class MultipleChoiceCalibratedAdapter(MultipleChoiceSeparateAdapter):
                 reference_index=reference_index,
             )
             request_states.append(
-                self.construct_request_state(prompt, reference_index, eval_instance, request_mode="calibration")
+                self.construct_request_state(
+                    prompt, reference_index, eval_instance, train_trial_index, request_mode="calibration"
+                )
             )
 
         return request_states
