@@ -108,16 +108,17 @@ class OpinionsQAScenario(Scenario):
         self.context: str = context
 
     def download_data(self):
-        self.output_path: str = os.path.join(self.output_path, "data")
-        if not os.path.exists(self.output_path):
-            os.makedirs(self.output_path)
+
+        output_path: str = os.path.join(output_path, "data")
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
 
         DOWNLOAD_FILENAMES = [self.FILE_NAME.format(wave=wave) for wave in self.PEW_SURVEY_WAVES]
         DOWNLOAD_FILENAMES += [f"{steer}.csv" for steer in ["steer-qa", "steer-bio", "steer-portray"]]
         DOWNLOAD_FILENAMES += ["Pew_American_Trends_Panel_disagreement_500.csv"]
 
         for filename in DOWNLOAD_FILENAMES:
-            data_path: str = os.path.join(self.output_path, filename)
+            data_path: str = os.path.join(output_path, filename)
 
             source_url: str = self.CODALAB_URI_TEMPLATE.format(bundle=self.CODALAB_BUNDLE, filename=filename)
             ensure_file_downloaded(source_url=source_url, target_path=data_path, downloader_executable="gdown")
@@ -127,7 +128,7 @@ class OpinionsQAScenario(Scenario):
         df["options"] = df.apply(lambda x: eval(x["options"]), axis=1)
         return df
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         self.download_data()
 
         # Read all the instances
@@ -139,22 +140,24 @@ class OpinionsQAScenario(Scenario):
 
         all_splits = ["dev", "test"] if self.context == "steer-qa" else ["test"]
         csv_dict = {
-            "dev": os.path.join(self.output_path, f"{self.context}.csv"),
-            "test": os.path.join(self.output_path, f"{self.survey_type}.csv"),
+            "dev": os.path.join(output_path, f"{self.context}.csv"),
+            "test": os.path.join(output_path, f"{self.survey_type}.csv"),
         }
 
         bios_df = None
         if self.context in ["steer-bio", "steer-portray"]:
-            bios_path = os.path.join(self.output_path, f"{self.context}.csv")
+            bios_path = os.path.join(output_path, f"{self.context}.csv")
             bios_df = pd.read_csv(bios_path, sep="\t")
 
         for split in all_splits:
+
             csv_path: str = csv_dict[split]
             assert os.path.exists(csv_path)
 
             question_df = self.read_survey_questions(csv_path)
 
             for qidx, (question, answers) in enumerate(zip(question_df["question"], question_df["options"])):
+
                 # Opinions QA test questions have no correct answer and thus we set it to be None by default
                 # for all test instances.
                 # In the case where context = steer-qa, we add demographic information in the form of a
@@ -179,6 +182,7 @@ class OpinionsQAScenario(Scenario):
                 else:
                     # context = "steer-bio"or "steer-portray"
                     for bio in bios_df["question"].values:
+
                         context = PassageQuestionInput(passage=bio, question=question + "\n")
                         instance = Instance(
                             context,

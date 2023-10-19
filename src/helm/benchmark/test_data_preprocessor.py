@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from typing import List
 
 from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
@@ -11,7 +12,7 @@ def test_data_preprocessor():
     # Test that each Instance is given a unique ID and is preserved through data augmentation
     data_preprocessor = DataPreprocessor(DataAugmenterSpec())
     scenario: Scenario = create_scenario(get_scenario_spec1())
-    instances = with_instance_ids(scenario.get_instances())
+    instances = with_instance_ids(scenario.get_instances(output_path=""))
     instances: List[Instance] = data_preprocessor.preprocess(instances)
     for i, instance in enumerate(instances):
         assert instance.id == f"id{i}"
@@ -32,7 +33,7 @@ def test_data_preprocessor_with_data_augmentation():
     )
     data_preprocessor = DataPreprocessor(data_augmenter_spec)
     scenario: Scenario = create_scenario(get_scenario_spec1())
-    instances = with_instance_ids(scenario.get_instances())
+    instances = with_instance_ids(scenario.get_instances(output_path=""))
     instances: List[Instance] = data_preprocessor.preprocess(instances)
     assert len(instances) == 10 + 10 + 10  # original train + original eval + perturbed eval
 

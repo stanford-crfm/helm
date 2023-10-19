@@ -61,8 +61,8 @@ class BOLDScenario(Scenario):
         super().__init__()
         self.subject = subject
 
-    def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = os.path.join(output_path, "data")
         os.makedirs(data_path, exist_ok=True)
 
         if self.subject == "all":

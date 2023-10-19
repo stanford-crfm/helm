@@ -164,7 +164,7 @@ class NewsQAScenario(Scenario):
             file_instances.append(instance)
         return file_instances
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         file_path: str = os.path.join("restricted", self.name, "combined-newsqa-data-v1.json")
         assert os.path.exists(file_path)
         splits = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT}

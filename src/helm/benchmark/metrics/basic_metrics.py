@@ -36,6 +36,7 @@ from . import code_metrics_helper
 from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .cleva_harms_metrics import ChineseTokenizer
 from .statistic import Stat
 
 
@@ -264,6 +265,31 @@ def bleu_1(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(1, 0, 0, 0))
 
 
+def chinese_bleu_1(gold: str, pred: str) -> float:
+    char_tokenizer = ChineseTokenizer(method="char")
+    return sentence_bleu([char_tokenizer.tokenize(gold)], char_tokenizer.tokenize(pred), weights=(1, 0, 0, 0))
+
+
+def get_chinese_rouge_function(rouge_type: str) -> Callable[[str, str], float]:
+    char_tokenizer = ChineseTokenizer(method="char")
+    scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True, tokenizer=char_tokenizer)
+    return partial(rouge_score, scorer=scorer, rouge_type=rouge_type)
+
+
+def cleva_math_result_match(gold: str, pred: str) -> float:
+    """
+    Exact match that only cares the last math expression.
+    Common math expressions are numbers and fractions.
+    """
+    pattern = r"[-+*/%\.\(\)\d]+"
+    matches = re.findall(pattern, pred)
+    if matches:
+        pred = matches[-1].lstrip(")")
+    # remove space in front or at the end
+    pred = pred.strip()
+    return exact_match(gold, pred)
+
+
 def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
@@ -484,6 +510,10 @@ class BasicMetric(Metric):
             "rouge_l": get_rouge_function("rougeL"),
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
+            "chinese_bleu_1": chinese_bleu_1,
+            "chinese_rouge_1": get_chinese_rouge_function("rouge1"),
+            "chinese_rouge_2": get_chinese_rouge_function("rouge2"),
+            "cleva_math_result_match": cleva_math_result_match,
             "absolute_value_difference": absolute_value_difference,
         }
 
@@ -832,7 +862,7 @@ def _has_non_zero_valued_logprobs(per_instance_stats: Dict[Instance, List[Stat]]
     Some models have partial functionality and produce only zero-valued logprobs."""
     for instance_stats in per_instance_stats.values():
         for stat in instance_stats:
-            if stat.name == "logprob" and stat.sum < 0:
+            if stat.name.name == "logprob" and stat.sum < 0:
                 return True
     return False
 
@@ -844,6 +874,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) 
     # If the model does not produce non-zero-valued logprobs
     # then don't compute calibration metrics.
     if not _has_non_zero_valued_logprobs(per_instance_stats):
+        hlog("Skipping computing calibration metrics because logprobs were not available.")
         return []
 
     for instance_stats in per_instance_stats.values():

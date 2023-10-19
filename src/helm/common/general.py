@@ -3,6 +3,7 @@ import json
 import os
 import shlex
 import subprocess
+import urllib
 import uuid
 import zstandard
 from typing import Any, Callable, Dict, List, Optional, TypeVar
@@ -314,3 +315,8 @@ def safe_symlink(src: str, dest: str) -> None:
 
     if not os.path.exists(dest):
         os.symlink(src, dest)
+
+
+def is_url(location: str) -> bool:
+    """Return True if `location` is a url. False otherwise."""
+    return urllib.parse.urlparse(location).scheme in ["http", "https"]

@@ -1,6 +1,6 @@
-import jsonlines
+import json
 import os
-from typing import List
+from typing import Dict, List
 
 from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, Input, Output
@@ -34,18 +34,19 @@ class GSM8KScenario(Scenario):
     description = "Grade school math dataset with 8.5K examples (GSM8K)."
     tags = ["reasoning", "math"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         splits = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
         base_url = "https://raw.githubusercontent.com/openai/grade-school-math/master/grade_school_math/data/"
         instances: List[Instance] = []
 
         for split, split_tag in splits.items():  # Iterate over the splits
             source_url: str = f"{base_url}/{split}.jsonl"
-            data_path: str = os.path.join(self.output_path, f"gsm_data_{split}")
+            data_path: str = os.path.join(output_path, f"gsm_data_{split}")
             ensure_file_downloaded(source_url=source_url, target_path=data_path)
 
-            with jsonlines.open(data_path) as reader:
-                for example in reader:  # Each example is a dictionary with a 'question' and 'answer' key
+            with open(data_path, "r") as f:
+                for line in f.readlines():
+                    example: Dict = json.loads(line)
                     answer: str = example["answer"].replace("####", "The answer is").replace("\n", " ") + "."
                     instances.append(
                         Instance(

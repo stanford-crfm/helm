@@ -121,8 +121,8 @@ class IMDBScenario(Scenario):
             }
         return contrast_map
 
-    def get_instances(self) -> List[Instance]:
-        target_path: str = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        target_path: str = os.path.join(output_path, "data")
 
         instances: List[Instance] = []
 

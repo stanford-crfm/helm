@@ -108,6 +108,7 @@ class Service(ABC):
         """Get toxicity scores for a batch of text."""
         pass
 
+    @abstractmethod
     def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
         """Get responses to a critique request."""
         pass

@@ -1,8 +1,8 @@
+import os
 from dataclasses import asdict
 
-from icetk import icetk as tokenizer
-
 from helm.common.cache import Cache, CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -12,6 +12,14 @@ from helm.common.tokenization_request import (
     TokenizationToken,
 )
 from .client import Client, wrap_request_time, cleanup_tokens
+
+try:
+    # Fall back to pure Python protobufs to work around issue #1613,
+    # which is caused by icetk using C++ protobufs compiled with protobuf<3.19.
+    os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
+    from icetk import icetk as tokenizer
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
 
 
 class ICETokenizerClient(Client):

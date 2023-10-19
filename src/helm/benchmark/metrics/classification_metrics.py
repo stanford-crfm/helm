@@ -7,6 +7,8 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.basic_metrics import normalize_text
 from helm.benchmark.metrics.metric import Metric, MetricName
 from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.scenarios.scenario import Reference
+from helm.common.request import Sequence
 
 
 class ClassificationMetric(Metric):
@@ -40,7 +42,7 @@ class ClassificationMetric(Metric):
         y_true: List[List[str]] = []
         for request_state in request_states:  # one request state per instance
             # Only the generation adapter is supported.
-            # TODO: Support multiple_choice_* adapters.
+            # For multiple_choice_* adapters, please use MultipleChoiceClassificationMetric.
             if request_state.reference_index is not None:
                 raise ValueError("ClassificationMetric does not support multiple choice separate adapters")
             if request_state.request_mode == "calibration":
@@ -64,6 +66,37 @@ class ClassificationMetric(Metric):
         mlb = MultiLabelBinarizer().fit([labels])
         y_true = mlb.transform(y_true)
         y_pred = mlb.transform(y_pred)
+        return [
+            Stat(MetricName("classification_macro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="macro")),
+            Stat(MetricName("classification_micro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="micro")),
+        ]
+
+
+class MultipleChoiceClassificationMetric(Metric):
+    """
+    Calculate population micro/macro F1 score for multiple_choice_* adapters.
+    For generation adapters, please use ClassificationMetric.
+    """
+
+    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+        y_pred: List[str] = []
+        y_true: List[str] = []
+        for request_state in request_states:  # one request state per instance
+            if request_state.request_mode == "calibration":
+                raise ValueError("MultipleChoiceClassificationMetric does not support calibration requests")
+            golds: List[Reference] = [
+                reference for reference in request_state.instance.references if reference.is_correct
+            ]
+            assert len(golds) > 0, "MultipleChoiceClassificationMetric are designed for multiple_choice_* adapters"
+            assert request_state.result is not None
+            sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+            pred: str = sorted_completions[0].text.strip()  # Only utilize the first prediction
+            if request_state.output_mapping is not None:
+                pred = request_state.output_mapping.get(pred, pred)
+
+            y_true.append(golds[0].output.text)
+            y_pred.append(pred)
+
         return [
             Stat(MetricName("classification_macro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="macro")),
             Stat(MetricName("classification_micro_f1")).add(f1_score(y_pred=y_pred, y_true=y_true, average="micro")),

@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 import importlib_resources as resources
 import torch
 import sentencepiece as spm

@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from helm.benchmark.scenarios.scenario import Instance, Input, Output, Reference, CORRECT_TAG
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_MULTIPLE_CHOICE_JOINT

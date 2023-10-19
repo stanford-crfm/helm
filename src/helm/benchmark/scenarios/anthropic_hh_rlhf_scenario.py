@@ -28,7 +28,7 @@ class AnthropicHHRLHFScenario(Scenario):
             raise ValueError(f"Invalid subset: {subset}")
         self.subset = subset
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         split_to_tag: Dict[str, str] = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
 
         def get_first_utterance(dialogue: str):

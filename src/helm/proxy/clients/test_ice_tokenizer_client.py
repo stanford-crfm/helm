@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 import os
 import tempfile
 from typing import List
@@ -16,6 +17,7 @@ class TestICETokenizerClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
+        self.tokenizer_name = "TsinghuaKEG/ice"
         self.client = ICETokenizerClient(SqliteCacheConfig(self.cache_path))
 
         # The test cases were created using the examples from https://github.com/THUDM/icetk#tokenization
@@ -26,7 +28,7 @@ class TestICETokenizerClient:
         os.remove(self.cache_path)
 
     def test_tokenize(self):
-        request = TokenizationRequest(text=self.test_prompt)
+        request = TokenizationRequest(text=self.test_prompt, tokenizer=self.tokenizer_name)
         result: TokenizationRequestResult = self.client.tokenize(request)
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         result: TokenizationRequestResult = self.client.tokenize(request)
@@ -34,18 +36,20 @@ class TestICETokenizerClient:
         assert result.raw_tokens == [" Hello", " World", "!", " I", " am", " ice", "tk", "."]
 
     def test_encode(self):
-        request = TokenizationRequest(text=self.test_prompt, encode=True)
+        request = TokenizationRequest(text=self.test_prompt, tokenizer=self.tokenizer_name, encode=True)
         result: TokenizationRequestResult = self.client.tokenize(request)
         assert result.raw_tokens == self.encoded_test_prompt
 
     def test_encode_with_truncation(self):
         max_length: int = 3
-        request = TokenizationRequest(text=self.test_prompt, encode=True, truncation=True, max_length=max_length)
+        request = TokenizationRequest(
+            text=self.test_prompt, tokenizer=self.tokenizer_name, encode=True, truncation=True, max_length=max_length
+        )
         result: TokenizationRequestResult = self.client.tokenize(request)
         assert result.raw_tokens == self.encoded_test_prompt[:max_length]
 
     def test_decode(self):
-        request = DecodeRequest(tokens=self.encoded_test_prompt)
+        request = DecodeRequest(tokens=self.encoded_test_prompt, tokenizer=self.tokenizer_name)
         result: DecodeRequestResult = self.client.decode(request)
         assert not result.cached, "First time making the decode request. Result should not be cached"
         result: DecodeRequestResult = self.client.decode(request)

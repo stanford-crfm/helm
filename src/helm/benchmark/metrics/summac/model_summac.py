@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 ###############################################
 # Source: https://github.com/tingofurro/summac
 ###############################################

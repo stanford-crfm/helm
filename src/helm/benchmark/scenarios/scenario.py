@@ -4,6 +4,7 @@ from typing import List, Optional, Tuple
 from pathlib import PurePath
 import inspect
 
+from helm.common.media_object import MultimediaObject
 from helm.common.object_spec import ObjectSpec, create_object
 from helm.common.general import format_text, format_split, format_tags, indent_lines
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
@@ -55,7 +56,11 @@ class Input:
     The input of an `Instance`.
     """
 
-    text: str
+    text: str = ""
+    """The text of the input (e.g, passage to summarize, text for sentiment analysis, etc.)"""
+
+    multimedia_content: Optional[MultimediaObject] = None
+    """A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
 @dataclass(frozen=True)
@@ -81,7 +86,11 @@ class Output:
     The output of a `Reference`.
     """
 
-    text: str
+    text: str = ""
+    """The text of the output."""
+
+    multimedia_content: Optional[MultimediaObject] = None
+    """The output can be multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
 @dataclass(frozen=True)
@@ -191,11 +200,6 @@ class Scenario(ABC):
     tags: List[str] = field(init=False)
     """Extra metadata (e.g., whether this is a question answering or commonsense task)"""
 
-    # Set by Runner.
-    # TODO: ideally would pass this into `get_instances` to not have to mutate.
-    output_path: str = field(init=False, default="")
-    """Where downloaded data is cached (to be set by the `Runner`)"""
-
     definition_path: str = field(init=False)
     """Where the scenario subclass for `self` is defined."""
 
@@ -210,7 +214,7 @@ class Scenario(ABC):
         self.definition_path = "https://github.com/stanford-crfm/helm/blob/main/src/" + path
 
     @abstractmethod
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """
         Does the main work in the `Scenario` (e.g., download datasets, convert
         it into a list of instances).

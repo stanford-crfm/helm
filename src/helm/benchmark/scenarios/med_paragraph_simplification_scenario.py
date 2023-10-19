@@ -80,8 +80,8 @@ class MedParagraphSimplificationScenario(Scenario):
     description = "Corpus with technical abstracts and their lay summaries on various clinical topics"
     tags = ["summarization", "biomedical"]
 
-    def get_instances(self) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path: str = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
 
         instances: List[Instance] = []

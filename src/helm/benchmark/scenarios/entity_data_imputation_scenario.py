@@ -110,8 +110,8 @@ class EntityDataImputationScenario(Scenario):
             res.append(f"{c}: {row[c]}".strip())
         return ". ".join(res)
 
-    def get_instances(self) -> List[Instance]:
-        data_path = Path(self.output_path) / "data" / self.dataset
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = Path(output_path) / "data" / self.dataset
         data_path.parent.mkdir(parents=True, exist_ok=True)
         ensure_file_downloaded(
             source_url=self.datasets_paths[self.dataset],

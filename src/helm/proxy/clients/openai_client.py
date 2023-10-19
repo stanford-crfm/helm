@@ -1,12 +1,11 @@
+# mypy: check_untyped_defs = False
 from dataclasses import replace, asdict
 from typing import Any, Dict, List, Optional, cast
-
-import openai
-import tiktoken
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.hierarchical_logger import hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -15,6 +14,13 @@ from helm.common.tokenization_request import (
     TokenizationToken,
 )
 from .client import Client, truncate_sequence, wrap_request_time
+
+try:
+    import openai
+    import tiktoken
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e)
+
 
 ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 

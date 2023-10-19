@@ -1,3 +1,4 @@
+import os
 from dataclasses import asdict
 from typing import Optional
 
@@ -32,7 +33,9 @@ class HTTPModelClient(Client):
         do_cache: bool = False,
     ):
         self.cache: Optional[Cache] = Cache(cache_config) if do_cache else None
-        self.base_url = base_url
+        self.base_url = (
+            base_url if not os.environ.get("HELM_HTTP_MODEL_BASE_URL") else os.environ["HELM_HTTP_MODEL_BASE_URL"]
+        )
         self.timeout = timeout
 
     def make_request(self, request: Request) -> RequestResult:
@@ -118,23 +121,26 @@ class HTTPModelClient(Client):
         )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Not implemented yet.")
-        # cache_key = asdict(request)
+        # raise NotImplementedError("Not implemented yet.")
+        cache_key = asdict(request)
 
-        # try:
+        try:
 
-        #     def do_it():
-        #         url = f"{self.base_url}/decode"
-        #         response = requests.post(url, json={"tokens": request.tokens})
-        #         response.raise_for_status()
-        #         response_data = response.json()
-        #         return response_data
+            def do_it():
+                url = f"{self.base_url}/decode"
+                response = requests.post(url, json={"tokens": request.tokens})
+                response.raise_for_status()
+                response_data = response.json()
+                return response_data
 
-        #     result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        # except Exception as e:
-        #     error: str = f"Local Model error: {e}"
-        #     return DecodeRequestResult(success=False, cached=False, error=error, text="")
+            if self.cache:
+                result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            else:
+                result, cached = do_it(), False
+        except Exception as e:
+            error: str = f"Local Model error: {e}"
+            return DecodeRequestResult(success=False, cached=False, error=error, text="")
 
-        # return DecodeRequestResult(
-        #     success=True, cached=cached, text=result["text"], request_time=result["request_time"]
-        # )
+        return DecodeRequestResult(
+            success=True, cached=cached, text=result["text"], request_time=result["request_time"]
+        )

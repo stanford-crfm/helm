@@ -128,9 +128,9 @@ class WIKIFactScenario(Scenario):
         self.subject: str = subject
         assert subject in NAME_TO_PID, f"Invalid subject: {subject}"
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
 
         # Read all the instances

@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from typing import List
 
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference, Input, Output
@@ -13,7 +14,7 @@ class TestGenerationAdapter(TestAdapter):
         scenario = create_scenario(get_scenario_spec1())
         adapter_spec = get_adapter_spec1()
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        scenario_state = adapter.adapt(scenario.get_instances(), parallelism=1)
+        scenario_state = adapter.adapt(scenario.get_instances(output_path=""), parallelism=1)
 
         # Make sure we generated the right number of request_states:
         # For each trial, instance and reference (+ 1 for free-form generation).

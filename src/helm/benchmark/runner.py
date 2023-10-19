@@ -186,8 +186,8 @@ class Runner:
         scenario: Scenario = create_scenario(run_spec.scenario_spec)
 
         # This `output_path` will be used when `Adapter` calls `Scenario.get_instances`.
-        scenario.output_path = os.path.join(self.scenarios_path, scenario.name)
-        ensure_directory_exists(scenario.output_path)
+        scenario_output_path = os.path.join(self.scenarios_path, scenario.name)
+        ensure_directory_exists(scenario_output_path)
 
         # This 'output_path' will be used when the model's input instances are saved.
         args_str = ",".join([f"{k}={v}" for k, v in sorted(run_spec.scenario_spec.args.items())])
@@ -218,7 +218,7 @@ class Runner:
             else:
                 # Create the instances of the scenario
                 with htrack_block("scenario.get_instances"):
-                    instances = scenario.get_instances()
+                    instances = scenario.get_instances(scenario_output_path)
         if self.cache_instances and not os.path.exists(input_instances_file_path):
             # Save instances to file
             ensure_directory_exists(input_instances_output_path)

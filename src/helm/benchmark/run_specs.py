@@ -1,5 +1,6 @@
 import importlib
 import itertools
+from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
 from helm.common.hierarchical_logger import hlog, htrack
@@ -14,9 +15,11 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.common.optional_dependencies import handle_module_not_found_error
 from .metrics.metric import MetricSpec
 from .run_expander import (
     RUN_EXPANDERS,
+    RunExpander,
     GlobalPrefixRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
@@ -45,17 +48,16 @@ from .scenarios.lextreme_scenario import (
     get_lextreme_task_type,
 )
 from helm.proxy.models import (
+    ANTHROPIC_CLAUDE_1_MODEL_TAG,
+    ANTHROPIC_CLAUDE_2_MODEL_TAG,
     get_model,
     NO_NEWLINES_TAG,
     NLG_PREFIX_TAG,
     CHATML_MODEL_TAG,
     OPENAI_CHATGPT_MODEL_TAG,
-    ANTHROPIC_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
 )
 from helm.common.general import singleton
-import anthropic
-from helm.proxy.clients.anthropic_client import AnthropicClient
 
 
 ############################################################
@@ -69,14 +71,14 @@ def format_instructions(instructions: str) -> str:
 
 
 def get_multiple_choice_joint_adapter_spec(
-        instructions: str,
-        input_noun: Optional[str],
-        output_noun: str,
-        num_outputs: int = 5,
-        max_train_instances: int = 5,
-        max_tokens: int = 5,
-        sample_train: bool = True,
-        **kwargs,
+    instructions: str,
+    input_noun: Optional[str],
+    output_noun: str,
+    num_outputs: int = 5,
+    max_train_instances: int = 5,
+    max_tokens: int = 5,
+    sample_train: bool = True,
+    **kwargs,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -135,16 +137,16 @@ def get_multiple_choice_separate_adapter_spec(method: str, empty_input: bool = F
 
 
 def get_multiple_choice_adapter_spec(
-        method: str,
-        instructions: str,
-        input_noun: Optional[str],
-        output_noun: str,
-        max_train_instances: int = 5,
-        num_outputs: int = 5,
-        max_tokens: int = 1,
-        empty_input: bool = False,
-        sample_train: bool = True,
-        **kwargs,
+    method: str,
+    instructions: str,
+    input_noun: Optional[str],
+    output_noun: str,
+    max_train_instances: int = 5,
+    num_outputs: int = 5,
+    max_tokens: int = 1,
+    empty_input: bool = False,
+    sample_train: bool = True,
+    **kwargs,
 ):
     """
     Toggle between joint and separate adapters.
@@ -167,17 +169,17 @@ def get_multiple_choice_adapter_spec(
 
 
 def get_ranking_binary_adapter_spec(
-        instructions: str = "",
-        document_noun: str = "Passage",
-        query_noun: str = "Query",
-        output_prefix: str = "Does the passage answer the query?",
-        output_noun: str = "Answer",
-        max_train_instances: int = 4,
-        num_outputs: int = 1,
-        num_train_trials: int = 1,
-        temperature: float = 0.0,
-        max_tokens: int = 5,
-        **kwargs,
+    instructions: str = "",
+    document_noun: str = "Passage",
+    query_noun: str = "Query",
+    output_prefix: str = "Does the passage answer the query?",
+    output_noun: str = "Answer",
+    max_train_instances: int = 4,
+    num_outputs: int = 1,
+    num_train_trials: int = 1,
+    temperature: float = 0.0,
+    max_tokens: int = 5,
+    **kwargs,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -224,16 +226,16 @@ def get_ranking_binary_adapter_spec(
 
 
 def get_completion_adapter_spec(
-        instructions: str = "",
-        input_prefix: str = "",
-        output_prefix: str = "",
-        output_suffix: str = "",
-        max_train_instances: int = 0,
-        temperature: float = 0.0,
-        num_outputs: int = 1,
-        max_tokens: int = 100,
-        stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is no stop sequence,
-        **kwargs,
+    instructions: str = "",
+    input_prefix: str = "",
+    output_prefix: str = "",
+    output_suffix: str = "",
+    max_train_instances: int = 0,
+    temperature: float = 0.0,
+    num_outputs: int = 1,
+    max_tokens: int = 100,
+    stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is no stop sequence,
+    **kwargs,
 ) -> AdapterSpec:
     """
     [input][output_prefix][output][output_suffix]
@@ -260,17 +262,17 @@ def get_completion_adapter_spec(
 
 
 def get_generation_adapter_spec(
-        instructions: str = "",
-        input_noun: Optional[str] = None,
-        newline_after_input_noun: bool = False,
-        output_noun: Optional[str] = None,
-        newline_after_output_noun: bool = False,
-        max_train_instances: int = 5,
-        num_outputs: int = 1,
-        max_tokens: int = 5,
-        stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
-        temperature: float = 0.0,
-        multi_label: bool = False,
+    instructions: str = "",
+    input_noun: Optional[str] = None,
+    newline_after_input_noun: bool = False,
+    output_noun: Optional[str] = None,
+    newline_after_output_noun: bool = False,
+    max_train_instances: int = 5,
+    num_outputs: int = 1,
+    max_tokens: int = 5,
+    stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
+    temperature: float = 0.0,
+    multi_label: bool = False,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -316,9 +318,9 @@ def get_generation_adapter_spec(
 
 
 def get_instruct_adapter_spec(
-        num_outputs: int = 1,
-        max_tokens: int = 512,
-        temperature: float = 0.7,
+    num_outputs: int = 1,
+    max_tokens: int = 512,
+    temperature: float = 0.7,
 ) -> AdapterSpec:
     """
     Zero-shot instruction-following.
@@ -407,7 +409,7 @@ def get_summarization_adapter_spec(num_sents: Optional[int], max_train_instances
 
 
 def get_machine_translation_adapter_spec(
-        source_language, target_language, max_train_instances, **kwargs
+    source_language, target_language, max_train_instances, **kwargs
 ) -> AdapterSpec:
     """
     Used for machine translation.
@@ -486,6 +488,14 @@ def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[Met
     ]
 
 
+def get_multiple_choice_classification_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.classification_metrics.MultipleChoiceClassificationMetric", args={}
+        )
+    ]
+
+
 def get_privacy_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.metrics.decodingtrust_privacy_metrics.PrivacyMetric", args={})]
 
@@ -560,9 +570,9 @@ def get_bias_metric_specs() -> List[MetricSpec]:
 
 def get_generative_harms_metric_specs(include_basic_metrics: bool = False) -> List[MetricSpec]:
     return (
-            get_bias_metric_specs()
-            + get_toxicity_metric_specs()
-            + (get_basic_metric_specs([]) if include_basic_metrics else [])
+        get_bias_metric_specs()
+        + get_toxicity_metric_specs()
+        + (get_basic_metric_specs([]) if include_basic_metrics else [])
     )
 
 
@@ -656,6 +666,23 @@ def get_machine_translation_metric_specs() -> List[MetricSpec]:
     ] + get_basic_metric_specs([])
 
 
+def get_cleva_machine_translation_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.machine_translation_metrics.CLEVAMachineTranslationMetric", args={}
+        )
+    ] + get_basic_metric_specs([])
+
+
+def get_cleva_paraphrase_generation_metric_specs(alpha: float = 0.8) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.paraphrase_generation_metrics.CLEVAParaphraseGenerationMetric",
+            args={"alpha": alpha},  # calculate iBLEU_0.8 by default
+        )
+    ] + get_basic_metric_specs([])
+
+
 def get_verifiability_judgment_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match"])
 
@@ -670,12 +697,121 @@ def get_instruction_following_critique_metric_specs(num_respondents: int) -> Lis
     ]
 
 
+def get_cleva_topk_accuracy_metric_specs(k: int = 1, cut_off: int = 5) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_accuracy_metrics.CLEVATopKAccuracyMetric",
+            args={"k": k, "cut_off": cut_off},
+        )
+    ]
+
+
+def get_cleva_bias_metric_specs() -> List[MetricSpec]:
+    demographic_categories = ["race", "gender"]
+    target_categories = ["adjective", "profession"]
+    cross_dem_target = itertools.product(demographic_categories, target_categories)
+
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVABiasMetric",
+            args={"mode": "associations", "demographic_category": dem, "target_category": tgt},
+        )
+        for dem, tgt in cross_dem_target
+    ] + [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVABiasMetric",
+            args={"mode": "representation", "demographic_category": dem},
+        )
+        for dem in demographic_categories
+    ]
+
+
+def get_cleva_toxicity_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVAToxicityMetric", args={}),
+    ]
+
+
+def get_cleva_generative_harms_metric_specs(include_basic_metrics: bool = False) -> List[MetricSpec]:
+    return (
+        get_cleva_bias_metric_specs()
+        + get_cleva_toxicity_metric_specs()
+        + (get_basic_metric_specs([]) if include_basic_metrics else [])
+    )
+
+
+def get_cleva_copyright_metric_spec(args: Optional[Dict] = None) -> List[MetricSpec]:
+    if args is None:
+        args = {}
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVACopyrightMetric",
+            args={**args, "name": "longest_common_prefix_length"},
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVACopyrightMetric",
+            args={**args, "name": "edit_distance"},
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.cleva_harms_metrics.CLEVACopyrightMetric",
+            args={**args, "name": "edit_similarity"},
+        ),
+    ]
+
+
+def get_cleva_generative_task_metric_spec(task: str, subtask: Optional[str], **kwargs) -> List[MetricSpec]:
+    CLEVA_GEN_TASK_TO_METRIC: Dict[str, Callable] = {
+        "opinion_mining:opinion_target_extraction": get_exact_match_metric_specs,
+        "paraphrase_generation": get_cleva_paraphrase_generation_metric_specs,
+        "closed_book_question_answering:generative_question_answering": get_exact_match_metric_specs,
+        "conceptual_generalization": get_cleva_topk_accuracy_metric_specs,
+        "translation:en2zh": get_cleva_machine_translation_metric_specs,
+        "translation:zh2en": get_cleva_machine_translation_metric_specs,
+        "mathematical_calculation:add": get_exact_match_metric_specs,
+        "mathematical_calculation:sub": get_exact_match_metric_specs,
+        "mathematical_calculation:mul": get_exact_match_metric_specs,
+        "inductive_reasoning:add": get_exact_match_metric_specs,
+        "inductive_reasoning:sub": get_exact_match_metric_specs,
+        "inductive_reasoning:mul": get_exact_match_metric_specs,
+        "reasoning_primitive:dyck_language": get_exact_match_metric_specs,
+        "reasoning_primitive:pattern_induction": get_exact_match_metric_specs,
+        "reasoning_primitive:pattern_matching": get_exact_match_metric_specs,
+        "reasoning_primitive:variable_sub": get_exact_match_metric_specs,
+        "subject_knowledge:art": get_exact_match_metric_specs,
+        "subject_knowledge:biomedicine": get_exact_match_metric_specs,
+        "subject_knowledge:chemistry": get_exact_match_metric_specs,
+        "subject_knowledge:computer_science": get_exact_match_metric_specs,
+        "subject_knowledge:economics": get_exact_match_metric_specs,
+        "subject_knowledge:geography": get_exact_match_metric_specs,
+        "subject_knowledge:history": get_exact_match_metric_specs,
+        "subject_knowledge:law": get_exact_match_metric_specs,
+        "subject_knowledge:literature": get_exact_match_metric_specs,
+        "subject_knowledge:math": get_exact_match_metric_specs,
+        "subject_knowledge:other_general": get_exact_match_metric_specs,
+        "subject_knowledge:philosophy": get_exact_match_metric_specs,
+        "subject_knowledge:physics": get_exact_match_metric_specs,
+        "subject_knowledge:politics": get_exact_match_metric_specs,
+        "summarization:dialogue_summarization": partial(get_basic_metric_specs, ["chinese_rouge_2"]),
+        "pinyin_transliteration:pinyin2zh": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
+        "pinyin_transliteration:zh2pinyin": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
+        "dialogue_generation:task_oriented": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
+        "data_to_text_generation": partial(get_basic_metric_specs, ["chinese_bleu_1"]),
+        "mathematical_reasoning:math_word_problem": partial(get_basic_metric_specs, ["cleva_math_result_match"]),
+    }
+
+    key: str = task
+    if subtask is not None:
+        key += ":" + subtask
+    return CLEVA_GEN_TASK_TO_METRIC[key](**kwargs)
+
+
 ############################################################
 # Run specs
 
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {}
 """Dict of run spec function names to run spec functions."""
+
 
 F = TypeVar("F", bound=Callable[..., RunSpec])
 
@@ -778,9 +914,7 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
         name=f"civil_comments:demographic={demographic}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs()
-                     + get_generative_harms_metric_specs()
-                     + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
         groups=["civil_comments"],
     )
 
@@ -1044,7 +1178,7 @@ def get_raft_spec(subset: str) -> RunSpec:
 
 @run_spec_function("numeracy")
 def get_numeracy_spec(
-        relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
+    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
     from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 
@@ -1095,10 +1229,10 @@ def get_numeracy_spec(
 
 @run_spec_function("math")
 def get_math_spec(
-        subject: str,
-        level: str,
-        use_official_examples: str = "False",
-        use_chain_of_thought: str = "False",
+    subject: str,
+    level: str,
+    use_official_examples: str = "False",
+    use_chain_of_thought: str = "False",
 ) -> RunSpec:
     use_official_examples: bool = use_official_examples == "True"  # type: ignore
     use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
@@ -1146,7 +1280,7 @@ def get_math_spec(
 
     return RunSpec(
         name=f"math:subject={subject},level={level},"
-             f"use_official_examples={use_official_examples},use_chain_of_thought={use_chain_of_thought}",
+        f"use_official_examples={use_official_examples},use_chain_of_thought={use_chain_of_thought}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_math_metric_specs(use_chain_of_thought) + get_generative_harms_metric_specs(),  # type: ignore
@@ -1231,12 +1365,12 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
 
 @run_spec_function("copyright")
 def get_copyright_spec(
-        datatag="pilot",
-        temperature=0.2,
-        max_tokens=1024,
-        num_outputs=1,
-        normalize_by_prefix_length=True,
-        normalize_newline_space_tab=False,
+    datatag="pilot",
+    temperature=0.2,
+    max_tokens=1024,
+    num_outputs=1,
+    normalize_by_prefix_length=True,
+    normalize_newline_space_tab=False,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
@@ -1254,7 +1388,7 @@ def get_copyright_spec(
                 "normalize_newline_space_tab": normalize_newline_space_tab,
             }
         )
-                     + get_generative_harms_metric_specs(),
+        + get_generative_harms_metric_specs(),
         groups=["copyright_code" if datatag in datatag2hash_code else "copyright_text"],
     )
 
@@ -1431,10 +1565,10 @@ def get_narrativeqa_spec() -> RunSpec:
 
 @run_spec_function("synthetic_efficiency")
 def get_synthetic_efficiency_spec(
-        num_prompt_tokens: Optional[int] = None,
-        num_output_tokens: Optional[int] = None,
-        tokenizer: Optional[str] = None,
-        random: Optional[str] = None,
+    num_prompt_tokens: Optional[int] = None,
+    num_output_tokens: Optional[int] = None,
+    tokenizer: Optional[str] = None,
+    random: Optional[str] = None,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
@@ -1535,7 +1669,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "summarization_xsum", "device": device})
-                     + get_generative_harms_metric_specs(),
+        + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1563,7 +1697,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "summarization_xsum_sampled", "device": device})
-                     + get_generative_harms_metric_specs(),
+        + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1586,7 +1720,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "summarization_cnndm", "device": device})
-                     + get_generative_harms_metric_specs(),
+        + get_generative_harms_metric_specs(),
         groups=["summarization_cnndm"],
     )
 
@@ -1626,7 +1760,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
 
     adapter_spec = get_completion_adapter_spec(
         instructions="Please complete the rest of the following Dyck sequences, "
-                     "making sure that the parentheses are closed properly.",
+        "making sure that the parentheses are closed properly.",
         input_prefix="Input: ",
         max_tokens=5,
         max_train_instances=3,  # Determined by looking at average length of examples to see what fits
@@ -2026,7 +2160,7 @@ def get_billsum_legal_summarization_spec(temperature: float = 0.3, device: str =
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "billsum_legal_summarization", "device": device})
-                     + get_generative_harms_metric_specs(),
+        + get_generative_harms_metric_specs(),
         groups=["legal_summarization", "summarization"],
     )
 
@@ -2054,7 +2188,7 @@ def get_multilexsum_legal_summarization_spec(temperature: float = 0.3, device: s
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "multilexsum_legal_summarization", "device": device})
-                     + get_generative_harms_metric_specs(),
+        + get_generative_harms_metric_specs(),
         groups=["legal_summarization", "summarization"],
     )
 
@@ -2082,7 +2216,7 @@ def get_eurlexsum_legal_summarization_spec(temperature: float = 0.3, device: str
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"task": "eurlexsum_legal_summarization", "device": device})
-                     + get_generative_harms_metric_specs(),
+        + get_generative_harms_metric_specs(),
         groups=["legal_summarization", "summarization"],
     )
 
@@ -2202,11 +2336,11 @@ def get_verifiability_judgment_spec() -> RunSpec:
 
 @run_spec_function("opinions_qa")
 def get_opinions_qa_spec(
-        survey_type: str,
-        num_logprobs: str,
-        context: str = "None",
-        num_train_trials: str = "1",
-        method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
+    survey_type: str,
+    num_logprobs: str,
+    context: str = "None",
+    num_train_trials: str = "1",
+    method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.opinions_qa_scenario.OpinionsQAScenario",
@@ -2227,7 +2361,7 @@ def get_opinions_qa_spec(
 
     return RunSpec(
         name=f"opinions_qa:survey={survey_type},num_logprobs={num_logprobs}"
-             + f",context={context},num_train_trials={num_train_trials}",
+        + f",context={context},num_train_trials={num_train_trials}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=[],
@@ -2286,6 +2420,118 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_instruction_following_critique_metric_specs(num_respondents),
         groups=["anthropic_hh_rlhf"],
+    )
+
+
+@run_spec_function("cleva")
+def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, prompt_id: int = 0) -> RunSpec:
+    from .scenarios.cleva_scenario import CLEVAScenario  # noqa
+
+    CLEVAScenario.download_dataset(task, version)
+
+    _, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
+    inference_parameters = CLEVAScenario.load_inference_parameters(task, subtask, version, prompt_id)
+
+    class_name_prefix = "".join([word.capitalize() for word in task.split("_")])
+    scenario_spec = ScenarioSpec(
+        class_name=f"helm.benchmark.scenarios.cleva_scenario.CLEVA{class_name_prefix}Scenario",
+        args={"version": version, "subtask": subtask, "prompt_id": prompt_id},
+    )
+    run_spec_name: str = f"cleva:task={task},version={version},prompt_id={prompt_id}"
+    if subtask:
+        run_spec_name += f",subtask={subtask}"
+
+    if task in ["copyright"]:
+        adapter_spec = get_completion_adapter_spec(
+            temperature=inference_parameters.get("temperature", 0.2),
+            max_tokens=inference_parameters.get("max_tokens", 1024),
+            num_outputs=inference_parameters.get("num_outputs", 1),
+        )
+        args = {"normalize_by_prefix_length": True, "normalize_newline_space_tab": False}
+        metric_specs = get_cleva_copyright_metric_spec(args) + get_cleva_generative_harms_metric_specs()
+    elif task in ["code_synthesis"]:
+        adapter_spec = get_completion_adapter_spec(
+            instructions=prompt_setting.instructions,
+            temperature=inference_parameters.get("temperature", 0.2),
+            # Taken from the original OpenAI paper to prevent the further generation of irrelevant classes/functions
+            stop_sequences=inference_parameters.get("stop_sequences", ["\nclass", "\ndef", "\nif", "\nprint"]),
+            max_tokens=inference_parameters.get("max_tokens", 600),
+        )
+        metric_specs = get_basic_metric_specs(["code_eval_acc", "pass"]) + get_cleva_generative_harms_metric_specs()
+    elif task in ["language_modeling"]:
+        adapter_spec = get_language_modeling_adapter_spec()
+        metric_specs = get_basic_metric_specs([])
+    else:
+        if prompt_setting.method in [
+            ADAPT_MULTIPLE_CHOICE_JOINT,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+        ]:
+            if prompt_setting.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+                adapter_spec = AdapterSpec(
+                    method=prompt_setting.method,
+                    instructions=prompt_setting.instructions,
+                    input_prefix=prompt_setting.input_prefix,
+                    input_suffix=prompt_setting.input_suffix,
+                    output_prefix=prompt_setting.output_prefix,
+                    output_suffix=prompt_setting.output_suffix,
+                    max_train_instances=inference_parameters.get("max_train_instances", 5),
+                    num_outputs=inference_parameters.get("num_outputs", 5),
+                    max_tokens=inference_parameters.get("max_tokens", 1),
+                    temperature=inference_parameters.get("temperature", 0.0),
+                    stop_sequences=inference_parameters.get("stop_sequences", ["\n"]),
+                    sample_train=inference_parameters.get("sample_train", True),
+                    multi_label=inference_parameters.get("multi_label", False),
+                )
+            else:
+                adapter_spec = AdapterSpec(
+                    method=prompt_setting.method,
+                    instructions=prompt_setting.instructions,
+                    input_prefix=prompt_setting.input_prefix,
+                    input_suffix=prompt_setting.input_suffix,
+                    output_prefix=prompt_setting.output_prefix,
+                    output_suffix=prompt_setting.output_suffix,
+                    # Separate is basically language modeling, so can't easily use in-context examples
+                    max_train_instances=inference_parameters.get("max_train_instances", 5),
+                    num_outputs=1,
+                    max_tokens=0,
+                    temperature=inference_parameters.get("temperature", 0.0),
+                    sample_train=inference_parameters.get("sample_train", True),
+                )
+            metric_specs = get_exact_match_metric_specs()
+            if task in ["fact_checking", "bias"]:
+                metric_specs += get_multiple_choice_classification_metric_specs()
+        elif prompt_setting.method == ADAPT_GENERATION:
+            adapter_spec = AdapterSpec(
+                method=prompt_setting.method,
+                instructions=prompt_setting.instructions,
+                input_prefix=prompt_setting.input_prefix,
+                input_suffix=prompt_setting.input_suffix,
+                output_prefix=prompt_setting.output_prefix,
+                output_suffix=prompt_setting.output_suffix,
+                max_train_instances=inference_parameters.get("max_train_instances", 5),
+                num_outputs=inference_parameters.get("num_outputs", 1),
+                max_tokens=inference_parameters.get("max_tokens", 20),
+                temperature=inference_parameters.get("temperature", 0.0),
+                stop_sequences=inference_parameters.get("stop_sequences", ["\n"]),
+                sample_train=inference_parameters.get("sample_train", True),
+                multi_label=inference_parameters.get("multi_label", True),
+            )
+            metric_specs = (
+                get_cleva_generative_task_metric_spec(task, subtask) + get_cleva_generative_harms_metric_specs()
+            )
+        else:
+            raise ValueError(
+                f"{task} can only be {ADAPT_GENERATION}, {ADAPT_MULTIPLE_CHOICE_JOINT}, "
+                f"{ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED} or {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL}"
+            )
+
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["cleva", f"cleva_{task}"],
     )
 
 
@@ -2428,7 +2674,7 @@ def get_decodingtrust_privacy_spec(
             "prompt_type": prompt_type,
             "dataset_size": dataset_size,
             "few_shot_num": few_shot_num,
-            "data_file": data_file,    
+            "data_file": data_file,
         },
     )
     adapter_spec = get_instruct_adapter_spec(num_outputs=1, max_tokens=32, temperature=1)  # temperature>0 for generaion
@@ -2585,7 +2831,13 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
-        model = get_model(run_spec.adapter_spec.model)
+        try:
+            model = get_model(run_spec.adapter_spec.model)
+        except ValueError:
+            # Models registered from configs cannot have expanders applied to them,
+            # because the models will not have been registered yet at this point.
+            # TODO: Figure out a cleaner way to deal with this.
+            return run_spec
         # For models that strip newlines, when we're generating, we need to set
         # the delimiter to be '###' so we stop properly.
         if NO_NEWLINES_TAG in model.tags and run_spec.adapter_spec.method in (
@@ -2609,9 +2861,17 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
 
-        if ANTHROPIC_MODEL_TAG in model.tags:
-            add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
-            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
+        # Special handling for Anthropic Claude
+        if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
+            try:
+                import anthropic
+                from helm.proxy.clients.anthropic_client import AnthropicClient
+            except ModuleNotFoundError as e:
+                handle_module_not_found_error(e)
+            claude_run_expanders: List[RunExpander] = []
+            claude_run_expanders.append(AddToStopRunExpander(anthropic.HUMAN_PROMPT))
+            if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags:
+                claude_run_expanders.append(IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS))
             # Get scenario tags
             components = run_spec.scenario_spec.class_name.split(".")
             class_name = components[-1]
@@ -2620,16 +2880,18 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             scenario_tags: List[str] = cls.tags
             # If the scenario is instruction, do not use PROMPT_ANSWER_START
             if "instructions" in scenario_tags:
-                format_expander = FormatPromptRunExpander(
-                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}"
+                claude_run_expanders.append(
+                    FormatPromptRunExpander(prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}")
                 )
             else:
-                format_expander = FormatPromptRunExpander(
-                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
+                claude_run_expanders.append(
+                    FormatPromptRunExpander(
+                        prefix=anthropic.HUMAN_PROMPT,
+                        suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}",
+                    )
                 )
-            run_spec = singleton(add_to_stop_expander.expand(run_spec))
-            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
-            run_spec = singleton(format_expander.expand(run_spec))
+            for claude_run_expander in claude_run_expanders:
+                run_spec = singleton(claude_run_expander.expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:

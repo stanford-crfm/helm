@@ -2,10 +2,16 @@ name: Test
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'src/helm-frontend/**'
   pull_request:
+    paths-ignore:
+      - 'src/helm-frontend/**'
 
 jobs:
   install:
+    # Tests that the HELM CLI commands work when only installing required dependencies
+    # without optional extra dependencies.
     name: Install
     runs-on: ubuntu-latest
     strategy:
@@ -20,7 +26,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements-freeze.txt') }}-${{ matrix.python-version }}
+          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
           restore-keys: |
             pip-
       - run: pip install -e .
@@ -43,7 +49,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements-freeze.txt') }}
+          key: pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             pip-
       # Installs dependencies and performs static code checks
@@ -51,8 +57,7 @@ jobs:
       - run: source venv/bin/activate && ./install-dev.sh
       - run: source venv/bin/activate && ./pre-commit.sh
       - name: Run tests
-        # Skip ICE tokenizer tests. GHA is having trouble downloading ice_text.model.
-        run: source venv/bin/activate && pytest --ignore src/helm/benchmark/window_services/test_ice_window_service.py --ignore src/helm/proxy/clients/test_ice_tokenizer_client.py
+        run: source venv/bin/activate && pytest
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'main' }}

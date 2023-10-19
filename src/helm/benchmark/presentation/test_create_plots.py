@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from helm.common.general import asdict_without_nones
 from helm.benchmark.presentation.table import Table, Cell, HeaderCell
 from helm.benchmark.presentation.create_plots import parse_table

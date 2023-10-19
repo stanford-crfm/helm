@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 from unittest.mock import MagicMock
 
 from transformers import GPT2TokenizerFast

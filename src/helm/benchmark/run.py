@@ -1,24 +1,24 @@
 import argparse
 from dataclasses import replace
 from typing import List, Optional
+from helm.benchmark.huggingface_registration import (
+    register_huggingface_hub_model_from_flag_value,
+    register_huggingface_local_model_from_flag_value,
+)
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
-from helm.common.object_spec import parse_object_spec
-from helm.proxy.clients.huggingface_model_registry import (
-    register_huggingface_hub_model_config,
-    register_huggingface_local_model_config,
-)
+from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
 from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
 from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
-from .slurm_runner import SlurmRunner
 from .run_specs import construct_run_specs
 
 
@@ -48,12 +48,14 @@ def run_entries_to_run_specs(
 
             # Modify AdapterSpec
             adapter_spec: AdapterSpec = run_spec.adapter_spec
-            if max_eval_instances is not None:
+            if max_eval_instances is not None and adapter_spec.max_eval_instances is None:
                 adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
-            if num_train_trials is not None or adapter_spec.max_train_instances == 0:
-                adapter_spec = replace(
-                    adapter_spec, num_train_trials=1 if adapter_spec.max_train_instances == 0 else num_train_trials
-                )
+
+            if adapter_spec.max_train_instances == 0:
+                adapter_spec = replace(adapter_spec, num_train_trials=1)
+            elif num_train_trials is not None:
+                adapter_spec = replace(adapter_spec, num_train_trials=num_train_trials)
+
             run_spec = replace(run_spec, adapter_spec=adapter_spec)
 
             # Append groups
@@ -80,7 +82,7 @@ def run_benchmarking(
     cache_instances_only: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
-    use_slurm_runner: bool,
+    runner_class_name: Optional[str],
     mongo_uri: str = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
@@ -95,7 +97,7 @@ def run_benchmarking(
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec)
-    runner_cls = SlurmRunner if use_slurm_runner else Runner
+    runner_cls = get_class_by_name(runner_class_name) if runner_class_name else Runner
     runner: Runner = runner_cls(
         execution_spec,
         output_path,
@@ -245,10 +247,10 @@ def main():
         "The client will use RemoteWindowService for windowing.",
     )
     parser.add_argument(
-        "--use-slurm-runner",
-        action="store_true",
-        help="Experimental: If set, each RunSpec will be run in a separate worker Slurm job. "
-        "Currently only works on the Stanford NLP cluster.",
+        "--runner-class-name",
+        type=str,
+        default=None,
+        help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
     parser.add_argument(
         "--model-metadata-paths",
@@ -267,9 +269,9 @@ def main():
     validate_args(args)
 
     for huggingface_model_name in args.enable_huggingface_models:
-        register_huggingface_hub_model_config(huggingface_model_name)
+        register_huggingface_hub_model_from_flag_value(huggingface_model_name)
     for huggingface_model_path in args.enable_local_huggingface_models:
-        register_huggingface_local_model_config(huggingface_model_path)
+        register_huggingface_local_model_from_flag_value(huggingface_model_path)
     for model_metadata_path in args.model_metadata_paths:
         register_model_metadata_from_path(model_metadata_path)
     for model_deployment_paths in args.model_deployment_paths:
@@ -318,7 +320,7 @@ def main():
         cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
-        use_slurm_runner=args.use_slurm_runner,
+        runner_class_name=args.runner_class_name,
         mongo_uri=args.mongo_uri,
     )
 

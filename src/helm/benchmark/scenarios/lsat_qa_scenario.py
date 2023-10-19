@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 import os
 import json
 from typing import List
@@ -103,8 +104,8 @@ class LSATScenario(Scenario):
         question_type: str = tags[2].replace("grouping (distribution)", "distribution grouping") or "miscellaneous"
         return [question_type.replace(" ", "_").replace("/", "_"), self.subtype2type.get(question_type)]
 
-    def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
 
         instances: List[Instance] = []
