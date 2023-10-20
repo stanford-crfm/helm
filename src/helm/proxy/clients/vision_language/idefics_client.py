@@ -10,6 +10,7 @@ from helm.common.cache import CacheConfig, Cache
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog
+from helm.common.media_object import TEXT_TYPE
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -93,12 +94,17 @@ class IDEFICSClient(Client):
             exit_condition = processor.tokenizer(self.END_OF_UTTERANCE_TOKEN, add_special_tokens=False).input_ids
             generation_args["eos_token_id"] = exit_condition
 
-        multimodal_prompt: List[Union[str, Image]] = [
-            open_image(media_object.location)
-            if media_object.is_type("image") and media_object.location
-            else media_object.text
-            for media_object in request.multimodal_prompt.media_objects
-        ]
+        multimodal_prompt: List[Union[str, Image.Image]] = []
+        for media_object in request.multimodal_prompt.media_objects:
+
+            if media_object.is_type("image") and media_object.location:
+                multimodal_prompt.append(open_image(media_object.location))
+            elif media_object.is_type(TEXT_TYPE):
+                if media_object.text is None:
+                    raise ValueError("MediaObject of text type has missing text field value")
+                multimodal_prompt.append(media_object.text)
+            else:
+                raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
         prompt_text: str = request.multimodal_prompt.text.replace(self.END_OF_UTTERANCE_TOKEN, " ")
 
         try:

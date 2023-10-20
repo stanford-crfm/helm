@@ -17,10 +17,10 @@ class KoalaScenario(Scenario):
     description = "Koala eval dataset"
     tags = ["instructions"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
         source_url = "https://raw.githubusercontent.com/arnav-gudibande/koala-test-set/main/koala_test_set.jsonl"
-        data_path: str = os.path.join(self.output_path, "Koala_prompts.jsonl")
+        data_path: str = os.path.join(output_path, "Koala_prompts.jsonl")
 
         ensure_file_downloaded(
             source_url=source_url,

@@ -40,13 +40,13 @@ def get_light_scenarios_from_scenario_spec(
     scenario: Scenario = create_scenario(scenario_spec)
 
     ensure_directory_exists(scenario_download_path)
-    scenario.output_path = os.path.join(scenario_download_path, scenario.name)
-    ensure_directory_exists(scenario.output_path)
+    scenario_output_path = os.path.join(scenario_download_path, scenario.name)
+    ensure_directory_exists(scenario_output_path)
 
     # Load instances
     instances: List[Instance]
     with htrack_block("scenario.get_instances"):
-        instances = scenario.get_instances()
+        instances = scenario.get_instances(scenario_output_path)
 
     # Get instance ids
     instances = with_instance_ids(instances)

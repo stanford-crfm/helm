@@ -446,7 +446,7 @@ class CLEVAScenario(Scenario):
             raise ValueError(f"Missing prompt template file at '{file_path}'")
         return prompt_templates
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
         dataset = self.load_dataset()
 
@@ -930,7 +930,7 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
     def task(self) -> str:
         return "dialogue_generation"
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
         dataset = self.load_dataset()
 

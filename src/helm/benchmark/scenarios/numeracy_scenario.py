@@ -653,7 +653,7 @@ class NumeracyScenario(Scenario):
         self.num_train = MODE_INFO[mode]["num_train"]
         self.num_test = MODE_INFO[mode]["num_test"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         assert self.random_seed is not None
         random.seed(self.random_seed)
         np.random.seed(self.random_seed)

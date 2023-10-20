@@ -26,7 +26,7 @@ class Simple1Scenario(Scenario):
         self.num_train_instances = num_train_instances
         self.num_test_instances = num_test_instances
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         random.seed(1)
 
         def generate_seq() -> List[str]:

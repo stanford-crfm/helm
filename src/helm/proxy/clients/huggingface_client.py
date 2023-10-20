@@ -2,6 +2,10 @@ from copy import deepcopy
 import torch
 from dataclasses import asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers.generation.stopping_criteria import (
+    StoppingCriteria,
+    StoppingCriteriaList,
+)
 from typing import Any, Dict, List, Optional
 
 from helm.common.cache import Cache, CacheConfig
@@ -33,6 +37,20 @@ _MODEL_NAME_ALIASES: Dict[str, str] = {
 def resolve_alias(model_name: str) -> str:
     """Resolve some HELM model names to Hugging Face pretrained model name."""
     return _MODEL_NAME_ALIASES.get(model_name, model_name)
+
+
+class StopAtSpecificTokenCriteria(StoppingCriteria):
+    def __init__(self, stop_sequence: List[int]):
+        super().__init__()
+        self.stop_sequence = stop_sequence
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
+        # Create a tensor from the stop_sequence
+        stop_sequence_tensor = torch.tensor(self.stop_sequence, device=input_ids.device, dtype=input_ids.dtype)
+
+        # Check if the current sequence ends with the stop_sequence
+        current_sequence = input_ids[:, -len(self.stop_sequence) :]
+        return bool(torch.all(current_sequence == stop_sequence_tensor).item())
 
 
 class HuggingFaceServer:
@@ -67,14 +85,18 @@ class HuggingFaceServer:
         raw_request["output_scores"] = True
         top_k_per_token: int = raw_request["top_k_per_token"]
         del raw_request["top_k_per_token"]
+        stopping_criteria: Optional[StoppingCriteriaList] = None
         if len(raw_request["stop_sequences"]) > 0:
             stop_sequence_ids = self.tokenizer(
                 raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
             )
-            assert len(stop_sequence_ids.input_ids) == 1, "Total number of stop words should be 1."
-            assert len(stop_sequence_ids.input_ids[0]) == 1, "Total number of tokens in each stop word should be 1."
+            if len(stop_sequence_ids.input_ids) == 1 and len(stop_sequence_ids.input_ids[0]) == 1:
+                raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
+            else:
+                stopping_criteria = StoppingCriteriaList()
+                for stop_sequence_input_ids in stop_sequence_ids.input_ids:
+                    stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_input_ids))
             del raw_request["stop_sequences"]
-            raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
 
         # Strip out irrelevant parameters
         relevant_raw_request = {
@@ -84,7 +106,11 @@ class HuggingFaceServer:
         }
 
         # Use HuggingFace's `generate` method.
-        output = self.model.generate(**encoded_input, **relevant_raw_request)
+        output = self.model.generate(
+            **encoded_input,
+            **relevant_raw_request,
+            stopping_criteria=stopping_criteria,
+        )
         sequences = output.sequences
         scores = output.scores
 
@@ -175,10 +201,6 @@ class HuggingFaceClient(Client):
         # Embedding not supported for this model
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
-
-        # Only a single stop sequence is supported as we can only pass in a single value for `eos_token_id`
-        if len(request.stop_sequences) > 1:
-            raise ValueError("More than one stop sequence is not supported.")
 
         raw_request = {
             "engine": request.model_engine,

@@ -200,11 +200,6 @@ class Scenario(ABC):
     tags: List[str] = field(init=False)
     """Extra metadata (e.g., whether this is a question answering or commonsense task)"""
 
-    # Set by Runner.
-    # TODO: ideally would pass this into `get_instances` to not have to mutate.
-    output_path: str = field(init=False, default="")
-    """Where downloaded data is cached (to be set by the `Runner`)"""
-
     definition_path: str = field(init=False)
     """Where the scenario subclass for `self` is defined."""
 
@@ -219,7 +214,7 @@ class Scenario(ABC):
         self.definition_path = "https://github.com/stanford-crfm/helm/blob/main/src/" + path
 
     @abstractmethod
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """
         Does the main work in the `Scenario` (e.g., download datasets, convert
         it into a list of instances).

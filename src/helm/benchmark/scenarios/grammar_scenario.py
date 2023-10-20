@@ -18,7 +18,7 @@ class GrammarScenario(Scenario):
         self.path = path
         self.tags = tags.split(",") if tags else []
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Generate derivations
         grammar = read_grammar(self.path)
         derivations = generate_derivations(grammar)
