@@ -120,7 +120,7 @@ class Metric(ABC):
             return self.evaluate_language_modeling(scenario_state, metric_service, eval_cache_path)
 
         adapter_spec = scenario_state.adapter_spec
-        global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
+        global_stats: Dict[MetricName, Stat] = {}
         all_per_instance_stats: List[PerInstanceStats] = []
 
         for train_trial_index in range(adapter_spec.num_train_trials):
