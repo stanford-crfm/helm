@@ -26,7 +26,7 @@ class OpenAssistantScenario(Scenario):
         super().__init__()
         self.language: str = language
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """An example of a message in the dataset:
         {
             'message_id': '6ab24d72-0181-4594-a9cd-deaf170242fb',

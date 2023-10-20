@@ -307,8 +307,8 @@ class NaturalQAScenario(Scenario):
             instances.append(instance)
         return instances
 
-    def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
         random.seed(0)
 

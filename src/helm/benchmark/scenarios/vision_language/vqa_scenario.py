@@ -58,11 +58,11 @@ class VQAScenario(Scenario):
     description = "Open-ended questions about images ([paper](https://arxiv.org/abs/1612.00837))."
     tags = ["vision-language", "visual question answering"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
         for split in [TRAIN_SPLIT, VALID_SPLIT]:
             # Download the questions and answers
-            split_path: str = os.path.join(self.output_path, split)
+            split_path: str = os.path.join(output_path, split)
             ensure_directory_exists(split_path)
             questions_path: str = os.path.join(split_path, "questions.json")
             ensure_file_downloaded(

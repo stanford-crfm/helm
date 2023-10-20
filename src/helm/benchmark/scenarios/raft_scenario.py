@@ -97,14 +97,14 @@ class RAFTScenario(Scenario):
         self.subset = subset
         self.random_seed = random_seed
 
-    def load_prompt_construction_settings(self):
+    def load_prompt_construction_settings(self, output_path: str):
         # Load from prompt construction settings
-        cache_dir = str(Path(self.output_path) / "data")
+        cache_dir = str(Path(output_path) / "data")
         return get_raft_prompt_settings(self.subset, cache_dir)
 
-    def get_instances(self) -> List[Instance]:
-        fields, _ = self.load_prompt_construction_settings()
-        cache_dir = str(Path(self.output_path) / "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        fields, _ = self.load_prompt_construction_settings(output_path)
+        cache_dir = str(Path(output_path) / "data")
         # Download raw data
         # Note: Only using public labeled instances now. Check if we can get the hidden test set labels.
         all_usable_dataset = datasets.load_dataset("ought/raft", self.subset, cache_dir=cache_dir, split="train")

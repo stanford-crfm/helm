@@ -7,7 +7,7 @@ class TestScenario:
         self.scenario: Scenario = create_scenario(get_scenario_spec_tiny())
 
     def test_render_lines(self):
-        instances = self.scenario.get_instances()
+        instances = self.scenario.get_instances(output_path="")
         assert self.scenario.render_lines(instances) == [
             "name: simple1",
             "description: A simple scenario",
