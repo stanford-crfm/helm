@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, Iterable, Set
 
 from helm.common.object_spec import ObjectSpec, create_object
-from helm.common.general import singleton, parallel_map
+from helm.common.general import optional_singleton, singleton, parallel_map
 from helm.benchmark.augmentations.perturbation_description import (
     PerturbationDescription,
     PERTURBATION_ORIGINAL,
@@ -52,7 +52,7 @@ class RequestStateSet:
     """All the request states relevant to a given instance"""
 
     instance: Instance
-    generation_states: List[RequestState]
+    generation_state: Optional[RequestState]
     references_states: List[RequestState]
 
 
@@ -71,11 +71,11 @@ class Processor:
         instance_stats: List[Stat] = []
 
         # Evaluate generated request_state
-        generation_states = request_state_set.generation_states
-        if len(generation_states) != 0:
+        generation_state = request_state_set.generation_state
+        if generation_state:
             instance_stats.extend(
                 self.metric.evaluate_generation(
-                    self.adapter_spec, singleton(generation_states), self.metric_service, self.eval_cache_path
+                    self.adapter_spec, generation_state, self.metric_service, self.eval_cache_path
                 )
             )
 
@@ -127,14 +127,16 @@ class Metric(ABC):
             # Construct inputs
             request_state_sets: List[RequestStateSet] = []
             for instance in scenario_state.instances:
-                generation_states = scenario_state.get_request_states(train_trial_index, instance, None)
+                generation_state = optional_singleton(
+                    scenario_state.get_request_states(train_trial_index, instance, None)
+                )
                 references_states = []
                 for reference_index in range(len(instance.references)):
                     references_states.extend(
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
                 request_state_set = RequestStateSet(
-                    instance=instance, generation_states=generation_states, references_states=references_states
+                    instance=instance, generation_state=generation_state, references_states=references_states
                 )
                 request_state_sets.append(request_state_set)
 

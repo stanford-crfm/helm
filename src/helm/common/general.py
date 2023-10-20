@@ -20,15 +20,28 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 _CREDENTIALS_FILE_NAME = "credentials.conf"
 _CREDENTIALS_ENV_NAME = "HELM_CREDENTIALS"
 
+# Define some reusable type variables to aid in strong typing.
+InT = TypeVar("InT")
+OutT = TypeVar("OutT")
 
-def singleton(items: List):
+
+def singleton(items: List[InT]) -> InT:
     """Ensure there's only one item in `items` and return it."""
     if len(items) != 1:
         raise ValueError(f"Expected 1 item, got {len(items)} items: {items}")
     return items[0]
 
 
-def flatten_list(ll: List):
+def optional_singleton(items: List[InT]) -> Optional[InT]:
+    """Ensure there's either zero or one item in `items` and convert to Optional."""
+    if len(items) == 0:
+        return None
+    if len(items) > 1:
+        raise ValueError(f"Expected either 0 or 1 item, got {len(items)} items: {items}")
+    return items[0]
+
+
+def flatten_list(ll: List) -> List:
     """
     Input: Nested lists
     Output: Flattened input
@@ -36,7 +49,7 @@ def flatten_list(ll: List):
     return sum(map(flatten_list, ll), []) if isinstance(ll, list) else [ll]
 
 
-def ensure_directory_exists(path: str):
+def ensure_directory_exists(path: str) -> None:
     """Create `path` if it doesn't exist."""
     os.makedirs(path, exist_ok=True)
 
@@ -56,7 +69,7 @@ def get_credentials(base_path: str = "prod_env") -> Dict[str, str]:
     return parse_hocon(raw_credentials)
 
 
-def shell(args: List[str]):
+def shell(args: List[str]) -> None:
     """Executes the shell command in `args`."""
     cmd = shlex.join(args)
     hlog(f"Executing: {cmd}")
@@ -72,7 +85,7 @@ def ensure_file_downloaded(
     unpack: bool = False,
     downloader_executable: str = "wget",
     unpack_type: Optional[str] = None,
-):
+) -> None:
     """Download `source_url` to `target_path` if it doesn't exist."""
     with FileLock(f"{target_path}.lock"):
         if os.path.exists(target_path):
@@ -175,14 +188,14 @@ def serialize(obj: Any) -> List[str]:
     return [f"{key}: {json.dumps(value)}" for key, value in asdict(obj).items()]
 
 
-def write(file_path: str, content: str):
+def write(file_path: str, content: str) -> None:
     """Write content out to a file at path file_path."""
     hlog(f"Writing {len(content)} characters to {file_path}")
     with open(file_path, "w") as f:
         f.write(content)
 
 
-def write_lines(file_path: str, lines: List[str]):
+def write_lines(file_path: str, lines: List[str]) -> None:
     """Write lines out to a file at path file_path."""
     hlog(f"Writing {len(lines)} lines to {file_path}")
     with open(file_path, "w") as f:
@@ -208,10 +221,6 @@ def match_case(source_word: str, target_word: str) -> str:
     if source_word and source_word[0].isupper():
         return target_word.capitalize()
     return target_word
-
-
-InT = TypeVar("InT")
-OutT = TypeVar("OutT")
 
 
 def parallel_map(
