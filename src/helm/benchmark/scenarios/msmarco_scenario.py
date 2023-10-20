@@ -69,7 +69,7 @@ class MSMARCOScenario(Scenario):
             Does the passage answer the query?
             Answer: Yes
 
-            Passage: SIZE: There are few measurements available for this bear. Adult spectacled bears can weigh between 140 and 385 pounds (63-173 kg). However, the body length of adults is about 150 to 180 centimeters (60 to 72 inches) and males may be 30 to 40 percent larger than females.
+            Passage: There are few measurements available for this bear. Adult spectacled bears can weigh between 140 and 385 pounds (63-173 kg). However, the body length of adults is about 150 to 180 centimeters (60 to 72 inches) and males may be 30 to 40 percent larger than females.
             Query: how much does a spectacled bear weigh
             Does the passage answer the query?
             Answer:
