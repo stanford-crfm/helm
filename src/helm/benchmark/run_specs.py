@@ -19,6 +19,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from .metrics.metric import MetricSpec
 from .run_expander import (
     RUN_EXPANDERS,
+    RunExpander,
     GlobalPrefixRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
@@ -47,12 +48,13 @@ from .scenarios.lextreme_scenario import (
     get_lextreme_task_type,
 )
 from helm.proxy.models import (
+    ANTHROPIC_CLAUDE_1_MODEL_TAG,
+    ANTHROPIC_CLAUDE_2_MODEL_TAG,
     get_model,
     NO_NEWLINES_TAG,
     NLG_PREFIX_TAG,
     CHATML_MODEL_TAG,
     OPENAI_CHATGPT_MODEL_TAG,
-    ANTHROPIC_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
 )
 from helm.common.general import singleton
@@ -2546,14 +2548,17 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
 
-        if ANTHROPIC_MODEL_TAG in model.tags:
+        # Special handling for Anthropic Claude
+        if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
             try:
                 import anthropic
                 from helm.proxy.clients.anthropic_client import AnthropicClient
             except ModuleNotFoundError as e:
                 handle_module_not_found_error(e)
-            add_to_stop_expander = AddToStopRunExpander(anthropic.HUMAN_PROMPT)
-            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS)
+            claude_run_expanders: List[RunExpander] = []
+            claude_run_expanders.append(AddToStopRunExpander(anthropic.HUMAN_PROMPT))
+            if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags:
+                claude_run_expanders.append(IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS))
             # Get scenario tags
             components = run_spec.scenario_spec.class_name.split(".")
             class_name = components[-1]
@@ -2562,16 +2567,18 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             scenario_tags: List[str] = cls.tags
             # If the scenario is instruction, do not use PROMPT_ANSWER_START
             if "instructions" in scenario_tags:
-                format_expander = FormatPromptRunExpander(
-                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}"
+                claude_run_expanders.append(
+                    FormatPromptRunExpander(prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}")
                 )
             else:
-                format_expander = FormatPromptRunExpander(
-                    prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}"
+                claude_run_expanders.append(
+                    FormatPromptRunExpander(
+                        prefix=anthropic.HUMAN_PROMPT,
+                        suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}",
+                    )
                 )
-            run_spec = singleton(add_to_stop_expander.expand(run_spec))
-            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
-            run_spec = singleton(format_expander.expand(run_spec))
+            for claude_run_expander in claude_run_expanders:
+                run_spec = singleton(claude_run_expander.expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:

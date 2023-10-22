@@ -139,7 +139,7 @@ class SyntheticReasoningScenario(Scenario):
         self.rng.shuffle(pattern)
         return pattern
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # We fix the seed for data generation to ensure reproducibility.
         # Read all the instances
         instances: List[Instance] = []

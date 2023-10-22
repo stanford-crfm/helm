@@ -93,9 +93,9 @@ class MMLUScenario(Scenario):
                 instances.append(instance)
         return instances
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(output_path, "data")
         self.download_mmlu(data_path)
 
         # Read all the instances

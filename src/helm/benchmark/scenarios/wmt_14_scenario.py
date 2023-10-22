@@ -58,7 +58,7 @@ class WMT14Scenario(Scenario):
                 deduplicated_dataset.append(example)
         return deduplicated_dataset
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         hlog("Loading the HuggingFace dataset. The first time could take several minutes.")
         subset_name = f"{self.source_language if self.source_language!='en' else self.target_language}-en"
         hf_dataset: Any = load_dataset("wmt14", subset_name)
