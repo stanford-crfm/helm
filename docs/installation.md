@@ -34,3 +34,11 @@ Within this virtual environment, run:
 ```
 pip install crfm-helm
 ```
+
+### For HEIM dependencies
+
+To install the additional dependencies for HEIM, run:
+
+```
+pip install "crfm-helm[heim]"
+``` 
