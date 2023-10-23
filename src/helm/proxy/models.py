@@ -44,6 +44,7 @@ OPT_TOKENIZER_TAG: str = "opt_tokenizer"
 GPTJ_TOKENIZER_TAG: str = "gptj_tokenizer"
 GPT4_TOKENIZER_TAG: str = "gpt4_tokenizer"
 GPTNEO_TOKENIZER_TAG: str = "gptneo_tokenizer"
+CLIP_TOKENIZER_TAG: str = "clip_tokenizer"
 
 # Models which emit garbage tokens when temperature=0.
 BUGGY_TEMP_0_TAG: str = "buggy_temp_0"
@@ -62,6 +63,9 @@ NLG_PREFIX_TAG: str = "nlg_prefix_tag"
 
 # Some models can follow instructions.
 INSTRUCTION_FOLLOWING_MODEL_TAG: str = "instruction_following"
+
+# For text-to-image models
+TEXT_TO_IMAGE_MODEL_TAG: str = "text_to_image"
 
 # For Vision-langauge models (VLMs)
 VISION_LANGUAGE_MODEL_TAG: str = "vision_language"
@@ -886,6 +890,143 @@ ALL_MODELS = [
             GPT2_TOKENIZER_TAG,
         ],
     ),
+    # Text-to-image models
+    Model(
+        group="magma",
+        name="AlephAlpha/m-vader",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="giga_gan",
+        name="adobe/giga-gan",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="firefly",
+        name="adobe/firefly",
+        # TODO: add TEXT_TO_IMAGE_MODEL_TAG later after the first batch of results
+        tags=[CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="dall_e2",
+        name="openai/dalle-2",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG],
+    ),
+    Model(
+        group="lexica",
+        name="lexica/search-stable-diffusion-1.5",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG],
+    ),
+    Model(
+        group="deepfloyd_if",
+        name="DeepFloyd/IF-I-M-v1.0",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="deepfloyd_if",
+        name="DeepFloyd/IF-I-L-v1.0",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="deepfloyd_if",
+        name="DeepFloyd/IF-I-XL-v1.0",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="mindall-e",
+        name="kakaobrain/mindall-e",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="dall_e",
+        name="craiyon/dalle-mini",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="dall_e",
+        name="craiyon/dalle-mega",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="cogview",
+        name="thudm/cogview2",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/dreamlike-photoreal-v2-0",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/dreamlike-diffusion-v1-0",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/openjourney-v1-0",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/openjourney-v2-0",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/redshift-diffusion",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/promptist-stable-diffusion-v1-4",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/stable-diffusion-v1-4",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/stable-diffusion-v1-5",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/stable-diffusion-v2-base",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/stable-diffusion-v2-1-base",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/stable-diffusion-safe-weak",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/stable-diffusion-safe-medium",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/stable-diffusion-safe-strong",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/stable-diffusion-safe-max",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface_diffusers",
+        name="huggingface/vintedois-diffusion-v0-1",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG, CLIP_TOKENIZER_TAG],
+    ),
     # Vision-language models (VLMs)
     Model(
         group="idefics",
@@ -948,6 +1089,11 @@ def get_model_names_with_tag(tag: str) -> List[str]:
     return [model.name for model in ALL_MODELS if tag in model.tags]
 
 
+def get_models_with_tag(tag: str) -> List[Model]:
+    """Get all models with tag `tag`."""
+    return [model for model in ALL_MODELS if tag in model.tags]
+
+
 def get_all_text_models() -> List[str]:
     """Get all text model names."""
     return get_model_names_with_tag(TEXT_MODEL_TAG)
@@ -961,3 +1107,8 @@ def get_all_code_models() -> List[str]:
 def get_all_instruction_following_models() -> List[str]:
     """Get all instruction-following model names."""
     return get_model_names_with_tag(INSTRUCTION_FOLLOWING_MODEL_TAG)
+
+
+def is_text_to_image_model(model_name: str) -> bool:
+    model: Model = get_model(model_name)
+    return TEXT_TO_IMAGE_MODEL_TAG in model.tags
