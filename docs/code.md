@@ -82,24 +82,27 @@ In order to implement new scenarios:
 1. Attempt to run your task with
    `venv/bin/helm-run -r yourscenarioname:arg=value` where 
    `yourscenarioname` matches the `name` specified in YourScenario
-1. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `src/helm/benchmark/run_specs.py`.
-1. Update `src/helm/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
+1. Update `src/helm/benchmark/static/contamination.yaml` with models that were trained on your scenario (i.e. contaminated).
 1. Add a schema to `src/helm/benchmark/static/schema.yaml` and add the scenario to `subgroups` as needed.
 
 ## Adding new metrics
 
-To add a new metric:
+To add a new metric, first determine if your metric is generic and likely to be widely used, or specific to your task.
 
-1. If the metric is task-specific, create a new `yourtask_metrics.py` file. 
-   Otherwise, if the metric is generic and likely to be widely used, add it
-   to `basic_metrics.py`.
-2. If you are creating a task-specific metric, create a `YourTaskMetric` 
+*  For generic metrics:
+   1. Add a method to `basic_metrics.py` which takes two arguments: the `gold` answer and the model's `pred`iction.
+   1. Add your method to the `metric_fn_mapping` lookup.
+*  For task specific metrics:
+   1. Create a new `yourtask_metrics.py` file for class `YourTaskMetric` 
    which inherits from `Metric` in `metric.py`.
-3. Define methods `__init__` and `evaluate_generation` returning a list of `Stat` objects.
-4. Each `Stat` should correspond to a distinct aggregate measurement over the generated examples. 
+   1. Define methods `__init__` and `evaluate_generation` returning a list of `Stat` objects.
+
+Your metric is responsible for producing `Stat` objects:
+
+*  Each `Stat` should correspond to a distinct aggregate measurement over the generated examples. 
    Some may have one metric (e.g. accuracy), while others may quantify multiple aspects
    (e.g. multiple distance metrics). 
-5. For each `value` generated for a `Stat`, add it to `yourstat` using `yourstat.add(value)`. 
+*  For each `value` generated for a `Stat`, add it to `yourstat` using `yourstat.add(value)`. 
    Usually, there will only be one value for each `Stat`, but multiple can be used, e.g. to show variance.
 
 ## Data augmentations
