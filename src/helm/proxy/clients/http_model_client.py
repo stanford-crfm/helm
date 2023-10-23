@@ -29,7 +29,7 @@ class HTTPModelClient(Client):
         self,
         cache_config: CacheConfig,
         base_url: str = "http://localhost:8080",
-        timeout: int = 300,
+        timeout: int = 3000,
         do_cache: bool = False,
     ):
         self.cache: Optional[Cache] = Cache(cache_config) if do_cache else None
