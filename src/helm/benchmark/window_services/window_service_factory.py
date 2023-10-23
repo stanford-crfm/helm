@@ -5,6 +5,7 @@ from helm.proxy.models import (
     Model,
     AI21_WIDER_CONTEXT_WINDOW_TAG,
     AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG,
+    CLIP_TOKENIZER_TAG,
     WIDER_CONTEXT_WINDOW_TAG,
     GPT_TURBO_CONTEXT_WINDOW_TAG,
     GPT_TURBO_16K_CONTEXT_WINDOW_TAG,
@@ -77,6 +78,7 @@ class WindowServiceFactory:
                 GPT4WindowService,
                 GPT432KWindowService,
             )
+            from helm.benchmark.window_services.image_generation.dalle2_window_service import DALLE2WindowService
 
             if model_name in get_model_names_with_tag(GPT4_CONTEXT_WINDOW_TAG):
                 window_service = GPT4WindowService(service)
@@ -88,6 +90,8 @@ class WindowServiceFactory:
                 window_service = GPTTurbo16KWindowService(service)
             elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
                 window_service = WiderOpenAIWindowService(service)
+            elif engine == "dalle-2":
+                window_service = DALLE2WindowService(service)
             else:
                 window_service = OpenAIWindowService(service)
         # For the Google models, we approximate with the OpenAIWindowService
@@ -300,6 +304,16 @@ class WindowServiceFactory:
             "HuggingFaceM4/idefics-80b-instruct",
         ]:
             window_service = HuggingFaceWindowService(service, model_name)
+        elif model_name in get_model_names_with_tag(CLIP_TOKENIZER_TAG):
+            from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
+
+            window_service = CLIPWindowService(service)
+        elif model_name == "lexica/search-stable-diffusion-1.5":
+            from helm.benchmark.window_services.image_generation.lexica_search_window_service import (
+                LexicaSearchWindowService,
+            )
+
+            window_service = LexicaSearchWindowService(service)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 
