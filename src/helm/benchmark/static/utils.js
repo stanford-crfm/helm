@@ -279,6 +279,6 @@ function renderItems(items) {
   return $result;
 }
 
-function getRunSuite(using_release, version, runsToRunSuites, runSpecName) {
-  return using_release ? runsToRunSuites[runSpecName] : version;
+function getSuiteForRun(runNameToSuite, runName) {
+  return window.VERSION ? runNameToSuite[runName] : window.SUITE;
 }
