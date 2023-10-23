@@ -19,10 +19,10 @@ class SelfInstructScenario(Scenario):
     description = "Self-instruct eval dataset"
     tags = ["instructions"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
         source_url = "https://raw.githubusercontent.com/yizhongw/self-instruct/main/human_eval/user_oriented_instructions.jsonl"  # noqa: E501
-        tasks_path: str = os.path.join(self.output_path, "user_oriented_instructions.jsonl")
+        tasks_path: str = os.path.join(output_path, "user_oriented_instructions.jsonl")
 
         ensure_file_downloaded(
             source_url=source_url,

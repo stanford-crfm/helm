@@ -51,8 +51,8 @@ class LegalSupportScenario(Scenario):
     description = "Binary multiple choice question dataset for legal argumentative reasoning."
     tags = ["question_answering", "law"]
 
-    def get_instances(self) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path: str = os.path.join(output_path, "data")
         ensure_file_downloaded(
             source_url="https://docs.google.com/uc?export=download&id=1PVoyddrCHChMxYrLhsI-zu7Xzs5S8N77",
             target_path=data_path,

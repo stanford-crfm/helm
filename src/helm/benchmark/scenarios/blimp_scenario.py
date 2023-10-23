@@ -114,9 +114,9 @@ class BLiMPScenario(Scenario):
         assert phenomenon in self.phenomenon_to_paradigms, f"Unsupported phenomenon: {phenomenon}"
         self.phenomenon: str = phenomenon
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(output_path, "data")
         ensure_file_downloaded(
             source_url="https://github.com/alexwarstadt/blimp/blob/master/BLiMP.zip?raw=true",
             target_path=data_path,

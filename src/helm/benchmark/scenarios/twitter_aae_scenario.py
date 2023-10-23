@@ -35,9 +35,9 @@ class TwitterAAEScenario(Scenario):
         assert demographic in ["aa", "white"], f"Unsupported demographic: {demographic}"
         self.demographic: str = demographic
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        data_path: str = os.path.join(self.output_path, f"{self.demographic}_tweets.csv")
+        data_path: str = os.path.join(output_path, f"{self.demographic}_tweets.csv")
         ensure_file_downloaded(
             source_url=CODALAB_URI_TEMPLATE.format(demographic=self.demographic),
             target_path=data_path,

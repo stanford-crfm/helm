@@ -21,13 +21,13 @@ class VicunaScenario(Scenario):
         super().__init__()
         self.category: str = category
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         def matches_target_category(raw: dict) -> bool:
             return self.category == "all" or raw["category"] == self.category
 
         # Download the raw data
         source_url = "https://raw.githubusercontent.com/lm-sys/FastChat/main/fastchat/eval/table/question.jsonl"
-        data_path: str = os.path.join(self.output_path, "vicuna_questions.jsonl")
+        data_path: str = os.path.join(output_path, "vicuna_questions.jsonl")
 
         ensure_file_downloaded(
             source_url=source_url,
