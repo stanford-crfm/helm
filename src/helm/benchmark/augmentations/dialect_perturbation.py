@@ -30,7 +30,7 @@ class DialectPerturbation(Perturbation):
 
     Keys are tuples of the form (source_class, target_class), such as
     ("SAE", "AAVE"). Mapping dictionaries are from the sources listed below,
-    converted to JSON and stored in CodaLab.
+    converted to JSON and stored in Google Cloud Storage.
 
         (1) SAE to AAVE dictionary is from Ziems et al. (2022)
 
@@ -39,7 +39,10 @@ class DialectPerturbation(Perturbation):
 
     """
     MAPPING_DICT_URIS = {
-        (SAE, AAVE): "https://worksheets.codalab.org/rest/bundles/0x3523e02bd46b42bcad783292b40b4e38/contents/blob/"
+        (SAE, AAVE): (
+            "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
+            "augmentations/dialect_perturbation/SAE_to_AAVE_mapping.json"
+        )
     }
 
     @dataclass(frozen=True)
