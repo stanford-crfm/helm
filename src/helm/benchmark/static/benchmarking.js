@@ -790,20 +790,30 @@ $(function () {
       return JSON.stringify(instance);
     }
 
-    const suite = getSuiteForRun(runNameToSuite, runSpec.name);
-
     // Paths (parallel arrays corresponding to `runSpecs`)
     const statsPaths = runSpecs.map((runSpec) => {
-      return statsJsonUrl(suite, runSpec.name);
+      return statsJsonUrl(
+        getSuiteForRun(runNameToSuite, runSpec.name),
+        runSpec.name,
+      );
     });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
-      return scenarioStateJsonUrl(suite, runSpec.name);
+      return scenarioStateJsonUrl(
+        getSuiteForRun(runNameToSuite, runSpec.name),
+        runSpec.name,
+      );
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
-      return runSpecJsonUrl(suite, runSpec.name);
+      return runSpecJsonUrl(
+        getSuiteForRun(runNameToSuite, runSpec.name),
+        runSpec.name,
+      );
     });
     const predictionsPaths = runSpecs.map((runSpec) => {
-      return predictionsJsonUrl(suite, runSpec.name);
+      return predictionsJsonUrl(
+        getSuiteForRun(runNameToSuite, runSpec.name),
+        runSpec.name,
+      );
     });
 
     // Figure out short names for the runs based on where they differ
@@ -1575,6 +1585,15 @@ $(function () {
   //////////////////////////////////////////////////////////////////////////////
   const $main = $("#main");
   const $summary = $("#summary");
+
+  // Allow overriding release or suite with URL params for debugging.
+  if (urlParams.release) {
+    window.RELEASE = urlParams.release;
+    window.SUITE = null;
+  } else if (urlParams.suite) {
+    window.RELEASE = null;
+    window.SUITE = urlParams.suite;
+  }
 
   // Extra function wrapper to preserve indentation for review
   // TODO: Remove before merging.

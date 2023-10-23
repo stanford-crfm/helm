@@ -280,5 +280,6 @@ function renderItems(items) {
 }
 
 function getSuiteForRun(runNameToSuite, runName) {
-  return window.VERSION ? runNameToSuite[runName] : window.SUITE;
+  suite = window.RELEASE ? runNameToSuite[runName] : window.SUITE;
+  return suite;
 }

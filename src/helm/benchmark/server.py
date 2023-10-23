@@ -6,6 +6,7 @@ Starts a local HTTP server to display benchmarking assets.
 import argparse
 import importlib_resources as resources
 from os import path
+from typing import Optional
 
 from bottle import Bottle, static_file
 
@@ -15,11 +16,19 @@ app = Bottle()
 
 @app.get("/config.js")
 def serve_config():
-    return (
-        'window.BENCHMARK_OUTPUT_BASE_URL = "benchmark_output";\n'
-        'window.SUITE = "latest";\n'
-        "window.RELEASE = null;\n"
-    )
+    release: Optional[str] = app.config["helm.release"]
+    if release:
+        return (
+            'window.BENCHMARK_OUTPUT_BASE_URL = "benchmark_output";\n'
+            "window.SUITE = null;\n"
+            f'window.RELEASE = "{release}";\n'
+        )
+    else:
+        return (
+            'window.BENCHMARK_OUTPUT_BASE_URL = "benchmark_output";\n'
+            'window.SUITE = "latest";\n'
+            "window.RELEASE = null;\n"
+        )
 
 
 @app.get("/benchmark_output/<filename:path>")
@@ -38,17 +47,18 @@ def serve_static(filename="index.html"):
 
 
 def main():
-    global service
-    global use_release
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=8000)
     parser.add_argument(
         "-o", "--output-path", type=str, help="The location of the output path", default="benchmark_output"
     )
-    parser.add_argument("--use-release", action="store_true", help="Experimental: Serve a release rather than a suite.")
+    parser.add_argument(
+        "--release",
+        type=str,
+        default=None,
+        help="Experimental: The release to serve. If unset, serve the latest suite instead.",
+    )
     args = parser.parse_args()
-
-    use_release = args.use_release
 
     # Determine the location of the static directory.
     # This is a hack: it assumes that the static directory has a physical location,
@@ -59,6 +69,7 @@ def main():
 
     app.config["helm.staticpath"] = static_path
     app.config["helm.outputpath"] = path.abspath(args.output_path)
+    app.config["helm.release"] = args.release
 
     app.run(host="0.0.0.0", port=args.port)
 

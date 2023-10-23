@@ -21,7 +21,7 @@ function runSpecsJsonUrl() {
 }
 
 function groupsMetadataJsonUrl() {
-  return `${versionBaseUrl(version, using_release)}/groups_metadata.json`;
+  return `${versionBaseUrl()}/groups_metadata.json`;
 }
 
 function groupsJsonUrl() {
@@ -32,34 +32,34 @@ function groupJsonUrl(groupName) {
   return `${versionBaseUrl()}/groups/${groupName}.json`;
 }
 
-function runSpecJsonUrl(runSpecName) {
+function runSpecJsonUrl(suite, runSpecName) {
   return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/run_spec.json`;
 }
 
-function scenarioJsonUrl(runSpecName) {
+function scenarioJsonUrl(suite, runSpecName) {
   return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/scenario.json`;
 }
 
-function scenarioStateJsonUrl(runSpecName) {
+function scenarioStateJsonUrl(suite, runSpecName) {
   return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/scenario_state.json`;
 }
 
-function statsJsonUrl(runSpecName) {
+function statsJsonUrl(suite, runSpecName) {
   return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/stats.json`;
 }
 
-function instancesJsonUrl(runSpecName) {
+function instancesJsonUrl(suite, runSpecName) {
   return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/instances.json`;
 }
 
-function predictionsJsonUrl(runSpecName) {
+function predictionsJsonUrl(suite, runSpecName) {
   return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/display_predictions.json`;
 }
 
-function requestsJsonUrl(runSpecName) {
+function requestsJsonUrl(suite, runSpecName) {
   return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/display_requests.json`;
 }
 
-function plotUrl(plotName) {
+function plotUrl(suite, plotName) {
   return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/plots/${plotName}.png`;
 }
