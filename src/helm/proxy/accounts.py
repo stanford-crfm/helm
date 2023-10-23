@@ -23,6 +23,8 @@ DEFAULT_QUOTAS = {
     "jurassic": {"daily": 10000},
     "gooseai": {"daily": 10000},
     "cohere": {"daily": 10000},
+    "dall_e": {"daily": 5},  # In terms of the number of generated images
+    "together_vision": {"daily": 30},
 }
 
 
