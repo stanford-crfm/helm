@@ -1,11 +1,8 @@
-import csv
 import os
 from typing import Dict, Optional, List
 
-from helm.common.hierarchical_logger import hlog
-
-# from .scenario import Scenario, Instance, Reference, CORRECT_TAG, Input, Output
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, Input, Output
+from helm.common.codec import from_jsonl
+from .scenario import Scenario, Instance, TRAIN_SPLIT, VALID_SPLIT
 
 
 class CustomMCQAScenario(Scenario):
@@ -67,7 +64,8 @@ class CustomMCQAScenario(Scenario):
         super().__init__()
 
         # Eval path (should always be provided)
-        self._ensure_file_exist_and_is_well_formatted(eval_path)
+        if not os.path.exists(eval_path):
+            raise ValueError(f"eval_path {eval_path} does not exist")
         self.eval_path: str = eval_path
 
         # Train path (optional but should be provided if num_train_instances > 0)
@@ -75,7 +73,8 @@ class CustomMCQAScenario(Scenario):
         if num_train_instances > 0:
             if train_path is None:
                 raise ValueError("train_path must be provided if num_train_instances > 0")
-            self._ensure_file_exist_and_is_well_formatted(train_path)
+            if not os.path.exists(train_path):
+                raise ValueError(f"train_path {train_path} does not exist")
             self.train_path = train_path
 
         # Set the name, description, and tags
@@ -84,61 +83,23 @@ class CustomMCQAScenario(Scenario):
         if tags is not None:
             CustomMCQAScenario.tags.extend(tags)
 
-    def _ensure_file_exist_and_is_well_formatted(self, path: str) -> None:
-        """Check if the file exists and is well formatted.
-
-        Raises:
-            ValueError: If the file is not well formatted.
-        """
-
-        # Check if the file exists
-        if not os.path.exists(path):
-            raise ValueError(f"File {path} does not exist.")
-
-        # Check if the file is well formatted
-        row_index: int = 0
-        try:
-            with open(path) as f:
-                reader = csv.reader(f, delimiter=",")
-                for row in reader:
-                    # Example: ["What color is the sky?", "red", "blue", "green", "B"]
-                    # CHecks that the last element is a single capital letter
-                    if len(row[-1]) != 1 and not row[-1].isalpha() or not row[-1].isupper():
-                        raise ValueError(
-                            "The last element of each row must be a single capital letter "
-                            "corresponding to the correct answer."
-                        )
-                    if len(row) < 3:
-                        raise ValueError("There must be at least 3 elements per row.")
-                    elif len(row) == 3:
-                        hlog(
-                            f"WARNING: There is only one answer for the question {row[0]} in row {row_index}. "
-                            f"Please make sure that this is what you want."
-                        )
-                    row_index += 1
-        except Exception as e:
-            raise ValueError(f"File {path} is not well formatted. Found error in row {row_index}. Error: {e}") from e
-
-    def process_csv(self, csv_path: str, split: Optional[str] = None) -> List[Instance]:
+    def process_jsonl(self, jsonl_path: str, split: Optional[str] = None) -> List[Instance]:
         instances: List[Instance] = []
-        hlog(f"Reading {csv_path}")
-        with open(csv_path) as f:
-            reader = csv.reader(f, delimiter=",")
-            for row in reader:
-                # Example: ["What color is the sky?", "red", "blue", "green", "B"]
-                question, answers, correct_choice = row[0], row[1:-1], row[-1]
-                answers_dict = dict(zip(["A", "B", "C", "D", "E"], answers))
-                correct_answer: str = answers_dict[correct_choice]
+        with open(jsonl_path, mode="r") as reader:
+            instances = from_jsonl(reader.read(), Instance)
 
-                def answer_to_reference(answer: str) -> Reference:
-                    return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
+        # Override the split if provided
+        if split is not None:
+            for i, instance in enumerate(instances):
+                # Since instance is a frozen dataclass, we need to create a new instance
+                # with the updated split (only if split is different from the current split)
+                if instance.split != split:
+                    instances[i] = Instance(
+                        input=instance.input,
+                        references=instance.references,
+                        split=split,
+                    )
 
-                instance = Instance(
-                    input=Input(text=question),
-                    references=list(map(answer_to_reference, answers)),
-                    split=split,
-                )
-                instances.append(instance)
         return instances
 
     def get_instances(self) -> List[Instance]:
@@ -151,5 +112,5 @@ class CustomMCQAScenario(Scenario):
         for split, path in split_to_path.items():
             if path is None:
                 continue
-            instances.extend(self.process_csv(path, split=split))
+            instances.extend(self.process_jsonl(path, split=split))
         return instances
