@@ -59,6 +59,14 @@ class Stat:
             return str(round(x, 3))
 
         if self.count > 0:
+            assert self.min is not None
+            assert self.max is not None
+            assert self.mean is not None
+            assert self.sum is not None
+
+            if math.isnan(self.mean):
+                return "(nan)"
+
             return (
                 f"min={process(self.min)}, "
                 f"mean={process(self.mean)}, "

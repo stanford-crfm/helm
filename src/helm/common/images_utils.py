@@ -3,7 +3,9 @@ import io
 import requests
 import shutil
 from typing import Optional
+from urllib.request import urlopen
 
+import numpy as np
 from PIL import Image
 
 from .general import is_url
@@ -41,3 +43,20 @@ def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optiona
         image.save(dest)
     else:
         shutil.copy(src, dest)
+
+
+def is_blacked_out_image(image_location: str) -> bool:
+    """Returns True if the image is all black. False otherwise."""
+    import cv2
+
+    if is_url(image_location):
+        arr = np.asarray(bytearray(urlopen(image_location).read()), dtype=np.uint8)
+        image = cv2.imdecode(arr, -1)
+    else:
+        image = cv2.imread(image_location, 0)
+    return cv2.countNonZero(image) == 0
+
+
+def filter_blacked_out_images(image_locations: List[str]) -> List[str]:
+    """Returns a list of image locations that are not blacked out."""
+    return [image_location for image_location in image_locations if not is_blacked_out_image(image_location)]

@@ -20,6 +20,17 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 _CREDENTIALS_FILE_NAME = "credentials.conf"
 _CREDENTIALS_ENV_NAME = "HELM_CREDENTIALS"
 
+HELM_LOCAL_CACHE_PATH: str = ".helm_cache"
+
+
+def get_helm_cache_path():
+    """
+    Gets the local cache path. This local cache path can be used to cache
+    models used to compute metrics.
+    """
+    ensure_directory_exists(HELM_LOCAL_CACHE_PATH)
+    return HELM_LOCAL_CACHE_PATH
+
 
 def singleton(items: List):
     """Ensure there's only one item in `items` and return it."""

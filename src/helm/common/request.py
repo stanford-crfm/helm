@@ -63,6 +63,23 @@ class Request:
     multimodal_prompt: Optional[MultimediaObject] = None
     """Multimodal prompt with media objects interleaved (e.g., text, video, image, text, ...)"""
 
+    # Text-to-image fields
+    width: Optional[int] = None
+    """Width of the generated image. The model will generate images with the model's
+    default dimensions when unspecified."""
+
+    height: Optional[int] = None
+    """Height of the generated image. The model will generate images with the model's
+    default dimensions when unspecified."""
+
+    guidance_scale: Optional[float] = None
+    """A non-negative number determining how much importance is given to the prompt
+    when generating images. Higher values will generate images that follow more
+    closely to the prompt. Currently only for diffusion models."""
+
+    steps: Optional[int] = None
+    """The number of denoising steps for diffusion models."""
+
     @property
     def model_organization(self) -> str:
         """Example: 'openai/davinci' => 'openai'"""
