@@ -210,14 +210,14 @@ class TogetherClient(Client):
             def retry_if_job_not_finished(exception: Exception) -> bool:
                 return isinstance(exception, JobNotFinishedError)
 
-            # Retry with a 5 second delay that increases by 5 seconds each attempt with a maximum delay of 30 seconds.
-            # Stop retrying after 5 minutes.
+            # Retry with a 5 second delay that increases by 5 seconds each attempt with a maximum delay of 1 minute.
+            # Stop retrying after 15 minutes.
             @retry(
                 retry_on_exception=retry_if_job_not_finished,
                 wait_incrementing_start=5 * 1000,  # 5 seconds
                 wait_incrementing_increment=5 * 1000,  # 5 seconds
-                wait_incrementing_max=30 * 1000,  # 30 seconds
-                stop_max_delay=5 * 60 * 1000,  # 5 minutes
+                wait_incrementing_max=60 * 1000,  # 1 minute
+                stop_max_delay=15 * 60 * 1000,  # 15 minutes
             )
             def retrieve_job(job_id: str) -> Dict[Any, Any]:
                 job_url = self._get_job_url(job_id)
