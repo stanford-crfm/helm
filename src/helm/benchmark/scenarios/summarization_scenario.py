@@ -119,7 +119,7 @@ class SummarizationScenario(Scenario):
             summary_key = "summary"
         elif dataset_name == "cnn-dm":
             url = (
-                "https://storage.cloud.google.com/crfm-helm-public/source_datasets/"
+                "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
                 "scenarios/summarization_scenario/cnndm.pk"
             )
             dataset = self._download_dataset(url, "cnndm", output_path)
