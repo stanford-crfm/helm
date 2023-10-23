@@ -6,7 +6,7 @@ Starts a local HTTP server to display benchmarking assets.
 import argparse
 import importlib_resources as resources
 from os import path
-from typing import Optional
+import urllib
 
 from bottle import Bottle, static_file
 
@@ -16,18 +16,15 @@ app = Bottle()
 
 @app.get("/config.js")
 def serve_config():
-    release: Optional[str] = app.config["helm.release"]
-    if release:
+    if app.config["helm.release"]:
         return (
-            'window.BENCHMARK_OUTPUT_BASE_URL = "benchmark_output";\n'
-            "window.SUITE = null;\n"
-            f'window.RELEASE = "{release}";\n'
+            f'window.BENCHMARK_OUTPUT_BASE_URL = "{app.config["helm.outputurl"]}";\n'
+            f'window.RELEASE = "{app.config["helm.release"]}";\n'
         )
     else:
         return (
-            'window.BENCHMARK_OUTPUT_BASE_URL = "benchmark_output";\n'
-            'window.SUITE = "latest";\n'
-            "window.RELEASE = null;\n"
+            f'window.BENCHMARK_OUTPUT_BASE_URL = "{app.config["helm.outputurl"]}";\n'
+            f'window.SUITE = "{app.config["helm.suite"]}";\n'
         )
 
 
@@ -50,7 +47,17 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=8000)
     parser.add_argument(
-        "-o", "--output-path", type=str, help="The location of the output path", default="benchmark_output"
+        "-o",
+        "--output-path",
+        type=str,
+        help="The location of the output path (filesystem path or URL)",
+        default="benchmark_output",
+    )
+    parser.add_argument(
+        "--suite",
+        type=str,
+        default=None,
+        help="Name of the suite to serve (default is latest).",
     )
     parser.add_argument(
         "--release",
@@ -60,6 +67,9 @@ def main():
     )
     args = parser.parse_args()
 
+    if args.suite and args.release:
+        raise ValueError("At most one of --release and --suite may be set.")
+
     # Determine the location of the static directory.
     # This is a hack: it assumes that the static directory has a physical location,
     # which is not always the case (e.g. when using zipimport).
@@ -68,7 +78,15 @@ def main():
         static_path = str(resource_filename.parent)
 
     app.config["helm.staticpath"] = static_path
-    app.config["helm.outputpath"] = path.abspath(args.output_path)
+
+    if urllib.parse.urlparse(args.output_path).scheme in ["http", "https"]:
+        app.config["helm.outputpath"] = None
+        app.config["helm.outputurl"] = args.output_path
+    else:
+        app.config["helm.outputpath"] = path.abspath(args.output_path)
+        app.config["helm.outputurl"] = "benchmark_output"
+
+    app.config["helm.suite"] = args.suite or "latest"
     app.config["helm.release"] = args.release
 
     app.run(host="0.0.0.0", port=args.port)
