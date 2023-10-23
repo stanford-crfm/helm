@@ -8,7 +8,7 @@ classes (see `benchmark`):
   an input (e.g., question) and a set of `Reference` outputs (e.g., multiple
   choice answers).
 
-- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s
+- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s.
   Each `Instance` is given a unique ID. The set of `Instance`s is augmented
   according to `DataAugmenterSpec`.
 
@@ -45,9 +45,9 @@ There are three types of classes:
 
 In order to implement new scenarios:
 
-1. Create a new file as a new Python scenario file in the `scenarios` folder.
-2. Within the scenario file, create a `Scenario` class, e.g. `YourScenario`.
-3. `YourScenario` should implement `get_instances`, a method that downloads the 
+1. Create a new Python file in the `scenarios` folder.
+1. Within the scenario file, create a `Scenario` class, e.g. `YourScenario`.
+1. `YourScenario` should implement `get_instances`, a method that downloads the 
    dataset files if they don't already exist and returns a list of `Instance`s. 
    Each `Instance` must have a list of (potentially one)
    `Reference` answers: a correct answer may be indicated with a `CORRECT_TAG` in 
@@ -57,33 +57,34 @@ In order to implement new scenarios:
    1. For `Scenario`s with datasets that cannot be publicly shared, place a copy of the
       dataset at path `restricted/<Name of the Scenario>` and read from that path.
       See `NewsQAScenario` and `ICEScenario` for some examples.
-4. Note that you need not enumerate every possible correct answer (nor must
+1. Note that you need not enumerate every possible correct answer (nor must
    there even necessarily be a correct answer). 
-5. Make sure to document your scenario well with a clear docstring. 
-6. In addition, specify its `name`, `description`, and `tags`.
-7. Define a function `get_specname_spec` in `run_specs.py` to retrieve a `ScenarioSpec` 
+1. Make sure to document your scenario well with a clear docstring. 
+1. In addition, specify its `name`, `description`, and `tags`.
+1. Identify the appropriate metric for your task in one of the `*_metrics.py` files.
+   If the metric you'd like to use does not exist, follow the directions in [Adding new metrics](#adding-new-metrics).
+   Many will be in `basic_metrics.py`.
+1. Define a function in `run_specs.py` annotated with `run_spec_function` to:
+   1. Construct a `ScenarioSpec` 
    for your scenario using a class name corresponding to the Python path of 
    the class (e.g. `helm.benchmark.scenarios.your_scenario.YourScenario`) and any 
    arguments which must be passed as a dictionary of `args`.
-8. Have the `get_specname_spec` function retrieve an `AdapterSpec` for your
+   1. Construct an `AdapterSpec` for your
    scenario specifying the type of language model generation which must be 
    performed for the task.
-9. Identify the appropriate metric for your task in one of the `*_metrics.py` files.
-   If the metric you'd like to use does not exist, follow the directions in [Adding new metrics](#adding-new-metrics).
-   Many will be in `basic_metrics.py`.
-10. Have a `get_metric_spec` function retrieve one or more `MetricSpec`
+   1. Construct one or more `MetricSpec`
    objects for your task, specifying the classname with the Python path of
    the object, with the same arguments as the `ScenarioSpec` constructor.
-11. Have the `get_specname_spec` function return a `RunSpec` object, with a 
+   1. Construct and return `RunSpec` object, with a 
    `name` corresponding to the scenario name and any patterns to match in 
    curly braces, a `scenario_spec`, an `adapter_spec`, `metric_specs`, 
    and `groups`. 
-12. Attempt to run your task with
-    `venv/bin/helm-run -r yourscenarioname:arg=value` where 
-    `yourscenarioname` matches the `name` specified in YourScenario
-13. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `src/helm/benchmark/run_specs.py`.
-14. Update `src/helm/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
-15. Add a schema to `src/helm/benchmark/static/schema.yaml` and add the scenario to `subgroups` as needed.
+1. Attempt to run your task with
+   `venv/bin/helm-run -r yourscenarioname:arg=value` where 
+   `yourscenarioname` matches the `name` specified in YourScenario
+1. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `src/helm/benchmark/run_specs.py`.
+1. Update `src/helm/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
+1. Add a schema to `src/helm/benchmark/static/schema.yaml` and add the scenario to `subgroups` as needed.
 
 ## Adding new metrics
 
