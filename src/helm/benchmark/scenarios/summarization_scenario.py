@@ -102,7 +102,10 @@ class SummarizationScenario(Scenario):
 
     def _load_dataset(self, dataset_name: str, output_path: str):
         if dataset_name == "xsum":
-            url = "https://worksheets.codalab.org/rest/bundles/0xac5607f21bf945939edc56ea945496d5/contents/blob/"
+            url = (
+                "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
+                "scenarios/summarization_scenario/xsum.pk"
+            )
             dataset = self._download_dataset(url, "xsum", output_path)
             article_key = "document"
             summary_key = "summary"
