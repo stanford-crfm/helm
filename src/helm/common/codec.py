@@ -1,9 +1,7 @@
 """Functions for converting to and from dataclasses."""
 
-from io import StringIO
 import dataclasses
 import json
-import jsonlines
 import typing
 from typing import Any, Callable, Dict, List, Union, Type, TypeVar
 
@@ -149,18 +147,17 @@ def to_json(data: Any) -> str:
     return json.dumps(_converter.unstructure(data), indent=2)
 
 
-def to_jsonl(data: Any) -> str:
-    # jsonlines only supports writing to a file, so we use a StringIO to write to a string.
-    data_str = StringIO()
-    with jsonlines.Writer(data_str) as writer:
-        writer.write_all(_converter.unstructure(data))
-    return data_str.getvalue()
+def to_json_single_line(data: Any) -> str:
+    # Puts everything into a single line for readability.
+    return json.dumps(_converter.unstructure(data), separators=(",", ":"))
+
+
+def to_jsonl(data: List[Any]) -> str:
+    return "\n".join([to_json_single_line(instance) for instance in data])
 
 
 def from_jsonl(data: Union[bytes, str], cls: Type[T]) -> List[T]:
-    # jsonlines only supports reading from a file, so we use a StringIO to read from a string.
     if not isinstance(data, str):
         data = data.decode("utf-8")
-    data_str = StringIO(data)
-    with jsonlines.Reader(data_str) as reader:
-        return _converter.structure(list(reader), typing.List[cls])  # type: ignore
+    lines: List[str] = data.splitlines()
+    return [from_json(line, cls) for line in lines]
