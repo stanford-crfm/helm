@@ -17,6 +17,7 @@ from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.general import write
 from helm.common.hierarchical_logger import hlog, htrack
+from helm.common.images_utils import encode_base64
 from helm.common.request import Request
 from helm.common.codec import from_json, to_json
 
@@ -73,7 +74,7 @@ class DisplayRequest:
     """The actual Request to display in the web frontend.
 
     There can be multiple requests per trial. The displayed request should be the
-    most relevant request e.g. the request for the chosen cohice for multiple choice questions."""
+    most relevant request e.g. the request for the chosen choice for multiple choice questions."""
 
 
 def _read_scenario_state(run_path: str) -> ScenarioState:
@@ -242,6 +243,14 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
         instance_id_to_instance[
             (request_state.instance.id, request_state.instance.perturbation)
         ] = request_state.instance
+
+        # Process images and include if they exist
+        images: List[str] = [
+            encode_base64(completion.file_location)
+            for completion in request_state.result.completions
+            if completion.file_location is not None and os.path.exists(completion.file_location)
+        ]
+
         predictions.append(
             DisplayPrediction(
                 instance_id=request_state.instance.id,
@@ -249,6 +258,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 train_trial_index=request_state.train_trial_index,
                 predicted_text=predicted_text,
                 truncated_predicted_text=_truncate_predicted_text(predicted_text, request_state, run_spec.adapter_spec),
+                base64_images=images,
                 mapped_output=mapped_output,
                 reference_index=request_state.reference_index,
                 stats=trial_stats,
