@@ -13,9 +13,13 @@ from bottle import Bottle, static_file
 app = Bottle()
 
 
-@app.get("/benchmark_output/using_release")
-def serve_release():
-    return {"use_release": use_release}
+@app.get("/config.js")
+def serve_config():
+    return (
+        'window.BENCHMARK_OUTPUT_BASE_URL = "benchmark_output";\n'
+        'window.SUITE = "latest";\n'
+        "window.RELEASE = null;\n"
+    )
 
 
 @app.get("/benchmark_output/<filename:path>")
