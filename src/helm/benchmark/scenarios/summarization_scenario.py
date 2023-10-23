@@ -107,12 +107,18 @@ class SummarizationScenario(Scenario):
             article_key = "document"
             summary_key = "summary"
         elif dataset_name == "xsum-sampled":
-            url = "https://worksheets.codalab.org/rest/bundles/0xcfbb0ef1226040f78e58060c9e4d13cf/contents/blob/"
+            url = (
+                "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
+                "scenarios/summarization_scenario/xsum-sampled.pk"
+            )
             dataset = self._download_dataset(url, "xsum-sampled", output_path)
             article_key = "document"
             summary_key = "summary"
         elif dataset_name == "cnn-dm":
-            url = "https://worksheets.codalab.org/rest/bundles/0x07630390bbda44879a2ad36e2125d64c/contents/blob/"
+            url = (
+                "https://storage.cloud.google.com/crfm-helm-public/source_datasets/"
+                "scenarios/summarization_scenario/cnndm.pk"
+            )
             dataset = self._download_dataset(url, "cnndm", output_path)
             article_key = "article"
             summary_key = "highlights"
