@@ -89,10 +89,6 @@ class InContextLearningAdapter(Adapter, ABC):
                             hlog(line)
 
         # Flatten and return
-        all_request_states: List[RequestState] = []
-        for result_index, result in enumerate(results):
-            all_request_states.extend(result)
-
         return [request_state for result in results for request_state in result]
 
     def sample_examples(
