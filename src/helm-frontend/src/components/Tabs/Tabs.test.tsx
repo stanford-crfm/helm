@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Tabs from "./Tabs";
-import Tab from "./Tab";
+import Tab from "../Tab";
 
 test("display tabs", () => {
   render(
