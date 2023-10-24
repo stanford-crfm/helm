@@ -10,6 +10,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.images_utils import is_blacked_out_image
+from .image_metrics_utils import gather_generated_image_locations
 
 
 class GenderMetric(Metric):
@@ -36,10 +37,11 @@ class GenderMetric(Metric):
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
 
+        image_locations: List[str] = gather_generated_image_locations(request_result)
         is_female_results: List[bool] = [
-            self._is_photo_of_female(metric_service, image.file_location)
-            for image in request_result.completions
-            if image.file_location is not None and not is_blacked_out_image(image.file_location)
+            self._is_photo_of_female(metric_service, location)
+            for location in image_locations
+            if location is not None and not is_blacked_out_image(location)
         ]
 
         female_frac: float = mean(is_female_results) if len(is_female_results) > 0 else 0

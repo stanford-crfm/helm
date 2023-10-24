@@ -75,8 +75,8 @@ class FidelityMetric(Metric):
                 if not reference.is_correct:
                     continue
 
-                assert reference.output.file_path is not None
-                file_path: str = reference.output.file_path
+                assert reference.output.multimedia_content is not None
+                file_path: str = reference.output.multimedia_content.media_objects[0].location
                 dest_path = os.path.join(gold_images_path, get_file_name(file_path))
                 copy_image(file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
                 num_gold_images += 1
@@ -99,9 +99,10 @@ class FidelityMetric(Metric):
 
                 # Gather the model-generated images
                 for image in request_result.completions:
-                    if image.file_location is not None and not is_blacked_out_image(image.file_location):
-                        dest_path = os.path.join(generated_images_path, get_file_name(image.file_location))
-                        copy_image(image.file_location, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
+                    location = image.multimodal_content.media_objects[0].location
+                    if location is not None and not is_blacked_out_image(location):
+                        dest_path = os.path.join(generated_images_path, get_file_name(location))
+                        copy_image(location, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
                         num_generated_images += 1
 
             compute_kid: bool = num_generated_images >= 1000

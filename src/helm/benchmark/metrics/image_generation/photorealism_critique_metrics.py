@@ -108,8 +108,11 @@ class PhotorealismCritiqueMetric(Metric):
         references: List[Reference] = request_state.instance.references
         assert len(references) > 0, "Need at least one reference image for this metric"
         selected_reference: Reference = np.random.choice(references)  # type: ignore
-        assert selected_reference.output.file_path is not None
-        real_image_path: str = selected_reference.output.file_path
+        assert (
+            selected_reference.output.multimedia_content is not None
+            and selected_reference.output.multimedia_content.size > 0
+        )
+        real_image_path: str = selected_reference.output.multimedia_content.media_objects[0].location
 
         template = CritiqueTaskTemplate(
             name="heim_photorealism",

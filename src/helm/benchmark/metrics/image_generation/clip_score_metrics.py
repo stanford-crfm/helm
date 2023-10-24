@@ -11,6 +11,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
 from helm.common.images_utils import is_blacked_out_image
+from .image_metrics_utils import gather_generated_image_locations
 
 
 class CLIPScoreMetric(Metric):
@@ -55,10 +56,11 @@ class CLIPScoreMetric(Metric):
         prompt = CLIPWindowService(metric_service).truncate_from_right(prompt)
 
         scores: List[float] = []
-        for image in request_result.completions:
-            if image.file_location is not None and not is_blacked_out_image(image.file_location):
+        image_locations: List[str] = gather_generated_image_locations(request_result)
+        for location in image_locations:
+            if not is_blacked_out_image(location):
                 result: CLIPScoreResult = metric_service.compute_clip_score(
-                    CLIPScoreRequest(prompt, image.file_location, multilingual=self._multilingual)
+                    CLIPScoreRequest(prompt, location, multilingual=self._multilingual)
                 )
                 scores.append(result.score)
 
