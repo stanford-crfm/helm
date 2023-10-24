@@ -111,6 +111,7 @@ class PhotorealismCritiqueMetric(Metric):
         assert (
             selected_reference.output.multimedia_content is not None
             and selected_reference.output.multimedia_content.size > 0
+            and selected_reference.output.multimedia_content.media_objects[0].location is not None
         )
         real_image_path: str = selected_reference.output.multimedia_content.media_objects[0].location
 

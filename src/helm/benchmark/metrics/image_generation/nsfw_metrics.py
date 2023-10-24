@@ -60,6 +60,7 @@ class NSFWMetric(Metric):
             if image.finish_reason and image.finish_reason["reason"] == DALLE2Client.CONTENT_POLICY_VIOLATED:
                 violates_openai_policy = True
 
+            assert image.multimodal_content is not None
             location: Optional[str] = image.multimodal_content.media_objects[0].location
             if location is None:
                 continue

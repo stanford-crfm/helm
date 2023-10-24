@@ -12,6 +12,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.metrics.metric import PerInstanceStats
+from helm.benchmark.metrics.image_generation.image_metrics_utils import gather_generated_image_locations
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
@@ -43,6 +44,9 @@ class DisplayPrediction:
 
     truncated_predicted_text: Optional[str]
     """The truncated prediction text, if truncation is required by the Adapter method."""
+
+    base64_images: List[str]
+    """Images in base64."""
 
     mapped_output: Optional[str]
     """The mapped output, if an output mapping exists and the prediction can be mapped"""
@@ -129,7 +133,7 @@ def _get_metric_names_for_group(run_group_name: str, schema: Schema) -> Set[str]
         if metric_group is None:
             continue
         for metric_name_matcher in metric_group.metrics:
-            if metric_name_matcher.perturbation_name:
+            if metric_name_matcher.perturbation_name and metric_name_matcher.perturbation_name != "__all__":
                 continue
             result.add(metric_name_matcher.substitute(run_group.environment).name)
     return result
@@ -246,9 +250,9 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
 
         # Process images and include if they exist
         images: List[str] = [
-            encode_base64(completion.file_location)
-            for completion in request_state.result.completions
-            if completion.file_location is not None and os.path.exists(completion.file_location)
+            encode_base64(image_location)
+            for image_location in gather_generated_image_locations(request_state.result)
+            if os.path.exists(image_location)
         ]
 
         predictions.append(

@@ -26,5 +26,6 @@ def get_gold_image_location(request_state: RequestState) -> str:
         len(references) > 0
         and references[0].output.multimedia_content is not None
         and references[0].output.multimedia_content.size > 0
+        and references[0].output.multimedia_content.media_objects[0].location is not None
     ), "Expected at least one gold image"
     return references[0].output.multimedia_content.media_objects[0].location
