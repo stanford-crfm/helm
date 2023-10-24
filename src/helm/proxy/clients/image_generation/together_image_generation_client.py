@@ -4,7 +4,7 @@ import requests
 
 from helm.common.cache import CacheConfig
 from helm.common.file_caches.file_cache import FileCache
-from helm.common.request import Request, RequestResult, Sequence, TextToImageRequest
+from helm.common.request import Request, RequestResult, Sequence
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -14,9 +14,10 @@ from helm.common.tokenization_request import (
 
 from helm.proxy.clients.client import Client, wrap_request_time
 from helm.proxy.clients.together_client import TogetherClient
+from .image_generation_client_utils import get_single_image_multimedia_object
 
 
-class TogetherVisionClient(TogetherClient):
+class TogetherImageGenerationClient(TogetherClient):
     """
     Client for image generation via the Together API.
     """
@@ -35,9 +36,6 @@ class TogetherVisionClient(TogetherClient):
         self._promptist_tokenizer = None
 
     def make_request(self, request: Request) -> RequestResult:
-        if not isinstance(request, TextToImageRequest):
-            raise ValueError(f"Wrong type of request: {request}")
-
         # Following https://docs.together.xyz/en/api
         raw_request = {
             "request_type": "image-model-inference",
@@ -77,7 +75,13 @@ class TogetherVisionClient(TogetherClient):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_location=choice["file_path"]) for choice in response["choices"]
+            Sequence(
+                text="",
+                logprob=0,
+                tokens=[],
+                multimodal_content=get_single_image_multimedia_object(choice["file_path"]),
+            )
+            for choice in response["choices"]
         ]
         return RequestResult(
             success=True,

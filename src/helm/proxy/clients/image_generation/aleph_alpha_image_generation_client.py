@@ -1,18 +1,18 @@
 from typing import List, Dict
 
 from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, TextToImageRequest
+from helm.common.request import Request, RequestResult, Sequence
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
 )
-
 from helm.proxy.clients.client import Client
+from .image_generation_client_utils import get_single_image_multimedia_object
 
 
-class AlephAlphaVisionClient(Client):
+class AlephAlphaImageGenerationClient(Client):
     """
     Client for Aleph Alpha vision models. Offline eval only.
     """
@@ -30,22 +30,21 @@ class AlephAlphaVisionClient(Client):
             "model": request.model_engine,
             "prompt": request.prompt,
             "n": request.num_completions,
-            "guidance_scale": AlephAlphaVisionClient.DEFAULT_GUIDANCE_SCALE,
-            "steps": AlephAlphaVisionClient.DEFAULT_STEPS,
-            "width": AlephAlphaVisionClient.DEFAULT_IMAGE_WIDTH,
-            "height": AlephAlphaVisionClient.DEFAULT_IMAGE_HEIGHT,
+            "guidance_scale": AlephAlphaImageGenerationClient.DEFAULT_GUIDANCE_SCALE,
+            "steps": AlephAlphaImageGenerationClient.DEFAULT_STEPS,
+            "width": AlephAlphaImageGenerationClient.DEFAULT_IMAGE_WIDTH,
+            "height": AlephAlphaImageGenerationClient.DEFAULT_IMAGE_HEIGHT,
         }
         if request.random is not None:
             raw_request["random"] = request.random
 
-        if isinstance(request, TextToImageRequest):
-            if request.guidance_scale is not None:
-                raw_request["guidance_scale"] = request.guidance_scale
-            if request.steps is not None:
-                raw_request["steps"] = request.steps
-            if request.width is not None and request.height is not None:
-                raw_request["width"] = request.width
-                raw_request["height"] = request.height
+        if request.guidance_scale is not None:
+            raw_request["guidance_scale"] = request.guidance_scale
+        if request.steps is not None:
+            raw_request["steps"] = request.steps
+        if request.width is not None and request.height is not None:
+            raw_request["width"] = request.width
+            raw_request["height"] = request.height
 
         return raw_request
 
@@ -55,13 +54,10 @@ class AlephAlphaVisionClient(Client):
         self._promptist_tokenizer = None
 
     def make_request(self, request: Request) -> RequestResult:
-        if not isinstance(request, TextToImageRequest):
-            raise ValueError(f"Wrong type of request: {request}")
-
         if request.model_engine != "m-vader":
             raise ValueError(f"Unsupported model: {request.model_engine}")
 
-        raw_request = AlephAlphaVisionClient.convert_to_raw_request(request)
+        raw_request = AlephAlphaImageGenerationClient.convert_to_raw_request(request)
         raw_request.pop("random", None)
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
@@ -78,7 +74,8 @@ class AlephAlphaVisionClient(Client):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_location=file_path) for file_path in response["images"]
+            Sequence(text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(file_path))
+            for file_path in response["images"]
         ]
         return RequestResult(
             success=True,

@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
 from retrying import Attempt, RetryError
 
 from helm.benchmark.model_deployment_registry import get_model_deployment
+from helm.common.file_caches.file_cache import FileCache
+from helm.common.file_caches.local_file_cache import LocalFileCache
 from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
@@ -20,8 +22,8 @@ from helm.common.tokenization_request import (
 from helm.proxy.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
+from helm.proxy.models import is_text_to_image_model
 from helm.proxy.retry import NonRetriableException, retry_request
-
 from .http_model_client import HTTPModelClient
 
 if TYPE_CHECKING:
@@ -38,6 +40,8 @@ class AutoClient(Client):
     The modules for each client are lazily imported when the respective client is created.
     This greatly speeds up the import time of this module, and allows the client modules to
     use optional dependencies."""
+
+    OUTPUT_FILES_DIR_NAME: str = "output"
 
     def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
         self.credentials = credentials
@@ -60,13 +64,19 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def _get_client(self, model: str) -> Client:
+    def _get_client(self, request: Request) -> Client:
         """Return a client based on the model, creating it if necessary."""
+        model: str = request.model
+        organization: str = request.model_organization
+        is_text_to_image_request: bool = is_text_to_image_model(model)
         client: Optional[Client] = self.clients.get(model)
 
         if client is None:
-            organization: str = model.split("/")[0]
             cache_config: CacheConfig = self._build_cache_config(organization)
+
+            # Initialize `FileCache` for text-to-image model APIs
+            local_file_cache_path: str = os.path.join(self.cache_path, self.OUTPUT_FILES_DIR_NAME, organization)
+            file_cache: FileCache = LocalFileCache(local_file_cache_path, file_extension="png")
 
             # TODO: Migrate all clients to use model deployments
             model_deployment = get_model_deployment(model)
@@ -104,18 +114,36 @@ class AutoClient(Client):
                 client = HTTPModelClient(cache_config=cache_config)
             elif organization == "openai":
                 from helm.proxy.clients.openai_client import OpenAIClient
+                from helm.proxy.clients.image_generation.dalle2_client import DALLE2Client
 
                 org_id = self.credentials.get("openaiOrgId", None)
                 api_key = self.credentials.get("openaiApiKey", None)
-                client = OpenAIClient(
-                    cache_config=cache_config,
-                    api_key=api_key,
-                    org_id=org_id,
-                )
+
+                if is_text_to_image_request:
+                    client = DALLE2Client(
+                        api_key=self.credentials["openaiApiKey"],
+                        cache_config=cache_config,
+                        file_cache=file_cache,
+                        moderation_api_client=self.get_moderation_api_client(),
+                        org_id=org_id,
+                    )
+                else:
+                    client = OpenAIClient(
+                        cache_config=cache_config,
+                        api_key=api_key,
+                        org_id=org_id,
+                    )
             elif organization == "AlephAlpha":
                 from helm.proxy.clients.aleph_alpha_client import AlephAlphaClient
+                from helm.proxy.clients.image_generation.aleph_alpha_image_generation_client import (
+                    AlephAlphaImageGenerationClient,
+                )
 
-                client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
+                if is_text_to_image_request:
+                    cache_config = self._build_cache_config("AlephAlphaVision")
+                    client = AlephAlphaImageGenerationClient(cache_config)
+                else:
+                    client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
             elif organization == "ai21":
                 from helm.proxy.clients.ai21_client import AI21Client
 
@@ -133,8 +161,17 @@ class AutoClient(Client):
                 )
             elif organization == "huggingface":
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
+                from helm.proxy.clients.image_generation.huggingface_diffusers_client import HuggingFaceDiffusersClient
 
-                client = HuggingFaceClient(cache_config)
+                if is_text_to_image_request:
+                    cache_config = self._build_cache_config("diffusers")
+                    client = HuggingFaceDiffusersClient(
+                        hf_auth_token=self.credentials["huggingfaceAuthToken"],
+                        cache_config=cache_config,
+                        file_cache=file_cache,
+                    )
+                else:
+                    client = HuggingFaceClient(cache_config)
             elif organization == "anthropic":
                 from helm.proxy.clients.anthropic_client import AnthropicClient
 
@@ -170,8 +207,39 @@ class AutoClient(Client):
                 "tiiuae",
             ]:
                 from helm.proxy.clients.together_client import TogetherClient
+                from helm.proxy.clients.image_generation.together_image_generation_client import (
+                    TogetherImageGenerationClient,
+                )
 
-                client = TogetherClient(api_key=self.credentials.get("togetherApiKey", None), cache_config=cache_config)
+                together_api_key: Optional[str] = self.credentials.get("togetherApiKey", None)
+                if is_text_to_image_request:
+                    client = TogetherImageGenerationClient(cache_config, file_cache, api_key=together_api_key)
+                else:
+                    client = TogetherClient(api_key=together_api_key, cache_config=cache_config)
+            elif organization == "lexica":
+                from helm.proxy.clients.image_generation.lexica_client import LexicaClient
+
+                client = LexicaClient(cache_config, file_cache)
+            elif organization == "adobe":
+                from helm.proxy.clients.image_generation.adobe_vision_client import AdobeVisionClient
+
+                client = AdobeVisionClient(cache_config)
+            elif organization == "DeepFloyd":
+                from helm.proxy.clients.image_generation.deep_floyd_client import DeepFloydClient
+
+                client = DeepFloydClient(cache_config)
+            elif organization == "kakaobrain":
+                from helm.proxy.clients.image_generation.mindalle_client import MinDALLEClient
+
+                client = MinDALLEClient(cache_config, file_cache)
+            elif organization == "craiyon":
+                from helm.proxy.clients.image_generation.dalle_mini_client import DALLEMiniClient
+
+                client = DALLEMiniClient(cache_config, file_cache)
+            elif organization == "thudm":
+                from helm.proxy.clients.image_generation.cogview2_client import CogView2Client
+
+                client = CogView2Client(cache_config, file_cache)
             elif organization == "simple":
                 from helm.proxy.clients.simple_client import SimpleClient
 
@@ -205,6 +273,8 @@ class AutoClient(Client):
                 )
             else:
                 raise ValueError(f"Could not find client for model: {model}")
+
+            # Cache the client
             self.clients[model] = client
         return client
 
@@ -219,7 +289,7 @@ class AutoClient(Client):
         def make_request_with_retry(client: Client, request: Request) -> RequestResult:
             return client.make_request(request)
 
-        client: Client = self._get_client(request.model)
+        client: Client = self._get_client(request)
 
         try:
             return make_request_with_retry(client=client, request=request)
@@ -249,21 +319,25 @@ class AutoClient(Client):
                 client = create_object(tokenizer_spec)
             elif organization == "neurips":
                 client = HTTPModelClient(cache_config=cache_config)
-            elif organization in [
-                "bigscience",
-                "bigcode",
-                "EleutherAI",
-                "facebook",
-                "google",
-                "gooseai",
-                "huggingface",
-                "meta-llama",
-                "microsoft",
-                "mistralai",
-                "tiiuae",
-                "hf-internal-testing",
-                "HuggingFaceM4",
-            ]:
+            elif (
+                organization
+                in [
+                    "bigscience",
+                    "bigcode",
+                    "EleutherAI",
+                    "facebook",
+                    "google",
+                    "gooseai",
+                    "huggingface",
+                    "meta-llama",
+                    "microsoft",
+                    "mistralai",
+                    "tiiuae",
+                    "hf-internal-testing",
+                    "HuggingFaceM4",
+                ]
+                or tokenizer == "openai/clip-vit-large-patch14"
+            ):
                 from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
                 client = HuggingFaceClient(cache_config=cache_config)
@@ -309,7 +383,7 @@ class AutoClient(Client):
                 client = MegatronClient(cache_config=cache_config)
 
             elif organization == "lightningai":
-                client = self._get_client(tokenizer)
+                client = self._get_client(Request(model=tokenizer))
             else:
                 raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
             self.tokenizer_clients[tokenizer] = client
@@ -332,7 +406,7 @@ class AutoClient(Client):
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
+        """Decodes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
 
         def decode_with_retry(client: Client, request: DecodeRequest) -> DecodeRequestResult:
             return client.decode(request)
@@ -347,12 +421,38 @@ class AutoClient(Client):
             hlog(retry_error)
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
+    def get_gcs_client(self) -> "helm.proxy.clients.gcs_client.GCSClient":
+        from .gcs_client import GCSClient
+
+        bucket_name: str = self.credentials["gcsBucketName"]
+        cache_config: CacheConfig = self._build_cache_config("gcs")
+        return GCSClient(bucket_name, cache_config)
+
+    def get_nudity_check_client(self) -> "helm.proxy.clients.image_generation.nudity_check_client.NudityCheckClient":
+        from helm.proxy.clients.image_generation.nudity_check_client import NudityCheckClient
+
+        cache_config: CacheConfig = self._build_cache_config("nudity")
+        return NudityCheckClient(cache_config)
+
+    def get_clip_score_client(self) -> "helm.proxy.clients.clip_score_client.CLIPScoreClient":
+        from .clip_score_client import CLIPScoreClient
+
+        cache_config: CacheConfig = self._build_cache_config("clip_score")
+        return CLIPScoreClient(cache_config)
+
     def get_toxicity_classifier_client(self) -> ToxicityClassifierClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""
         from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 
         cache_config: CacheConfig = self._build_cache_config("perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
+
+    def get_moderation_api_client(self) -> "helm.proxy.clients.moderation_api_client.ModerationAPIClient":
+        """Get the ModerationAPI client."""
+        from .moderation_api_client import ModerationAPIClient
+
+        cache_config: CacheConfig = self._build_cache_config("ModerationAPI")
+        return ModerationAPIClient(self.credentials.get("openaiApiKey", ""), cache_config)
 
     def get_critique_client(self) -> CritiqueClient:
         """Get the critique client."""
@@ -384,7 +484,7 @@ class AutoClient(Client):
             model_name: Optional[str] = self.credentials.get("critiqueModelName")
             if model_name is None:
                 raise ValueError("critiqueModelName is required for ModelCritiqueClient")
-            client: Client = self._get_client(model_name)
+            client: Client = self._get_client(Request(model=model_name))
             self._critique_client = ModelCritiqueClient(client, model_name)
         elif critique_type == "scale":
             from helm.proxy.critique.scale_critique_client import ScaleCritiqueClient

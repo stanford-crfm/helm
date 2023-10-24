@@ -1,19 +1,15 @@
 from typing import Dict, List
 
-import jax
-import jax.numpy as jnp
 import numpy as np
 from PIL import Image
 from functools import partial
-from flax.jax_utils import replicate
-from flax.training.common_utils import shard_prng_key
+
 from helm.proxy.clients.image_generation.dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
 from helm.proxy.clients.image_generation.dalle_mini import DalleBart, DalleBartProcessor
-
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.hierarchical_logger import hlog, htrack_block
-from helm.common.request import Request, RequestResult, TextToImageRequest, Sequence
+from helm.common.request import Request, RequestResult, Sequence
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -21,6 +17,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.clients.client import Client, wrap_request_time
+from .image_generation_client_utils import get_single_image_multimedia_object
 
 
 class DALLEMiniClient(Client):
@@ -42,6 +39,9 @@ class DALLEMiniClient(Client):
         Initialize the model based on the model name.
         Cache the model, so it doesn't get reinitialize for a new request.
         """
+        import jax.numpy as jnp
+        from flax.jax_utils import replicate
+
         if model_engine not in self._model_engine_to_model:
             model_name: str
             if model_engine == "dalle-mini":
@@ -62,8 +62,9 @@ class DALLEMiniClient(Client):
         return self._model_engine_to_model[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
-        if not isinstance(request, TextToImageRequest):
-            raise ValueError(f"Wrong type of request: {request}")
+        import jax
+        from flax.training.common_utils import shard_prng_key
+        from flax.jax_utils import replicate
 
         raw_request = {
             "prompt": request.prompt,
@@ -161,7 +162,9 @@ class DALLEMiniClient(Client):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_location=file_location)
+            Sequence(
+                text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(file_location)
+            )
             for file_location in results["file_locations"]
         ]
         return RequestResult(

@@ -1110,5 +1110,10 @@ def get_all_instruction_following_models() -> List[str]:
 
 
 def is_text_to_image_model(model_name: str) -> bool:
-    model: Model = get_model(model_name)
+    """Returns True if the model is a text-to-image model. False otherwise."""
+    try:
+        model: Model = get_model(model_name)
+    except ValueError:
+        return False
+
     return TEXT_TO_IMAGE_MODEL_TAG in model.tags

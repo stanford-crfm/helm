@@ -6,15 +6,15 @@ import urllib.parse
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.images_utils import encode_base64
-from helm.common.request import Request, RequestResult, Sequence, TextToImageRequest
+from helm.common.request import Request, RequestResult, Sequence
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
 )
-
 from helm.proxy.clients.client import Client, wrap_request_time
+from .image_generation_client_utils import get_single_image_multimedia_object
 
 
 class LexicaClient(Client):
@@ -31,8 +31,6 @@ class LexicaClient(Client):
         Retrieves images through Lexica's search API (https://lexica.art/docs).
         The search API is powered by CLIP to fetch the most relevant images for a given query.
         """
-        if not isinstance(request, TextToImageRequest):
-            raise ValueError(f"Wrong type of request: {request}")
         if request.model_engine != "search-stable-diffusion-1.5":
             # Only Stable Diffusion 1.5 is supported at the moment
             raise ValueError(f"Invalid model: {request.model_engine}")
@@ -67,8 +65,8 @@ class LexicaClient(Client):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_location=image_location)
-            for image_location in response["image_locations"]
+            Sequence(text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(location))
+            for location in response["image_locations"]
         ]
         return RequestResult(
             success=True,

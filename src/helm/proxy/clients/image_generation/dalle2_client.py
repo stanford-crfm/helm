@@ -6,7 +6,8 @@ import openai
 from helm.common.cache import CacheConfig
 from helm.common.general import hlog
 from helm.common.file_caches.file_cache import FileCache
-from helm.common.request import Request, RequestResult, Sequence, TextToImageRequest
+from helm.common.media_object import MultimediaObject
+from helm.common.request import Request, RequestResult, Sequence
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -16,6 +17,7 @@ from helm.common.tokenization_request import (
 from helm.proxy.clients.moderation_api_client import ModerationAPIClient
 from helm.proxy.clients.client import Client, wrap_request_time
 from helm.proxy.clients.openai_client import OpenAIClient
+from .image_generation_client_utils import get_single_image_multimedia_object
 
 
 class DALLE2Client(OpenAIClient):
@@ -59,7 +61,7 @@ class DALLE2Client(OpenAIClient):
                 text="",
                 logprob=0,
                 tokens=[],
-                file_location=None,
+                multimodal_content=MultimediaObject(),
                 finish_reason={"reason": self.CONTENT_POLICY_VIOLATED},
             )
             return RequestResult(
@@ -78,8 +80,6 @@ class DALLE2Client(OpenAIClient):
             assert w in self.VALID_IMAGE_DIMENSIONS, "Valid dimensions are 256x256, 512x512, or 1024x1024 pixels."
             return f"{w}x{h}"
 
-        if not isinstance(request, TextToImageRequest):
-            raise ValueError(f"Wrong type of request: {request}")
         if len(request.prompt) > self.MAX_PROMPT_LENGTH:
             raise ValueError("The maximum length of the prompt is 1000 characters.")
         if request.num_completions < 1 or request.num_completions > 10:
@@ -130,7 +130,12 @@ class DALLE2Client(OpenAIClient):
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_location=generated_image["file_path"])
+            Sequence(
+                text="",
+                logprob=0,
+                tokens=[],
+                multimodal_content=get_single_image_multimedia_object(generated_image["file_path"]),
+            )
             for generated_image in response["data"]
         ]
         return RequestResult(

@@ -1,15 +1,15 @@
 from typing import List, Dict
 
 from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, TextToImageRequest
+from helm.common.request import Request, RequestResult, Sequence
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
 )
-
 from helm.proxy.clients.client import Client
+from .image_generation_client_utils import get_single_image_multimedia_object
 
 
 class DeepFloydClient(Client):
@@ -39,9 +39,6 @@ class DeepFloydClient(Client):
         self._promptist_tokenizer = None
 
     def make_request(self, request: Request) -> RequestResult:
-        if not isinstance(request, TextToImageRequest):
-            raise ValueError(f"Wrong type of request: {request}")
-
         if request.model_engine not in self.SUPPORTED_MODELS:
             raise ValueError(f"Unsupported model: {request.model_engine}")
 
@@ -61,7 +58,8 @@ class DeepFloydClient(Client):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_location=file_path) for file_path in response["images"]
+            Sequence(text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(file_path))
+            for file_path in response["images"]
         ]
         return RequestResult(
             success=True,

@@ -7,7 +7,7 @@ from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack_block
-from helm.common.request import Request, RequestResult, TextToImageRequest, Sequence
+from helm.common.request import Request, RequestResult, Sequence
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -16,6 +16,7 @@ from helm.common.tokenization_request import (
 )
 from helm.proxy.clients.client import Client, wrap_request_time
 from helm.proxy.clients.image_generation.mindalle.models import Dalle
+from .image_generation_client_utils import get_single_image_multimedia_object
 
 
 class MinDALLEClient(Client):
@@ -36,9 +37,6 @@ class MinDALLEClient(Client):
         return self._model
 
     def make_request(self, request: Request) -> RequestResult:
-        if not isinstance(request, TextToImageRequest):
-            raise ValueError(f"Wrong type of request: {request}")
-
         raw_request = {
             "prompt": request.prompt,
             # Setting this to a higher value can cause CUDA OOM
@@ -88,8 +86,8 @@ class MinDALLEClient(Client):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_location=file_location)
-            for file_location in results["file_locations"]
+            Sequence(text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(location))
+            for location in results["file_locations"]
         ]
         return RequestResult(
             success=True,

@@ -137,6 +137,9 @@ class Sequence:
     # Why did the sequence finish?
     finish_reason: Optional[Dict] = None
 
+    # Could be a sequence made up of multimedia content
+    multimodal_content: Optional[MultimediaObject] = None
+
     def __add__(self, other: "Sequence") -> "Sequence":
         return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
 

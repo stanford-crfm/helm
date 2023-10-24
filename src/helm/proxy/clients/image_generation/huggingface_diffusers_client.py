@@ -1,7 +1,5 @@
 from typing import Dict, List, Optional
 
-from diffusers import DiffusionPipeline
-from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
 from PIL import Image
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
@@ -10,7 +8,7 @@ from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.gpu_utils import get_torch_device_name, is_cuda_available
 from helm.common.hierarchical_logger import hlog, htrack_block
-from helm.common.request import Request, RequestResult, TextToImageRequest, Sequence
+from helm.common.request import Request, RequestResult, Sequence
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -18,6 +16,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.clients.client import Client, wrap_request_time
+from .image_generation_client_utils import get_single_image_multimedia_object
 
 
 class HuggingFaceDiffusersClient(Client):
@@ -26,15 +25,17 @@ class HuggingFaceDiffusersClient(Client):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
 
-        self._model_engine_to_diffuser: Dict[str, DiffusionPipeline] = {}
+        self._model_engine_to_diffuser = {}
         self._promptist_model = None
         self._promptist_tokenizer = None
 
-    def _get_diffuser(self, model_engine: str) -> DiffusionPipeline:
+    def _get_diffuser(self, model_engine: str):
         """
         Initialize the Diffusion Pipeline based on the model name.
         Cache the model, so it doesn't get reinitialize for a new request.
         """
+        from diffusers import DiffusionPipeline
+
         if model_engine not in self._model_engine_to_diffuser:
             huggingface_model_name: str
             if model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
@@ -71,8 +72,8 @@ class HuggingFaceDiffusersClient(Client):
         return self._model_engine_to_diffuser[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
-        if not isinstance(request, TextToImageRequest):
-            raise ValueError(f"Wrong type of request: {request}")
+        from diffusers import DiffusionPipeline
+        from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
 
         raw_request = {
             "prompt": request.prompt,
@@ -157,7 +158,9 @@ class HuggingFaceDiffusersClient(Client):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], file_location=file_location)
+            Sequence(
+                text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(file_location)
+            )
             for file_location in results["file_locations"]
         ]
         return RequestResult(
