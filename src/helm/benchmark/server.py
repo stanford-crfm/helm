@@ -63,7 +63,7 @@ def main():
         "--release",
         type=str,
         default=None,
-        help="Experimental: The release to serve. If unset, serve the latest suite instead.",
+        help="Experimental: The release to serve. If unset, don't serve a release, and serve the latest suite instead.",
     )
     args = parser.parse_args()
 
@@ -80,9 +80,13 @@ def main():
     app.config["helm.staticpath"] = static_path
 
     if urllib.parse.urlparse(args.output_path).scheme in ["http", "https"]:
+        # Output path is a URL, so set the output path base URL in the frontend to that URL
+        # so that the frontend reads from that URL directly.
         app.config["helm.outputpath"] = None
         app.config["helm.outputurl"] = args.output_path
     else:
+        # Output path is a location on disk, so set the output path base URL to /benchmark_output
+        # and then serve files from the location on disk at that URL.
         app.config["helm.outputpath"] = path.abspath(args.output_path)
         app.config["helm.outputurl"] = "benchmark_output"
 
