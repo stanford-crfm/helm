@@ -34,10 +34,8 @@ class DefaultWindowService(LocalWindowService):
 
     @property
     def end_of_text_token(self) -> str:
-        # TODO: Support this
         return self._end_of_text_token
 
     @property
     def prefix_token(self) -> str:
-        # TODO: Support this
         return self._prefix_token
