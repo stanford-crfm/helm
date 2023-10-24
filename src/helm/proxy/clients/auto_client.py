@@ -166,7 +166,7 @@ class AutoClient(Client):
                 if is_text_to_image_request:
                     cache_config = self._build_cache_config("diffusers")
                     client = HuggingFaceDiffusersClient(
-                        hf_auth_token=self.credentials["huggingfaceAuthToken"],
+                        hf_auth_token=self.credentials.get("huggingfaceAuthToken", None),
                         cache_config=cache_config,
                         file_cache=file_cache,
                     )
