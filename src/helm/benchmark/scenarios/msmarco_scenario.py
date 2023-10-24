@@ -1,9 +1,8 @@
-# mypy: check_untyped_defs = False
 import csv
 import os
 import random
 from collections import defaultdict
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Union
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
@@ -226,7 +225,7 @@ class MSMARCOScenario(Scenario):
     CODALAB_URI_TEMPLATE: str = "https://worksheets.codalab.org/rest/bundles/{bundle}/contents/blob/"
     MSMARCO_URI_TEMPLATE: str = "https://msmarco.blob.core.windows.net/msmarcoranking/{file_name}"
 
-    DATA_URIS = {
+    DATA_URIS: Dict[Union[Tuple[str], Tuple[str, str]], str] = {
         ("documents",): CODALAB_URI_TEMPLATE.format(bundle="0x50d32fc56ad04dd89510bf86f9c1c9d3"),
         (TRAIN_SPLIT, "queries"): MSMARCO_URI_TEMPLATE.format(file_name="queries.train.tsv"),
         (TRAIN_SPLIT, "qrels"): MSMARCO_URI_TEMPLATE.format(file_name="qrels.train.tsv"),
@@ -240,7 +239,7 @@ class MSMARCOScenario(Scenario):
     }
 
     """ Dictionary mapping dataset files to their separator. """
-    DATASET_SEPARATOR = defaultdict(lambda: "\t")
+    DATASET_SEPARATOR: Dict[Union[Tuple[str], Tuple[str, str]], str] = defaultdict(lambda: "\t")
     DATASET_SEPARATOR[(TREC_TRACK, "qrels")] = " "
 
     """ Dictionary mapping task track tuples to the number of queries. """
@@ -318,7 +317,7 @@ class MSMARCOScenario(Scenario):
             TRAIN_SPLIT: self.GOLD_RELATIONS[TRAIN_SPLIT],
             VALID_SPLIT: self.GOLD_RELATIONS[self.track],
         }
-        self.docid_index_dict = Dict[int, int]  # Used to efficiently randomize Document ID lists.
+        self.docid_index_dict: Dict[int, int]  # Used to efficiently randomize Document ID lists.
 
         # Data structures that will be populated once the scenario is run.
         self.document_dict: Dict[int, str] = {}
@@ -340,7 +339,7 @@ class MSMARCOScenario(Scenario):
         ensure_file_downloaded(source_url=urlstring, target_path=target_file_path)
         return target_file_path
 
-    def download_helper(self, data_key: Tuple[str, str], output_path: str) -> str:
+    def download_helper(self, data_key: Union[Tuple[str], Tuple[str, str]], output_path: str) -> str:
         """Call download_file for self.DATA_URIS[data_key] and return the file path to the downloaded file."""
         # Download the file
         urlstring = self.DATA_URIS[data_key]
