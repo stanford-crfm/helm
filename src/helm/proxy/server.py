@@ -21,6 +21,7 @@ from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request
 from helm.common.perspective_api_request import PerspectiveAPIRequest
+from helm.common.moderations_api_request import ModerationAPIRequest
 from helm.common.tokenization_request import TokenizationRequest, DecodeRequest
 from .accounts import Account
 from .services.server_service import ServerService
@@ -80,6 +81,12 @@ def handle_root():
 def handle_static_filename(filename):
     resp = bottle.static_file(filename, root=os.path.join(os.path.dirname(__file__), "static"))
     resp.add_header("Cache-Control", "no-store, must-revalidate ")
+    return resp
+
+
+@app.get("/output/<filename:path>")
+def handle_output_filename(filename):
+    resp = bottle.static_file(filename, root=app.config["crfm.proxy.outputpath"])
     return resp
 
 
@@ -199,6 +206,16 @@ def handle_toxicity_request():
     return safe_call(perform)
 
 
+@app.get("/api/moderation")
+def handle_moderation_request():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        request = ModerationAPIRequest(**json.loads(args["request"]))
+        return dataclasses.asdict(service.get_moderation_results(auth, request))
+
+    return safe_call(perform)
+
+
 @app.get("/api/shutdown")
 def handle_shutdown():
     def perform(args):
@@ -238,4 +255,5 @@ def main():
 
     # Clear arguments before running gunicorn as it also uses argparse
     sys.argv = [sys.argv[0]]
+    app.config["crfm.proxy.outputpath"] = os.path.join(os.path.realpath(args.base_path), "cache", "output")
     app.run(host="0.0.0.0", port=args.port, server="gunicorn", **gunicorn_args)

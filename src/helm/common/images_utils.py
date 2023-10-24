@@ -2,7 +2,7 @@ import base64
 import io
 import requests
 import shutil
-from typing import Optional
+from typing import List, Optional
 from urllib.request import urlopen
 
 import numpy as np

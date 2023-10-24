@@ -62,6 +62,9 @@ class Input:
     multimedia_content: Optional[MultimediaObject] = None
     """A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
 
+    original_text: Optional[str] = None
+    """Unperturbed text before any perturbations are applied."""
+
 
 @dataclass(frozen=True)
 class PassageQuestionInput(Input):
