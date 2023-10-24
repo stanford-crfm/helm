@@ -17,7 +17,18 @@ class Stat:
     max: Optional[float] = None
     mean: Optional[float] = None
     variance: Optional[float] = None
+    """This is the population variance, not the sample variance.
+
+    See https://towardsdatascience.com/variance-sample-vs-population-3ddbd29e498a
+    for details.
+    """
+
     stddev: Optional[float] = None
+    """This is the population standard deviation, not the sample standard deviation.
+
+    See https://towardsdatascience.com/variance-sample-vs-population-3ddbd29e498a
+    for details.
+    """
 
     def add(self, x) -> "Stat":
         # Skip Nones for statistic aggregation.
@@ -69,22 +80,17 @@ class Stat:
         else:
             return "(0)"
 
-    def _update_mean(self):
-        self.mean = self.sum / self.count if self.count else None
-
-    def _update_variance(self):
-        self._update_mean()
-        if self.mean is None:
-            return None
+    def _update_mean_variance_stddev(self):
+        if self.count == 0:
+            # No stats with no elements.
+            return
+        # Update mean
+        self.mean = self.sum / self.count
+        # Update variance
         pvariance = self.sum_squared / self.count - self.mean**2
         self.variance = 0 if pvariance < 0 else pvariance
-
-    def _update_stddev(self):
-        self._update_variance()
-        self.stddev = math.sqrt(self.variance) if self.variance is not None else None
-
-    def _update_mean_variance_stddev(self):
-        self._update_stddev()
+        # Update stddev
+        self.stddev = math.sqrt(self.variance)
 
     def take_mean(self):
         """Return a version of the stat that only has the mean."""
