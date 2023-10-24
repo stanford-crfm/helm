@@ -1,6 +1,6 @@
 import { List, ListItem } from "@tremor/react";
 import type DisplayRequest from "@/types/DisplayRequest";
-import Preview from "./Preview";
+import Preview from "../Preview";
 
 type Props = {
   request: DisplayRequest;
