@@ -16,6 +16,7 @@ from helm.proxy.services.remote_service import create_authentication, add_servic
 from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
 from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark import heim_run_specs  # noqa
 from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
