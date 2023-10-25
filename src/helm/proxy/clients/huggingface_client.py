@@ -1,6 +1,5 @@
 from copy import deepcopy
 import torch
-from dataclasses import asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation.stopping_criteria import (
     StoppingCriteria,
@@ -8,35 +7,20 @@ from transformers.generation.stopping_criteria import (
 )
 from typing import Any, Dict, List, Optional
 
-from helm.common.cache import Cache, CacheConfig
+from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationToken,
+from helm.common.request import (
+    wrap_request_time,
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
 )
-from .client import Client, wrap_request_time, truncate_sequence, cleanup_tokens
-from .huggingface_tokenizer import HuggingFaceTokenizers
+from .client import CachingClient, truncate_sequence
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, resolve_alias
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 from threading import Lock
-
-
-# TODO: Delete this.
-_MODEL_NAME_ALIASES: Dict[str, str] = {
-    "google/t5-11b": "t5-11b",
-    "huggingface/gpt2": "gpt2",
-    "huggingface/santacoder": "bigcode/santacoder",
-    "huggingface/starcoder": "bigcode/starcoder",
-}
-"""Mapping of some HELM model names to Hugging Face pretrained model name."""
-
-
-# TODO: Delete this.
-def resolve_alias(model_name: str) -> str:
-    """Resolve some HELM model names to Hugging Face pretrained model name."""
-    return _MODEL_NAME_ALIASES.get(model_name, model_name)
 
 
 class StopAtSpecificTokenCriteria(StoppingCriteria):
@@ -71,7 +55,7 @@ class HuggingFaceServer:
                 pretrained_model_name_or_path, trust_remote_code=True, **model_kwargs
             ).to(self.device)
         with htrack_block(f"Loading Hugging Face tokenizer for model {pretrained_model_name_or_path}"):
-            self.tokenizer: AutoTokenizer = HuggingFaceTokenizers.create_tokenizer(
+            self.tokenizer: AutoTokenizer = HuggingFaceTokenizer.create_tokenizer(
                 pretrained_model_name_or_path, revision
             )
 
@@ -186,14 +170,15 @@ class HuggingFaceServerFactory:
         return HuggingFaceServerFactory._servers[helm_model_name]
 
 
-class HuggingFaceClient(Client):
+class HuggingFaceClient(CachingClient):
     def __init__(
         self,
+        tokenizer: Tokenizer,
         cache_config: CacheConfig,
         pretrained_model_name_or_path: Optional[str] = None,
         revision: Optional[str] = None,
     ):
-        self.cache = Cache(cache_config)
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self._pretrained_model_name_or_path = pretrained_model_name_or_path
         self._revision = revision
 
@@ -230,7 +215,7 @@ class HuggingFaceClient(Client):
             def do_it():
                 return huggingface_model.serve_request(raw_request)
 
-            cache_key = Client.make_cache_key(raw_request, request)
+            cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:  # Do something if error is encountered.
             error: str = f"HuggingFace error: {e}"
@@ -267,100 +252,4 @@ class HuggingFaceClient(Client):
             request_datetime=response.get("request_datetime"),
             completions=completions,
             embedding=[],
-        )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        pretrained_model_name_or_path: str
-        if self._pretrained_model_name_or_path:
-            pretrained_model_name_or_path = self._pretrained_model_name_or_path
-        else:
-            pretrained_model_name_or_path = resolve_alias(request.tokenizer)
-        tokenizer = HuggingFaceTokenizers.get_tokenizer(
-            helm_tokenizer_name=request.tokenizer,
-            pretrained_model_name_or_path=pretrained_model_name_or_path,
-            revision=self._revision,
-        )
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                if request.encode:
-                    if request.truncation:
-                        tokens = tokenizer.encode(
-                            request.text,
-                            truncation=request.truncation,
-                            max_length=request.max_length,
-                            add_special_tokens=False,
-                        )
-                    else:
-                        tokens = tokenizer.encode(request.text, add_special_tokens=False)
-                else:
-                    if "gpt" in request.tokenizer or request.tokenizer in [
-                        "bigscience/bloom",
-                        "Writer/palmyra-base",
-                        "facebook/opt-66b",
-                    ]:
-                        # These models already handle the "▁" character correctly with the
-                        # convert_tokens_to_string method. We prefer to use this method instead
-                        # of the hacky cleanup_tokens method below as it might handle cases
-                        # we haven't thought of in cleanup_tokens.
-                        tokens = [
-                            tokenizer.convert_tokens_to_string([token]) for token in tokenizer.tokenize(request.text)
-                        ]
-                    else:
-                        # Tokenizes the text and returns the tokens as a list of strings,
-                        # not a list of token objects (otherwise "Hello world" would be"
-                        # ["Hello", "▁world"] and not ["Hello", " world"])
-                        # We could do this with a simple replace like this:
-                        # tokens = [tokenizer.convert_tokens_to_string([i]) for i in tokenizer.tokenize(request.text)]
-                        # But this replaces all the "▁" characters by "", which is not what we want.
-                        # This would be problematic as tokenize(" Hello", encode=False) would return ["Hello"]
-                        # Just like tokenize("Hello", encode=False) would return ["Hello"].
-                        tokens = tokenizer.tokenize(request.text)
-                        tokens = cleanup_tokens(tokens, request.tokenizer)
-                return {"tokens": tokens}
-
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"HuggingFace error: {e}"
-            return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
-
-        return TokenizationRequestResult(
-            success=True,
-            cached=cached,
-            text=request.text,
-            tokens=[TokenizationToken(value) for value in result["tokens"]],
-            request_time=result["request_time"],
-        )
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        pretrained_model_name_or_path: str
-        if self._pretrained_model_name_or_path:
-            pretrained_model_name_or_path = self._pretrained_model_name_or_path
-        else:
-            pretrained_model_name_or_path = resolve_alias(request.tokenizer)
-        tokenizer = HuggingFaceTokenizers.get_tokenizer(
-            helm_tokenizer_name=request.tokenizer,
-            pretrained_model_name_or_path=pretrained_model_name_or_path,
-            revision=self._revision,
-        )
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                return {
-                    "text": tokenizer.decode(
-                        request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces
-                    )
-                }
-
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"HuggingFace error: {e}"
-            return DecodeRequestResult(success=False, cached=False, error=error, text="")
-
-        return DecodeRequestResult(
-            success=True, cached=cached, text=result["text"], request_time=result["request_time"]
         )

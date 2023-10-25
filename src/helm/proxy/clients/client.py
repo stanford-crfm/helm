@@ -1,7 +1,6 @@
-import time
 import json
 from abc import ABC, abstractmethod
-from typing import Callable, Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import MultimediaObject, TEXT_TYPE
@@ -12,9 +11,60 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
+from helm.common.cache import Cache, CacheConfig
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 class Client(ABC):
+    # TODO: This method should be removed.
+    # This only kept for the AutoClient. Eventually, we should introduce an
+    # AutoTokenizer or TokenizerFactory class.
+    @abstractmethod
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        """Tokenizes `request.text` using `request.tokenizer`.
+
+        This simply calls the `tokenize` method of the tokenizer.
+        Some exceptions can be made (but should be avoided).
+        This is the case for the auto client, which needs to handle
+        tokenization for multiple tokenizers.
+        """
+        pass
+
+    # TODO: This method should be removed.
+    # This only kept for the AutoClient. Eventually, we should introduce an
+    # AutoTokenizer or TokenizerFactory class.
+    @abstractmethod
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        """Decodes `request.tokens` using `request.tokenizer`.
+
+        This simply calls the `decode` method of the tokenizer.
+        Some exceptions can be made (but should be avoided).
+        This is the case for the auto client, which needs to handle
+        tokenization for multiple tokenizers.
+        """
+        pass
+
+    @abstractmethod
+    def make_request(self, request: Request) -> RequestResult:
+        """Makes a request to the model.
+
+        For LLM, this usually corresponds to a single call to the model (completion).
+        """
+        pass
+
+
+class CachingClient(Client):
+    def __init__(self, cache_config: CacheConfig, tokenizer: Tokenizer) -> None:
+        """Initializes the client.
+
+        For most clients, both the cache config and tokenizer are required.
+        However, some clients, such as the auto client, handle multiple tokenizers,
+        and organizations so the cache and tokenizer cannot be initialized until
+        the request is made.
+        """
+        self.cache = Cache(cache_config) if cache_config is not None else None
+        self.tokenizer = tokenizer
+
     @staticmethod
     def make_cache_key(raw_request: Dict, request: Request) -> Dict:
         """
@@ -28,31 +78,15 @@ class Client(ABC):
             cache_key = raw_request
         return cache_key
 
-    @abstractmethod
-    def make_request(self, request: Request) -> RequestResult:
-        pass
-
-    @abstractmethod
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        pass
+        # Deprecated - use `self.tokenizer.tokenize` instead. Warn the user.
+        hlog("WARNING: CachingClient.tokenize is deprecated, use self.tokenizer.tokenize instead")
+        return self.tokenizer.tokenize(request)
 
-    @abstractmethod
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        pass
-
-
-def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
-    """Return a version of `compute` that puts `request_time` into its output."""
-
-    def wrapped_compute():
-        start_time = time.time()
-        response = compute()
-        end_time = time.time()
-        response["request_time"] = end_time - start_time
-        response["request_datetime"] = int(start_time)
-        return response
-
-    return wrapped_compute
+        # Deprecated - use `self.tokenizer.decode` instead. Warn the user.
+        hlog("WARNING: CachingClient.decode is deprecated, use self.tokenizer.decode instead")
+        return self.tokenizer.decode(request)
 
 
 def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:

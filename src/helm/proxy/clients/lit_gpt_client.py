@@ -7,24 +7,18 @@ from typing import List, Literal, Optional, Dict, Union
 
 import torch
 
-from helm.common.cache import Cache, CacheConfig
+from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import OptionalDependencyNotInstalled
 from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-    TokenizationToken,
-)
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 
-from .client import Client
+from .client import CachingClient
 from .lit_gpt_generate import generate  # type: ignore
 
 try:
     import lightning as L
     from lightning.fabric.strategies import FSDPStrategy
-    from lit_gpt import GPT, Config, Tokenizer
+    from lit_gpt import GPT, Config
     from lit_gpt.model import Block
     from lit_gpt.utils import check_valid_checkpoint_dir, lazy_load, quantization
 except ModuleNotFoundError as e:
@@ -86,15 +80,15 @@ class LitGPT(metaclass=SingletonMeta):
 
         model.eval()
         self.model = fabric.setup(model)
-        self.tokenizer = Tokenizer(checkpoint_dir)
         self.fabric = fabric
 
 
-class LitGPTClient(Client):
+class LitGPTClient(CachingClient):
     """Client for evaluating Lit-GPT (from Lightning AI) supported LLMs"""
 
     def __init__(
         self,
+        tokenizer: Tokenizer,
         cache_config: CacheConfig,
         checkpoint_dir: Path = Path(""),
         precision: str = "bf16-true",
@@ -103,15 +97,19 @@ class LitGPTClient(Client):
         strategy: str = "auto",
         quantize: Optional[QuantizationType] = None,
     ):
-        self.cache = Cache(cache_config)
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         lit_gpt = LitGPT(checkpoint_dir, precision, device, devices, strategy, quantize)
         self.model = lit_gpt.model
-        self.tokenizer = lit_gpt.tokenizer
         self.fabric = lit_gpt.fabric
 
     def make_request(self, request: Request) -> RequestResult:
         model = self.model
-        tokenizer = self.tokenizer
+
+        # TODO: Fix this, it's a hack
+        # Check is self.tokenizer is of type LitGPTTokenizer
+        assert hasattr(self.tokenizer, "_tokenizer"), "Tokenizer must be of type LitGPTTokenizer"
+        tokenizer = self.tokenizer._tokenizer  # type: ignore
+
         fabric = self.fabric
         encoded = tokenizer.encode(request.prompt, bos=True, eos=False, device=fabric.device)
         prompt_length = encoded.size(0)
@@ -167,19 +165,3 @@ class LitGPTClient(Client):
             embedding=[],
             request_time=t,
         )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        fabric = self.fabric
-        logger.debug("Using device: {}".format(fabric.device))
-        t0 = time.perf_counter()
-        encoded = self.tokenizer.encode(request.text, bos=True, eos=False, device=fabric.device)
-        tokens = encoded.tolist()
-        tokens = [TokenizationToken(value=token) for token in tokens]
-        t = time.perf_counter() - t0
-        return TokenizationRequestResult(success=True, cached=False, tokens=tokens, text=request.text, request_time=t)
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        t0 = time.perf_counter()
-        text = self.tokenizer.decode(torch.as_tensor(request.tokens, dtype=torch.int))
-        t = time.perf_counter() - t0
-        return DecodeRequestResult(success=True, cached=False, text=text, request_time=t)

@@ -2,31 +2,32 @@ from typing import List, Optional
 
 import openai as gooseai
 
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
+from helm.common.cache import CacheConfig
+from helm.common.request import (
+    wrap_request_time,
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
 )
-from .client import Client, wrap_request_time, truncate_sequence
+from helm.proxy.tokenizers.tokenizer import Tokenizer
+from .client import CachingClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
-class GooseAIClient(Client):
+class GooseAIClient(CachingClient):
     """
     GooseAI API Client
     - How to use the API: https://goose.ai/docs/api
     - Supported models: https://goose.ai/docs/models
     """
 
-    def __init__(self, api_key: str, cache_config: CacheConfig, org_id: Optional[str] = None):
+    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig, org_id: Optional[str] = None):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://api.goose.ai/v1"
-
-        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         """
@@ -62,7 +63,7 @@ class GooseAIClient(Client):
                 gooseai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
                 return gooseai.Completion.create(**raw_request)
 
-            cache_key = Client.make_cache_key(raw_request, request)
+            cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except gooseai.error.OpenAIError as e:
             error: str = f"OpenAI (GooseAI API) error: {e}"
@@ -97,9 +98,3 @@ class GooseAIClient(Client):
             completions=completions,
             embedding=[],
         )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to decode.")
