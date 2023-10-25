@@ -93,8 +93,8 @@ class CivilCommentsScenario(Scenario):
         ), f"Invalid demographic: {demographic}"
         self.demographic: str = demographic
 
-    def get_instances(self) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, "wilds_civil_comments.csv")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path: str = os.path.join(output_path, "wilds_civil_comments.csv")
         ensure_file_downloaded(
             source_url=CivilCommentsScenario.DATASET_DOWNLOAD_URL,
             target_path=data_path,

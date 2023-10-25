@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
 import ModelsList from "@/components/ModelsList";
@@ -59,11 +60,25 @@ export default function Home() {
 
   return (
     <>
-      <img src={helmLogo} alt="HELM Logo" className="mx-auto" />
+      <img
+        src={helmLogo}
+        alt="HELM Logo"
+        width="309"
+        height="122"
+        className="mx-auto w-309 h-122"
+      />
       <div className="flex flex-col sm:flex-row justify-center mt-16 mb-32 flex gap-2 sm:gap-8 md:gap-32">
-        <button className="px-10 btn btn-primary">Blog post</button>
-        <button className="px-10 btn btn-primary">Paper</button>
-        <button className="px-10 btn btn-primary">GitHub</button>
+        <button className="px-10 btn btn-primary rounded-md">
+          <Link to="https://crfm.stanford.edu/2022/11/17/helm.html">
+            Blog post
+          </Link>
+        </button>
+        <button className="px-10 btn btn-primary rounded-md">
+          <Link to="https://arxiv.org/pdf/2211.09110.pdf">Paper</Link>
+        </button>
+        <button className="px-10 btn btn-primary rounded-md">
+          <Link to="https://github.com/stanford-crfm/helm">Github</Link>
+        </button>
       </div>
       <div className="container mx-auto text-lg">
         <p>

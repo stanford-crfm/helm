@@ -68,8 +68,9 @@ class AutoClient(Client):
         client: Optional[Client] = self.clients.get(model)
 
         if client is None:
-            host_group: str = model.split("/")[0]
-            cache_config: CacheConfig = self._build_cache_config(host_group)
+            organization: str = model.split("/")[0]
+            cache_config: CacheConfig = self._build_cache_config(organization)
+            tokenizer: Tokenizer = self._get_tokenizer(organization)
 
             # TODO: Migrate all clients to use model deployments
             # TODO(PR): Remove the TODO above.
@@ -92,7 +93,7 @@ class AutoClient(Client):
 
                 # Get tokenizer from model deployment
                 tokenizer_name = model_deployment.tokenizer_name or model_deployment.name
-                tokenizer: Tokenizer = self._get_tokenizer(tokenizer_name)
+                tokenizer = self._get_tokenizer(tokenizer_name)
 
                 # TODO(PR): Support the following arguments:
                 # - org_id (OpenAI, GooseAI, Microsoft)

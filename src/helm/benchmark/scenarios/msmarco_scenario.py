@@ -1,9 +1,8 @@
-# mypy: check_untyped_defs = False
 import csv
 import os
 import random
 from collections import defaultdict
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Union
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
@@ -226,7 +225,7 @@ class MSMARCOScenario(Scenario):
     CODALAB_URI_TEMPLATE: str = "https://worksheets.codalab.org/rest/bundles/{bundle}/contents/blob/"
     MSMARCO_URI_TEMPLATE: str = "https://msmarco.blob.core.windows.net/msmarcoranking/{file_name}"
 
-    DATA_URIS = {
+    DATA_URIS: Dict[Union[Tuple[str], Tuple[str, str]], str] = {
         ("documents",): CODALAB_URI_TEMPLATE.format(bundle="0x50d32fc56ad04dd89510bf86f9c1c9d3"),
         (TRAIN_SPLIT, "queries"): MSMARCO_URI_TEMPLATE.format(file_name="queries.train.tsv"),
         (TRAIN_SPLIT, "qrels"): MSMARCO_URI_TEMPLATE.format(file_name="qrels.train.tsv"),
@@ -240,7 +239,7 @@ class MSMARCOScenario(Scenario):
     }
 
     """ Dictionary mapping dataset files to their separator. """
-    DATASET_SEPARATOR = defaultdict(lambda: "\t")
+    DATASET_SEPARATOR: Dict[Union[Tuple[str], Tuple[str, str]], str] = defaultdict(lambda: "\t")
     DATASET_SEPARATOR[(TREC_TRACK, "qrels")] = " "
 
     """ Dictionary mapping task track tuples to the number of queries. """
@@ -318,7 +317,7 @@ class MSMARCOScenario(Scenario):
             TRAIN_SPLIT: self.GOLD_RELATIONS[TRAIN_SPLIT],
             VALID_SPLIT: self.GOLD_RELATIONS[self.track],
         }
-        self.docid_index_dict = Dict[int, int]  # Used to efficiently randomize Document ID lists.
+        self.docid_index_dict: Dict[int, int]  # Used to efficiently randomize Document ID lists.
 
         # Data structures that will be populated once the scenario is run.
         self.document_dict: Dict[int, str] = {}
@@ -328,24 +327,24 @@ class MSMARCOScenario(Scenario):
         self.topk_dicts: Dict[str, Dict[int, Dict[int, int]]] = {TRAIN_SPLIT: {}, VALID_SPLIT: {}}
         self.qids: Dict[str, List[int]] = {TRAIN_SPLIT: [], VALID_SPLIT: []}
 
-    def download_file(self, urlstring: str, target_file_name: str) -> str:
+    def download_file(self, urlstring: str, target_file_name: str, output_path: str) -> str:
         """Download the resource at urlstring and return the absolute path.
 
         Downloaded file is saved to a directory named 'data' in
-        self.output_path.
+        output_path.
         """
-        data_path = os.path.join(self.output_path, "data")
+        data_path = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
         target_file_path = os.path.join(data_path, target_file_name)
         ensure_file_downloaded(source_url=urlstring, target_path=target_file_path)
         return target_file_path
 
-    def download_helper(self, data_key: Tuple[str, str]) -> str:
+    def download_helper(self, data_key: Union[Tuple[str], Tuple[str, str]], output_path: str) -> str:
         """Call download_file for self.DATA_URIS[data_key] and return the file path to the downloaded file."""
         # Download the file
         urlstring = self.DATA_URIS[data_key]
         target_file_name = f"{'_'.join(data_key)}.tsv"
-        file_path = self.download_file(urlstring, target_file_name)
+        file_path = self.download_file(urlstring, target_file_name, output_path)
 
         # Ensure that all the files are separated with a tab character.
         seperator = self.DATASET_SEPARATOR[data_key]
@@ -423,22 +422,28 @@ class MSMARCOScenario(Scenario):
         topk_dict = {k: v for k, v in topk_dict.items()}  # Convert the defaultdict to a regular dict
         return topk_dict
 
-    def prepare_data(self):
+    def prepare_data(self, output_path):
         """Download and load all the data."""
         # Passages
-        self.document_dict = self.create_id_item_dict(self.download_helper(("documents",)))
+        self.document_dict = self.create_id_item_dict(self.download_helper(("documents",), output_path))
         self.docids = list(self.document_dict.keys())
 
         # Train queries
-        self.query_dicts[TRAIN_SPLIT] = self.create_id_item_dict(self.download_helper((TRAIN_SPLIT, "queries")))
-        self.qrels_dicts[TRAIN_SPLIT] = self.create_qrels_dict(self.download_helper((TRAIN_SPLIT, "qrels")))
-        self.topk_dicts[TRAIN_SPLIT] = self.create_topk_dict(self.download_helper((TRAIN_SPLIT, "topk")))
+        self.query_dicts[TRAIN_SPLIT] = self.create_id_item_dict(
+            self.download_helper((TRAIN_SPLIT, "queries"), output_path)
+        )
+        self.qrels_dicts[TRAIN_SPLIT] = self.create_qrels_dict(
+            self.download_helper((TRAIN_SPLIT, "qrels"), output_path)
+        )
+        self.topk_dicts[TRAIN_SPLIT] = self.create_topk_dict(self.download_helper((TRAIN_SPLIT, "topk"), output_path))
         self.qids[TRAIN_SPLIT] = list(self.query_dicts[TRAIN_SPLIT].keys())
 
         # Validation queries
-        self.query_dicts[VALID_SPLIT] = self.create_id_item_dict(self.download_helper((self.track, "queries")))
-        self.qrels_dicts[VALID_SPLIT] = self.create_qrels_dict(self.download_helper((self.track, "qrels")))
-        self.topk_dicts[VALID_SPLIT] = self.create_topk_dict(self.download_helper((self.track, "topk")))
+        self.query_dicts[VALID_SPLIT] = self.create_id_item_dict(
+            self.download_helper((self.track, "queries"), output_path)
+        )
+        self.qrels_dicts[VALID_SPLIT] = self.create_qrels_dict(self.download_helper((self.track, "qrels"), output_path))
+        self.topk_dicts[VALID_SPLIT] = self.create_topk_dict(self.download_helper((self.track, "topk"), output_path))
         self.qids[VALID_SPLIT] = list(self.query_dicts[VALID_SPLIT].keys())
 
     def shuffle_ids(self):
@@ -631,7 +636,7 @@ class MSMARCOScenario(Scenario):
         instances = [self.get_valid_instance(qid) for qid in qids]
         return instances
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """Get instances for this scenario.
 
         Refer to the documentation of the following methods for details on how
@@ -640,7 +645,7 @@ class MSMARCOScenario(Scenario):
             * self.get_valid_instances
         """
         hlog("Preparing the datasets.")
-        self.prepare_data()
+        self.prepare_data(output_path)
 
         hlog("Shuffling Document and Query IDs.")
         self.shuffle_ids()

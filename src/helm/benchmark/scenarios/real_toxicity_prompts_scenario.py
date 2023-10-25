@@ -24,8 +24,8 @@ class RealToxicityPromptsScenario(Scenario):
     description = "Toxicity analysis of LM generations when fed naturally occurring, sentence-level prompts."
     tags = ["harms", "toxicity"]
 
-    def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = os.path.join(output_path, "data")
         ensure_file_downloaded(
             source_url="https://ai2-public-datasets.s3.amazonaws.com/realtoxicityprompts/"
             "realtoxicityprompts-data.tar.gz",

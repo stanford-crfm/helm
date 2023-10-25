@@ -1,7 +1,16 @@
 # mypy: check_untyped_defs = False
 from typing import List
 
-from helm.benchmark.scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    CORRECT_TAG,
+    TEST_SPLIT,
+    TRAIN_SPLIT,
+    create_scenario,
+    Instance,
+    Reference,
+    Input,
+    Output,
+)
 from helm.benchmark.run_specs import get_scenario_spec1, get_adapter_spec1
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -14,7 +23,7 @@ class TestGenerationAdapter(TestAdapter):
         scenario = create_scenario(get_scenario_spec1())
         adapter_spec = get_adapter_spec1()
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        scenario_state = adapter.adapt(scenario.get_instances(), parallelism=1)
+        scenario_state = adapter.adapt(scenario.get_instances(output_path=""), parallelism=1)
 
         # Make sure we generated the right number of request_states:
         # For each trial, instance and reference (+ 1 for free-form generation).
@@ -140,9 +149,11 @@ class TestGenerationAdapter(TestAdapter):
             previous_train_instances.append(train_instances)
 
     def test_multiple_correct_reference(self):
-        adapter_spec = AdapterSpec(method=ADAPT_GENERATION, model_deployment="openai/ada", max_train_instances=2)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION, model_deployment="openai/ada", max_train_instances=2, sample_train=False
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        adapter.train_instances = [
+        train_instances = [
             Instance(
                 Input(text="Second reference is correct"),
                 references=[
@@ -150,6 +161,7 @@ class TestGenerationAdapter(TestAdapter):
                     Reference(Output(text="Second"), tags=[CORRECT_TAG]),
                     Reference(Output(text="Third"), tags=[]),
                 ],
+                split=TRAIN_SPLIT,
             ),
             Instance(
                 Input(text="First and second references are correct"),
@@ -158,9 +170,9 @@ class TestGenerationAdapter(TestAdapter):
                     Reference(Output(text="Second"), tags=[CORRECT_TAG]),
                     Reference(Output(text="Third"), tags=[]),
                 ],
+                split=TRAIN_SPLIT,
             ),
         ]
-        adapter.train_trial_index = 0
         eval_instance = Instance(
             Input(text="First reference is correct"),
             references=[
@@ -168,8 +180,9 @@ class TestGenerationAdapter(TestAdapter):
                 Reference(Output(text="Second"), tags=[]),
                 Reference(Output(text="Third"), tags=[]),
             ],
+            split=TEST_SPLIT,
         )
-        actual_instances = adapter.generate_requests(eval_instance)
+        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1).request_states
         assert len(actual_instances) == 1
         assert actual_instances[0].request.prompt == (
             "Input: Second reference is correct\n"
@@ -182,10 +195,14 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_multiple_correct_reference_multi_label(self):
         adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION, model_deployment="openai/ada", max_train_instances=2, multi_label=True
+            method=ADAPT_GENERATION,
+            model_deployment="openai/ada",
+            max_train_instances=2,
+            multi_label=True,
+            sample_train=False,
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        adapter.train_instances = [
+        train_instances = [
             Instance(
                 Input(text="Second reference is correct"),
                 references=[
@@ -193,6 +210,7 @@ class TestGenerationAdapter(TestAdapter):
                     Reference(Output(text="Second"), tags=[CORRECT_TAG]),
                     Reference(Output(text="Third"), tags=[]),
                 ],
+                split=TRAIN_SPLIT,
             ),
             Instance(
                 Input(text="First and second references are correct"),
@@ -201,9 +219,9 @@ class TestGenerationAdapter(TestAdapter):
                     Reference(Output(text="Second"), tags=[CORRECT_TAG]),
                     Reference(Output(text="Third"), tags=[]),
                 ],
+                split=TRAIN_SPLIT,
             ),
         ]
-        adapter.train_trial_index = 0
         eval_instance = Instance(
             Input(text="First reference is correct"),
             references=[
@@ -211,8 +229,9 @@ class TestGenerationAdapter(TestAdapter):
                 Reference(Output(text="Second"), tags=[]),
                 Reference(Output(text="Third"), tags=[]),
             ],
+            split=TEST_SPLIT,
         )
-        actual_instances = adapter.generate_requests(eval_instance)
+        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1).request_states
         assert len(actual_instances) == 1
         assert actual_instances[0].request.prompt == (
             "Input: Second reference is correct\n"

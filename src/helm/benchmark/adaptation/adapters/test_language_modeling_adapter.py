@@ -83,7 +83,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             references=[reference],
         )
         # Ensure the adapter returns the correct prompt
-        request_states: List[RequestState] = adapter.generate_requests(instance)
+        request_states: List[RequestState] = adapter.adapt([instance], parallelism=1).request_states
         request: Request = request_states[0].request
         # The prompt should be "<|endoftext|>Excuse me, do you have the time?"
         assert request.prompt == "<|endoftext|>Excuse me, do you have the time?"
@@ -94,7 +94,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             input=input_text_long,
             references=[reference],
         )
-        request_states_long: List[RequestState] = adapter.generate_requests(instance_long)
+        request_states_long: List[RequestState] = adapter.adapt([instance_long], parallelism=1).request_states
         request_long: Request = request_states_long[0].request
         # Count the number of tokens of the prompt
         num_tokens = len(adapter.window_service.encode(request_long.prompt).token_values)
@@ -111,7 +111,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         adapter_2 = AdapterFactory.get_adapter(adapter_spec_2_, self.tokenizer_service)
 
         # Step 2.1. Check that if the prompt is not too long, it is not truncated
-        request_state_2: List[RequestState] = adapter_2.generate_requests(instance)
+        request_state_2: List[RequestState] = adapter_2.adapt([instance], parallelism=1).request_states
         request_2: Request = request_state_2[0].request
         # The prompt should be unchanged
         assert request_2.prompt == "<|endoftext|>Excuse me, do you have the time?"
@@ -119,7 +119,7 @@ class TestLanguageModelingAdapter(TestAdapter):
 
         # Step 2.2. Check that if the prompt + max_tokens is too long, it is truncated
         # but that we keep the same number of tokens as in the previous test
-        request_states_long_2: List[RequestState] = adapter_2.generate_requests(instance_long)
+        request_states_long_2: List[RequestState] = adapter_2.adapt([instance_long], parallelism=1).request_states
         request_long_2: Request = request_states_long_2[0].request
         # Count the number of tokens of the prompt
         num_tokens_2 = len(adapter_2.window_service.encode(request_long_2.prompt).token_values)

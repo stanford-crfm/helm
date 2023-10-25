@@ -40,7 +40,7 @@ class COVIDDialogScenario(Scenario):
     description = "Medical dialogue dataset of conversations between doctors and patients on their COVID-19 concerns"
     tags = ["dialogue", "biomedical"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """
         Build `Instance`s using the questions asked by concerned patients and the responses by doctors.
         """
@@ -56,7 +56,7 @@ class COVIDDialogScenario(Scenario):
             with open(file_path) as f:
                 return f.read().splitlines()
 
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
 
         instances: List[Instance] = []

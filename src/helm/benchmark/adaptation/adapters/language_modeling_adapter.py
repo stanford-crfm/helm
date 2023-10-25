@@ -36,13 +36,13 @@ class LanguageModelingAdapter(Adapter):
         hlog(f"{len(eval_instances)} eval instances")
 
         all_request_states: List[RequestState] = flatten_list(
-            parallel_map(self.generate_requests, instances, parallelism)
+            parallel_map(self._generate_requests, instances, parallelism)
         )
         hlog(f"{len(all_request_states)} requests")
 
         return ScenarioState(self.adapter_spec, all_request_states)
 
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+    def _generate_requests(self, eval_instance: Instance) -> List[RequestState]:
         """
         Adapted from https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py.
         """

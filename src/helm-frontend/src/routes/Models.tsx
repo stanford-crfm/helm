@@ -75,36 +75,7 @@ export default function Models() {
         title="Models"
         subtitle="HELM evaluates models ranging from hundreds of millions to hundreds of billions of parameters. The models are trained on a varietry of data sources, such as general language understanding, instruction following, multi-task learning, code completion, chatbot functionalities, and various other applications."
       />
-      <div className="grid md:grid-cols-3 grid-cols-1 gap-8">
-        <Card className="flex flex-col justify-between">
-          <Text>Models</Text>
-          <Metric className="text-6xl md:!text-[96px]">{models.length}</Metric>
-          <CategoryBar
-            values={[open, limited, closed]}
-            colors={["green", "yellow", "red"]}
-          />
-          <Legend
-            categories={["Open", "Limited", "Closed"]}
-            colors={["green", "yellow", "red"]}
-          />
-        </Card>
-        <Card className="md:col-span-2">
-          <Text>Creator Organizations</Text>
-          <div className="flex justify-between mt-4">
-            <DonutChart
-              data={creators}
-              category="models"
-              index="name"
-              variant="pie"
-              className="basis-5/12"
-            />
-            <Legend
-              categories={creators.map((creator) => creator.name)}
-              className="basis-7/12"
-            />
-          </div>
-        </Card>
-      </div>
+
       <div className="overflow-x-auto mt-12">
         <table className="table">
           <thead>
@@ -134,6 +105,43 @@ export default function Models() {
             ))}
           </tbody>
         </table>
+
+        <PageTitle
+          title="Analysis"
+          subtitle="Here is some high level analysis of the models that HELM supports"
+        />
+        <div className="grid md:grid-cols-3 grid-cols-1 gap-8">
+          <Card className="flex flex-col justify-between">
+            <Text>Models</Text>
+            <Metric className="text-6xl md:!text-[96px]">
+              {models.length}
+            </Metric>
+            <CategoryBar
+              values={[open, limited, closed]}
+              colors={["green", "yellow", "red"]}
+            />
+            <Legend
+              categories={["Open", "Limited", "Closed"]}
+              colors={["green", "yellow", "red"]}
+            />
+          </Card>
+          <Card className="md:col-span-2">
+            <Text>Creator Organizations</Text>
+            <div className="flex justify-between mt-4">
+              <DonutChart
+                data={creators}
+                category="models"
+                index="name"
+                variant="pie"
+                className="basis-5/12"
+              />
+              <Legend
+                categories={creators.map((creator) => creator.name)}
+                className="basis-7/12"
+              />
+            </div>
+          </Card>
+        </div>
       </div>
     </>
   );

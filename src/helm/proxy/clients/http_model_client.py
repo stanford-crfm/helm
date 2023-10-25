@@ -24,7 +24,7 @@ class HTTPModelClient(CachingClient):
         tokenizer: Tokenizer,
         cache_config: CacheConfig,
         base_url: str = "http://localhost:8080",
-        timeout: int = 300,
+        timeout: int = 3000,
         do_cache: bool = False,
     ):
         super().__init__(cache_config=cache_config, tokenizer=tokenizer)

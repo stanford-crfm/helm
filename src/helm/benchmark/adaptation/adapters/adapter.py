@@ -4,7 +4,6 @@ from typing import List
 import numpy as np
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
@@ -30,13 +29,6 @@ class Adapter(ABC):
         """
         Takes a a list of `Instance`s and returns a `ScenarioState` with the
         list of corresponding `RequestState`s.
-        """
-        pass
-
-    @abstractmethod
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
-        """
-        Given a validation or test `Instance`, generates one or more `RequestState`s.
         """
         pass
 
