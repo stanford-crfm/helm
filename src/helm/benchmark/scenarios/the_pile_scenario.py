@@ -1,10 +1,9 @@
-# mypy: check_untyped_defs = False
 import os
 import json
 import csv
 import sys
 import requests
-from typing import List
+from typing import Dict, List
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
@@ -53,7 +52,7 @@ class ThePileScenario(Scenario):
     @htrack(None)
     def load_and_cache_all_subsets(self, output_path):
         data_path = os.path.join(output_path, "data")
-        subsets = {subset: [] for subset in self.pile_subsets}
+        subsets: Dict[str, List] = {subset: [] for subset in self.pile_subsets}
 
         # Load all data into memory
         with htrack_block("Loading"):

@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 from pathlib import Path
 
 from typing import List, Optional, Any
@@ -135,13 +134,14 @@ class LegalSummarizationScenario(Scenario):
 
     def _download_dataset(self, hf_name, output_path):
         cache_dir = str(Path(output_path) / "data")
+        dataset: Any
         if self.dataset_name == "EurLexSum":
             # IMPORTANT: change this once more languages should be supported
-            dataset: Any = load_dataset(hf_name, "english", cache_dir=cache_dir)
+            dataset = load_dataset(hf_name, "english", cache_dir=cache_dir)
         elif self.dataset_name == "MultiLexSum":
-            dataset: Any = load_dataset(hf_name, "v20220616", cache_dir=cache_dir)
+            dataset = load_dataset(hf_name, "v20220616", cache_dir=cache_dir)
         else:
-            dataset: Any = load_dataset(hf_name, cache_dir=cache_dir)
+            dataset = load_dataset(hf_name, cache_dir=cache_dir)
 
         return dataset
 

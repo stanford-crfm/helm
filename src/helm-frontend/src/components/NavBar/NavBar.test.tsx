@@ -11,6 +11,6 @@ test("displays nav bar", () => {
   );
 
   expect(screen.getByRole("navigation")).toHaveTextContent(
-    "ModelsScenariosLeaderboardRaw RunsModelsScenariosLeaderboardRaw Runs",
+    "ModelsScenariosResultsRaw RunsModelsScenariosResultsRaw Runs",
   );
 });

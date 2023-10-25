@@ -4,15 +4,10 @@ from typing import List, Dict, Any, Optional, Union
 import requests
 from retrying import retry
 
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-)
-from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
+from helm.common.cache import CacheConfig
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.proxy.tokenizers.tokenizer import Tokenizer
+from .client import CachingClient, truncate_sequence, cleanup_str
 
 
 MODEL_ALIASES: Dict[str, str] = {
@@ -142,7 +137,7 @@ class JobNotFinishedError(TogetherClientError):
     pass
 
 
-class TogetherClient(Client):
+class TogetherClient(CachingClient):
     """
     Client for the models where we evaluate offline. Since the queries are handled offline, the `TogetherClient` just
     checks if the request/result is cached. We return the result if it's in the cache. Otherwise, we return an error.
@@ -169,18 +164,18 @@ class TogetherClient(Client):
         }
         return _rewrite_raw_request_for_model_tags(raw_request, request.model_engine)
 
-    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, api_key: Optional[str] = None):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
         #       in credentials.conf, we rely on offline evaluation only.
         self.api_key: Optional[str] = api_key
-        self.cache = Cache(cache_config)
 
     def _get_job_url(self, job_id: str) -> str:
         return f"https://api.together.xyz/jobs/job/{job_id}"
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = TogetherClient.convert_to_raw_request(request)
-        cache_key: Dict = Client.make_cache_key(raw_request, request)
+        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
 
         if not self.api_key:
             raise TogetherClientError("togetherApiKey not set in credentials.conf")
@@ -330,9 +325,3 @@ class TogetherClient(Client):
                 completions=completions,
                 embedding=[],
             )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to decode.")
