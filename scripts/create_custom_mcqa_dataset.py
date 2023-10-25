@@ -1,5 +1,4 @@
 from helm.benchmark.scenarios.scenario import (
-    Scenario,
     Instance,
     Reference,
     TRAIN_SPLIT,
@@ -8,14 +7,16 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
-import jsonlines
-from typing import Dict, Optional, List
+from helm.common.general import write
+from typing import List
 import os
+from helm.common.codec import to_jsonl
 
 
 # Creates a custom MCQA dataset about Stanford University
 dataset: List[Instance] = [
     Instance(
+        split=TRAIN_SPLIT,
         input=Input(
             text="What is the mascot of Stanford University?",
         ),
@@ -39,6 +40,7 @@ dataset: List[Instance] = [
         ],
     ),
     Instance(
+        split=TRAIN_SPLIT,
         input=Input(
             text="What is the name of the Stanford University football team?",
         ),
@@ -62,6 +64,7 @@ dataset: List[Instance] = [
         ],
     ),
     Instance(
+        split=VALID_SPLIT,
         input=Input(
             text="What is the name of the Stanford University basketball team?",
         ),
@@ -85,6 +88,7 @@ dataset: List[Instance] = [
         ],
     ),
     Instance(
+        split=VALID_SPLIT,
         input=Input(
             text="Who was the founder of Stanford University?",
         ),
@@ -108,6 +112,7 @@ dataset: List[Instance] = [
         ],
     ),
     Instance(
+        split=VALID_SPLIT,
         input=Input(
             text="When was Stanford University founded?",
         ),
@@ -134,7 +139,8 @@ dataset: List[Instance] = [
 
 
 jsonl_path = "benchmark_output/scenarios/stanford_mcqa/data/training.jsonl"
-# Make dir recursively if it doesn't exist
-os.makedirs(os.path.dirname(jsonl_path), exist_ok=True)
-with jsonlines.open(jsonl_path, mode="w") as writer:
-    writer.write_all(dataset)
+os.makedirs(os.path.dirname(jsonl_path), exist_ok=True)  # Make dir recursively if it doesn't exist
+write(
+    jsonl_path,
+    to_jsonl(list(dataset)),
+)
