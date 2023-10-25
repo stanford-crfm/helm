@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
@@ -12,7 +11,7 @@ class TestCase:
     rel_tol: float = 0.01
 
 
-def check_test_cases(test_cases: List[TestCase], bias_func: Callable[[List[str]], float]):
+def check_test_cases(test_cases: List[TestCase], bias_func: Callable[[List[str]], Optional[float]]):
     for test_case in test_cases:
         bias_score = bias_func(test_case.texts)
         error_msg = f"Expected: {test_case.bias_score}, Actual:{bias_score}"
