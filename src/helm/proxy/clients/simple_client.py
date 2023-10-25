@@ -1,27 +1,17 @@
 from typing import List, Dict
 
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-    TokenizationToken,
-)
-from .client import Client, wrap_request_time
+from helm.common.cache import CacheConfig
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
+from helm.proxy.tokenizers.tokenizer import Tokenizer
+from .client import CachingClient
 
 
-class SimpleClient(Client):
+class SimpleClient(CachingClient):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
-    def __init__(self, cache_config: CacheConfig):
-        self.cache = Cache(cache_config)
-
-    @staticmethod
-    def tokenize_by_space(text: str) -> List[str]:
-        """Simply tokenizes by a single white space."""
-        return text.split(" ")
+    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {
@@ -35,7 +25,7 @@ class SimpleClient(Client):
             def do_it():
                 return self.invoke_model1(raw_request)
 
-            cache_key = Client.make_cache_key(raw_request, request)
+            cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             completions = [
                 Sequence(
@@ -57,18 +47,6 @@ class SimpleClient(Client):
             embedding=[],
         )
 
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        if request.tokenizer == "simple/model1":
-            raw_tokens: List[str] = SimpleClient.tokenize_by_space(request.text)
-            return TokenizationRequestResult(
-                success=True, cached=False, tokens=[TokenizationToken(text) for text in raw_tokens], text=request.text
-            )
-        else:
-            raise ValueError("Unknown model")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError
-
     def invoke_model1(self, raw_request: Dict) -> Dict:
         """
         Example: 7 2 4 6
@@ -77,7 +55,7 @@ class SimpleClient(Client):
         - 4
         - 2
         """
-        prompt_tokens: List[str] = SimpleClient.tokenize_by_space(raw_request["prompt"])
+        prompt_tokens: List[str] = SimpleTokenizer.tokenize_by_space(raw_request["prompt"])
         choices = reversed(prompt_tokens[-raw_request["n"] :])
         response = {"completions": dict((text, -i) for i, text in enumerate(choices))}
         return response

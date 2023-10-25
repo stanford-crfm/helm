@@ -2,9 +2,9 @@ from typing import List, Dict, Optional
 import base64
 import requests
 
-from helm.common.cache import CacheConfig
+from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -12,12 +12,11 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 
-from helm.proxy.clients.client import Client, wrap_request_time
-from helm.proxy.clients.together_client import TogetherClient
+from helm.proxy.clients.client import CachingClient, Client
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 
-class TogetherImageGenerationClient(TogetherClient):
+class TogetherImageGenerationClient(Client):
     """
     Client for image generation via the Together API.
     """
@@ -28,12 +27,17 @@ class TogetherImageGenerationClient(TogetherClient):
     DEFAULT_GUIDANCE_SCALE: float = 7.5
     DEFAULT_STEPS: int = 50
 
+    INFERENCE_ENDPOINT: str = "https://api.together.xyz/api/inference"
+
     def __init__(self, cache_config: CacheConfig, file_cache: FileCache, api_key: Optional[str] = None):
         super().__init__(cache_config, api_key)
+        self._cache = Cache(cache_config)
         self.file_cache: FileCache = file_cache
 
         self._promptist_model = None
         self._promptist_tokenizer = None
+
+        self.api_key: Optional[str] = api_key
 
     def make_request(self, request: Request) -> RequestResult:
         # Following https://docs.together.xyz/en/api
@@ -55,7 +59,7 @@ class TogetherImageGenerationClient(TogetherClient):
             raw_request["width"] = request.width
             raw_request["height"] = request.height
 
-        cache_key: Dict = Client.make_cache_key(raw_request, request)
+        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
 
         try:
 
@@ -69,7 +73,7 @@ class TogetherImageGenerationClient(TogetherClient):
                     choice.pop("image_base64", None)
                 return result["output"]
 
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            response, cached = self._cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:
             error: str = f"TogetherVisionClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])

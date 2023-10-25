@@ -8,14 +8,14 @@ from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.gpu_utils import get_torch_device_name, is_cuda_available
 from helm.common.hierarchical_logger import hlog, htrack_block
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.proxy.clients.client import Client, wrap_request_time
+from helm.proxy.clients.client import Client
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 

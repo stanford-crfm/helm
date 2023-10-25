@@ -6,14 +6,14 @@ import urllib.parse
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.images_utils import encode_base64
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
 )
-from helm.proxy.clients.client import Client, wrap_request_time
+from helm.proxy.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 
@@ -40,7 +40,7 @@ class LexicaClient(Client):
             "prompt": request.prompt,
             "n": request.num_completions,
         }
-        cache_key: Dict = Client.make_cache_key(raw_request, request)
+        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
 
         try:
 

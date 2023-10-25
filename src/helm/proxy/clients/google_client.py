@@ -1,17 +1,12 @@
 from typing import List, Dict
 
-from helm.common.cache import Cache, CacheConfig
+from helm.common.cache import CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-)
-from .client import Client, truncate_sequence
+from helm.proxy.tokenizers.tokenizer import Tokenizer
+from .client import CachingClient, truncate_sequence
 
 
-class GoogleClient(Client):
+class GoogleClient(CachingClient):
     """
     Client for the Google models. There isn't an API for their language models.
     We receive and process completions offline.
@@ -33,12 +28,12 @@ class GoogleClient(Client):
             "top_p": request.top_p,
         }
 
-    def __init__(self, cache_config: CacheConfig):
-        self.cache = Cache(cache_config)
+    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = GoogleClient.convert_to_raw_request(request)
-        cache_key: Dict = Client.make_cache_key(raw_request, request)
+        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
 
         try:
 
@@ -80,9 +75,3 @@ class GoogleClient(Client):
             completions=completions,
             embedding=[],
         )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to decode.")

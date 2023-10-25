@@ -1,26 +1,21 @@
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 import requests
 
-from dacite import from_dict
-
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    TokenizationToken,
-    TextRange,
-    DecodeRequest,
-    DecodeRequestResult,
+from helm.common.cache import CacheConfig
+from helm.common.request import (
+    wrap_request_time,
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
 )
-from .client import Client, wrap_request_time, truncate_sequence, cleanup_str
+from helm.proxy.tokenizers.tokenizer import Tokenizer
+from .client import CachingClient, truncate_sequence, cleanup_str
+from .ai21_utils import AI21RequestError, handle_failed_request
 
 
-class AI21RequestError(Exception):
-    pass
-
-
-class AI21Client(Client):
+class AI21Client(CachingClient):
     """
     AI21 Labs provides Jurassic models.
     https://studio.ai21.com/docs/api/
@@ -29,21 +24,9 @@ class AI21Client(Client):
     COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/{model}/complete"
     EXPERIMENTAL_COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/experimental/{model}/complete"
 
-    @staticmethod
-    def handle_failed_request(api_type: str, response: Dict):
-        error_message: str = f"AI21 {api_type} API error -"
-
-        # Error messages are returned via 'detail' or 'Error' in response
-        if "detail" in response:
-            error_message += f" Detail: {response['detail']}"
-        if "Error" in response:
-            error_message += f" Error: {response['Error']}"
-
-        raise AI21RequestError(error_message)
-
-    def __init__(self, api_key: str, cache_config: CacheConfig, url: Optional[str] = None):
+    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig, url: Optional[str] = None):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.api_key = api_key
-        self.cache = Cache(cache_config)
         self.url = url
 
     def make_request(self, request: Request) -> RequestResult:
@@ -78,13 +61,13 @@ class AI21Client(Client):
 
             # # If 'completions' is not present in the response, assume request failed.
             if "completions" not in response:
-                AI21Client.handle_failed_request(api_type="completion", response=response)
+                handle_failed_request(api_type="completion", response=response)
 
             return response
 
         try:
             # We need to include the engine's name to differentiate among requests made for different model engines
-            cache_key = Client.make_cache_key({"engine": request.model_engine, **raw_request}, request)
+            cache_key = CachingClient.make_cache_key({"engine": request.model_engine, **raw_request}, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except AI21RequestError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
@@ -150,40 +133,3 @@ class AI21Client(Client):
             completions=completions,
             embedding=[],
         )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """
-        Tokenizes the text by using the AI21 endpoint: https://api.ai21.com/studio/v1/tokenize.
-        """
-        raw_request: Dict[str, str] = {"text": request.text}
-
-        def do_it():
-            response = requests.post(
-                "https://api.ai21.com/studio/v1/tokenize",
-                headers={"Authorization": f"Bearer {self.api_key}"},
-                json=raw_request,
-            ).json()
-
-            # If 'tokens' is not present in the response, assume request failed.
-            if "tokens" not in response:
-                AI21Client.handle_failed_request(api_type="tokenizer", response=response)
-
-            return response
-
-        try:
-            response, cached = self.cache.get(raw_request, do_it)
-        except AI21RequestError:
-            return TokenizationRequestResult(success=False, cached=False, text="", tokens=[])
-
-        # Each token is represented like this in the response:
-        # {'token': '▁Hello', 'textRange': {'start': 0, 'end': 5}}
-        tokens: List[TokenizationToken] = []
-        for token_dict in response["tokens"]:
-            tokens.append(
-                TokenizationToken(value=token_dict["token"], text_range=from_dict(TextRange, token_dict["textRange"]))
-            )
-        text: str = response["text"]
-        return TokenizationRequestResult(success=True, cached=cached, tokens=tokens, text=text)
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Not supported")

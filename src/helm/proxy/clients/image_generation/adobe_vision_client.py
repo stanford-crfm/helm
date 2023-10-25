@@ -8,7 +8,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from helm.proxy.clients.client import Client
+from helm.proxy.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 
@@ -43,7 +43,7 @@ class AdobeVisionClient(Client):
 
         raw_request = AdobeVisionClient.convert_to_raw_request(request)
         raw_request.pop("random", None)
-        cache_key: Dict = Client.make_cache_key(raw_request, request)
+        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
 
         try:
 

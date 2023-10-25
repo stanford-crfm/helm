@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { MemoryRouter } from "react-router-dom";
-import Nav from "./Nav";
+import NavBar from "./NavBar";
 
-test("displays nav", () => {
+test("displays nav bar", () => {
   render(
     <MemoryRouter>
-      <Nav />
+      <NavBar />
     </MemoryRouter>,
   );
 

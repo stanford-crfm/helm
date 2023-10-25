@@ -3,11 +3,11 @@ import base64
 
 import openai
 
-from helm.common.cache import CacheConfig
+from helm.common.cache import CacheConfig, Cache
 from helm.common.general import hlog
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.media_object import MultimediaObject
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -15,12 +15,11 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.proxy.clients.moderation_api_client import ModerationAPIClient
-from helm.proxy.clients.client import Client, wrap_request_time
-from helm.proxy.clients.openai_client import OpenAIClient
+from helm.proxy.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 
-class DALLE2Client(OpenAIClient):
+class DALLE2Client(Client):
     MAX_PROMPT_LENGTH: int = 1000
     VALID_IMAGE_DIMENSIONS: List[int] = [256, 512, 1024]
     DEFAULT_IMAGE_SIZE_STR: str = "512x512"
@@ -51,9 +50,14 @@ class DALLE2Client(OpenAIClient):
         moderation_api_client: ModerationAPIClient,
         org_id: Optional[str] = None,
     ):
-        super().__init__(cache_config=cache_config, api_key=api_key, org_id=org_id)
         self.file_cache: FileCache = file_cache
+        self._cache = Cache(cache_config)
+
         self.moderation_api_client: ModerationAPIClient = moderation_api_client
+
+        self.org_id: Optional[str] = org_id
+        self.api_key: Optional[str] = api_key
+        self.api_base: str = "https://api.openai.com/v1"
 
     def make_request(self, request: Request) -> RequestResult:
         def get_content_policy_violated_result():
@@ -112,8 +116,8 @@ class DALLE2Client(OpenAIClient):
                     image.pop("b64_json", None)
                 return result
 
-            cache_key = Client.make_cache_key(raw_request, request)
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            cache_key = CachingClient.make_cache_key(raw_request, request)
+            response, cached = self._cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
             if (
                 str(e) in self.PROMPT_FLAGGED_ERROR

@@ -11,14 +11,14 @@ from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.general import get_helm_cache_path
 from helm.common.hierarchical_logger import hlog, htrack_block
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.proxy.clients.client import Client, wrap_request_time
+from helm.proxy.clients.client import Client, CachingClient
 from helm.proxy.clients.image_generation.cogview2.coglm_strategy import CoglmStrategy
 from helm.proxy.clients.image_generation.cogview2.sr_pipeline import SRGroup
 from helm.proxy.clients.image_generation.cogview2.coglm_utils import (
@@ -156,7 +156,7 @@ class CogView2Client(Client):
                     return result
 
             # Include the model name and number of completions in the cache key
-            cache_key: Dict = Client.make_cache_key(
+            cache_key: Dict = CachingClient.make_cache_key(
                 {"model": request.model_engine, "n": request.num_completions, **raw_request}, request
             )
             results, cached = self._cache.get(cache_key, wrap_request_time(do_it))
