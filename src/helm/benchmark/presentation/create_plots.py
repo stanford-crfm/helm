@@ -21,7 +21,7 @@ try:
     import matplotlib.pyplot as plt
     import seaborn as sns
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["plots"])
 
 
 sns.set_style("whitegrid")
