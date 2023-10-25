@@ -8,6 +8,7 @@ from helm.common.general import parse_hocon
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.proxy.clients.anthropic_client import AnthropicLegacyClient
 from helm.proxy.retry import get_retry_decorator
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 """
@@ -47,7 +48,9 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
         api_key: str = credentials["anthropicApiKey"]
 
     cache_config = MongoCacheConfig(mongo_uri, collection_name="anthropic")
-    client = AnthropicLegacyClient(api_key, cache_config)
+    client = AnthropicLegacyClient(
+        api_key=api_key, tokenizer=HuggingFaceTokenizer(cache_config), cache_config=cache_config
+    )
 
     with create_key_value_store(cache_config) as cache:
         for i, (request, response) in enumerate(cache.get_all()):

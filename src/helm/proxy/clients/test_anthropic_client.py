@@ -10,6 +10,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
+from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
 from .anthropic_client import AnthropicClient
 
 
@@ -21,7 +22,10 @@ class TestAnthropicClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.client = AnthropicClient(SqliteCacheConfig(self.cache_path))
+        self.client = AnthropicClient(
+            tokenizer=AnthropicTokenizer(SqliteCacheConfig(self.cache_path)),
+            cache_config=SqliteCacheConfig(self.cache_path),
+        )
 
     def teardown_method(self, method):
         os.remove(self.cache_path)

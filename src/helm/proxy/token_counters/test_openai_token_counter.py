@@ -5,11 +5,11 @@ from typing import List
 from helm.common.cache import SqliteCacheConfig
 from helm.common.request import Request, Sequence, Token
 from helm.proxy.clients.huggingface_client import HuggingFaceClient
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from .openai_token_counter import OpenAITokenCounter
 
 
 class TestOpenAITokenCounter:
-
     # The following prompt has 51 tokens according to the GPT-2 tokenizer
     TEST_PROMPT: str = (
         "The Center for Research on Foundation Models (CRFM) is "
@@ -21,7 +21,12 @@ class TestOpenAITokenCounter:
 
     def setup_method(self, method):
         self.cache_path: str = tempfile.NamedTemporaryFile(delete=False).name
-        self.token_counter = OpenAITokenCounter(HuggingFaceClient(SqliteCacheConfig(self.cache_path)))
+        self.token_counter = OpenAITokenCounter(
+            HuggingFaceClient(
+                tokenizer=HuggingFaceTokenizer(cache_config=SqliteCacheConfig(self.cache_path)),
+                cache_config=SqliteCacheConfig(self.cache_path),
+            )
+        )
 
     def teardown_method(self, method):
         os.remove(self.cache_path)
