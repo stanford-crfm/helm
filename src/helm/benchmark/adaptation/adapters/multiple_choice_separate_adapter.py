@@ -13,22 +13,31 @@ class MultipleChoiceSeparateAdapter(InContextLearningAdapter):
     the sentence probability normalized by the sentence length.
     """
 
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+    def generate_requests(
+        self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]
+    ) -> List[RequestState]:
         request_states: List[RequestState] = []
 
         for reference_index, reference in enumerate(eval_instance.references):
             prompt = self.construct_prompt(
-                self.train_instances,
+                training_instances,
                 eval_instance,
                 include_output=True,
                 reference_index=reference_index,
             )
-            request_states.append(self.construct_request_state(prompt, reference_index, eval_instance))
+            request_states.append(
+                self.construct_request_state(prompt, reference_index, eval_instance, train_trial_index)
+            )
 
         return request_states
 
     def construct_request_state(
-        self, prompt: Prompt, reference_index: int, eval_instance: Instance, request_mode: str = "original"
+        self,
+        prompt: Prompt,
+        reference_index: int,
+        eval_instance: Instance,
+        train_trial_index: int,
+        request_mode: str = "original",
     ) -> RequestState:
         request = Request(
             model=self.adapter_spec.model,
@@ -43,7 +52,7 @@ class MultipleChoiceSeparateAdapter(InContextLearningAdapter):
             instance=eval_instance,
             reference_index=reference_index,
             request_mode=request_mode,
-            train_trial_index=self.train_trial_index,
+            train_trial_index=train_trial_index,
             output_mapping=None,
             request=request,
             result=None,

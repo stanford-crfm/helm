@@ -13,18 +13,22 @@ class MultipleChoiceCalibratedAdapter(MultipleChoiceSeparateAdapter):
     For more details, refer to Section 2.4 of the GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf).
     """
 
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+    def generate_requests(
+        self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]
+    ) -> List[RequestState]:
         request_states: List[RequestState] = []
 
         for reference_index, reference in enumerate(eval_instance.references):
             # original
             prompt = self.construct_prompt(
-                self.train_instances,
+                training_instances,
                 eval_instance,
                 include_output=True,
                 reference_index=reference_index,
             )
-            request_states.append(self.construct_request_state(prompt, reference_index, eval_instance))
+            request_states.append(
+                self.construct_request_state(prompt, reference_index, eval_instance, train_trial_index)
+            )
 
             # calibration
             # Compute the logprobs of the reference without train instances and the input question.
@@ -35,7 +39,9 @@ class MultipleChoiceCalibratedAdapter(MultipleChoiceSeparateAdapter):
                 reference_index=reference_index,
             )
             request_states.append(
-                self.construct_request_state(prompt, reference_index, eval_instance, request_mode="calibration")
+                self.construct_request_state(
+                    prompt, reference_index, eval_instance, train_trial_index, request_mode="calibration"
+                )
             )
 
         return request_states

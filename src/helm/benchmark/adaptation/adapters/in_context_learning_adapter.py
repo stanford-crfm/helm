@@ -21,7 +21,9 @@ class InContextLearningAdapter(Adapter, ABC):
     """
 
     @abstractmethod
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+    def generate_requests(
+        self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]
+    ) -> List[RequestState]:
         """
         Given a validation or test `Instance`, generates one or more `RequestState`s.
         """
@@ -71,15 +73,18 @@ class InContextLearningAdapter(Adapter, ABC):
         eval_instances: List[Instance],
         parallelism: int,
     ) -> List[RequestState]:
-        self.train_trial_index: int = train_trial_index
-        self.train_instances: List[Instance] = self.sample_examples(
+        training_instances: List[Instance] = self.sample_examples(
             all_train_instances, seed=train_trial_index, sample_train=self.adapter_spec.sample_train
         )
-        hlog(f"Sampled {len(self.train_instances)} examples for trial #{self.train_trial_index}.")
+        hlog(f"Sampled {len(training_instances)} examples for trial #{train_trial_index}.")
+
+        def generate_requests_for_training_trial(eval_instance: Instance):
+            """Bind some local variables before parallelizing."""
+            return self.generate_requests(eval_instance, train_trial_index, training_instances)
 
         # Generate request_states
         results: List[List[RequestState]] = parallel_map(
-            self.generate_requests,
+            generate_requests_for_training_trial,
             eval_instances,
             parallelism=parallelism,
         )
