@@ -199,7 +199,7 @@ def get_model_metadata(model_name: str) -> ModelMetadata:
     from toolbox.printing import debug
 
     debug(model_name, visible=True)
-    debug(MODEL_NAME_TO_MODEL_METADATA, visible=True)  # TODO(PR): Remove this
+    # debug(MODEL_NAME_TO_MODEL_METADATA, visible=True)  # TODO(PR): Remove this
     if model_name not in MODEL_NAME_TO_MODEL_METADATA:
         raise ValueError(f"No model with name: {model_name}")
 

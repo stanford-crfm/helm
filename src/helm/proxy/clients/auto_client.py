@@ -68,9 +68,9 @@ class AutoClient(Client):
         client: Optional[Client] = self.clients.get(model)
 
         if client is None:
-            organization: str = model.split("/")[0]
-            cache_config: CacheConfig = self._build_cache_config(organization)
-            tokenizer: Tokenizer = self._get_tokenizer(organization)
+            host_group: str = model.split("/")[0]
+            cache_config: CacheConfig = self._build_cache_config(host_group)
+            tokenizer: Tokenizer = self._get_tokenizer(host_group)
 
             # TODO: Migrate all clients to use model deployments
             # TODO(PR): Remove the TODO above.

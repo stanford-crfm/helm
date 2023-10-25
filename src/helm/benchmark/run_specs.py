@@ -47,7 +47,11 @@ from .scenarios.lextreme_scenario import (
     TaskType,
     get_lextreme_task_type,
 )
-from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
+from helm.benchmark.model_deployment_registry import (
+    ModelDeployment,
+    get_model_deployment,
+    get_default_deployment_for_model,
+)
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
     get_model_metadata,
@@ -2506,6 +2510,15 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     if name not in CANONICAL_RUN_SPEC_FUNCS:
         raise ValueError(f"Unknown run spec name: {name}")
 
+    # If a model was provided, find the a model deployment that matches the model name
+    if "model" in args:
+        model_metadata: ModelMetadata = get_model_metadata(args["model"])
+        model_deployment: ModelDeployment = get_default_deployment_for_model(model_metadata)
+        args["model_deployment"] = model_deployment.name
+        del args["model"]
+
+    print("ARGS before", args)
+
     # Peel off the run expanders (e.g., model)
     expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
@@ -2513,6 +2526,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     # Get the canonical run specs
     print("EXPANDERS", expanders)
     print("ARGS", args)
+
     run_specs = [CANONICAL_RUN_SPEC_FUNCS[name](**args)]
     print("RUN SPECS", run_specs)
 
