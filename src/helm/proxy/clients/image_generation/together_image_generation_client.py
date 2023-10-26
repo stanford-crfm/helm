@@ -49,7 +49,9 @@ class TogetherImageGenerationClient(Client):
             "guidance_scale": request.image_generation_guidance_scale
             if request.image_generation_guidance_scale is not None
             else self.DEFAULT_GUIDANCE_SCALE,
-            "steps": request.image_generation_diffusion_denoising_steps if request.image_generation_diffusion_denoising_steps is not None else self.DEFAULT_STEPS,
+            "steps": request.image_generation_diffusion_denoising_steps
+            if request.image_generation_diffusion_denoising_steps is not None
+            else self.DEFAULT_STEPS,
         }
 
         if request.image_generation_width is None or request.image_generation_height is None:
