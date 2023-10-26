@@ -21,6 +21,7 @@ To get started, refer to [the documentation on Read the Docs](https://crfm-helm.
 
 The directory structure for this repo is as follows
 
+```
 ├── docs # MD used to generate readthedocs
 │
 ├── scripts # Python utility scripts for HELM
@@ -47,3 +48,4 @@ The directory structure for this repo is as follows
 │ └── proxy # Python code for external web requests
 │
 └── helm-frontend # New React Front-end
+```
