@@ -42,7 +42,6 @@ def register_tokenizer_config(tokenizer_config: TokenizerConfig) -> None:
 
 
 def register_tokenizer_configs_from_path(path: str) -> None:
-    global _name_to_tokenizer_config
     hlog(f"Reading tokenizer configs from {path}...")
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
