@@ -28,17 +28,24 @@ class Perturbation(ABC):
         # If seed exists, use it as part of the random seed
         return Random(instance.id if seed is None else str(seed) + instance.id)
 
+    @abstractmethod
+    def apply(self, instance: Instance, seed: Optional[int] = None) -> Instance:
+        """Generate a modified instance from the input instance."""
+        pass
+
+
+class TextPerturbation(Perturbation, ABC):
     def apply(self, instance: Instance, seed: Optional[int] = None) -> Instance:
         """
-        Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
-        if should_perturb_references is true. Initializes a random number generator based on instance_id that gets
-        passed to perturb and perturb_references.
+        Generates a new Instance by applying `perturb` to the input and (if requested) the references.
+        Initializes a random number generator based on instance_id that gets
+        passed to perturb.
         """
         rng: Random = self.get_rng(instance, seed)
 
         references: List[Reference] = instance.references
         if self.should_perturb_references:
-            references = [self.perturb_reference(reference, rng) for reference in references]
+            references = [self._perturb_reference(reference, rng) for reference in references]
 
         description = replace(self.description, seed=seed)
 
@@ -51,7 +58,7 @@ class Perturbation(ABC):
             perturbation=description,
         )
 
-    def perturb_reference(self, reference: Reference, rng: Random) -> Reference:
+    def _perturb_reference(self, reference: Reference, rng: Random) -> Reference:
         """Generates a new Reference by perturbing the output and tagging the Reference."""
         return replace(reference, output=Output(text=self.perturb(reference.output.text, rng)), tags=reference.tags)
 
