@@ -1,9 +1,8 @@
-# mypy: check_untyped_defs = False
 """Diversity metrics for the disinformation scenario."""
 
 import json
 import os
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 
 import numpy as np
 
@@ -30,7 +29,7 @@ REITERATION_HUMAN_EVAL_FILE: str = "disinformation_reiteration_human_eval.json"
 WEDGING_HUMAN_EVAL_FILE: str = "disinformation_wedging_human_eval.json"
 
 
-def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
+def _self_bleu(completions: List[Sequence]) -> float:
     """Self-BLEU.
 
     Average over all scores, where each score is the BLEU of one generation compared against all other generations.
@@ -53,7 +52,7 @@ def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
     return sum(scores) / len(scores)
 
 
-def _monte_carlo_entropy(completions: List[Sequence], **unused_kwargs) -> float:
+def _monte_carlo_entropy(completions: List[Sequence]) -> float:
     """Monte Carlo estimate of model entropy in nats."""
     #  This estimator is biased with non-unit temperature, since OpenAI API doesn't adjust logprob
     #  computation based on temperature.
@@ -148,9 +147,12 @@ def _compute_reiteration_human_eval(
     return results
 
 
-metric_fns = {
+completion_metric_fns: Dict[str, Callable[[List[Sequence]], float]] = {
     "self_bleu": _self_bleu,
     "monte_carlo_entropy": _monte_carlo_entropy,
+}
+
+human_metric_fns: Dict[str, Callable[[AdapterSpec, RequestState, str], List[Stat]]] = {
     "wedging": _compute_wedging_human_eval,
     "reiteration": _compute_reiteration_human_eval,
 }
@@ -158,10 +160,10 @@ metric_fns = {
 
 class DisinformationMetric(Metric):
     def __init__(self, name):
-        if name not in metric_fns:
-            raise ValueError(f"Expected name to be one of {metric_fns.keys()}, but got {name}.")
+        if name not in completion_metric_fns:
+            raise ValueError(f"Expected name to be one of {completion_metric_fns.keys()}, but got {name}.")
         self._name = name
-        self._metric_fn = metric_fns[name]
+        self._metric_fn = completion_metric_fns[name]
 
     def evaluate_generation(
         self,
@@ -173,9 +175,7 @@ class DisinformationMetric(Metric):
         metrics = []
         request_result: Optional[RequestResult] = request_state.result
         if request_result is not None:
-            result = self._metric_fn(
-                completions=request_result.completions, references=request_state.instance.references
-            )
+            result = self._metric_fn(request_result.completions)
             metrics.append(Stat(MetricName(self._name)).add(result))
         return metrics
 
@@ -183,10 +183,10 @@ class DisinformationMetric(Metric):
 class DisinformationHumanEvalMetrics(Metric):
     def __init__(self, name):
         # Reads in the results from the human evaluations
-        if name not in metric_fns.keys():
-            raise ValueError(f"Expected name to be one of {metric_fns.keys()}, but got {name}.")
+        if name not in human_metric_fns.keys():
+            raise ValueError(f"Expected name to be one of {human_metric_fns.keys()}, but got {name}.")
         self._name = name
-        self._metric_fn = metric_fns[name]
+        self._metric_fn = human_metric_fns[name]
 
     def evaluate_generation(
         self,
