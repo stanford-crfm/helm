@@ -57,7 +57,7 @@ class SummarizationMetric(Metric):
         try:
             from summ_eval.data_stats_metric import DataStatsMetric
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["metrics"])
 
         self.data_stats_metric = DataStatsMetric()
         self.task: str = task

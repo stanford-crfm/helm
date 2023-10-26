@@ -2554,7 +2554,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
                 import anthropic
                 from helm.proxy.clients.anthropic_client import AnthropicClient
             except ModuleNotFoundError as e:
-                handle_module_not_found_error(e)
+                handle_module_not_found_error(e, ["anthropic"])
             claude_run_expanders: List[RunExpander] = []
             claude_run_expanders.append(AddToStopRunExpander(anthropic.HUMAN_PROMPT))
             if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags:

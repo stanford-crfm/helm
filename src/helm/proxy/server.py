@@ -29,7 +29,7 @@ from .query import Query
 try:
     import gunicorn  # noqa
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["server"])
 
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024

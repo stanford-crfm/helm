@@ -6,7 +6,7 @@ from .caching_tokenizer import CachingTokenizer
 try:
     import tiktoken
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["openai"])
 
 
 class TiktokenTokenizer(CachingTokenizer):

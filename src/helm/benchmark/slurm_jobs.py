@@ -7,7 +7,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 try:
     from simple_slurm import Slurm
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["slurm"])
 
 
 class SlurmJobState:
