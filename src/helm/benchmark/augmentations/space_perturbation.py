@@ -2,11 +2,11 @@ from dataclasses import dataclass
 from random import Random
 import re
 
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 from .perturbation_description import PerturbationDescription
 
 
-class SpacePerturbation(Perturbation):
+class SpacePerturbation(TextPerturbation):
     """
     A simple perturbation that replaces existing spaces with 0-max_spaces spaces (thus potentially merging words).
     """

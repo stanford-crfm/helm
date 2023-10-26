@@ -10,13 +10,13 @@ from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from .perturbation import Perturbation, TextPerturbation
 
 
 ############################################################
 
 
-class ChineseTyposPerturbation(Perturbation):
+class ChineseTyposPerturbation(TextPerturbation):
     """
     Chinese typos. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/tree/main/nlaugmenter/transformations/chinese_butter_fingers_perturbation
@@ -271,7 +271,7 @@ class ChineseTyposPerturbation(Perturbation):
         return chars_with_similar_pinyin
 
 
-class ChineseSynonymPerturbation(Perturbation):
+class ChineseSynonymPerturbation(TextPerturbation):
     """
     Chinese synonyms. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/blob/main/nlaugmenter/transformations/chinese_antonym_synonym_substitution
@@ -340,7 +340,7 @@ class ChineseSynonymPerturbation(Perturbation):
         return sample_list[index]
 
 
-class CLEVAMildMixPerturbation(Perturbation):
+class CLEVAMildMixPerturbation(TextPerturbation):
     """
     CLEVA robustness perturbation that composes several perturbations.
     """
@@ -370,7 +370,7 @@ class CLEVAMildMixPerturbation(Perturbation):
 ############################################################
 
 
-class ChineseGenderPerturbation(Perturbation):
+class ChineseGenderPerturbation(TextPerturbation):
     """Individual fairness perturbation for Chinese gender terms and pronouns."""
 
     name: str = "chinese_gender"
@@ -601,13 +601,6 @@ class ChinesePersonNamePerturbation(Perturbation):
         name = rng.choice(list(options))
         return name
 
-    def perturb(self, text: str, rng: Random) -> str:
-        """
-        Perturbing the text is handled in `perturb_with_persistency` to ensure that perturbed names
-        in `Instance`s and `Reference`s match.
-        """
-        raise NotImplementedError("Should never be called")
-
     def perturb_with_persistency(
         self, text: str, rng: Random, name_substitution_mapping: Dict[str, str], skipped_tokens: Set[str]
     ) -> str:
@@ -686,7 +679,7 @@ class ChinesePersonNamePerturbation(Perturbation):
         return tokens, tags
 
 
-class SimplifiedToTraditionalPerturbation(Perturbation):
+class SimplifiedToTraditionalPerturbation(TextPerturbation):
     """Individual fairness perturbation for Chinese simplified to Chinese traditional."""
 
     name: str = "simplified_to_traditional"
@@ -713,7 +706,7 @@ class SimplifiedToTraditionalPerturbation(Perturbation):
         return perturbed_text
 
 
-class MandarinToCantonesePerturbation(Perturbation):
+class MandarinToCantonesePerturbation(TextPerturbation):
     """
     Individual fairness perturbation for Mandarin to Cantonese translation.
     The implementation is inspired by https://justyy.com/tools/chinese-converter/
