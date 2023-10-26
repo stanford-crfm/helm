@@ -46,18 +46,18 @@ class TogetherImageGenerationClient(Client):
             "model": request.model_engine,
             "prompt": request.prompt,
             "n": request.num_completions,
-            "guidance_scale": request.guidance_scale
-            if request.guidance_scale is not None
+            "guidance_scale": request.image_generation_guidance_scale
+            if request.image_generation_guidance_scale is not None
             else self.DEFAULT_GUIDANCE_SCALE,
-            "steps": request.steps if request.steps is not None else self.DEFAULT_STEPS,
+            "steps": request.image_generation_diffusion_denoising_steps if request.image_generation_diffusion_denoising_steps is not None else self.DEFAULT_STEPS,
         }
 
-        if request.width is None or request.height is None:
+        if request.image_generation_width is None or request.image_generation_height is None:
             raw_request["width"] = self.DEFAULT_IMAGE_WIDTH
             raw_request["height"] = self.DEFAULT_IMAGE_HEIGHT
         else:
-            raw_request["width"] = request.width
-            raw_request["height"] = request.height
+            raw_request["width"] = request.image_generation_width
+            raw_request["height"] = request.image_generation_height
 
         cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
 

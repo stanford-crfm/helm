@@ -97,7 +97,7 @@ class DALLE2Client(Client):
         raw_request: Dict[str, Any] = {
             "prompt": request.prompt,
             "n": request.num_completions,
-            "size": get_size_str(request.width, request.height),
+            "size": get_size_str(request.image_generation_width, request.image_generation_height),
             "response_format": "b64_json",  # Always set to b64_json as URLs are only valid for an hour
         }
 

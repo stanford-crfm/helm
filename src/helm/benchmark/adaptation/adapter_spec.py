@@ -97,18 +97,18 @@ class AdapterSpec:
 
     # HEIM (text-to-image model evaluation) adapter specs:
     # The width of the image. Generates images with the default size when unspecified.
-    width: Optional[int] = None
+    image_generation_width: Optional[int] = None
 
     # The height of the image. Generates images with the default size when unspecified.
-    height: Optional[int] = None
+    image_generation_height: Optional[int] = None
 
     # How much importance is given to your prompt when generating images:
     # 0 -> completely random image
     # Lower values -> creative images
     # Higher values -> image that follows prompt more precisely
     # Not setting a value will use the model's default.
-    guidance_scale: Optional[float] = None
+    image_generation_guidance_scale: Optional[float] = None
 
     # The number of denoising steps for diffusion models.
     # Not setting a value will use the model's default.
-    steps: Optional[int] = None
+    image_generation_diffusion_denoising_steps: Optional[int] = None

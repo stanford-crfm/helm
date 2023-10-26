@@ -29,10 +29,10 @@ def get_image_generation_adapter_spec(
         max_train_instances=0,
         num_outputs=num_outputs,
         max_tokens=0,
-        width=image_width,
-        height=image_height,
-        guidance_scale=guidance_scale,
-        steps=steps,
+        image_generation_width=image_width,
+        image_generation_height=image_height,
+        image_generation_guidance_scale=guidance_scale,
+        image_generation_diffusion_denoising_steps=steps,
         random=random,
     )
 

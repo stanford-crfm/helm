@@ -81,14 +81,14 @@ class HuggingFaceDiffusersClient(Client):
             # Fix it to 1 and generate an image `request.num_completions` times
             "num_images_per_prompt": 1,
         }
-        if request.guidance_scale is not None:
-            raw_request["guidance_scale"] = request.guidance_scale
-        if request.steps is not None:
-            raw_request["num_inference_steps"] = request.steps
-        if request.width is not None:
-            raw_request["width"] = request.width
-        if request.height is not None:
-            raw_request["height"] = request.height
+        if request.image_generation_guidance_scale is not None:
+            raw_request["guidance_scale"] = request.image_generation_guidance_scale
+        if request.image_generation_diffusion_denoising_steps is not None:
+            raw_request["num_inference_steps"] = request.image_generation_diffusion_denoising_steps
+        if request.image_generation_width is not None:
+            raw_request["width"] = request.image_generation_width
+        if request.image_generation_height is not None:
+            raw_request["height"] = request.image_generation_height
 
         # Add the additional pre-configured parameters for Safe Stable Diffusion
         if request.model_engine == "stable-diffusion-safe-weak":

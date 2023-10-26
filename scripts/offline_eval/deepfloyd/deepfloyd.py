@@ -10,21 +10,21 @@ import time
 from diffusers import DiffusionPipeline
 import torch
 
-from src.helm.common.cache import (
+from helm.common.cache import (
     KeyValueStore,
     KeyValueStoreCacheConfig,
     MongoCacheConfig,
     SqliteCacheConfig,
     create_key_value_store,
 )
-from src.helm.common.request import Request
-from src.helm.common.file_caches.local_file_cache import LocalFileCache
-from src.helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.request import Request
+from helm.common.file_caches.local_file_cache import LocalFileCache
+from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.proxy.clients.image_generation.deep_floyd_client import DeepFloydClient
 
 
 """
-Script to run offline evaluation for the DeepFloyd-IF models.
+Script to run inference for the DeepFloyd-IF models given a dry run benchmark output folder of requests.
 
 From https://huggingface.co/docs/diffusers/main/en/api/pipelines/if#text-to-image-generation
 
@@ -41,9 +41,20 @@ efficient model that outperforms current state-of-the-art models, achieving a ze
 COCO dataset. Our work underscores the potential of larger UNet architectures in the first stage of cascaded
 diffusion models and depicts a promising future for text-to-image synthesis.
 
-To install dependencies:
+The following dependencies need to be installed in order to run inference with DeepFloyd models:
 
-    pip install "crfm-helm[deep_floyd]"
+    accelerate~=0.19.0
+    dacite~=1.6.0
+    diffusers[torch]~=0.16.1
+    pyhocon~=0.3.59
+    pymongo~=4.2.0
+    retrying~=1.3.3
+    safetensors~=0.3.1
+    sentencepiece~=0.1.97
+    sqlitedict~=1.7.0
+    tqdm~=4.64.1
+    transformers~=4.29.2
+    zstandard~=0.18.0
 
 Example usage (after a dryrun with run suite deepfloyd):
 
