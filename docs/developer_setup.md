@@ -57,7 +57,7 @@ The recommended way to execute `helm-run`, `helm-summarize`, `helm-server`, etc,
 
 1. Activate your virtual environment.
 1. Change directory to the repository root (contains setup.cfg).
-1. Make sure you don't have an existing helm installation for that environmnt with `pip uninstall crfm-helm`
+1. Make sure you don't have an existing helm installation for that environment with `pip uninstall crfm-helm`
 1. Run `pip install -e .`
 
 Now calling `helm-run` while the environment is activated will read from your local source.
@@ -66,10 +66,26 @@ Now calling `helm-run` while the environment is activated will read from your lo
 
 If you have a compelling reason not to do an editable install, you can execute commands by:
 
-1. Change directory `src`
+1. Change directory to `src`
 1. Execute the module you want with a command like: `python -m helm.benchmark.run`
 
-## Run linter and type-checker
+## Checking in code
+
+The HELM repository does not allow direct modifications of the main branch. Instead, developers a Pull Request which must then be approved by a different person before merging into main. Here is an example workflow:
+
+1. `git checkout main` to start from the main branch.
+1. `git pull origin main` to get up to date.
+1. Make whatever changes you'll like to group into a single review.
+1. Run tests.
+1. Make a new branch with `git checkout -b <your-handle>/<change-identifier`. For example, `yifanmai/fix-optional-suggestions`.
+1. If you did NOT install the precommit, run the linter and type checker with `./pre-commit.sh`
+1. `git commit -a` to commit all you changes. If you want to ignore precommit warnings,  you can add `--no-verify`.
+1. `git push origin <your-handle>/<change-identifier>` to upload to github.
+1. Loading any HELM github page should now prompt you about creating a new pull request. If not, you can also find your branch on [the branches page](https://github.com/stanford-crfm/helm/branches) to create one.
+1. Update the title and description as necessary, then create the pull request.
+1. Once the reviewer is satisfied, they can approve and either of you can then `Squash and Merge` the branch into main.
+
+### Run linter and type-checker
 
 To run the linter and type-checker:
 
