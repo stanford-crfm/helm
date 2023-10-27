@@ -71,7 +71,7 @@ If you have a compelling reason not to do an editable install, you can execute c
 
 ## Checking in code
 
-The HELM repository does not allow direct modifications of the main branch. Instead, developers a Pull Request which must then be approved by a different person before merging into main. Here is an example workflow:
+The HELM repository does not allow direct modifications of the main branch. Instead, developers create a Pull Request which must then be approved by a different person before merging into main. Here is an example workflow:
 
 1. `git checkout main` to start from the main branch.
 1. `git pull origin main` to get up to date.
@@ -84,11 +84,3 @@ The HELM repository does not allow direct modifications of the main branch. Inst
 1. Loading any HELM github page should now prompt you about creating a new pull request. If not, you can also find your branch on [the branches page](https://github.com/stanford-crfm/helm/branches) to create one.
 1. Update the title and description as necessary, then create the pull request.
 1. Once the reviewer is satisfied, they can approve and either of you can then `Squash and Merge` the branch into main.
-
-### Run linter and type-checker
-
-To run the linter and type-checker:
-
-    ./pre-commit.sh
-
-If you previously installed the Git commit hooks using `pre-commit install`, then the linter and type-checker will be run whenever you run `git commit`. To skip running the linter and type checker when making a commit, use the `--no-verify` flag with `git commit`.
