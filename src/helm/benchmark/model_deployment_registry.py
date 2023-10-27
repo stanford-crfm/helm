@@ -16,6 +16,8 @@ from helm.benchmark.model_metadata_registry import (
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 
+from toolbox.printing import print_visible, debug  # TODO(PR): Remove this
+
 
 MODEL_DEPLOYMENTS_FILE = "model_deployments.yaml"
 
@@ -85,18 +87,18 @@ class ModelDeployments:
 
 
 ALL_MODEL_DEPLOYMENTS: List[ModelDeployment] = [
-    ModelDeployment(
-        name="anthropic/claude-v1.3",
-        tokenizer_name="anthropic/claude",
-        client_spec=ClientSpec(
-            class_name="helm.proxy.clients.anthropic_client.AnthropicClient",
-            args={},  # api_key should be auto-filled
-        ),
-        window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService",
-            args={},  # No args
-        ),
-    ),
+    # ModelDeployment(
+    #     name="anthropic/claude-v1.3",
+    #     tokenizer_name="anthropic/claude",
+    #     client_spec=ClientSpec(
+    #         class_name="helm.proxy.clients.anthropic_client.AnthropicClient",
+    #         args={},  # api_key should be auto-filled
+    #     ),
+    #     window_service_spec=WindowServiceSpec(
+    #         class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService",
+    #         args={},  # No args
+    #     ),
+    # ),
 ]
 
 DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT: Dict[str, ModelDeployment] = {
@@ -110,6 +112,8 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
     DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_deployment.name] = model_deployment
 
     model_name: str = model_deployment.model_name or model_deployment.name
+    print_visible("register_model_deployment")
+    debug(model_name, visible=True)
 
     try:
         model_metadata: ModelMetadata = get_model_metadata(model_name)
@@ -126,7 +130,6 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
             display_name=model_name,
             description="",
             access="limited",
-            todo=True,
             num_parameters=-1,
             release_date="unknown",
             tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
@@ -139,15 +142,18 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
 
 def register_model_deployments_from_path(path: str) -> None:
     hlog(f"Reading model deployments from {path}...")
+    print_visible("register_model_deployments_from_path")
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
     model_deployments: ModelDeployments = cattrs.structure(raw, ModelDeployments)
     for model_deployment in model_deployments.model_deployments:
+        debug(model_deployment, visible=True)
         register_model_deployment(model_deployment)
 
 
 def maybe_register_model_deployments_from_base_path(base_path: str) -> None:
     """Register model deployments from prod_env/model_deployments.yaml"""
+    print_visible("maybe_register_model_deployments_from_base_path")
     path = os.path.join(base_path, MODEL_DEPLOYMENTS_FILE)
     if os.path.exists(path):
         register_model_deployments_from_path(path)

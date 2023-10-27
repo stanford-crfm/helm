@@ -1,0 +1,34 @@
+# Convert this to a yaml definition file
+# ModelMetadata(
+#         name="anthropic/claude-v1.3",
+#         display_name="Anthropic Claude v1.3",
+#         description="A 52B parameter language model, trained using reinforcement learning from human feedback "
+#         "[paper](https://arxiv.org/pdf/2204.05862.pdf).",
+#         access="limited",
+#         num_parameters=52000000000,
+#         release_date="2023-03-17",
+#         tags=[
+#             ANTHROPIC_CLAUDE_1_MODEL_TAG,
+#             TEXT_MODEL_TAG,
+#             LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+#             GPT2_TOKENIZER_TAG,
+#             ABLATION_MODEL_TAG,
+#             INSTRUCTION_FOLLOWING_MODEL_TAG,
+#         ],
+#     )
+
+
+models:
+  - name: "anthropic/claude-v1.3"
+    display_name: "Anthropic Claude v1.3"
+    description: "A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf)."
+    access: "limited"
+    num_parameters: 52000000000
+    release_date: "2023-03-17"
+    tags:
+      - claude_1
+      - text
+      - limited_functionality_text
+      - gpt2_tokenizer
+      - ablation
+      - instruction_following

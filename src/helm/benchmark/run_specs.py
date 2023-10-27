@@ -2546,6 +2546,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             model_name: str = deployment.model_name or deployment.name
             model: ModelMetadata = get_model_metadata(model_name)
             debug(model, visible=True)
+            debug(model.tags, visible=True)
+            debug(ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags, visible=True)
         except ValueError as e:
             print_visible("EXCEPTION")  # TODO(PR): Remove
             print_visible("Error: " + str(e))  # TODO(PR): Remove

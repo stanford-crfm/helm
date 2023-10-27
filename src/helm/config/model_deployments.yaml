@@ -1,0 +1,23 @@
+# Convert this to a yaml definition file
+# ModelDeployment(
+#         name="anthropic/claude-v1.3",
+#         tokenizer_name="anthropic/claude",
+#         client_spec=ClientSpec(
+#             class_name="helm.proxy.clients.anthropic_client.AnthropicClient",
+#             args={},  # api_key should be auto-filled
+#         ),
+#         window_service_spec=WindowServiceSpec(
+#             class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService",
+#             args={},  # No args
+#         ),
+#     )
+
+model_deployments:
+  - name: "anthropic/claude-v1.3"
+    tokenizer_name: "anthropic/claude"
+    client_spec:
+      class_name: "helm.proxy.clients.anthropic_client.AnthropicClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+      args: {}

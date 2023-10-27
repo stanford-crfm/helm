@@ -21,6 +21,10 @@ from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
 from .run_specs import construct_run_specs
 
+from helm.benchmark.model_metadata_registry import maybe_register_model_metadata_from_base_path
+from helm.benchmark.model_deployment_registry import maybe_register_model_deployments_from_base_path
+from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
+
 
 def run_entries_to_run_specs(
     run_entries: List[RunEntry],
@@ -287,6 +291,11 @@ def main():
         run_entries.extend(
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
         )
+
+    config_path: str = "src/helm/config"
+    maybe_register_model_metadata_from_base_path(config_path)
+    maybe_register_model_deployments_from_base_path(config_path)
+    maybe_register_tokenizer_configs_from_base_path(config_path)
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,

@@ -7,6 +7,8 @@ import yaml
 
 from helm.common.hierarchical_logger import hlog
 
+from toolbox.printing import debug, print_visible  # TODO(PR): Remove this
+
 
 # Different modalities
 TEXT_MODEL_TAG: str = "text"
@@ -74,7 +76,7 @@ INSTRUCTION_FOLLOWING_MODEL_TAG: str = "instruction_following"
 VISION_LANGUAGE_MODEL_TAG: str = "vision_language"
 
 
-MODEL_METADATA_FILE = "model_metadata.yaml"
+MODEL_METADATA_FILE = "model_metadatas.yaml"
 
 
 # Frozen is set to false as the model_deployment_registry.py file
@@ -110,9 +112,6 @@ class ModelMetadata:
     # Release date of the model.
     release_date: str
 
-    # Whether we have yet to evaluate this model.
-    todo: bool = False
-
     # Tags corresponding to the properties of the model.
     tags: List[str] = field(default_factory=list)
 
@@ -146,23 +145,23 @@ class ModelMetadataList:
 
 
 ALL_MODELS_METADATA: List[ModelMetadata] = [
-    ModelMetadata(
-        name="anthropic/claude-v1.3",
-        display_name="Anthropic Claude v1.3",
-        description="A 52B parameter language model, trained using reinforcement learning from human feedback "
-        "[paper](https://arxiv.org/pdf/2204.05862.pdf).",
-        access="limited",
-        num_parameters=52000000000,
-        release_date="2023-03-17",
-        tags=[
-            ANTHROPIC_CLAUDE_1_MODEL_TAG,
-            TEXT_MODEL_TAG,
-            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-            GPT2_TOKENIZER_TAG,
-            ABLATION_MODEL_TAG,
-            INSTRUCTION_FOLLOWING_MODEL_TAG,
-        ],
-    )
+    # ModelMetadata(
+    #     name="anthropic/claude-v1.3",
+    #     display_name="Anthropic Claude v1.3",
+    #     description="A 52B parameter language model, trained using reinforcement learning from human feedback "
+    #     "[paper](https://arxiv.org/pdf/2204.05862.pdf).",
+    #     access="limited",
+    #     num_parameters=52000000000,
+    #     release_date="2023-03-17",
+    #     tags=[
+    #         ANTHROPIC_CLAUDE_1_MODEL_TAG,
+    #         TEXT_MODEL_TAG,
+    #         LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+    #         GPT2_TOKENIZER_TAG,
+    #         ABLATION_MODEL_TAG,
+    #         INSTRUCTION_FOLLOWING_MODEL_TAG,
+    #     ],
+    # )
 ]
 
 MODEL_NAME_TO_MODEL_METADATA: Dict[str, ModelMetadata] = {model.name: model for model in ALL_MODELS_METADATA}
@@ -171,12 +170,19 @@ MODEL_NAME_TO_MODEL_METADATA: Dict[str, ModelMetadata] = {model.name: model for 
 # ===================== REGISTRATION FUNCTIONS ==================== #
 def register_model_metadata_from_path(path: str) -> None:
     """Register model configurations from the given path."""
+    print_visible("register_model_metadata_from_path")
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
+    debug(raw, visible=True)
     # Using dacite instead of cattrs because cattrs doesn't have a default
     # serialization format for dates
     model_metadata_list = dacite.from_dict(ModelMetadataList, raw)
+    debug(model_metadata_list, visible=True)
     for model_metadata in model_metadata_list.models:
+        debug(model_metadata, visible=True)
+        debug(model_metadata.tags, visible=True)
+        debug(ANTHROPIC_CLAUDE_1_MODEL_TAG, visible=True)
+        debug(ANTHROPIC_CLAUDE_1_MODEL_TAG in model_metadata.tags, visible=True)
         register_model_metadata(model_metadata)
 
 
@@ -184,11 +190,15 @@ def register_model_metadata(model_metadata: ModelMetadata) -> None:
     """Register a single model configuration."""
     hlog(f"Registered model metadata {model_metadata.name}")
     ALL_MODELS_METADATA.append(model_metadata)
+    MODEL_NAME_TO_MODEL_METADATA[model_metadata.name] = model_metadata
 
 
 def maybe_register_model_metadata_from_base_path(base_path: str) -> None:
     """Register model metadata from prod_env/model_metadata.yaml"""
+    print_visible("maybe_register_model_metadata_from_base_path")
+    debug(base_path)
     path = os.path.join(base_path, MODEL_METADATA_FILE)
+    debug(path)
     if os.path.exists(path):
         register_model_metadata_from_path(path)
 
@@ -196,8 +206,6 @@ def maybe_register_model_metadata_from_base_path(base_path: str) -> None:
 # ===================== UTIL FUNCTIONS ==================== #
 def get_model_metadata(model_name: str) -> ModelMetadata:
     """Get the `Model` given the name."""
-    from toolbox.printing import debug
-
     debug(model_name, visible=True)
     # debug(MODEL_NAME_TO_MODEL_METADATA, visible=True)  # TODO(PR): Remove this
     if model_name not in MODEL_NAME_TO_MODEL_METADATA:
