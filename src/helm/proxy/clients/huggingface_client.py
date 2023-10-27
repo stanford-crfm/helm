@@ -85,12 +85,11 @@ class HuggingFaceServer:
         relevant_raw_request = {
             key: raw_request[key]
             for key in raw_request
-            if key not in ["engine", "prompt", "echo_prompt", "stop_sequences"]
+            if key not in ["engine", "prompt", "echo_prompt", "stop_sequences", "need_to_compute_perplexity_of_prompt"]
         }
 
         # Use HuggingFace's `generate` method.
-
-        if relevant_raw_request["max_new_tokens"] == 0:
+        if raw_request["need_to_compute_perplexity_of_prompt"]:
             output = self.model(encoded_input["input_ids"])
             sequences = encoded_input["input_ids"]
             scores = output.logits
@@ -106,7 +105,7 @@ class HuggingFaceServer:
         # Compute logprobs for each completed sequence.
         all_logprobs_of_chosen_tokens = []
         all_top_logprobs_dicts = []
-        if relevant_raw_request["max_new_tokens"] == 0 and raw_request["echo_prompt"]:
+        if raw_request["need_to_compute_perplexity_of_prompt"]:
             for completion_id in range(raw_request["num_return_sequences"]):
                 logprobs_of_chosen_tokens = []
                 top_logprobs_dicts = []
@@ -197,6 +196,9 @@ class HuggingFaceClient(CachingClient):
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
 
+        # Check if we need to compute the perplexity of the prompt (#1497)
+        need_to_compute_perplexity_of_prompt = request.max_tokens == 0 and request.num_completions == 1 and request.echo_prompt
+
         raw_request = {
             "engine": request.model_engine,
             "prompt": request.prompt,
@@ -207,6 +209,7 @@ class HuggingFaceClient(CachingClient):
             "echo_prompt": request.echo_prompt,
             "top_k_per_token": request.top_k_per_token,
             "stop_sequences": request.stop_sequences,
+            "need_to_compute_perplexity_of_prompt": need_to_compute_perplexity_of_prompt,
         }
 
         pretrained_model_name_or_path: str
@@ -239,7 +242,7 @@ class HuggingFaceClient(CachingClient):
             if request.echo_prompt:
                 # Add prompt to list of generated tokens.
                 generated_tokens = raw_completion["tokens"][response["input_length"] :]
-                if request.max_tokens == 0:
+                if need_to_compute_perplexity_of_prompt:
                     for token_text, logprob, top_logprobs_dict in zip(
                         raw_completion["tokens"][: response["input_length"]], raw_completion["logprobs"][: response["input_length"]], raw_completion["top_logprobs_dicts"][: response["input_length"]]
                     ):
