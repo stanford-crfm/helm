@@ -90,7 +90,8 @@ class HuggingFaceServer:
 
         # Use HuggingFace's `generate` method.
         if raw_request["need_to_compute_perplexity_of_prompt"]:
-            output = self.model(encoded_input["input_ids"])
+            with torch.no_grad():
+                output = self.model(encoded_input["input_ids"])
             sequences = encoded_input["input_ids"]
             scores = output.logits
         else:
