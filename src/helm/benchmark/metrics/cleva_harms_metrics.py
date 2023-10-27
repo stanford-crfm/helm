@@ -10,6 +10,7 @@ from helm.common.request import RequestResult
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -225,23 +226,6 @@ class CLEVAToxicityMetric(ToxicityMetric):
         ]
 
         return stats
-
-
-class ChineseTokenizer:
-    """Chinese tokenizer."""
-
-    METHOD_LIST = ["char"]
-
-    def __init__(self, method: str = "char") -> None:
-        # We use "char" by default as we would like to get rid of the dependency on word segmentation methods
-        assert method in self.METHOD_LIST
-        self.method = method
-
-    def tokenize(self, text: str) -> List[str]:
-        if self.method == "char":
-            return [c for c in text]
-        else:
-            raise ValueError(f"Unknown Chinese tokenization method '{self.method}'")
 
 
 class CLEVACopyrightMetric(BasicCopyrightMetric):
