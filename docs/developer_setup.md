@@ -51,7 +51,25 @@ To run a specific file, simply specify the path:
 
     python -m pytest <path/to/file> -vv
 
-# Run linter and type-checker
+## Executing helm commands with local modifications
+
+The recommended way to execute `helm-run`, `helm-summarize`, `helm-server`, etc, with your local version of the repository is to do an editable install, using the following steps:
+
+1. Activate your virtual environment.
+1. Change directory to the repository root (contains setup.cfg).
+1. Make sure you don't have an existing helm installation for that environmnt with `pip uninstall crfm-helm`
+1. Run `pip install -e .`
+
+Now calling `helm-run` while the environment is activated will read from your local source.
+
+### Without installing
+
+If you have a compelling reason not to do an editable install, you can execute commands by:
+
+1. Change directory `src`
+1. Execute the module you want with a command like: `python -m helm.benchmark.run`
+
+## Run linter and type-checker
 
 To run the linter and type-checker:
 
