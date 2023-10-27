@@ -4,9 +4,13 @@ import requests
 import shutil
 from typing import Optional
 
-from PIL import Image
-
 from .general import is_url
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from PIL import Image
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["images"])
 
 
 def open_image(image_location: str) -> Image.Image:

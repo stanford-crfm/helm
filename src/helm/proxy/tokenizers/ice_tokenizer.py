@@ -11,7 +11,7 @@ try:
     os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
     from icetk import icetk as icetk_tokenizer
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["icetk"])
+    handle_module_not_found_error(e, ["tsinghua"])
 
 
 class ICETokenizer(CachingTokenizer):
