@@ -113,8 +113,12 @@ class HuggingFaceServer:
                 for i in range(len(sequences[completion_id]) - 1):
                     logprobs = torch.nn.functional.log_softmax(scores[completion_id][i], dim=0)
                     topk_logprobs = torch.topk(logprobs, k=top_k_per_token)
-                    top_logprobs_dicts.append({self.tokenizer.convert_ids_to_tokens(k.item()): v.item()
-                                            for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)})
+                    top_logprobs_dicts.append(
+                        {
+                            self.tokenizer.convert_ids_to_tokens(k.item()): v.item()
+                            for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)
+                        }
+                    )
                     logprobs_of_chosen_tokens.append(logprobs[sequences[completion_id][i + 1]].item())
                 all_logprobs_of_chosen_tokens.append(logprobs_of_chosen_tokens)
                 all_top_logprobs_dicts.append(top_logprobs_dicts)
@@ -126,8 +130,12 @@ class HuggingFaceServer:
                     logprobs = torch.nn.functional.log_softmax(scores[i][completion_id], dim=0)
                     # Get top tokens in terms of log probability.
                     topk_logprobs = torch.topk(logprobs, k=top_k_per_token)
-                    top_logprobs_dicts.append({self.tokenizer.convert_ids_to_tokens(k.item()): v.item() 
-                                                    for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)})
+                    top_logprobs_dicts.append(
+                        {
+                            self.tokenizer.convert_ids_to_tokens(k.item()): v.item()
+                            for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)
+                        }
+                    )
                     j = i + len(encoded_input.input_ids[0])
                     logprobs_of_chosen_tokens.append(logprobs[sequences[completion_id][j]].item())
                 all_logprobs_of_chosen_tokens.append(logprobs_of_chosen_tokens)
@@ -198,7 +206,9 @@ class HuggingFaceClient(CachingClient):
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
 
         # Check if we need to compute the perplexity of the prompt (#1497)
-        need_to_compute_perplexity_of_prompt = request.max_tokens == 0 and request.num_completions == 1 and request.echo_prompt
+        need_to_compute_perplexity_of_prompt = (
+            request.max_tokens == 0 and request.num_completions == 1 and request.echo_prompt
+        )
 
         raw_request = {
             "engine": request.model_engine,
@@ -245,7 +255,9 @@ class HuggingFaceClient(CachingClient):
                 generated_tokens = raw_completion["tokens"][response["input_length"] :]
                 if need_to_compute_perplexity_of_prompt:
                     for token_text, logprob, top_logprobs_dict in zip(
-                        raw_completion["tokens"][: response["input_length"]], raw_completion["logprobs"][: response["input_length"]], raw_completion["top_logprobs_dicts"][: response["input_length"]]
+                        raw_completion["tokens"][: response["input_length"]],
+                        raw_completion["logprobs"][: response["input_length"]],
+                        raw_completion["top_logprobs_dicts"][: response["input_length"]],
                     ):
                         tokens.append(Token(text=token_text, logprob=logprob, top_logprobs=top_logprobs_dict))
                         sequence_logprob += logprob
