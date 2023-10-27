@@ -47,3 +47,23 @@ class TestHuggingFaceClient:
             )
         )
         assert len(result.completions) == 3
+
+    def test_logprob(self):
+        prompt: str = "I am a computer scientist."
+        result: RequestResult = self.client.make_request(
+            Request(
+                model="huggingface/gpt2",
+                prompt=prompt,
+                num_completions=1,
+                max_tokens=0,
+                echo_prompt=True,
+            )
+        )
+        assert result.completions[0].text.startswith(
+            prompt
+        ), "echo_prompt was set to true. Expected the prompt at the beginning of each completion"
+        total_logprob: float = 0
+        for token in result.completions[0].tokens:
+            assert token.logprob != 0
+            total_logprob += token.logprob
+        assert result.completions[0].logprob == pytest.approx(total_logprob)
