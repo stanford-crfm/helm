@@ -145,3 +145,19 @@ def from_json(data: Union[bytes, str], cls: Type[T]) -> T:
 
 def to_json(data: Any) -> str:
     return json.dumps(_converter.unstructure(data), indent=2)
+
+
+def to_json_single_line(data: Any) -> str:
+    # Puts everything into a single line for readability.
+    return json.dumps(_converter.unstructure(data), separators=(",", ":"))
+
+
+def to_jsonl(data: List[Any]) -> str:
+    return "\n".join([to_json_single_line(instance) for instance in data])
+
+
+def from_jsonl(data: Union[bytes, str], cls: Type[T]) -> List[T]:
+    if not isinstance(data, str):
+        data = data.decode("utf-8")
+    lines: List[str] = data.splitlines()
+    return [from_json(line, cls) for line in lines]
