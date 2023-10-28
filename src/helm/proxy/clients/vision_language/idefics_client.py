@@ -3,7 +3,6 @@ from typing import Dict, List, Optional, Union
 
 import torch
 from dataclasses import dataclass
-from PIL import Image
 from transformers import IdeficsForVisionText2Text, AutoProcessor, IdeficsProcessor
 
 from helm.common.cache import CacheConfig
@@ -11,6 +10,7 @@ from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import TEXT_TYPE
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -19,6 +19,11 @@ from helm.common.tokenization_request import (
 from helm.common.request import wrap_request_time
 from helm.proxy.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 from helm.proxy.tokenizers.tokenizer import Tokenizer
+
+try:
+    from PIL import Image
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["images"])
 
 
 @dataclass(frozen=True)

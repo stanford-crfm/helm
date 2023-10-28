@@ -19,7 +19,7 @@ from .statistic import Stat
 try:
     from sacrebleu.metrics import BLEU
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["metrics"])
 
 
 HUMAN_EVAL_CODALAB_LINK: str = (
