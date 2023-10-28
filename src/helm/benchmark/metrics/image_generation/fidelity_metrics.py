@@ -15,6 +15,7 @@ from helm.benchmark.metrics.metric import Metric, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.images_utils import is_blacked_out_image, copy_image
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 class FidelityMetric(Metric):
@@ -58,6 +59,12 @@ class FidelityMetric(Metric):
         eval_cache_path: str,
         parallelism: int,
     ) -> MetricResult:
+        try:
+            import torch_fidelity
+            from pytorch_fid.fid_score import calculate_fid_given_paths
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         dest_path: str
         unique_perturbations: Set[Optional[PerturbationDescription]] = set()
 
@@ -113,9 +120,6 @@ class FidelityMetric(Metric):
             hlog(f"Resized {num_generated_images} images to {self.IMAGE_WIDTH}x{self.IMAGE_HEIGHT}.")
 
             try:
-                import torch_fidelity
-                from pytorch_fid.fid_score import calculate_fid_given_paths
-
                 hlog(f"Computing FID between {generated_images_path} and {gold_images_path}...")
                 fid: float = calculate_fid_given_paths(
                     paths=[generated_images_path, gold_images_path],

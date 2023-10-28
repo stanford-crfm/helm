@@ -6,6 +6,7 @@ import torch
 
 from helm.common.general import ensure_file_downloaded, hlog, get_helm_cache_path
 from helm.common.images_utils import open_image
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.gpu_utils import get_torch_device
 from .base_detector import BaseDetector
 
@@ -18,10 +19,13 @@ MODEL_CHECKPOINT_DOWNLOAD_URL: str = (
 
 class ViTDetDetector(BaseDetector):
     def __init__(self):
-        from detectron2.checkpoint import DetectionCheckpointer
-        from detectron2.config import LazyConfig
-        from detectron2.config import instantiate
-        from detectron2.data.catalog import MetadataCatalog
+        try:
+            from detectron2.checkpoint import DetectionCheckpointer
+            from detectron2.config import LazyConfig
+            from detectron2.config import instantiate
+            from detectron2.data.catalog import MetadataCatalog
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         super().__init__()
 
@@ -49,8 +53,11 @@ class ViTDetDetector(BaseDetector):
         self._coco_classes = MetadataCatalog.get("coco_2017_val").thing_classes
 
     def forward_model(self, image_location: str) -> float:
-        from detectron2.data.common import DatasetFromList, MapDataset
-        from detectron2.config import instantiate
+        try:
+            from detectron2.data.common import DatasetFromList, MapDataset
+            from detectron2.config import instantiate
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         image: Image = open_image(image_location)
         dataset_dicts = [

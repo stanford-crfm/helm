@@ -6,6 +6,7 @@ import torch
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
 from helm.common.request import RequestResult
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
@@ -49,7 +50,10 @@ class PeakSignalToNoiseRatioMetric(Metric):
         return [Stat(MetricName("expected_psnr_score")).add(score)]
 
     def _compute_psnr_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
-        from torchmetrics import PeakSignalNoiseRatio
+        try:
+            from torchmetrics import PeakSignalNoiseRatio
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         if self._metric is None:
             self._metric = PeakSignalNoiseRatio().to(self._device)

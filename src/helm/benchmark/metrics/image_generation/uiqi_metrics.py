@@ -7,6 +7,7 @@ import torch
 from helm.common.general import hlog
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
@@ -63,7 +64,10 @@ class UniversalImageQualityIndexMetric(Metric):
         return [Stat(MetricName("expected_uiqi_score")).add(score)]
 
     def _compute_uiqi_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
-        from torchmetrics import UniversalImageQualityIndex
+        try:
+            from torchmetrics import UniversalImageQualityIndex
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         if self._metric is None:
             self._metric = UniversalImageQualityIndex().to(self._device)

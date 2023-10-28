@@ -6,6 +6,7 @@ import torch
 import numpy as np
 
 from helm.common.general import ensure_directory_exists, get_helm_cache_path
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
 
@@ -23,8 +24,11 @@ class NSFWDetector:
         """
         Load the safety model. Adapted from https://github.com/LAION-AI/CLIP-based-NSFW-Detector.
         """
-        from tensorflow import keras
-        import autokeras as ak
+        try:
+            from tensorflow import keras
+            import autokeras as ak
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         cache_folder: str = get_helm_cache_path()
         model_path: str
@@ -55,7 +59,10 @@ class NSFWDetector:
         return model
 
     def __init__(self, model_name: str = "ViT-L/14"):
-        import clip
+        try:
+            import clip
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         self._model_name: str = model_name
         self._device: torch.device = get_torch_device()

@@ -6,6 +6,7 @@ import torch
 from helm.common.general import ensure_directory_exists, get_helm_cache_path
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 class AestheticsScorer:
@@ -43,7 +44,10 @@ class AestheticsScorer:
         return m
 
     def __init__(self):
-        import clip
+        try:
+            import clip
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         # Load the CLIP and aesthetics model
         self._device: torch.device = get_torch_device()

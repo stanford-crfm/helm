@@ -5,6 +5,7 @@ import torch
 
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -52,7 +53,10 @@ class LearnedPerceptualImagePatchSimilarityMetric(Metric):
         return [Stat(MetricName("expected_lpips_score")).add(score)]
 
     def _compute_lpips_scores(self, generated_image_locations: List[str], reference_image_path: str) -> float:
-        from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
+        try:
+            from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         if self._metric is None:
             self._metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg").to(self._device)

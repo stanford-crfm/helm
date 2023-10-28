@@ -5,6 +5,7 @@ import pickle
 import torch
 
 from helm.common.gpu_utils import get_torch_device, is_cuda_available
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 class Q16ToxicityDetector:
@@ -61,7 +62,10 @@ class Q16ToxicityDetector:
 
 class ClipWrapper(torch.nn.Module):
     def __init__(self, device: torch.device, model_name="ViT-L/14"):
-        import clip
+        try:
+            import clip
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         super(ClipWrapper, self).__init__()
         self.clip_model, self.preprocess = clip.load(model_name, device, jit=False)

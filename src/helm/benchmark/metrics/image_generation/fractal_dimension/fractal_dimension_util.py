@@ -1,5 +1,7 @@
 import numpy as np
 
+from helm.common.optional_dependencies import handle_module_not_found_error
+
 
 def compute_fractal_dimension(image_path: str) -> float:
     """
@@ -51,7 +53,10 @@ def compute_fractal_dimension(image_path: str) -> float:
         coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
         return -coeffs[0]
 
-    import cv2
+    try:
+        import cv2
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["heim"])
 
     image = cv2.imread(image_path, 0) / 255.0
     assert image.min() >= 0 and image.max() <= 1

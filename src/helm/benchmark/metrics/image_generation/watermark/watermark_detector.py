@@ -10,6 +10,7 @@ from torchvision import transforms as T
 from helm.common.general import get_helm_cache_path, ensure_file_downloaded, hlog
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 class WatermarkDetector:
@@ -30,7 +31,10 @@ class WatermarkDetector:
         """
         Load the watermark detector model.
         """
-        import timm
+        try:
+            import timm
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         model = timm.create_model("efficientnet_b3a", pretrained=True, num_classes=2)
         model.classifier = nn.Sequential(

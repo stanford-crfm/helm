@@ -10,6 +10,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
 from helm.common.images_utils import is_blacked_out_image
+from helm.common.optional_dependencies import handle_module_not_found_error
 from .image_metrics_utils import gather_generated_image_locations
 
 
@@ -44,7 +45,10 @@ class SkinToneMetric(Metric):
         Find mean skin pixels from an image.
         Adapted from https://github.com/j-min/DallEval/blob/main/biases/detect_skintone.py
         """
-        import cv2
+        try:
+            import cv2
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         img_BGR = cv2.imread(image_path, 3)
 
