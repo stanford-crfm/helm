@@ -22,7 +22,7 @@ try:
     from scaleapi.tasks import TaskType, TaskStatus
     from scaleapi.exceptions import ScaleDuplicateResource
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["human-evaluation"])
 
 
 class ScaleCritiqueClientError(Exception):
