@@ -21,6 +21,7 @@ To get started, refer to [the documentation on Read the Docs](https://crfm-helm.
 
 The directory structure for this repo is as follows
 
+```
 ├── docs # MD used to generate readthedocs
 │
 ├── scripts # Python utility scripts for HELM
@@ -47,7 +48,7 @@ The directory structure for this repo is as follows
 │ └── proxy # Python code for external web requests
 │
 └── helm-frontend # New React Front-end
-
+```
 
 # Holistic Evaluation of Text-To-Image Models
 
@@ -78,8 +79,6 @@ By curating scenarios encompassing these aspects, we evaluate state-of-the-art t
 Unlike previous evaluations that focused on alignment and quality, HEIM significantly improves coverage by evaluating all 
 models across all aspects. Our results reveal that no single model excels in all aspects, with different models 
 demonstrating strengths in different aspects.
-
-<!--intro-end-->
 
 This repository contains the code used to produce the [results on the website](https://crfm.stanford.edu/heim/latest/) 
 and paper.

@@ -6,9 +6,14 @@ from typing import List, Optional
 from urllib.request import urlopen
 
 import numpy as np
-from PIL import Image
 
 from .general import is_url
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from PIL import Image
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["images"])
 
 
 def open_image(image_location: str) -> Image.Image:
@@ -47,7 +52,10 @@ def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optiona
 
 def is_blacked_out_image(image_location: str) -> bool:
     """Returns True if the image is all black. False otherwise."""
-    import cv2
+    try:
+        import cv2
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["heim"])
 
     if is_url(image_location):
         arr = np.asarray(bytearray(urlopen(image_location).read()), dtype=np.uint8)

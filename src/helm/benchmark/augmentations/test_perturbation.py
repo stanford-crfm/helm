@@ -1,5 +1,6 @@
 # mypy: check_untyped_defs = False
 from typing import List
+import unittest
 
 from helm.benchmark.scenarios.scenario import Input, Instance, Output, Reference
 from .data_augmenter import DataAugmenter
@@ -243,3 +244,40 @@ def test_style_perturbation():
     assert len(instances) == 2
     assert instances[1].perturbation.modifications == "pixel art"
     assert instances[1].input.text == "A blue dog, pixel art"
+
+
+# TODO(#1958) Fix the logic to renable this test
+@unittest.skip("Currently cannot replace words at either text boundary.")
+def test_gender_term_perturbation_edge_word():
+    data_augmenter = DataAugmenter(
+        perturbations=[GenderPerturbation(prob=1.0, mode="terms", source_class="male", target_class="female")],
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input=Input(text="dad said it is okay"),
+        references=[Reference(Output(text="Sure he did son"), tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=False)
+
+    print(instances)
+    assert len(instances) == 1
+    assert instances[0].input.text == "mom said it is okay"
+    assert instances[0].references[0].output.text == "Sure he did daughter"
+
+
+# TODO(#1958) Fix the logic to renable this test
+@unittest.skip("Currently cannot replace words separated by 1 character.")
+def test_gender_term_perturbation_consequtive_words():
+    data_augmenter = DataAugmenter(
+        perturbations=[GenderPerturbation(prob=1.0, mode="terms", source_class="male", target_class="female")],
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input=Input(text="I'm a dad dad: my son has a son."),
+        references=[],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=False)
+
+    print(instances)
+    assert len(instances) == 1
+    assert instances[0].input.text == "I'm a mom mom: my daughter has a daughter."
