@@ -331,7 +331,7 @@ class AutoClient(Client):
         elif organization == "AlephAlpha":
             from helm.proxy.tokenizers.aleph_alpha_tokenizer import AlephAlphaTokenizer
 
-            return AlephAlphaTokenizer(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
+            return AlephAlphaTokenizer(api_key=self.credentials["AlephAlphaApiKey"], cache_config=cache_config)
         elif organization == "ai21":
             from helm.proxy.tokenizers.ai21_tokenizer import AI21Tokenizer
 
