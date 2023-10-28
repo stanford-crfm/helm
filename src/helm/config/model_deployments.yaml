@@ -1,18 +1,110 @@
-# Convert this to a yaml definition file
-# ModelDeployment(
-#         name="anthropic/claude-v1.3",
-#         tokenizer_name="anthropic/claude",
-#         client_spec=ClientSpec(
-#             class_name="helm.proxy.clients.anthropic_client.AnthropicClient",
-#             args={},  # api_key should be auto-filled
-#         ),
-#         window_service_spec=WindowServiceSpec(
-#             class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService",
-#             args={},  # No args
-#         ),
-#     )
+# This file defines all the model deployments that are supported by the Helm API.
+# Some models have several deployments, each with different parameters.
+
+# If you want to add a new deployment, you can technically do it here but we recommend
+# you to do it in private/model_deployments.yaml instead.
 
 model_deployments:
+
+  # ========== AI21 Labs ========== #
+  
+  # J1 models are Deprecated by AI21 Labs
+  # API returns: Detail: Jurassic J1 models are deprecated
+  - name: ai21/j1-jumbo # DEPRECATED
+    model_name: ai21/j1-jumbo
+    tokenizer_name: ai21
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j1-large # DEPRECATED
+    model_name: ai21/j1-large
+    tokenizer_name: ai21
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j1-grande # DEPRECATED
+    model_name: ai21/j1-grande
+    tokenizer_name: ai21
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j1-grande-v2-beta # DEPRECATED
+    model_name: ai21/j1-grande-v2-beta
+    tokenizer_name: ai21
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j2-jumbo
+    model_name: ai21/j2-jumbo
+    tokenizer_name: ai21
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_ai21_window_service.AI21Jurassic2JumboWindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j2-large
+    model_name: ai21/j2-large
+    tokenizer_name: ai21
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_ai21_window_service.WiderAI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j2-grande
+    model_name: ai21/j2-grande
+    tokenizer_name: ai21
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_ai21_window_service.WiderAI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+  # =============================== #
+
+
+  
+  # =============================== #
   - name: "anthropic/claude-v1.3"
     tokenizer_name: "anthropic/claude"
     client_spec:

@@ -39,13 +39,6 @@ GPT_TURBO_16K_CONTEXT_WINDOW_TAG: str = "gpt_turbo_16k_context_window"  # cl100k
 GPT4_CONTEXT_WINDOW_TAG: str = "gpt4_context_window"  # cl100k_base tokenizer, 8192 tokens
 GPT4_32K_CONTEXT_WINDOW_TAG: str = "gpt4_32k_context_window"  # cl100k_base tokenizer, 32768 tokens
 
-# For AI21 Jurassic-2 models with wider context windows
-AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
-
-# For AI21 Jurassic-2 Jumbo
-# AI21 has recommended using a sequence length of 6000 tokens to avoid OOMs.
-AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG: str = "ai21_jurassic_2_jumbo_context_window"  # 6000
-
 # To fetch models that use these tokenizers
 GPT2_TOKENIZER_TAG: str = "GPT2_TOKENIZER_TAG"
 AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
@@ -108,16 +101,16 @@ class ModelMetadata:
     # all deployments.
     access: str
 
-    # Number of parameters in the model.
-    # This should be a string as the number of parameters is usually a round number (175B),
-    # but we set it as an int for plotting purposes.
-    num_parameters: int
-
     # Release date of the model.
     release_date: date
 
     # Tags corresponding to the properties of the model.
     tags: List[str] = field(default_factory=list)
+
+    # Number of parameters in the model.
+    # This should be a string as the number of parameters is usually a round number (175B),
+    # but we set it as an int for plotting purposes.
+    num_parameters: Optional[int] = None
 
     # List of the model deployments for this model.
     # Should at least contain one model deployment.
