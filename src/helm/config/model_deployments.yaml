@@ -7,7 +7,7 @@
 model_deployments:
 
   # ========== AI21 Labs ========== #
-  
+
   # J1 models are Deprecated by AI21 Labs
   # API returns: Detail: Jurassic J1 models are deprecated
   - name: ai21/j1-jumbo # DEPRECATED
@@ -101,6 +101,40 @@ model_deployments:
           class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
           args: {}
   # =============================== #
+
+
+
+  # ========== Aleph Alpha ========== #
+  - name: AlephAlpha/luminous-base
+    model_name: AlephAlpha/luminous-base
+    tokenizer_name: AlephAlpha
+    client_spec:
+      class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.luminous_window_service.LuminousBaseWindowService"
+      args: {}
+
+  - name: AlephAlpha/luminous-extended
+    model_name: AlephAlpha/luminous-extended
+    tokenizer_name: AlephAlpha
+    client_spec:
+      class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.luminous_window_service.LuminousExtendedWindowService"
+      args: {}
+
+  - name: AlephAlpha/luminous-supreme
+    model_name: AlephAlpha/luminous-supreme
+    tokenizer_name: AlephAlpha
+    client_spec:
+      class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.luminous_window_service.LuminousSupremeWindowService"
+      args: {}
+  # ================================= #
 
 
   
