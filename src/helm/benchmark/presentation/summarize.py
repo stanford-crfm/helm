@@ -61,6 +61,10 @@ from helm.benchmark.presentation.run_display import write_run_display_json
 from helm.benchmark.model_deployment_registry import get_metadata_for_deployment
 from helm.benchmark.model_metadata_registry import ModelMetadata
 
+from helm.benchmark.model_metadata_registry import maybe_register_model_metadata_from_base_path
+from helm.benchmark.model_deployment_registry import maybe_register_model_deployments_from_base_path
+from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
+
 
 OVERLAP_N_COUNT = 13
 
@@ -871,14 +875,14 @@ class Summarizer:
             model_order = [model.name for model in self.schema.models]
 
             def _adapter_spec_sort_key(spec):
-                index = model_order.index(spec.model) if spec.model in model_order else -1
-                return (index, spec.model)
+                index = model_order.index(spec.model_deployment) if spec.model_deployment in model_order else -1
+                return (index, spec.model_deployment)
 
             adapter_specs = list(sorted(adapter_specs, key=_adapter_spec_sort_key))
 
         # Pull out only the keys of the method adapter_spec that is needed to
         # uniquely identify the method.
-        infos = unique_simplification(list(map(asdict_without_nones, adapter_specs)), ["model"])
+        infos = unique_simplification(list(map(asdict_without_nones, adapter_specs)), ["model_deployment"])
 
         assert len(adapter_specs) == len(infos), [adapter_specs, infos]
 
@@ -1329,6 +1333,11 @@ def main():
         suites = args.suites
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
+
+    config_path: str = "src/helm/config"
+    maybe_register_model_metadata_from_base_path(config_path)
+    maybe_register_model_deployments_from_base_path(config_path)
+    maybe_register_tokenizer_configs_from_base_path(config_path)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
