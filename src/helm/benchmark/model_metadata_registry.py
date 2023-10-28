@@ -1,6 +1,7 @@
 import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass, field
+from datetime import date
 
 import dacite
 import yaml
@@ -11,14 +12,14 @@ from toolbox.printing import debug, print_visible  # TODO(PR): Remove this
 
 
 # Different modalities
-TEXT_MODEL_TAG: str = "text"
+TEXT_MODEL_TAG: str = "TEXT_MODEL_TAG"
 IMAGE_MODEL_TAG: str = "image"
 CODE_MODEL_TAG: str = "code"
 EMBEDDING_MODEL_TAG: str = "embedding"
 
 # Some model APIs have limited functionalities
 FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
-LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
+LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG"
 
 # ChatML format
 CHATML_MODEL_TAG: str = "chatml"
@@ -27,7 +28,7 @@ CHATML_MODEL_TAG: str = "chatml"
 OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
 
 # For Anthropic models
-ANTHROPIC_CLAUDE_1_MODEL_TAG: str = "claude_1"
+ANTHROPIC_CLAUDE_1_MODEL_TAG: str = "ANTHROPIC_CLAUDE_1_MODEL_TAG"
 ANTHROPIC_CLAUDE_2_MODEL_TAG: str = "claude_2"
 
 # For OpenAI models with wider context windows
@@ -46,7 +47,7 @@ AI21_WIDER_CONTEXT_WINDOW_TAG: str = "ai21_wider_context_window"
 AI21_JURASSIC_2_JUMBO_CONTEXT_WINDOW_TAG: str = "ai21_jurassic_2_jumbo_context_window"  # 6000
 
 # To fetch models that use these tokenizers
-GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
+GPT2_TOKENIZER_TAG: str = "GPT2_TOKENIZER_TAG"
 AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
 COHERE_TOKENIZER_TAG: str = "cohere_tokenizer"
 OPT_TOKENIZER_TAG: str = "opt_tokenizer"
@@ -59,7 +60,7 @@ BUGGY_TEMP_0_TAG: str = "buggy_temp_0"
 
 # Models that are used for ablations and fine-grained analyses.
 # These models are selected specifically because of their low marginal cost to evaluate.
-ABLATION_MODEL_TAG: str = "ablation"
+ABLATION_MODEL_TAG: str = "ABLATION_MODEL_TAG"
 
 # Some models (e.g., T5) have stripped newlines.
 # So we cannot use \n as a stop sequence for these models.
@@ -70,7 +71,7 @@ NO_NEWLINES_TAG: str = "no_newlines"
 NLG_PREFIX_TAG: str = "nlg_prefix_tag"
 
 # Some models can follow instructions.
-INSTRUCTION_FOLLOWING_MODEL_TAG: str = "instruction_following"
+INSTRUCTION_FOLLOWING_MODEL_TAG: str = "INSTRUCTION_FOLLOWING_MODEL_TAG"
 
 # For Vision-langauge models (VLMs)
 VISION_LANGUAGE_MODEL_TAG: str = "vision_language"
@@ -88,6 +89,9 @@ class ModelMetadata:
     # Usually formatted as "<creator_organization>/<engine_name>".
     # Example: "ai21/j1-jumbo"
     name: str
+
+    # Name of the organization that created the model.
+    creator_organization_name: str
 
     # Name that is going to be displayed to the user (on the website, etc.)
     display_name: str
@@ -110,7 +114,7 @@ class ModelMetadata:
     num_parameters: int
 
     # Release date of the model.
-    release_date: str
+    release_date: date
 
     # Tags corresponding to the properties of the model.
     tags: List[str] = field(default_factory=list)
