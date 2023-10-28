@@ -2,17 +2,20 @@
 
 ## [Upcoming]
 
-## [v0.3.0] - 2023-10-26
+## [v0.3.0] - 2023-10-27
 
 ### Models
 
 - Added support for Lit-GPT (#1792)
 - Added support for stop sequences in HuggingFaceClient (#1892, #1909)
 - Added Mistral 7B model (#1906)
+- Added IDEFICS model (#1871)
 
 ### Scenarios
 
 - Added 31 scenarios from [CLEVA](https://arxiv.org/abs/2308.04813) for evaluation of Chinese language models (#1824, #1864)
+- Added VQA scenario model (#1871)
+- Adddd support for running MCQA scenarios from users' JSONL files (#1889)
 
 ### Metrics
 
@@ -20,12 +23,15 @@
 
 ### Frontend
 
-- Added an React frontend (#1819, #1893)
+- Added a React frontend (#1819, #1893)
 
 ### Framework
 
 - Added support for multi-modal scenarios and Vision Language Model (VLM) evaluation (#1871)
 - Added support for Python 3.9 and 3.10 (#1897)
+- Added a new `Tokenizer` class in preparation for removing `tokenize()` and `decode()` from `Client` in a future release (#1874)
+- Made more dependencies optional instead of required and added install command suggestions (#1834, #1961)
+- Added support for configuring users' model deployments through YAML configuration files (#1861)
 
 ### Evaluation Results
 
