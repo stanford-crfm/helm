@@ -70,7 +70,10 @@ models:
     release_date: 2023-03-09
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG]
 
-  # TODO: Add new AI21 models (like ai21/j2-ultra) here.
+  # TODO: Myabe change names? It seems like the names changed:
+  # - j2-jumbo -> j2-ultra
+  # - j2-grande -> j2-mid
+  # - j2-large -> j2-light
   # ================================= #
 
 
