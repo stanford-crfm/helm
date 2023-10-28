@@ -46,7 +46,7 @@ class AutoClient(Client):
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
-        self.tokenizer_clients: Dict[str, Client] = {}
+        self.tokenizers: Dict[str, Tokenizer] = {}
         # self._huggingface_client is lazily instantiated by get_huggingface_client()
         self._huggingface_client: Optional["helm.proxy.clients.huggingface_client.HuggingFaceClient"] = None
         # self._critique_client is lazily instantiated by get_critique_client()
@@ -260,12 +260,18 @@ class AutoClient(Client):
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
-    def _get_tokenizer(self, tokenizer: str) -> Tokenizer:
-        organization: str = tokenizer.split("/")[0]
+    def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
+        # First try to find the tokenizer in the cache
+        tokenizer: Optional[Tokenizer] = self.tokenizers.get(tokenizer_name)
+        if tokenizer is not None:
+            return tokenizer
+
+        # Otherwise, create the tokenizer
+        organization: str = tokenizer_name.split("/")[0]
         cache_config: CacheConfig = self._build_cache_config(organization)
 
         # TODO: Migrate all clients to use tokenizer configs
-        tokenizer_config = get_tokenizer_config(tokenizer)
+        tokenizer_config = get_tokenizer_config(tokenizer_name)
         if tokenizer_config:
             tokenizer_spec = inject_object_spec_args(
                 tokenizer_config.tokenizer_spec, constant_bindings={"cache_config": cache_config}
@@ -299,51 +305,58 @@ class AutoClient(Client):
         ]:
             from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
-            return HuggingFaceTokenizer(cache_config=cache_config)
+            tokenizer = HuggingFaceTokenizer(cache_config=cache_config)
         elif organization == "neurips":
             from helm.proxy.tokenizers.http_model_tokenizer import HTTPModelTokenizer
 
-            return HTTPModelTokenizer(cache_config=cache_config)
+            tokenizer = HTTPModelTokenizer(cache_config=cache_config)
         elif organization == "openai":
             from helm.proxy.tokenizers.tiktoken_tokenizer import TiktokenTokenizer
 
-            return TiktokenTokenizer(cache_config=cache_config)
+            tokenizer = TiktokenTokenizer(cache_config=cache_config)
         elif organization == "AlephAlpha":
             from helm.proxy.tokenizers.aleph_alpha_tokenizer import AlephAlphaTokenizer
 
-            return AlephAlphaTokenizer(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
+            tokenizer = AlephAlphaTokenizer(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
         elif organization == "ai21":
             from helm.proxy.tokenizers.ai21_tokenizer import AI21Tokenizer
 
-            return AI21Tokenizer(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
+            tokenizer = AI21Tokenizer(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
         elif organization == "cohere":
             from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
 
-            return CohereTokenizer(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
+            tokenizer = CohereTokenizer(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
         elif organization == "anthropic":
             from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
 
-            return AnthropicTokenizer(cache_config=cache_config)
+            tokenizer = AnthropicTokenizer(cache_config=cache_config)
         elif organization == "simple":
             from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
 
-            return SimpleTokenizer()
+            tokenizer = SimpleTokenizer()
         elif organization == "lightningai":
             from helm.proxy.tokenizers.lit_gpt_tokenizer import LitGPTTokenizer
 
-            return LitGPTTokenizer(
+            tokenizer = LitGPTTokenizer(
                 cache_config=cache_config,
                 checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
             )
         elif organization == "TsinghuaKEG":
             from helm.proxy.tokenizers.ice_tokenizer import ICETokenizer
 
-            return ICETokenizer(cache_config=cache_config)
+            tokenizer = ICETokenizer(cache_config=cache_config)
         elif organization == "Yandex":
             from helm.proxy.tokenizers.yalm_tokenizer import YaLMTokenizer
 
-            return YaLMTokenizer(cache_config=cache_config)
-        raise ValueError(f"Could not find tokenizer for model: {tokenizer}")
+            tokenizer = YaLMTokenizer(cache_config=cache_config)
+
+        if tokenizer is None:
+            raise ValueError(f"Could not find tokenizer for model: {tokenizer_name}")
+
+        # Cache the tokenizer
+        self.tokenizers[tokenizer_name] = tokenizer
+
+        return tokenizer
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
