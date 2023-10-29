@@ -2,12 +2,11 @@
 
 from typing import List
 
-import jax.numpy as jnp
-
 from .configuration import DalleBartConfig
 from .text import TextNormalizer
 from .tokenizer import DalleBartTokenizer
 from .utils import PretrainedFromWandbMixin
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 class DalleBartProcessorBase:
@@ -29,6 +28,11 @@ class DalleBartProcessorBase:
         self.attention_mask_uncond = uncond["attention_mask"]
 
     def __call__(self, text: List[str] = None):
+        try:
+            import jax.numpy as jnp
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         # check that text is not a string
         assert not isinstance(text, str), "text must be a list of strings"
 
@@ -41,6 +45,7 @@ class DalleBartProcessorBase:
             truncation=True,
             max_length=self.max_text_length,
         ).data
+
         # tokens used only with super conditioning
         n = len(text)
         res["input_ids_uncond"] = jnp.repeat(self.input_ids_uncond, n, axis=0)

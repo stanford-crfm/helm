@@ -6,10 +6,16 @@
 
 import os
 from functools import partial
-from tokenizers import CharBPETokenizer
+
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 def build_tokenizer(path: str, context_length: int = 64, *args, **kwargs):
+    try:
+        from tokenizers import CharBPETokenizer
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["heim"])
+
     from_file = partial(
         CharBPETokenizer.from_file,
         vocab_filename=os.path.join(path, "bpe-16k-vocab.json"),

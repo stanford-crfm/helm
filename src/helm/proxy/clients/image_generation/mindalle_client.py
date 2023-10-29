@@ -1,12 +1,12 @@
 from typing import Dict, List, Optional
 
-from PIL import Image
 import numpy as np
 
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -17,6 +17,11 @@ from helm.common.tokenization_request import (
 from helm.proxy.clients.client import Client, CachingClient
 from helm.proxy.clients.image_generation.mindalle.models import Dalle
 from .image_generation_client_utils import get_single_image_multimedia_object
+
+try:
+    from PIL import Image
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 class MinDALLEClient(Client):
@@ -81,8 +86,8 @@ class MinDALLEClient(Client):
                 {"model": request.model_engine, "n": request.num_completions, **raw_request}, request
             )
             results, cached = self._cache.get(cache_key, wrap_request_time(do_it))
-        except RuntimeError as e:
-            error: str = f"MinDALLEClient error: {e}"
+        except RuntimeError as ex:
+            error: str = f"MinDALLEClient error: {ex}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [

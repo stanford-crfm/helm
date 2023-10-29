@@ -9,9 +9,16 @@ import re
 from pathlib import Path
 
 import emoji
-import ftfy
 from huggingface_hub import hf_hub_download
-from unidecode import unidecode
+
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import ftfy
+    from unidecode import unidecode
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
+
 
 # based on wiki word occurrence
 person_token = [("a person", 282265), ("someone", 121194), ("somebody", 12219)]

@@ -6,9 +6,15 @@
 import torch
 import torch.nn as nn
 from typing import List, Tuple, Optional
-from einops import rearrange
-from omegaconf import OmegaConf
+
 from .layers import Encoder, Decoder
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from einops import rearrange
+    from omegaconf import OmegaConf
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 class VectorQuantizer(nn.Module):

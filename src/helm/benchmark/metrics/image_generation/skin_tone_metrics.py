@@ -104,7 +104,7 @@ class SkinToneMetric(Metric):
     @staticmethod
     def find_scale_rgb(rgb) -> int:
         """
-        Find closest skin tone scale based on RGB format.
+        Find the closest skin tone scale based on RGB format.
         Adapted from https://github.com/j-min/DallEval/blob/main/biases/detect_skintone.py
         Returns a value between 1 and 10 inclusive.
         """

@@ -1,8 +1,7 @@
 import os
 import tempfile
-from pathlib import Path
 
-import wandb
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 class PretrainedFromWandbMixin:
@@ -11,6 +10,11 @@ class PretrainedFromWandbMixin:
         """
         Initializes from a wandb artifact or delegates loading to the superclass.
         """
+        try:
+            import wandb
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         with tempfile.TemporaryDirectory() as tmp_dir:  # avoid multiple artifact copies
             if ":" in pretrained_model_name_or_path and not os.path.isdir(pretrained_model_name_or_path):
                 # wandb artifact

@@ -3,13 +3,18 @@ from dataclasses import dataclass, field
 from functools import partial
 from pathlib import Path
 
-import jax
-import jax.numpy as jnp
 import numpy as np
-from braceexpand import braceexpand
 from datasets import Dataset, load_dataset
 
 from .model.text import TextNormalizer
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import jax
+    import jax.numpy as jnp
+    from braceexpand import braceexpand
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 @dataclass

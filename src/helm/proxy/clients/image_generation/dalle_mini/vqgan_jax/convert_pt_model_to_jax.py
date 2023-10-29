@@ -1,12 +1,17 @@
 import re
 
-import jax.numpy as jnp
-from flax.traverse_util import flatten_dict, unflatten_dict
-
 import torch
 
 from .modeling_flax_vqgan import VQModel
 from .configuration_vqgan import VQGANConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import jax.numpy as jnp
+    from flax.traverse_util import flatten_dict, unflatten_dict
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
+
 
 regex = r"\w+[.]\d+"
 

@@ -7,9 +7,7 @@
 import os
 import torch
 import torch.nn as nn
-import pytorch_lightning as pl
 from typing import Optional, Tuple
-from omegaconf import OmegaConf
 from torch.cuda.amp import autocast
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.nn import functional as F
@@ -19,6 +17,14 @@ from .. import utils
 from ..utils.config import get_base_config
 from ..utils.sampling import sampling, sampling_igpt
 from .tokenizer import build_tokenizer
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+
+try:
+    import pytorch_lightning as pl
+    from omegaconf import OmegaConf
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 _MODELS = {
     "minDALL-E/1.3B": "https://arena.kakaocdn.net/brainrepo/models/minDALL-E/57b008f02ceaa02b779c8b7463143315/1.3B.tar.gz"

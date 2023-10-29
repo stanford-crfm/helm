@@ -1,9 +1,9 @@
-from multilingual_clip import pt_multilingual_clip
 import torch
 import transformers
 
 from helm.common.gpu_utils import get_torch_device, get_torch_device_name
 from helm.common.images_utils import open_image
+from helm.common.optional_dependencies import handle_module_not_found_error
 from .base_clip_scorer import BaseCLIPScorer
 
 _ = torch.manual_seed(42)
@@ -19,7 +19,11 @@ class MultilingualCLIPScorer(BaseCLIPScorer):
     IMAGE_MODEL_NAME: str = "ViT-L/14"
 
     def __init__(self):
-        import clip
+        try:
+            import clip
+            from multilingual_clip import pt_multilingual_clip
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         super().__init__()
         self._device: torch.device = get_torch_device()

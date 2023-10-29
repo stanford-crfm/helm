@@ -1,7 +1,6 @@
 from typing import Dict, List
 
 import numpy as np
-from PIL import Image
 from functools import partial
 
 from helm.proxy.clients.image_generation.dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
@@ -9,6 +8,7 @@ from helm.proxy.clients.image_generation.dalle_mini import DalleBart, DalleBartP
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -39,8 +39,11 @@ class DALLEMiniClient(Client):
         Initialize the model based on the model name.
         Cache the model, so it doesn't get reinitialize for a new request.
         """
-        import jax.numpy as jnp
-        from flax.jax_utils import replicate
+        try:
+            import jax.numpy as jnp
+            from flax.jax_utils import replicate
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         if model_engine not in self._model_engine_to_model:
             model_name: str
@@ -62,9 +65,13 @@ class DALLEMiniClient(Client):
         return self._model_engine_to_model[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
-        import jax
-        from flax.training.common_utils import shard_prng_key
-        from flax.jax_utils import replicate
+        try:
+            import jax
+            from flax.training.common_utils import shard_prng_key
+            from flax.jax_utils import replicate
+            from PIL import Image
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         raw_request = {
             "prompt": request.prompt,

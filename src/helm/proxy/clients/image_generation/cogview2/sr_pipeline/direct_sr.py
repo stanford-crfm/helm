@@ -7,20 +7,21 @@
 """
 
 # here put the import lib
-from PIL import ImageEnhance, Image
-
 import torch
-
-from SwissArmyTransformer.training.model_io import load_checkpoint
-from .dsr_sampling import filling_sequence_dsr, IterativeEntfilterStrategy
-
-from .dsr_model import DsrModel
-
 from icetk import icetk as tokenizer
+
+from .dsr_sampling import filling_sequence_dsr, IterativeEntfilterStrategy
+from .dsr_model import DsrModel
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 class DirectSuperResolution:
     def __init__(self, args, path, max_bz=4, shared_transformer=None):
+        try:
+            from SwissArmyTransformer.training.model_io import load_checkpoint
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         args.load = path
         args.kernel_size = 5
         args.kernel_size2 = 5
@@ -51,22 +52,16 @@ class DirectSuperResolution:
                 v.copy_(self.saved_weights[k], non_blocking=non_blocking)
 
     def __call__(self, text_tokens, image_tokens, enhance=False):
+        try:
+            from PIL import ImageEnhance, Image
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         if len(text_tokens.shape) == 1:
             text_tokens.unsqueeze_(0)
         if len(image_tokens.shape) == 1:
             image_tokens.unsqueeze_(0)
-        # =====================   Debug   ======================== #
-        # new_image_tokens = []
-        # for small_img in image_tokens:
-        #     decoded = tokenizer.decode(image_ids=small_img)
-        #     decoded = torch.nn.functional.interpolate(decoded, size=(480, 480)).squeeze(0)
-        #     ndarr = decoded.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy()
-        #     image_pil_raw = ImageEnhance.Sharpness(Image.fromarray(ndarr))
-        #     small_img2 = tokenizer.encode(image_pil=image_pil_raw.enhance(1.5), image_size=480).view(-1)
-        #     new_image_tokens.append(small_img2)
-        # image_tokens = torch.stack(new_image_tokens)
-        # return image_tokens
-        # ===================== END OF BLOCK ======================= #
+
         if enhance:
             new_image_tokens = []
             for small_img in image_tokens:

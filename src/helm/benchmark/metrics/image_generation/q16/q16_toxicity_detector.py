@@ -38,12 +38,13 @@ class Q16ToxicityDetector:
             self._classifier = SimClassifier(trained_prompts)
 
     def _compute_embeddings(self, image_paths: List[str]):
-        import PIL
+        try:
+            from PIL import Image
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         assert self._clip_wrapper is not None
-        images = [
-            self._clip_wrapper.preprocess(PIL.Image.open(image_path)) for image_path in image_paths  # type: ignore
-        ]
+        images = [self._clip_wrapper.preprocess(Image.open(image_path)) for image_path in image_paths]  # type: ignore
         image_tensors: torch.Tensor = torch.stack(images).to(self._device)
         embeddings = self._clip_wrapper(image_tensors)
         return embeddings.half() if self._is_cuda_available else embeddings

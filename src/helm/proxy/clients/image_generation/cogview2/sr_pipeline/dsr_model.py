@@ -11,12 +11,16 @@ import math
 import torch
 import torch.nn.functional as F
 
+from helm.common.optional_dependencies import handle_module_not_found_error
 
-from SwissArmyTransformer.model.base_model import BaseModel, BaseMixin
-
-from SwissArmyTransformer.mpu.utils import sqrt
-from SwissArmyTransformer.mpu import ColumnParallelLinear, RowParallelLinear
-from SwissArmyTransformer.model.transformer import unscaled_init_method, split_tensor_along_last_dim
+try:
+    from SwissArmyTransformer.model.base_model import BaseModel, BaseMixin
+    from SwissArmyTransformer.mpu.utils import sqrt
+    from SwissArmyTransformer.mpu import ColumnParallelLinear, RowParallelLinear
+    from SwissArmyTransformer.model.transformer import unscaled_init_method, split_tensor_along_last_dim
+    from SwissArmyTransformer.ops.local_attention_function import f_similar, f_weighting
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 class PositionEmbeddingMixin(BaseMixin):
@@ -188,8 +192,6 @@ def sparse_attention_2d_light(
     n_head: int
     attention_mask: [batch_size, 1088, 1088]
     """
-    from SwissArmyTransformer.ops.local_attention_function import f_similar, f_weighting
-
     b, s0, h0 = q0.shape
     b, s1, h1 = q1.shape
     h, l0, l1 = h0 // n_head, sqrt(s0 - text_len), sqrt(s1)

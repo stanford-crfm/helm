@@ -6,7 +6,13 @@
 
 from typing import Optional, List
 from dataclasses import dataclass, field
-from omegaconf import OmegaConf
+
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from omegaconf import OmegaConf
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 @dataclass

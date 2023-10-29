@@ -4,15 +4,18 @@ from functools import partial
 from typing import Tuple
 import math
 
-import jax
-import jax.numpy as jnp
-import numpy as np
-import flax.linen as nn
-from flax.core.frozen_dict import FrozenDict
-
 from transformers.modeling_flax_utils import FlaxPreTrainedModel
 
 from .configuration_vqgan import VQGANConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import jax
+    import jax.numpy as jnp
+    import flax.linen as nn
+    from flax.core.frozen_dict import FrozenDict
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 class Upsample(nn.Module):

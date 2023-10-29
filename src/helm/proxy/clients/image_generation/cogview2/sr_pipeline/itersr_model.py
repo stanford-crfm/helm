@@ -11,12 +11,16 @@ import math
 import torch
 import torch.nn.functional as F
 
+from helm.common.optional_dependencies import handle_module_not_found_error
 
-from SwissArmyTransformer.model.base_model import BaseModel, BaseMixin
-
-from SwissArmyTransformer.mpu.utils import sqrt
-from deepspeed.runtime.activation_checkpointing.checkpointing import get_cuda_rng_tracker
-from SwissArmyTransformer.model.transformer import split_tensor_along_last_dim
+try:
+    from deepspeed.runtime.activation_checkpointing.checkpointing import get_cuda_rng_tracker
+    from SwissArmyTransformer.model.base_model import BaseModel, BaseMixin
+    from SwissArmyTransformer.mpu.utils import sqrt
+    from SwissArmyTransformer.model.transformer import split_tensor_along_last_dim
+    from SwissArmyTransformer.ops.local_attention_function import f_similar, f_weighting
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 class PositionEmbeddingMixin(BaseMixin):
@@ -139,8 +143,6 @@ def sparse_attention_2d_text(
     n_head: int
     attention_mask: [batch_size, 16]
     """
-    from SwissArmyTransformer.ops.local_attention_function import f_similar, f_weighting
-
     b, s0, h0 = q0.shape
     b, s1, h1 = q1.shape
     h, l1 = h0 // n_head, sqrt(s1)
@@ -220,8 +222,6 @@ def sparse_attention_2d_notext(
     n_head: int
     attention_mask: [batch_size, 16]
     """
-    from SwissArmyTransformer.mpu.local_attention_function import f_similar, f_weighting
-
     b, s0, h0 = q0.shape
     b, s1, h1 = q1.shape
     h, l1 = h0 // n_head, sqrt(s1)

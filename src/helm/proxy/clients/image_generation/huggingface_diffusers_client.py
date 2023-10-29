@@ -1,6 +1,5 @@
 from typing import Dict, List, Optional
 
-from PIL import Image
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
@@ -8,6 +7,7 @@ from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.gpu_utils import get_torch_device_name, is_cuda_available
 from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -15,8 +15,15 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.proxy.clients.client import Client
+from helm.proxy.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
+
+try:
+    from PIL import Image
+    from diffusers import DiffusionPipeline
+    from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 class HuggingFaceDiffusersClient(Client):
@@ -34,8 +41,6 @@ class HuggingFaceDiffusersClient(Client):
         Initialize the Diffusion Pipeline based on the model name.
         Cache the model, so it doesn't get reinitialize for a new request.
         """
-        from diffusers import DiffusionPipeline
-
         if model_engine not in self._model_engine_to_diffuser:
             huggingface_model_name: str
             if model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
@@ -72,9 +77,6 @@ class HuggingFaceDiffusersClient(Client):
         return self._model_engine_to_diffuser[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
-        from diffusers import DiffusionPipeline
-        from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
-
         raw_request = {
             "prompt": request.prompt,
             # Setting this to a higher value can cause CUDA OOM
@@ -149,7 +151,7 @@ class HuggingFaceDiffusersClient(Client):
                     return result
 
             # Include the model name and number of completions in the cache key
-            cache_key: Dict = Client.make_cache_key(
+            cache_key: Dict = CachingClient.make_cache_key(
                 {"model": request.model_engine, "n": request.num_completions, **raw_request}, request
             )
             results, cached = self._cache.get(cache_key, wrap_request_time(do_it))

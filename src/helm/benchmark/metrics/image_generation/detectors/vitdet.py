@@ -1,7 +1,6 @@
 import os
 from typing import Dict, Any
 
-from PIL import Image
 import torch
 
 from helm.common.general import ensure_file_downloaded, hlog, get_helm_cache_path
@@ -56,6 +55,7 @@ class ViTDetDetector(BaseDetector):
         try:
             from detectron2.data.common import DatasetFromList, MapDataset
             from detectron2.config import instantiate
+            from PIL import Image
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 

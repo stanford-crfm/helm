@@ -18,18 +18,6 @@ import math
 from functools import partial
 from typing import Any, Dict, Optional, Tuple
 
-import flax
-import flax.linen as nn
-import jax
-import jax.numpy as jnp
-from einops import rearrange
-from flax.core.frozen_dict import unfreeze
-from flax.linen import combine_masks, make_causal_mask
-from flax.linen import partitioning as nn_partitioning
-from flax.linen.linear import PrecisionLike
-from flax.traverse_util import flatten_dict, unflatten_dict
-from jax import custom_jvp, lax
-from jax.random import PRNGKey
 from transformers.modeling_flax_outputs import (
     FlaxBaseModelOutput,
     FlaxBaseModelOutputWithPastAndCrossAttentions,
@@ -46,8 +34,26 @@ from transformers.models.bart.modeling_flax_bart import (
 from transformers.utils import ModelOutput, logging
 from transformers.generation.configuration_utils import GenerationConfig
 
+from helm.common.optional_dependencies import handle_module_not_found_error
 from .configuration import DalleBartConfig
 from .utils import PretrainedFromWandbMixin
+
+try:
+    import flax
+    import flax.linen as nn
+    import jax
+    import jax.numpy as jnp
+    from einops import rearrange
+    from flax.core.frozen_dict import unfreeze
+    from flax.linen import combine_masks, make_causal_mask
+    from flax.linen import partitioning as nn_partitioning
+    from flax.linen.linear import PrecisionLike
+    from flax.traverse_util import flatten_dict, unflatten_dict
+    from jax import custom_jvp, lax
+    from jax.random import PRNGKey
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
+
 
 logger = logging.get_logger(__name__)
 

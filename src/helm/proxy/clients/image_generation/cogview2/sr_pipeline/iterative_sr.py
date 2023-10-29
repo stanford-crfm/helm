@@ -5,21 +5,21 @@
 @Author  :   Ming Ding
 @Contact :   dm18@mails.tsinghua.edu.cn
 """
-
-from PIL import ImageEnhance, Image
-
 import torch
-
-from SwissArmyTransformer.training.model_io import load_checkpoint
-from .itersr_sampling import filling_sequence_itersr, IterativeEntfilterStrategy
-
-from .itersr_model import ItersrModel
-
 from icetk import icetk as tokenizer
+
+from .itersr_sampling import filling_sequence_itersr, IterativeEntfilterStrategy
+from .itersr_model import ItersrModel
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 class IterativeSuperResolution:
     def __init__(self, args, path, max_bz=4, shared_transformer=None):
+        try:
+            from SwissArmyTransformer.training.model_io import load_checkpoint
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         args.load = path
         args.kernel_size = 5
         args.kernel_size2 = 5
@@ -50,6 +50,11 @@ class IterativeSuperResolution:
                 v.copy_(self.saved_weights[k])
 
     def __call__(self, text_tokens, image_tokens, enhance=False, input_mask=None):
+        try:
+            from PIL import ImageEnhance, Image
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         if len(text_tokens.shape) == 1:
             text_tokens.unsqueeze_(0)
         text_tokens = text_tokens.clone()[..., :16]

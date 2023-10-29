@@ -11,6 +11,7 @@ from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.general import get_helm_cache_path
 from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -47,7 +48,10 @@ class CogView2Client(Client):
         self._srg: Optional[SRGroup] = None
 
     def _get_model(self) -> None:
-        from SwissArmyTransformer import get_args
+        try:
+            from SwissArmyTransformer import get_args
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         tokenizer.add_special_tokens(["<start_of_image>", "<start_of_english>", "<start_of_chinese>"])
 
@@ -82,7 +86,10 @@ class CogView2Client(Client):
             self._srg = SRGroup(self._args)
 
     def _model_inference(self, prompt) -> torch.Tensor:
-        from SwissArmyTransformer.generation.autoregressive_sampling import filling_sequence
+        try:
+            from SwissArmyTransformer.generation.autoregressive_sampling import filling_sequence
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
 
         with torch.no_grad():
             text = getattr(self._args, "query_template").format(prompt)

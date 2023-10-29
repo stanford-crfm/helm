@@ -10,11 +10,11 @@ import urllib
 import hashlib
 import tarfile
 import torch
-import clip
 import numpy as np
-from PIL import Image
 from torch.nn import functional as F
 from tqdm import tqdm
+
+from helm.common.optional_dependencies import handle_module_not_found_error
 
 
 def set_seed(seed: int):
@@ -28,6 +28,12 @@ def set_seed(seed: int):
 def clip_score(
     prompt: str, images: np.ndarray, model_clip: torch.nn.Module, preprocess_clip, device: str
 ) -> np.ndarray:
+    try:
+        import clip
+        from PIL import Image
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["heim"])
+
     images = [preprocess_clip(Image.fromarray((image * 255).astype(np.uint8))) for image in images]
     images = torch.stack(images, dim=0).to(device=device)
     texts = clip.tokenize(prompt).to(device=device)

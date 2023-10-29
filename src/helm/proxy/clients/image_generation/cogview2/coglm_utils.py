@@ -1,5 +1,11 @@
 import torch
-from SwissArmyTransformer.model import CachedAutoregressiveModel
+
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from SwissArmyTransformer.model import CachedAutoregressiveModel
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 def get_masks_and_position_ids_coglm(seq, context_length):
