@@ -7,11 +7,6 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.hierarchical_logger import hlog
 from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 
-try:
-    from google.cloud import storage
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["heim"])
-
 
 class GCSClientError(Exception):
     pass
@@ -26,12 +21,22 @@ class GCSClient:
     MAX_CHECK_ATTEMPTS: int = 10
 
     def __init__(self, bucket_name: str, cache_config: CacheConfig):
+        try:
+            from google.cloud import storage
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         self._bucket_name: str = bucket_name
         self._cache = Cache(cache_config)
         self._storage_client: Optional[storage.Client] = None
 
     def upload(self, request: FileUploadRequest) -> FileUploadResult:
         """Uploads a file to GCS."""
+        try:
+            from google.cloud import storage
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         try:
 
             def do_it():

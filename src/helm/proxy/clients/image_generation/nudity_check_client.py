@@ -6,11 +6,6 @@ from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 
-try:
-    from nudenet import NudeClassifier
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["heim"])
-
 
 class NudityCheckClientError(Exception):
     pass
@@ -22,11 +17,21 @@ class NudityCheckClient:
     )
 
     def __init__(self, cache_config: CacheConfig):
+        try:
+            from nudenet import NudeClassifier
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         self.cache = Cache(cache_config)
         self._nudity_classifier: Optional[NudeClassifier] = None
 
     def check_nudity(self, request: NudityCheckRequest) -> NudityCheckResult:
         """Check for nudity for a batch of images using NudeNet."""
+        try:
+            from nudenet import NudeClassifier
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         try:
 
             def do_it():

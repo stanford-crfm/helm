@@ -1,17 +1,12 @@
 from typing import Literal
 
+from torchvision import transforms
 import torch
 
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
 from helm.common.optional_dependencies import handle_module_not_found_error
 from .base_clip_scorer import BaseCLIPScorer
-
-try:
-    from torchmetrics.multimodal import CLIPScore
-    from torchvision import transforms
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["heim"])
 
 
 _ = torch.manual_seed(42)
@@ -40,6 +35,11 @@ class CLIPScorer(BaseCLIPScorer):
             "openai/clip-vit-large-patch14",
         ] = "openai/clip-vit-large-patch14",
     ):
+        try:
+            from torchmetrics.multimodal import CLIPScore
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         self._device: torch.device = get_torch_device()
         self._metric = CLIPScore(model_name_or_path=model_name).to(self._device)
 
