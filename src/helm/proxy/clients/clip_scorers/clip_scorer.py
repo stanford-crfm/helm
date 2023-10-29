@@ -10,7 +10,6 @@ from .base_clip_scorer import BaseCLIPScorer
 try:
     from torchmetrics.multimodal import CLIPScore
     from torchvision import transforms
-    from PIL import Image
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["heim"])
 
@@ -45,7 +44,7 @@ class CLIPScorer(BaseCLIPScorer):
         self._metric = CLIPScore(model_name_or_path=model_name).to(self._device)
 
     def compute_score(self, caption: str, image_location: str) -> float:
-        image: Image = open_image(image_location)
+        image = open_image(image_location)
         image_tensor: torch.Tensor = transforms.ToTensor()(image).to(self._device)
         score: float = self._metric(image_tensor, caption).detach().item()
         return score

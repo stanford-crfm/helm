@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 import base64
 import requests
 import urllib.parse
@@ -35,7 +35,7 @@ class LexicaClient(Client):
             # Only Stable Diffusion 1.5 is supported at the moment
             raise ValueError(f"Invalid model: {request.model_engine}")
 
-        raw_request = {
+        raw_request: Dict[str, Union[str, int]] = {
             "model": request.model_engine,
             "prompt": request.prompt,
             "n": request.num_completions,
@@ -45,15 +45,16 @@ class LexicaClient(Client):
         try:
 
             def do_it():
+                num_completions: int = int(raw_request["n"])
                 result = requests.get(
                     f"https://lexica.art/api/v1/search?{urllib.parse.urlencode({'q': request.prompt})}"
                 ).json()
                 assert "images" in result, f"Invalid response: {result} from prompt: {request.prompt}"
-                assert len(result["images"]) >= raw_request["n"], "Did not retrieve enough images"
+                assert len(result["images"]) >= num_completions, "Did not retrieve enough images"
 
                 image_locations: List[str] = []
                 # Most relevant images are at the top of the list
-                for image in result["images"][: raw_request["n"]]:
+                for image in result["images"][:num_completions]:
                     # Write out the image to a file and save the location
                     image_base64: str = encode_base64(image["src"])
                     image_locations.append(self.file_cache.store(lambda: base64.b64decode(image_base64)))

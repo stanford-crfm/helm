@@ -19,7 +19,6 @@ from helm.proxy.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 try:
-    from PIL import Image
     from diffusers import DiffusionPipeline
     from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
 except ModuleNotFoundError as e:
@@ -32,11 +31,11 @@ class HuggingFaceDiffusersClient(Client):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
 
-        self._model_engine_to_diffuser = {}
+        self._model_engine_to_diffuser: Dict[str, DiffusionPipeline] = {}
         self._promptist_model = None
         self._promptist_tokenizer = None
 
-    def _get_diffuser(self, model_engine: str):
+    def _get_diffuser(self, model_engine: str) -> DiffusionPipeline:
         """
         Initialize the Diffusion Pipeline based on the model name.
         Cache the model, so it doesn't get reinitialize for a new request.
@@ -117,7 +116,7 @@ class HuggingFaceDiffusersClient(Client):
                     diffuser: DiffusionPipeline = self._get_diffuser(request.model_engine)
                     promptist_prompt: Optional[str] = None
 
-                    images: List[Image] = []
+                    images = []
                     for _ in range(request.num_completions):
                         if request.model_engine == "promptist-stable-diffusion-v1-4":
                             promptist_prompt = self._generate_promptist_version(prompt)
@@ -137,7 +136,7 @@ class HuggingFaceDiffusersClient(Client):
                         len(images) == request.num_completions
                     ), f"Expected {request.num_completions} images, but got {len(images)}"
 
-                    result = {"file_locations": []}
+                    result: Dict = {"file_locations": []}
                     if promptist_prompt is not None:
                         # Save the Promptist version of the prompts in the cache, just in case we need it later
                         result["promptist_prompt"] = promptist_prompt

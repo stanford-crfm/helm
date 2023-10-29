@@ -1,10 +1,15 @@
-from typing import Dict
+from typing import Dict, Optional
 import os
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
+
+try:
+    from nudenet import NudeClassifier
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 class NudityCheckClientError(Exception):
@@ -18,15 +23,10 @@ class NudityCheckClient:
 
     def __init__(self, cache_config: CacheConfig):
         self.cache = Cache(cache_config)
-        self._nudity_classifier = None
+        self._nudity_classifier: Optional[NudeClassifier] = None
 
     def check_nudity(self, request: NudityCheckRequest) -> NudityCheckResult:
         """Check for nudity for a batch of images using NudeNet."""
-        try:
-            from nudenet import NudeClassifier
-        except ModuleNotFoundError as e:
-            handle_module_not_found_error(e, ["heim"])
-
         try:
 
             def do_it():
@@ -45,7 +45,6 @@ class NudityCheckClient:
                 return path_to_nudity_scores
 
             results, cached = self.cache.get({"locations": sorted(request.image_locations)}, do_it)
-
         except Exception as e:
             raise NudityCheckClientError(e)
 

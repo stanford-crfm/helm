@@ -55,11 +55,10 @@ class ViTDetDetector(BaseDetector):
         try:
             from detectron2.data.common import DatasetFromList, MapDataset
             from detectron2.config import instantiate
-            from PIL import Image
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
-        image: Image = open_image(image_location)
+        image = open_image(image_location)
         dataset_dicts = [
             {
                 "file_name": image_location,

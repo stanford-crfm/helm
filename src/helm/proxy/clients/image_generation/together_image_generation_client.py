@@ -30,7 +30,6 @@ class TogetherImageGenerationClient(Client):
     INFERENCE_ENDPOINT: str = "https://api.together.xyz/api/inference"
 
     def __init__(self, cache_config: CacheConfig, file_cache: FileCache, api_key: Optional[str] = None):
-        super().__init__(cache_config, api_key)
         self._cache = Cache(cache_config)
         self.file_cache: FileCache = file_cache
 

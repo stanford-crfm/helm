@@ -1,4 +1,12 @@
+from typing import Optional
+
 from helm.common.cache import Cache, SqliteCacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from google.cloud import translate_v2 as translate
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 class GoogleTranslateClient:
@@ -10,12 +18,10 @@ class GoogleTranslateClient:
     """
 
     def __init__(self, cache_path: str = "prod_env/cache/google_translate.sqlite"):
-        self.translate_client = None
+        self.translate_client: Optional[translate.Client] = None
         self.cache = Cache(SqliteCacheConfig(cache_path))
 
     def translate(self, text: str, target_language: str) -> str:
-        from google.cloud import translate_v2 as translate
-
         def do_it():
             if self.translate_client is None:
                 self.translate_client = translate.Client()

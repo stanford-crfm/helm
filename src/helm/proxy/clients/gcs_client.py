@@ -1,10 +1,16 @@
 from dataclasses import asdict
-from typing import Dict
+from typing import Dict, Optional
 import requests
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.hierarchical_logger import hlog
 from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
+
+try:
+    from google.cloud import storage
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["heim"])
 
 
 class GCSClientError(Exception):
@@ -22,12 +28,10 @@ class GCSClient:
     def __init__(self, bucket_name: str, cache_config: CacheConfig):
         self._bucket_name: str = bucket_name
         self._cache = Cache(cache_config)
-        self._storage_client = None
+        self._storage_client: Optional[storage.Client] = None
 
     def upload(self, request: FileUploadRequest) -> FileUploadResult:
         """Uploads a file to GCS."""
-        from google.cloud import storage
-
         try:
 
             def do_it():

@@ -153,7 +153,7 @@ class CogView2Client(Client):
                         len(images) == request.num_completions
                     ), f"Expected {request.num_completions} images, but got {len(images)}"
 
-                    result = {"file_locations": []}
+                    result: Dict = {"file_locations": []}
                     for image in images:
                         # Write out the image to a file and save the path
                         file_location: str = self._file_cache.get_unique_file_location()

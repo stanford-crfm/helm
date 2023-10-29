@@ -2,7 +2,7 @@ from typing import Dict
 
 import openai
 
-from .client import wrap_request_time
+from helm.common.request import wrap_request_time
 from helm.common.cache import Cache, CacheConfig
 from helm.common.moderations_api_request import (
     ModerationCategoryScores,

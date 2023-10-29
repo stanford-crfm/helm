@@ -55,7 +55,6 @@ class CoglmStrategy:
         self.end_tokens = end_tokens
         self._is_done = False
         self.outlier_count_down = 5
-        self.vis_list = [[] for i in range(16)]
         self.cluster_labels = torch.tensor(
             np.load(f"{os.path.dirname(os.path.abspath(__file__))}/cluster_label.npy"),
             device="cuda" if torch.cuda.is_available() else "cpu",
@@ -84,7 +83,7 @@ class CoglmStrategy:
             selected_cluster = best_clusters[i][torch.multinomial(best_scores[i] / best_scores[i].sum(), num_samples=1)]
             logits[i, self.cluster_labels != selected_cluster] = -65504
 
-        probs = F.softmax(logits.float() / self.top_k_cluster, dim=-1)  # float is essetial, due to a bug in Pytorch
+        probs = F.softmax(logits.float() / self.top_k_cluster, dim=-1)  # float is essential, due to a bug in Pytorch
         pred = torch.multinomial(probs, num_samples=1)
 
         if pred.numel() == 1 and pred.item() in self.end_tokens:
