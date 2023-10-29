@@ -43,9 +43,9 @@ class MSCOCOScenario(Scenario):
     description = "Microsoft COCO: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312))."
     tags = ["text-to-image", "image-to-text"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the annotations which contains the image IDs, filenames and captions
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(output_path, "data")
         ensure_file_downloaded(source_url=self.ANNOTATIONS_DOWNLOAD_URL, target_path=data_path, unpack=True)
 
         instances: List[Instance] = []

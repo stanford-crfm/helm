@@ -81,7 +81,7 @@ class MagazineCoverScenario(Scenario):
     description = "Prompts to generate magazine cover photos"
     tags = ["text-to-image", "originality"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         def construct_prompt(headline: str) -> str:
             return f'a photo for a cover of a magazine with the headline: "{headline}"'
 

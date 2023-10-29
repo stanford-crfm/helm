@@ -42,9 +42,9 @@ class CUB200Scenario(Scenario):
     )
     tags = ["text-to-image", "image-to-text"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the images
-        images_path: str = os.path.join(self.output_path, "images")
+        images_path: str = os.path.join(output_path, "images")
         ensure_file_downloaded(
             source_url=self.IMAGES_DOWNLOAD_URL,
             target_path=images_path,
@@ -54,7 +54,7 @@ class CUB200Scenario(Scenario):
         images_path = os.path.join(images_path, "CUB_200_2011", "images")
 
         # Download the captions
-        captions_path: str = os.path.join(self.output_path, "captions")
+        captions_path: str = os.path.join(output_path, "captions")
         ensure_file_downloaded(
             source_url=self.CAPTIONS_DOWNLOAD_URL,
             target_path=captions_path,

@@ -26,7 +26,7 @@ class RadiologyScenario(Scenario):
     description = "Prompts to generate radiological images ([paper](https://arxiv.org/abs/2209.13696))."
     tags = ["text-to-image", "knowledge"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         prompts: List[str] = []
 
         for anatomical_area in self.X_RAY_ANATOMICAL_AREA:

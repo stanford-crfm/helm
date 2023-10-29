@@ -34,7 +34,7 @@ class MentalDisordersScenario(Scenario):
     )
     tags = ["text-to-image", "bias"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         # There are no reference images
         return [
             # From https://arxiv.org/abs/2211.03759, using "a photo of the face of X"

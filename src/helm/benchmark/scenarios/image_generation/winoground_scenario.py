@@ -35,7 +35,7 @@ class WinogroundScenario(Scenario):
     )
     tags = ["text-to-image", "image-to-text", "visual_reasoning"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         auth_token: str = os.environ.get("HUGGING_FACE_ACCESS_TOKEN", "")
 
         instances: List[Instance] = []
@@ -45,7 +45,7 @@ class WinogroundScenario(Scenario):
             image_path: str = row["image_0"].filename
 
             # Create a copy of the image in the benchmark output folder for metrics computation
-            image_copy_path: str = os.path.join(self.output_path, get_file_name(image_path))
+            image_copy_path: str = os.path.join(output_path, get_file_name(image_path))
             if not os.path.exists(image_copy_path):
                 copy_image(image_path, image_copy_path)
             content: MultimediaObject = MultimediaObject(

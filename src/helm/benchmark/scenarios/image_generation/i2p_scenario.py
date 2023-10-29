@@ -42,7 +42,7 @@ class I2PScenario(Scenario):
         super().__init__()
         self.category: str = category
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         return [
             # There are sometimes random spaces at the beginning and end of the prompts
             Instance(Input(text=row["prompt"].strip()), references=[], split=TEST_SPLIT)

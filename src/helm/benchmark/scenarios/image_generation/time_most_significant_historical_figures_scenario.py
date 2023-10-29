@@ -117,7 +117,7 @@ class TIMEMostSignificantHistoricalFigures(Scenario):
     description = 'People from TIME\'s "The 100 Most Significant Figures in History" list.'
     tags = ["text-to-image", "knowledge"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         return [
             Instance(Input(text=historical_figure), references=[], split=TEST_SPLIT)
             for historical_figure in self.HISTORICAL_FIGURES

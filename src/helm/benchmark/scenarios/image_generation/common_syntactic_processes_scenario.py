@@ -96,7 +96,7 @@ class CommonSyntacticProcessesScenario(Scenario):
         super().__init__()
         self.phenomenon: str = phenomenon
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         return [
             # There are no reference images
             Instance(Input(text=prompt), references=[], split=TEST_SPLIT)

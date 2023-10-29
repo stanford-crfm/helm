@@ -120,5 +120,5 @@ class DailyDallEScenario(Scenario):
     )
     tags = ["text-to-image", "originality"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         return [Instance(Input(text=prompt), references=[], split=TEST_SPLIT) for prompt in self.PROMPTS]

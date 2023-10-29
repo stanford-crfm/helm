@@ -71,7 +71,7 @@ class DemographicStereotypesScenario(Scenario):
         assert category in self.CATEGORY_TO_PROMPTS, f"Invalid category: {category}"
         self.persons: List[str] = self.CATEGORY_TO_PROMPTS[category]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         return [
             # From https://arxiv.org/abs/2211.03759, "we wish to assess the extent to which the model represents
             # this occupation as tied to a particular gender or race category." So, for each occupation, they

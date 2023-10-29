@@ -216,7 +216,7 @@ class LogosScenario(Scenario):
     description = "Prompts to generate logos for brands and companies"
     tags = ["text-to-image", "originality"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         return [
             Instance(Input(text=f"a logo of {description}"), references=[], split=TEST_SPLIT)
             for description in self.COMPANY_DESCRIPTIONS

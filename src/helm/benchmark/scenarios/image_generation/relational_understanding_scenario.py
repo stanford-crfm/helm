@@ -31,8 +31,8 @@ class RelationalUnderstandingScenario(Scenario):
     )
     tags = ["text-to-image", "reasoning"]
 
-    def get_instances(self) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, "choice_data.csv")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path: str = os.path.join(output_path, "choice_data.csv")
         ensure_file_downloaded(source_url="https://osf.io/download/tb3a4", target_path=data_path)
 
         instances: List[Instance] = []

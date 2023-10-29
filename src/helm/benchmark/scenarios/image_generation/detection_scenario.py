@@ -39,8 +39,8 @@ class DetectionScenario(Scenario):
         assert skill in ["count", "spatial", "object"], f"Invalid skill: {skill}"
         self._selected_skill: str = skill
 
-    def get_instances(self) -> List[Instance]:
-        prompts_path: str = os.path.join(self.output_path, "prompts.csv")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        prompts_path: str = os.path.join(output_path, "prompts.csv")
         ensure_file_downloaded(source_url=self.DATASET_DOWNLOAD_URL, target_path=prompts_path)
 
         instances: List[Instance] = []

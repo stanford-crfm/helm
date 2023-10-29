@@ -36,7 +36,7 @@ class LandingPageScenario(Scenario):
     description = "Prompts to generate landing pages for mobile or web applications."
     tags = ["text-to-image", "originality"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, _) -> List[Instance]:
         return [
             Instance(
                 Input(text=f"a landing page of a {app_type} {platform} application"), references=[], split=TEST_SPLIT

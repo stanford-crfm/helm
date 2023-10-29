@@ -39,8 +39,8 @@ class PaintSkillsScenario(Scenario):
         assert skill in self.SKILL_TO_DOWNLOAD_URL, f"Invalid skill: {skill}"
         self.skill: str = skill
 
-    def get_instances(self) -> List[Instance]:
-        skills_data_path: str = os.path.join(self.output_path, self.skill)
+    def get_instances(self, output_path: str) -> List[Instance]:
+        skills_data_path: str = os.path.join(output_path, self.skill)
         ensure_file_downloaded(
             source_url=self.SKILL_TO_DOWNLOAD_URL[self.skill],
             target_path=skills_data_path,
