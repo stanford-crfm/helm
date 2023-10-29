@@ -6,7 +6,7 @@ from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 
 
-class StylePerturbation(Perturbation):
+class SuffixPerturbation(Perturbation):
     """Appends modifications to the end of the text."""
 
     @dataclass(frozen=True)
@@ -20,7 +20,7 @@ class StylePerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return StylePerturbation.Description(name=self.name, modifications=",".join(self._modifications))
+        return SuffixPerturbation.Description(name=self.name, modifications=",".join(self._modifications))
 
     def perturb(self, text: str, rng: Random) -> str:
         modifications: str = "" if len(self._modifications) == 0 else f", {', '.join(self._modifications)}"

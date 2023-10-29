@@ -15,7 +15,7 @@ from .space_perturbation import SpacePerturbation
 from .dialect_perturbation import DialectPerturbation
 from .person_name_perturbation import PersonNamePerturbation
 from .gender_perturbation import GenderPerturbation
-from .style_perturbation import StylePerturbation
+from .style_perturbation import SuffixPerturbation
 
 
 def test_extra_space_perturbation():
@@ -235,8 +235,8 @@ def test_gender_term_perturbation():
     assert instances[1].references[0].output.text == "How did their mother look like?"
 
 
-def test_style_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[StylePerturbation(modifications=["pixel art"])])
+def test_suffix_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[SuffixPerturbation(modifications=["pixel art"])])
     instance: Instance = Instance(id="id0", input=Input(text="A blue dog"), references=[])
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
