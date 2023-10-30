@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 from helm.common.media_object import MultimediaObject
+from helm.common.image_generation_parameters import ImageGenerationParameters
 from helm.proxy.models import Model, get_model
 from .general import indent_lines, format_text
 
@@ -64,22 +65,8 @@ class Request:
     multimodal_prompt: Optional[MultimediaObject] = None
     """Multimodal prompt with media objects interleaved (e.g., text, video, image, text, ...)"""
 
-    # Text-to-image fields
-    image_generation_width: Optional[int] = None
-    """Width of the generated image. The model will generate images with the model's
-    default dimensions when unspecified."""
-
-    image_generation_height: Optional[int] = None
-    """Height of the generated image. The model will generate images with the model's
-    default dimensions when unspecified."""
-
-    image_generation_guidance_scale: Optional[float] = None
-    """A non-negative number determining how much importance is given to the prompt
-    when generating images. Higher values will generate images that follow more
-    closely to the prompt. Currently only for diffusion models."""
-
-    image_generation_diffusion_denoising_steps: Optional[int] = None
-    """The number of denoising steps for diffusion models."""
+    image_generation_parameters: Optional[ImageGenerationParameters] = None
+    """Parameters for image generation."""
 
     @property
     def model_organization(self) -> str:

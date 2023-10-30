@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from helm.common.image_generation_parameters import ImageGenerationParameters
+
 
 @dataclass(frozen=True)
 class Substitution:
@@ -95,20 +97,5 @@ class AdapterSpec:
     # to be all the correct references rather than any of the correct references.
     multi_label: bool = False
 
-    # HEIM (text-to-image model evaluation) adapter specs:
-    # The width of the image. Generates images with the default size when unspecified.
-    image_generation_width: Optional[int] = None
-
-    # The height of the image. Generates images with the default size when unspecified.
-    image_generation_height: Optional[int] = None
-
-    # How much importance is given to your prompt when generating images:
-    # 0 -> completely random image
-    # Lower values -> creative images
-    # Higher values -> image that follows prompt more precisely
-    # Not setting a value will use the model's default.
-    image_generation_guidance_scale: Optional[float] = None
-
-    # The number of denoising steps for diffusion models.
-    # Not setting a value will use the model's default.
-    image_generation_diffusion_denoising_steps: Optional[int] = None
+    # Parameters for image generation
+    image_generation_parameters: Optional[ImageGenerationParameters] = None

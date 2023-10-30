@@ -23,10 +23,7 @@ class ImageGenerationAdapter(GenerationAdapter):
             model=self.adapter_spec.model,
             prompt=prompt.text,
             num_completions=self.adapter_spec.num_outputs,
-            image_generation_width=self.adapter_spec.image_generation_width,
-            image_generation_height=self.adapter_spec.image_generation_height,
-            image_generation_guidance_scale=self.adapter_spec.image_generation_guidance_scale,
-            image_generation_diffusion_denoising_steps=self.adapter_spec.image_generation_diffusion_denoising_steps,
+            image_generation_parameters=self.adapter_spec.image_generation_parameters,
             max_tokens=0,
             random=self.adapter_spec.random,
         )

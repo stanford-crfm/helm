@@ -94,10 +94,14 @@ class DALLE2Client(Client):
             return get_content_policy_violated_result()
 
         # https://beta.openai.com/docs/api-reference/images/create#images/create-response_format
+        assert request.image_generation_parameters is not None
         raw_request: Dict[str, Any] = {
             "prompt": request.prompt,
             "n": request.num_completions,
-            "size": get_size_str(request.image_generation_width, request.image_generation_height),
+            "size": get_size_str(
+                request.image_generation_parameters.output_image_width,
+                request.image_generation_parameters.output_image_height,
+            ),
             "response_format": "b64_json",  # Always set to b64_json as URLs are only valid for an hour
         }
 

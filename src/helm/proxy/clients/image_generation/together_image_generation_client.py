@@ -40,25 +40,29 @@ class TogetherImageGenerationClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         # Following https://docs.together.xyz/en/api
+        assert request.image_generation_parameters is not None
         raw_request = {
             "request_type": "image-model-inference",
             "model": request.model_engine,
             "prompt": request.prompt,
             "n": request.num_completions,
-            "guidance_scale": request.image_generation_guidance_scale
-            if request.image_generation_guidance_scale is not None
+            "guidance_scale": request.image_generation_parameters.guidance_scale
+            if request.image_generation_parameters.guidance_scale is not None
             else self.DEFAULT_GUIDANCE_SCALE,
-            "steps": request.image_generation_diffusion_denoising_steps
-            if request.image_generation_diffusion_denoising_steps is not None
+            "steps": request.image_generation_parameters.diffusion_denoising_steps
+            if request.image_generation_parameters.diffusion_denoising_steps is not None
             else self.DEFAULT_STEPS,
         }
 
-        if request.image_generation_width is None or request.image_generation_height is None:
+        if (
+            request.image_generation_parameters.output_image_width is None
+            or request.image_generation_parameters.output_image_height is None
+        ):
             raw_request["width"] = self.DEFAULT_IMAGE_WIDTH
             raw_request["height"] = self.DEFAULT_IMAGE_HEIGHT
         else:
-            raw_request["width"] = request.image_generation_width
-            raw_request["height"] = request.image_generation_height
+            raw_request["width"] = request.image_generation_parameters.output_image_width
+            raw_request["height"] = request.image_generation_parameters.output_image_height
 
         cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
 

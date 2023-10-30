@@ -82,14 +82,16 @@ class HuggingFaceDiffusersClient(Client):
             # Fix it to 1 and generate an image `request.num_completions` times
             "num_images_per_prompt": 1,
         }
-        if request.image_generation_guidance_scale is not None:
-            raw_request["guidance_scale"] = request.image_generation_guidance_scale
-        if request.image_generation_diffusion_denoising_steps is not None:
-            raw_request["num_inference_steps"] = request.image_generation_diffusion_denoising_steps
-        if request.image_generation_width is not None:
-            raw_request["width"] = request.image_generation_width
-        if request.image_generation_height is not None:
-            raw_request["height"] = request.image_generation_height
+
+        assert request.image_generation_parameters is not None
+        if request.image_generation_parameters.guidance_scale is not None:
+            raw_request["guidance_scale"] = request.image_generation_parameters.guidance_scale
+        if request.image_generation_parameters.diffusion_denoising_steps is not None:
+            raw_request["num_inference_steps"] = request.image_generation_parameters.diffusion_denoising_steps
+        if request.image_generation_parameters.output_image_width is not None:
+            raw_request["width"] = request.image_generation_parameters.output_image_width
+        if request.image_generation_parameters.output_image_height is not None:
+            raw_request["height"] = request.image_generation_parameters.output_image_height
 
         # Add the additional pre-configured parameters for Safe Stable Diffusion
         if request.model_engine == "stable-diffusion-safe-weak":
@@ -154,8 +156,8 @@ class HuggingFaceDiffusersClient(Client):
                 {"model": request.model_engine, "n": request.num_completions, **raw_request}, request
             )
             results, cached = self._cache.get(cache_key, wrap_request_time(do_it))
-        except RuntimeError as e:
-            error: str = f"HuggingFaceDiffusersClient error: {e}"
+        except RuntimeError as ex:
+            error: str = f"HuggingFaceDiffusersClient error: {ex}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [

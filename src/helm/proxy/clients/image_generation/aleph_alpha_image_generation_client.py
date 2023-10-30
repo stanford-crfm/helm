@@ -38,13 +38,17 @@ class AlephAlphaImageGenerationClient(Client):
         if request.random is not None:
             raw_request["random"] = request.random
 
-        if request.image_generation_guidance_scale is not None:
-            raw_request["guidance_scale"] = request.image_generation_guidance_scale
-        if request.image_generation_diffusion_denoising_steps is not None:
-            raw_request["steps"] = request.image_generation_diffusion_denoising_steps
-        if request.image_generation_width is not None and request.image_generation_height is not None:
-            raw_request["width"] = request.image_generation_width
-            raw_request["height"] = request.image_generation_height
+        assert request.image_generation_parameters is not None
+        if request.image_generation_parameters.guidance_scale is not None:
+            raw_request["guidance_scale"] = request.image_generation_parameters.guidance_scale
+        if request.image_generation_parameters.diffusion_denoising_steps is not None:
+            raw_request["steps"] = request.image_generation_parameters.diffusion_denoising_steps
+        if (
+            request.image_generation_parameters.output_image_width is not None
+            and request.image_generation_parameters.output_image_height is not None
+        ):
+            raw_request["width"] = request.image_generation_parameters.output_image_width
+            raw_request["height"] = request.image_generation_parameters.output_image_height
 
         return raw_request
 

@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from helm.common.image_generation_parameters import ImageGenerationParameters
 from .adaptation.adapter_spec import AdapterSpec
 from .adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from .metrics.metric import MetricSpec
@@ -14,12 +15,19 @@ from .scenarios.scenario import ScenarioSpec
 
 def get_image_generation_adapter_spec(
     num_outputs: int = 1,
-    image_width: Optional[int] = None,
-    image_height: Optional[int] = None,
+    output_image_width: Optional[int] = None,
+    output_image_height: Optional[int] = None,
     guidance_scale: Optional[float] = None,
-    steps: Optional[int] = None,
+    diffusion_denoising_steps: Optional[int] = None,
     random: Optional[str] = None,
 ) -> AdapterSpec:
+    image_generation_parameters: ImageGenerationParameters = ImageGenerationParameters(
+        output_image_width=output_image_width,
+        output_image_height=output_image_height,
+        guidance_scale=guidance_scale,
+        diffusion_denoising_steps=diffusion_denoising_steps,
+    )
+
     return AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
@@ -29,11 +37,8 @@ def get_image_generation_adapter_spec(
         max_train_instances=0,
         num_outputs=num_outputs,
         max_tokens=0,
-        image_generation_width=image_width,
-        image_generation_height=image_height,
-        image_generation_guidance_scale=guidance_scale,
-        image_generation_diffusion_denoising_steps=steps,
         random=random,
+        image_generation_parameters=image_generation_parameters,
     )
 
 
