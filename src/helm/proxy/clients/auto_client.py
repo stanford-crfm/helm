@@ -1,7 +1,7 @@
 import os
 from dataclasses import replace
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Mapping, Optional
 
 from retrying import Attempt, RetryError
 
@@ -63,6 +63,25 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
+    def get_provide_api_key_callable(self, host_group: str, model: Optional[str] = None) -> Callable[[], str]:
+        def provide_api_key():
+            api_key_name = host_group + "ApiKey"
+            if api_key_name in self.credentials:
+                hlog(f"Using host_group api key defined in credentials.conf: {api_key_name}")
+                return self.credentials[api_key_name]
+            if "deployments" not in self.credentials:
+                raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
+            deployment_api_keys = self.credentials["deployments"]
+            if model is None:
+                raise AuthenticationError(
+                    f"Could not find key '{host_group}' in credentials.conf and no model provided"
+                )
+            if model not in deployment_api_keys:
+                raise AuthenticationError(f"Could not find key '{model}' under key 'deployments' in credentials.conf")
+            return deployment_api_keys[model]
+
+        return provide_api_key
+
     def _get_client(self, model: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
         client: Optional[Client] = self.clients.get(model)
@@ -76,21 +95,6 @@ class AutoClient(Client):
             # TODO(PR): Remove the TODO above.
             model_deployment = get_model_deployment(model)
             if model_deployment:
-
-                def provide_api_key():
-                    api_key_name = host_group + "ApiKey"
-                    if api_key_name in self.credentials:
-                        hlog(f"Using host_group api key defined in credentials.conf: {api_key_name}")
-                        return self.credentials[api_key_name]
-                    if "deployments" not in self.credentials:
-                        raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
-                    deployment_api_keys = self.credentials["deployments"]
-                    if model not in deployment_api_keys:
-                        raise AuthenticationError(
-                            f"Could not find key '{model}' under key 'deployments' in credentials.conf"
-                        )
-                    return deployment_api_keys[model]
-
                 # Get tokenizer from model deployment
                 tokenizer_name = model_deployment.tokenizer_name or model_deployment.name
                 tokenizer = self._get_tokenizer(tokenizer_name)
@@ -116,7 +120,7 @@ class AutoClient(Client):
                 client_spec = inject_object_spec_args(
                     model_deployment.client_spec,
                     constant_bindings={"cache_config": cache_config, "tokenizer": tokenizer},
-                    provider_bindings={"api_key": provide_api_key},
+                    provider_bindings={"api_key": self.get_provide_api_key_callable(host_group, model)},
                 )
                 client = create_object(client_spec)
 
@@ -294,7 +298,9 @@ class AutoClient(Client):
         tokenizer_config = get_tokenizer_config(tokenizer_name)
         if tokenizer_config:
             tokenizer_spec = inject_object_spec_args(
-                tokenizer_config.tokenizer_spec, constant_bindings={"cache_config": cache_config}
+                tokenizer_config.tokenizer_spec,
+                constant_bindings={"cache_config": cache_config},
+                provider_bindings={"api_key": self.get_provide_api_key_callable(organization)},
             )
             return create_object(tokenizer_spec)
         elif organization in [
