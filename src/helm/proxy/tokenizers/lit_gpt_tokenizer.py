@@ -4,14 +4,19 @@ from pathlib import Path
 import torch
 
 from helm.common.cache import CacheConfig
-from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.optional_dependencies import OptionalDependencyNotInstalled
 from .caching_tokenizer import CachingTokenizer
 
 try:
     from lit_gpt import Tokenizer as InternalTokenizer
     from lit_gpt.utils import check_valid_checkpoint_dir
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    # Provide manual instructions for installing lit-gpt from GitHub
+    # because PyPI does not allow installing dependencies directly from GitHub.
+    raise OptionalDependencyNotInstalled(
+        f"Optional dependency {e.name} is not installed. "
+        "Please run `pip install lit-gpt@git+https://github.com/Lightning-AI/lit-gpt@main` to install it."
+    ) from e
 
 
 class LitGPTTokenizer(CachingTokenizer):

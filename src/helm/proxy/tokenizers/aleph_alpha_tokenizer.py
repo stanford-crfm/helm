@@ -15,7 +15,7 @@ from .caching_tokenizer import CachingTokenizer
 try:
     from aleph_alpha_client import Client as AlephAlphaPythonClient
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["aleph-alpha"])
 
 
 class AlephAlphaTokenizer(CachingTokenizer):

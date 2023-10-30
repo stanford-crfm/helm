@@ -1,6 +1,7 @@
 import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass
+from datetime import date
 
 import cattrs
 import yaml
@@ -131,7 +132,8 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
             description="",
             access="limited",
             num_parameters=-1,
-            release_date="unknown",
+            release_date=date.today(),
+            creator_organization_name="unknown",
             tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
             deployment_names=[model_deployment.name],
         )

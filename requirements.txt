@@ -65,7 +65,6 @@ iniconfig==1.1.1
 Jinja2==3.1.2
 jmespath==1.0.1
 joblib==1.2.0
-jsonlines==3.1.0
 kiwisolver==1.4.4
 langcodes==3.3.0
 llvmlite==0.39.1
