@@ -9,7 +9,7 @@ from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
 
 
-TOKENIEZR_CONFIGS_FILE = "tokenizer_configs.yaml"
+TOKENIZER_CONFIGS_FILE = "tokenizer_configs.yaml"
 
 
 class TokenizerSpec(ObjectSpec):
@@ -51,7 +51,7 @@ def register_tokenizer_configs_from_path(path: str) -> None:
 
 
 def maybe_register_tokenizer_configs_from_base_path(base_path: str) -> None:
-    path = os.path.join(base_path, TOKENIEZR_CONFIGS_FILE)
+    path = os.path.join(base_path, TOKENIZER_CONFIGS_FILE)
     if os.path.exists(path):
         register_tokenizer_configs_from_path(path)
 

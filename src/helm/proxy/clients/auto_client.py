@@ -89,7 +89,6 @@ class AutoClient(Client):
         if client is None:
             host_group: str = model.split("/")[0]
             cache_config: CacheConfig = self._build_cache_config(host_group)
-            tokenizer: Tokenizer = self._get_tokenizer(host_group)
 
             # TODO: Migrate all clients to use model deployments
             # TODO(PR): Remove the TODO above.
@@ -97,7 +96,7 @@ class AutoClient(Client):
             if model_deployment:
                 # Get tokenizer from model deployment
                 tokenizer_name = model_deployment.tokenizer_name or model_deployment.name
-                tokenizer = self._get_tokenizer(tokenizer_name)
+                tokenizer: Tokenizer = self._get_tokenizer(tokenizer_name)
 
                 # TODO(PR): Support the following arguments:
                 # - org_id (OpenAI, GooseAI, Microsoft)
@@ -344,10 +343,10 @@ class AutoClient(Client):
             from helm.proxy.tokenizers.aleph_alpha_tokenizer import AlephAlphaTokenizer
 
             tokenizer = AlephAlphaTokenizer(api_key=self.credentials["AlephAlphaApiKey"], cache_config=cache_config)
-        elif organization == "ai21":
-            from helm.proxy.tokenizers.ai21_tokenizer import AI21Tokenizer
+        # elif organization == "ai21":
+        #     from helm.proxy.tokenizers.ai21_tokenizer import AI21Tokenizer
 
-            tokenizer = AI21Tokenizer(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
+        #     tokenizer = AI21Tokenizer(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
         elif organization == "cohere":
             from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
 

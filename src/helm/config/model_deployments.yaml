@@ -12,7 +12,7 @@ model_deployments:
   # API returns: Detail: Jurassic J1 models are deprecated
   - name: ai21/j1-jumbo # DEPRECATED
     model_name: ai21/j1-jumbo
-    tokenizer_name: ai21
+    tokenizer_name: ai21/j1
     client_spec:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
       args: {}
@@ -25,7 +25,7 @@ model_deployments:
 
   - name: ai21/j1-large # DEPRECATED
     model_name: ai21/j1-large
-    tokenizer_name: ai21
+    tokenizer_name: ai21/j1
     client_spec:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
       args: {}
@@ -38,7 +38,7 @@ model_deployments:
 
   - name: ai21/j1-grande # DEPRECATED
     model_name: ai21/j1-grande
-    tokenizer_name: ai21
+    tokenizer_name: ai21/j1
     client_spec:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
       args: {}
@@ -51,7 +51,7 @@ model_deployments:
 
   - name: ai21/j1-grande-v2-beta # DEPRECATED
     model_name: ai21/j1-grande-v2-beta
-    tokenizer_name: ai21
+    tokenizer_name: ai21/j1
     client_spec:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
       args: {}
@@ -64,7 +64,7 @@ model_deployments:
 
   - name: ai21/j2-jumbo
     model_name: ai21/j2-jumbo
-    tokenizer_name: ai21
+    tokenizer_name: ai21/j1
     client_spec:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
       args: {}
@@ -77,7 +77,7 @@ model_deployments:
 
   - name: ai21/j2-large
     model_name: ai21/j2-large
-    tokenizer_name: ai21
+    tokenizer_name: ai21/j1
     client_spec:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
       args: {}
@@ -90,7 +90,7 @@ model_deployments:
 
   - name: ai21/j2-grande
     model_name: ai21/j2-grande
-    tokenizer_name: ai21
+    tokenizer_name: ai21/j1
     client_spec:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
       args: {}

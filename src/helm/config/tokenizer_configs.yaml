@@ -1,0 +1,5 @@
+tokenizer_configs:
+  - name: ai21/j1
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.ai21_tokenizer.AI21Tokenizer"
+      args: {}
