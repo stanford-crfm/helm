@@ -339,10 +339,10 @@ class AutoClient(Client):
             from helm.proxy.tokenizers.tiktoken_tokenizer import TiktokenTokenizer
 
             tokenizer = TiktokenTokenizer(cache_config=cache_config)
-        elif organization == "AlephAlpha":
-            from helm.proxy.tokenizers.aleph_alpha_tokenizer import AlephAlphaTokenizer
+        # elif organization == "AlephAlpha":
+        #     from helm.proxy.tokenizers.aleph_alpha_tokenizer import AlephAlphaTokenizer
 
-            tokenizer = AlephAlphaTokenizer(api_key=self.credentials["AlephAlphaApiKey"], cache_config=cache_config)
+        #     tokenizer = AlephAlphaTokenizer(api_key=self.credentials["AlephAlphaApiKey"], cache_config=cache_config)
         # elif organization == "ai21":
         #     from helm.proxy.tokenizers.ai21_tokenizer import AI21Tokenizer
 

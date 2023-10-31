@@ -107,7 +107,7 @@ model_deployments:
   # ========== Aleph Alpha ========== #
   - name: AlephAlpha/luminous-base
     model_name: AlephAlpha/luminous-base
-    tokenizer_name: AlephAlpha
+    tokenizer_name: AlephAlpha/luminous-base
     client_spec:
       class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
       args: {}
@@ -117,7 +117,7 @@ model_deployments:
 
   - name: AlephAlpha/luminous-extended
     model_name: AlephAlpha/luminous-extended
-    tokenizer_name: AlephAlpha
+    tokenizer_name: AlephAlpha/luminous-extended
     client_spec:
       class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
       args: {}
@@ -127,7 +127,7 @@ model_deployments:
 
   - name: AlephAlpha/luminous-supreme
     model_name: AlephAlpha/luminous-supreme
-    tokenizer_name: AlephAlpha
+    tokenizer_name: AlephAlpha/luminous-supreme
     client_spec:
       class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
       args: {}

@@ -3,3 +3,20 @@ tokenizer_configs:
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.ai21_tokenizer.AI21Tokenizer"
       args: {}
+  
+  - name: AlephAlpha/luminous-base
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
+      args: {}
+  - name: AlephAlpha/luminous-extended
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
+      args: {}
+  - name: AlephAlpha/luminous-supreme
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
+      args: {}
+  - name: AlephAlpha/luminous-world
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
+      args: {}
