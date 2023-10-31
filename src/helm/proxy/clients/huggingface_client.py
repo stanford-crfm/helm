@@ -114,6 +114,10 @@ class HuggingFaceServer:
         prompt_tokens_logprobs = []
         prompt_tokens_top_logprobs_dicts = []
         if compute_logprobs_only:
+            # Append the logprob of the first token of the prompt.
+            prompt_tokens_logprobs.append(0.0)
+            prompt_tokens_top_logprobs_dicts.append({})
+
             # Compute logprobs of prompt tokens.
             for completion_id in range(raw_request["num_return_sequences"]):
                 for i in range(len(sequences[completion_id]) - 1):

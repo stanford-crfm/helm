@@ -63,7 +63,8 @@ class TestHuggingFaceClient:
             prompt
         ), "echo_prompt was set to true. Expected the prompt at the beginning of each completion"
         total_logprob: float = 0
-        for token in result.completions[0].tokens:
+        assert len(result.completions[0].tokens) == 6, "Expected 6 tokens in the completion"
+        for token in result.completions[0].tokens[1:]:
             assert token.logprob != 0
             total_logprob += token.logprob
         assert result.completions[0].logprob == pytest.approx(total_logprob)
