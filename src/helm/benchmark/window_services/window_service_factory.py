@@ -74,16 +74,25 @@ class WindowServiceFactory:
                 prefix_token="<|endoftext|>",
             )
         elif organization == "openai":
-            from helm.benchmark.window_services.wider_openai_window_service import (
-                GPT4WindowService,
-                GPT432KWindowService,
-            )
-
             if model_name in get_model_names_with_tag(GPT4_CONTEXT_WINDOW_TAG):
-                window_service = GPT4WindowService(service)
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="openai/cl100k_base",
+                    max_sequence_length=8192,
+                    max_request_length=8193,
+                    end_of_text_token="<|endoftext|>",
+                    prefix_token="<|endoftext|>",
+                )
             elif model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
-                window_service = GPT432KWindowService(service)
-            if model_name in get_model_names_with_tag(GPT_TURBO_CONTEXT_WINDOW_TAG):
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="openai/cl100k_base",
+                    max_sequence_length=32768,
+                    max_request_length=32769,
+                    end_of_text_token="<|endoftext|>",
+                    prefix_token="<|endoftext|>",
+                )
+            elif model_name in get_model_names_with_tag(GPT_TURBO_CONTEXT_WINDOW_TAG):
                 window_service = DefaultWindowService(
                     service,
                     tokenizer_name="openai/cl100k_base",
@@ -157,7 +166,6 @@ class WindowServiceFactory:
             #
             # MT-NLG does not predict the logprob of the first
             # input token so `max_sequence_length` is one token shorter than `max_request_length`.
-
             window_service = DefaultWindowService(
                 service,
                 tokenizer_name="huggingface/gpt2",
@@ -178,19 +186,13 @@ class WindowServiceFactory:
                     prefix_token="<|endoftext|>",
                 )
             else:
-
-                """
-                Return the max sequence length of the Anthropic model.
-                While the limits seems to be 8192, we limit to 8000
-                according to Anthropic's recommendations.
-                See: https://console.anthropic.com/docs/prompt-design
-                """
-                """
-                Return the max prompt length + max token length.
-                Anthropic is one of the rare models that has a limit on this.
-                The official limit seems to be 9192,but using scripts/compute_request_limits.py
-                we found that the limit is actually 9016.
-                """
+                # While the max_sequence_length limit seems to be 8192, we limit to 8000
+                # according to Anthropic's recommendations.
+                # See: https://console.anthropic.com/docs/prompt-design
+                #
+                # Claude is one of the rare models that has a limit on max_sequence_and_generated_tokens_length.
+                # The official limit seems to be 9192,but using scripts/compute_request_limits.py
+                # we found that the limit is actually 9016.
                 window_service = DefaultWindowService(
                     service,
                     tokenizer_name="anthropic/claude",
@@ -235,6 +237,7 @@ class WindowServiceFactory:
         elif model_name in ["huggingface/gpt2", "together/h3-2.7b"]:
             window_service = GPT2WindowService(service)
         elif model_name == "together/bloom":
+            # Source: https://huggingface.co/bigscience/bloom
             window_service = DefaultWindowService(
                 service,
                 tokenizer_name="bigscience/bloom",
@@ -250,6 +253,8 @@ class WindowServiceFactory:
 
             window_service = ICEWindowService(service)
         elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "together/gpt-jt-6b-v1", "gooseai/gpt-j-6b"]:
+            # The same tokenizer as GPT-2, but with an additional 143 tokens
+            # (source: https://huggingface.co/docs/transformers/model_doc/gptj).
             window_service = DefaultWindowService(
                 service,
                 tokenizer_name="EleutherAI/gpt-j-6B",
@@ -303,6 +308,8 @@ class WindowServiceFactory:
             "stabilityai/stablelm-base-alpha-3b",
             "stabilityai/stablelm-base-alpha-7b",
         ]:
+            # The context length for these models is 4096 tokens.
+            # See: https://github.com/Stability-AI/StableLM#stablelm-alpha
             window_service = DefaultWindowService(
                 service,
                 tokenizer_name="EleutherAI/gpt-neox-20b",
@@ -348,6 +355,8 @@ class WindowServiceFactory:
 
             window_service = YaLMWindowService(service)
         elif model_name == "nvidia/megatron-gpt2":
+            # The only difference between this and GPT2WindowService is that
+            # the request length is constrained to the sequence length.
             window_service = DefaultWindowService(
                 service,
                 tokenizer_name="huggingface/gpt2",
@@ -428,7 +437,7 @@ class WindowServiceFactory:
             "HuggingFaceM4/idefics-80b",
             "HuggingFaceM4/idefics-80b-instruct",
         ]:
-            window_service = HuggingFaceWindowService(service, model_name)
+            window_service = HuggingFaceWindowService(service, tokenizer_name=model_name)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 
