@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 from dataclasses import replace
 from typing import Any, Dict, List, Optional, cast
 
@@ -32,24 +31,34 @@ class OpenAIClient(CachingClient):
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
+        api_base: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.org_id: Optional[str] = org_id
         self.api_key: Optional[str] = api_key
-        self.api_base: str = "https://api.openai.com/v1"
+        self.api_base: str = api_base or "https://api.openai.com/v1"
 
     def _is_chat_model_engine(self, model_engine: str):
         return model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4")
 
-    def make_request(self, request: Request) -> RequestResult:
+    def _build_auth_kwargs(self) -> Dict[str, str]:
         if self.api_key is None:
             raise ValueError("OpenAI API key is required")
 
+        kwargs = {}
+        if self.api_key:
+            kwargs["api_key"] = self.api_key
+        if self.org_id:
+            kwargs["organization"] = self.org_id
+        if self.api_base:
+            kwargs["api_base"] = self.api_base
+        return kwargs
+
+    def _build_raw_request(self, request: Request) -> Dict:
         raw_request: Dict[str, Any]
         if request.embedding:
             raw_request = {
                 "input": request.prompt,
-                "engine": request.model_engine,
             }
         elif self._is_chat_model_engine(request.model_engine):
             messages: Optional[List[Dict[str, str]]] = request.messages
@@ -103,34 +112,27 @@ class OpenAIClient(CachingClient):
             # per-token candidates.
             raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
             raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
+        return raw_request
+
+    def make_request(self, request: Request) -> RequestResult:
+        raw_request = self._build_raw_request(request)
 
         try:
             if request.embedding:
 
                 def do_it():
-                    openai.organization = self.org_id
-                    openai.api_key = self.api_key
-                    openai.api_base = self.api_base
-                    return openai.Embedding.create(**raw_request)
+                    return openai.Embedding.create(**raw_request, **self._build_auth_kwargs())
 
             elif self._is_chat_model_engine(request.model_engine):
 
                 def do_it():
-                    openai.organization = self.org_id
-                    openai.api_key = self.api_key
-                    openai.api_base = self.api_base
-                    return openai.ChatCompletion.create(**raw_request)
+                    return openai.ChatCompletion.create(**raw_request, **self._build_auth_kwargs())
 
             else:
 
                 def do_it():
-                    # Following https://beta.openai.com/docs/api-reference/authentication
-                    # `organization` can be set to None.
-                    openai.organization = self.org_id
-                    openai.api_key = self.api_key
-                    openai.api_base = self.api_base
                     openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
-                    return openai.Completion.create(**raw_request)
+                    return openai.Completion.create(**raw_request, **self._build_auth_kwargs())
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
