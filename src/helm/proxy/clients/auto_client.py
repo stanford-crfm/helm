@@ -375,7 +375,7 @@ class AutoClient(Client):
                 "bigcode",
                 "bigscience",
             ]
-            or tokenizer == "openai/clip-vit-large-patch14"
+            or tokenizer_name == "openai/clip-vit-large-patch14"
         ):
             from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
