@@ -1,4 +1,5 @@
 from helm.benchmark.model_deployment_registry import WindowServiceSpec, get_model_deployment
+from helm.benchmark.window_services.gpt2_window_service import GPT2WindowService
 from helm.proxy.models import (
     get_model,
     get_model_names_with_tag,
@@ -12,8 +13,8 @@ from helm.proxy.models import (
     GPT4_32K_CONTEXT_WINDOW_TAG,
 )
 
+from helm.benchmark.window_services.default_window_service import DefaultWindowService
 from helm.benchmark.window_services.huggingface_window_service import HuggingFaceWindowService
-from helm.benchmark.window_services.gpt2_window_service import GPT2WindowService
 from helm.benchmark.window_services.remote_window_service import get_remote_window_service
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
@@ -65,15 +66,15 @@ class WindowServiceFactory:
         elif get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
         elif organization == "neurips":
-            from helm.benchmark.window_services.http_model_window_service import HTTPModelWindowServce
-
-            window_service = HTTPModelWindowServce(service)
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="neurips/local",
+                max_sequence_length=2048,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<|endoftext|>",
+            )
         elif organization == "openai":
-            from helm.benchmark.window_services.openai_window_service import OpenAIWindowService
             from helm.benchmark.window_services.wider_openai_window_service import (
-                WiderOpenAIWindowService,
-                GPTTurboWindowService,
-                GPTTurbo16KWindowService,
                 GPT4WindowService,
                 GPT432KWindowService,
             )
@@ -83,76 +84,165 @@ class WindowServiceFactory:
             elif model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
                 window_service = GPT432KWindowService(service)
             if model_name in get_model_names_with_tag(GPT_TURBO_CONTEXT_WINDOW_TAG):
-                window_service = GPTTurboWindowService(service)
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="openai/cl100k_base",
+                    max_sequence_length=4000,
+                    max_request_length=4001,
+                    end_of_text_token="<|endoftext|>",
+                    prefix_token="<|endoftext|>",
+                )
             elif model_name in get_model_names_with_tag(GPT_TURBO_16K_CONTEXT_WINDOW_TAG):
-                window_service = GPTTurbo16KWindowService(service)
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="openai/cl100k_base",
+                    max_sequence_length=16000,
+                    max_request_length=16001,
+                    end_of_text_token="<|endoftext|>",
+                    prefix_token="<|endoftext|>",
+                )
             elif model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
-                window_service = WiderOpenAIWindowService(service)
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="huggingface/gpt2",
+                    max_sequence_length=4000,
+                    max_request_length=4001,
+                    end_of_text_token="<|endoftext|>",
+                    prefix_token="<|endoftext|>",
+                )
             else:
-                window_service = OpenAIWindowService(service)
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="huggingface/gpt2",
+                    max_sequence_length=2048,
+                    max_request_length=2049,
+                    end_of_text_token="<|endoftext|>",
+                    prefix_token="<|endoftext|>",
+                )
         # For the Google models, we approximate with the OpenAIWindowService
         elif organization == "simple" or organization == "google":
-            from helm.benchmark.window_services.openai_window_service import OpenAIWindowService
-
-            window_service = OpenAIWindowService(service)
-        elif organization == "AlephAlpha":
-            from helm.benchmark.window_services.luminous_window_service import (
-                LuminousBaseWindowService,
-                LuminousExtendedWindowService,
-                LuminousSupremeWindowService,
-                LuminousWorldWindowService,
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="huggingface/gpt2",
+                max_sequence_length=2048,
+                max_request_length=2049,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<|endoftext|>",
             )
-
+        elif organization == "AlephAlpha":
+            # From https://docs.aleph-alpha.com/api/complete, "the summed number of tokens of prompt
+            # and maximum_tokens may not exceed 2048 tokens." Confirmed it's 2048 for the Luminous
+            # models currently available.
             if engine == "luminous-base":
-                window_service = LuminousBaseWindowService(service)
+                window_service = DefaultWindowService(
+                    service, tokenizer_name="AlephAlpha/luminous-base", max_sequence_length=2048
+                )
             elif engine == "luminous-extended":
-                window_service = LuminousExtendedWindowService(service)
+                window_service = DefaultWindowService(
+                    service, tokenizer_name="AlephAlpha/luminous-extended", max_sequence_length=2048
+                )
             elif engine == "luminous-supreme":
-                window_service = LuminousSupremeWindowService(service)
+                window_service = DefaultWindowService(
+                    service, tokenizer_name="AlephAlpha/luminous-supreme", max_sequence_length=2048
+                )
             elif engine == "luminous-world":
-                window_service = LuminousWorldWindowService(service)
+                window_service = DefaultWindowService(
+                    service, tokenizer_name="AlephAlpha/luminous-world", max_sequence_length=2048
+                )
             else:
                 raise ValueError(f"Unhandled Aleph Alpha model: {engine}")
         elif organization == "microsoft":
-            from helm.benchmark.window_services.mt_nlg_window_service import MTNLGWindowService
+            # The max request length for the MT-NLG models is 2048.
+            # Source: https://github.com/microsoft/turing-academic-TNLG
+            #
+            # MT-NLG does not predict the logprob of the first
+            # input token so `max_sequence_length` is one token shorter than `max_request_length`.
 
-            window_service = MTNLGWindowService(service)
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="huggingface/gpt2",
+                max_sequence_length=2047,
+                max_request_length=2048,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<<",
+            )
         elif organization == "anthropic":
-            from helm.benchmark.window_services.anthropic_window_service import (
-                AnthropicWindowService,
-                LegacyAnthropicWindowService,
-            )
-
             if engine == "stanford-online-all-v4-s3":
-                window_service = LegacyAnthropicWindowService(service)
+                # For the legacy Anthropic mode, the tokenizer was not publicly available,
+                # so approximate with the GPT-2 tokenizer.
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="huggingface/gpt2",
+                    max_sequence_length=8192,
+                    end_of_text_token="<|endoftext|>",
+                    prefix_token="<|endoftext|>",
+                )
             else:
-                window_service = AnthropicWindowService(service)
-        elif organization == "writer":
-            from helm.benchmark.window_services.palmyra_window_service import (
-                PalmyraWindowService,
-                LongerPalmyraWindowService,
-            )
 
+                """
+                Return the max sequence length of the Anthropic model.
+                While the limits seems to be 8192, we limit to 8000
+                according to Anthropic's recommendations.
+                See: https://console.anthropic.com/docs/prompt-design
+                """
+                """
+                Return the max prompt length + max token length.
+                Anthropic is one of the rare models that has a limit on this.
+                The official limit seems to be 9192,but using scripts/compute_request_limits.py
+                we found that the limit is actually 9016.
+                """
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="anthropic/claude",
+                    max_sequence_length=8000,
+                    max_sequence_and_generated_tokens_length=9016,
+                    end_of_text_token="<|endoftext|>",
+                    prefix_token="<|endoftext|>",
+                )
+        elif organization == "writer":
             if engine in ["palmyra-base", "palmyra-large", "palmyra-instruct-30", "palmyra-e"]:
-                window_service = PalmyraWindowService(service)
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="huggingface/gpt2",
+                    max_sequence_length=2048,
+                    max_sequence_and_generated_tokens_length=2048,
+                )
             elif engine in ["palmyra-x", "silk-road"]:
-                window_service = LongerPalmyraWindowService(service)
+                window_service = DefaultWindowService(
+                    service,
+                    tokenizer_name="huggingface/gpt2",
+                    max_sequence_length=8192,
+                    max_sequence_and_generated_tokens_length=8192,
+                )
             else:
                 raise ValueError(f"Unhandled Writer model: {engine}")
         elif engine == "santacoder":
-            from helm.benchmark.window_services.santacoder_window_service import SantaCoderWindowService
-
-            window_service = SantaCoderWindowService(service)
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="bigcode/santacoder",
+                max_sequence_length=2048,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<|endoftext|>",
+            )
         elif engine == "starcoder":
-            from helm.benchmark.window_services.starcoder_window_service import StarCoderWindowService
-
-            window_service = StarCoderWindowService(service)
-        elif model_name == "huggingface/gpt2":
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="bigcode/starcoder",
+                max_sequence_length=8192,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<|endoftext|>",
+            )
+        elif model_name in ["huggingface/gpt2", "together/h3-2.7b"]:
             window_service = GPT2WindowService(service)
         elif model_name == "together/bloom":
-            from helm.benchmark.window_services.bloom_window_service import BloomWindowService
-
-            window_service = BloomWindowService(service)
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="bigscience/bloom",
+                max_sequence_length=2048,
+                max_request_length=2049,
+                end_of_text_token="</s>",
+                prefix_token="</s>",
+            )
         elif model_name == "together/glm":
             # From https://github.com/THUDM/GLM-130B, "the tokenizer is implemented based on
             # icetk---a unified multimodal tokenizer for images, Chinese, and English."
@@ -160,9 +250,14 @@ class WindowServiceFactory:
 
             window_service = ICEWindowService(service)
         elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "together/gpt-jt-6b-v1", "gooseai/gpt-j-6b"]:
-            from helm.benchmark.window_services.gptj_window_service import GPTJWindowService
-
-            window_service = GPTJWindowService(service)
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="EleutherAI/gpt-j-6B",
+                max_sequence_length=2048,
+                max_request_length=2049,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<|endoftext|>",
+            )
         elif model_name in [
             "together/gpt-neox-20b",
             "gooseai/gpt-neo-20b",
@@ -189,9 +284,14 @@ class WindowServiceFactory:
             "databricks/dolly-v2-7b",
             "databricks/dolly-v2-12b",
         ]:
-            from helm.benchmark.window_services.gptneox_window_service import GPTNeoXWindowService
-
-            window_service = GPTNeoXWindowService(service)
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="EleutherAI/gpt-neox-20b",
+                max_sequence_length=2048,
+                max_request_length=2049,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<|endoftext|>",
+            )
         elif model_name in [
             "tiiuae/falcon-7b",
             "tiiuae/falcon-7b-instruct",
@@ -203,20 +303,30 @@ class WindowServiceFactory:
             "stabilityai/stablelm-base-alpha-3b",
             "stabilityai/stablelm-base-alpha-7b",
         ]:
-            from helm.benchmark.window_services.gptneox_window_service import StableLMAlphaWindowService
-
-            window_service = StableLMAlphaWindowService(service)
-        elif model_name == "together/h3-2.7b":
-            window_service = GPT2WindowService(service)
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="EleutherAI/gpt-neox-20b",
+                max_sequence_length=4096,
+                max_request_length=4097,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<|endoftext|>",
+            )
         elif model_name in [
             "together/opt-1.3b",
             "together/opt-6.7b",
             "together/opt-66b",
             "together/opt-175b",
         ]:
-            from helm.benchmark.window_services.opt_window_service import OPTWindowService
-
-            window_service = OPTWindowService(service)
+            # The max sequence length for the OPT models is 2048.
+            # Source: https://arxiv.org/pdf/2205.01068.pdf
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="facebook/opt-66b",
+                max_sequence_length=2048,
+                max_request_length=2049,
+                end_of_text_token="</s>",
+                prefix_token="</s>",
+            )
         elif model_name == "together/t0pp":
             from helm.benchmark.window_services.t0pp_window_service import T0ppWindowService
 
@@ -238,9 +348,13 @@ class WindowServiceFactory:
 
             window_service = YaLMWindowService(service)
         elif model_name == "nvidia/megatron-gpt2":
-            from helm.benchmark.window_services.megatron_window_service import MegatronWindowService
-
-            window_service = MegatronWindowService(service)
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="huggingface/gpt2",
+                max_sequence_length=1024,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<|endoftext|>",
+            )
         elif model_name in [
             "lmsys/vicuna-7b-v1.3",
             "lmsys/vicuna-13b-v1.3",
@@ -250,17 +364,28 @@ class WindowServiceFactory:
             "meta/llama-65b",
             "stanford/alpaca-7b",
         ]:
-            from helm.benchmark.window_services.llama_window_service import LlamaWindowService
-
-            window_service = LlamaWindowService(service)
+            # Tokenizer name hf-internal-testing/llama-tokenizer is taken from:
+            # https://huggingface.co/docs/transformers/main/en/model_doc/llama#transformers.LlamaTokenizerFast.example
+            window_service = HuggingFaceWindowService(service, tokenizer_name="hf-internal-testing/llama-tokenizer")
         elif model_name in [
             "meta/llama-2-7b",
             "meta/llama-2-13b",
             "meta/llama-2-70b",
         ]:
-            from helm.benchmark.window_services.llama_window_service import Llama2WindowService
+            # To use the Llama-2 tokenizer:
+            #
+            # 1. Accept the license agreement: https://ai.meta.com/resources/models-and-libraries/llama-downloads/
+            # 2. Request to access the Hugging Face repository: https://huggingface.co/meta-llama/Llama-2-7b
+            # 3. Run `huggingface-cli login`
+            #
+            # If you encounter the following error, complete the above steps and try again:
+            #
+            #     meta-llama/Llama-2-70b-hf is not a local folder and is not a valid model identifier listed on
+            #     'https://huggingface.co/models'
 
-            window_service = Llama2WindowService(service)
+            window_service = HuggingFaceWindowService(
+                service, tokenizer_name="meta-llama/Llama-2-7b-hf", max_sequence_length=4096, max_request_length=4096
+            )
         elif organization == "cohere":
             from helm.benchmark.window_services.cohere_window_service import (
                 CohereWindowService,
@@ -288,9 +413,13 @@ class WindowServiceFactory:
                 window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
 
         elif organization == "lightningai":
-            from helm.benchmark.window_services.lit_gpt_window_service import LitGPTWindowServce
-
-            window_service = LitGPTWindowServce(service)
+            window_service = DefaultWindowService(
+                service,
+                tokenizer_name="lightningai/lit-gpt",
+                max_sequence_length=2048,
+                end_of_text_token="<|endoftext|>",
+                prefix_token="<|endoftext|>",
+            )
         elif organization == "mistralai":
             window_service = HuggingFaceWindowService(service, tokenizer_name="mistralai/Mistral-7B-v0.1")
         elif model_name in [

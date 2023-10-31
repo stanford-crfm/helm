@@ -1,4 +1,5 @@
 from tempfile import TemporaryDirectory
+from typing import Dict
 from helm.benchmark.window_services.test_utils import get_tokenizer_service
 
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
@@ -316,7 +317,7 @@ _MODEL_NAME_TO_EXPECTED_WINDOW_SERVICE_PROPERTIES = {
     },
     "meta/llama-2-13b": {
         "end_of_text_token": "</s>",
-        "max_request_length": 1000000000000000019884624838656,
+        "max_request_length": 4096,
         "max_sequence_and_generated_tokens_length": _INT_MAX,
         "max_sequence_length": 4096,
         "prefix_token": "<s>",
@@ -324,7 +325,7 @@ _MODEL_NAME_TO_EXPECTED_WINDOW_SERVICE_PROPERTIES = {
     },
     "meta/llama-2-70b": {
         "end_of_text_token": "</s>",
-        "max_request_length": 1000000000000000019884624838656,
+        "max_request_length": 4096,
         "max_sequence_and_generated_tokens_length": _INT_MAX,
         "max_sequence_length": 4096,
         "prefix_token": "<s>",
@@ -332,7 +333,7 @@ _MODEL_NAME_TO_EXPECTED_WINDOW_SERVICE_PROPERTIES = {
     },
     "meta/llama-2-7b": {
         "end_of_text_token": "</s>",
-        "max_request_length": 1000000000000000019884624838656,
+        "max_request_length": 4096,
         "max_sequence_and_generated_tokens_length": _INT_MAX,
         "max_sequence_length": 4096,
         "prefix_token": "<s>",
@@ -901,8 +902,27 @@ _MODEL_NAME_TO_EXPECTED_WINDOW_SERVICE_PROPERTIES = {
 }
 
 
+def format_window_service_properties(properties: Dict) -> str:
+    kwargs = []
+    kwargs.append(("tokenizer_name", f'"{properties["tokenizer_name"]}"'))
+    kwargs.append(("max_sequence_length", properties["max_sequence_length"]))
+    if properties["max_request_length"] != properties["max_sequence_length"]:
+        kwargs.append(("max_request_length", properties["max_request_length"]))
+    if properties["max_sequence_and_generated_tokens_length"] != _INT_MAX:
+        kwargs.append(
+            ("max_sequence_and_generated_tokens_length", properties["max_sequence_and_generated_tokens_length"])
+        )
+    if properties["end_of_text_token"]:
+        kwargs.append(("end_of_text_token", f'"{properties["end_of_text_token"]}"'))
+    if properties["prefix_token"]:
+        kwargs.append(("prefix_token", f'"{properties["prefix_token"]}"'))
+    kwargs_string = ", ".join(f"{key}={value}" for key, value in kwargs)
+    return f"DefaultWindowService(service, {kwargs_string})"
+
+
 def test_window_factory():
     with TemporaryDirectory() as tmpdir:
+        window_services = {}
         tokenizer_service = get_tokenizer_service(tmpdir)
         for model_name, expected_window_service_properties in _MODEL_NAME_TO_EXPECTED_WINDOW_SERVICE_PROPERTIES.items():
             window_service = WindowServiceFactory.get_window_service(model_name, tokenizer_service)
@@ -914,4 +934,9 @@ def test_window_factory():
                 "end_of_text_token": window_service.end_of_text_token,
                 "prefix_token": window_service.prefix_token,
             }
-            assert actual_window_service_properties == expected_window_service_properties
+            window_services[type(window_service).__name__] = format_window_service_properties(
+                actual_window_service_properties
+            )
+            assert actual_window_service_properties == expected_window_service_properties, model_name
+        for k, v in window_services.items():
+            print(f"{k}: {v}")
