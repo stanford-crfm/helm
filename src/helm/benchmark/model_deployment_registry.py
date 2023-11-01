@@ -10,8 +10,7 @@ from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
-    ALL_MODELS_METADATA,
-    MODEL_NAME_TO_MODEL_METADATA,
+    register_model_metadata,
     get_model_metadata,
     TEXT_MODEL_TAG,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
@@ -124,8 +123,7 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
             tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
             deployment_names=[model_deployment.name],
         )
-        ALL_MODELS_METADATA.append(model_metadata)
-        MODEL_NAME_TO_MODEL_METADATA[model_name] = model_metadata
+        register_model_metadata(model_metadata)
         hlog(f"Registered default metadata for model {model_name}")
 
 
