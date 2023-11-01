@@ -22,6 +22,34 @@ except ModuleNotFoundError as e:
 ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 
 
+# Models in this set will use the deprecated "engine" request field
+# instead of the recommended "model" request field.
+# This is to avoid breaking the cache.
+# See: https://help.openai.com/en/articles/6283125-what-happened-to-engines
+# TODO: Migrate the cache and delete workaround.
+_LEGACY_API_MODELS = set(
+    [
+        "openai/davinci",
+        "openai/curie",
+        "openai/babbage",
+        "openai/ada",
+        "openai/text-davinci-003",
+        "openai/text-davinci-002",
+        "openai/text-davinci-001",
+        "openai/text-curie-001",
+        "openai/text-babbage-001",
+        "openai/text-ada-001",
+        "openai/code-davinci-002",
+        "openai/code-davinci-001",
+        "openai/code-cushman-001",
+        "openai/text-similarity-davinci-001",
+        "openai/text-similarity-curie-001",
+        "openai/text-similarity-babbage-001",
+        "openai/text-similarity-ada-001",
+    ]
+)
+
+
 class OpenAIClient(CachingClient):
     END_OF_TEXT: str = "<|endoftext|>"
 
@@ -80,7 +108,6 @@ class OpenAIClient(CachingClient):
                 # See: https://github.com/openai/openai-python/blob/main/chatml.md
                 messages = [{"role": "user", "content": request.prompt}]
             raw_request = {
-                "model": request.model_engine,
                 "messages": messages,
                 "temperature": request.temperature,
                 "top_p": request.top_p,
@@ -94,7 +121,6 @@ class OpenAIClient(CachingClient):
             }
         else:
             raw_request = {
-                "engine": request.model_engine,
                 "prompt": request.prompt,
                 "temperature": request.temperature,
                 "n": request.num_completions,
@@ -112,6 +138,17 @@ class OpenAIClient(CachingClient):
             # per-token candidates.
             raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
             raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
+
+            # Models in the _LEGACY_API_MODELS list will use the deprecated "engine"
+            # request field instead of the recommended "model" request field.
+            # This is to avoid breaking the cache.
+            # See: https://help.openai.com/en/articles/6283125-what-happened-to-engines
+            # TODO: Migrate the cache and delete workaround.
+            if request.model in _LEGACY_API_MODELS:
+                raw_request["engine"] = request.model_engine
+            else:
+                raw_request["model"] = request.model_engine
+
         return raw_request
 
     def make_request(self, request: Request) -> RequestResult:
