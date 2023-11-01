@@ -13,43 +13,26 @@ from toolbox.printing import debug, print_visible  # TODO(PR): Remove this
 
 # Different modalities
 TEXT_MODEL_TAG: str = "TEXT_MODEL_TAG"
-IMAGE_MODEL_TAG: str = "image"
-CODE_MODEL_TAG: str = "code"
-EMBEDDING_MODEL_TAG: str = "embedding"
+IMAGE_MODEL_TAG: str = "IMAGE_MODEL_TAG"
+CODE_MODEL_TAG: str = "CODE_MODEL_TAG"
+EMBEDDING_MODEL_TAG: str = "EMBEDDING_MODEL_TAG"
 
 # Some model APIs have limited functionalities
-FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
+FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "FULL_FUNCTIONALITY_TEXT_MODEL_TAG"
 LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG"
 
 # ChatML format
-CHATML_MODEL_TAG: str = "chatml"
+CHATML_MODEL_TAG: str = "CHATML_MODEL_TAG"
 
 # OpenAI Chat format
 OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
 
 # For Anthropic models
 ANTHROPIC_CLAUDE_1_MODEL_TAG: str = "ANTHROPIC_CLAUDE_1_MODEL_TAG"
-ANTHROPIC_CLAUDE_2_MODEL_TAG: str = "claude_2"
-
-# For OpenAI models with wider context windows
-# TODO(#1455): Simplify context window tags.
-WIDER_CONTEXT_WINDOW_TAG: str = "openai_wider_context_window"  # huggingface/gpt2 tokenizer, 4000 tokens
-GPT_TURBO_CONTEXT_WINDOW_TAG: str = "gpt_turbo_context_window"  # cl100k_base tokenizer, 4000 tokens
-GPT_TURBO_16K_CONTEXT_WINDOW_TAG: str = "gpt_turbo_16k_context_window"  # cl100k_base tokenizer, 8000 tokens
-GPT4_CONTEXT_WINDOW_TAG: str = "gpt4_context_window"  # cl100k_base tokenizer, 8192 tokens
-GPT4_32K_CONTEXT_WINDOW_TAG: str = "gpt4_32k_context_window"  # cl100k_base tokenizer, 32768 tokens
-
-# To fetch models that use these tokenizers
-GPT2_TOKENIZER_TAG: str = "GPT2_TOKENIZER_TAG"
-AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
-COHERE_TOKENIZER_TAG: str = "cohere_tokenizer"
-OPT_TOKENIZER_TAG: str = "opt_tokenizer"
-GPTJ_TOKENIZER_TAG: str = "gptj_tokenizer"
-GPT4_TOKENIZER_TAG: str = "gpt4_tokenizer"
-GPTNEO_TOKENIZER_TAG: str = "gptneo_tokenizer"
+ANTHROPIC_CLAUDE_2_MODEL_TAG: str = "ANTHROPIC_CLAUDE_2_MODEL_TAG"
 
 # Models which emit garbage tokens when temperature=0.
-BUGGY_TEMP_0_TAG: str = "buggy_temp_0"
+BUGGY_TEMP_0_TAG: str = "BUGGY_TEMP_0_TAG"
 
 # Models that are used for ablations and fine-grained analyses.
 # These models are selected specifically because of their low marginal cost to evaluate.
@@ -57,17 +40,17 @@ ABLATION_MODEL_TAG: str = "ABLATION_MODEL_TAG"
 
 # Some models (e.g., T5) have stripped newlines.
 # So we cannot use \n as a stop sequence for these models.
-NO_NEWLINES_TAG: str = "no_newlines"
+NO_NEWLINES_TAG: str = "NO_NEWLINES_TAG"
 
 # Some models (e.g., UL2) require a prefix (e.g., [NLG]) in the
 # prompts to indicate the mode before doing inference.
-NLG_PREFIX_TAG: str = "nlg_prefix_tag"
+NLG_PREFIX_TAG: str = "NLG_PREFIX_TAG"
 
 # Some models can follow instructions.
 INSTRUCTION_FOLLOWING_MODEL_TAG: str = "INSTRUCTION_FOLLOWING_MODEL_TAG"
 
 # For Vision-langauge models (VLMs)
-VISION_LANGUAGE_MODEL_TAG: str = "vision_language"
+VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
 
 
 MODEL_METADATA_FILE = "model_metadatas.yaml"
@@ -141,26 +124,7 @@ class ModelMetadataList:
     models: List[ModelMetadata] = field(default_factory=list)
 
 
-ALL_MODELS_METADATA: List[ModelMetadata] = [
-    # ModelMetadata(
-    #     name="anthropic/claude-v1.3",
-    #     display_name="Anthropic Claude v1.3",
-    #     description="A 52B parameter language model, trained using reinforcement learning from human feedback "
-    #     "[paper](https://arxiv.org/pdf/2204.05862.pdf).",
-    #     access="limited",
-    #     num_parameters=52000000000,
-    #     release_date="2023-03-17",
-    #     tags=[
-    #         ANTHROPIC_CLAUDE_1_MODEL_TAG,
-    #         TEXT_MODEL_TAG,
-    #         LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-    #         GPT2_TOKENIZER_TAG,
-    #         ABLATION_MODEL_TAG,
-    #         INSTRUCTION_FOLLOWING_MODEL_TAG,
-    #     ],
-    # )
-]
-
+ALL_MODELS_METADATA: List[ModelMetadata] = []
 MODEL_NAME_TO_MODEL_METADATA: Dict[str, ModelMetadata] = {model.name: model for model in ALL_MODELS_METADATA}
 
 

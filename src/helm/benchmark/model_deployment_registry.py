@@ -211,3 +211,11 @@ def get_metadata_for_deployment(deployment_name: str) -> ModelMetadata:
     """
     deployment: ModelDeployment = get_model_deployment(deployment_name)
     return get_model_metadata(deployment.model_name or deployment.name)
+
+
+def get_model_names_with_tokenizer(tokenizer_name: str) -> List[str]:
+    """Get all the name of the models with tokenizer `tokenizer_name`."""
+    deployments: List[ModelDeployment] = [
+        deployment for deployment in ALL_MODEL_DEPLOYMENTS if deployment.tokenizer_name == tokenizer_name
+    ]
+    return [deployment.model_name or deployment.name for deployment in deployments]
