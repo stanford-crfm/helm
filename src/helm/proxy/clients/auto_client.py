@@ -325,8 +325,8 @@ class AutoClient(Client):
             "stabilityai",
             "stanford",
             "tiiuae",
-            "bigcode",
-            "bigscience",
+            # "bigcode",
+            # "bigscience",
         ]:
             from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
@@ -351,10 +351,10 @@ class AutoClient(Client):
             from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
 
             tokenizer = CohereTokenizer(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
-        elif organization == "anthropic":
-            from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
+        # elif organization == "anthropic":
+        #     from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
 
-            tokenizer = AnthropicTokenizer(cache_config=cache_config)
+        #     tokenizer = AnthropicTokenizer(cache_config=cache_config)
         elif organization == "simple":
             from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
 

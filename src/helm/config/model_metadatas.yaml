@@ -14,7 +14,7 @@ models:
     access: limited
     num_parameters: 178000000000
     release_date: 2021-08-11
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: ai21/j1-large # DEPRECATED
     display_name: J1-Large v1 (7.5B)
@@ -23,7 +23,7 @@ models:
     access: limited
     num_parameters: 7500000000
     release_date: 2021-08-11
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: ai21/j1-grande # DEPRECATED
     display_name: J1-Grande v1 (17B)
@@ -32,7 +32,7 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2022-05-03
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: ai21/j1-grande-v2-beta # DEPRECATED
     display_name: J1-Grande v2 beta (17B)
@@ -41,7 +41,7 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2022-10-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: ai21/j2-jumbo
     display_name: Jurassic-2 Jumbo (178B)
@@ -50,7 +50,7 @@ models:
     access: limited
     num_parameters: 178000000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: ai21/j2-large
     display_name: Jurassic-2 Large (7.5B)
@@ -59,7 +59,7 @@ models:
     access: limited
     num_parameters: 7500000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: ai21/j2-grande
     display_name: Jurassic-2 Grande (17B)
@@ -68,7 +68,7 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # TODO: Myabe change names? It seems like the names changed:
   # - j2-jumbo -> j2-ultra
@@ -113,15 +113,16 @@ models:
     # TODO: images will be supported in the near future. Add IMAGE_MODEL_TAG.
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
   
-  - name: AlephAlpha/luminous-world # Not released yet.
-    display_name: Luminous World (178B)
-    description: Luminous World (178B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
-    creator_organization_name: Aleph Alpha
-    access: limited
-    num_parameters: TBD
-    release_date: TBD
-    # Does not support echo.
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+  # TODO: Uncomment when luminous-world is released.
+  # - name: AlephAlpha/luminous-world # Not released yet.
+  #   display_name: Luminous World (178B)
+  #   description: Luminous World (178B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
+  #   creator_organization_name: Aleph Alpha
+  #   access: limited
+  #   num_parameters: TBD
+  #   release_date: TBD
+  #   # Does not support echo.
+  #   tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
   # =================================== #
 
 
@@ -134,7 +135,7 @@ models:
     access: limited
     num_parameters: 52000000000
     release_date: 2023-03-17
-    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
  
   - name: anthropic/claude-instant-v1
     display_name: Anthropic Claude Instant V1
@@ -142,7 +143,7 @@ models:
     creator_organization_name: Anthropic
     access: limited
     release_date: 2023-03-17
-    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/claude-2.0
     display_name: Anthropic Claude 2.0
@@ -150,7 +151,7 @@ models:
     creator_organization_name: Anthropic
     access: limited
     release_date: 2023-07-11
-    tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # DEPRECATED: Please do not use.
   - name: anthropic/stanford-online-all-v4-s3
@@ -160,7 +161,7 @@ models:
     access: closed
     num_parameters: 52000000000
     release_date: 2021-12-01
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
   # ================================= #
 
 
@@ -272,7 +273,7 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-06-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/large-20220720
     display_name: Cohere large v20220720 (13.1B)
@@ -281,7 +282,7 @@ models:
     access: limited
     num_parameters: 13100000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/medium-20220720
     display_name: Cohere medium v20220720 (6.1B)
@@ -290,7 +291,7 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/small-20220720
     display_name: Cohere small v20220720 (410M)
@@ -299,7 +300,7 @@ models:
     access: limited
     num_parameters: 410000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/xlarge-20221108
     display_name: Cohere xlarge v20221108 (52.4B)
@@ -308,7 +309,7 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/medium-20221108
     display_name: Cohere medium v20221108 (6.1B)
@@ -317,7 +318,7 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: cohere/command-medium-beta
     display_name: Cohere Command beta (6.1B)
@@ -326,7 +327,7 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command-xlarge-beta
     display_name: Cohere Command beta (52.4B)
@@ -335,7 +336,7 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
   # ============================== #
 
 
@@ -500,7 +501,7 @@ models:
     access: open
     num_parameters: 2700000000
     release_date: 2023-01-23
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
   # ==================================== #
 
 
@@ -782,7 +783,7 @@ models:
     creator_organization_name: NVIDIA
     access: open
     release_date: 2019-09-17 # paper date
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, BUGGY_TEMP_0_TAG]
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, BUGGY_TEMP_0_TAG]
   # ============================== #
 
 

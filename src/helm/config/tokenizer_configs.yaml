@@ -1,9 +1,12 @@
 tokenizer_configs:
+  # ========== AI21 Labs ========== #
   - name: ai21/j1
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.ai21_tokenizer.AI21Tokenizer"
       args: {}
+  # =============================== #
   
+  # ========== Aleph Alpha ========== #
   - name: AlephAlpha/luminous-base
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
@@ -20,3 +23,33 @@ tokenizer_configs:
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
       args: {}
+  # ================================= #
+  
+  # =========== Anthropic =========== #
+  - name: anthropic/claude
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.anthropic_tokenizer.AnthropicTokenizer"
+      args: {}
+  # ================================= #
+
+  # =========== BigScience =========== #
+  - name: bigscience/bloom
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args: {}
+  - name: bigscience/T0pp
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args: {}
+  # ================================== #
+
+  # =========== BigCode =========== #
+  - name: bigcode/santacoder
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args: {}
+  - name: bigcode/starcoder
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args: {}
+  # =============================== #

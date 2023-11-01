@@ -171,7 +171,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
       args: {}
 
-  - name: anthropic/stanford-online-all-v4-s3
+  - name: anthropic/stanford-online-all-v4-s3 # Not longer served: "Connexion to remote was lost."
     model_name: anthropic/stanford-online-all-v4-s3
     tokenizer_name: huggingface/gpt2
     client_spec:
@@ -184,31 +184,7 @@ model_deployments:
 
 
 
-  # =========== BigScience =========== #
-  - name: together/bloom
-    model_name: bigscience/bloom
-    tokenizer_name: bigscience/bloom
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args: {}
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.bloom_window_service.BloomWindowService"
-      args: {}
-
-  - name: together/t0pp
-    model_name: bigscience/t0pp
-    tokenizer_name: bigscience/T0pp
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args: {}
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.t0pp_window_service.T0ppWindowService"
-      args: {}
-  # ================================== #
-
-
-
-  # =========== BigCode =========== #
+  # =========== HuggingFace =========== #
   - name: huggingface/santacoder
     model_name: bigcode/santacoder
     tokenizer_name: bigcode/santacoder
@@ -228,4 +204,28 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.starcoder_window_service.StarCoderWindowService"
       args: {}
-  # =============================== #
+  # =================================== #
+
+
+
+  # =========== Together =========== #
+  - name: together/bloom # Removed from together: "bloom is not a supported model"
+    model_name: bigscience/bloom
+    tokenizer_name: bigscience/bloom
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.bloom_window_service.BloomWindowService"
+      args: {}
+
+  - name: together/t0pp # Removed from together: "t0pp is not a supported model"
+    model_name: bigscience/t0pp
+    tokenizer_name: bigscience/T0pp
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.t0pp_window_service.T0ppWindowService"
+      args: {}
+  # ================================ #
