@@ -9,13 +9,14 @@ import getGroupsTablesByName from "@/services/getGroupTablesByName";
 import getGroupsMetadata from "@/services/getGroupsMetadata";
 import Loading from "@/components/Loading";
 import getGroupsTables from "@/services/getGroupsTables";
+import Alert from "@/components/Alert";
 
 interface GroupDisplayData {
   title: string;
   name: string;
 }
 
-export default function Group() {
+export default function Leaderboard() {
   const defaultGroup = { title: "Core Scenarios", name: "core_scenarios" };
   //const defaultGroup.name = "core_scenarios";
   const [allGroupData, setAllGroupData] = useState<GroupDisplayData[]>([]);
@@ -98,6 +99,7 @@ export default function Group() {
 
   return (
     <>
+      <Alert />
       <div className="flex flex-row justify-between">
         <PageTitle
           title={"Leaderboard"}

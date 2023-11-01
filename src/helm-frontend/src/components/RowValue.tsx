@@ -16,6 +16,9 @@ function formatNumber(value: string | number): string {
 }
 
 export default function RowValue({ value, ignoreHref = false }: Props) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+  const legacyRelease = (window as any).LEGACY_RELEASE;
+
   if (value.value === undefined) {
     return "-";
   }
@@ -27,7 +30,7 @@ export default function RowValue({ value, ignoreHref = false }: Props) {
         return value.href;
       }
 
-      return `/groups/${matches[1]}`;
+      return "/" + legacyRelease + `/groups/${matches[1]}`;
     })();
     return <Link to={href}>{formatNumber(value.value)}</Link>;
   }

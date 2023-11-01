@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
 import ModelsList from "@/components/ModelsList";
@@ -63,22 +62,30 @@ export default function LegacyLanding() {
       <Hero />
       <div className="flex flex-col sm:flex-row justify-center mt-10 mb-10 flex gap-2 sm:gap-8 md:gap-32">
         {" "}
-        <h1 className="text-4xl mb-4 mx-4">
+        <h1 className="text-4xl mb-4 mx-4 mt-40">
           <strong>About HELM</strong>
         </h1>
       </div>
-      <div className="flex flex-col sm:flex-row justify-center mt-16 mb-32 flex gap-2 sm:gap-8 md:gap-32">
-        <Link to="https://crfm.stanford.edu/2022/11/17/helm.html">
-          <button className="px-10 btn btn-grey rounded-md">Blog post</button>
-        </Link>
-        <Link to="https://arxiv.org/pdf/2211.09110.pdf">
-          <button className="px-10 btn btn-gray rounded-md">Paper</button>
-        </Link>
-        <Link to="https://github.com/stanford-crfm/helm">
-          <button className="px-10 btn btn-gray rounded-md">Github</button>
-        </Link>
-      </div>
-      <div className="container mx-auto text-lg">
+      <div className="container mx-auto text-lg px-16">
+        <p className="mb-20">
+          A brief description is below, for a more detailed description read our{" "}
+          <strong>
+            <a href="https://crfm.stanford.edu/2022/11/17/helm.html">
+              blog post
+            </a>
+          </strong>{" "}
+          or{" "}
+          <strong>
+            <a href="https://arxiv.org/pdf/2211.09110.pdf">paper</a>
+          </strong>
+          . For our framework, checkout{" "}
+          <strong>
+            <a href="https://github.com/stanford-crfm/helm">
+              the Github repository
+            </a>
+          </strong>
+          .{"\n"}
+        </p>
         <p>
           A language model takes in text and produces text:
           <img
@@ -145,7 +152,7 @@ export default function LegacyLanding() {
           </li>
         </ol>
       </div>
-      <div className="container mx-auto">
+      <div className="container">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           <ModelsList models={schema.models} />
           <ScenariosList runGroups={schema.run_groups} />

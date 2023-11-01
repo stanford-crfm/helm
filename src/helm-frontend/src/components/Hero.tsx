@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function Hero() {
   return (
-    <div className="flex px-4 py-36">
+    <div className="flex px-6 py-14">
       {/* Left side content */}
       <div className="flex-1 p-4 flex flex-col justify-center">
         {" "}
@@ -19,9 +19,9 @@ export default function Hero() {
           , providing standardized evaluations with multiple metrics and open
           access.
         </h1>
-        <div className="flex justify-end w-1/4 ">
-          <Link to="/leaderboard">
-            <button className="px-10 btn btn-grey rounded-md">
+        <div className="flex justify-end w-1/4">
+          <Link to="leaderboard">
+            <button className="px-6 btn btn-grey rounded-md">
               <body>Visit Leaderboard</body>
             </button>
           </Link>

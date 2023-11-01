@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import heimLogo from "@/assets/heim-logo.png";
 
 function NavDropdown() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -50,11 +51,14 @@ function NavDropdown() {
               role="menuitem"
             >
               <Link to="/">
-                <img
-                  src="https://crfm.stanford.edu/helm/v0.3.0/images/helm-logo-simple.png"
-                  alt="Image 1"
-                  className="w-full h-12 object-cover"
-                />
+                <div className="flex items-center">
+                  <img
+                    src="https://crfm.stanford.edu/helm/v0.3.0/images/helm-logo-simple.png"
+                    alt="Image 1"
+                    className="w-15 h-8 object-cover mr-2"
+                  />
+                  <span>Holistic evaluation of language models</span>
+                </div>
               </Link>
             </div>
             <div
@@ -62,11 +66,14 @@ function NavDropdown() {
               role="menuitem"
             >
               <Link to="https://crfm.stanford.edu/heim/latest/?">
-                <img
-                  src="https://crfm.stanford.edu/heim/latest/images/heim-logo.png"
-                  alt="Image 2"
-                  className="w-full h-12 object-cover"
-                />
+                <div className="flex items-center">
+                  <img
+                    src={heimLogo}
+                    alt="Image 2"
+                    className="w-15 h-8 object-cover mr-2"
+                  />
+                  <span>Holistic evaluation of image models</span>
+                </div>
               </Link>
             </div>
           </div>

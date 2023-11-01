@@ -26,7 +26,7 @@ export default function NavBar() {
               <Link to="scenarios">Scenarios</Link>
             </li>
             <li>
-              <Link to="groups">Results</Link>
+              <Link to="leaderboard">Leaderboard</Link>
             </li>
             <li>
               <Link to="runs" className="whitespace-nowrap">
@@ -51,7 +51,7 @@ export default function NavBar() {
             <Link to="scenarios">Scenarios</Link>
           </li>
           <li>
-            <Link to="groups">Results</Link>
+            <Link to="leaderboard">Leaderboard</Link>
           </li>
           <li>
             <Link to="runs">Raw Runs</Link>
