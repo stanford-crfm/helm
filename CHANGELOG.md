@@ -2,7 +2,7 @@
 
 ## [Upcoming]
 
-## [v0.3.0] - 2023-10-27
+## [v0.3.0] - 2023-10-31
 
 ### Models
 
@@ -31,7 +31,7 @@
 - Added support for multi-modal scenarios and Vision Language Model (VLM) evaluation (#1871)
 - Added support for Python 3.9 and 3.10 (#1897)
 - Added a new `Tokenizer` class in preparation for removing `tokenize()` and `decode()` from `Client` in a future release (#1874)
-- Made more dependencies optional instead of required and added install command suggestions (#1834, #1961)
+- Made more dependencies optional instead of required, and added install command suggestions (#1834, #1961)
 - Added support for configuring users' model deployments through YAML configuration files (#1861)
 
 ### Evaluation Results
