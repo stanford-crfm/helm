@@ -347,10 +347,10 @@ class AutoClient(Client):
         #     from helm.proxy.tokenizers.ai21_tokenizer import AI21Tokenizer
 
         #     tokenizer = AI21Tokenizer(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
-        elif organization == "cohere":
-            from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
+        # elif organization == "cohere":
+        #     from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
 
-            tokenizer = CohereTokenizer(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
+        #     tokenizer = CohereTokenizer(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
         # elif organization == "anthropic":
         #     from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
 

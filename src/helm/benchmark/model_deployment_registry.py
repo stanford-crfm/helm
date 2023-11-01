@@ -87,21 +87,7 @@ class ModelDeployments:
     model_deployments: List[ModelDeployment]
 
 
-ALL_MODEL_DEPLOYMENTS: List[ModelDeployment] = [
-    # ModelDeployment(
-    #     name="anthropic/claude-v1.3",
-    #     tokenizer_name="anthropic/claude",
-    #     client_spec=ClientSpec(
-    #         class_name="helm.proxy.clients.anthropic_client.AnthropicClient",
-    #         args={},  # api_key should be auto-filled
-    #     ),
-    #     window_service_spec=WindowServiceSpec(
-    #         class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService",
-    #         args={},  # No args
-    #     ),
-    # ),
-]
-
+ALL_MODEL_DEPLOYMENTS: List[ModelDeployment] = []
 DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT: Dict[str, ModelDeployment] = {
     deployment.name: deployment for deployment in ALL_MODEL_DEPLOYMENTS
 }
@@ -111,6 +97,7 @@ DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT: Dict[str, ModelDeployment] = {
 def register_model_deployment(model_deployment: ModelDeployment) -> None:
     hlog(f"Registered model deployment {model_deployment.name}")
     DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_deployment.name] = model_deployment
+    ALL_MODEL_DEPLOYMENTS.append(model_deployment)
 
     model_name: str = model_deployment.model_name or model_deployment.name
     print_visible("register_model_deployment")

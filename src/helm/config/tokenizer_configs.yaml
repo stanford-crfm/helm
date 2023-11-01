@@ -53,3 +53,10 @@ tokenizer_configs:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args: {}
   # =============================== #
+
+  # =========== Cohere =========== #
+  - name: cohere/cohere
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.cohere_tokenizer.CohereTokenizer"
+      args: {}
+  # ============================== #
