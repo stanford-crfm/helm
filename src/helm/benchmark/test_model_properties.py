@@ -1350,6 +1350,10 @@ def test_all_models_have_window_services():
             if "lit-gpt" in model.name:
                 continue
 
+            # Can't test Llama 2 because it requires Hugging Face credentials
+            if "llama-2-" in model.name:
+                continue
+
             client = auto_client._get_client(model.name)
             window_service = WindowServiceFactory.get_window_service(model.name, tokenizer_service)
             tokenizer_name = window_service.tokenizer_name
