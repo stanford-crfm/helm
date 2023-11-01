@@ -718,7 +718,72 @@ models:
 
 
 
+  # ========== MosaicML ========== #
+  - name: mosaicml/mpt-7b
+    display_name: MPT (7B)
+    description: MPT (7B) is a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: mosaicml/mpt-7b-chat # NOT SUPPORTED
+    display_name: MPT-Chat (7B)
+    description: MPT-Chat (7B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT (30B) , a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
+    tags: [] # TODO: add tags
+
+  - name: mosaicml/mpt-instruct-7b
+    display_name: MPT-Instruct (7B)
+    description: MPT-Instruct (7B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: mosaicml/mpt-30b
+    display_name: MPT (30B)
+    description: MPT (30B) is a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-06-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: mosaicml/mpt-30b-chat # NOT SUPPORTED
+    display_name: MPT-Chat (30B)
+    description: MPT-Chat (30B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-06-22
+    tags: [] # TODO: add tags
+
+  - name: mosaicml/mpt-instruct-30b
+    display_name: MPT-Instruct (30B)
+    description: MPT-Instruct (30B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization: MosaicML
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-06-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+  # ============================== #
+
+
+
   # =========== NVIDIA =========== #
+  - name: nvidia/megatron-gpt2
+    display_name: Megatron GPT2
+    description: GPT-2 implemented in Megatron-LM ([paper](https://arxiv.org/abs/1909.08053)).
+    creator_organization: NVIDIA
+    access: open
+    release_date: 2019-09-17 # paper date
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, BUGGY_TEMP_0_TAG]
   # ============================== #
 
 
@@ -978,17 +1043,15 @@ models:
 
 
 
-  # ========== MosaicML ========== #
-  # ============================== #
-
-
-
-  # ========== TII UAE ========== #
-  # ============================= #
-
-
-
   # ========== Salesforce ========== #
+  - name: salesforce/codegen # NOT SUPPORTED
+    display_name: CodeGen (16B)
+    description: CodeGen (16B parameters) is an open dense code model trained for multi-turn program synthesis ([blog](https://arxiv.org/pdf/2203.13474.pdf)).
+    creator_organization: Tsinghua
+    access: open
+    num_parameters: 16000000000
+    release_date: 2022-03-25
+    tags: [] # TODO: add tags
   # ================================ #
 
 
@@ -1028,20 +1091,208 @@ models:
 
 
 
+  # ========== TII UAE ========== #
+  - name: tiiuae/falcon-7b
+    display_name: Falcon (7B)
+    description: Falcon-7B is a 7B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: tiiuae/falcon-7b-instruct
+    display_name: Falcon-Instruct (7B)
+    description: Falcon-7B-Instruct is a 7B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: tiiuae/falcon-40b
+    display_name: Falcon (40B)
+    description: Falcon-40B is a 40B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 40000000000
+    release_date: 2023-05-25
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: tiiuae/falcon-40b-instruct
+    display_name: Falcon-Instruct (40B)
+    description: Falcon-40B-Instruct is a 40B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
+    creator_organization: TII UAE
+    access: open
+    num_parameters: 40000000000
+    release_date: 2023-05-25
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+  # ============================= #
+
+
+
   # ========== Together ========== #
+  - name: together/gpt-jt-6b-v1
+    display_name: GPT-JT (6B)
+    description: GPT-JT (6B parameters) is a fork of GPT-J ([blog post](https://www.together.xyz/blog/releasing-v1-of-gpt-jt-powered-by-open-source-ai)).
+    creator_organization: Together
+    access: open
+    num_parameters: 6700000000
+    release_date: 2022-11-29
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: together/gpt-neoxt-chat-base-20b
+    display_name: GPT-NeoXT-Chat-Base (20B)
+    description: GPT-NeoXT-Chat-Base (20B) is fine-tuned from GPT-NeoX, serving as a base model for developing open-source chatbots.
+    creator_organization: Together
+    access: open
+    num_parameters: 20000000000
+    release_date: 2023-03-08
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG]
+
+  - name: together/redpajama-incite-base-3b-v1
+    display_name: RedPajama-INCITE-Base-v1 (3B)
+    description: RedPajama-INCITE-Base-v1 (3B parameters) is a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: together/redpajama-incite-instruct-3b-v1
+    display_name: RedPajama-INCITE-Instruct-v1 (3B)
+    description: RedPajama-INCITE-Instruct-v1 (3B parameters) is a model fine-tuned for few-shot applications on the data of GPT-JT. It is built from RedPajama-INCITE-Base-v1 (3B), a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: together/redpajama-incite-chat-3b-v1 # NOT SUPPORTED
+    display_name: RedPajama-INCITE-Chat-v1 (3B)
+    description: RedPajama-INCITE-Chat-v1 (3B parameters) is a model fine-tuned on OASST1 and Dolly2 to enhance chatting ability. It is built from RedPajama-INCITE-Base-v1 (3B), a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+    tafs: [] # TODO: add tags
+
+  - name: together/redpajama-incite-base-7b
+    display_name: RedPajama-INCITE-Base (7B)
+    description: RedPajama-INCITE-Base (7B parameters) is a 7 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: together/redpajama-incite-instruct-7b
+    display_name: RedPajama-INCITE-Instruct (7B)
+    description: RedPajama-INCITE-Instruct (7B parameters) is a model fine-tuned for few-shot applications on the data of GPT-JT. It is built from RedPajama-INCITE-Base (7B), a 7 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization: Together
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
   # ============================== #
 
 
 
   # ========== Tsinghua ========== #
+  - name: tsinghua/glm
+    display_name: GLM (130B)
+    description: GLM (130B parameters) is an open bilingual (English & Chinese) bidirectional dense model that was trained using General Language Model (GLM) procedure ([paper](https://arxiv.org/pdf/2210.02414.pdf)).
+    creator_organization: Tsinghua
+    access: open
+    num_parameters: 130000000000
+    release_date: 2022-08-04
+    # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
+    # bidirectional attention and do not perform predictions on them.
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
+
+  - name: tsinghua/codegeex # NOT SUPPORTED
+    display_name: CodeGeeX (13B)
+    description: CodeGeeX (13B parameters) is an open dense code model trained on more than 20 programming languages on a corpus of more than 850B tokens ([blog](http://keg.cs.tsinghua.edu.cn/codegeex/)).
+    creator_organization: Tsinghua
+    access: open
+    num_parameters: 13000000000
+    release_date: 2022-09-19
+    tags: [] # TODO: add tags
   # ============================== #
 
 
 
   # ========== Writer ========== #
+  - name: writer/palmyra-base
+    display_name: Palmyra Base (5B)
+    description: Palmyra Base (5B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 5000000000
+    release_date: 2022-10-13
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-large
+    display_name: Palmyra Large (20B)
+    description: Palmyra Large (20B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 20000000000
+    release_date: 2022-12-23
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-instruct-30
+    display_name: InstructPalmyra (30B)
+    description: InstructPalmyra (30B parameters) is trained using reinforcement learning techniques based on feedback from humans.
+    creator_organization: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-02-16
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-e
+    display_name: Palmyra E (30B)
+    description: Palmyra E (30B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-03-03
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/silk-road
+    display_name: Silk Road (35B)
+    description: Silk Road (35B)
+    creator_organization: Writer
+    access: limited
+    num_parameters: 35000000000
+    release_date: 2023-04-13
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x
+    display_name: Palmyra X (43B)
+    description: Palmyra-X (43B parameters) is trained to adhere to instructions using human feedback and utilizes a technique called multiquery attention. Furthermore, a new feature called 'self-instruct' has been introduced, which includes the implementation of an early stopping criteria specifically designed for minimal instruction tuning ([paper](https://dev.writer.com/docs/becoming-self-instruct-introducing-early-stopping-criteria-for-minimal-instruct-tuning)).
+    creator_organization: Writer
+    access: limited
+    num_parameters: 43000000000
+    release_date: 2023-06-11
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
   # ============================ #
 
 
 
   # ========== Yandex ========== #
+  - name: together/yalm
+    display_name: YaLM (100B)
+    description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](https://github.com/yandex/YaLM-100B)).
+    creator_organization: Yandex
+    access: open
+    num_parameters: 100000000000
+    release_date: 2022-06-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
   # ============================ #
