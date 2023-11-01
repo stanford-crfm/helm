@@ -10,6 +10,7 @@
 - Added support for stop sequences in HuggingFaceClient (#1892, #1909)
 - Added Mistral 7B model (#1906)
 - Added IDEFICS model (#1871)
+- Added Anthropic Claude 2 (#1900)
 
 ### Scenarios
 
