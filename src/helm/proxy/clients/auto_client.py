@@ -96,7 +96,6 @@ class AutoClient(Client):
 
         # Cache the client
         self.clients[model_deployment_name] = client
-
         return client
 
     def make_request(self, request: Request) -> RequestResult:
