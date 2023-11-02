@@ -88,8 +88,8 @@ class LitGPTClient(CachingClient):
 
     def __init__(
         self,
-        cache_config: CacheConfig,
         tokenizer: Tokenizer,
+        cache_config: CacheConfig,
         checkpoint_dir: Path = Path(""),
         precision: str = "bf16-true",
         device: str = "auto",
