@@ -44,6 +44,10 @@ class AutoClient(Client):
         self.clients: Dict[str, Client] = {}
         # self._huggingface_client is lazily instantiated by get_huggingface_client()
         self._huggingface_client: Optional["helm.proxy.clients.huggingface_client.HuggingFaceClient"] = None
+        # self._huggingface_tokenizer is lazily instantiated by get_huggingface_tokenizer()
+        self._huggingface_tokenizer: Optional[
+            "helm.proxy.tokenizers.huggingface_tokenizers.HuggingFaceTokenizer"
+        ] = None
         # self._critique_client is lazily instantiated by get_critique_client()
         self._critique_client: Optional[CritiqueClient] = None
         hlog(f"AutoClient: cache_path = {cache_path}")
@@ -205,3 +209,14 @@ class AutoClient(Client):
         tokenizer = HuggingFaceTokenizer(cache_config)
         self._huggingface_client = HuggingFaceClient(tokenizer=tokenizer, cache_config=cache_config)
         return self._huggingface_client
+
+    def get_huggingface_tokenizer(self) -> "helm.proxy.tokenizers.huggingface_tokenizers.HuggingFaceTokenizer":
+        """Get the Hugging Face client."""
+        from helm.proxy.tokenizers.huggingface_tokenizers import HuggingFaceTokenizer
+
+        if self._huggingface_tokenizer:
+            assert isinstance(self._huggingface_tokenizer, HuggingFaceTokenizer)
+            return self._huggingface_tokenizer
+        cache_config = self._build_cache_config("huggingface")
+        self._huggingface_tokenizer = HuggingFaceTokenizer(cache_config=cache_config)
+        return self._huggingface_tokenizer
