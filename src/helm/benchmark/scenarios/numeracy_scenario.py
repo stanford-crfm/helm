@@ -560,10 +560,10 @@ def get_numeracy_adapter_spec(
 
 
 class NumeracyAdapter:
-    """Copy of InContextLearningAdapter
-    """
+    """Copy of InContextLearningAdapter"""
+
     def __init__(self, adapter_spec):
-        self.adapter_spec = adapter_spec 
+        self.adapter_spec = adapter_spec
 
     def construct_prompt(self, train_instances, eval_instance, include_output=False, reference_index=None) -> Prompt:
         instructions_block: str = self.adapter_spec.instructions
@@ -607,7 +607,6 @@ class NumeracyAdapter:
 
         return result
 
-
     def construct_output(self, instance: Instance, reference_index: Optional[int]) -> str:
         """
         Returns the gold output text constructed from correct references.
@@ -634,6 +633,7 @@ class NumeracyAdapter:
             else:
                 output = first_correct_reference.output.text
         return output
+
 
 class NumeracyScenario(Scenario):
     """
@@ -810,37 +810,39 @@ class NumeracyScenario(Scenario):
             # service = get_test_tokenizer_service()
             adapter = NumeracyAdapter(spec)
             outer_spec = get_numeracy_adapter_spec(
-               self.num_train,
-               self.num_test,
-               self.dim,
-               instructions="",
-               instance_prefix="\n\n",
-               delimiter=self.delimiter,
+                self.num_train,
+                self.num_test,
+                self.dim,
+                instructions="",
+                instance_prefix="\n\n",
+                delimiter=self.delimiter,
             )
             outer_adapter = NumeracyAdapter(outer_spec)
             instances = []
             for idx in range(num_instances):
-               datapoint_instances = generate_dataset()
-               train_instances = datapoint_instances[: self.num_train]
-               eval_instances = datapoint_instances[self.num_train :]
-               dataset_instances = []
-               for idx in range(self.num_test):
-                   eval_instance = eval_instances[idx]
-                   input = adapter.construct_prompt(
-                       train_instances, eval_instance, include_output=False, reference_index=None
-                   ).text
-                   input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
-                   references = eval_instance.references
-                   dataset_instance = Instance(Input(text=input), references=references, split=split)  # split doesn't matter
-                   dataset_instances.append(dataset_instance)
+                datapoint_instances = generate_dataset()
+                train_instances = datapoint_instances[: self.num_train]
+                eval_instances = datapoint_instances[self.num_train :]
+                dataset_instances = []
+                for idx in range(self.num_test):
+                    eval_instance = eval_instances[idx]
+                    input = adapter.construct_prompt(
+                        train_instances, eval_instance, include_output=False, reference_index=None
+                    ).text
+                    input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
+                    references = eval_instance.references
+                    dataset_instance = Instance(
+                        Input(text=input), references=references, split=split
+                    )  # split doesn't matter
+                    dataset_instances.append(dataset_instance)
 
-               input = outer_adapter.construct_prompt(
-                   dataset_instances[:-1], dataset_instances[-1], include_output=False, reference_index=None
-               ).text
-               input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
-               references = dataset_instances[-1].references
-               instance = Instance(Input(text=input), references=references, split=split)
-               instances.append(instance)
+                input = outer_adapter.construct_prompt(
+                    dataset_instances[:-1], dataset_instances[-1], include_output=False, reference_index=None
+                ).text
+                input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
+                references = dataset_instances[-1].references
+                instance = Instance(Input(text=input), references=references, split=split)
+                instances.append(instance)
             return instances
 
         def generate_instances():
