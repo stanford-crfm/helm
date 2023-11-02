@@ -10,6 +10,7 @@ import random
 from typing import List, Optional, Tuple, Dict
 
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
+from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.common.authentication import Authentication
@@ -549,6 +550,7 @@ def get_numeracy_adapter_spec(
                 "stop_sequences": ["\n"],
                 "max_tokens": 20,
                 "input_prefix": "",
+                "input_suffix": "",
                 "output_prefix": ", ",
                 "instance_prefix": "\n",
             },
@@ -556,6 +558,82 @@ def get_numeracy_adapter_spec(
         }
     )  # enable override
 
+
+class NumeracyAdapter:
+    """Copy of InContextLearningAdapter
+    """
+    def __init__(self, adapter_spec):
+        self.adapter_spec = adapter_spec 
+
+    def construct_prompt(self, train_instances, eval_instance, include_output=False, reference_index=None) -> Prompt:
+        instructions_block: str = self.adapter_spec.instructions
+
+        # Text for in-context training instances
+        train_instance_blocks: List[str] = [
+            self.construct_example_prompt(inst, include_output=True, reference_index=None) for inst in train_instances
+        ]
+
+        # Example text
+        eval_instance_block: str = self.construct_example_prompt(
+            eval_instance, include_output=include_output, reference_index=reference_index
+        )
+
+        # Prompt
+        prompt = Prompt(
+            global_prefix=self.adapter_spec.global_prefix,
+            instructions_block=instructions_block,
+            train_instance_blocks=train_instance_blocks,
+            eval_instance_block=eval_instance_block,
+            instance_prefix=self.adapter_spec.instance_prefix,
+            substitutions=self.adapter_spec.substitutions,
+        )
+
+        # # Make prompt fit within the context window
+        # prompt = self._make_prompt_fit(prompt)
+        return prompt
+
+    def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
+        """
+        Returns a single example of the prompt. `include_output` controls whether the gold output is included.
+        """
+        # Input
+        result: str = self.adapter_spec.input_prefix + (instance.input.text or "") + self.adapter_spec.input_suffix
+
+        if include_output:
+            output: str = self.construct_output(instance, reference_index)
+            result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
+        else:
+            result += self.adapter_spec.output_prefix.rstrip()
+
+        return result
+
+
+    def construct_output(self, instance: Instance, reference_index: Optional[int]) -> str:
+        """
+        Returns the gold output text constructed from correct references.
+        If `multi_label` of `AdapterSpec` is true, all correct references are included.
+        """
+        delimiter: str = ", "
+        no_correct_references: str = "n/a"
+
+        output: str
+        if reference_index is not None:
+            reference = instance.references[reference_index]
+            output = reference.output.text
+        elif self.adapter_spec.multi_label:
+            # Put only the correct references as part as the output
+            correct_references: List[Reference] = instance.all_correct_references
+            if not correct_references:
+                output = no_correct_references
+            else:
+                output = delimiter.join([correct_reference.output.text for correct_reference in correct_references])
+        else:
+            first_correct_reference: Optional[Reference] = instance.first_correct_reference
+            if not first_correct_reference:
+                output = no_correct_references
+            else:
+                output = first_correct_reference.output.text
+        return output
 
 class NumeracyScenario(Scenario):
     """
@@ -728,44 +806,42 @@ class NumeracyScenario(Scenario):
         def generate_datasets(num_instances: int, split: str):
             # TODO: construct_prompt is no longer part of adapter, and this function needs to be rewritten
             #       https://github.com/stanford-crfm/benchmarking/issues/569
-            return []
-            # spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
+            spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
             # service = get_test_tokenizer_service()
-            # adapter = Adapter(spec, service)
-            # outer_spec = get_numeracy_adapter_spec(
-            #    self.num_train,
-            #    self.num_test,
-            #    self.dim,
-            #    instructions="",
-            #    instance_prefix="\n\n",
-            #    delimiter=self.delimiter,
-            # )
-            # outer_adapter = Adapter(outer_spec, service)
-            # instances = []
-            # for idx in range(num_instances):
-            #    datapoint_instances = generate_dataset()
-            #    train_instances = datapoint_instances[: self.num_train]
-            #    eval_instances = datapoint_instances[self.num_train :]
-            #    dataset_instances = []
-            #    for idx in range(self.num_test):
-            #        eval_instance = eval_instances[idx]
-            #        input = adapter.construct_prompt(
-            #            train_instances, eval_instance, include_output=False, reference_index=None
-            #        ).text
-            #        input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
-            #        references = eval_instance.references
-            #        dataset_instance = Instance(input=input, references=references, split=split)  # split doesn't matter
-            #        dataset_instances.append(dataset_instance)
+            adapter = NumeracyAdapter(spec)
+            outer_spec = get_numeracy_adapter_spec(
+               self.num_train,
+               self.num_test,
+               self.dim,
+               instructions="",
+               instance_prefix="\n\n",
+               delimiter=self.delimiter,
+            )
+            outer_adapter = NumeracyAdapter(outer_spec)
+            instances = []
+            for idx in range(num_instances):
+               datapoint_instances = generate_dataset()
+               train_instances = datapoint_instances[: self.num_train]
+               eval_instances = datapoint_instances[self.num_train :]
+               dataset_instances = []
+               for idx in range(self.num_test):
+                   eval_instance = eval_instances[idx]
+                   input = adapter.construct_prompt(
+                       train_instances, eval_instance, include_output=False, reference_index=None
+                   ).text
+                   input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
+                   references = eval_instance.references
+                   dataset_instance = Instance(Input(text=input), references=references, split=split)  # split doesn't matter
+                   dataset_instances.append(dataset_instance)
 
-            #    input = outer_adapter.construct_prompt(
-            #        dataset_instances[:-1], dataset_instances[-1], include_output=False, reference_index=None
-            #    ).text
-            #    input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
-            #    references = dataset_instances[-1].references
-            #    instance = Instance(input=input, references=references, split=split)
-            #    instances.append(instance)
-
-            # return instances
+               input = outer_adapter.construct_prompt(
+                   dataset_instances[:-1], dataset_instances[-1], include_output=False, reference_index=None
+               ).text
+               input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
+               references = dataset_instances[-1].references
+               instance = Instance(Input(text=input), references=references, split=split)
+               instances.append(instance)
+            return instances
 
         def generate_instances():
             generate_func = globals()[f"generate_{self.relation_type}"]
