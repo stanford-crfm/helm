@@ -128,7 +128,7 @@ class DecodingTrustAdvDemoScenario(Scenario):
             instances.append(instance)
         return instances
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
 
         for seed in self.seeds:

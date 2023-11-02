@@ -298,7 +298,7 @@ class DecodingTrustMachineEthicsScenario(Scenario):
             instances.append(instance)
         return instances
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         target_test_path = os.path.join(self.output_path, self.test_data_file.replace("/", "_"))
         ensure_file_downloaded(
             source_url=os.path.join(self.source_url, self.test_data_file),

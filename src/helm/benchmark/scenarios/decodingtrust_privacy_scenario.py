@@ -167,7 +167,7 @@ class DecodingTrustPrivacyScenario(Scenario):
 
         return final_dataset
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         load_data_file = ''
         if self.data_file is not None:
             if self.data_file == "enron_data":  # download the whole folder

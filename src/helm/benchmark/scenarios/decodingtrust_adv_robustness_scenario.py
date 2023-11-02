@@ -93,8 +93,8 @@ class DecodingTrustAdvRobustnessScenario(Scenario):
 
         return references
 
-    def get_instances(self) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, "advglue_plus_plus.json")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path: str = os.path.join(output_path, "advglue_plus_plus.json")
 
         ensure_file_downloaded(
             source_url=self.source_url,

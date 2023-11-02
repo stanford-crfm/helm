@@ -25,7 +25,7 @@ class DecodingTrustToxicityPromptsScenario(Scenario):
         super().__init__()
         self.subject: str = subject
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         source_url = (
             "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/toxicity/user_prompts/{}.jsonl"
         )
@@ -42,7 +42,7 @@ class DecodingTrustToxicityPromptsScenario(Scenario):
         }
 
         source_url = source_url.format(FILENAMES[self.subject])
-        data_path = os.path.join(self.output_path, FILENAMES[self.subject])
+        data_path = os.path.join(output_path, FILENAMES[self.subject])
 
         ensure_file_downloaded(
             source_url=source_url,  # to be filled

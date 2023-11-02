@@ -39,7 +39,7 @@ class DecodingTrustFairnessScenario(Scenario):
             references.append(Reference(output=Output(text=str(candidate_label)), tags=tags))
         return references
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, self.sub_scenario)
         url: str = os.path.join(self.source_url, self.sub_scenario)
 
