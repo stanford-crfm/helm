@@ -490,48 +490,6 @@ models:
     num_parameters: 70000000000
     release_date: 2023-07-18
 
-  # Stanford
-  - name: huggingface/alpaca-7b
-    display_name: Alpaca (7B)
-    description: Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following demonstrations.
-    creator_organization: Stanford
-    access: open
-    num_parameters: 7000000000
-    release_date: 2023-03-13
-
-  # Meta
-  - name: together/llama-7b
-    display_name: LLaMA (7B)
-    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
-    creator_organization: Meta
-    access: open
-    num_parameters: 6700000000
-    release_date: 2023-02-24
-  - name: together/llama-13b
-    display_name: LLaMA (13B)
-    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
-    creator_organization: Meta
-    access: open
-    num_parameters: 13000000000
-    release_date: 2023-02-24
-    todo: true
-  - name: together/llama-30b
-    display_name: LLaMA (30B)
-    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
-    creator_organization: Meta
-    access: open
-    num_parameters: 30000000000
-    release_date: 2023-02-24
-    todo: true
-  - name: together/llama-65b
-    display_name: LLaMA (65B)
-    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
-    creator_organization: Meta
-    access: open
-    num_parameters: 65000000000
-    release_date: 2023-02-24
-    todo: true
-
   # Stability AI
   - name: stabilityai/stablelm-base-alpha-3b
     display_name: StableLM-Base-Alpha (3B)
