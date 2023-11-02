@@ -1,6 +1,56 @@
+import os
+import tempfile
 from typing import Optional
+
+
+from helm.common.cache import SqliteCacheConfig
 from helm.common.general import singleton
+from helm.common.tokenization_request import (
+    DecodeRequest,
+    DecodeRequestResult,
+    TokenizationRequest,
+    TokenizationRequestResult,
+)
 from .huggingface_tokenizer import HuggingFaceTokenizer
+
+
+class TestHuggingFaceCachingTokenizer:
+    def setup_method(self, method):
+        cache_file = tempfile.NamedTemporaryFile(delete=False)
+        self.cache_path: str = cache_file.name
+        self.tokenizer = HuggingFaceTokenizer(SqliteCacheConfig(self.cache_path))
+
+    def teardown_method(self, method):
+        os.remove(self.cache_path)
+
+    def test_tokenize(self):
+        request = TokenizationRequest(text="I am a computer scientist.")
+        result: TokenizationRequestResult = self.tokenizer.tokenize(request)
+        assert not result.cached, "First time making the tokenize request. Result should not be cached"
+        result = self.tokenizer.tokenize(request)
+        assert result.cached, "Result should be cached"
+        assert result.raw_tokens == ["I", " am", " a", " computer", " scientist", "."]
+
+    def test_encode(self):
+        request = TokenizationRequest(text="I am a computer scientist.", encode=True, truncation=True, max_length=1)
+        result: TokenizationRequestResult = self.tokenizer.tokenize(request)
+        assert not result.cached, "First time making the tokenize request. Result should not be cached"
+        result = self.tokenizer.tokenize(request)
+        assert result.cached, "Result should be cached"
+        assert result.raw_tokens == [40]
+
+        request = TokenizationRequest(text="I am a computer scientist.", encode=True, truncation=True, max_length=1024)
+        result = self.tokenizer.tokenize(request)
+        assert not result.cached, "First time making this particular request. Result should not be cached"
+        assert result.raw_tokens == [40, 716, 257, 3644, 11444, 13]
+
+    def test_decode(self):
+        request = DecodeRequest(tokens=[40, 716, 257, 3644, 11444, 13])
+        result: DecodeRequestResult = self.tokenizer.decode(request)
+        assert not result.cached, "First time making the decode request. Result should not be cached"
+        result = self.tokenizer.decode(request)
+        assert result.cached, "Result should be cached"
+        assert result.text == "I am a computer scientist."
 
 
 class TestHuggingFaceTokenizer:
