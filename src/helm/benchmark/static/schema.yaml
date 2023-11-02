@@ -2002,14 +2002,14 @@ run_groups:
     description: A comprehensive benchmark of the trustworthiness of large language models [(Wang et. al. 2023)](https://decodingtrust.github.io/)
     category: Core scenarios
     subgroups:
-      - adv_robustness
-      - adv_demonstration
-      - ood_robustness
-      - fairness
-      - privacy
-      - machine_ethics
+      - decodingtrust_adv_robustness
+      - decodingtrust_adv_demonstration
+      - decodingtrust_ood_robustness
+      - decodingtrust_fairness
+      - decodingtrust_privacy
+      - decodingtrust_machine_ethics
       - decodingtrust_toxicity_prompts
-      - stereotype_bias
+      - decodingtrust_stereotype_bias
 
 ### Ablations
   - name: ablation_in_context
