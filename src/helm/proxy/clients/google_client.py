@@ -2,7 +2,6 @@ from typing import List, Dict
 
 from helm.common.cache import CacheConfig
 from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence
 
 
@@ -28,8 +27,8 @@ class GoogleClient(CachingClient):
             "top_p": request.top_p,
         }
 
-    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = GoogleClient.convert_to_raw_request(request)

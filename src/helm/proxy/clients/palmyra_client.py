@@ -28,9 +28,9 @@ def _is_content_moderation_failure(response: Dict) -> bool:
 
 
 class PalmyraClient(CachingClient):
-    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, cache_config: CacheConfig, tokenizer: Tokenizer, api_key: str):
         self.api_key: str = api_key
+        self.tokenizer = tokenizer
 
     def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(

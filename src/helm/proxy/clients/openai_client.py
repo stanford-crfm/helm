@@ -33,7 +33,8 @@ class OpenAIClient(CachingClient):
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
         self.org_id: Optional[str] = org_id
         self.api_key: Optional[str] = api_key
         self.api_base: str = "https://api.openai.com/v1"

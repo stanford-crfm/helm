@@ -12,7 +12,6 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.common.cache import Cache, CacheConfig
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 class Client(ABC):
@@ -54,7 +53,7 @@ class Client(ABC):
 
 
 class CachingClient(Client):
-    def __init__(self, cache_config: CacheConfig, tokenizer: Tokenizer) -> None:
+    def __init__(self, cache_config: CacheConfig) -> None:
         """Initializes the client.
 
         For most clients, both the cache config and tokenizer are required.
@@ -63,7 +62,6 @@ class CachingClient(Client):
         the request is made.
         """
         self.cache = Cache(cache_config) if cache_config is not None else None
-        self.tokenizer = tokenizer
 
     @staticmethod
     def make_cache_key(raw_request: Dict, request: Request) -> Dict:
@@ -79,14 +77,10 @@ class CachingClient(Client):
         return cache_key
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        # Deprecated - use `self.tokenizer.tokenize` instead. Warn the user.
-        hlog("WARNING: CachingClient.tokenize is deprecated, use self.tokenizer.tokenize instead")
-        return self.tokenizer.tokenize(request)
+        raise NotImplementedError("CachingClient.tokenize() is not supported, use self.tokenizer.tokenize instead")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        # Deprecated - use `self.tokenizer.decode` instead. Warn the user.
-        hlog("WARNING: CachingClient.decode is deprecated, use self.tokenizer.decode instead")
-        return self.tokenizer.decode(request)
+        raise NotImplementedError("CachingClient.decode() is not supported, use self.tokenizer.decode instead")
 
 
 def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:
