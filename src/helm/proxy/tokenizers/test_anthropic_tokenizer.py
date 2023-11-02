@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 import os
 import tempfile
 from typing import List
@@ -10,7 +9,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from .anthropic_tokenizer import AnthropicTokenizer
+from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
 
 
 class TestAnthropicTokenizer:
