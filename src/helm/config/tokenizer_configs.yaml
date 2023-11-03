@@ -1,62 +1,208 @@
 tokenizer_configs:
-  # ========== AI21 Labs ========== #
+
+  # ========== Ai21 ========== #
   - name: ai21/j1
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.ai21_tokenizer.AI21Tokenizer"
-      args: {}
-  # =============================== #
-  
-  # ========== Aleph Alpha ========== #
+    end_of_text_token: " "
+    prefix_token: ""
+  # ========================== #
+
+  # ========== AlephAlpha ========== #
   - name: AlephAlpha/luminous-base
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
-      args: {}
+    end_of_text_token: ""
+    prefix_token: ""
   - name: AlephAlpha/luminous-extended
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
-      args: {}
+    end_of_text_token: ""
+    prefix_token: ""
   - name: AlephAlpha/luminous-supreme
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
-      args: {}
+    end_of_text_token: ""
+    prefix_token: ""
   - name: AlephAlpha/luminous-world
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.aleph_alpha_tokenizer.AlephAlphaTokenizer"
-      args: {}
-  # ================================= #
-  
-  # =========== Anthropic =========== #
+    end_of_text_token: ""
+    prefix_token: ""
+  # ================================ #
+
+  # ========== Anthropic ========== #
   - name: anthropic/claude
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.anthropic_tokenizer.AnthropicTokenizer"
-      args: {}
-  # ================================= #
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+  # =============================== #
 
-  # =========== BigScience =========== #
-  - name: bigscience/bloom
-    tokenizer_spec:
-      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
-      args: {}
-  - name: bigscience/T0pp
-    tokenizer_spec:
-      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
-      args: {}
-  # ================================== #
-
-  # =========== BigCode =========== #
+  # ========== Bigcode ========== #
   - name: bigcode/santacoder
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
-      args: {}
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
   - name: bigcode/starcoder
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
-      args: {}
-  # =============================== #
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+  # ============================= #
 
-  # =========== Cohere =========== #
+  # ========== Bigscience ========== #
+  - name: bigscience/bloom
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "</s>"
+  - name: bigscience/T0pp
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: ""
+  # ================================ #
+
+  # ========== Cohere ========== #
   - name: cohere/cohere
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.cohere_tokenizer.CohereTokenizer"
-      args: {}
+    end_of_text_token: ""
+    prefix_token: ":"
+  # ============================ #
+
+  # ========== EleutherAI ========== #
+  - name: EleutherAI/gpt-j-6B
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+  - name: EleutherAI/gpt-neox-20b
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+  # ================================ #
+
+  # ========== Facebook ========== #
+  - name: facebook/opt-66b
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "</s>"
   # ============================== #
+
+  # ========== Google ========== #
+  - name: google/t5-11b
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: ""
+  - name: google/flan-t5-xxl
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: ""
+  - name: google/ul2
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: ""
+  # ============================ #
+
+  # ========== Hf-internal-testing ========== #
+  - name: hf-internal-testing/llama-tokenizer
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+  # ========================================= #
+
+  # ========== HuggingFaceM4 ========== #
+  - name: HuggingFaceM4/idefics-9b
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+  - name: HuggingFaceM4/idefics-9b-instruct
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+  - name: HuggingFaceM4/idefics-80b
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+  - name: HuggingFaceM4/idefics-80b-instruct
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+  # =================================== #
+
+  # ========== Huggingface ========== #
+  - name: huggingface/gpt2
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+  # ================================= #
+
+  # ========== Meta-llama ========== #
+  - name: meta-llama/Llama-2-7b-hf
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+  # ================================ #
+
+  # ========== Mistralai ========== #
+  - name: mistralai/Mistral-7B-v0.1
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+  # =============================== #
+
+  # ========== Neurips ========== #
+  - name: neurips/local
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.http_model_tokenizer.HTTPModelTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+  # ============================= #
+
+  # ========== Openai ========== #
+  - name: openai/cl100k_base
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.tiktoken_tokenizer.TiktokenTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+  # ============================ #
+
+  # ========== Tiiuae ========== #
+  - name: tiiuae/falcon-7b
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: null
+  # ============================ #
+
+  # ========== TsinghuaKEG ========== #
+  - name: TsinghuaKEG/ice
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.ice_tokenizer.ICETokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: ""
+  # ================================= #
+
+  # ========== Yandex ========== #
+  - name: Yandex/yalm
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.yalm_tokenizer.YaLMTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "</s>"
+  # ============================ #
