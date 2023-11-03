@@ -264,6 +264,26 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
       args: {}
+
+  - name: cohere/command
+    model_name: cohere/command
+    tokenizer_name: cohere/cohere
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      args: {}
+
+  - name: cohere/command-light
+    model_name: cohere/command-light
+    tokenizer_name: cohere/cohere
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      args: {}
   # ============================== #
 
 
