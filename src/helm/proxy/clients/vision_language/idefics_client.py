@@ -3,22 +3,27 @@ from typing import Dict, List, Optional, Union
 
 import torch
 from dataclasses import dataclass
-from PIL import Image
 from transformers import IdeficsForVisionText2Text, AutoProcessor, IdeficsProcessor
 
-from helm.common.cache import CacheConfig, Cache
+from helm.common.cache import CacheConfig
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import TEXT_TYPE
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
 )
-from helm.proxy.clients.client import Client, wrap_request_time, generate_uid_for_multimodal_prompt
+from helm.common.request import wrap_request_time
+from helm.proxy.clients.client import CachingClient, generate_uid_for_multimodal_prompt
+from helm.proxy.tokenizers.tokenizer import Tokenizer
+
+try:
+    from PIL import Image
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["images"])
 
 
 @dataclass(frozen=True)
@@ -38,7 +43,7 @@ _models: Dict[str, Optional[LoadedIDEFICSModelProcessor]] = {
 }
 
 
-class IDEFICSClient(Client):
+class IDEFICSClient(CachingClient):
     """
     IDEFICS (Image-aware Decoder Enhanced à la Flamingo with Interleaved Cross-attentionS) is an
     open-access reproduction of Flamingo, a closed-source visual language model developed by Deepmind.
@@ -49,10 +54,9 @@ class IDEFICSClient(Client):
     END_OF_UTTERANCE_TOKEN: str = "<end_of_utterance>"
     BAD_WORD_TOKENS: List[str] = ["<image>", "<fake_token_around_image>"]
 
-    def __init__(self, cache_config: CacheConfig, tokenizer_client: Client):
-        self._cache = Cache(cache_config)
+    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self._device: str = get_torch_device_name()
-        self._tokenizer_client = tokenizer_client
 
     def _get_model(self, checkpoint: str) -> LoadedIDEFICSModelProcessor:
         global _models_lock
@@ -96,7 +100,6 @@ class IDEFICSClient(Client):
 
         multimodal_prompt: List[Union[str, Image.Image]] = []
         for media_object in request.multimodal_prompt.media_objects:
-
             if media_object.is_type("image") and media_object.location:
                 multimodal_prompt.append(open_image(media_object.location))
             elif media_object.is_type(TEXT_TYPE):
@@ -122,7 +125,7 @@ class IDEFICSClient(Client):
                 return {"output": generated_text}
 
             # Include the prompt and model name in the cache key
-            cache_key = Client.make_cache_key(
+            cache_key = CachingClient.make_cache_key(
                 raw_request={
                     "model": request.model,
                     "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
@@ -130,14 +133,14 @@ class IDEFICSClient(Client):
                 },
                 request=request,
             )
-            result, cached = self._cache.get(cache_key, wrap_request_time(do_it))
+            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
         # TODO: Support multiple completions and figure out how get the log probs
         # TODO: Does it make sense to support echo? Include these params in the cache key.
         # TODO: Together might support this model so use the TogetherClient
-        tokenization_result: TokenizationRequestResult = self._tokenizer_client.tokenize(
+        tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
             TokenizationRequest(result["output"], tokenizer=request.model)
         )
         tokens: List[Token] = [
@@ -151,9 +154,3 @@ class IDEFICSClient(Client):
             completions=completions,
             embedding=[],
         )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use HuggingFaceClient to tokenize")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use HuggingFaceClient to decode")

@@ -32,11 +32,11 @@ from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, Instance, Reference
 from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from helm.benchmark.scenarios.code_scenario import CodeReference
+from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
 from . import code_metrics_helper
 from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .cleva_harms_metrics import ChineseTokenizer
 from .statistic import Stat
 
 
@@ -266,12 +266,12 @@ def bleu_1(gold: str, pred: str) -> float:
 
 
 def chinese_bleu_1(gold: str, pred: str) -> float:
-    char_tokenizer = ChineseTokenizer(method="char")
+    char_tokenizer = ChineseTokenizer()
     return sentence_bleu([char_tokenizer.tokenize(gold)], char_tokenizer.tokenize(pred), weights=(1, 0, 0, 0))
 
 
 def get_chinese_rouge_function(rouge_type: str) -> Callable[[str, str], float]:
-    char_tokenizer = ChineseTokenizer(method="char")
+    char_tokenizer = ChineseTokenizer()
     scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True, tokenizer=char_tokenizer)
     return partial(rouge_score, scorer=scorer, rouge_type=rouge_type)
 

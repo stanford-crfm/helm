@@ -114,7 +114,7 @@ class ChineseTyposPerturbation(Perturbation):
         try:
             import jieba
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         butter_text: str = ""
         output: List[str] = jieba.lcut(text)
         if self.word_level_perturb:
@@ -164,7 +164,7 @@ class ChineseTyposPerturbation(Perturbation):
         try:
             import pypinyin
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         pinyin_for_char_to_be_perturbed: str = "".join(
             [item for pinyin in pypinyin.pinyin(chinese_character) for item in pinyin]
         )
@@ -226,7 +226,7 @@ class ChineseTyposPerturbation(Perturbation):
             import unidecode
             import pypinyin
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         if len(original_word) == 1:
             similar_pinyins = self.get_characters_with_similar_pinyin(
                 original_word,
@@ -261,7 +261,7 @@ class ChineseTyposPerturbation(Perturbation):
         try:
             import unidecode
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         if not consider_tone:
             pinyin_for_char_to_be_perturbed = unidecode.unidecode(pinyin_for_char_to_be_perturbed)
         candidate_chars = chinese_character_database.get(pinyin_for_char_to_be_perturbed, [])
@@ -319,7 +319,7 @@ class ChineseSynonymPerturbation(Perturbation):
         try:
             import jieba
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         words = jieba.lcut(text)
 
         for _ in range(self.trial_num):
@@ -468,7 +468,7 @@ class ChineseGenderPerturbation(Perturbation):
         try:
             import jieba
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         words = jieba.lcut(text)
 
         mapping_dict = self.term_dict[(self.source_class, self.target_class)]
@@ -675,7 +675,7 @@ class ChinesePersonNamePerturbation(Perturbation):
         try:
             import jieba.posseg as pseg
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         tokens: List[str] = []
         tags: List[str] = []
         output: Tuple[List[str], List[str]] = pseg.cut(text)
@@ -704,7 +704,7 @@ class SimplifiedToTraditionalPerturbation(Perturbation):
         try:
             import opencc
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         self.converter = opencc.OpenCC("s2t.json")
 
     def perturb(self, text: str, rng: Random) -> str:
@@ -739,7 +739,7 @@ class MandarinToCantonesePerturbation(Perturbation):
         try:
             import opencc
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e)
+            handle_module_not_found_error(e, ["cleva"])
         self.s2t_converter = opencc.OpenCC("s2t.json")
 
         target_path = os.path.join("benchmark_output", "perturbations", self.name, "conversion.json")

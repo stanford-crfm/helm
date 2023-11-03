@@ -87,7 +87,7 @@ def ensure_file_downloaded(
             try:
                 import gdown  # noqa
             except ModuleNotFoundError as e:
-                handle_module_not_found_error(e)
+                handle_module_not_found_error(e, ["scenarios"])
             downloader_executable = "gdown"
         tmp_path: str = f"{target_path}.tmp"
         shell([downloader_executable, source_url, "-O", tmp_path])

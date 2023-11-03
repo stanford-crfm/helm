@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 # flake8: noqa
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -23,7 +22,7 @@ try:
     from sympy import Symbol, Poly, diff
     from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["scenarios"])
 
 
 # TODO: we shouldn't create an Adapter and TokenizerService in a scenario
@@ -102,8 +101,8 @@ class Polynomial:
             return f"{coeff}{term}"
 
         monomials = [stringify_monomial(c, x) for c, x in zip(self.coeffs, stringify_terms(self.terms))]
-        monomials = [m for m in monomials if m]
-        return " + ".join(monomials).replace(" + -", " - ")
+        present_monomials: List[str] = [m for m in monomials if m]
+        return " + ".join(present_monomials).replace(" + -", " - ")
 
     @classmethod
     def from_string(cls, expr_str: str, degree: int, num_variables: int):
@@ -465,12 +464,12 @@ class RelationTypeInfo:
     degree: int
     num_variables: int
     range: Range
-    example_coeffs: List[int]
+    example_coeffs: npt.NDArray[np.int64]
 
 
 RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
     "linear": RelationTypeInfo(
-        name="linear", degree=1, num_variables=1, range=[(1, 5), (1, 5)], example_coeffs=[2, 5]
+        name="linear", degree=1, num_variables=1, range=[(1, 5), (1, 5)], example_coeffs=np.array([2, 5])
     ),  # 2x + 5
     "parabola": RelationTypeInfo(
         # parabolas with axis of symmetry to the left of the origin
@@ -478,10 +477,10 @@ RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
         degree=2,
         num_variables=1,
         range=[(1, 2), (0, 2), (1, 5)],
-        example_coeffs=[1, 0, 2],
+        example_coeffs=np.array([1, 0, 2]),
     ),  # x^2 + 2
     "plane": RelationTypeInfo(
-        name="plane", degree=1, num_variables=2, range=[(1, 5), (1, 5), (1, 5)], example_coeffs=[2, 1, 5]
+        name="plane", degree=1, num_variables=2, range=[(1, 5), (1, 5), (1, 5)], example_coeffs=np.array([2, 1, 5])
     ),  # 2x + y + 5
     "paraboloid": RelationTypeInfo(
         # axis-aligned elliptic paraboloids only, ie. of the form z = A x^2 + B y^2 + C
@@ -489,7 +488,7 @@ RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
         degree=2,
         num_variables=2,
         range=[(1, 2), (0, 1), (1, 2), (0, 0), (0, 0), (1, 5)],
-        example_coeffs=[2, 0, 1, 0, 0, 2],
+        example_coeffs=np.array([2, 0, 1, 0, 0, 2]),
     ),  # 2x^2 + y^2 + 2
 }
 

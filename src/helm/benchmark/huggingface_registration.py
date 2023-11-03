@@ -34,7 +34,7 @@ def register_huggingface_model(
     tokenizer_config = TokenizerConfig(
         name=helm_model_name,
         tokenizer_spec=TokenizerSpec(
-            class_name="helm.proxy.clients.huggingface_client.HuggingFaceClient",
+            class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer",
             args=object_spec_args,
         ),
     )

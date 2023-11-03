@@ -919,6 +919,37 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
     )
 
 
+@run_spec_function("custom_mcqa")
+def get_custom_mcqa_spec(
+    path: str,
+    num_train_instances: int = 0,
+    method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
+) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.custom_mcqa_scenario.CustomMCQAScenario",
+        args={
+            "path": path,
+            "num_train_instances": num_train_instances,
+        },
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="The following are multiple choice questions (with answers).",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=num_train_instances,
+    )
+
+    return RunSpec(
+        name=f"custom_mcqa,path={path},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["custom"],
+    )
+
+
 @run_spec_function("mmlu")
 def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -2867,7 +2898,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
                 import anthropic
                 from helm.proxy.clients.anthropic_client import AnthropicClient
             except ModuleNotFoundError as e:
-                handle_module_not_found_error(e)
+                handle_module_not_found_error(e, ["anthropic"])
             claude_run_expanders: List[RunExpander] = []
             claude_run_expanders.append(AddToStopRunExpander(anthropic.HUMAN_PROMPT))
             if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags:

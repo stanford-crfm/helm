@@ -4,19 +4,21 @@ from filelock import FileLock
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
 
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
+from helm.common.cache import CacheConfig
+from helm.common.request import (
+    wrap_request_time,
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
 )
-from .client import Client, wrap_request_time, truncate_sequence
+from helm.proxy.tokenizers.tokenizer import Tokenizer
+from .client import CachingClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
-class MicrosoftClient(Client):
+class MicrosoftClient(CachingClient):
     """
     Client for the Microsoft's Megatron-Turing NLG models (https://arxiv.org/abs/2201.11990).
 
@@ -45,10 +47,13 @@ class MicrosoftClient(Client):
     def __init__(
         self,
         lock_file_path: str,
+        tokenizer: Tokenizer,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
+        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -61,8 +66,6 @@ class MicrosoftClient(Client):
         self.api_key: Optional[str] = api_key
         self.api_base: str = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
-
-        self.cache = Cache(cache_config)
 
         # The Microsoft Turing server only allows a single request at a time, so acquire a
         # process-safe lock before making a request.
@@ -138,7 +141,7 @@ class MicrosoftClient(Client):
 
                 # We want to make `request.num_completions` fresh requests,
                 # cache key should contain the completion_index.
-                cache_key = Client.make_cache_key({"completion_index": completion_index, **raw_request}, request)
+                cache_key = CachingClient.make_cache_key({"completion_index": completion_index, **raw_request}, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it if self.api_key else fail))
             except turing.error.OpenAIError as e:
                 error: str = f"OpenAI (Turing API) error: {e}"
@@ -177,9 +180,3 @@ class MicrosoftClient(Client):
             completions=completions,
             embedding=[],
         )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to decode.")

@@ -10,6 +10,7 @@ from helm.common.tokenization_request import TokenizationRequest
 
 # TODO #1592: reenable this once the imports are faster
 # from helm.proxy.clients.client import Client
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 import os
 import math
@@ -31,9 +32,9 @@ def get_credentials(path: str) -> Dict[str, str]:
         return credentials
 
 
-def get_number_of_tokens(prompt: str, tokenizer_client: Any, tokenizer_name: str) -> int:
+def get_number_of_tokens(prompt: str, tokenizer: Tokenizer, tokenizer_name: str) -> int:
     tokenization_request = TokenizationRequest(tokenizer=tokenizer_name, text=prompt, encode=True)
-    tokenization_response = tokenizer_client.tokenize(tokenization_request)
+    tokenization_response = tokenizer.tokenize(tokenization_request)
     return len(tokenization_response.tokens)
 
 
@@ -41,7 +42,7 @@ def try_request(
     client: Any,
     model_name: str,
     tokenizer_name: str,
-    tokenizer_client: Any,
+    tokenizer: Tokenizer,
     sequence_length: int,
     num_tokens: int,
     prefix: str = "",
@@ -51,8 +52,8 @@ def try_request(
     Try to make a request with the given sequence_length and num_tokens.
     Return True if the request was successful, False otherwise.
     """
-    num_tokens_prefix = get_number_of_tokens(prefix, tokenizer_client, tokenizer_name)
-    num_tokens_suffix = get_number_of_tokens(suffix, tokenizer_client, tokenizer_name)
+    num_tokens_prefix = get_number_of_tokens(prefix, tokenizer, tokenizer_name)
+    num_tokens_suffix = get_number_of_tokens(suffix, tokenizer, tokenizer_name)
 
     try:
         request = Request(
@@ -76,7 +77,7 @@ class RequestLimits:
 
 
 def figure_out_max_prompt_length(
-    client: Any,  # Client,
+    client: AutoClient,
     model_name: str,
     tokenizer_name: str,
     upper_bound: int = 9500,
@@ -84,9 +85,9 @@ def figure_out_max_prompt_length(
     prefix: str = "",
     suffix: str = "",
 ) -> RequestLimits:
-    tokenizer_client = client._get_tokenizer_client(tokenizer_name)
-    num_tokens_prefix = get_number_of_tokens(prefix, tokenizer_client, tokenizer_name)
-    num_tokens_suffix = get_number_of_tokens(suffix, tokenizer_client, tokenizer_name)
+    tokenizer = client._get_tokenizer(tokenizer_name)
+    num_tokens_prefix = get_number_of_tokens(prefix, tokenizer, tokenizer_name)
+    num_tokens_suffix = get_number_of_tokens(suffix, tokenizer, tokenizer_name)
 
     # Perform a binary search to find the max tokens between lower_bound and upper_bound
     lower_bound += num_tokens_prefix + num_tokens_suffix
@@ -94,7 +95,7 @@ def figure_out_max_prompt_length(
     with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
         while lower_bound < upper_bound:
             middle = math.ceil((lower_bound + upper_bound) / 2)
-            if try_request(client, model_name, tokenizer_name, tokenizer_client, middle, 0, prefix, suffix):
+            if try_request(client, model_name, tokenizer_name, tokenizer, middle, 0, prefix, suffix):
                 lower_bound = middle
             else:
                 upper_bound = middle - 1
@@ -103,7 +104,7 @@ def figure_out_max_prompt_length(
     # Just in case the number of tokens does not match the number of words, check number of tokens with tokenizer
     max_prompt_length = get_number_of_tokens(
         prefix + " ".join(["hello"] * (lower_bound - num_tokens_prefix - num_tokens_suffix)) + suffix,
-        tokenizer_client,
+        tokenizer,
         tokenizer_name,
     )
     return RequestLimits(
@@ -122,7 +123,7 @@ def figure_out_max_prompt_length_plus_tokens(
     prefix: str = "",
     suffix: str = "",
 ) -> int:
-    tokenizer_client = client._get_tokenizer_client(tokenizer_name)
+    tokenizer = client._get_tokenizer(tokenizer_name)
     lower_bound = 1
     upper_bound = 2 * max_prompt_length + 1
 
@@ -131,7 +132,7 @@ def figure_out_max_prompt_length_plus_tokens(
         client,
         model_name,
         tokenizer_name,
-        tokenizer_client,
+        tokenizer,
         max_prompt_length,
         2**31 - 2 - max_prompt_length,
         prefix,
@@ -147,9 +148,7 @@ def figure_out_max_prompt_length_plus_tokens(
     with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
         while lower_bound < upper_bound:
             middle = math.ceil((lower_bound + upper_bound) / 2)
-            if try_request(
-                client, model_name, tokenizer_name, tokenizer_client, max_prompt_length, middle, prefix, suffix
-            ):
+            if try_request(client, model_name, tokenizer_name, tokenizer, max_prompt_length, middle, prefix, suffix):
                 lower_bound = middle
             else:
                 upper_bound = middle - 1
@@ -159,21 +158,21 @@ def figure_out_max_prompt_length_plus_tokens(
 
 
 def check_limits(
-    client: Any,  # Client,
+    client: AutoClient,
     model_name: str,
     tokenizer_name: str,
     limits: RequestLimits,
     prefix: str = "",
     suffix: str = "",
 ) -> bool:
-    tokenizer_client = client._get_tokenizer_client(tokenizer_name)
+    tokenizer = client._get_tokenizer(tokenizer_name)
     result: bool = True
 
     # Check the max_prompt_length
     max_prompt_length = limits.max_prompt_length
     if max_prompt_length < 0:
         print("No limit on the number of tokens")
-        if not try_request(client, model_name, tokenizer_name, tokenizer_client, 2**32 - 2, 0, prefix, suffix):
+        if not try_request(client, model_name, tokenizer_name, tokenizer, 2**32 - 2, 0, prefix, suffix):
             print(f"There is a limit on the number of tokens. Params: max_prompt_length={2**32 - 2}, max_tokens=1")
             result = False
     else:
@@ -181,17 +180,15 @@ def check_limits(
         # If there is no limit on the number of tokens, max_prompt_length should be -1
         # And we should not be here
         # Check that max_prompt_length is ok
-        if not try_request(client, model_name, tokenizer_name, tokenizer_client, max_prompt_length, 0, prefix, suffix):
+        if not try_request(client, model_name, tokenizer_name, tokenizer, max_prompt_length, 0, prefix, suffix):
             print(f"max_prompt_length is too big. Params: max_prompt_length={max_prompt_length}, max_tokens=1")
             result = False
         # Check that max_prompt_length + 1 is not ok
-        if try_request(client, model_name, tokenizer_name, tokenizer_client, max_prompt_length + 1, 0, prefix, suffix):
+        if try_request(client, model_name, tokenizer_name, tokenizer, max_prompt_length + 1, 0, prefix, suffix):
             print(f"max_prompt_length could be bigger. Params: max_prompt_length={max_prompt_length+1}, max_tokens=1")
             result = False
         # Check that max_prompt_length - 1 is ok
-        if not try_request(
-            client, model_name, tokenizer_name, tokenizer_client, max_prompt_length - 1, 0, prefix, suffix
-        ):
+        if not try_request(client, model_name, tokenizer_name, tokenizer, max_prompt_length - 1, 0, prefix, suffix):
             print(
                 f"max_prompt_length ssems to be inconsistent. max_prompt_length={max_prompt_length} "
                 f"is ok but max_prompt_length={max_prompt_length-1} is not, with max_tokens=0"
@@ -206,7 +203,7 @@ def check_limits(
     if max_prompt_length_plus_tokens < 0:
         print("No limit on the number of tokens")
         if not try_request(
-            client, model_name, tokenizer_name, tokenizer_client, max(1, max_prompt_length), 2**32 - 2, prefix, suffix
+            client, model_name, tokenizer_name, tokenizer, max(1, max_prompt_length), 2**32 - 2, prefix, suffix
         ):
             print(
                 f"There is a limit on the number of tokens. Params: max_prompt_length={max_prompt_length},"
@@ -221,7 +218,7 @@ def check_limits(
             client,
             model_name,
             tokenizer_name,
-            tokenizer_client,
+            tokenizer,
             max_prompt_length,
             max_prompt_length_plus_tokens - max_prompt_length,
             prefix,
@@ -236,7 +233,7 @@ def check_limits(
             client,
             model_name,
             tokenizer_name,
-            tokenizer_client,
+            tokenizer,
             max_prompt_length,
             max_prompt_length_plus_tokens - max_prompt_length + 1,
             prefix,
