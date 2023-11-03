@@ -414,7 +414,7 @@ models:
 
 
   # =========== EleutherAI =========== #
-  - name: eleutherai/gpt-j-6b
+  - name: eleutherai/gpt-j-6b # Served by GooseAi, HuggingFace and Together.
     display_name: GPT-J (6B)
     description: GPT-J (6B parameters) autoregressive language model trained on The Pile ([details](https://arankomatsuzaki.wordpress.com/2021/06/04/gpt-j/)).
     creator_organization_name: EleutherAI
@@ -424,7 +424,7 @@ models:
     # TODO: The BUGGY_TEMP_0_TAG is a deployment related tag (Together).
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, BUGGY_TEMP_0_TAG]
 
-  - name: eleutherai/gpt-neox-20b
+  - name: eleutherai/gpt-neox-20b # Served by GooseAi and Together.
     display_name: GPT-NeoX (20B)
     description: GPT-NeoX (20B parameters) autoregressive language model trained on The Pile ([paper](https://arxiv.org/pdf/2204.06745.pdf)).
     creator_organization_name: EleutherAI
@@ -810,7 +810,7 @@ models:
   # =========== OpenAI =========== #
 
   # ----- GPT 3 Models ----- #
-  # The list fo models can be found here: https://beta.openai.com/docs/engines/gpt-3
+  # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
 
   - name: openai/davinci # DEPRECATED
@@ -908,11 +908,7 @@ models:
 
   # ----- GPT 3.5 Turbo Models ----- #
   # ChatGPT: https://openai.com/blog/chatgpt
-
-  # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
-  # sequence length is smaller at 4087 with one user input message and one assistant
-  # output message because ChatGPT uses special tokens for message roles and boundaries.
-  # We use a rounded-down sequence length of 4000 to account for these special tokens.
+  
   - name: openai/gpt-3.5-turbo-0301
     display_name: gpt-3.5-turbo-0301
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
@@ -921,10 +917,6 @@ models:
     release_date: 2023-03-01
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
-  # sequence length is smaller at 4087 with one user input message and one assistant
-  # output message because ChatGPT uses special tokens for message roles and boundaries.
-  # We use a rounded-down sequence length of 4000 to account for these special tokens.
   - name: openai/gpt-3.5-turbo-0613
     display_name: gpt-3.5-turbo-0613
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
