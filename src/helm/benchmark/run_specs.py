@@ -2572,7 +2572,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             deployment: ModelDeployment = get_model_deployment(run_spec.adapter_spec.model_deployment)
             model_name: str = deployment.model_name or deployment.name
             model: ModelMetadata = get_model_metadata(model_name)
-        except ValueError as e:
+        except ValueError:
             # Models registered from configs cannot have expanders applied to them,
             # because the models will not have been registered yet at this point.
             # TODO: Figure out a cleaner way to deal with this.

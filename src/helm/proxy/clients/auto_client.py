@@ -1,11 +1,10 @@
 import os
 from dataclasses import replace
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, Mapping, Optional
+from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
 
 from retrying import Attempt, RetryError
 
-from helm.benchmark.model_deployment_registry import get_model_deployment
+from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
@@ -61,66 +60,64 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def get_provide_api_key_callable(self, host_group: str, model: Optional[str] = None) -> Callable[[], str]:
-        def provide_api_key():
-            api_key_name = host_group + "ApiKey"
-            if api_key_name in self.credentials:
-                hlog(f"Using host_group api key defined in credentials.conf: {api_key_name}")
-                return self.credentials[api_key_name]
-            if "deployments" not in self.credentials:
-                raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
-            deployment_api_keys = self.credentials["deployments"]
-            if model is None:
-                raise AuthenticationError(
-                    f"Could not find key '{host_group}' in credentials.conf and no model provided"
-                )
-            if model not in deployment_api_keys:
-                raise AuthenticationError(f"Could not find key '{model}' under key 'deployments' in credentials.conf")
-            return deployment_api_keys[model]
-
-        return provide_api_key
+    def _provide_api_key(self, host_group: str, model: Optional[str] = None) -> str:
+        api_key_name = host_group + "ApiKey"
+        if api_key_name in self.credentials:
+            hlog(f"Using host_group api key defined in credentials.conf: {api_key_name}")
+            return self.credentials[api_key_name]
+        if "deployments" not in self.credentials:
+            raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
+        deployment_api_keys = self.credentials["deployments"]
+        if model is None:
+            raise AuthenticationError(f"Could not find key '{host_group}' in credentials.conf and no model provided")
+        if model not in deployment_api_keys:
+            raise AuthenticationError(f"Could not find key '{model}' under key 'deployments' in credentials.conf")
+        return deployment_api_keys[model]
 
     def _get_client(self, model: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
+        # First try to find the client in the cache
         client: Optional[Client] = self.clients.get(model)
+        if client is not None:
+            return client
 
-        if client is None:
-            host_group: str = model.split("/")[0]
-            cache_config: CacheConfig = self._build_cache_config(host_group)
+        # Otherwise, create the client
+        host_group: str = model.split("/")[0]
+        cache_config: CacheConfig = self._build_cache_config(host_group)
 
-            model_deployment = get_model_deployment(model)
-            if model_deployment:
-                # Get tokenizer from model deployment
-                tokenizer_name = model_deployment.tokenizer_name or model_deployment.name
-                tokenizer: Tokenizer = self._get_tokenizer(tokenizer_name)
+        model_deployment: ModelDeployment = get_model_deployment(model)
+        if model_deployment:
+            # Perform dependency injection to fill in remaining arguments.
+            # Dependency injection is needed here for these reasons:
+            #
+            # 1. Different clients have different parameters. Dependency injection provides arguments
+            #    that match the parameters of the client.
+            # 2. Some arguments, such as the tokenizer, are not static data objects that can be
+            #    in the users configuration file. Instead, they have to be constructed dynamically at
+            #    runtime.
+            # 3. The providers must be lazily-evaluated, because eager evaluation can result in an
+            #    exception. For instance, some clients do not require an API key, so trying to fetch
+            #    the API key from configuration eagerly will result in an exception because the user
+            #    will not have configured an API key.
+            client_spec = inject_object_spec_args(
+                model_deployment.client_spec,
+                constant_bindings={"cache_config": cache_config},
+                provider_bindings={
+                    "api_key": lambda: self._provide_api_key(host_group, model),
+                    "tokenizer": lambda: self._get_tokenizer(
+                        tokenizer_name=model_deployment.tokenizer_name or model_deployment.name,
+                        model_deployment_name=model_deployment.name,
+                    ),
+                    "org_id": lambda: self.credentials.get(host_group + "OrgId", None),  # OpenAI, GooseAI, Microsoft
+                },
+            )
+            client = create_object(client_spec)
+        else:
+            raise ValueError(f"Could not find client for model: {model}")
 
-                # TODO(PR): Support the following arguments:
-                # - org_id (OpenAI, GooseAI, Microsoft)
-                # - lock_file_path (Microsoft)
-                # - checkpoint_dir (LitGPT)
-                # - precision (LitGPT)
+        # Cache the client
+        self.clients[model] = client
 
-                # Perform dependency injection to fill in remaining arguments.
-                # Dependency injection is needed here for these reasons:
-                #
-                # 1. Different clients have different parameters. Dependency injection provides arguments
-                #    that match the parameters of the client.
-                # 2. Some arguments, such as the tokenizer, are not static data objects that can be
-                #    in the users configuration file. Instead, they have to be constructed dynamically at
-                #    runtime.
-                # 3. The providers must be lazily-evaluated, because eager evaluation can result in an
-                #    exception. For instance, some clients do not require an API key, so trying to fetch
-                #    the API key from configuration eagerly will result in an exception because the user
-                #    will not have configured an API key.
-                client_spec = inject_object_spec_args(
-                    model_deployment.client_spec,
-                    constant_bindings={"cache_config": cache_config, "tokenizer": tokenizer},
-                    provider_bindings={"api_key": self.get_provide_api_key_callable(host_group, model)},
-                )
-                client = create_object(client_spec)
-            else:
-                raise ValueError(f"Could not find client for model: {model}")
-            self.clients[model] = client
         return client
 
     def make_request(self, request: Request) -> RequestResult:
@@ -148,7 +145,7 @@ class AutoClient(Client):
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
-    def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
+    def _get_tokenizer(self, tokenizer_name: str, model_deployment_name: Optional[str] = None) -> Tokenizer:
         # First try to find the tokenizer in the cache
         tokenizer: Optional[Tokenizer] = self.tokenizers.get(tokenizer_name)
         if tokenizer is not None:
@@ -158,97 +155,38 @@ class AutoClient(Client):
         organization: str = tokenizer_name.split("/")[0]
         cache_config: CacheConfig = self._build_cache_config(organization)
 
-        # TODO: Migrate all clients to use tokenizer configs
-        # TODO(PR): Do the migration in the tokenizer registry.
-        # And remove all of this.
         tokenizer_config = get_tokenizer_config(tokenizer_name)
         if tokenizer_config:
+            # Callable to get args in the client spec and provide them to the tokenizer.
+            def get_client_spec_arg(arg: str) -> Any:
+                if model_deployment_name is None:
+                    return None
+                model_deployment: ModelDeployment = get_model_deployment(model_deployment_name)
+                if model_deployment is None:
+                    return None
+                return model_deployment.client_spec.args.get(arg, None)
+
             tokenizer_spec = inject_object_spec_args(
                 tokenizer_config.tokenizer_spec,
                 constant_bindings={"cache_config": cache_config},
-                provider_bindings={"api_key": self.get_provide_api_key_callable(organization)},
+                provider_bindings={
+                    "api_key": lambda: self._provide_api_key(organization),
+                    # TODO: All of these arguments should be auto injected because they are in the client_spec.
+                    "checkpoint_dir": lambda: get_client_spec_arg("checkpoint_dir"),  # LitGPT
+                    "base_url": lambda: get_client_spec_arg("base_url"),  # HttpModel
+                    "do_cache": lambda: get_client_spec_arg("do_cache"),  # HttpModel
+                    "pretrained_model_name_or_path": lambda: get_client_spec_arg(
+                        "pretrained_model_name_or_path"
+                    ),  # HuggingFace
+                    "revision": lambda: get_client_spec_arg("revision"),  # HuggingFace
+                },
             )
-            return create_object(tokenizer_spec)
-        elif organization in [
-            "gooseai",
-            "huggingface",
-            "microsoft",
-            "google",
-            "writer",  # Palmyra
-            "nvidia",
-            "EleutherAI",
-            "facebook",
-            "meta-llama",
-            "hf-internal-testing",
-            "mistralai",
-            "HuggingFaceM4",
-            # Together
-            "together",
-            "databricks",
-            "eleutherai",
-            "lmsys",
-            "meta",
-            "mosaicml",
-            "stabilityai",
-            "stanford",
-            "tiiuae",
-            # "bigcode",
-            # "bigscience",
-        ]:
-            from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
-
-            tokenizer = HuggingFaceTokenizer(cache_config=cache_config)
-        elif organization == "neurips":
-            from helm.proxy.tokenizers.http_model_tokenizer import HTTPModelTokenizer
-
-            tokenizer = HTTPModelTokenizer(cache_config=cache_config)
-        elif organization == "openai":
-            from helm.proxy.tokenizers.tiktoken_tokenizer import TiktokenTokenizer
-
-            tokenizer = TiktokenTokenizer(cache_config=cache_config)
-        # elif organization == "AlephAlpha":
-        #     from helm.proxy.tokenizers.aleph_alpha_tokenizer import AlephAlphaTokenizer
-
-        #     tokenizer = AlephAlphaTokenizer(api_key=self.credentials["AlephAlphaApiKey"], cache_config=cache_config)
-        # elif organization == "ai21":
-        #     from helm.proxy.tokenizers.ai21_tokenizer import AI21Tokenizer
-
-        #     tokenizer = AI21Tokenizer(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
-        # elif organization == "cohere":
-        #     from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
-
-        #     tokenizer = CohereTokenizer(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
-        # elif organization == "anthropic":
-        #     from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
-
-        #     tokenizer = AnthropicTokenizer(cache_config=cache_config)
-        elif organization == "simple":
-            from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
-
-            tokenizer = SimpleTokenizer()
-        elif organization == "lightningai":
-            from helm.proxy.tokenizers.lit_gpt_tokenizer import LitGPTTokenizer
-
-            tokenizer = LitGPTTokenizer(
-                cache_config=cache_config,
-                checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
-            )
-        elif organization == "TsinghuaKEG":
-            from helm.proxy.tokenizers.ice_tokenizer import ICETokenizer
-
-            tokenizer = ICETokenizer(cache_config=cache_config)
-        elif organization == "Yandex":
-            from helm.proxy.tokenizers.yalm_tokenizer import YaLMTokenizer
-
-            tokenizer = YaLMTokenizer(cache_config=cache_config)
-
-        if tokenizer is None:
-            raise ValueError(f"Could not find tokenizer for model: {tokenizer_name}")
+            tokenizer = create_object(tokenizer_spec)  # This returns a Tokenizer but mypy doesn't know that.
 
         # Cache the tokenizer
-        self.tokenizers[tokenizer_name] = tokenizer
+        self.tokenizers[tokenizer_name] = tokenizer  # type: ignore
 
-        return tokenizer
+        return tokenizer  # type: ignore
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
