@@ -50,6 +50,7 @@ from .scenarios.lextreme_scenario import (
 from helm.benchmark.model_deployment_registry import (
     ModelDeployment,
     get_model_deployment,
+    get_deployment_name_from_model_arg,
 )
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
@@ -2544,7 +2545,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     # All users should be using the model_deployment keyword argument instead.
     # TODO: Remove this once we've migrated all the configs
     if args.get("model", None) is not None and args.get("model_deployment", None) is None:
-        args.update({"model_deployment": args["model"]})
+        model_deployment: str = get_deployment_name_from_model_arg(args["model"])
+        args.update({"model_deployment": model_deployment})
         args.pop("model")
 
     # Peel off the run expanders (e.g., model)

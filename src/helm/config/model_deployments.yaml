@@ -333,7 +333,7 @@ model_deployments:
 
   # ---------- EleutherAI ---------- #
   - name: gooseai/gpt-neo-20b
-    model_name: eleutherai/gpt-neo-20b
+    model_name: eleutherai/gpt-neox-20b
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
     max_request_length: 2049
@@ -395,9 +395,9 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
       args: {}
 
-  # ---------- OpenAI (HuggingFace) ---------- #
+  # ---------- OpenAI  ---------- #
   - name: huggingface/gpt2
-    model_name: huggingface/gpt2
+    model_name: openai/gpt2
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 1024
     max_request_length: 1025
@@ -413,7 +413,7 @@ model_deployments:
 
   # ========== HuggingFaceM4 ========== #
   - name: HuggingFaceM4/idefics-9b
-    model_name: HuggingFaceM4/idefics-9b
+    model_name: huggingface/idefics-9b
     tokenizer_name: HuggingFaceM4/idefics-9b
     max_sequence_length: 2048
     client_spec:
@@ -424,7 +424,7 @@ model_deployments:
       args: {}
 
   - name: HuggingFaceM4/idefics-9b-instruct
-    model_name: HuggingFaceM4/idefics-9b-instruct
+    model_name: huggingface/idefics-9b-instruct
     tokenizer_name: HuggingFaceM4/idefics-9b-instruct
     max_sequence_length: 2048
     client_spec:
@@ -435,7 +435,7 @@ model_deployments:
       args: {}
 
   - name: HuggingFaceM4/idefics-80b
-    model_name: HuggingFaceM4/idefics-80b
+    model_name: huggingface/idefics-80b
     tokenizer_name: HuggingFaceM4/idefics-80b
     max_sequence_length: 2048
     client_spec:
@@ -446,7 +446,7 @@ model_deployments:
       args: {}
 
   - name: HuggingFaceM4/idefics-80b-instruct
-    model_name: HuggingFaceM4/idefics-80b-instruct
+    model_name: huggingface/idefics-80b-instruct
     tokenizer_name: HuggingFaceM4/idefics-80b-instruct
     max_sequence_length: 2048
     client_spec:

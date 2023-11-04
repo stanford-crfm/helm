@@ -525,6 +525,46 @@ models:
 
 
 
+  # =========== HuggingFace =========== #
+  - name: huggingface/idefics-9b
+    display_name: IDEFICS (9B)
+    description: IDEFICS (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 9000000000
+    release_date: 2023-08-22
+    tags: [VISION_LANGUAGE_MODEL_TAG]
+
+  - name: huggingface/idefics-9b-instruct
+    display_name: IDEFICS instruct (9B)
+    description: IDEFICS instruct (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 9000000000
+    release_date: 2023-08-22
+    tags: [VISION_LANGUAGE_MODEL_TAG]
+
+  - name: huggingface/idefics-80b
+    display_name: IDEFICS (80B)
+    description: IDEFICS (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 80000000000
+    release_date: 2023-08-22
+    tags: [VISION_LANGUAGE_MODEL_TAG]
+
+  - name: huggingface/idefics-80b-instruct
+    display_name: IDEFICS instruct (80B)
+    description: IDEFICS instruct (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 80000000000
+    release_date: 2023-08-22
+    tags: [VISION_LANGUAGE_MODEL_TAG]
+  # =================================== #
+
+
+
   # =========== Lightning AI =========== #
   - name: lightningai/lit-gpt
     display_name: Lit-GPT
@@ -808,6 +848,19 @@ models:
 
 
   # =========== OpenAI =========== #
+
+  # ----- GPT 2 Models ----- #
+  # Not served by OpenAI, instead served by HuggingFace.
+
+  - name: openai/gpt2
+    display_name: GPT-2 (1.5B)
+    description: GPT-2 (1.5B parameters) is a transformer model trained on a large corpus of English text in a self-supervised fashion ([paper](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf)).
+    creator_organization_name: OpenAI
+    access: open
+    num_parameters: 1500000000
+    release_date: 2019-02-14
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
 
   # ----- GPT 3 Models ----- #
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
@@ -1298,7 +1351,7 @@ models:
 
 
   # ========== Yandex ========== #
-  - name: together/yalm
+  - name: yandex/yalm
     display_name: YaLM (100B)
     description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](https://github.com/yandex/YaLM-100B)).
     creator_organization_name: Yandex

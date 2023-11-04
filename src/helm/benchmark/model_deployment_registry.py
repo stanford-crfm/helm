@@ -1,7 +1,6 @@
 import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass
-from datetime import date
 
 import cattrs
 import yaml
@@ -10,10 +9,7 @@ from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
-    register_model_metadata,
     get_model_metadata,
-    TEXT_MODEL_TAG,
-    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 
 
@@ -100,7 +96,7 @@ DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT: Dict[str, ModelDeployment] = {
 
 # ===================== REGISTRATION FUNCTIONS ==================== #
 def register_model_deployment(model_deployment: ModelDeployment) -> None:
-    hlog(f"Registered model deployment {model_deployment.name}")
+    # hlog(f"Registered model deployment {model_deployment.name}")
     DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_deployment.name] = model_deployment
     ALL_MODEL_DEPLOYMENTS.append(model_deployment)
 
@@ -114,21 +110,7 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
                 model_metadata.deployment_names = []
             model_metadata.deployment_names.append(model_deployment.name)
     except ValueError:
-        # No model metadata exists for this model name.
-        # Register a default model metadata.
-        model_metadata = ModelMetadata(
-            name=model_name,
-            display_name=model_name,
-            description="",
-            access="limited",
-            num_parameters=-1,
-            release_date=date.today(),
-            creator_organization_name="unknown",
-            tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
-            deployment_names=[model_deployment.name],
-        )
-        register_model_metadata(model_metadata)
-        hlog(f"Registered default metadata for model {model_name}")
+        raise ValueError(f"Model deployment {model_deployment.name} has no corresponding model metadata")
 
 
 def register_model_deployments_from_path(path: str) -> None:
@@ -155,6 +137,26 @@ def get_model_deployment(name: str) -> ModelDeployment:
     if deployment.deprecated:
         hlog(f"WARNING: Model deployment {name} is deprecated")
     return deployment
+
+
+# TODO: Remove when we no longer want to offer backwards compatibility for model names
+# that are now moved to model deployments (PR #1903).
+def get_deployment_name_from_model_arg(model_arg: str) -> str:
+    if model_arg in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
+        return model_arg
+
+    if model_arg in [deployment.model_name for deployment in ALL_MODEL_DEPLOYMENTS]:
+        hlog("WARNING: Model name is deprecated. Please use the model deployment name instead.")
+        available_deployments: List[str] = [
+            deployment.name for deployment in ALL_MODEL_DEPLOYMENTS if deployment.model_name == model_arg
+        ]
+        hlog(f"Available model deployments for model {model_arg}: {available_deployments}")
+        chosen_deployment: str = available_deployments[0]
+        hlog(f"Choosing {chosen_deployment} (the first one) as the default model deployment for model {model_arg}")
+        hlog("If you want to use a different model deployment, please specify it explicitly.")
+        return chosen_deployment
+
+    raise ValueError(f"Model deployment {model_arg} not found")
 
 
 def get_model_deployments_by_host_group(host_group: str) -> List[str]:

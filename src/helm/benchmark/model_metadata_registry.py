@@ -6,8 +6,6 @@ from datetime import date
 import dacite
 import yaml
 
-from helm.common.hierarchical_logger import hlog
-
 
 # Different modalities
 TEXT_MODEL_TAG: str = "TEXT_MODEL_TAG"
@@ -140,7 +138,7 @@ def register_model_metadata_from_path(path: str) -> None:
 
 def register_model_metadata(model_metadata: ModelMetadata) -> None:
     """Register a single model configuration."""
-    hlog(f"Registered model metadata {model_metadata.name}")
+    # hlog(f"Registered model metadata {model_metadata.name}")
     ALL_MODELS_METADATA.append(model_metadata)
     MODEL_NAME_TO_MODEL_METADATA[model_metadata.name] = model_metadata
 
