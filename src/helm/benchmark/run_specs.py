@@ -2568,20 +2568,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
-        from toolbox.printing import print_visible, debug
-
-        print_visible("ALTER RUN SPEC")  # TODO(PR): Remove
         try:
             deployment: ModelDeployment = get_model_deployment(run_spec.adapter_spec.model_deployment)
-            debug(deployment, visible=True)
             model_name: str = deployment.model_name or deployment.name
             model: ModelMetadata = get_model_metadata(model_name)
-            debug(model, visible=True)
-            debug(model.tags, visible=True)
-            debug(ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags, visible=True)
         except ValueError as e:
-            print_visible("EXCEPTION")  # TODO(PR): Remove
-            print_visible("Error: " + str(e))  # TODO(PR): Remove
             # Models registered from configs cannot have expanders applied to them,
             # because the models will not have been registered yet at this point.
             # TODO: Figure out a cleaner way to deal with this.
@@ -2611,7 +2602,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
 
         # Special handling for Anthropic Claude
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
-            print_visible("ANTHROPIC MODEL TAG")  # TODO(PR): Remove
             try:
                 import anthropic
                 from helm.proxy.clients.anthropic_client import AnthropicClient

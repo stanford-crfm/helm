@@ -8,8 +8,6 @@ import yaml
 
 from helm.common.hierarchical_logger import hlog
 
-from toolbox.printing import debug, print_visible  # TODO(PR): Remove this
-
 
 # Different modalities
 TEXT_MODEL_TAG: str = "TEXT_MODEL_TAG"
@@ -131,19 +129,12 @@ MODEL_NAME_TO_MODEL_METADATA: Dict[str, ModelMetadata] = {model.name: model for 
 # ===================== REGISTRATION FUNCTIONS ==================== #
 def register_model_metadata_from_path(path: str) -> None:
     """Register model configurations from the given path."""
-    print_visible("register_model_metadata_from_path")
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
-    debug(raw, visible=True)
     # Using dacite instead of cattrs because cattrs doesn't have a default
     # serialization format for dates
     model_metadata_list = dacite.from_dict(ModelMetadataList, raw)
-    debug(model_metadata_list, visible=True)
     for model_metadata in model_metadata_list.models:
-        debug(model_metadata, visible=True)
-        debug(model_metadata.tags, visible=True)
-        debug(ANTHROPIC_CLAUDE_1_MODEL_TAG, visible=True)
-        debug(ANTHROPIC_CLAUDE_1_MODEL_TAG in model_metadata.tags, visible=True)
         register_model_metadata(model_metadata)
 
 
@@ -156,10 +147,7 @@ def register_model_metadata(model_metadata: ModelMetadata) -> None:
 
 def maybe_register_model_metadata_from_base_path(base_path: str) -> None:
     """Register model metadata from prod_env/model_metadata.yaml"""
-    print_visible("maybe_register_model_metadata_from_base_path")
-    debug(base_path)
     path = os.path.join(base_path, MODEL_METADATA_FILE)
-    debug(path)
     if os.path.exists(path):
         register_model_metadata_from_path(path)
 
@@ -167,8 +155,6 @@ def maybe_register_model_metadata_from_base_path(base_path: str) -> None:
 # ===================== UTIL FUNCTIONS ==================== #
 def get_model_metadata(model_name: str) -> ModelMetadata:
     """Get the `Model` given the name."""
-    debug(model_name, visible=True)
-    # debug(MODEL_NAME_TO_MODEL_METADATA, visible=True)  # TODO(PR): Remove this
     if model_name not in MODEL_NAME_TO_MODEL_METADATA:
         raise ValueError(f"No model with name: {model_name}")
 

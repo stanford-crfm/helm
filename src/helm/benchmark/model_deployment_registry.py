@@ -16,8 +16,6 @@ from helm.benchmark.model_metadata_registry import (
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 
-from toolbox.printing import print_visible, debug  # TODO(PR): Remove this
-
 
 MODEL_DEPLOYMENTS_FILE = "model_deployments.yaml"
 
@@ -107,8 +105,6 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
     ALL_MODEL_DEPLOYMENTS.append(model_deployment)
 
     model_name: str = model_deployment.model_name or model_deployment.name
-    print_visible("register_model_deployment")
-    debug(model_name, visible=True)
 
     try:
         model_metadata: ModelMetadata = get_model_metadata(model_name)
@@ -137,18 +133,15 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
 
 def register_model_deployments_from_path(path: str) -> None:
     hlog(f"Reading model deployments from {path}...")
-    print_visible("register_model_deployments_from_path")
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
     model_deployments: ModelDeployments = cattrs.structure(raw, ModelDeployments)
     for model_deployment in model_deployments.model_deployments:
-        debug(model_deployment, visible=True)
         register_model_deployment(model_deployment)
 
 
 def maybe_register_model_deployments_from_base_path(base_path: str) -> None:
     """Register model deployments from prod_env/model_deployments.yaml"""
-    print_visible("maybe_register_model_deployments_from_base_path")
     path = os.path.join(base_path, MODEL_DEPLOYMENTS_FILE)
     if os.path.exists(path):
         register_model_deployments_from_path(path)
