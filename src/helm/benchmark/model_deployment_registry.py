@@ -68,6 +68,9 @@ class ModelDeployment:
     # If unset, defaults to INT_MAX (i.e. bo limit).
     max_sequence_and_generated_tokens_length: Optional[int] = None
 
+    # Whether this model deployment is deprecated.
+    deprecated: bool = False
+
     @property
     def host_group(self) -> str:
         """
@@ -155,7 +158,10 @@ def maybe_register_model_deployments_from_base_path(base_path: str) -> None:
 def get_model_deployment(name: str) -> ModelDeployment:
     if name not in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
         raise ValueError(f"Model deployment {name} not found")
-    return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[name]
+    deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[name]
+    if deployment.deprecated:
+        hlog(f"WARNING: Model deployment {name} is deprecated")
+    return deployment
 
 
 def get_model_deployments_by_host_group(host_group: str) -> List[str]:

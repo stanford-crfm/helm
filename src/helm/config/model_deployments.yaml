@@ -10,7 +10,8 @@ model_deployments:
 
   # J1 models are Deprecated by AI21 Labs
   # API returns: Detail: Jurassic J1 models are deprecated
-  - name: ai21/j1-jumbo # DEPRECATED
+  - name: ai21/j1-jumbo
+    deprecated: true
     model_name: ai21/j1-jumbo
     tokenizer_name: ai21/j1
     max_sequence_length: 2047
@@ -24,7 +25,8 @@ model_deployments:
           class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
           args: {}
 
-  - name: ai21/j1-large # DEPRECATED
+  - name: ai21/j1-large
+    deprecated: true
     model_name: ai21/j1-large
     tokenizer_name: ai21/j1
     max_sequence_length: 2047
@@ -38,7 +40,8 @@ model_deployments:
           class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
           args: {}
 
-  - name: ai21/j1-grande # DEPRECATED
+  - name: ai21/j1-grande 
+    deprecated: true
     model_name: ai21/j1-grande
     tokenizer_name: ai21/j1
     max_sequence_length: 2047
@@ -52,7 +55,8 @@ model_deployments:
           class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
           args: {}
 
-  - name: ai21/j1-grande-v2-beta # DEPRECATED
+  - name: ai21/j1-grande-v2-beta 
+    deprecated: true
     model_name: ai21/j1-grande-v2-beta
     tokenizer_name: ai21/j1
     max_sequence_length: 2047
@@ -504,7 +508,8 @@ model_deployments:
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
   
-  - name: openai/davinci # DEPRECATED
+  - name: openai/davinci 
+    deprecated: true
     model_name: openai/davinci
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -516,7 +521,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/curie # DEPRECATED
+  - name: openai/curie 
+    deprecated: true
     model_name: openai/curie
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -528,7 +534,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/babbage # DEPRECATED
+  - name: openai/babbage 
+    deprecated: true
     model_name: openai/babbage
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -540,7 +547,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/ada # DEPRECATED
+  - name: openai/ada 
+    deprecated: true
     model_name: openai/ada
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -552,7 +560,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-davinci-003 # DEPRECATED
+  - name: openai/text-davinci-003 
+    deprecated: true
     model_name: openai/text-davinci-003
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 4000
@@ -564,7 +573,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
       args: {}
 
-  - name: openai/text-davinci-002 # DEPRECATED
+  - name: openai/text-davinci-002 
+    deprecated: true
     model_name: openai/text-davinci-002
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 4000
@@ -576,7 +586,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
       args: {}
 
-  - name: openai/text-davinci-001 # DEPRECATED
+  - name: openai/text-davinci-001 
+    deprecated: true
     model_name: openai/text-davinci-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -588,7 +599,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-curie-001 # DEPRECATED
+  - name: openai/text-curie-001 
+    deprecated: true
     model_name: openai/text-curie-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -600,7 +612,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-babbage-001 # DEPRECATED
+  - name: openai/text-babbage-001 
+    deprecated: true
     model_name: openai/text-babbage-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -612,7 +625,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-ada-001 # DEPRECATED
+  - name: openai/text-ada-001 
+    deprecated: true
     model_name: openai/text-ada-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -729,7 +743,8 @@ model_deployments:
   # ----- Codex Models ----- #
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 
-  - name: openai/code-davinci-002 # DEPRECATED
+  - name: openai/code-davinci-002 
+    deprecated: true
     model_name: openai/code-davinci-002
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 4000
@@ -741,7 +756,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
       args: {}
 
-  - name: openai/code-davinci-001 # DEPRECATED
+  - name: openai/code-davinci-001 
+    deprecated: true
     model_name: openai/code-davinci-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -753,7 +769,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/code-cushman-001 # DEPRECATED
+  - name: openai/code-cushman-001 
+    deprecated: true
     model_name: openai/code-cushman-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -773,7 +790,8 @@ model_deployments:
   # DEPRECATED: Announced on July 06 2023 that first generation embeddings models
   #  will be shut down on January 04 2024.
 
-  - name: openai/text-similarity-davinci-001 # DEPRECATED
+  - name: openai/text-similarity-davinci-001 
+    deprecated: true
     model_name: openai/text-similarity-davinci-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -785,7 +803,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-similarity-curie-001 # DEPRECATED
+  - name: openai/text-similarity-curie-001 
+    deprecated: true
     model_name: openai/text-similarity-curie-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -797,7 +816,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-similarity-babbage-001 # DEPRECATED
+  - name: openai/text-similarity-babbage-001 
+    deprecated: true
     model_name: openai/text-similarity-babbage-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -809,7 +829,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-similarity-ada-001 # DEPRECATED
+  - name: openai/text-similarity-ada-001 
+    deprecated: true
     model_name: openai/text-similarity-ada-001
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -821,7 +842,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-embedding-ada-002 # DEPRECATED
+  - name: openai/text-embedding-ada-002 
+    deprecated: true
     model_name: openai/text-embedding-ada-002
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -837,9 +859,14 @@ model_deployments:
 
 
   # =========== Together =========== #
+  # The list of models served by Together changes often, to check the latest list, visit:
+  # https://docs.together.ai/docs/inference-models
+  # You can also check the playground to check that the live models are working:
+  # https://api.together.xyz/playground
 
   # ---------- BigScience ---------- #
-  - name: together/bloom # DEPRECATED: Removed from together
+  - name: together/bloom 
+    deprecated: true # Removed from together
     model_name: bigscience/bloom
     tokenizer_name: bigscience/bloom
     max_sequence_length: 2048
@@ -851,7 +878,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.bloom_window_service.BloomWindowService"
       args: {}
 
-  - name: together/t0pp # DEPRECATED: Removed from together
+  - name: together/t0pp 
+    deprecated: true # Removed from together
     model_name: bigscience/t0pp
     tokenizer_name: bigscience/T0pp
     max_sequence_length: 1024
@@ -901,6 +929,7 @@ model_deployments:
 
   # ---------- EleutherAI ---------- #
   - name: together/gpt-j-6b
+    deprecated: true # Removed from together
     model_name: eleutherai/gpt-j-6b
     tokenizer_name: EleutherAI/gpt-j-6B
     max_sequence_length: 2048
@@ -913,6 +942,7 @@ model_deployments:
       args: {}
 
   - name: together/gpt-neox-20b
+    deprecated: true # Removed from together
     model_name: eleutherai/gpt-neox-20b
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
@@ -974,6 +1004,7 @@ model_deployments:
 
   # ---------- Google ---------- #
   - name: together/t5-11b
+    deprecated: true # Removed from together
     model_name: google/t5-11b
     tokenizer_name: google/t5-11b
     max_sequence_length: 511
@@ -985,6 +1016,7 @@ model_deployments:
       args: {}
 
   - name: together/flan-t5-xxl
+    deprecated: true # Removed from together
     model_name: google/flan-t5-xxl
     tokenizer_name: google/flan-t5-xxl
     max_sequence_length: 511
@@ -996,6 +1028,7 @@ model_deployments:
       args: {}
 
   - name: together/ul2
+    deprecated: true # Removed from together
     model_name: google/ul2
     tokenizer_name: google/ul2
     max_sequence_length: 511
@@ -1008,6 +1041,7 @@ model_deployments:
 
   # ---------- HazyResearch ---------- #
   - name: together/h3-2.7b
+    deprecated: true# Not available on Together yet
     model_name: hazyresearch/h3-2.7b
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 1024
@@ -1020,6 +1054,8 @@ model_deployments:
       args: {}
 
   # ---------- Lmsys ---------- #
+  # TODO: might be deprecated. Needs to be checked.
+  # Together officialy supports vicuna 1.5, not sure if 1.3 is still supported.
   - name: together/vicuna-7b-v1.3
     model_name: lmsys/vicuna-7b-v1.3
     tokenizer_name: hf-internal-testing/llama-tokenizer
@@ -1077,6 +1113,7 @@ model_deployments:
       args: {}
 
   - name: together/llama-65b
+    deprecated: true # Not available on Together yet
     model_name: meta/llama-65b
     tokenizer_name: hf-internal-testing/llama-tokenizer
     max_sequence_length: 2048
@@ -1124,6 +1161,7 @@ model_deployments:
       args: {}
 
   - name: together/opt-175b
+    deprecated: true # Not available on Together yet
     model_name: meta/opt-175b
     tokenizer_name: facebook/opt-66b
     max_sequence_length: 2048
@@ -1136,6 +1174,7 @@ model_deployments:
       args: {}
 
   - name: together/opt-66b
+    deprecated: true # Not available on Together yet
     model_name: meta/opt-66b
     tokenizer_name: facebook/opt-66b
     max_sequence_length: 2048
@@ -1148,6 +1187,7 @@ model_deployments:
       args: {}
 
   - name: together/opt-6.7b
+    deprecated: true # Not available on Together yet
     model_name: meta/opt-6.7b
     tokenizer_name: facebook/opt-66b
     max_sequence_length: 2048
@@ -1160,6 +1200,7 @@ model_deployments:
       args: {}
 
   - name: together/opt-1.3b
+    deprecated: true # Not available on Together yet
     model_name: meta/opt-1.3b
     tokenizer_name: facebook/opt-66b
     max_sequence_length: 2048
@@ -1185,6 +1226,7 @@ model_deployments:
 
   # ----------- MosaicML ----------- #
   - name: together/mpt-7b
+    deprecated: true # Not available on Together yet
     model_name: mosaicml/mpt-7b
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
@@ -1197,6 +1239,7 @@ model_deployments:
       args: {}
 
   - name: together/mpt-instruct-7b
+    deprecated: true # Not available on Together yet
     model_name: mosaicml/mpt-instruct-7b
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
@@ -1234,6 +1277,7 @@ model_deployments:
 
   # ----------- StabilityAI ----------- #
   - name: together/stablelm-base-alpha-3b
+    deprecated: true # Removed from together
     model_name: stabilityai/stablelm-base-alpha-3b
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 4096
@@ -1246,6 +1290,7 @@ model_deployments:
       args: {}
 
   - name: together/stablelm-base-alpha-7b
+    deprecated: true # Removed from together
     model_name: stabilityai/stablelm-base-alpha-7b
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 4096
@@ -1390,6 +1435,7 @@ model_deployments:
 
   # ---------- Tsinghua ---------- #
   - name: together/glm
+    deprecated: true # Not available on Together yet
     model_name: tsinghua/glm
     tokenizer_name: TsinghuaKEG/ice
     max_sequence_length: 2048
@@ -1403,6 +1449,7 @@ model_deployments:
 
   # ---------- Yandex ---------- #
   - name: together/yalm
+    deprecated: true # Not available on Together yet
     model_name: yandex/yalm
     tokenizer_name: Yandex/yalm
     max_sequence_length: 2048
