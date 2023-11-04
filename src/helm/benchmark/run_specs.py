@@ -50,7 +50,6 @@ from .scenarios.lextreme_scenario import (
 from helm.benchmark.model_deployment_registry import (
     ModelDeployment,
     get_model_deployment,
-    get_default_deployment_for_model,
 )
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
@@ -2541,25 +2540,19 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     if name not in CANONICAL_RUN_SPEC_FUNCS:
         raise ValueError(f"Unknown run spec name: {name}")
 
-    # If a model was provided, find the a model deployment that matches the model name
-    if "model" in args:
-        model_metadata: ModelMetadata = get_model_metadata(args["model"])
-        model_deployment: ModelDeployment = get_default_deployment_for_model(model_metadata)
-        args["model_deployment"] = model_deployment.name
-        del args["model"]
-
-    print("ARGS before", args)
+    # DEPRECATED: Support for the old model name format
+    # All users should be using the model_deployment keyword argument instead.
+    # TODO: Remove this once we've migrated all the configs
+    if args.get("model", None) is not None and args.get("model_deployment", None) is None:
+        args.update({"model_deployment": args["model"]})
+        args.pop("model")
 
     # Peel off the run expanders (e.g., model)
     expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs
-    print("EXPANDERS", expanders)
-    print("ARGS", args)
-
     run_specs = [CANONICAL_RUN_SPEC_FUNCS[name](**args)]
-    print("RUN SPECS", run_specs)
 
     # Apply expanders
     for expander in expanders:
