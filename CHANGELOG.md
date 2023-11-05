@@ -2,6 +2,65 @@
 
 ## [Upcoming]
 
+## [v0.3.0] - 2023-11-01
+
+### Models
+
+- Added support for Lit-GPT (#1792)
+- Added support for stop sequences in HuggingFaceClient (#1892, #1909)
+- Added Mistral 7B model (#1906)
+- Added IDEFICS model (#1871)
+- Added Anthropic Claude 2 (#1900)
+
+### Scenarios
+
+- Added 31 scenarios from [CLEVA](https://arxiv.org/abs/2308.04813) for evaluation of Chinese language models (#1824, #1864)
+- Added VQA scenario model (#1871)
+- Adddd support for running MCQA scenarios from users' JSONL files (#1889)
+
+### Metrics
+
+- Fixed a bug that prevented using Anthropic Claude for model critique (#1862)
+
+### Frontend
+
+- Added a React frontend (#1819, #1893)
+
+### Framework
+
+- Added support for multi-modal scenarios and Vision Language Model (VLM) evaluation (#1871)
+- Added support for Python 3.9 and 3.10 (#1897)
+- Added a new `Tokenizer` class in preparation for removing `tokenize()` and `decode()` from `Client` in a future release (#1874)
+- Made more dependencies optional instead of required, and added install command suggestions (#1834, #1961)
+- Added support for configuring users' model deployments through YAML configuration files (#1861)
+
+### Evaluation Results
+
+- Added evaluation results for Stanford Alpaca, MosaicML MPT, TII UAE Falcon, LMSYS Vicuna
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @aniketmaurya
+- @Anindyadeep
+- @brianwgoldman
+- @drisspg
+- @farzaank
+- @fzyxh
+- @HenryHZY
+- @Jianqiao-Zhao
+- @JosselinSomervilleRoberts
+- @LoryPack
+- @lyy1994
+- @mkly
+- @msaroufim
+- @percyliang
+- @RossBencina
+- @teetone
+- @yifanmai
+- @zd11024
+
 ## [v0.2.4] - 2023-09-20
 
 ### Models
@@ -177,8 +236,9 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.4...HEAD
-[v0.2.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.4
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.3.0...HEAD
+[v0.3.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.3.0
+[v0.2.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.4
 [v0.2.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.3
 [v0.2.2]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.2
 [v0.2.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.1
