@@ -18,6 +18,8 @@ MODEL_ALIASES: Dict[str, str] = {
     "opt-6.7b": "opt-6.7b-ft-tp1",
     "mpt-7b": "togethercomputer/mpt-7b",
     "mpt-instruct-7b": "togethercomputer/mpt-7b-instruct",
+    "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
+    "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
     # Production models
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
     "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
@@ -47,8 +49,6 @@ MODEL_ALIASES: Dict[str, str] = {
     "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
     "pythia-6.9b": "EleutherAI/pythia-6.9b",
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
-    "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
-    "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
     "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
     "vicuna-13b-v1.3": "lmsys/vicuna-13b-v1.3",
 }
