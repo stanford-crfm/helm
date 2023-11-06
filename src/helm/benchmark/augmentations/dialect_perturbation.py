@@ -8,10 +8,10 @@ from typing import Dict, Optional, List
 
 from helm.common.general import match_case, ensure_file_downloaded
 from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 
 
-class DialectPerturbation(Perturbation):
+class DialectPerturbation(TextPerturbation):
     """Individual fairness perturbation for dialect."""
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
