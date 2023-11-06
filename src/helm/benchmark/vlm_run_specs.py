@@ -18,7 +18,6 @@ def get_vlm_generation_adapter_spec(
     input_suffix: str = "",
     output_prefix: str = "",
     output_suffix: str = "",
-    max_train_instances: int = 0,
     max_tokens: int = 100,
     stop_sequences: Optional[List[str]] = None,
 ) -> AdapterSpec:
@@ -31,7 +30,8 @@ def get_vlm_generation_adapter_spec(
         output_prefix=output_prefix,
         output_suffix=output_suffix,
         instance_prefix="\n",
-        max_train_instances=max_train_instances,
+        # We focus on zero-shot evaluation for now as most open VLMs only support a single image input
+        max_train_instances=0,
         num_outputs=1,
         max_tokens=max_tokens,
         stop_sequences=stop_sequences if stop_sequences is not None else [],
@@ -41,6 +41,33 @@ def get_vlm_generation_adapter_spec(
 
 ############################################################
 # VHELM run specs
+
+
+@run_spec_function("viz_wiz")
+def get_viz_wiz_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.viz_wiz_scenario.VizWizScenario", args={}
+    )
+
+    # TODO: finalize the adapter spec parameters once we add more models
+    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec(
+        input_prefix="User: ",
+        input_suffix="<end_of_utterance>",
+        output_prefix="\nAssistant: ",
+        output_suffix="<end_of_utterance>",
+        stop_sequences=["<end_of_utterance>"],
+    )
+
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "viz_wiz"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
 
 
 @run_spec_function("vqa")
@@ -55,7 +82,6 @@ def get_vqa_spec() -> RunSpec:
         input_suffix="<end_of_utterance>",
         output_prefix="\nAssistant: ",
         output_suffix="<end_of_utterance>",
-        max_train_instances=3,
         stop_sequences=["<end_of_utterance>"],
     )
 
