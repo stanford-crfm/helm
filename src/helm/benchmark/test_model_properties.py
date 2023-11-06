@@ -1365,7 +1365,7 @@ def test_all_models_have_window_services():
         tokenizer_service = get_tokenizer_service(tmpdir)
         for model in ALL_MODELS:
             # Can't test lit-gpt client because it requires manual dependencies
-            if "lit-gpt" not in model.name:
+            if "lit-gpt" in model.name:
                 continue
 
             # Can't test Llama 2 because it requires Hugging Face credentials
