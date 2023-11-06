@@ -166,6 +166,12 @@ _BUILT_IN_TOKENIZER_CONFIGS = [
         prefix_token="</s>",
     ),
     TokenizerConfig(
+        name="lightningai/lit-gpt",
+        tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.lit_gpt_tokenizer.LitGPTTokenizer", args={}),
+        end_of_text_token="<|endoftext|>",
+        prefix_token="<|endoftext|>",
+    ),
+    TokenizerConfig(
         name="HuggingFaceM4/idefics-9b",
         tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
         end_of_text_token="</s>",
@@ -1284,6 +1290,18 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=4097,
     ),
     ModelDeployment(
+        name="lightningai/lit-gpt",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.lit_gpt_client.LitGPTClient", args={}),
+        model_name=None,
+        tokenizer_name="lightningai/lit-gpt",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.lit_gpt_window_service.LitGPTWindowServce", args={}
+        ),
+        max_sequence_length=2048,
+        max_request_length=None,
+        max_sequence_and_generated_tokens_length=None,
+    ),
+    ModelDeployment(
         name="HuggingFaceM4/idefics-9b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"),
         tokenizer_name="HuggingFaceM4/idefics-9b",
@@ -1347,7 +1365,7 @@ def test_all_models_have_window_services():
         tokenizer_service = get_tokenizer_service(tmpdir)
         for model in ALL_MODELS:
             # Can't test lit-gpt client because it requires manual dependencies
-            if "lit-gpt" in model.name:
+            if "lit-gpt" not in model.name:
                 continue
 
             # Can't test Llama 2 because it requires Hugging Face credentials
@@ -1394,7 +1412,7 @@ def test_all_models_have_window_services():
                 prefix_token=prefix_token,
             )
             # NOTE: To generate the _BUILT_IN_MODEL_DEPLOYMENT and _BUILT_IN_TOKENIZER_CONFIGS lists above,
-            # simply print tokeniezr_config and model_deployment.
+            # print tokenizer_config and model_deployment here.
 
             assert model_deployments[model.name] == model_deployment
             # PalmyraWindowService overrides the huggingface/gpt2 tokenizer with different special tokens,
