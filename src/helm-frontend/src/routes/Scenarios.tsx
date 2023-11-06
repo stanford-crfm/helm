@@ -9,8 +9,6 @@ import Loading from "@/components/Loading";
 
 export default function Scenarios() {
   const [runGroups, setRunGroups] = useState<RunGroup[]>([] as RunGroup[]);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-  const legacyRelease = (window as any).LEGACY_RELEASE;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -58,6 +56,8 @@ export default function Scenarios() {
     return <Loading />;
   }
 
+  console.log(runGroups);
+
   return (
     <>
       <PageTitle
@@ -81,7 +81,7 @@ export default function Scenarios() {
             {runGroups.map((runGroup) => (
               <tr>
                 <td>
-                  <Link to={`/${legacyRelease}/groups/${runGroup.name}`}>
+                  <Link to={`/groups/${runGroup.name}`}>
                     <span className="text-lg">{runGroup.display_name}</span>
                   </Link>
                   <span className="block">{runGroup.name}</span>
