@@ -19,6 +19,7 @@ from helm.proxy.models import (
     GPTNEO_TOKENIZER_TAG,
     GPT4_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
+    TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
 from .runner import RunSpec
@@ -313,7 +314,12 @@ class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
     """For overriding the number of eval instances at the run level."""
 
     name = "max_eval_instances"
-    values_dict: Dict[str, List[Any]] = {}
+    values_dict: Dict[str, List[Any]] = {
+        "default": [1_000],
+        "heim_default": [100],
+        "heim_fid": [30_000],
+        "heim_art_styles": [17],
+    }
 
 
 class NumOutputsRunExpander(ReplaceValueRunExpander):
@@ -384,6 +390,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
                 "openai/text-davinci-003",
             ],
             "opinions_qa_ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
+            "text_to_image": get_model_names_with_tag(TEXT_TO_IMAGE_MODEL_TAG),
             "vlm": get_model_names_with_tag(VISION_LANGUAGE_MODEL_TAG),
         }
 
