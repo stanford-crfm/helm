@@ -1,3 +1,4 @@
+from threading import Lock
 from typing import Dict, List, Optional
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -25,13 +26,16 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["heim"])
 
 
+_models_lock: Lock = Lock()
+_models: Dict[str, DiffusionPipeline] = {}
+
+
 class HuggingFaceDiffusersClient(Client):
     def __init__(self, hf_auth_token: str, cache_config: CacheConfig, file_cache: FileCache):
         self._hf_auth_token: str = hf_auth_token
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
 
-        self._model_engine_to_diffuser: Dict[str, DiffusionPipeline] = {}
         self._promptist_model = None
         self._promptist_tokenizer = None
 
@@ -40,40 +44,44 @@ class HuggingFaceDiffusersClient(Client):
         Initialize the Diffusion Pipeline based on the model name.
         Cache the model, so it doesn't get reinitialize for a new request.
         """
-        if model_engine not in self._model_engine_to_diffuser:
-            huggingface_model_name: str
-            if model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
-                huggingface_model_name = "CompVis/stable-diffusion-v1-4"
-            elif model_engine == "stable-diffusion-v1-5":
-                huggingface_model_name = "runwayml/stable-diffusion-v1-5"
-            elif model_engine == "stable-diffusion-v2-base":
-                huggingface_model_name = "stabilityai/stable-diffusion-2-base"
-            elif model_engine == "stable-diffusion-v2-1-base":
-                huggingface_model_name = "stabilityai/stable-diffusion-2-1-base"
-            elif model_engine == "dreamlike-diffusion-v1-0":
-                huggingface_model_name = "dreamlike-art/dreamlike-diffusion-1.0"
-            elif model_engine == "dreamlike-photoreal-v2-0":
-                huggingface_model_name = "dreamlike-art/dreamlike-photoreal-2.0"
-            elif model_engine == "openjourney-v1-0":
-                huggingface_model_name = "prompthero/openjourney"
-            elif model_engine == "openjourney-v2-0":
-                huggingface_model_name = "prompthero/openjourney-v2"
-            elif model_engine == "redshift-diffusion":
-                huggingface_model_name = "nitrosocke/redshift-diffusion"
-            elif "stable-diffusion-safe" in model_engine:
-                huggingface_model_name = "AIML-TUDA/stable-diffusion-safe"
-            elif model_engine == "vintedois-diffusion-v0-1":
-                huggingface_model_name = "22h/vintedois-diffusion-v0-1"
-            else:
-                raise ValueError(f"Unhandled model: {model_engine}")
+        global _models_lock
+        global _models
 
-            pipeline = DiffusionPipeline.from_pretrained(
-                huggingface_model_name,
-                torch_dtype=torch.float16 if is_cuda_available() else torch.float,
-                use_auth_token=self._hf_auth_token,
-            )
-            self._model_engine_to_diffuser[model_engine] = pipeline.to(get_torch_device_name())
-        return self._model_engine_to_diffuser[model_engine]
+        with _models_lock:
+            if model_engine not in _models:
+                huggingface_model_name: str
+                if model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
+                    huggingface_model_name = "CompVis/stable-diffusion-v1-4"
+                elif model_engine == "stable-diffusion-v1-5":
+                    huggingface_model_name = "runwayml/stable-diffusion-v1-5"
+                elif model_engine == "stable-diffusion-v2-base":
+                    huggingface_model_name = "stabilityai/stable-diffusion-2-base"
+                elif model_engine == "stable-diffusion-v2-1-base":
+                    huggingface_model_name = "stabilityai/stable-diffusion-2-1-base"
+                elif model_engine == "dreamlike-diffusion-v1-0":
+                    huggingface_model_name = "dreamlike-art/dreamlike-diffusion-1.0"
+                elif model_engine == "dreamlike-photoreal-v2-0":
+                    huggingface_model_name = "dreamlike-art/dreamlike-photoreal-2.0"
+                elif model_engine == "openjourney-v1-0":
+                    huggingface_model_name = "prompthero/openjourney"
+                elif model_engine == "openjourney-v2-0":
+                    huggingface_model_name = "prompthero/openjourney-v2"
+                elif model_engine == "redshift-diffusion":
+                    huggingface_model_name = "nitrosocke/redshift-diffusion"
+                elif "stable-diffusion-safe" in model_engine:
+                    huggingface_model_name = "AIML-TUDA/stable-diffusion-safe"
+                elif model_engine == "vintedois-diffusion-v0-1":
+                    huggingface_model_name = "22h/vintedois-diffusion-v0-1"
+                else:
+                    raise ValueError(f"Unhandled model: {model_engine}")
+
+                pipeline = DiffusionPipeline.from_pretrained(
+                    huggingface_model_name,
+                    torch_dtype=torch.float16 if is_cuda_available() else torch.float,
+                    use_auth_token=self._hf_auth_token,
+                )
+                _models[model_engine] = pipeline.to(get_torch_device_name())
+            return _models[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {
@@ -121,7 +129,7 @@ class HuggingFaceDiffusersClient(Client):
                     images = []
                     for _ in range(request.num_completions):
                         if request.model_engine == "promptist-stable-diffusion-v1-4":
-                            promptist_prompt = self._generate_promptist_version(prompt)
+                            promptist_prompt = self._generate_promptist_prompt(prompt)
                             hlog(f"Promptist: {prompt} -> {promptist_prompt}")
                             image = diffuser(**replace_prompt(raw_request, promptist_prompt)).images[0]
                         elif request.model_engine == "openjourney-v1-0":
@@ -174,7 +182,7 @@ class HuggingFaceDiffusersClient(Client):
             embedding=[],
         )
 
-    def _generate_promptist_version(self, prompt: str) -> str:
+    def _generate_promptist_prompt(self, prompt: str) -> str:
         """
         Generate a better version of the prompt with Promptist.
         Promptist was trained specifically with CompVis/stable-diffusion-v1-4.
