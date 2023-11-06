@@ -17,5 +17,5 @@ export default defineConfig({
   build: {
     outDir: `${__dirname}/../helm/benchmark/static_build`,
   },
-  base: "/helm/" // can't add process.env.HELM_SUITE here with GH pages 
+  //base: "/helm/" // can't add process.env.HELM_SUITE here with GH pages 
 });
