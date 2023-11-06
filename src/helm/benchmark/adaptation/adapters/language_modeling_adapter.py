@@ -34,9 +34,15 @@ class LanguageModelingAdapter(Adapter):
         # Pick out evaluation instances. This includes both valid and test splits.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         hlog(f"{len(eval_instances)} eval instances")
-
+        # Since at least 2023-01-01, this adapter was using `instances` instead of `eval_instances`
+        # https://github.com/stanford-crfm/helm/commit/ac9892f7449418d32ab55843702db312b58003ed#diff-69871182494f0d9f4bc6aeea76e99c13edf0213e2c123432a63cd2024d66ffcaR39
+        # This assert is intended to identify run specs (if any) that had been producing incorrect results.
+        assert len(eval_instances) == len(instances), (
+            "LanguageModelingAdapter was incorrectly "
+            + "evaluating on TRAIN instances. Please file a ticket with your RunSpec."
+        )
         all_request_states: List[RequestState] = flatten_list(
-            parallel_map(self._generate_requests, instances, parallelism)
+            parallel_map(self._generate_requests, eval_instances, parallelism)
         )
         hlog(f"{len(all_request_states)} requests")
 

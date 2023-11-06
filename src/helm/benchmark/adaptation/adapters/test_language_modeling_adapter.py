@@ -7,7 +7,7 @@ from helm.common.request import Request
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_LANGUAGE_MODELING
 from .test_adapter import TestAdapter
-from helm.benchmark.scenarios.scenario import Instance, Input, Reference
+from helm.benchmark.scenarios.scenario import TEST_SPLIT, Instance, Input, Reference
 
 
 class TestLanguageModelingAdapter(TestAdapter):
@@ -81,6 +81,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         instance: Instance = Instance(
             input=input_text,
             references=[reference],
+            split=TEST_SPLIT,
         )
         # Ensure the adapter returns the correct prompt
         request_states: List[RequestState] = adapter.adapt([instance], parallelism=1).request_states
@@ -93,6 +94,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         instance_long: Instance = Instance(
             input=input_text_long,
             references=[reference],
+            split=TEST_SPLIT,
         )
         request_states_long: List[RequestState] = adapter.adapt([instance_long], parallelism=1).request_states
         request_long: Request = request_states_long[0].request
