@@ -8,6 +8,7 @@ from collections import Counter
 import dataclasses
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
+import numpy as np
 
 from tqdm import tqdm
 
@@ -15,7 +16,15 @@ from helm.common.general import ensure_directory_exists, write, asdict_without_n
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
-from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
+from .scenarios.scenario import (
+    EVAL_SPLITS,
+    TRAIN_SPLIT,
+    Scenario,
+    ScenarioSpec,
+    create_scenario,
+    Instance,
+    with_instance_ids,
+)
 from .adaptation.adapters.adapter import Adapter
 from .adaptation.adapters.adapter_factory import AdapterFactory
 from .adaptation.scenario_state import ScenarioState
@@ -101,6 +110,38 @@ def remove_per_instance_stats_nans(per_instance_stats_list: List[PerInstanceStat
     for per_instance_stats in per_instance_stats_list:
         result.append(dataclasses.replace(per_instance_stats, stats=remove_stats_nans(per_instance_stats.stats)))
     return result
+
+
+def down_sample_eval_instances(instances: List[Instance], max_eval_instances: int) -> List[Instance]:
+    """
+    Get the instances necessary for this run:
+    Train instances (split=train): keep all (if any) for in-context learning
+    Eval instances (split=valid or test): keep at most `max_eval_instances` specified in `AdapterSpec` by sampling
+    Return the resulting train and eval instances.
+    """
+    all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
+
+    all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
+    if len(all_eval_instances) > max_eval_instances:
+        # The random sampling includes instances monotonically.
+        np.random.seed(0)
+        selected_eval_instances = list(
+            np.random.choice(
+                all_eval_instances,  # type: ignore
+                max_eval_instances,
+                replace=False,
+            )
+        )
+    else:
+        selected_eval_instances = all_eval_instances
+
+    hlog(
+        f"{len(instances)} instances, "
+        f"{len(all_train_instances)} train instances, "
+        f"{len(selected_eval_instances)}/{len(all_eval_instances)} eval instances"
+    )
+
+    return all_train_instances + selected_eval_instances
 
 
 class Runner:
@@ -204,9 +245,6 @@ class Runner:
             hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
             return
 
-        # Fetch and initialize the Adapter based on the `AdapterSpec`.
-        adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
-
         instances: List[Instance]
         if self.skip_instances:
             instances = []
@@ -233,7 +271,9 @@ class Runner:
         instances = with_instance_ids(instances)
 
         # Get the instances necessary for this run.
-        instances = adapter.get_run_instances(instances)
+        max_eval_instances = run_spec.adapter_spec.max_eval_instances
+        if max_eval_instances is not None:
+            instances = down_sample_eval_instances(instances, max_eval_instances)
 
         # Data preprocessing
         instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
@@ -241,6 +281,7 @@ class Runner:
         )
 
         # Adapt (convert to requests)
+        adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
         scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
 
         # Execute (fill up results)
