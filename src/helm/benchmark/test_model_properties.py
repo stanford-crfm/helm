@@ -2,15 +2,22 @@
 
 Delete this after the refactor is done."""
 
+import pytest
 from tempfile import TemporaryDirectory
 from typing import Any
-from helm.benchmark.model_deployment_registry import ClientSpec, ModelDeployment, WindowServiceSpec
+from helm.benchmark.model_deployment_registry import (
+    ClientSpec,
+    ModelDeployment,
+    WindowServiceSpec,
+    maybe_register_helm,
+    ALL_MODEL_DEPLOYMENTS,
+)
+from helm.benchmark.model_metadata_registry import ModelMetadata
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, TokenizerSpec
 from helm.benchmark.window_services.test_utils import get_tokenizer_service
 
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.proxy.clients.auto_client import AutoClient
-from helm.proxy.models import ALL_MODELS
 from collections import defaultdict
 
 
@@ -301,7 +308,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ),
     ModelDeployment(
         name="anthropic/stanford-online-all-v4-s3",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.anthropic_client.AnthropicClient"),
+        client_spec=ClientSpec(class_name="helm.proxy.clients.anthropic_client.AnthropicLegacyClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.anthropic_window_service.LegacyAnthropicWindowService"
@@ -438,6 +445,26 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2020,
     ),
     ModelDeployment(
+        name="cohere/command",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.cohere_client.CohereClient"),
+        tokenizer_name="cohere/cohere",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+        ),
+        max_sequence_length=2019,
+        max_request_length=2020,
+    ),
+    ModelDeployment(
+        name="cohere/command-light",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.cohere_client.CohereClient"),
+        tokenizer_name="cohere/cohere",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+        ),
+        max_sequence_length=2019,
+        max_request_length=2020,
+    ),
+    ModelDeployment(
         name="together/gpt-j-6b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-j-6B",
@@ -458,7 +485,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="eleutherai/pythia-1b-v0",
+        name="together/pythia-1b-v0",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -468,7 +495,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="eleutherai/pythia-2.8b-v0",
+        name="together/pythia-2.8b-v0",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -478,7 +505,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="eleutherai/pythia-6.9b",
+        name="together/pythia-6.9b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -488,7 +515,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="eleutherai/pythia-12b-v0",
+        name="together/pythia-12b-v0",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -498,7 +525,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="meta/llama-7b",
+        name="together/llama-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
@@ -507,7 +534,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="meta/llama-13b",
+        name="together/llama-13b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
@@ -516,7 +543,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="meta/llama-30b",
+        name="together/llama-30b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
@@ -525,7 +552,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="meta/llama-65b",
+        name="together/llama-65b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
@@ -534,7 +561,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="meta/llama-2-7b",
+        name="together/llama-2-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="meta-llama/Llama-2-7b-hf",
         window_service_spec=WindowServiceSpec(
@@ -544,7 +571,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
-        name="meta/llama-2-13b",
+        name="together/llama-2-13b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="meta-llama/Llama-2-7b-hf",
         window_service_spec=WindowServiceSpec(
@@ -554,7 +581,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
-        name="meta/llama-2-70b",
+        name="together/llama-2-70b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="meta-llama/Llama-2-7b-hf",
         window_service_spec=WindowServiceSpec(
@@ -564,7 +591,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
-        name="stanford/alpaca-7b",
+        name="together/alpaca-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
@@ -573,7 +600,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="lmsys/vicuna-7b-v1.3",
+        name="together/vicuna-7b-v1.3",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
@@ -582,7 +609,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="lmsys/vicuna-13b-v1.3",
+        name="together/vicuna-13b-v1.3",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
@@ -591,7 +618,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="mistralai/mistral-7b-v0.1",
+        name="together/mistral-7b-v0.1",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="mistralai/Mistral-7B-v0.1",
         window_service_spec=WindowServiceSpec(
@@ -600,7 +627,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
-        name="mosaicml/mpt-7b",
+        name="together/mpt-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -610,7 +637,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="mosaicml/mpt-instruct-7b",
+        name="together/mpt-instruct-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -620,7 +647,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="mosaicml/mpt-30b",
+        name="together/mpt-30b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -630,7 +657,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="mosaicml/mpt-instruct-30b",
+        name="together/mpt-instruct-30b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -640,7 +667,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="tiiuae/falcon-7b",
+        name="together/falcon-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="tiiuae/falcon-7b",
         window_service_spec=WindowServiceSpec(
@@ -649,7 +676,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="tiiuae/falcon-7b-instruct",
+        name="together/falcon-7b-instruct",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="tiiuae/falcon-7b",
         window_service_spec=WindowServiceSpec(
@@ -658,7 +685,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="tiiuae/falcon-40b",
+        name="together/falcon-40b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="tiiuae/falcon-7b",
         window_service_spec=WindowServiceSpec(
@@ -667,7 +694,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=2048,
     ),
     ModelDeployment(
-        name="tiiuae/falcon-40b-instruct",
+        name="together/falcon-40b-instruct",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="tiiuae/falcon-7b",
         window_service_spec=WindowServiceSpec(
@@ -1240,7 +1267,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=1024,
     ),
     ModelDeployment(
-        name="databricks/dolly-v2-3b",
+        name="together/dolly-v2-3b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -1250,7 +1277,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="databricks/dolly-v2-7b",
+        name="together/dolly-v2-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -1260,7 +1287,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="databricks/dolly-v2-12b",
+        name="together/dolly-v2-12b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -1270,7 +1297,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
-        name="stabilityai/stablelm-base-alpha-3b",
+        name="together/stablelm-base-alpha-3b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -1280,7 +1307,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=4097,
     ),
     ModelDeployment(
-        name="stabilityai/stablelm-base-alpha-7b",
+        name="together/stablelm-base-alpha-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
@@ -1357,23 +1384,37 @@ def _full_class_name(obj: Any) -> str:
     return f"{obj.__class__.__module__}.{obj.__class__.__name__}"
 
 
-def test_all_models_have_window_services():
-    auto_client = AutoClient(defaultdict(str), "", "")
-    model_deployments = {model_deployment.name: model_deployment for model_deployment in _BUILT_IN_MODEL_DEPLOYMENTS}
-    tokenizer_configs = {tokenizer_config.name: tokenizer_config for tokenizer_config in _BUILT_IN_TOKENIZER_CONFIGS}
-    with TemporaryDirectory() as tmpdir:
-        tokenizer_service = get_tokenizer_service(tmpdir)
-        for model in ALL_MODELS:
+# HACK: This looks like it should be done in a setup_class()
+# for the test below but apparently pytest first check the parametrize
+# before running the setup_class().
+# Therefore ALL_MODEL_DEPLOYMENTS is empty and no test would be run,
+# so we need to do this here.
+maybe_register_helm()
+
+
+class TestModelProperties:
+    @pytest.mark.parametrize("model", ALL_MODEL_DEPLOYMENTS)
+    def test_models_has_window_service(self, model: ModelMetadata):
+        auto_client = AutoClient(defaultdict(str), "", "")
+        model_deployments = {
+            model_deployment.name: model_deployment for model_deployment in _BUILT_IN_MODEL_DEPLOYMENTS
+        }
+        tokenizer_configs = {
+            tokenizer_config.name: tokenizer_config for tokenizer_config in _BUILT_IN_TOKENIZER_CONFIGS
+        }
+        with TemporaryDirectory() as tmpdir:
+            tokenizer_service = get_tokenizer_service(tmpdir)
             # Can't test lit-gpt client because it requires manual dependencies
             if "lit-gpt" in model.name:
-                continue
+                return
 
             # Can't test Llama 2 because it requires Hugging Face credentials
             if "llama-2-" in model.name:
-                continue
+                return
 
-            client = auto_client._get_client(model.name)
-            window_service = WindowServiceFactory.get_window_service(model.name, tokenizer_service)
+            deployment_name: str = model.name
+            client = auto_client._get_client(deployment_name)
+            window_service = WindowServiceFactory.get_window_service(deployment_name, tokenizer_service)
             tokenizer_name = window_service.tokenizer_name
             tokenizer = auto_client._get_tokenizer(tokenizer_name)
 

@@ -60,18 +60,24 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def _provide_api_key(self, host_group: str, model: Optional[str] = None) -> str:
+    def _provide_api_key(self, host_group: str, model: Optional[str] = None) -> Optional[str]:
         api_key_name = host_group + "ApiKey"
         if api_key_name in self.credentials:
             hlog(f"Using host_group api key defined in credentials.conf: {api_key_name}")
             return self.credentials[api_key_name]
         if "deployments" not in self.credentials:
-            raise AuthenticationError("Could not find key 'deployments' in credentials.conf")
+            hlog(
+                "WARNING: Could not find key 'deployments' in credentials.conf, "
+                f"therefore the API key {api_key_name} should be specified."
+            )
+            return None
         deployment_api_keys = self.credentials["deployments"]
         if model is None:
-            raise AuthenticationError(f"Could not find key '{host_group}' in credentials.conf and no model provided")
+            hlog(f"WARNING: Could not find key '{host_group}' in credentials.conf and no model provided")
+            return None
         if model not in deployment_api_keys:
-            raise AuthenticationError(f"Could not find key '{model}' under key 'deployments' in credentials.conf")
+            hlog(f"WARNING: Could not find key '{model}' under key 'deployments' in credentials.conf")
+            return None
         return deployment_api_keys[model]
 
     def _get_client(self, model: str) -> Client:
@@ -109,6 +115,7 @@ class AutoClient(Client):
                         model_deployment_name=model_deployment.name,
                     ),
                     "org_id": lambda: self.credentials.get(host_group + "OrgId", None),  # OpenAI, GooseAI, Microsoft
+                    "lock_file_path": lambda: os.path.join(self.cache_path, f"{host_group}.lock"),  # Microsoft
                 },
             )
             client = create_object(client_spec)
