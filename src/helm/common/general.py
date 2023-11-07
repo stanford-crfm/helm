@@ -320,3 +320,20 @@ def safe_symlink(src: str, dest: str) -> None:
 def is_url(location: str) -> bool:
     """Return True if `location` is a url. False otherwise."""
     return urllib.parse.urlparse(location).scheme in ["http", "https"]
+
+
+def assert_is_str(val: Any) -> str:
+    assert isinstance(val, str)
+    return val
+
+
+def assert_is_str_list(val: Any) -> List[str]:
+    assert isinstance(val, list)
+    for v in val:
+        assert isinstance(v, str)
+    return val
+
+
+def assert_present(val: Optional[InT]) -> InT:
+    assert val is not None
+    return val

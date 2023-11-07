@@ -1168,7 +1168,8 @@ def get_numeracy_spec(
 ) -> RunSpec:
     from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 
-    run_solver: bool = True if run_solver == "True" else False  # type: ignore
+    run_solver_bool: bool = True if run_solver == "True" else False
+    del run_solver
     random_seed = int(seed)
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.numeracy_scenario.NumeracyScenario",
@@ -1208,7 +1209,7 @@ def get_numeracy_spec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_numeracy_metric_specs(run_solver),  # type: ignore
+        metric_specs=get_numeracy_metric_specs(run_solver_bool),
         groups=["numeracy"],
     )
 
@@ -1220,21 +1221,25 @@ def get_math_spec(
     use_official_examples: str = "False",
     use_chain_of_thought: str = "False",
 ) -> RunSpec:
-    use_official_examples: bool = use_official_examples == "True"  # type: ignore
-    use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
-    if use_chain_of_thought:
-        assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
+    # Convert to bools and remove the str versions
+    use_official_examples_bool: bool = use_official_examples == "True"
+    use_chain_of_thought_bool: bool = use_chain_of_thought == "True"
+    del use_official_examples
+    del use_chain_of_thought
+
+    if use_chain_of_thought_bool:
+        assert not use_official_examples_bool, "Cannot use official examples when use_chain_of_thought is True."
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.math_scenario.MATHScenario",
         args={
             "subject": subject,
             "level": level,
-            "use_official_examples": use_official_examples,
-            "use_chain_of_thought": use_chain_of_thought,
+            "use_official_examples": use_official_examples_bool,
+            "use_chain_of_thought": use_chain_of_thought_bool,
         },
     )
 
-    if use_chain_of_thought:  # Include the solution in the output as per https://arxiv.org/abs/2201.11903
+    if use_chain_of_thought_bool:  # Include the solution in the output as per https://arxiv.org/abs/2201.11903
         output_prefix = "Answer: "  # Don't include LaTeX '$' delimiters
         output_suffix = "\n"
         instance_prefix = "###\n"  # Don't include LaTeX '$' delimiters
@@ -1266,10 +1271,10 @@ def get_math_spec(
 
     return RunSpec(
         name=f"math:subject={subject},level={level},"
-        f"use_official_examples={use_official_examples},use_chain_of_thought={use_chain_of_thought}",
+        f"use_official_examples={use_official_examples_bool},use_chain_of_thought={use_chain_of_thought_bool}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_math_metric_specs(use_chain_of_thought) + get_generative_harms_metric_specs(),  # type: ignore
+        metric_specs=get_math_metric_specs(use_chain_of_thought_bool) + get_generative_harms_metric_specs(),
         groups=groups,
     )
 
