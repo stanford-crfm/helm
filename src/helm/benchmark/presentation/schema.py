@@ -210,7 +210,9 @@ class RunGroup(Field):
     # adapter keys. By default, this should just be "model_deployment" (e.g., BLOOM), where details like
     # "num_train_instances" are "marginalized out". However, for ablations, we want to include both "model_deployment"
     # and "num_train_instances".
-    adapter_keys_shown: List[str] = field(default_factory=lambda: ["model_deployment"])
+    # NOTE: "model" is kept for backward compatibility reason.
+    # TODO: remove when we don't want helm-summarize to support runs before November 2023 anymore.
+    adapter_keys_shown: List[str] = field(default_factory=lambda: ["model_deployment", "model"])
 
 
 @dataclass

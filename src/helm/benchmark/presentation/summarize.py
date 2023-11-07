@@ -887,9 +887,6 @@ class Summarizer:
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            from toolbox.printing import ldebug
-
-            ldebug(adapter_spec, visible=True)
             deployment: str = (
                 adapter_spec.model_deployment if len(adapter_spec.model_deployment) > 0 else adapter_spec.model
             )

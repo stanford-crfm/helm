@@ -962,7 +962,9 @@ adapter:
   - name: num_train_trials
     description: Number of trials, where in each trial we choose an independent, random set of training instances. Used to compute variance.
   - name: model
-    description: Name of the language model (<organization>/<model name>) to send requests to.
+    description: DEPRECATED. Name of the language model (<creator_organization>/<model name>) to send requests to.
+  - name: model_deployment
+    description: Name of the language model (<host_organization>/<model name>) to send requests to.
   - name: temperature
     description: Temperature parameter used in generation.
   - name: max_tokens
