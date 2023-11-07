@@ -54,6 +54,13 @@ class ModelDeployment:
 
     If unset, defaults to the same value as max_sequence_length."""
 
+    max_sequence_and_generated_tokens_length: Optional[int] = None
+    """The max length of the model input and output tokens.
+
+    Some models (like Anthropic/Claude and Megatron) have a specific limit sequence length + max_token.
+
+    If unset, defaults to INT_MAX (i.e. no limit)."""
+
 
 @dataclass(frozen=True)
 class ModelDeployments:

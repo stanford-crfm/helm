@@ -82,7 +82,7 @@ class WindowServiceFactory:
                 window_service = GPT4WindowService(service)
             elif model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
                 window_service = GPT432KWindowService(service)
-            if model_name in get_model_names_with_tag(GPT_TURBO_CONTEXT_WINDOW_TAG):
+            elif model_name in get_model_names_with_tag(GPT_TURBO_CONTEXT_WINDOW_TAG):
                 window_service = GPTTurboWindowService(service)
             elif model_name in get_model_names_with_tag(GPT_TURBO_16K_CONTEXT_WINDOW_TAG):
                 window_service = GPTTurbo16KWindowService(service)

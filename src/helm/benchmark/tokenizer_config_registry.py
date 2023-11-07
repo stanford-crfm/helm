@@ -26,7 +26,11 @@ class TokenizerConfig:
     tokenizer_spec: TokenizerSpec
     """Specification for instantiating the client for this tokenizer."""
 
-    # TODO: Add `end_of_text_token`` and `prefix_token``
+    end_of_text_token: Optional[str] = None
+    """The end of text token."""
+
+    prefix_token: Optional[str] = None
+    """The prefix token."""
 
 
 @dataclass(frozen=True)
