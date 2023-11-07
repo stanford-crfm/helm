@@ -1909,7 +1909,7 @@ run_groups:
     subgroups:
       - synthetic_efficiency
     adapter_keys_shown:
-      - model
+      - model_deployment
       - max_tokens
 
   - name: calibration
@@ -1940,7 +1940,7 @@ run_groups:
       - imdb
       - civil_comments
     adapter_keys_shown:
-      - model
+      - model_deployment
       - max_train_instances
     subgroup_metric_groups_hidden:
       - robustness
@@ -1961,7 +1961,7 @@ run_groups:
       - lsat_qa
       - bbq
     adapter_keys_shown:
-      - model
+      - model_deployment
       - method
 
   - name: ablation_prompts
@@ -1975,7 +1975,7 @@ run_groups:
       - imdb
       - civil_comments
     adapter_keys_shown:
-      - model
+      - model_deployment
       - instructions
       - input_prefix
       - input_suffix
@@ -2980,7 +2980,7 @@ run_groups:
     environment:
       main_split: test
     adapter_keys_shown:
-      - model
+      - model_deployment
       - max_tokens
     taxonomy:
       task: "?"

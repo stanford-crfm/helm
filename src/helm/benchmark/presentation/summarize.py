@@ -180,6 +180,8 @@ def get_method_display_name(model_display_name: Optional[str], info: Dict[str, A
     info = dict(info)
     if "model" in info:
         del info["model"]
+    if "model_deployment" in info:
+        del info["model_deployment"]
 
     return (model_display_name or "???") + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
