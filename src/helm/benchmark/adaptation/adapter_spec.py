@@ -76,6 +76,10 @@ class AdapterSpec:
     # Model deployment to make the request to (need to fill in)
     model_deployment: str = ""
 
+    # DEPRECATED: old model field, kept for backward compatibility
+    # TODO: Remove this once we do not wish to support backward compatibility anymore.
+    model: str = ""
+
     # Temperature to use
     temperature: float = 1
 

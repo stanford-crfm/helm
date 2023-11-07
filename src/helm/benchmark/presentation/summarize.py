@@ -880,14 +880,19 @@ class Summarizer:
 
         # Pull out only the keys of the method adapter_spec that is needed to
         # uniquely identify the method.
-        infos = unique_simplification(list(map(asdict_without_nones, adapter_specs)), ["model_deployment"])
+        infos = unique_simplification(list(map(asdict_without_nones, adapter_specs)), ["model_deployment", "model"])
 
         assert len(adapter_specs) == len(infos), [adapter_specs, infos]
 
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            deployment: str = adapter_spec.model_deployment
+            from toolbox.printing import ldebug
+
+            ldebug(adapter_spec, visible=True)
+            deployment: str = (
+                adapter_spec.model_deployment if len(adapter_spec.model_deployment) > 0 else adapter_spec.model
+            )
             model_metadata: ModelMetadata = get_metadata_for_deployment(deployment)
             model_name: str = model_metadata.name
 
