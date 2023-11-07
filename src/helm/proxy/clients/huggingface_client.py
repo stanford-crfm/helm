@@ -112,7 +112,7 @@ class HuggingFaceServer:
             scores = output.scores
 
         prompt_tokens_logprobs = []
-        prompt_tokens_top_logprobs_dicts = []
+        prompt_tokens_top_logprobs_dicts: List[Dict] = []
         if compute_logprobs_only:
             # Append the logprob of the first token of the prompt.
             prompt_tokens_logprobs.append(0.0)
