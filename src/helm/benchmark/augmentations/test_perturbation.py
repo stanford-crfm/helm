@@ -15,7 +15,7 @@ from .space_perturbation import SpacePerturbation
 from .dialect_perturbation import DialectPerturbation
 from .person_name_perturbation import PersonNamePerturbation
 from .gender_perturbation import GenderPerturbation
-from .style_perturbation import SuffixPerturbation
+from .suffix_perturbation import SuffixPerturbation
 
 
 def test_extra_space_perturbation():
