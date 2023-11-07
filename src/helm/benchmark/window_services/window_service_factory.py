@@ -14,10 +14,8 @@ from helm.proxy.models import (
 
 from helm.benchmark.window_services.huggingface_window_service import HuggingFaceWindowService
 from helm.benchmark.window_services.gpt2_window_service import GPT2WindowService
-from helm.benchmark.window_services.remote_window_service import get_remote_window_service
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.proxy.clients.remote_model_registry import get_remote_model
 from helm.common.object_spec import create_object, inject_object_spec_args
 
 
@@ -62,8 +60,6 @@ class WindowServiceFactory:
                 },
             )
             window_service = create_object(window_service_spec)
-        elif get_remote_model(model_name):
-            window_service = get_remote_window_service(service, model_name)
         elif organization == "neurips":
             from helm.benchmark.window_services.http_model_window_service import HTTPModelWindowServce
 
