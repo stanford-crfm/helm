@@ -164,7 +164,7 @@ class DecodingTrustOODRobustnessScenario(Scenario):
         return dataset
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, f"{self.ood_type}.json".replace("/", "_"))
+        data_path: str = os.path.join(output_path, f"{self.ood_type}.json".replace("/", "_"))
 
         ensure_file_downloaded(
             source_url=self.source_url.format(self.ood_type),

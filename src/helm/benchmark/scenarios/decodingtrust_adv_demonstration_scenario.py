@@ -83,9 +83,9 @@ class DecodingTrustAdvDemoScenario(Scenario):
         self.description = TASK_DESCRIPTIONS[description]
         self.seeds = SEEDS[perspective]
 
-    def _get_instances(self, data_path: str, note: str) -> List[Instance]:
+    def _get_instances(self, data_path: str, note: str, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
-        target_path = os.path.join(self.output_path, data_path)
+        target_path = os.path.join(output_path, data_path)
         ensure_directory_exists(os.path.split(target_path)[0])
         ensure_file_downloaded(source_url=self.source_url + data_path, target_path=target_path)  # to be filled
         dataset = []
@@ -144,9 +144,9 @@ class DecodingTrustAdvDemoScenario(Scenario):
                     part = self.demo_name
 
                 asr_path = f"{self.perspective}/{exp}/{part}_asr/{seed}.jsonl"
-                instances.extend(self._get_instances(asr_path, f"asr_{seed}"))
+                instances.extend(self._get_instances(asr_path, f"asr_{seed}", output_path))
                 cacc_path = f"{self.perspective}/{exp}/{part}_cacc/{seed}.jsonl"
-                instances.extend(self._get_instances(cacc_path, f"cacc_{seed}"))
+                instances.extend(self._get_instances(cacc_path, f"cacc_{seed}", output_path))
             else:
                 if self.perspective == "counterfactual":
                     if self.demo_name.find("cf") != -1:
@@ -159,7 +159,7 @@ class DecodingTrustAdvDemoScenario(Scenario):
                     data_path = f"{self.perspective}/{self.data}/{part}/{seed}.jsonl"
                 else:
                     raise ValueError(f"Nonexistent {self.perspective}")
-                instances.extend(self._get_instances(data_path, str(seed)))
+                instances.extend(self._get_instances(data_path, str(seed), output_path))
             if self.demo_name in ["cf", "zero"]:
                 break
         return instances

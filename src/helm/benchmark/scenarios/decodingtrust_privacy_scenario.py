@@ -188,13 +188,13 @@ class DecodingTrustPrivacyScenario(Scenario):
             for download_file in download_files:
                 ensure_file_downloaded(
                     source_url=os.path.join(self.source_url, download_file),
-                    target_path=os.path.join(self.output_path, download_file.replace("/", "_")),
+                    target_path=os.path.join(output_path, download_file.replace("/", "_")),
                 )
             load_data_file = self.data_file.replace("/", "_")
 
         dataset: List[Dict] = self.load_dataset(
             scenario_name=self.scenario_name,
-            data_file=os.path.join(self.output_path, load_data_file),
+            data_file=os.path.join(output_path, load_data_file),
             dataset_size=self.dataset_size,
             few_shot_num=self.few_shot_num,
             prompt_type=self.prompt_type,

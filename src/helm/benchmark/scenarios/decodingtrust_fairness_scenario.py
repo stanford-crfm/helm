@@ -40,7 +40,7 @@ class DecodingTrustFairnessScenario(Scenario):
         return references
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, self.sub_scenario)
+        data_path: str = os.path.join(output_path, self.sub_scenario)
         url: str = os.path.join(self.source_url, self.sub_scenario)
 
         ensure_file_downloaded(
