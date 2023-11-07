@@ -11,6 +11,7 @@ TASK_DESCRIPTIONS = {
 
 ANSWER_MAPPING = {"predict_annual_income": {0: "no", 1: "yes"}}
 
+TASK_DATASET_MAPPING = {"predict_annual_income": "adult"}
 
 class DecodingTrustFairnessScenario(Scenario):
     """
@@ -25,7 +26,7 @@ class DecodingTrustFairnessScenario(Scenario):
     def __init__(self, task: str, train_base_rate: float, test_base_rate: float, num_train: int, num_test: int) -> None:
         super().__init__()
         self.task = task
-        self.sub_scenario = f"{task}_{num_train}_{num_test}_train_br_{train_base_rate}_test_br_{test_base_rate}.jsonl"
+        self.sub_scenario = f"{TASK_DATASET_MAPPING[task]}_{num_train}_{num_test}_train_br_{train_base_rate}_test_br_{test_base_rate}.jsonl"
         self.task_message = TASK_DESCRIPTIONS[self.task]
 
     def get_input(self, text: str) -> Input:
