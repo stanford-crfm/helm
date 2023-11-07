@@ -2,11 +2,11 @@ from dataclasses import dataclass
 from random import Random
 from typing import List
 
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 from .perturbation_description import PerturbationDescription
 
 
-class SuffixPerturbation(Perturbation):
+class SuffixPerturbation(TextPerturbation):
     """
     Appends modifications to the end of the text. Example:
 
