@@ -11,13 +11,11 @@ from .test_cohere_window_service_utils import REQUESTS_TO_RESPONSES, TEST_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 from .test_utils import get_tokenizer_service
-from helm.benchmark.model_deployment_registry import maybe_register_helm
 
 
 class TestCohereWindowService:
     @classmethod
     def setup_class(cls):
-        maybe_register_helm()
         cls.path: str = tempfile.mkdtemp()
         cache_path: str = os.path.join(cls.path, "cache")
         ensure_directory_exists(cache_path)

@@ -4,16 +4,12 @@ import tempfile
 from helm.common.authentication import Authentication
 from helm.proxy.services.server_service import ServerService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.benchmark.model_deployment_registry import maybe_register_helm
 
 
 class TestAdapter:
     """
     Has setup and teardown methods downstream Adapter tests need.
     """
-
-    def setup_class(self):
-        maybe_register_helm()
 
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()

@@ -11,7 +11,6 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
-from helm.benchmark.model_deployment_registry import maybe_register_helm
 from .anthropic_client import AnthropicClient
 
 
@@ -19,9 +18,6 @@ class TestAnthropicClient:
     TEST_PROMPT: str = "I am a computer scientist."
     TEST_ENCODED: List[int] = [45, 1413, 269, 6797, 22228, 18]
     TEST_TOKENS: List[str] = ["I", " am", " a", " computer", " scientist", "."]
-
-    def setup_class(self):
-        maybe_register_helm()
 
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)

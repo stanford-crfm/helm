@@ -49,7 +49,9 @@ INSTRUCTION_FOLLOWING_MODEL_TAG: str = "INSTRUCTION_FOLLOWING_MODEL_TAG"
 VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
 
 
-MODEL_METADATA_FILE = "model_metadatas.yaml"
+MODEL_METADATA_FILE: str = "model_metadatas.yaml"
+CONFIG_PATH: str = "src/helm/config"
+METADATAS_REGISTERED: bool = False
 
 
 # Frozen is set to false as the model_deployment_registry.py file
@@ -153,6 +155,7 @@ def maybe_register_model_metadata_from_base_path(base_path: str) -> None:
 # ===================== UTIL FUNCTIONS ==================== #
 def get_model_metadata(model_name: str) -> ModelMetadata:
     """Get the `Model` given the name."""
+    register_metadatas_if_not_already_registered()
     if model_name not in MODEL_NAME_TO_MODEL_METADATA:
         raise ValueError(f"No model with name: {model_name}")
 
@@ -167,6 +170,7 @@ def get_model_creator_organization(model_name: str) -> str:
 
 def get_all_models() -> List[str]:
     """Get all model names."""
+    register_metadatas_if_not_already_registered()
     return list(MODEL_NAME_TO_MODEL_METADATA.keys())
 
 
@@ -175,11 +179,13 @@ def get_models_by_creator_organization(organization: str) -> List[str]:
     Gets models by creator organization.
     Example:   ai21   =>   ai21/j1-jumbo, ai21/j1-grande, ai21-large.
     """
+    register_metadatas_if_not_already_registered()
     return [model.name for model in ALL_MODELS_METADATA if model.creator_organization == organization]
 
 
 def get_model_names_with_tag(tag: str) -> List[str]:
     """Get all the name of the models with tag `tag`."""
+    register_metadatas_if_not_already_registered()
     return [model.name for model in ALL_MODELS_METADATA if tag in model.tags]
 
 
@@ -196,3 +202,10 @@ def get_all_code_models() -> List[str]:
 def get_all_instruction_following_models() -> List[str]:
     """Get all instruction-following model names."""
     return get_model_names_with_tag(INSTRUCTION_FOLLOWING_MODEL_TAG)
+
+
+def register_metadatas_if_not_already_registered() -> None:
+    global METADATAS_REGISTERED
+    if not METADATAS_REGISTERED:
+        maybe_register_model_metadata_from_base_path(CONFIG_PATH)
+        METADATAS_REGISTERED = True

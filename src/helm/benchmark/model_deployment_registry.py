@@ -10,12 +10,15 @@ from helm.common.object_spec import ObjectSpec
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
     get_model_metadata,
-    maybe_register_model_metadata_from_base_path,
+    register_metadatas_if_not_already_registered,
+    CONFIG_PATH,
 )
-from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
+from helm.benchmark.tokenizer_config_registry import register_tokenizers_if_not_already_registered
 
 
-MODEL_DEPLOYMENTS_FILE = "model_deployments.yaml"
+MODEL_DEPLOYMENTS_FILE: str = "model_deployments.yaml"
+DEPLOYMENTS_REGISTERED: bool = False
+HELM_REGISTERED: bool = False
 
 
 class ClientSpec(ObjectSpec):
@@ -133,6 +136,7 @@ def maybe_register_model_deployments_from_base_path(base_path: str) -> None:
 
 # ===================== UTIL FUNCTIONS ==================== #
 def get_model_deployment(name: str) -> ModelDeployment:
+    register_deployments_if_not_already_registered()
     if name not in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
         raise ValueError(f"Model deployment {name} not found")
     deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[name]
@@ -144,6 +148,7 @@ def get_model_deployment(name: str) -> ModelDeployment:
 # TODO: Remove when we no longer want to offer backwards compatibility for model names
 # that are now moved to model deployments (PR #1903).
 def get_deployment_name_from_model_arg(model_arg: str) -> str:
+    register_deployments_if_not_already_registered()
     if model_arg in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
         return model_arg
 
@@ -166,6 +171,7 @@ def get_model_deployments_by_host_group(host_group: str) -> List[str]:
     Gets models by host group.
     Example:   together   =>   TODO(PR)
     """
+    register_deployments_if_not_already_registered()
     return [deployment.name for deployment in ALL_MODEL_DEPLOYMENTS if deployment.host_group == host_group]
 
 
@@ -188,6 +194,7 @@ def get_default_deployment_for_model(model_metadata: ModelMetadata) -> ModelDepl
     For example if several deplyments are available but only some can be used
     given the API keys present, then we should choose the one that can be used.
     """
+    register_deployments_if_not_already_registered()
     if model_metadata.name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
         return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_metadata.name]
     elif model_metadata.deployment_names is not None and len(model_metadata.deployment_names) > 0:
@@ -208,21 +215,24 @@ def get_metadata_for_deployment(deployment_name: str) -> ModelMetadata:
 
 def get_model_names_with_tokenizer(tokenizer_name: str) -> List[str]:
     """Get all the name of the models with tokenizer `tokenizer_name`."""
+    register_deployments_if_not_already_registered()
     deployments: List[ModelDeployment] = [
         deployment for deployment in ALL_MODEL_DEPLOYMENTS if deployment.tokenizer_name == tokenizer_name
     ]
     return [deployment.model_name or deployment.name for deployment in deployments]
 
 
-HELM_REGISTERED: bool = False
+def register_deployments_if_not_already_registered() -> None:
+    global DEPLOYMENTS_REGISTERED
+    if not DEPLOYMENTS_REGISTERED:
+        maybe_register_model_deployments_from_base_path(CONFIG_PATH)
+        DEPLOYMENTS_REGISTERED = True
 
 
 def maybe_register_helm():
     global HELM_REGISTERED
-    if HELM_REGISTERED:
-        return
-    config_path: str = "src/helm/config"
-    maybe_register_model_metadata_from_base_path(config_path)
-    maybe_register_model_deployments_from_base_path(config_path)
-    maybe_register_tokenizer_configs_from_base_path(config_path)
-    HELM_REGISTERED = True
+    if not HELM_REGISTERED:
+        register_metadatas_if_not_already_registered()
+        register_tokenizers_if_not_already_registered()
+        register_deployments_if_not_already_registered()
+        HELM_REGISTERED = True

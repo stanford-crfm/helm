@@ -7,14 +7,10 @@ import pytest
 from helm.common.request import Request, RequestResult
 from helm.common.general import get_credentials
 from helm.proxy.clients.auto_client import AutoClient
-from helm.benchmark.model_deployment_registry import maybe_register_helm
 
 
 @pytest.mark.models
 class TestAutoClient:
-    def setup_class(self):
-        maybe_register_helm()
-
     def make_request_and_check_result(self, request, expected_result):
         credentials = get_credentials()
         if not credentials:

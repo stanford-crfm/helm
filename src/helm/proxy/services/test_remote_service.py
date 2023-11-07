@@ -18,7 +18,6 @@ from helm.common.authentication import Authentication
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from helm.proxy.accounts import Account
-from helm.benchmark.model_deployment_registry import maybe_register_helm
 from .remote_service import RemoteService
 from .service import ACCOUNTS_FILE
 
@@ -94,7 +93,6 @@ class TestRemoteServerService:
 
     @classmethod
     def setup_class(cls):
-        maybe_register_helm()
         server_info: TempServerInfo = TestRemoteServerService.start_temp_server()
         cls.url: str = server_info.url
         cls.base_path: str = server_info.base_path

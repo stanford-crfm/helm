@@ -7,9 +7,11 @@ import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
+from helm.benchmark.model_metadata_registry import CONFIG_PATH
 
 
-TOKENIZER_CONFIGS_FILE = "tokenizer_configs.yaml"
+TOKENIZER_CONFIGS_FILE: str = "tokenizer_configs.yaml"
+TOKENIZERS_REGISTERED: bool = False
 
 
 class TokenizerSpec(ObjectSpec):
@@ -38,11 +40,13 @@ class TokenizerConfigs:
     tokenizer_configs: List[TokenizerConfig]
 
 
-_name_to_tokenizer_config: Dict[str, TokenizerConfig] = {}
+ALL_TOKENIZER_CONFIGS: List[TokenizerConfig] = []
+TOKENIZER_NAME_TO_CONFIG: Dict[str, TokenizerConfig] = {config.name: config for config in ALL_TOKENIZER_CONFIGS}
 
 
 def register_tokenizer_config(tokenizer_config: TokenizerConfig) -> None:
-    _name_to_tokenizer_config[tokenizer_config.name] = tokenizer_config
+    ALL_TOKENIZER_CONFIGS.append(tokenizer_config)
+    TOKENIZER_NAME_TO_CONFIG[tokenizer_config.name] = tokenizer_config
 
 
 def register_tokenizer_configs_from_path(path: str) -> None:
@@ -61,4 +65,12 @@ def maybe_register_tokenizer_configs_from_base_path(base_path: str) -> None:
 
 
 def get_tokenizer_config(name: str) -> Optional[TokenizerConfig]:
-    return _name_to_tokenizer_config.get(name)
+    register_tokenizers_if_not_already_registered()
+    return TOKENIZER_NAME_TO_CONFIG.get(name)
+
+
+def register_tokenizers_if_not_already_registered() -> None:
+    global TOKENIZERS_REGISTERED
+    if not TOKENIZERS_REGISTERED:
+        maybe_register_tokenizer_configs_from_base_path(CONFIG_PATH)
+        TOKENIZERS_REGISTERED = True

@@ -7,7 +7,6 @@ from helm.common.authentication import Authentication
 from helm.common.request import Request
 from helm.proxy.accounts import AuthenticationError, Accounts
 from helm.proxy.query import Query
-from helm.benchmark.model_deployment_registry import maybe_register_helm
 from .server_service import ServerService
 
 
@@ -16,9 +15,6 @@ def get_authentication():
 
 
 class TestServerService:
-    def setup_class(self):
-        maybe_register_helm()
-
     def setup_method(self, method):
         # Create a temporary admin account to test account creation, updating quotas, etc.
         self.base_path: str = tempfile.mkdtemp()

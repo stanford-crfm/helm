@@ -5,7 +5,6 @@ from typing import List
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 from .test_utils import get_tokenizer_service, TEST_PROMPT
-from helm.benchmark.model_deployment_registry import maybe_register_helm
 
 
 class TestICEWindowService:
@@ -62,9 +61,6 @@ class TestICEWindowService:
         21195,
         20007,
     ]
-
-    def setup_class(self):
-        maybe_register_helm()
 
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
