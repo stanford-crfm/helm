@@ -49,45 +49,54 @@ def get_image_generation_adapter_spec(
 def get_core_heim_metric_specs() -> List[MetricSpec]:
     """Evaluate every image with these set of metrics."""
     return [
-        MetricSpec(class_name="helm.benchmark.metrics.aesthetics_metrics.AestheticsMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.metrics.clip_score_metrics.CLIPScoreMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.metrics.efficiency_metrics.EfficiencyMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.metrics.fractal_dimension_metric.FractalDimensionMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.metrics.nsfw_metrics.NSFWMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.metrics.nudity_metrics.NudityMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.metrics.watermark_metrics.WatermarkMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.image_generation.aesthetics_metrics.AestheticsMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.image_generation.clip_score_metrics.CLIPScoreMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.image_generation.efficiency_metrics.EfficiencyMetric", args={}),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.image_generation.fractal_dimension_metric.FractalDimensionMetric",
+            args={},
+        ),
+        MetricSpec(class_name="helm.benchmark.metrics.image_generation.nsfw_metrics.NSFWMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.image_generation.nudity_metrics.NudityMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.image_generation.watermark_metrics.WatermarkMetric", args={}),
     ] + get_basic_metric_specs(names=[])
 
 
 def get_heim_bias_metric_specs() -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.metrics.gender_metrics.GenderMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.metrics.skin_tone_metrics.SkinToneMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.image_generation.gender_metrics.GenderMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.image_generation.skin_tone_metrics.SkinToneMetric", args={}),
     ]
 
 
 def get_heim_detection_metric_specs() -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.metrics.detection_metrics.DetectionMetric", args={})]
+    return [MetricSpec(class_name="helm.benchmark.metrics.image_generation.detection_metrics.DetectionMetric", args={})]
 
 
 def get_fid_metric_specs() -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.metrics.fidelity_metrics.FidelityMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.image_generation.fidelity_metrics.FidelityMetric", args={}),
     ]
 
 
 def get_heim_reference_required_metric_specs(include_fidelity: bool = False) -> List[MetricSpec]:
     metrics: List[MetricSpec] = [
         MetricSpec(
-            class_name="helm.benchmark.metrics.lpips_metrics.LearnedPerceptualImagePatchSimilarityMetric", args={}
+            class_name="helm.benchmark.metrics.image_generation.lpips_metrics."
+            "LearnedPerceptualImagePatchSimilarityMetric",
+            args={},
         ),
         MetricSpec(
-            class_name="helm.benchmark.metrics.multi_scale_ssim_metrics."
+            class_name="helm.benchmark.metrics.image_generation.multi_scale_ssim_metrics."
             "MultiScaleStructuralSimilarityIndexMeasureMetric",
             args={},
         ),
-        MetricSpec(class_name="helm.benchmark.metrics.psnr_metrics.PeakSignalToNoiseRatioMetric", args={}),
-        MetricSpec(class_name="helm.benchmark.metrics.uiqi_metrics.UniversalImageQualityIndexMetric", args={}),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.image_generation.psnr_metrics.PeakSignalToNoiseRatioMetric", args={}
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.image_generation.uiqi_metrics.UniversalImageQualityIndexMetric", args={}
+        ),
     ]
     if include_fidelity:
         metrics.extend(get_fid_metric_specs())
@@ -105,7 +114,7 @@ def get_heim_critique_metric_specs(
 ) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.image_critique_metrics.ImageCritiqueMetric",
+            class_name="helm.benchmark.metrics.image_generation.image_critique_metrics.ImageCritiqueMetric",
             args={
                 "include_alignment": True,  # Always ask about image-text alignment
                 "include_aesthetics": include_aesthetics,
@@ -125,7 +134,8 @@ def get_heim_photorealism_critique_metric_specs(
 ) -> List[MetricSpec]:
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.photorealism_critique_metrics.PhotorealismCritiqueMetric",
+            class_name="helm.benchmark.metrics.image_generation.photorealism_critique_metrics."
+            "PhotorealismCritiqueMetric",
             args={"num_examples": num_examples, "num_respondents": num_respondents, "use_perturbed": use_perturbed},
         ),
     ]
@@ -426,8 +436,11 @@ def get_mscoco_spec(
     if for_efficiency:
         adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
         metric_specs = [
-            MetricSpec(class_name="helm.benchmark.denoised_runtime_metric.DenoisedRuntimeMetric", args={}),
-        ] + get_basic_metric_specs(names=[])
+            MetricSpec(
+                class_name="helm.benchmark.metrics.image_generation.denoised_runtime_metric.DenoisedRuntimeMetric",
+                args={},
+            ),
+        ]
         run_spec_name = "mscoco_efficiency"
     elif compute_fid:
         adapter_spec = get_image_generation_adapter_spec(num_outputs=1)

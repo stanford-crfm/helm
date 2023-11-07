@@ -603,9 +603,9 @@ def translate(language_code: str) -> PerturbationSpec:
     )
 
 
-def style(modifications: List[str]) -> PerturbationSpec:
+def suffix(modifications: List[str]) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="helm.benchmark.augmentations.style_perturbation.StylePerturbation",
+        class_name="helm.benchmark.augmentations.suffix_perturbation.SuffixPerturbation",
         args={"modifications": modifications},
     )
 
@@ -808,12 +808,12 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     # Styles
     "art": {
         "art": [
-            style(modifications=["oil painting"]),
-            style(modifications=["watercolor"]),
-            style(modifications=["pencil sketch"]),
-            style(modifications=["animation"]),
-            style(modifications=["vector graphics"]),
-            style(modifications=["pixel art"]),
+            suffix(modifications=["oil painting"]),
+            suffix(modifications=["watercolor"]),
+            suffix(modifications=["pencil sketch"]),
+            suffix(modifications=["animation"]),
+            suffix(modifications=["vector graphics"]),
+            suffix(modifications=["pixel art"]),
         ]
     },
 }

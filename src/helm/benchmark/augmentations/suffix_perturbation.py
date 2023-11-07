@@ -7,7 +7,11 @@ from .perturbation_description import PerturbationDescription
 
 
 class SuffixPerturbation(Perturbation):
-    """Appends modifications to the end of the text."""
+    """
+    Appends modifications to the end of the text. Example:
+
+    A picture of a dog -> A picture of a dog, picasso, happy
+    """
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
