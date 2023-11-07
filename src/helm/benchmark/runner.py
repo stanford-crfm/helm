@@ -112,7 +112,7 @@ def remove_per_instance_stats_nans(per_instance_stats_list: List[PerInstanceStat
     return result
 
 
-def down_sample_eval_instances(instances: List[Instance], max_eval_instances: int) -> List[Instance]:
+def downsample_eval_instances(instances: List[Instance], max_eval_instances: int) -> List[Instance]:
     """
     Get the instances necessary for this run:
     Train instances (split=train): keep all (if any) for in-context learning
@@ -273,7 +273,7 @@ class Runner:
         # Get the instances necessary for this run.
         max_eval_instances = run_spec.adapter_spec.max_eval_instances
         if max_eval_instances is not None:
-            instances = down_sample_eval_instances(instances, max_eval_instances)
+            instances = downsample_eval_instances(instances, max_eval_instances)
 
         # Data preprocessing
         instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
