@@ -4,9 +4,13 @@ import tempfile
 from .test_utils import get_tokenizer_service, TEST_PROMPT, GPT2_TEST_TOKENS, GPT2_TEST_TOKEN_IDS
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
+from helm.benchmark.model_deployment_registry import maybe_register_helm
 
 
 class TestMTNLGWindowService:
+    def setup_class(self):
+        maybe_register_helm()
+
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)

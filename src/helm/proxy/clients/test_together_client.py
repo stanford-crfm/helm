@@ -5,11 +5,15 @@ import tempfile
 from helm.common.cache import SqliteCacheConfig
 from helm.common.request import Request
 from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
+from helm.benchmark.model_deployment_registry import maybe_register_helm
 
 from .together_client import TogetherClient, TogetherClientError
 
 
 class TestTogetherClient:
+    def setup_class(self):
+        maybe_register_helm()
+
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
@@ -44,7 +48,7 @@ class TestTogetherClient:
             ),
             (
                 Request(
-                    model="meta/llama-7b",
+                    model="together/llama-7b",
                     prompt="I am a computer scientist.",
                     temperature=0,
                     num_completions=4,
@@ -70,7 +74,7 @@ class TestTogetherClient:
             ),
             (
                 Request(
-                    model="stanford/alpaca-7b",
+                    model="together/alpaca-7b",
                     stop_sequences=["\n"],
                 ),
                 {

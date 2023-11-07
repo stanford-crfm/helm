@@ -10,6 +10,7 @@ from helm.proxy.services.remote_service import RemoteService
 from .test_utils import TEST_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
+from helm.benchmark.model_deployment_registry import maybe_register_helm
 
 # TODO(#1522): Remove "▁" from the tokens.
 TEST_TOKEN_REPRESENTATIONS: List[TokenizationToken] = [
@@ -105,6 +106,9 @@ TRUNCATED_REQUEST_RESULT = None  # type:ignore
 
 @unittest.skip("The requests and results cannot be unpicked after the modules moved")
 class TestAI21WindowService:
+    def setup_class(self):
+        maybe_register_helm()
+
     def setup_method(self):
         # We use mocking for tokenization calls so no valid api_keys are required.
         auth = Authentication(api_key="DUMMY_API_KEY")

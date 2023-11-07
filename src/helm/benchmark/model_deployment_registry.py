@@ -10,7 +10,9 @@ from helm.common.object_spec import ObjectSpec
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
     get_model_metadata,
+    maybe_register_model_metadata_from_base_path,
 )
+from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
 
 
 MODEL_DEPLOYMENTS_FILE = "model_deployments.yaml"
@@ -210,3 +212,17 @@ def get_model_names_with_tokenizer(tokenizer_name: str) -> List[str]:
         deployment for deployment in ALL_MODEL_DEPLOYMENTS if deployment.tokenizer_name == tokenizer_name
     ]
     return [deployment.model_name or deployment.name for deployment in deployments]
+
+
+HELM_REGISTERED: bool = False
+
+
+def maybe_register_helm():
+    global HELM_REGISTERED
+    if HELM_REGISTERED:
+        return
+    config_path: str = "src/helm/config"
+    maybe_register_model_metadata_from_base_path(config_path)
+    maybe_register_model_deployments_from_base_path(config_path)
+    maybe_register_tokenizer_configs_from_base_path(config_path)
+    HELM_REGISTERED = True

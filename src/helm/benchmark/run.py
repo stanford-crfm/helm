@@ -14,16 +14,12 @@ from helm.proxy.clients.remote_model_registry import check_and_register_remote_m
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
 from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
-from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
+from helm.benchmark.model_deployment_registry import register_model_deployments_from_path, maybe_register_helm
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK
 from .run_specs import construct_run_specs
-
-from helm.benchmark.model_metadata_registry import maybe_register_model_metadata_from_base_path
-from helm.benchmark.model_deployment_registry import maybe_register_model_deployments_from_base_path
-from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
 
 
 def run_entries_to_run_specs(
@@ -292,10 +288,7 @@ def main():
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
         )
 
-    config_path: str = "src/helm/config"
-    maybe_register_model_metadata_from_base_path(config_path)
-    maybe_register_model_deployments_from_base_path(config_path)
-    maybe_register_tokenizer_configs_from_base_path(config_path)
+    maybe_register_helm()
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,

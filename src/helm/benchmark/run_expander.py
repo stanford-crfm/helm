@@ -14,7 +14,7 @@ from helm.benchmark.model_metadata_registry import (
     ABLATION_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
-from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
+from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer, get_deployment_name_from_model_arg
 from .runner import RunSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
@@ -320,7 +320,7 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     }
 
 
-class ModelRunExpander(ReplaceValueRunExpander):
+class ModelDeploymentRunExpander(ReplaceValueRunExpander):
     """
     For specifying different models.
     Note: we're assuming we don't have to change the decoding parameters for different models.
@@ -328,12 +328,15 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model_deployment"
 
-    def __init__(self, value):
+    def __init__(self, value, used_deprecated_model_tag: bool = False):
         """
         `value` is either the actual value to use or a lookup into the values dict.
         """
         if value in self.values_dict:
             self.values = self.values_dict[value]
+        elif used_deprecated_model_tag:
+            model_deployment: str = get_deployment_name_from_model_arg(value)
+            self.values = [model_deployment]
         else:
             self.values = [value]
 
@@ -380,6 +383,12 @@ class ModelRunExpander(ReplaceValueRunExpander):
             else:
                 values_dict[family_name] = models
         return values_dict
+
+
+class ModelRunExpander(ModelDeploymentRunExpander):
+    @property
+    def key_name(self) -> str:
+        return "model"
 
 
 ############################################################
@@ -1107,7 +1116,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     MaxTrainInstancesRunExpander,
     MaxEvalInstancesRunExpander,
     NumOutputsRunExpander,
-    ModelRunExpander,
+    ModelDeploymentRunExpander,
     DataAugmentationRunExpander,
     TokenizerRunExpander,
     NumPromptTokensRunExpander,

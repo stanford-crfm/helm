@@ -58,12 +58,8 @@ from helm.benchmark.presentation.contamination import (
     CONTAMINATION_LEVEL_STRONG,
 )
 from helm.benchmark.presentation.run_display import write_run_display_json
-from helm.benchmark.model_deployment_registry import get_metadata_for_deployment
+from helm.benchmark.model_deployment_registry import get_metadata_for_deployment, maybe_register_helm
 from helm.benchmark.model_metadata_registry import ModelMetadata
-
-from helm.benchmark.model_metadata_registry import maybe_register_model_metadata_from_base_path
-from helm.benchmark.model_deployment_registry import maybe_register_model_deployments_from_base_path
-from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
 
 
 OVERLAP_N_COUNT = 13
@@ -1334,10 +1330,7 @@ def main():
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
 
-    config_path: str = "src/helm/config"
-    maybe_register_model_metadata_from_base_path(config_path)
-    maybe_register_model_deployments_from_base_path(config_path)
-    maybe_register_tokenizer_configs_from_base_path(config_path)
+    maybe_register_helm()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(

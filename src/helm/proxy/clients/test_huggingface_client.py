@@ -12,10 +12,14 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
+from helm.benchmark.model_deployment_registry import maybe_register_helm
 from .huggingface_client import HuggingFaceClient
 
 
 class TestHuggingFaceClient:
+    def setup_class(self):
+        maybe_register_helm()
+
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name

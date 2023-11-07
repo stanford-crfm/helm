@@ -19,6 +19,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from .metrics.metric import MetricSpec
 from .run_expander import (
     RUN_EXPANDERS,
+    ModelDeploymentRunExpander,
     RunExpander,
     GlobalPrefixRunExpander,
     StopRunExpander,
@@ -50,7 +51,6 @@ from .scenarios.lextreme_scenario import (
 from helm.benchmark.model_deployment_registry import (
     ModelDeployment,
     get_model_deployment,
-    get_deployment_name_from_model_arg,
 )
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
@@ -2541,16 +2541,21 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     if name not in CANONICAL_RUN_SPEC_FUNCS:
         raise ValueError(f"Unknown run spec name: {name}")
 
+    # Peel off the run expanders (e.g., model)
     # DEPRECATED: Support for the old model name format
     # All users should be using the model_deployment keyword argument instead.
     # TODO: Remove this once we've migrated all the configs
-    if args.get("model", None) is not None and args.get("model_deployment", None) is None:
-        model_deployment: str = get_deployment_name_from_model_arg(args["model"])
-        args.update({"model_deployment": model_deployment})
+    expanders: List[RunExpander] = []
+    if args.get("model_deployment", None) is not None:
+        expanders.append(ModelDeploymentRunExpander(args["model_deployment"]))
+        args.pop("model_deployment")
+    elif args.get("model", None) is not None:
+        hlog("WARNING: Using deprecated model name format. Please use model_deployment instead.")
+        expanders.append(ModelDeploymentRunExpander(args["model"], used_deprecated_model_tag=True))
         args.pop("model")
-
-    # Peel off the run expanders (e.g., model)
-    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
+    else:
+        raise ValueError("No model specified")
+    expanders += [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs
