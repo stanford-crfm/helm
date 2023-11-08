@@ -1,7 +1,6 @@
 from typing import Optional
 
 from helm.benchmark.model_deployment_registry import WindowServiceSpec, get_model_deployment
-from helm.benchmark.window_services.default_window_service import DefaultWindowService
 from helm.proxy.models import (
     get_model,
     get_model_names_with_tag,
@@ -112,14 +111,21 @@ class WindowServiceFactory:
 
             window_service = OpenAIWindowService(service)
         elif organization == "AlephAlpha":
+            from helm.benchmark.window_services.luminous_window_service import (
+                LuminousBaseWindowService,
+                LuminousExtendedWindowService,
+                LuminousSupremeWindowService,
+                LuminousWorldWindowService,
+            )
+
             if engine == "luminous-base":
-                window_service = DefaultWindowService(service, "AlephAlpha/luminous-base", max_sequence_length=2048)
+                window_service = LuminousBaseWindowService(service)
             elif engine == "luminous-extended":
-                window_service = DefaultWindowService(service, "AlephAlpha/luminous-extended", max_sequence_length=2048)
+                window_service = LuminousExtendedWindowService(service)
             elif engine == "luminous-supreme":
-                window_service = DefaultWindowService(service, "AlephAlpha/luminous-supreme", max_sequence_length=2048)
+                window_service = LuminousSupremeWindowService(service)
             elif engine == "luminous-world":
-                window_service = DefaultWindowService(service, "AlephAlpha/luminous-world", max_sequence_length=2048)
+                window_service = LuminousWorldWindowService(service)
             else:
                 raise ValueError(f"Unhandled Aleph Alpha model: {engine}")
         elif organization == "microsoft":
