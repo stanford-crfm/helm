@@ -9,5 +9,4 @@ export default interface Model {
   creator_organization: string;
   num_parameters: string;
   release_date: Date;
-  todo?: boolean;
 }
