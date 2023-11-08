@@ -7,7 +7,7 @@ import urllib
 import uuid
 import zstandard
 from typing import Any, Callable, Dict, List, Optional, TypeVar
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
 import pyhocon
@@ -214,20 +214,14 @@ InT = TypeVar("InT")
 OutT = TypeVar("OutT")
 
 
-def parallel_map(
-    process: Callable[[InT], OutT], items: List[InT], parallelism: int, multiprocessing: bool = False
-) -> List[OutT]:
+def parallel_map(process: Callable[[InT], OutT], items: List[InT], parallelism: int) -> List[OutT]:
     """
     A wrapper for applying `process` to all `items`.
     """
-    units = "processes" if multiprocessing else "threads"
-    with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
+    with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} threads"):
         results: List
         if parallelism == 1:
             results = list(tqdm(map(process, items), total=len(items), disable=None))
-        elif multiprocessing:
-            with ProcessPoolExecutor(max_workers=parallelism) as executor:
-                results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
         else:
             with ThreadPoolExecutor(max_workers=parallelism) as executor:
                 results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
