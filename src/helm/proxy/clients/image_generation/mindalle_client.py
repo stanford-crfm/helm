@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import numpy as np
 
@@ -15,7 +15,6 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.clients.client import Client, CachingClient
-from helm.proxy.clients.image_generation.mindalle.models import Dalle
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 try:
@@ -33,9 +32,14 @@ class MinDALLEClient(Client):
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
 
-        self._model: Optional[Dalle] = None
+        self._model = None
 
-    def _get_model(self) -> Dalle:
+    def _get_model(self):
+        try:
+            from helm.proxy.clients.image_generation.mindalle.models import Dalle
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         if self._model is None:
             self._model = Dalle.from_pretrained("minDALL-E/1.3B")
             self._model = self._model.to(get_torch_device_name())
@@ -59,7 +63,7 @@ class MinDALLEClient(Client):
                 prompt: str = request.prompt
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):
-                    model: Dalle = self._get_model()
+                    model = self._get_model()
 
                     images: List[Image] = []
                     for _ in range(request.num_completions):

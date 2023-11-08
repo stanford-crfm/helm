@@ -374,6 +374,12 @@ class AutoClient(Client):
                 "tiiuae",
                 "bigcode",
                 "bigscience",
+                "adobe",
+                "craiyon",
+                "DeepFloyd",
+                "kakaobrain",
+                "lexica",
+                "thudm",
             ]
             or tokenizer_name == "openai/clip-vit-large-patch14"
         ):

@@ -10,12 +10,6 @@ from typing import List, Tuple, Optional
 from .layers import Encoder, Decoder
 from helm.common.optional_dependencies import handle_module_not_found_error
 
-try:
-    from einops import rearrange
-    from omegaconf import OmegaConf
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["heim"])
-
 
 class VectorQuantizer(nn.Module):
     """
@@ -33,6 +27,11 @@ class VectorQuantizer(nn.Module):
         self.embedding.weight.data.uniform_(-1.0 / self.n_embed, 1.0 / self.n_embed)
 
     def forward(self, z: torch.FloatTensor) -> Tuple[torch.FloatTensor, torch.LongTensor]:
+        try:
+            from einops import rearrange
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         z = rearrange(z, "b c h w -> b h w c").contiguous()  # [B,C,H,W] -> [B,H,W,C]
         z_flattened = z.view(-1, self.dim)
 
@@ -55,7 +54,7 @@ class VectorQuantizer(nn.Module):
 
 
 class VQGAN(nn.Module):
-    def __init__(self, n_embed: int, embed_dim: int, hparams: OmegaConf) -> None:
+    def __init__(self, n_embed: int, embed_dim: int, hparams) -> None:
         super().__init__()
         self.encoder = Encoder(**hparams)
         self.decoder = Decoder(**hparams)
@@ -70,6 +69,11 @@ class VQGAN(nn.Module):
         return dec
 
     def encode(self, x: torch.FloatTensor) -> torch.FloatTensor:
+        try:
+            from einops import rearrange
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         h = self.encoder(x)
         h = self.quant_conv(h)
         quant = self.quantize(h)[0]

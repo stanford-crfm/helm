@@ -21,12 +21,6 @@ from helm.common.tokenization_request import (
 )
 from helm.proxy.clients.client import Client, CachingClient
 from helm.proxy.clients.image_generation.cogview2.coglm_strategy import CoglmStrategy
-from helm.proxy.clients.image_generation.cogview2.sr_pipeline import SRGroup
-from helm.proxy.clients.image_generation.cogview2.coglm_utils import (
-    get_masks_and_position_ids_coglm,
-    get_recipe,
-    InferenceModel,
-)
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 
@@ -43,13 +37,18 @@ class CogView2Client(Client):
         self._file_cache: FileCache = file_cache
 
         self._args: Optional[argparse.Namespace] = None
-        self._model: Optional[InferenceModel] = None
         self._strategy: Optional[CoglmStrategy] = None
-        self._srg: Optional[SRGroup] = None
+        self._model = None
+        self._srg = None
 
     def _get_model(self) -> None:
         try:
             from SwissArmyTransformer import get_args
+            from helm.proxy.clients.image_generation.cogview2.coglm_utils import (
+                get_recipe,
+                InferenceModel,
+            )
+            from helm.proxy.clients.image_generation.cogview2.sr_pipeline import SRGroup
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
@@ -83,11 +82,12 @@ class CogView2Client(Client):
                 top_k=getattr(self._args, "topk_gen"),
                 top_k_cluster=getattr(self._args, "temp_cluster_gen"),
             )
-            self._srg = SRGroup(self._args)
+            self._srg = SRGroup(self._args)  # type: ignore
 
     def _model_inference(self, prompt) -> torch.Tensor:
         try:
             from SwissArmyTransformer.generation.autoregressive_sampling import filling_sequence
+            from helm.proxy.clients.image_generation.cogview2.coglm_utils import get_masks_and_position_ids_coglm
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 

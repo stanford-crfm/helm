@@ -63,6 +63,10 @@ class WindowServiceFactory:
                 },
             )
             window_service = create_object(window_service_spec)
+        elif model_name in get_model_names_with_tag(CLIP_TOKENIZER_TAG):
+            from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
+
+            window_service = CLIPWindowService(service)
         elif get_remote_model(model_name):
             window_service = get_remote_window_service(service, model_name)
         elif organization == "neurips":
@@ -304,10 +308,6 @@ class WindowServiceFactory:
             "HuggingFaceM4/idefics-80b-instruct",
         ]:
             window_service = HuggingFaceWindowService(service, model_name)
-        elif model_name in get_model_names_with_tag(CLIP_TOKENIZER_TAG):
-            from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
-
-            window_service = CLIPWindowService(service)
         elif model_name == "lexica/search-stable-diffusion-1.5":
             from helm.benchmark.window_services.image_generation.lexica_search_window_service import (
                 LexicaSearchWindowService,

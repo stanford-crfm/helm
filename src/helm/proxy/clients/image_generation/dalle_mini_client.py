@@ -3,8 +3,6 @@ from typing import Dict, List
 import numpy as np
 from functools import partial
 
-from helm.proxy.clients.image_generation.dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
-from helm.proxy.clients.image_generation.dalle_mini import DalleBart, DalleBartProcessor
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.hierarchical_logger import hlog, htrack_block
@@ -42,6 +40,9 @@ class DALLEMiniClient(Client):
         try:
             import jax.numpy as jnp
             from flax.jax_utils import replicate
+
+            from helm.proxy.clients.image_generation.dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
+            from helm.proxy.clients.image_generation.dalle_mini import DalleBart, DalleBartProcessor
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
