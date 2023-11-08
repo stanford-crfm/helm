@@ -145,11 +145,13 @@ class Runner:
         self.eval_cache_path: str = os.path.join(self.runs_path, "eval_cache")
         ensure_directory_exists(self.eval_cache_path)
 
-    def _is_run_completed(self, run_spec: RunSpec):
+    def _get_run_path(self, run_spec: RunSpec) -> str:
+        return os.path.join(self.runs_path, run_spec.name)
+
+    def _is_run_completed(self, run_path: str):
         """Return whether the run was previously completed.
 
         A run is completed if all of the expected output files exist."""
-        run_path: str = os.path.join(self.runs_path, run_spec.name)
         if not os.path.isdir(run_path):
             return False
         output_paths = [
@@ -182,6 +184,12 @@ class Runner:
             raise RunnerError(f"Failed runs: [{failed_runs_str}]")
 
     def run_one(self, run_spec: RunSpec):
+        run_path: str = self._get_run_path(run_spec)
+        if self.skip_completed_runs and self._is_run_completed(run_path):
+            hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
+            return
+        ensure_directory_exists(run_path)
+
         # Load the scenario
         scenario: Scenario = create_scenario(run_spec.scenario_spec)
 
@@ -194,15 +202,6 @@ class Runner:
         scenario_name_with_args = f"{scenario.name}:{args_str}" if args_str else f"{scenario.name}"
         input_instances_output_path = os.path.join(self.instances_path, scenario_name_with_args)
         input_instances_file_path = os.path.join(input_instances_output_path, "input_instances.json")
-
-        run_path: str = os.path.join(self.runs_path, run_spec.name)
-        ensure_directory_exists(run_path)
-
-        if self.skip_completed_runs and self._is_run_completed(run_spec):
-            # If scenario_state.json exists, assume that all other output files exist
-            # because scenario_state.json is the last output file to be written.
-            hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
-            return
 
         # Fetch and initialize the Adapter based on the `AdapterSpec`.
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)

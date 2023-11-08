@@ -1,6 +1,7 @@
 from typing import Optional
 
 from helm.benchmark.model_deployment_registry import ModelDeployment, WindowServiceSpec, get_model_deployment
+from helm.benchmark.tokenizer_config_registry import TokenizerConfig, get_tokenizer_config
 from helm.benchmark.window_services.remote_window_service import get_remote_window_service
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
@@ -25,6 +26,16 @@ class WindowServiceFactory:
                 window_service_spec = WindowServiceSpec(
                     class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService", args={}
                 )
+
+            # If provided, look up special tokens from TokenizerConfig.
+            end_of_text_token: Optional[str] = None
+            prefix_token: Optional[str] = None
+            if model_deployment.tokenizer_name:
+                tokenizer_config: Optional[TokenizerConfig] = get_tokenizer_config(model_deployment.tokenizer_name)
+                if tokenizer_config:
+                    end_of_text_token = tokenizer_config.end_of_text_token
+                    prefix_token = tokenizer_config.prefix_token
+
             # Perform dependency injection to fill in remaining arguments.
             # Dependency injection is needed here for these reasons:
             #
@@ -39,6 +50,8 @@ class WindowServiceFactory:
                     "tokenizer_name": model_deployment.tokenizer_name,
                     "max_sequence_length": model_deployment.max_sequence_length,
                     "max_request_length": model_deployment.max_request_length,
+                    "end_of_text_token": end_of_text_token,
+                    "prefix_token": prefix_token,
                 },
             )
             return create_object(window_service_spec)
