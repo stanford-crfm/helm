@@ -316,7 +316,7 @@ class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
     name = "max_eval_instances"
     values_dict: Dict[str, List[Any]] = {
         "default": [1_000],
-        "heim_default": [1],
+        "heim_default": [100],
         "heim_fid": [30_000],
         "heim_art_styles": [17],
     }
