@@ -1,12 +1,11 @@
 from typing import Any, Dict, List, Optional
 import base64
 
-import openai
-
 from helm.common.cache import CacheConfig, Cache
 from helm.common.general import hlog
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.media_object import MultimediaObject
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -17,6 +16,11 @@ from helm.common.tokenization_request import (
 from helm.proxy.clients.moderation_api_client import ModerationAPIClient
 from helm.proxy.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
+
+try:
+    import openai
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["openai"])
 
 
 class DALLE2Client(Client):

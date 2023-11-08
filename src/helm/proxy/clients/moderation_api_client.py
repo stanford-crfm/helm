@@ -1,7 +1,5 @@
 from typing import Dict
 
-import openai
-
 from helm.common.request import wrap_request_time
 from helm.common.cache import Cache, CacheConfig
 from helm.common.moderations_api_request import (
@@ -10,6 +8,12 @@ from helm.common.moderations_api_request import (
     ModerationAPIRequest,
     ModerationAPIRequestResult,
 )
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import openai
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["openai"])
 
 
 class ModerationAPIClient:
