@@ -35,9 +35,9 @@ Within this virtual environment, run:
 pip install crfm-helm
 ```
 
-### For HEIM dependencies
+### For HEIM (text-to-image evaluation)
 
-To install the additional dependencies for HEIM, run:
+To install the additional dependencies to run HEIM, run:
 
 ```
 pip install "crfm-helm[heim]"
