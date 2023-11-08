@@ -19,4 +19,5 @@ To add new models and scenarios, refer to the Developer Guide's chapters:
 - [Code Structure](code.md)
 
 
-We also support evaluating text-to-image models as introduced in Holistic Evaluation of Text-to-Image Models (HEIM).
+We also support evaluating text-to-image models as introduced in **Holistic Evaluation of Text-to-Image Models (HEIM)**
+(paper, [website](https://crfm.stanford.edu/heim/latest)).
