@@ -60,10 +60,10 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def _provide_api_key(self, host_group: str, model: Optional[str] = None) -> Optional[str]:
-        api_key_name = host_group + "ApiKey"
+    def _provide_api_key(self, host_organization: str, model: Optional[str] = None) -> Optional[str]:
+        api_key_name = host_organization + "ApiKey"
         if api_key_name in self.credentials:
-            hlog(f"Using host_group api key defined in credentials.conf: {api_key_name}")
+            hlog(f"Using host_organization api key defined in credentials.conf: {api_key_name}")
             return self.credentials[api_key_name]
         if "deployments" not in self.credentials:
             hlog(
@@ -73,7 +73,7 @@ class AutoClient(Client):
             return None
         deployment_api_keys = self.credentials["deployments"]
         if model is None:
-            hlog(f"WARNING: Could not find key '{host_group}' in credentials.conf and no model provided")
+            hlog(f"WARNING: Could not find key '{host_organization}' in credentials.conf and no model provided")
             return None
         if model not in deployment_api_keys:
             hlog(f"WARNING: Could not find key '{model}' under key 'deployments' in credentials.conf")
@@ -88,8 +88,8 @@ class AutoClient(Client):
             return client
 
         # Otherwise, create the client
-        host_group: str = model.split("/")[0]
-        cache_config: CacheConfig = self._build_cache_config(host_group)
+        host_organization: str = model.split("/")[0]
+        cache_config: CacheConfig = self._build_cache_config(host_organization)
 
         model_deployment: ModelDeployment = get_model_deployment(model)
         if model_deployment:
@@ -109,13 +109,15 @@ class AutoClient(Client):
                 model_deployment.client_spec,
                 constant_bindings={"cache_config": cache_config},
                 provider_bindings={
-                    "api_key": lambda: self._provide_api_key(host_group, model),
+                    "api_key": lambda: self._provide_api_key(host_organization, model),
                     "tokenizer": lambda: self._get_tokenizer(
                         tokenizer_name=model_deployment.tokenizer_name or model_deployment.name,
                         model_deployment_name=model_deployment.name,
                     ),
-                    "org_id": lambda: self.credentials.get(host_group + "OrgId", None),  # OpenAI, GooseAI, Microsoft
-                    "lock_file_path": lambda: os.path.join(self.cache_path, f"{host_group}.lock"),  # Microsoft
+                    "org_id": lambda: self.credentials.get(
+                        host_organization + "OrgId", None
+                    ),  # OpenAI, GooseAI, Microsoft
+                    "lock_file_path": lambda: os.path.join(self.cache_path, f"{host_organization}.lock"),  # Microsoft
                 },
             )
             client = create_object(client_spec)

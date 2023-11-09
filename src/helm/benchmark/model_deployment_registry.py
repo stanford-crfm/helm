@@ -71,7 +71,7 @@ class ModelDeployment:
     deprecated: bool = False
 
     @property
-    def host_group(self) -> str:
+    def host_organization(self) -> str:
         """
         Extracts the host group from the model deployment name.
         Example: "huggingface" from "huggingface/t5-11b"
@@ -228,22 +228,24 @@ def get_deployment_name_from_model_arg(
     raise ValueError(f"Model deployment {model_arg} not found")
 
 
-def get_model_deployments_by_host_group(host_group: str) -> List[str]:
+def get_model_deployments_by_host_organization(host_organization: str) -> List[str]:
     """
-    Gets models by host group.
-    Example:   together   =>   TODO(PR)
+    Gets models by host organization.
+    Example:   together => [" together/bloom", "together/t0pp", ...]
     """
     register_deployments_if_not_already_registered()
-    return [deployment.name for deployment in ALL_MODEL_DEPLOYMENTS if deployment.host_group == host_group]
+    return [
+        deployment.name for deployment in ALL_MODEL_DEPLOYMENTS if deployment.host_organization == host_organization
+    ]
 
 
-def get_model_deployment_host_group(name: str) -> str:
+def get_model_deployment_host_organization(name: str) -> str:
     """
-    Extracts the host group from the model deployment name.
+    Extracts the host organization from the model deployment name.
     Example: "huggingface/t5-11b" => "huggingface"
     """
     deployment: ModelDeployment = get_model_deployment(name)
-    return deployment.host_group
+    return deployment.host_organization
 
 
 def get_default_deployment_for_model(model_metadata: ModelMetadata) -> ModelDeployment:

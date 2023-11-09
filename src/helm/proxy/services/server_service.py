@@ -20,7 +20,7 @@ from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.example_queries import example_queries
 from helm.benchmark.model_metadata_registry import ALL_MODELS_METADATA
-from helm.benchmark.model_deployment_registry import get_model_deployment_host_group
+from helm.benchmark.model_deployment_registry import get_model_deployment_host_organization
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
@@ -89,9 +89,9 @@ class ServerService(Service):
         #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
-        host_group: str = get_model_deployment_host_group(request.model)
+        host_organization: str = get_model_deployment_host_organization(request.model)
         # Make sure we can use
-        self.accounts.check_can_use(auth.api_key, host_group)
+        self.accounts.check_can_use(auth.api_key, host_organization)
 
         # Use!
         request_result: RequestResult = self.client.make_request(request)
@@ -100,7 +100,7 @@ class ServerService(Service):
         if not request_result.cached:
             # Count the number of tokens used
             count: int = self.token_counter.count_tokens(request, request_result.completions)
-            self.accounts.use(auth.api_key, host_group, count)
+            self.accounts.use(auth.api_key, host_organization, count)
 
         return request_result
 

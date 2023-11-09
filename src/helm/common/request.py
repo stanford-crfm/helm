@@ -69,7 +69,7 @@ class Request:
     def model_host(self) -> str:
         """Example: 'openai/davinci' => 'openai'"""
         deployment: ModelDeployment = get_model_deployment(self.model)
-        return deployment.host_group
+        return deployment.host_organization
 
     @property
     def model_engine(self) -> str:
