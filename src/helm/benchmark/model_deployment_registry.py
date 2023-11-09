@@ -225,6 +225,10 @@ def get_deployment_name_from_model_arg(
             hlog("If you want to use a different model deployment, please specify it explicitly.")
         return chosen_deployment.name
 
+    # Some models are added but have no deployments yet.
+    # In this case, we return an empty string if can_return_empy is True, otherwise we raise an error.
+    if can_return_empy:
+        return ""
     raise ValueError(f"Model deployment {model_arg} not found")
 
 
