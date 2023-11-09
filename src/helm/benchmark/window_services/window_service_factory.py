@@ -2,10 +2,8 @@ from typing import Optional
 
 from helm.benchmark.model_deployment_registry import ModelDeployment, WindowServiceSpec, get_model_deployment
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, get_tokenizer_config
-from helm.benchmark.window_services.remote_window_service import get_remote_window_service
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.proxy.clients.remote_model_registry import get_remote_deployment
 from helm.common.object_spec import create_object, inject_object_spec_args
 
 
@@ -55,7 +53,5 @@ class WindowServiceFactory:
                 },
             )
             return create_object(window_service_spec)
-        elif get_remote_deployment(model_deployment_name):
-            return get_remote_window_service(service, model_deployment_name)
 
         raise ValueError(f"Unhandled model deployment name: {model_deployment_name}")

@@ -147,14 +147,12 @@ def get_model_deployment(name: str) -> ModelDeployment:
 
 # TODO: Figure out when we can remove this.
 #
-# This is used in 3 contexts:
+# This is used in 2 contexts:
 # 1. Backward compatibility. We can remove this when we no longer want to offer backwards compatibility
 #    for model names that are now moved to model deployments (PR #1903).
 # 2. Support use cases like "model=text". It was decided that "model_deployment=text" would not be
 #    supportedfor now as it coudl evaluate several deployments for the same model. This use case will
 #    still need to be supported after we remove backward compatibility.
-# 3. remote_model_registry.py. This is used to register remote model deployments (used as a
-#    "get_default_deployment_for_model" function - i.e. no warning, this is a normal use case).
 
 
 def get_deployment_name_from_model_arg(
