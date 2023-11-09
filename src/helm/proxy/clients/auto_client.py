@@ -88,9 +88,6 @@ class AutoClient(Client):
             return client
 
         # Otherwise, create the client
-        host_organization: str = model.split("/")[0]
-        cache_config: CacheConfig = self._build_cache_config(host_organization)
-
         model_deployment: ModelDeployment = get_model_deployment(model)
         if model_deployment:
             # Perform dependency injection to fill in remaining arguments.
@@ -105,6 +102,11 @@ class AutoClient(Client):
             #    exception. For instance, some clients do not require an API key, so trying to fetch
             #    the API key from configuration eagerly will result in an exception because the user
             #    will not have configured an API key.
+
+            # Prepare a cache
+            host_organization: str = model_deployment.host_organization
+            cache_config: CacheConfig = self._build_cache_config(host_organization)
+
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
                 constant_bindings={"cache_config": cache_config},
