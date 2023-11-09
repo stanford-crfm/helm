@@ -18,7 +18,7 @@ from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 class AutoTokenizer(Tokenizer):
-    """TODO(PR): Add docstring."""
+    """Automatically dispatch to the proper `Tokenizer` based on the tokenizer name."""
 
     def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
         self.credentials = credentials
