@@ -81,4 +81,4 @@ models across all aspects. Our results reveal that no single model excels in all
 demonstrating strengths in different aspects.
 
 This repository contains the code used to produce the [results on the website](https://crfm.stanford.edu/heim/latest/) 
-and paper.
+and [paper](https://arxiv.org/abs/2311.04287).
