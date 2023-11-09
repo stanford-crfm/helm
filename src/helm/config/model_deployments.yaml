@@ -845,8 +845,10 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
+  # As of 2023-11-07, text-embedding-ada-002 is not deprecated:
+  # "We recommend using text-embedding-ada-002 for nearly all use cases."
+  # Source: https://platform.openai.com/docs/guides/embeddings/what-are-embeddings
   - name: openai/text-embedding-ada-002 
-    deprecated: true
     model_name: openai/text-embedding-ada-002
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
