@@ -116,10 +116,7 @@ export default function Run() {
       setModel(
         schema.models.find(
           (m) =>
-            // Sets model_deployment if not empty, otherwise uses .model
             m.name ===
-              runSpecs.find((rs) => rs.name === runName)?.adapter_spec
-                .model_deployment ||
             runSpecs.find((rs) => rs.name === runName)?.adapter_spec.model,
         ),
       );
@@ -157,10 +154,7 @@ export default function Run() {
           <h3 className="text-2xl">
             <MarkdownValue value={scenario.description} />
           </h3>
-          <h1 className="text mt-2">
-            {runSpec.adapter_spec.model_deployment ||
-              runSpec.adapter_spec.model}
-          </h1>
+          <h1 className="text mt-2">{runSpec.adapter_spec.model}</h1>
           <h3 className="text-sm text-gray-500">
             <MarkdownValue value={model?.description || ""} />
           </h3>

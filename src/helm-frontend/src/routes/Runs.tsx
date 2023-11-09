@@ -124,10 +124,7 @@ export default function Runs() {
                 <td>
                   <Link to={`/runs/${runSpec.name}`}>{runSpec.name}</Link>
                 </td>
-                <td>
-                  {runSpec.adapter_spec.model_deployment ||
-                    runSpec.adapter_spec.model}
-                </td>
+                <td>{runSpec.adapter_spec.model}</td>
                 <td>{runSpec.groups.join(", ")}</td>
                 <td>{runSpec.adapter_spec.method}</td>
                 <td>

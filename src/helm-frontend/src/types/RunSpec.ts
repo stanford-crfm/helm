@@ -32,7 +32,6 @@ export default interface RunSpec {
     num_train_trials: number;
     sample_train: boolean;
     model: string;
-    model_deployment: string;
     temperature: number;
     max_tokens: number;
     stop_sequences: string[];

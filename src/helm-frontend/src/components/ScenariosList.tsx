@@ -40,7 +40,12 @@ export default function ScenariosList({ runGroups }: Props) {
                     (topLevelGroup.subgroups || []).includes(subGroup.name),
                   )
                   .map((subGroup, idx) => (
-                    <li key={idx} className={`${"ml-4"}`}>
+                    <li
+                      key={idx}
+                      className={`${
+                        subGroup.todo ? "ml-4 text-slate-300" : "ml-4"
+                      }`}
+                    >
                       {subGroup.display_name}
                     </li>
                   ))}
