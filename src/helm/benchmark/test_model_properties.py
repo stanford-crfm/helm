@@ -211,7 +211,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.http_model_client.HTTPModelClient"),
         tokenizer_name="neurips/local",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.http_model_window_service.HTTPModelWindowServce"
+            class_name="helm.benchmark.window_services.http_model_window_service.HTTPModelWindowService"
         ),
         max_sequence_length=2048,
     ),

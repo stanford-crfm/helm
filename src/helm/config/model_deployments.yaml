@@ -507,6 +507,20 @@ model_deployments:
 
 
 
+  # Neurips
+  - name: neurips/local
+    model_name: neurips/local
+    tokenizer_name: neurips/local
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.http_model_client.HTTPModelClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.http_model_window_service.HTTPModelWindowService"
+      args: {}
+
+
+
   # Nvidia
   - name: nvidia/megatron-gpt2
     model_name: nvidia/megatron-gpt2

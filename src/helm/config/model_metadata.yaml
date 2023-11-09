@@ -823,6 +823,17 @@ models:
 
 
 
+  # Neurips
+  - name: neurips/local
+    display_name: Neurips Local
+    description: Neurips Local
+    creator_organization_name: Neurips
+    access: open
+    release_date: 2023-06-01
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
   # NVIDIA
   - name: nvidia/megatron-gpt2
     display_name: Megatron GPT2
