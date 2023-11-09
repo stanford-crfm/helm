@@ -82,7 +82,6 @@ models:
   # - j2-jumbo -> j2-ultra
   # - j2-grande -> j2-mid
   # - j2-large -> j2-light
-  # ================================= #
 
 
 
@@ -131,7 +130,6 @@ models:
   #   release_date: TBD
   #   # Does not support echo.
   #   tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # =================================== #
 
 
 
@@ -170,7 +168,6 @@ models:
     num_parameters: 52000000000
     release_date: 2021-12-01
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
-  # ================================= #
 
 
 
@@ -183,7 +180,6 @@ models:
     num_parameters: 13000000000
     release_date: 2022-04-03
     tags: [] # TODO: add tags
-  # ================================= #
 
 
 
@@ -215,7 +211,6 @@ models:
     release_date: 2021-10-15
     # Does not support echo.
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
-  # ================================== #
 
 
 
@@ -237,7 +232,6 @@ models:
     num_parameters: 15500000000
     release_date: 2023-05-09 # ArXiv submission date
     tags: [CODE_MODEL_TAG]
-  # =============================== #
 
 
 
@@ -259,7 +253,6 @@ models:
     num_parameters: 13000000000
     release_date: 2023-04-06
     tags: [] # TODO: add tags
-  # ======================================== #
 
 
 
@@ -364,7 +357,6 @@ models:
     access: limited
     release_date: 2022-11-08 # TODO
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-  # ============================== #
 
 
 
@@ -395,7 +387,6 @@ models:
     num_parameters: 11327027200
     release_date: 2023-04-12
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ================================ #
 
 
 
@@ -417,7 +408,6 @@ models:
     num_parameters: 70000000000
     release_date: 2022-03-31
     tags: [] # TODO: add tags
-  # ================================ #
 
 
 
@@ -476,7 +466,6 @@ models:
     num_parameters: 11327027200
     release_date: 2023-02-13
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ================================== #
 
 
 
@@ -516,7 +505,6 @@ models:
     num_parameters: 540000000000
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
     tags: [] # TODO: add tags
-  # ============================== #
 
 
 
@@ -529,7 +517,6 @@ models:
     num_parameters: 2700000000
     release_date: 2023-01-23
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ==================================== #
 
 
 
@@ -569,7 +556,6 @@ models:
     num_parameters: 80000000000
     release_date: 2023-08-22
     tags: [VISION_LANGUAGE_MODEL_TAG]
-  # =================================== #
 
 
 
@@ -581,7 +567,6 @@ models:
     access: open
     release_date: 2023-04-04
     tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ==================================== #
 
 
 
@@ -603,7 +588,6 @@ models:
     num_parameters: 13000000000
     release_date: 2023-06-22
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-  # ============================= #
 
 
 
@@ -746,7 +730,6 @@ models:
     release_date: 2023-07-18
     # TODO(#1828): Upgrade to FULL_FUNCTIONALITY_TEXT_MODEL_TAG
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ============================ #
 
 
 
@@ -768,7 +751,6 @@ models:
     num_parameters: 6700000000
     release_date: 2022-01-28
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ======================================== #
 
 
 
@@ -781,7 +763,6 @@ models:
     num_parameters: 7300000000
     release_date: 2023-09-27
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-  # ================================== #
 
 
 
@@ -839,7 +820,6 @@ models:
     num_parameters: 30000000000
     release_date: 2023-06-22
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ============================== #
 
 
 
@@ -851,7 +831,6 @@ models:
     access: open
     release_date: 2019-09-17 # paper date
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, BUGGY_TEMP_0_TAG]
-  # ============================== #
 
 
 
@@ -1111,7 +1090,6 @@ models:
     access: limited
     release_date: 2022-12-15 # Blog post date
     tags: [TEXT_SIMILARITY_MODEL_TAG]
-  # ============================== #
 
 
 
@@ -1124,7 +1102,6 @@ models:
     num_parameters: 16000000000
     release_date: 2022-03-25
     tags: [] # TODO: add tags
-  # ================================ #
 
 
 
@@ -1146,7 +1123,6 @@ models:
     num_parameters: 7000000000
     release_date: 2023-04-20
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ================================== #
 
 
 
@@ -1159,7 +1135,6 @@ models:
     num_parameters: 7000000000
     release_date: 2023-03-13
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-  # ============================== #
 
 
 
@@ -1199,7 +1174,6 @@ models:
     num_parameters: 40000000000
     release_date: 2023-05-25
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ============================= #
 
 
 
@@ -1266,7 +1240,6 @@ models:
     num_parameters: 7000000000
     release_date: 2023-05-05
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ============================== #
 
 
 
@@ -1290,7 +1263,6 @@ models:
     num_parameters: 13000000000
     release_date: 2022-09-19
     tags: [] # TODO: add tags
-  # ============================== #
 
 
 
@@ -1354,7 +1326,6 @@ models:
     release_date: 2023-06-11
     # Does not support echo
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
-  # ============================ #
 
 
 
@@ -1367,4 +1338,3 @@ models:
     num_parameters: 100000000000
     release_date: 2022-06-23
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
-  # ============================ #

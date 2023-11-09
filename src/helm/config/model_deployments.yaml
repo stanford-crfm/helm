@@ -122,7 +122,6 @@ model_deployments:
         gpt2_window_service:
           class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
           args: {}
-  # =============================== #
 
 
 
@@ -161,7 +160,6 @@ model_deployments:
       args: {}
 
   # TODO: Add luminous-world once it is released.
-  # ================================= #
 
 
   
@@ -213,7 +211,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.anthropic_window_service.LegacyAnthropicWindowService"
       args: {}
-  # ================================= #
 
 
 
@@ -337,7 +334,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
       args: {}
-  # ============================== #
 
 
 
@@ -367,7 +363,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
       args: {}
-  # =============================== #
 
 
 
@@ -419,7 +414,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
       args: {}
-  # =================================== #
 
 
 
@@ -467,7 +461,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
-  # =================================== #
 
 
 
@@ -495,7 +488,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.mt_nlg_window_service.MTNLGWindowService"
       args: {}
-  # =============================== #
 
 
 
@@ -510,7 +502,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.megatron_window_service.MegatronWindowService"
       args: {}
-  # ============================ #
 
 
 
@@ -866,7 +857,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
-  # ============================ #
 
 
 
@@ -1472,7 +1462,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.yalm_window_service.YaLMWindowService"
       args: {}
-  # ================================ #
 
 
 
@@ -1548,4 +1537,3 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
       args: {}
-  # ============================ #
