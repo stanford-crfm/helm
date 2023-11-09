@@ -471,9 +471,9 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.proxy.clients.lit_gpt_client.LitGPTClient"
-      args:
-        - checkpoint_dir: "" # Path to the checkpoint directory
-        - precision: bf16-true
+      args: 
+        checkpoint_dir: "" # Path to the checkpoint directory
+        precision: bf16-true
     window_service_spec:
       class_name: "helm.benchmark.window_services.lit_gpt_window_service.LitGPTWindowService"
       args: {}
