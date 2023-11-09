@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
 from retrying import Attempt, RetryError
 
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
-from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
+from helm.common.auto_utils import build_cache_config, provide_api_key
+from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.request import Request, RequestResult
@@ -51,34 +52,6 @@ class AutoClient(Client):
         hlog(f"AutoClient: cache_path = {cache_path}")
         hlog(f"AutoClient: mongo_uri = {mongo_uri}")
 
-    def _build_cache_config(self, organization: str) -> CacheConfig:
-        if self.mongo_uri:
-            return MongoCacheConfig(self.mongo_uri, collection_name=organization)
-
-        client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
-        # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
-        return SqliteCacheConfig(client_cache_path)
-
-    def _provide_api_key(self, host_organization: str, model: Optional[str] = None) -> Optional[str]:
-        api_key_name = host_organization + "ApiKey"
-        if api_key_name in self.credentials:
-            hlog(f"Using host_organization api key defined in credentials.conf: {api_key_name}")
-            return self.credentials[api_key_name]
-        if "deployments" not in self.credentials:
-            hlog(
-                "WARNING: Could not find key 'deployments' in credentials.conf, "
-                f"therefore the API key {api_key_name} should be specified."
-            )
-            return None
-        deployment_api_keys = self.credentials["deployments"]
-        if model is None:
-            hlog(f"WARNING: Could not find key '{host_organization}' in credentials.conf and no model provided")
-            return None
-        if model not in deployment_api_keys:
-            hlog(f"WARNING: Could not find key '{model}' under key 'deployments' in credentials.conf")
-            return None
-        return deployment_api_keys[model]
-
     def _get_client(self, model: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
         # First try to find the client in the cache
@@ -104,13 +77,13 @@ class AutoClient(Client):
 
             # Prepare a cache
             host_organization: str = model_deployment.host_organization
-            cache_config: CacheConfig = self._build_cache_config(host_organization)
+            cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, host_organization)
 
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
                 constant_bindings={"cache_config": cache_config},
                 provider_bindings={
-                    "api_key": lambda: self._provide_api_key(host_organization, model),
+                    "api_key": lambda: provide_api_key(self.credentials, host_organization, model),
                     "tokenizer": lambda: self._auto_tokenizer._get_tokenizer(
                         tokenizer_name=model_deployment.tokenizer_name or model_deployment.name
                     ),
@@ -169,7 +142,7 @@ class AutoClient(Client):
         """Get the toxicity classifier client. We currently only support Perspective API."""
         from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 
-        cache_config: CacheConfig = self._build_cache_config("perspectiveapi")
+        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
 
     def get_critique_client(self) -> CritiqueClient:
@@ -195,7 +168,9 @@ class AutoClient(Client):
             surgeai_credentials = self.credentials.get("surgeaiApiKey")
             if not surgeai_credentials:
                 raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
-            self._critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
+            self._critique_client = SurgeAICritiqueClient(
+                surgeai_credentials, build_cache_config(self.cache_path, self.mongo_uri, "surgeai")
+            )
         elif critique_type == "model":
             from helm.proxy.critique.model_critique_client import ModelCritiqueClient
 
@@ -214,7 +189,7 @@ class AutoClient(Client):
             if not scale_credentials:
                 raise ValueError("scaleApiKey is required for ScaleCritiqueClient")
             self._critique_client = ScaleCritiqueClient(
-                scale_credentials, self._build_cache_config("scale"), scale_project
+                scale_credentials, build_cache_config(self.cache_path, self.mongo_uri, "scale"), scale_project
             )
         else:
             raise ValueError(
@@ -230,7 +205,7 @@ class AutoClient(Client):
         if self._huggingface_client:
             assert isinstance(self._huggingface_client, HuggingFaceClient)
             return self._huggingface_client
-        cache_config = self._build_cache_config("huggingface")
+        cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
         tokenizer = HuggingFaceTokenizer(cache_config)
         self._huggingface_client = HuggingFaceClient(tokenizer=tokenizer, cache_config=cache_config)
         return self._huggingface_client

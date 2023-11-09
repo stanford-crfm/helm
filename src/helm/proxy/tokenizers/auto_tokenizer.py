@@ -1,11 +1,11 @@
-import os
 from dataclasses import replace
 from typing import Any, Dict, Mapping, Optional
 
 from retrying import Attempt, RetryError
 
 from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
-from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
+from helm.common.auto_utils import build_cache_config, provide_api_key
+from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.tokenization_request import (
@@ -28,34 +28,6 @@ class AutoTokenizer(Tokenizer):
         hlog(f"AutoTokenizer: cache_path = {cache_path}")
         hlog(f"AutoTokenizer: mongo_uri = {mongo_uri}")
 
-    def _build_cache_config(self, organization: str) -> CacheConfig:
-        if self.mongo_uri:
-            return MongoCacheConfig(self.mongo_uri, collection_name=organization)
-
-        client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
-        # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
-        return SqliteCacheConfig(client_cache_path)
-
-    def _provide_api_key(self, host_organization: str, model: Optional[str] = None) -> Optional[str]:
-        api_key_name = host_organization + "ApiKey"
-        if api_key_name in self.credentials:
-            hlog(f"Using host_organization api key defined in credentials.conf: {api_key_name}")
-            return self.credentials[api_key_name]
-        if "deployments" not in self.credentials:
-            hlog(
-                "WARNING: Could not find key 'deployments' in credentials.conf, "
-                f"therefore the API key {api_key_name} should be specified."
-            )
-            return None
-        deployment_api_keys = self.credentials["deployments"]
-        if model is None:
-            hlog(f"WARNING: Could not find key '{host_organization}' in credentials.conf and no model provided")
-            return None
-        if model not in deployment_api_keys:
-            hlog(f"WARNING: Could not find key '{model}' under key 'deployments' in credentials.conf")
-            return None
-        return deployment_api_keys[model]
-
     def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
         # First try to find the tokenizer in the cache
         tokenizer: Optional[Tokenizer] = self.tokenizers.get(tokenizer_name)
@@ -64,7 +36,7 @@ class AutoTokenizer(Tokenizer):
 
         # Otherwise, create the tokenizer
         organization: str = tokenizer_name.split("/")[0]
-        cache_config: CacheConfig = self._build_cache_config(organization)
+        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, organization)
 
         tokenizer_config = get_tokenizer_config(tokenizer_name)
         if tokenizer_config:
@@ -72,7 +44,7 @@ class AutoTokenizer(Tokenizer):
                 tokenizer_config.tokenizer_spec,
                 constant_bindings={"cache_config": cache_config},
                 provider_bindings={
-                    "api_key": lambda: self._provide_api_key(organization),
+                    "api_key": lambda: provide_api_key(self.credentials, organization),
                 },
             )
             tokenizer = create_object(tokenizer_spec)
