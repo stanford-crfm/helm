@@ -2,7 +2,7 @@
 # The model names here should match the model names in model_deployments.yaml.
 
 # If you want to add a new model, you can technically do it here but we recommend
-# you to do it in private/model_metadatas.yaml instead.
+# you to do it in private/model_metadata.yaml instead.
 
 models:
 
