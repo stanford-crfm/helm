@@ -17,7 +17,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  # ========== AI21 Labs ========== #
+  # AI21 Labs
 
   # J1 models are Deprecated by AI21 Labs
   # API returns: Detail: Jurassic J1 models are deprecated
@@ -125,7 +125,7 @@ model_deployments:
 
 
 
-  # ========== Aleph Alpha ========== #
+  # Aleph Alpha
   - name: AlephAlpha/luminous-base
     model_name: AlephAlpha/luminous-base
     tokenizer_name: AlephAlpha/luminous-base
@@ -163,7 +163,7 @@ model_deployments:
 
 
   
-  # =========== Anthropic =========== #
+  # Anthropic
   - name: anthropic/claude-v1.3
     model_name: anthropic/claude-v1.3
     tokenizer_name: anthropic/claude
@@ -214,7 +214,7 @@ model_deployments:
 
 
 
-  # =========== Cohere =========== #
+  # Cohere
   - name: cohere/xlarge-20220609
     model_name: cohere/xlarge-20220609
     tokenizer_name: cohere/cohere
@@ -337,9 +337,9 @@ model_deployments:
 
 
 
-  # =========== Gooseai =========== #
+  # Gooseai
 
-  # ---------- EleutherAI ---------- #
+  ## EleutherAI
   - name: gooseai/gpt-neo-20b
     model_name: eleutherai/gpt-neox-20b
     tokenizer_name: EleutherAI/gpt-neox-20b
@@ -366,9 +366,9 @@ model_deployments:
 
 
 
-  # =========== HuggingFace =========== #
+  # HuggingFace
 
-  # ---------- Bigcode ---------- #
+  ## Bigcode
   - name: huggingface/santacoder
     model_name: bigcode/santacoder
     tokenizer_name: bigcode/santacoder
@@ -389,7 +389,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.starcoder_window_service.StarCoderWindowService"
       args: {}
 
-  # ---------- EleutherAI ---------- #
+  ## EleutherAI
   - name: huggingface/gpt-j-6b
     model_name: eleutherai/gpt-j-6b
     tokenizer_name: EleutherAI/gpt-j-6B
@@ -402,7 +402,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
       args: {}
 
-  # ---------- OpenAI  ---------- #
+  ## OpenAI 
   - name: huggingface/gpt2
     model_name: openai/gpt2
     tokenizer_name: huggingface/gpt2
@@ -417,7 +417,7 @@ model_deployments:
 
 
 
-  # ========== HuggingFaceM4 ========== #
+  # HuggingFaceM4
   - name: HuggingFaceM4/idefics-9b
     model_name: huggingface/idefics-9b
     tokenizer_name: HuggingFaceM4/idefics-9b
@@ -464,7 +464,7 @@ model_deployments:
 
 
 
-  # ========== Microsoft ========== #
+  # Microsoft
   - name: microsoft/TNLGv2_530B
     model_name: microsoft/TNLGv2_530B
     tokenizer_name: huggingface/gpt2
@@ -491,7 +491,7 @@ model_deployments:
 
 
 
-  # ========== Nvidia ========== #
+  # Nvidia
   - name: nvidia/megatron-gpt2
     model_name: nvidia/megatron-gpt2
     tokenizer_name: huggingface/gpt2
@@ -505,9 +505,9 @@ model_deployments:
 
 
 
-  # ========== OpenAI ========== #
+  # OpenAI
 
-  # ----- GPT 3 Models ----- #
+  ## GPT 3 Models
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
   
@@ -642,7 +642,7 @@ model_deployments:
       args: {}
 
 
-  # ----- GPT 3.5 Turbo Models ----- #
+  ## GPT 3.5 Turbo Models
   # ChatGPT: https://openai.com/blog/chatgpt
 
   # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
@@ -692,7 +692,7 @@ model_deployments:
       args: {}
 
 
-  # ----- GPT 4 Models ----- #
+  ## GPT 4 Models
 
   - name: openai/gpt-4-0314
     model_name: openai/gpt-4-0314
@@ -743,7 +743,7 @@ model_deployments:
       args: {}
 
 
-  # ----- Codex Models ----- #
+  ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 
   - name: openai/code-davinci-002 
@@ -786,7 +786,7 @@ model_deployments:
       args: {}
 
   
-  # ----- Text Similarity Models ----- #
+  ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
   # The number of parameters is guessed based on the number of parameters of the
   # corresponding GPT-3 model.
@@ -862,13 +862,13 @@ model_deployments:
 
 
 
-  # =========== Together =========== #
+  # Together
   # The list of models served by Together changes often, to check the latest list, visit:
   # https://docs.together.ai/docs/inference-models
   # You can also check the playground to check that the live models are working:
   # https://api.together.xyz/playground
 
-  # ---------- BigScience ---------- #
+  ## BigScience
   - name: together/bloom 
     deprecated: true # Removed from together
     model_name: bigscience/bloom
@@ -894,7 +894,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.t0pp_window_service.T0ppWindowService"
       args: {}
 
-  # ---------- Databricks ---------- #
+  ## Databricks
   - name: together/dolly-v2-3b
     model_name: databricks/dolly-v2-3b
     tokenizer_name: EleutherAI/gpt-neox-20b
@@ -931,7 +931,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
       args: {}
 
-  # ---------- EleutherAI ---------- #
+  ## EleutherAI
   - name: together/gpt-j-6b
     deprecated: true # Removed from together
     model_name: eleutherai/gpt-j-6b
@@ -1006,7 +1006,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
       args: {}
 
-  # ---------- Google ---------- #
+  ## Google
   - name: together/t5-11b
     deprecated: true # Removed from together
     model_name: google/t5-11b
@@ -1043,7 +1043,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.ul2_window_service.UL2WindowService"
       args: {}
 
-  # ---------- HazyResearch ---------- #
+  ## HazyResearch
   - name: together/h3-2.7b
     deprecated: true# Not available on Together yet
     model_name: hazyresearch/h3-2.7b
@@ -1057,7 +1057,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
       args: {}
 
-  # ---------- LMSYS ---------- #
+  ## LMSYS
   # TODO: might be deprecated. Needs to be checked.
   # Together officialy supports vicuna 1.5, not sure if 1.3 is still supported.
   - name: together/vicuna-7b-v1.3
@@ -1082,7 +1082,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
       args: {}
 
-  # ---------- Meta ---------- #
+  ## Meta
   - name: together/llama-7b
     model_name: meta/llama-7b
     tokenizer_name: hf-internal-testing/llama-tokenizer
@@ -1215,7 +1215,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.opt_window_service.OPTWindowService"
       args: {}
 
-  # ----------- MistralAI ----------- #
+  ## MistralAI
   - name: together/mistral-7b-v0.1
     model_name: mistralai/mistral-7b-v0.1
     tokenizer_name: mistralai/Mistral-7B-v0.1
@@ -1227,7 +1227,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
-  # ----------- MosaicML ----------- #
+  ## MosaicML
   - name: together/mpt-7b
     deprecated: true # Not available on Together yet
     model_name: mosaicml/mpt-7b
@@ -1278,7 +1278,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
       args: {}
 
-  # ----------- StabilityAI ----------- #
+  ## StabilityAI
   - name: together/stablelm-base-alpha-3b
     deprecated: true # Removed from together
     model_name: stabilityai/stablelm-base-alpha-3b
@@ -1305,7 +1305,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gptneox_window_service.StableLMAlphaWindowService"
       args: {}
 
-  # ----------- Stanford ----------- #
+  ## Stanford
   - name: together/alpaca-7b
     model_name: stanford/alpaca-7b
     tokenizer_name: hf-internal-testing/llama-tokenizer
@@ -1317,7 +1317,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
       args: {}
 
-  # ----------- Tiiuae ----------- #
+  ## Tiiuae
   - name: together/falcon-7b
     model_name: tiiuae/falcon-7b
     tokenizer_name: tiiuae/falcon-7b
@@ -1362,7 +1362,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
-  # ---------- Together ---------- #
+  ## Together
   # These are models fine-tuned by Together (and not simply hosted by Together).
   - name: together/gpt-jt-6b-v1
     model_name: together/gpt-jt-6b-v1
@@ -1436,7 +1436,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
       args: {}
 
-  # ---------- Tsinghua ---------- #
+  ## Tsinghua
   - name: together/glm
     deprecated: true # Not available on Together yet
     model_name: tsinghua/glm
@@ -1450,7 +1450,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.ice_window_service.ICEWindowService"
       args: {}
 
-  # ---------- Yandex ---------- #
+  ## Yandex
   - name: together/yalm
     deprecated: true # Not available on Together yet
     model_name: yandex/yalm
@@ -1466,7 +1466,7 @@ model_deployments:
 
 
 
-  # ========== Writer ========== #
+  # Writer
   - name: writer/palmyra-base
     model_name: writer/palmyra-base
     tokenizer_name: huggingface/gpt2

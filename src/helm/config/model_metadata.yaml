@@ -14,7 +14,7 @@ models:
     release_date: 2023-01-01
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  # =========== AI21 Labs =========== #
+  # AI21 Labs
   - name: ai21/j1-jumbo # DEPRECATED
     display_name: J1-Jumbo v1 (178B)
     description: Jurassic-1 Jumbo (178B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
@@ -85,7 +85,7 @@ models:
 
 
 
-  # =========== Aleph Alpha =========== #
+  # Aleph Alpha
   # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
   # TODO: add Luminous World when it's released
   - name: AlephAlpha/luminous-base
@@ -133,7 +133,7 @@ models:
 
 
 
-  # =========== Anthropic =========== #
+  # Anthropic
   - name: anthropic/claude-v1.3
     display_name: Anthropic Claude v1.3
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
@@ -171,7 +171,7 @@ models:
 
 
 
-  # =========== Berkeley =========== #
+  # Berkeley
   - name: berkeley/koala-13b # NOT SUPPORTED
     display_name: Koala (13B)
     description: Koala (13B) is a chatbot fine-tuned from Llama (13B) on dialogue data gathered from the web. ([blog post](https://bair.berkeley.edu/blog/2023/04/03/koala/))
@@ -183,7 +183,7 @@ models:
 
 
 
-  # =========== BigScience =========== #
+  # BigScience
   - name: bigscience/bloom
     display_name: BLOOM (176B)
     description: BLOOM (176B parameters) is an autoregressive model trained on 46 natural languages and 13 programming languages ([paper](https://arxiv.org/pdf/2211.05100.pdf)).
@@ -214,7 +214,7 @@ models:
 
 
 
-  # =========== BigCode =========== #
+  # BigCode
   - name: bigcode/santacoder
     display_name: SantaCoder (1.1B)
     description: SantaCoder (1.1B parameters) model trained on the Python, Java, and JavaScript subset of The Stack (v1.1) ([model card](https://huggingface.co/bigcode/santacoder)).
@@ -235,7 +235,7 @@ models:
 
 
 
-  # =========== Cerebras Systems =========== #
+  # Cerebras Systems
   - name: cerebras/cerebras-gpt-6.7b # NOT SUPPORTED
     display_name: Cerebras GPT (6.7B)
     description: Cerebras GPT is a family of open compute-optimal language models scaled from 111M to 13B parameters trained on the Eleuther Pile. ([paper](https://arxiv.org/pdf/2304.03208.pdf))
@@ -256,7 +256,7 @@ models:
 
 
 
-  # =========== Cohere =========== #
+  # Cohere
   # Model versioning and the possible versions are not documented here:
   # https://docs.cohere.ai/generate-reference#model-optional.
   # So, instead, we got the names of the models from the Cohere Playground.
@@ -360,7 +360,7 @@ models:
 
 
 
-  # ========== Databricks ========== #
+  # Databricks
   - name: databricks/dolly-v2-3b
     display_name: Dolly V2 (3B)
     description: Dolly V2 (3B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
@@ -390,7 +390,7 @@ models:
 
 
 
-  # =========== DeepMind =========== #
+  # DeepMind
   - name: deepmind/gopher # NOT SUPPORTED
     display_name: Gopher (280B)
     description: Gopher (280B parameters) ([paper](https://arxiv.org/pdf/2112.11446.pdf)).
@@ -411,7 +411,7 @@ models:
 
 
 
-  # =========== EleutherAI =========== #
+  # EleutherAI
   - name: eleutherai/gpt-j-6b # Served by GooseAi, HuggingFace and Together.
     display_name: GPT-J (6B)
     description: GPT-J (6B parameters) autoregressive language model trained on The Pile ([details](https://arankomatsuzaki.wordpress.com/2021/06/04/gpt-j/)).
@@ -469,7 +469,7 @@ models:
 
 
 
-  # =========== Google =========== #
+  # Google
   - name: google/t5-11b
     display_name: T5 (11B)
     description: T5 (11B parameters) is an encoder-decoder model trained on a multi-task mixture, where each task is converted into a text-to-text format ([paper](https://arxiv.org/pdf/1910.10683.pdf)).
@@ -508,7 +508,7 @@ models:
 
 
 
-  # =========== HazyResearch =========== #
+  # HazyResearch
   - name: hazyresearch/h3-2.7b
     display_name: H3 (2.7B)
     description: H3 (2.7B parameters) is a decoder-only language model based on state space models ([paper](https://arxiv.org/abs/2212.14052)).
@@ -520,7 +520,7 @@ models:
 
 
 
-  # =========== HuggingFace =========== #
+  # HuggingFace
   - name: huggingface/idefics-9b
     display_name: IDEFICS (9B)
     description: IDEFICS (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
@@ -559,7 +559,7 @@ models:
 
 
 
-  # =========== Lightning AI =========== #
+  # Lightning AI
   - name: lightningai/lit-gpt
     display_name: Lit-GPT
     description: Lit-GPT is an optimized collection of open-source LLMs for finetuning and inference. It supports – Falcon, Llama 2, Vicuna, LongChat, and other top-performing open-source large language models.
@@ -570,7 +570,7 @@ models:
 
 
 
-  # =========== LMSYS =========== #
+  # LMSYS
   - name: lmsys/vicuna-7b-v1.3
     display_name: Vicuna v1.3 (7B)
     description: Vicuna v1.3 (7B) is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
@@ -591,7 +591,7 @@ models:
 
 
 
-  # =========== Meta =========== #
+  # Meta
   - name: meta/opt-iml-175b # NOT SUPPORTED
     display_name: OPT-IML (175B)
     description: OPT-IML (175B parameters) is a suite of decoder-only transformer LMs that are multi-task fine-tuned on 2000 datasets ([paper](https://arxiv.org/pdf/2212.12017.pdf)).
@@ -733,7 +733,7 @@ models:
 
 
 
-  # =========== Microsoft/NVIDIA =========== #
+  # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
     display_name: TNLG v2 (530B)
     description: TNLG v2 (530B parameters) autoregressive language model trained on a filtered subset of the Pile and CommonCrawl ([paper](https://arxiv.org/pdf/2201.11990.pdf)).
@@ -754,7 +754,7 @@ models:
 
 
 
-  # =========== Mistral AI =========== #
+  # Mistral AI
   - name: mistralai/mistral-7b-v0.1
     display_name: Mistral v0.1 (7B)
     description: Mistral 7B is a  7.3B parameter transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
@@ -766,7 +766,7 @@ models:
 
 
 
-  # ========== MosaicML ========== #
+  # MosaicML
   - name: mosaicml/mpt-7b
     display_name: MPT (7B)
     description: MPT (7B) is a Transformer trained from scratch on 1T tokens of text and code.
@@ -823,7 +823,7 @@ models:
 
 
 
-  # =========== NVIDIA =========== #
+  # NVIDIA
   - name: nvidia/megatron-gpt2
     display_name: Megatron GPT2
     description: GPT-2 implemented in Megatron-LM ([paper](https://arxiv.org/abs/1909.08053)).
@@ -834,9 +834,9 @@ models:
 
 
 
-  # =========== OpenAI =========== #
+  # OpenAI
 
-  # ----- GPT 2 Models ----- #
+  ## GPT 2 Models
   # Not served by OpenAI, instead served by HuggingFace.
 
   - name: openai/gpt2
@@ -849,7 +849,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
-  # ----- GPT 3 Models ----- #
+  ## GPT 3 Models
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
 
@@ -946,7 +946,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
-  # ----- GPT 3.5 Turbo Models ----- #
+  ## GPT 3.5 Turbo Models
   # ChatGPT: https://openai.com/blog/chatgpt
   
   - name: openai/gpt-3.5-turbo-0301
@@ -976,7 +976,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
-  # ----- GPT 4 Models ----- #
+  ## GPT 4 Models
     
   - name: openai/gpt-4-0314
     display_name: gpt-4-0314
@@ -1011,7 +1011,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
-  # ----- Codex Models ----- #
+  ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 
   - name: openai/code-davinci-002 # DEPRECATED
@@ -1040,7 +1040,7 @@ models:
     tags: [CODE_MODEL_TAG]
 
 
-  # ----- Text Similarity Models ----- #
+  ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
   # The number of parameters is guessed based on the number of parameters of the
   # corresponding GPT-3 model.
@@ -1093,7 +1093,7 @@ models:
 
 
 
-  # ========== Salesforce ========== #
+  # Salesforce
   - name: salesforce/codegen # NOT SUPPORTED
     display_name: CodeGen (16B)
     description: CodeGen (16B parameters) is an open dense code model trained for multi-turn program synthesis ([blog](https://arxiv.org/pdf/2203.13474.pdf)).
@@ -1105,7 +1105,7 @@ models:
 
 
 
-  # ========== Stability AI ========== #
+  # Stability AI
   - name: stabilityai/stablelm-base-alpha-3b
     display_name: StableLM-Base-Alpha (3B)
     description: StableLM-Base-Alpha is a suite of 3B and 7B parameter decoder-only language models pre-trained on a diverse collection of English datasets with a sequence length of 4096 to push beyond the context window limitations of existing open-source language models.
@@ -1126,7 +1126,7 @@ models:
 
 
 
-  # ========== Stanford ========== #
+  # Stanford
   - name: stanford/alpaca-7b
     display_name: Alpaca (7B)
     description: Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following demonstrations
@@ -1138,7 +1138,7 @@ models:
 
 
 
-  # ========== TII UAE ========== #
+  # TII UAE
   - name: tiiuae/falcon-7b
     display_name: Falcon (7B)
     description: Falcon-7B is a 7B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
@@ -1177,7 +1177,7 @@ models:
 
 
 
-  # ========== Together ========== #
+  # Together
   - name: together/gpt-jt-6b-v1
     display_name: GPT-JT (6B)
     description: GPT-JT (6B parameters) is a fork of GPT-J ([blog post](https://www.together.xyz/blog/releasing-v1-of-gpt-jt-powered-by-open-source-ai)).
@@ -1243,7 +1243,7 @@ models:
 
 
 
-  # ========== Tsinghua ========== #
+  # Tsinghua
   - name: tsinghua/glm
     display_name: GLM (130B)
     description: GLM (130B parameters) is an open bilingual (English & Chinese) bidirectional dense model that was trained using General Language Model (GLM) procedure ([paper](https://arxiv.org/pdf/2210.02414.pdf)).
@@ -1266,7 +1266,7 @@ models:
 
 
 
-  # ========== Writer ========== #
+  # Writer
   - name: writer/palmyra-base
     display_name: Palmyra Base (5B)
     description: Palmyra Base (5B)
@@ -1329,7 +1329,7 @@ models:
 
 
 
-  # ========== Yandex ========== #
+  # Yandex
   - name: yandex/yalm
     display_name: YaLM (100B)
     description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](https://github.com/yandex/YaLM-100B)).
