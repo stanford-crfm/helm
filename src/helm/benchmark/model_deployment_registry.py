@@ -147,12 +147,14 @@ def get_model_deployment(name: str) -> ModelDeployment:
 
 # TODO: Figure out when we can remove this.
 #
-# This is used in 2 contexts:
+# This is used in 3 contexts:
 # 1. Backward compatibility. We can remove this when we no longer want to offer backwards compatibility
 #    for model names that are now moved to model deployments (PR #1903).
 # 2. Support use cases like "model=text". It was decided that "model_deployment=text" would not be
 #    supportedfor now as it coudl evaluate several deployments for the same model. This use case will
 #    still need to be supported after we remove backward compatibility.
+# 3. remote_model_registry.py. This is used to register remote model deployments (used as a
+#    "get_default_deployment_for_model" function - i.e. no warning, this is a normal use case).
 
 
 def get_deployment_name_from_model_arg(
@@ -246,27 +248,6 @@ def get_model_deployment_host_organization(name: str) -> str:
     """
     deployment: ModelDeployment = get_model_deployment(name)
     return deployment.host_organization
-
-
-def get_default_deployment_for_model(model_metadata: ModelMetadata) -> ModelDeployment:
-    """
-    Given a model_metadata, returns the default model deployment.
-    The default model deployment for a model is either the deployment
-    with the same name as the model, or the first deployment for that model.
-
-    TODO: Make this logic more complex.
-    For example if several deplyments are available but only some can be used
-    given the API keys present, then we should choose the one that can be used.
-    """
-    register_deployments_if_not_already_registered()
-    if model_metadata.name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
-        return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_metadata.name]
-    elif model_metadata.deployment_names is not None and len(model_metadata.deployment_names) > 0:
-        deployment_name: str = model_metadata.deployment_names[0]
-        if deployment_name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
-            return DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[deployment_name]
-        raise ValueError(f"Model deployment {deployment_name} not found")
-    raise ValueError(f"No default model deployment for model {model_metadata.name}")
 
 
 def get_metadata_for_deployment(deployment_name: str) -> ModelMetadata:

@@ -1,6 +1,10 @@
 from typing import Dict, List, Optional
 
-from helm.benchmark.model_deployment_registry import ModelDeployment, get_default_deployment_for_model
+from helm.benchmark.model_deployment_registry import (
+    ModelDeployment,
+    get_deployment_name_from_model_arg,
+    get_model_deployment,
+)
 from helm.benchmark.model_metadata_registry import ModelMetadata
 from helm.proxy.services.remote_service import RemoteService
 from helm.proxy.services.service import GeneralInfo
@@ -24,7 +28,10 @@ def check_and_register_remote_model(server_url: str, model_names: List[str]):
         for model_name in model_names:
             if model_name in models:
                 metadata: ModelMetadata = models[model_name]
-                deployment: ModelDeployment = get_default_deployment_for_model(metadata)
+                model_deployment_name: str = get_deployment_name_from_model_arg(
+                    metadata.name, can_return_empy=False, warn_arg_deprecated=False
+                )
+                deployment: ModelDeployment = get_model_deployment(model_deployment_name)
                 _remote_deployment_registry[model_name] = deployment
             else:
                 raise RuntimeError(f"remote service not contain {model_name}")
