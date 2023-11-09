@@ -201,7 +201,7 @@ model_deployments:
       args: {}
 
   - name: anthropic/stanford-online-all-v4-s3
-    deprecated: true # Not longer served: "Connexion to remote was lost."
+    deprecated: true # Closed model, not accessible via API
     model_name: anthropic/stanford-online-all-v4-s3
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 8192
@@ -1055,7 +1055,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
       args: {}
 
-  # ---------- Lmsys ---------- #
+  # ---------- LMSYS ---------- #
   # TODO: might be deprecated. Needs to be checked.
   # Together officialy supports vicuna 1.5, not sure if 1.3 is still supported.
   - name: together/vicuna-7b-v1.3
@@ -1115,7 +1115,6 @@ model_deployments:
       args: {}
 
   - name: together/llama-65b
-    deprecated: true # Not available on Together yet
     model_name: meta/llama-65b
     tokenizer_name: hf-internal-testing/llama-tokenizer
     max_sequence_length: 2048

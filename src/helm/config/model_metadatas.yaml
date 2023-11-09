@@ -78,7 +78,7 @@ models:
     release_date: 2023-03-09
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  # TODO: Myabe change names? It seems like the names changed:
+  # TODO(1524): Change AI21 model names
   # - j2-jumbo -> j2-ultra
   # - j2-grande -> j2-mid
   # - j2-large -> j2-light

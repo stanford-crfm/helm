@@ -113,8 +113,7 @@ class AutoClient(Client):
                 provider_bindings={
                     "api_key": lambda: self._provide_api_key(host_organization, model),
                     "tokenizer": lambda: self._get_tokenizer(
-                        tokenizer_name=model_deployment.tokenizer_name or model_deployment.name,
-                        model_deployment_name=model_deployment.name,
+                        tokenizer_name=model_deployment.tokenizer_name or model_deployment.name
                     ),
                     "org_id": lambda: self.credentials.get(
                         host_organization + "OrgId", None
@@ -156,7 +155,7 @@ class AutoClient(Client):
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
-    def _get_tokenizer(self, tokenizer_name: str, model_deployment_name: Optional[str] = None) -> Tokenizer:
+    def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
         # First try to find the tokenizer in the cache
         tokenizer: Optional[Tokenizer] = self.tokenizers.get(tokenizer_name)
         if tokenizer is not None:
@@ -168,36 +167,20 @@ class AutoClient(Client):
 
         tokenizer_config = get_tokenizer_config(tokenizer_name)
         if tokenizer_config:
-            # Callable to get args in the client spec and provide them to the tokenizer.
-            def get_client_spec_arg(arg: str) -> Any:
-                if model_deployment_name is None:
-                    return None
-                model_deployment: ModelDeployment = get_model_deployment(model_deployment_name)
-                if model_deployment is None:
-                    return None
-                return model_deployment.client_spec.args.get(arg, None)
-
             tokenizer_spec = inject_object_spec_args(
                 tokenizer_config.tokenizer_spec,
                 constant_bindings={"cache_config": cache_config},
                 provider_bindings={
                     "api_key": lambda: self._provide_api_key(organization),
-                    # TODO: All of these arguments should be auto injected because they are in the client_spec.
-                    "checkpoint_dir": lambda: get_client_spec_arg("checkpoint_dir"),  # LitGPT
-                    "base_url": lambda: get_client_spec_arg("base_url"),  # HttpModel
-                    "do_cache": lambda: get_client_spec_arg("do_cache"),  # HttpModel
-                    "pretrained_model_name_or_path": lambda: get_client_spec_arg(
-                        "pretrained_model_name_or_path"
-                    ),  # HuggingFace
-                    "revision": lambda: get_client_spec_arg("revision"),  # HuggingFace
                 },
             )
-            tokenizer = create_object(tokenizer_spec)  # This returns a Tokenizer but mypy doesn't know that.
+            tokenizer = create_object(tokenizer_spec)
 
         # Cache the tokenizer
-        self.tokenizers[tokenizer_name] = tokenizer  # type: ignore
+        assert isinstance(tokenizer, Tokenizer)  # To make mypy happy
+        self.tokenizers[tokenizer_name] = tokenizer
 
-        return tokenizer  # type: ignore
+        return tokenizer
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
