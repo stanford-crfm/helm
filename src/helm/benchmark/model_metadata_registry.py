@@ -76,8 +76,8 @@ class ModelMetadata:
     # Description of the access level of the model.
     # Should be one of the following:
     # - "open": the model is open-source and can be downloaded from the internet.
-    # - "closed": TODO(PR)
-    # - "limited": TODO(PR)
+    # - "closed": not accessible
+    # - "limited": accessible with an API key
     # If there are multiple deployments, this should be the most permissive access across
     # all deployments.
     access: str

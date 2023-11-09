@@ -33,11 +33,7 @@ class AuthenticationError(NonRetriableException):
 
 
 class AutoClient(Client):
-    """Automatically dispatch to the proper `Client` based on the organization.
-
-    The modules for each client are lazily imported when the respective client is created.
-    This greatly speeds up the import time of this module, and allows the client modules to
-    use optional dependencies."""
+    """Automatically dispatch to the proper `Client` based on the model deployment name."""
 
     def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
         self.credentials = credentials
