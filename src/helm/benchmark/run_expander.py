@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import Any, List, Dict, Optional, Tuple, Type
 
+from helm.common.hierarchical_logger import hlog
 from helm.benchmark.model_metadata_registry import (
     get_all_instruction_following_models,
     get_all_code_models,
@@ -330,15 +331,46 @@ class ModelDeploymentRunExpander(ReplaceValueRunExpander):
 
     def __init__(self, value, used_deprecated_model_tag: bool = False):
         """
-        `value` is either the actual value to use or a lookup into the values dict.
+        Model deployment run expander.
+        This handles 3 cases:
+        1. The value is a model deployment name.
+        2. The value is a model name. This is deprecated but for backwards compatibility, this is still
+           supported and converted to a model deployment name (we fall back to case 1).
+        3. The value is a key in self.values_dict (for example "model=text"). This is only supported if the user
+           used the deprecated model tag (e.g., "model=text" is supported but "model_deployment=text" is not).
+           In that case, we look up the corresponding model names and fall back to case 2.
+
+        Args:
+            value(str): Either the actual value to use or a lookup into the values dict.
+            used_deprecated_model_tag(bool): Whether the deprecated model tag was used.
         """
+        # Processes the value if it is a lookup into the values dict.
+        # This returns model names and not model deployments.
+        single_model: bool = True  # Whether the value is a single model name or a list of model names.
         if value in self.values_dict:
-            self.values = self.values_dict[value]
-        elif used_deprecated_model_tag:
-            model_deployment: str = get_deployment_name_from_model_arg(value)
-            self.values = [model_deployment]
-        else:
-            self.values = [value]
+            if not used_deprecated_model_tag:
+                raise ValueError(f"Cannot set model_deployment to {value}. Use model instead.")
+            value = self.values_dict[value]
+            single_model = False
+            used_deprecated_model_tag = True
+
+        # If the value is a model name, convert it to a model deployment name.
+        if used_deprecated_model_tag:
+            if not isinstance(value, list):
+                value = [value]
+            model_deployments: List[str] = []
+            for model_name in value:
+                model_deployment: str = get_deployment_name_from_model_arg(
+                    model_name, can_return_empy=not single_model, warn_arg_deprecated=single_model
+                )
+                if model_deployment != "":
+                    model_deployments.append(model_deployment)
+                else:
+                    hlog(f"WARNING: {model_name} is deprecated. Skipping.")
+            value = model_deployments
+
+        # Assign the processed value to self.values.
+        self.values = value if isinstance(value, list) else [value]
 
     @property
     def values_dict(self):

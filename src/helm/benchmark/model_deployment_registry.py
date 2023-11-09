@@ -145,23 +145,85 @@ def get_model_deployment(name: str) -> ModelDeployment:
     return deployment
 
 
-# TODO: Remove when we no longer want to offer backwards compatibility for model names
-# that are now moved to model deployments (PR #1903).
-def get_deployment_name_from_model_arg(model_arg: str) -> str:
-    register_deployments_if_not_already_registered()
-    if model_arg in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
-        return model_arg
+# TODO: Figure out when we can remove this.
+#
+# This is used in 2 contexts:
+# 1. Backward compatibility. We can remove this when we no longer want to offer backwards compatibility
+#    for model names that are now moved to model deployments (PR #1903).
+# 2. Support use cases like "model=text". It was decided that "model_deployment=text" would not be
+#    supportedfor now as it coudl evaluate several deployments for the same model. This use case will
+#    still need to be supported after we remove backward compatibility.
 
-    if model_arg in [deployment.model_name for deployment in ALL_MODEL_DEPLOYMENTS]:
-        hlog("WARNING: Model name is deprecated. Please use the model deployment name instead.")
-        available_deployments: List[str] = [
-            deployment.name for deployment in ALL_MODEL_DEPLOYMENTS if deployment.model_name == model_arg
+
+def get_deployment_name_from_model_arg(
+    model_arg: str, can_return_empy: bool = False, warn_arg_deprecated: bool = True
+) -> str:
+    """Returns a valid model deployment name corresponding to the given model arg.
+    This is used as a backwards compatibility layer for model names that are now moved to model deployments.
+    Example: "anthropic/claude-v1.3" => "anthropic/claude-v1.3"
+    Example: "meta/llama-7b" => "together/llama-7b"
+
+    The process to find a model deployment name is as follows:
+    1. If there is a model deployment with the same name as the model arg, use it.
+    2. If there is at least one deployment for the model, use the first one that is available.
+    3. If there are no deployments for the model, raise an error.
+
+    This function will also try to find a model deployment name that is not deprecated.
+    If there are no non-deprecated deployments, it will return the first deployment (even if it's deprecated),
+    unless can_return_empy is True, in which case it will return an empty string.
+
+    If warn_arg_deprecated is True, this function will print a warning if the model deployment name is not the same
+    as the model arg. This is to remind the user that the model name is deprecated and should be replaced with
+    the model deployment name (in their config).
+
+    Args:
+        model_arg: The model arg to convert to a model deployment name.
+        can_return_empy: Whether to return an empty string if some model deployments were found but all are deprecated.
+        warn_arg_deprecated: Whether to print a warning if the model deployment name is not the same as the model arg.
+    """
+
+    # Register model deployments if not already registered.
+    register_deployments_if_not_already_registered()
+
+    # If there is a model deployment with the same name as the model arg, use it.
+    if model_arg in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
+        deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_arg]
+        if deployment.deprecated and can_return_empy:
+            hlog(f"WARNING: Model deployment {model_arg} is deprecated")
+            return ""
+        return deployment.name
+
+    # If there is at least one deployment for the model, use the first one that is available.
+    available_deployments: List[ModelDeployment] = [
+        deployment for deployment in ALL_MODEL_DEPLOYMENTS if deployment.model_name == model_arg
+    ]
+    if len(available_deployments) > 0:
+        available_deployment_names: List[str] = [deployment.name for deployment in available_deployments]
+        if warn_arg_deprecated:
+            hlog("WARNING: Model name is deprecated. Please use the model deployment name instead.")
+            hlog(f"Available model deployments for model {model_arg}: {available_deployment_names}")
+
+        # Additionally, if there is a non-deprecated deployment, use it.
+        non_deprecated_deployments: List[ModelDeployment] = [
+            deployment for deployment in available_deployments if not deployment.deprecated
         ]
-        hlog(f"Available model deployments for model {model_arg}: {available_deployments}")
-        chosen_deployment: str = available_deployments[0]
-        hlog(f"Choosing {chosen_deployment} (the first one) as the default model deployment for model {model_arg}")
-        hlog("If you want to use a different model deployment, please specify it explicitly.")
-        return chosen_deployment
+        if len(non_deprecated_deployments) > 0:
+            chosen_deployment = non_deprecated_deployments[0]
+        # There are no non-deprecated deployments, so there are two options:
+        # 1. If we can return an empty string, return it. (no model deployment is available)
+        # 2. If we can't return an empty string, return the first deployment (even if it's deprecated).
+        elif can_return_empy:
+            return ""
+        else:
+            hlog(f"WARNING: All model deployments for model {model_arg} are deprecated.")
+            chosen_deployment = available_deployments[0]
+        if warn_arg_deprecated:
+            hlog(
+                f"Choosing {chosen_deployment.name} (the first one) as "
+                f"the default model deployment for model {model_arg}"
+            )
+            hlog("If you want to use a different model deployment, please specify it explicitly.")
+        return chosen_deployment.name
 
     raise ValueError(f"Model deployment {model_arg} not found")
 

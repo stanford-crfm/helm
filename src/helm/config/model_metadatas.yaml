@@ -242,7 +242,7 @@ models:
 
 
   # =========== Cerebras Systems =========== #
-  - name: together/cerebras-gpt-6.7b # NOT SUPPORTED
+  - name: cerebras/cerebras-gpt-6.7b # NOT SUPPORTED
     display_name: Cerebras GPT (6.7B)
     description: Cerebras GPT is a family of open compute-optimal language models scaled from 111M to 13B parameters trained on the Eleuther Pile. ([paper](https://arxiv.org/pdf/2304.03208.pdf))
     creator_organization_name: Cerebras
@@ -251,7 +251,7 @@ models:
     release_date: 2023-04-06
     tags: [] # TODO: add tags
 
-  - name: together/cerebras-gpt-13b # NOT SUPPORTED
+  - name: cerebras/cerebras-gpt-13b # NOT SUPPORTED
     display_name: Cerebras GPT (13B)
     description: Cerebras GPT is a family of open compute-optimal language models scaled from 111M to 13B parameters trained on the Eleuther Pile. ([paper](https://arxiv.org/pdf/2304.03208.pdf))
     creator_organization_name: Cerebras

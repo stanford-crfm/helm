@@ -2546,7 +2546,9 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     # All users should be using the model_deployment keyword argument instead.
     # TODO: Remove this once we've migrated all the configs
     expanders: List[RunExpander] = []
-    if args.get("model_deployment", None) is not None:
+    if args.get("model_deployment", None) is not None and args.get("model", None) is not None:
+        raise ValueError("Cannot specify both model and model_deployment")
+    elif args.get("model_deployment", None) is not None:
         expanders.append(ModelDeploymentRunExpander(args["model_deployment"]))
         args.pop("model_deployment")
     elif args.get("model", None) is not None:

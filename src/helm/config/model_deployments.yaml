@@ -202,7 +202,8 @@ model_deployments:
       class_name: "helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
       args: {}
 
-  - name: anthropic/stanford-online-all-v4-s3 # Not longer served: "Connexion to remote was lost."
+  - name: anthropic/stanford-online-all-v4-s3
+    deprecated: true # Not longer served: "Connexion to remote was lost."
     model_name: anthropic/stanford-online-all-v4-s3
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 8192
