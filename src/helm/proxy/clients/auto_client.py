@@ -141,14 +141,15 @@ class AutoClient(Client):
         def make_request_with_retry(client: Client, request: Request) -> RequestResult:
             return client.make_request(request)
 
-        client: Client = self._get_client(request.model)
+        client: Client = self._get_client(request.effective_model_deployment)
 
         try:
             return make_request_with_retry(client=client, request=request)
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = (
-                f"Failed to make request to {request.model} after retrying {last_attempt.attempt_number} times"
+                f"Failed to make request to {request.effective_model_deployment} after retrying "
+                f"{last_attempt.attempt_number} times"
             )
             hlog(retry_error)
 

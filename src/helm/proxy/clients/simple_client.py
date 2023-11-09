@@ -36,7 +36,7 @@ class SimpleClient(CachingClient):
                 for text, logprob in response["completions"].items()
             ]
         else:
-            raise ValueError(f"Invalid model: {request.model}")
+            raise ValueError(f"Invalid model: {request.effective_model_deployment}")
 
         return RequestResult(
             success=True,

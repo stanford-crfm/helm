@@ -78,10 +78,12 @@ class IDEFICSClient(CachingClient):
         return loaded_model_processor
 
     def make_request(self, request: Request) -> RequestResult:
-        assert request.model in _models, f"Not a valid model for this client: {request.model}"
+        assert (
+            request.effective_model_deployment in _models
+        ), f"Not a valid model for this client: {request.effective_model_deployment}"
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
 
-        loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.model)
+        loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.effective_model_deployment)
         model = loaded_model_processor.model
         processor = loaded_model_processor.processor
 
@@ -127,7 +129,7 @@ class IDEFICSClient(CachingClient):
             # Include the prompt and model name in the cache key
             cache_key = CachingClient.make_cache_key(
                 raw_request={
-                    "model": request.model,
+                    "model": request.effective_model_deployment,
                     "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
                     **generation_args,
                 },
@@ -141,7 +143,7 @@ class IDEFICSClient(CachingClient):
         # TODO: Does it make sense to support echo? Include these params in the cache key.
         # TODO: Together might support this model so use the TogetherClient
         tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-            TokenizationRequest(result["output"], tokenizer=request.model)
+            TokenizationRequest(result["output"], tokenizer=request.effective_model_deployment)
         )
         tokens: List[Token] = [
             Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens

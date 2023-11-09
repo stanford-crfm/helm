@@ -74,7 +74,7 @@ class ModelCritiqueClient(CritiqueClient):
                 prompt = anthropic.HUMAN_PROMPT + prompt + anthropic.AI_PROMPT
 
             request = Request(
-                model=self._model_name,
+                model_deployment=self._model_name,
                 prompt=prompt,
                 max_tokens=max_tokens,
                 echo_prompt=False,

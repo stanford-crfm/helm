@@ -60,7 +60,7 @@ class TestHuggingFaceClient:
         prompt: str = "I am a computer scientist."
         result: RequestResult = self.client.make_request(
             Request(
-                model="huggingface/gpt2",
+                model_deployment="huggingface/gpt2",
                 prompt=prompt,
                 num_completions=3,
                 top_k_per_token=5,
@@ -77,7 +77,7 @@ class TestHuggingFaceClient:
     def test_gptj_6b(self):
         result: RequestResult = self.client.make_request(
             Request(
-                model="huggingface/gpt-j-6b",
+                model_deployment="huggingface/gpt-j-6b",
                 prompt="I am a computer scientist.",
                 num_completions=3,
                 top_k_per_token=5,

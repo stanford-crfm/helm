@@ -57,7 +57,7 @@ def try_request(
 
     try:
         request = Request(
-            model=model_name,
+            model_deployment=model_name,
             prompt=prefix + " ".join(["hello"] * (sequence_length - num_tokens_prefix - num_tokens_suffix)) + suffix,
             max_tokens=num_tokens,
         )
@@ -287,7 +287,7 @@ def main():
     print("client successfully created")
 
     print("Making short request...")
-    request = Request(model=args.model_name, prompt=args.prefix + "hello" + args.suffix, max_tokens=1)
+    request = Request(model_deployment=args.model_name, prompt=args.prefix + "hello" + args.suffix, max_tokens=1)
     response = client.make_request(request)
     if not response.success:
         raise ValueError("Request failed")

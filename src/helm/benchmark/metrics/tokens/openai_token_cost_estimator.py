@@ -15,7 +15,9 @@ class OpenAITokenCostEstimator(TokenCostEstimator):
 
         Add num_tokens(prompt) if Request.echo_prompt is True.
         """
-        tokenizer: WindowService = WindowServiceFactory.get_window_service(request.model, metric_service)
+        tokenizer: WindowService = WindowServiceFactory.get_window_service(
+            request.effective_model_deployment, metric_service
+        )
         num_prompt_tokens: int = tokenizer.get_num_tokens(request.prompt)
         total_estimated_tokens: int = num_prompt_tokens + request.num_completions * request.max_tokens
 

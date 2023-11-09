@@ -3,7 +3,6 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 from helm.common.media_object import MultimediaObject
-from helm.benchmark.model_deployment_registry import get_model_deployment, ModelDeployment
 from .general import indent_lines, format_text
 
 
@@ -15,9 +14,12 @@ class Request:
     various APIs (e.g., GPT-3, Jurassic).
     """
 
-    model: str = "openai/text-davinci-002"
+    model_deployment: str = ""
     """Which model to query.
     Refers to a deployment in the model deployment registry."""
+
+    model: str = "openai/text-davinci-002"
+    """DEPRECATED. Use `model_deployment` instead."""
 
     embedding: bool = False
     """Whether to query embedding instead of text response"""
@@ -66,16 +68,18 @@ class Request:
     """Multimodal prompt with media objects interleaved (e.g., text, video, image, text, ...)"""
 
     @property
+    def effective_model_deployment(self) -> str:
+        return self.model_deployment or self.model
+
+    @property
     def model_host(self) -> str:
         """Example: 'openai/davinci' => 'openai'"""
-        deployment: ModelDeployment = get_model_deployment(self.model)
-        return deployment.host_organization
+        return self.effective_model_deployment.split("/")[0]
 
     @property
     def model_engine(self) -> str:
         """Example: 'openai/davinci' => 'davinci'"""
-        deployment: ModelDeployment = get_model_deployment(self.model)
-        return deployment.engine
+        return self.effective_model_deployment.split("/")[1]
 
 
 @dataclass(frozen=True)

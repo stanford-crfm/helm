@@ -34,7 +34,7 @@ class TestServerService:
 
     def test_make_request(self):
         num_completions = 2
-        request = Request(prompt="1 2 3", model="simple/model1", num_completions=num_completions)
+        request = Request(prompt="1 2 3", model_deployment="simple/model1", num_completions=num_completions)
         result = self.service.make_request(self.auth, request)
         assert len(result.completions) == num_completions
 
@@ -221,7 +221,7 @@ def test_prod_continue():
     # Test that we're continuing
     prompt = "Paris is the capital of"
     for model in prod_models:
-        request = Request(prompt=prompt, model=model, max_tokens=1, num_completions=1, temperature=0)
+        request = Request(prompt=prompt, model_deployment=model, max_tokens=1, num_completions=1, temperature=0)
         helper_prod_test_service(request, " France")
 
 
@@ -230,5 +230,5 @@ def test_prod_echo():
     # If we're echoing the prompt, make sure we're getting the same thing back
     prompt = "I like pickles."
     for model in prod_models:
-        request = Request(prompt=prompt, model=model, max_tokens=0, num_completions=1, echo_prompt=True)
+        request = Request(prompt=prompt, model_deployment=model, max_tokens=0, num_completions=1, echo_prompt=True)
         helper_prod_test_service(request, prompt)

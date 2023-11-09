@@ -17,7 +17,7 @@ account: Account = service.get_account(auth)
 print(account.usages)
 
 # Make a request
-request = Request(model="ai21/j1-large", prompt="Life is like a box of", echo_prompt=True)
+request = Request(model_deployment="ai21/j2-large", prompt="Life is like a box of", echo_prompt=True)
 request_result: RequestResult = service.make_request(auth, request)
 print(request_result.completions[0].text)
 
@@ -28,12 +28,12 @@ request_result = service.make_request(auth, request)
 print(request_result.completions[0].text)
 
 # How to get the embedding for some text
-request = Request(model="openai/text-similarity-ada-001", prompt="Life is like a box of", embedding=True)
+request = Request(model_deployment="openai/text-similarity-ada-002", prompt="Life is like a box of", embedding=True)
 request_result = service.make_request(auth, request)
 print(request_result.embedding)
 
 # Tokenize
-request = TokenizationRequest(tokenizer="ai21/j1-jumbo", text="Tokenize me please.")
+request = TokenizationRequest(tokenizer="ai21/j2-jumbo", text="Tokenize me please.")
 tokenization_request_result: TokenizationRequestResult = service.tokenize(auth, request)
 print(f"Number of tokens: {len(tokenization_request_result.tokens)}")
 
