@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
 from retrying import Attempt, RetryError
 
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
-from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
@@ -20,7 +19,7 @@ from helm.proxy.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
@@ -36,11 +35,11 @@ class AutoClient(Client):
     """Automatically dispatch to the proper `Client` based on the model deployment name."""
 
     def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
+        self._auto_tokenizer = AutoTokenizer(credentials, cache_path, mongo_uri)
         self.credentials = credentials
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
-        self.tokenizers: Dict[str, Tokenizer] = {}
         # self._huggingface_client is lazily instantiated by get_huggingface_client()
         self._huggingface_client: Optional["helm.proxy.clients.huggingface_client.HuggingFaceClient"] = None
         # self._critique_client is lazily instantiated by get_critique_client()
@@ -155,64 +154,15 @@ class AutoClient(Client):
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
-    def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
-        # First try to find the tokenizer in the cache
-        tokenizer: Optional[Tokenizer] = self.tokenizers.get(tokenizer_name)
-        if tokenizer is not None:
-            return tokenizer
-
-        # Otherwise, create the tokenizer
-        organization: str = tokenizer_name.split("/")[0]
-        cache_config: CacheConfig = self._build_cache_config(organization)
-
-        tokenizer_config = get_tokenizer_config(tokenizer_name)
-        if tokenizer_config:
-            tokenizer_spec = inject_object_spec_args(
-                tokenizer_config.tokenizer_spec,
-                constant_bindings={"cache_config": cache_config},
-                provider_bindings={
-                    "api_key": lambda: self._provide_api_key(organization),
-                },
-            )
-            tokenizer = create_object(tokenizer_spec)
-
-        # Cache the tokenizer
-        assert isinstance(tokenizer, Tokenizer)  # To make mypy happy
-        self.tokenizers[tokenizer_name] = tokenizer
-
-        return tokenizer
-
+    # TODO: remove this method after a few weeks (2023-11-09)
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
+        raise NotImplementedError(
+            "AutoClient.tokenize() is not supported anymore." "Use AutoTokenizer.tokenize() instead."
+        )
 
-        def tokenize_with_retry(tokenizer: Tokenizer, request: TokenizationRequest) -> TokenizationRequestResult:
-            return tokenizer.tokenize(request)
-
-        tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer)
-
-        try:
-            return tokenize_with_retry(tokenizer=tokenizer, request=request)
-        except RetryError as e:
-            last_attempt: Attempt = e.last_attempt
-            retry_error: str = f"Failed to tokenize after retrying {last_attempt.attempt_number} times"
-            hlog(retry_error)
-            return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
-
+    # TODO: remove this method after a few weeks (2023-11-09)
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
-
-        def decode_with_retry(tokenizer: Tokenizer, request: DecodeRequest) -> DecodeRequestResult:
-            return tokenizer.decode(request)
-
-        tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer)
-
-        try:
-            return decode_with_retry(tokenizer=tokenizer, request=request)
-        except RetryError as e:
-            last_attempt: Attempt = e.last_attempt
-            retry_error: str = f"Failed to decode after retrying {last_attempt.attempt_number} times"
-            hlog(retry_error)
-            return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
+        raise NotImplementedError("AutoClient.decode() is not supported anymore." "Use AutoTokenizer.decode() instead.")
 
     def get_toxicity_classifier_client(self) -> ToxicityClassifierClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""
