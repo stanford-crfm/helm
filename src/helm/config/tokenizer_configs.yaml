@@ -145,6 +145,13 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 
+  # Lighting AI
+  - name: lightningai/lit-gpt
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.lit_gpt_tokenizer.LitGPTTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<|endoftext|>"
+
   # Meta-llama
   - name: meta-llama/Llama-2-7b-hf
     tokenizer_spec:

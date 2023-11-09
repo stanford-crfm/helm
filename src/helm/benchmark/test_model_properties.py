@@ -1322,7 +1322,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         model_name=None,
         tokenizer_name="lightningai/lit-gpt",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.lit_gpt_window_service.LitGPTWindowServce", args={}
+            class_name="helm.benchmark.window_services.lit_gpt_window_service.LitGPTWindowService", args={}
         ),
         max_sequence_length=2048,
         max_request_length=None,

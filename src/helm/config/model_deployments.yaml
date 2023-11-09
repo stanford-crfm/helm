@@ -464,6 +464,22 @@ model_deployments:
 
 
 
+  # Lighting AI
+  - name: lightningai/lit-gpt
+    model_name: lightningai/lit-gpt
+    tokenizer_name: lightningai/lit-gpt
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.lit_gpt_client.LitGPTClient"
+      args:
+        - checkpoint_dir: "" # Path to the checkpoint directory
+        - precision: bf16-true
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.lit_gpt_window_service.LitGPTWindowService"
+      args: {}
+
+
+
   # Microsoft
   - name: microsoft/TNLGv2_530B
     model_name: microsoft/TNLGv2_530B
