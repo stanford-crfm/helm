@@ -1,6 +1,6 @@
 import Scenario from "@/types/Scenario";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export default async function getScenarioByName(
   scenarioName: string,
@@ -9,7 +9,7 @@ export default async function getScenarioByName(
   try {
     const scenario = await fetch(
       getBenchmarkEndpoint(
-        `/benchmark_output/runs/${getBenchmarkSuite()}/${scenarioName}/scenario.json`,
+        `${getVersionBaseUrl()}/${scenarioName}/scenario.json`,
       ),
       { signal },
     );
