@@ -7,16 +7,6 @@ import dacite
 import yaml
 
 
-# Different modalities
-TEXT_MODEL_TAG: str = "TEXT_MODEL_TAG"
-IMAGE_MODEL_TAG: str = "IMAGE_MODEL_TAG"
-CODE_MODEL_TAG: str = "CODE_MODEL_TAG"
-EMBEDDING_MODEL_TAG: str = "EMBEDDING_MODEL_TAG"
-
-# Some model APIs have limited functionalities
-FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "FULL_FUNCTIONALITY_TEXT_MODEL_TAG"
-LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG"
-
 # ChatML format
 CHATML_MODEL_TAG: str = "CHATML_MODEL_TAG"
 
@@ -30,10 +20,6 @@ ANTHROPIC_CLAUDE_2_MODEL_TAG: str = "ANTHROPIC_CLAUDE_2_MODEL_TAG"
 # Models which emit garbage tokens when temperature=0.
 BUGGY_TEMP_0_TAG: str = "BUGGY_TEMP_0_TAG"
 
-# Models that are used for ablations and fine-grained analyses.
-# These models are selected specifically because of their low marginal cost to evaluate.
-ABLATION_MODEL_TAG: str = "ABLATION_MODEL_TAG"
-
 # Some models (e.g., T5) have stripped newlines.
 # So we cannot use \n as a stop sequence for these models.
 NO_NEWLINES_TAG: str = "NO_NEWLINES_TAG"
@@ -41,12 +27,6 @@ NO_NEWLINES_TAG: str = "NO_NEWLINES_TAG"
 # Some models (e.g., UL2) require a prefix (e.g., [NLG]) in the
 # prompts to indicate the mode before doing inference.
 NLG_PREFIX_TAG: str = "NLG_PREFIX_TAG"
-
-# Some models can follow instructions.
-INSTRUCTION_FOLLOWING_MODEL_TAG: str = "INSTRUCTION_FOLLOWING_MODEL_TAG"
-
-# For Vision-langauge models (VLMs)
-VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
 
 
 MODEL_METADATA_FILE: str = "model_metadata.yaml"
@@ -84,6 +64,29 @@ class ModelMetadata:
 
     # Release date of the model.
     release_date: date
+
+    # Description of the functionality of the model.
+    # Should be one of the following:
+    # - "full"
+    # - "limited": the model has limited capabilities
+    # - "undefined"
+    functionality: str = "undefined"
+
+    # Decription of the model's capabilities
+    # Should contain a subset of the following:
+    # - "text"
+    # - "code"
+    # - "image"
+    # - "text_similarity"
+    # - "vlm"
+    modality: List[str] = field(default_factory=list)
+
+    # Whether the model us used for ablations and fine-grained analyses.
+    # These models are selected specifically because of their low marginal cost to evaluate.
+    ablation: bool = False
+
+    # Whether the model is instruction following or not.
+    instruction_following: bool = False
 
     # Tags corresponding to the properties of the model.
     tags: List[str] = field(default_factory=list)
@@ -183,25 +186,28 @@ def get_models_by_creator_organization(organization: str) -> List[str]:
     return [model.name for model in ALL_MODELS_METADATA if model.creator_organization == organization]
 
 
-def get_model_names_with_tag(tag: str) -> List[str]:
-    """Get all the name of the models with tag `tag`."""
+def get_all_models_by_modality(modality: str) -> List[str]:
+    """Get all models of a certain modality"""
     register_metadatas_if_not_already_registered()
-    return [model.name for model in ALL_MODELS_METADATA if tag in model.tags]
+    return [model.name for model in ALL_MODELS_METADATA if modality in model.modality]
 
 
-def get_all_text_models() -> List[str]:
-    """Get all text model names."""
-    return get_model_names_with_tag(TEXT_MODEL_TAG)
-
-
-def get_all_code_models() -> List[str]:
-    """Get all code model names."""
-    return get_model_names_with_tag(CODE_MODEL_TAG)
+def get_all_models_by_functionality(functionality: str) -> List[str]:
+    """Get all models of a certain functionality"""
+    register_metadatas_if_not_already_registered()
+    return [model.name for model in ALL_MODELS_METADATA if functionality == model.functionality]
 
 
 def get_all_instruction_following_models() -> List[str]:
     """Get all instruction-following model names."""
-    return get_model_names_with_tag(INSTRUCTION_FOLLOWING_MODEL_TAG)
+    register_metadatas_if_not_already_registered()
+    return [model.name for model in ALL_MODELS_METADATA if model.instruction_following]
+
+
+def get_all_ablation_models() -> List[str]:
+    """Get all ablation model names."""
+    register_metadatas_if_not_already_registered()
+    return [model.name for model in ALL_MODELS_METADATA if model.ablation]
 
 
 def register_metadatas_if_not_already_registered() -> None:

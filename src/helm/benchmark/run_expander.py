@@ -6,14 +6,10 @@ from typing import Any, List, Dict, Optional, Tuple, Type
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.model_metadata_registry import (
     get_all_instruction_following_models,
-    get_all_code_models,
     get_all_models,
-    get_all_text_models,
-    get_model_names_with_tag,
-    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
-    LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-    ABLATION_MODEL_TAG,
-    VISION_LANGUAGE_MODEL_TAG,
+    get_all_models_by_modality,
+    get_all_models_by_functionality,
+    get_all_ablation_models,
 )
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer, get_deployment_name_from_model_arg
 from .runner import RunSpec
@@ -375,15 +371,15 @@ class ModelDeploymentRunExpander(ReplaceValueRunExpander):
     @property
     def values_dict(self):
         values_dict = {
-            "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
+            "full_functionality_text": get_all_models_by_functionality("functionality"),
             "ai21/j1-jumbo": ["ai21/j1-jumbo"],
             "openai/curie": ["openai/curie"],
             "all": get_all_models(),
-            "text_code": get_all_text_models() + get_all_code_models(),
-            "text": get_all_text_models(),
-            "code": get_all_code_models(),
+            "text_code": get_all_models_by_modality("text") + get_all_models_by_modality("code"),
+            "text": get_all_models_by_modality("text"),
+            "code": get_all_models_by_modality("code"),
             "instruction_following": get_all_instruction_following_models(),
-            "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
+            "limited_functionality_text": get_all_models_by_functionality("limited"),
             "gpt2_tokenizer": get_model_names_with_tokenizer("huggingface/gpt2"),
             "ai21_tokenizer": get_model_names_with_tokenizer("ai21/j1"),
             "cohere_tokenizer": get_model_names_with_tokenizer("cohere/cohere"),
@@ -400,12 +396,12 @@ class ModelDeploymentRunExpander(ReplaceValueRunExpander):
                 "openai/text-davinci-003",
             ],
             "opinions_qa_ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
-            "vlm": get_model_names_with_tag(VISION_LANGUAGE_MODEL_TAG),
+            "vlm": get_all_models_by_modality("vlm"),
         }
 
         # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
         # which contains the subset of models with the ablation tag.
-        ablation_models = set(get_model_names_with_tag(ABLATION_MODEL_TAG))
+        ablation_models = set(get_all_ablation_models())
         ablation_values_dict = {}
         for family_name, models in values_dict.items():
             ablation_values_dict["ablation_" + family_name] = list(ablation_models & set(models))

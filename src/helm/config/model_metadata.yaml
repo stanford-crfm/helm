@@ -12,7 +12,9 @@ models:
     creator_organization_name: Helm
     access: open
     release_date: 2023-01-01
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   # AI21 Labs
   - name: ai21/j1-jumbo # DEPRECATED
@@ -22,7 +24,9 @@ models:
     access: limited
     num_parameters: 178000000000
     release_date: 2021-08-11
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: ai21/j1-large # DEPRECATED
     display_name: J1-Large v1 (7.5B)
@@ -31,7 +35,9 @@ models:
     access: limited
     num_parameters: 7500000000
     release_date: 2021-08-11
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: ai21/j1-grande # DEPRECATED
     display_name: J1-Grande v1 (17B)
@@ -40,7 +46,9 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2022-05-03
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: ai21/j1-grande-v2-beta # DEPRECATED
     display_name: J1-Grande v2 beta (17B)
@@ -49,7 +57,9 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2022-10-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: ai21/j2-jumbo
     display_name: Jurassic-2 Jumbo (178B)
@@ -58,7 +68,9 @@ models:
     access: limited
     num_parameters: 178000000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: ai21/j2-large
     display_name: Jurassic-2 Large (7.5B)
@@ -67,7 +79,9 @@ models:
     access: limited
     num_parameters: 7500000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: ai21/j2-grande
     display_name: Jurassic-2 Grande (17B)
@@ -76,7 +90,9 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2023-03-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   # TODO(1524): Change AI21 model names
   # - j2-jumbo -> j2-ultra
@@ -96,8 +112,9 @@ models:
     num_parameters: 13000000000
     # TODO: get exact release date
     release_date: 2022-01-01
-    # Does not support echo
-    tags: [TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text, image]
+    functionality: limited # Does not support echo
+    tags: []
 
   - name: AlephAlpha/luminous-extended
     display_name: Luminous Extended (30B)
@@ -106,8 +123,9 @@ models:
     access: limited
     num_parameters: 30000000000
     release_date: 2022-01-01
-    # Does not support echo
-    tags: [TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text, image]
+    functionality: limited # Does not support echo
+    tags: []
 
   - name: AlephAlpha/luminous-supreme
     display_name: Luminous Supreme (70B)
@@ -116,9 +134,9 @@ models:
     access: limited
     num_parameters: 70000000000
     release_date: 2022-01-01
-    # Does not support echo.
-    # TODO: images will be supported in the near future. Add IMAGE_MODEL_TAG.
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text] # TODO: images will be supported in the near future. Add image.
+    functionality: limited # Does not support echo.
+    tags: []
   
   # TODO: Uncomment when luminous-world is released.
   # - name: AlephAlpha/luminous-world # Not released yet.
@@ -128,8 +146,9 @@ models:
   #   access: limited
   #   num_parameters: TBD
   #   release_date: TBD
-  #   # Does not support echo.
-  #   tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+  #   modality: [text]
+  #   functionality: limited # Does not support echo.
+  #   tags: []
 
 
 
@@ -141,7 +160,11 @@ models:
     access: limited
     num_parameters: 52000000000
     release_date: 2023-03-17
-    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    ablation: true
+    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG]
  
   - name: anthropic/claude-instant-v1
     display_name: Anthropic Claude Instant V1
@@ -149,7 +172,11 @@ models:
     creator_organization_name: Anthropic
     access: limited
     release_date: 2023-03-17
-    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    ablation: true
+    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG]
 
   - name: anthropic/claude-2.0
     display_name: Anthropic Claude 2.0
@@ -157,7 +184,11 @@ models:
     creator_organization_name: Anthropic
     access: limited
     release_date: 2023-07-11
-    tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    ablation: true
+    tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG]
 
   # DEPRECATED: Please do not use.
   - name: anthropic/stanford-online-all-v4-s3
@@ -167,7 +198,10 @@ models:
     access: closed
     num_parameters: 52000000000
     release_date: 2021-12-01
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    ablation: true
+    tags: []
 
 
 
@@ -191,7 +225,10 @@ models:
     access: open
     num_parameters: 176000000000
     release_date: 2022-06-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    ablation: true
+    tags: []
 
   - name: bigscience/bloomz # NOT SUPPORTED
     display_name: BLOOMZ (176B)
@@ -209,8 +246,10 @@ models:
     access: open
     num_parameters: 11000000000
     release_date: 2021-10-15
-    # Does not support echo.
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
+    modality: [text]
+    functionality: limited # Does not support echo.
+    ablation: true
+    tags: [NO_NEWLINES_TAG]
 
 
 
@@ -222,7 +261,8 @@ models:
     access: open
     num_parameters: 1100000000
     release_date: 2023-01-09 # ArXiv submission date
-    tags: [CODE_MODEL_TAG]
+    modality: [code]
+    tags: []
 
   - name: bigcode/starcoder
     display_name: StarCoder (15.5B)
@@ -231,7 +271,8 @@ models:
     access: open
     num_parameters: 15500000000
     release_date: 2023-05-09 # ArXiv submission date
-    tags: [CODE_MODEL_TAG]
+    modality: [code]
+    tags: []
 
 
 
@@ -276,7 +317,9 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-06-09
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: cohere/large-20220720 # DEPRECATED
     display_name: Cohere large v20220720 (13.1B)
@@ -285,7 +328,9 @@ models:
     access: limited
     num_parameters: 13100000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: cohere/medium-20220720
     display_name: Cohere medium v20220720 (6.1B)
@@ -294,7 +339,9 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: cohere/small-20220720 # DEPRECATED
     display_name: Cohere small v20220720 (410M)
@@ -303,7 +350,9 @@ models:
     access: limited
     num_parameters: 410000000
     release_date: 2022-07-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: cohere/xlarge-20221108
     display_name: Cohere xlarge v20221108 (52.4B)
@@ -312,7 +361,9 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: cohere/medium-20221108 # DEPRECATED
     display_name: Cohere medium v20221108 (6.1B)
@@ -321,7 +372,9 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: cohere/command-medium-beta # DEPRECATED
     display_name: Cohere Command beta (6.1B)
@@ -330,7 +383,10 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    instruction_following: true
+    tags: []
 
   - name: cohere/command-xlarge-beta # DEPRECATED
     display_name: Cohere Command beta (52.4B)
@@ -339,7 +395,10 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    instruction_following: true
+    tags: []
 
   # TODO: Fill in the details.
   - name: cohere/command
@@ -348,7 +407,10 @@ models:
     creator_organization_name: Cohere
     access: limited
     release_date: 2022-11-08 # TODO
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    instruction_following: true
+    tags: []
 
   - name: cohere/command-light
     display_name: Cohere Command TODO
@@ -356,7 +418,10 @@ models:
     creator_organization_name: Cohere
     access: limited
     release_date: 2022-11-08 # TODO
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    instruction_following: true
+    tags: []
 
 
 
@@ -368,7 +433,9 @@ models:
     access: open
     num_parameters: 2517652480
     release_date: 2023-04-12
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: databricks/dolly-v2-7b
     display_name: Dolly V2 (7B)
@@ -377,7 +444,9 @@ models:
     access: open
     num_parameters: 6444163072
     release_date: 2023-04-12
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: databricks/dolly-v2-12b
     display_name: Dolly V2 (12B)
@@ -386,7 +455,9 @@ models:
     access: open
     num_parameters: 11327027200
     release_date: 2023-04-12
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
 
@@ -419,8 +490,11 @@ models:
     access: open
     num_parameters: 6000000000
     release_date: 2021-06-04
+    modality: [text]
+    functionality: full
+    ablation: true
     # TODO: The BUGGY_TEMP_0_TAG is a deployment related tag (Together).
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, BUGGY_TEMP_0_TAG]
+    tags: [BUGGY_TEMP_0_TAG]
 
   - name: eleutherai/gpt-neox-20b # Served by GooseAi and Together.
     display_name: GPT-NeoX (20B)
@@ -429,7 +503,10 @@ models:
     access: open
     num_parameters: 20000000000
     release_date: 2022-02-02
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    ablation: true
+    tags: []
 
   - name: eleutherai/pythia-1b-v0
     display_name: Pythia (1B)
@@ -438,7 +515,9 @@ models:
     access: open
     num_parameters: 805736448
     release_date: 2023-02-13
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: eleutherai/pythia-2.8b-v0
     display_name: Pythia (2.8B)
@@ -447,7 +526,9 @@ models:
     access: open
     num_parameters: 2517652480
     release_date: 2023-02-13
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: eleutherai/pythia-6.9b
     display_name: Pythia (6.9B)
@@ -456,7 +537,9 @@ models:
     access: open
     num_parameters: 6444163072
     release_date: 2023-02-13
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: eleutherai/pythia-12b-v0
     display_name: Pythia (12B)
@@ -465,7 +548,9 @@ models:
     access: open
     num_parameters: 11327027200
     release_date: 2023-02-13
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
 
@@ -477,7 +562,10 @@ models:
     access: open
     num_parameters: 11000000000
     release_date: 2019-10-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
+    modality: [text]
+    functionality: limited
+    ablation: true
+    tags: [NO_NEWLINES_TAG]
 
   - name: google/ul2
     display_name: UL2 (20B)
@@ -486,7 +574,10 @@ models:
     access: open
     num_parameters: 20000000000
     release_date: 2022-05-10
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG, NLG_PREFIX_TAG]
+    modality: [text]
+    functionality: limited
+    ablation: true
+    tags: [NO_NEWLINES_TAG, NLG_PREFIX_TAG]
 
   - name: google/flan-t5-xxl
     display_name: Flan-T5 (11B)
@@ -495,7 +586,11 @@ models:
     access: open
     num_parameters: 11000000000
     release_date: 2022-12-06 # Paper date
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    ablation: true
+    instruction_following: true
+    tags: [NO_NEWLINES_TAG]
 
   - name: google/palm # NOT SUPPORTED
     display_name: PaLM (540B)
@@ -516,7 +611,9 @@ models:
     access: open
     num_parameters: 2700000000
     release_date: 2023-01-23
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
 
@@ -528,7 +625,8 @@ models:
     access: open
     num_parameters: 9000000000
     release_date: 2023-08-22
-    tags: [VISION_LANGUAGE_MODEL_TAG]
+    modality: [vlm]
+    tags: []
 
   - name: huggingface/idefics-9b-instruct
     display_name: IDEFICS instruct (9B)
@@ -537,7 +635,8 @@ models:
     access: open
     num_parameters: 9000000000
     release_date: 2023-08-22
-    tags: [VISION_LANGUAGE_MODEL_TAG]
+    modality: [vlm]
+    tags: []
 
   - name: huggingface/idefics-80b
     display_name: IDEFICS (80B)
@@ -546,7 +645,8 @@ models:
     access: open
     num_parameters: 80000000000
     release_date: 2023-08-22
-    tags: [VISION_LANGUAGE_MODEL_TAG]
+    modality: [vlm]
+    tags: []
 
   - name: huggingface/idefics-80b-instruct
     display_name: IDEFICS instruct (80B)
@@ -555,7 +655,8 @@ models:
     access: open
     num_parameters: 80000000000
     release_date: 2023-08-22
-    tags: [VISION_LANGUAGE_MODEL_TAG]
+    modality: [vlm]
+    tags: []
 
 
 
@@ -566,7 +667,10 @@ models:
     creator_organization_name: Lightning AI
     access: open
     release_date: 2023-04-04
-    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    tags: []
 
 
 
@@ -578,7 +682,10 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-06-22
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    instruction_following: true
+    tags: []
 
   - name: lmsys/vicuna-13b-v1.3
     display_name: Vicuna v1.3 (13B)
@@ -587,7 +694,10 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2023-06-22
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    instruction_following: true
+    tags: []
 
 
 
@@ -617,7 +727,10 @@ models:
     access: open
     num_parameters: 175000000000
     release_date: 2022-05-02
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    ablation: true
+    tags: []
 
   - name: meta/opt-66b
     display_name: OPT (66B)
@@ -626,7 +739,10 @@ models:
     access: open
     num_parameters: 66000000000
     release_date: 2022-05-02
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    ablation: true
+    tags: []
 
   - name: meta/opt-6.7b
     display_name: OPT (6.7B)
@@ -635,8 +751,10 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2022-05-02
-    # TODO: The BUGGY_TEMP_0_TAG is a deployment related tag (Together).
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, BUGGY_TEMP_0_TAG]
+    modality: [text]
+    functionality: full
+    ablation: true
+    tags: [BUGGY_TEMP_0_TAG] # TODO: The BUGGY_TEMP_0_TAG is a deployment related tag (Together).
 
   - name: meta/opt-1.3b
     display_name: OPT (1.3B)
@@ -645,8 +763,10 @@ models:
     access: open
     num_parameters: 1300000000
     release_date: 2022-05-02
-    # TODO: The BUGGY_TEMP_0_TAG is a deployment related tag (Together).
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, BUGGY_TEMP_0_TAG]
+    modality: [text]
+    functionality: full
+    ablation: true
+    tags: [BUGGY_TEMP_0_TAG] # TODO: The BUGGY_TEMP_0_TAG is a deployment related tag (Together).
 
   - name: meta/galactica-120b # NOT SUPPORTED
     display_name: Galactica (120B)
@@ -673,7 +793,9 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-02-24
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: meta/llama-13b
     display_name: LLaMA (13B)
@@ -682,7 +804,9 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2023-02-24
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: meta/llama-30b
     display_name: LLaMA (30B)
@@ -691,7 +815,9 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2023-02-24
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: meta/llama-65b
     display_name: LLaMA (65B)
@@ -700,8 +826,9 @@ models:
     access: open
     num_parameters: 65000000000
     release_date: 2023-02-24
-    # TODO(#1828): Upgrade to FULL_FUNCTIONALITY_TEXT_MODEL_TAG
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: limited # TODO(#1828): Upgrade to full
+    tags: []
 
   - name: meta/llama-2-7b
     display_name: Llama 2 (7B)
@@ -710,7 +837,9 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-07-18
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: meta/llama-2-13b
     display_name: Llama 2 (13B)
@@ -719,7 +848,9 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2023-07-18
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: meta/llama-2-70b
     display_name: Llama 2 (70B)
@@ -728,8 +859,9 @@ models:
     access: open
     num_parameters: 70000000000
     release_date: 2023-07-18
-    # TODO(#1828): Upgrade to FULL_FUNCTIONALITY_TEXT_MODEL_TAG
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: limited # TODO(#1828): Upgrade to full
+    tags: []
 
 
 
@@ -741,7 +873,9 @@ models:
     access: closed
     num_parameters: 530000000000
     release_date: 2022-01-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: microsoft/TNLGv2_7B
     display_name: TNLG v2 (6.7B)
@@ -750,7 +884,9 @@ models:
     access: closed
     num_parameters: 6700000000
     release_date: 2022-01-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
 
@@ -762,7 +898,10 @@ models:
     access: open
     num_parameters: 7300000000
     release_date: 2023-09-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    instruction_following: true
+    tags: []
 
 
 
@@ -774,7 +913,9 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: mosaicml/mpt-7b-chat # NOT SUPPORTED
     display_name: MPT-Chat (7B)
@@ -792,7 +933,9 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2023-05-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: mosaicml/mpt-30b
     display_name: MPT (30B)
@@ -801,7 +944,9 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2023-06-22
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: mosaicml/mpt-30b-chat # NOT SUPPORTED
     display_name: MPT-Chat (30B)
@@ -819,7 +964,9 @@ models:
     access: open
     num_parameters: 30000000000
     release_date: 2023-06-22
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
 
@@ -830,7 +977,9 @@ models:
     creator_organization_name: Neurips
     access: open
     release_date: 2023-06-01
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
 
@@ -841,7 +990,9 @@ models:
     creator_organization_name: NVIDIA
     access: open
     release_date: 2019-09-17 # paper date
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, BUGGY_TEMP_0_TAG]
+    modality: [text]
+    functionality: full
+    tags: [BUGGY_TEMP_0_TAG]
 
 
 
@@ -857,7 +1008,9 @@ models:
     access: open
     num_parameters: 1500000000
     release_date: 2019-02-14
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
   ## GPT 3 Models
@@ -871,7 +1024,9 @@ models:
     access: limited
     num_parameters: 175000000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: openai/curie # DEPRECATED
     display_name: curie (6.7B)
@@ -880,7 +1035,9 @@ models:
     access: limited
     num_parameters: 6700000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
     
   - name: openai/babbage # DEPRECATED
     display_name: babbage (1.3B)
@@ -889,7 +1046,9 @@ models:
     access: limited
     num_parameters: 1300000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
     
   - name: openai/ada # DEPRECATED
     display_name: ada (350M)
@@ -898,7 +1057,9 @@ models:
     access: limited
     num_parameters: 350000000
     release_date: 2020-05-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: openai/text-davinci-003 # DEPRECATED
     display_name: text-davinci-003
@@ -907,7 +1068,10 @@ models:
     access: limited
     num_parameters: 175000000000
     release_date: 2022-11-28
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    instruction_following: true
+    tags: []
 
   # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
   #       https://github.com/stanford-crfm/benchmarking/issues/359
@@ -918,7 +1082,9 @@ models:
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: openai/text-davinci-001 # DEPRECATED
     display_name: text-davinci-001
@@ -927,7 +1093,9 @@ models:
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: openai/text-curie-001 # DEPRECATED
     display_name: text-curie-001
@@ -936,7 +1104,9 @@ models:
     access: limited
     num_parameters: 6700000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
     
   - name: openai/text-babbage-001 # DEPRECATED
     display_name: text-babbage-001
@@ -945,7 +1115,9 @@ models:
     access: limited
     num_parameters: 1300000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
     
   - name: openai/text-ada-001 # DEPRECATED
     display_name: text-ada-001
@@ -954,7 +1126,9 @@ models:
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
   ## GPT 3.5 Turbo Models
@@ -966,7 +1140,10 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-03-01
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    tags: [OPENAI_CHATGPT_MODEL_TAG]
 
   - name: openai/gpt-3.5-turbo-0613
     display_name: gpt-3.5-turbo-0613
@@ -974,7 +1151,10 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    tags: [OPENAI_CHATGPT_MODEL_TAG]
 
   # Claimed length is 16,384; we round down to 16,000 for the same reasons as explained
   # in the openai/gpt-3.5-turbo-0613 comment
@@ -984,7 +1164,10 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    tags: [OPENAI_CHATGPT_MODEL_TAG]
 
 
   ## GPT 4 Models
@@ -995,7 +1178,10 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-03-14
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    tags: [OPENAI_CHATGPT_MODEL_TAG]
 
   - name: openai/gpt-4-32k-0314
     display_name: gpt-4-32k-0314
@@ -1003,7 +1189,10 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-03-14
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    tags: [OPENAI_CHATGPT_MODEL_TAG]
 
   - name: openai/gpt-4-0613
     display_name: gpt-4-0613
@@ -1011,7 +1200,10 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    tags: [OPENAI_CHATGPT_MODEL_TAG]
 
   - name: openai/gpt-4-32k-0613
     display_name: gpt-4-32k-0613
@@ -1019,7 +1211,10 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    instruction_following: true
+    tags: [OPENAI_CHATGPT_MODEL_TAG]
 
 
   ## Codex Models
@@ -1031,7 +1226,8 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2021-07-01 # TODO: Find correct date (this is for v1)
-    tags: [CODE_MODEL_TAG]
+    modality: [code]
+    tags: []
 
   - name: openai/code-davinci-001 # DEPRECATED
     display_name: code-davinci-001
@@ -1039,7 +1235,8 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2021-07-01 # Paper date
-    tags: [CODE_MODEL_TAG]
+    modality: [code]
+    tags: []
 
   - name: openai/code-cushman-001 # DEPRECATED
     display_name: code-cushman-001 (12B)
@@ -1048,7 +1245,8 @@ models:
     access: limited
     num_parameters: 12000000000
     release_date: 2021-07-01 # Paper date
-    tags: [CODE_MODEL_TAG]
+    modality: [code]
+    tags: []
 
 
   ## Text Similarity Models
@@ -1065,7 +1263,8 @@ models:
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    modality: [text_similarity]
+    tags: []
 
   - name: openai/text-similarity-curie-001 # DEPRECATED
     display_name: text-similarity-curie-001
@@ -1074,7 +1273,8 @@ models:
     access: limited
     num_parameters: 6700000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    modality: [text_similarity]
+    tags: []
 
   - name: openai/text-similarity-babbage-001 # DEPRECATED
     display_name: text-similarity-babbage-001
@@ -1083,7 +1283,8 @@ models:
     access: limited
     num_parameters: 1300000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    modality: [text_similarity]
+    tags: []
 
   - name: openai/text-similarity-ada-001 # DEPRECATED
     display_name: text-similarity-ada-001
@@ -1092,7 +1293,8 @@ models:
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-25 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    modality: [text_similarity]
+    tags: []
 
   - name: openai/text-embedding-ada-002
     display_name: text-embedding-ada-002
@@ -1100,7 +1302,8 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2022-12-15 # Blog post date
-    tags: [TEXT_SIMILARITY_MODEL_TAG]
+    modality: [text_similarity]
+    tags: []
 
 
 
@@ -1124,7 +1327,9 @@ models:
     access: open
     num_parameters: 3000000000
     release_date: 2023-04-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: stabilityai/stablelm-base-alpha-7b
     display_name: StableLM-Base-Alpha (7B)
@@ -1133,7 +1338,9 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-04-20
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
 
@@ -1145,7 +1352,10 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-13
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    instruction_following: true
+    tags: []
 
 
 
@@ -1157,7 +1367,9 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-15
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: tiiuae/falcon-7b-instruct
     display_name: Falcon-Instruct (7B)
@@ -1166,7 +1378,9 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-15
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: tiiuae/falcon-40b
     display_name: Falcon (40B)
@@ -1175,7 +1389,9 @@ models:
     access: open
     num_parameters: 40000000000
     release_date: 2023-05-25
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: tiiuae/falcon-40b-instruct
     display_name: Falcon-Instruct (40B)
@@ -1184,7 +1400,9 @@ models:
     access: open
     num_parameters: 40000000000
     release_date: 2023-05-25
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
 
@@ -1196,7 +1414,9 @@ models:
     access: open
     num_parameters: 6700000000
     release_date: 2022-11-29
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: together/gpt-neoxt-chat-base-20b
     display_name: GPT-NeoXT-Chat-Base (20B)
@@ -1205,7 +1425,9 @@ models:
     access: open
     num_parameters: 20000000000
     release_date: 2023-03-08
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    tags: [CHATML_MODEL_TAG]
 
   - name: together/redpajama-incite-base-3b-v1
     display_name: RedPajama-INCITE-Base-v1 (3B)
@@ -1214,7 +1436,9 @@ models:
     access: open
     num_parameters: 3000000000
     release_date: 2023-05-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: together/redpajama-incite-instruct-3b-v1
     display_name: RedPajama-INCITE-Instruct-v1 (3B)
@@ -1223,7 +1447,9 @@ models:
     access: open
     num_parameters: 3000000000
     release_date: 2023-05-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: together/redpajama-incite-chat-3b-v1 # NOT SUPPORTED
     display_name: RedPajama-INCITE-Chat-v1 (3B)
@@ -1241,7 +1467,9 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-05-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
   - name: together/redpajama-incite-instruct-7b
     display_name: RedPajama-INCITE-Instruct (7B)
@@ -1250,7 +1478,9 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-05-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: full
+    tags: []
 
 
 
@@ -1264,7 +1494,10 @@ models:
     release_date: 2022-08-04
     # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
     # bidirectional attention and do not perform predictions on them.
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
+    modality: [text]
+    functionality: limited
+    ablation: true
+    tags: [NO_NEWLINES_TAG]
 
   - name: tsinghua/codegeex # NOT SUPPORTED
     display_name: CodeGeeX (13B)
@@ -1286,7 +1519,9 @@ models:
     num_parameters: 5000000000
     release_date: 2022-10-13
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    tags: []
 
   - name: writer/palmyra-large
     display_name: Palmyra Large (20B)
@@ -1296,7 +1531,9 @@ models:
     num_parameters: 20000000000
     release_date: 2022-12-23
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    tags: []
 
   - name: writer/palmyra-instruct-30
     display_name: InstructPalmyra (30B)
@@ -1306,7 +1543,9 @@ models:
     num_parameters: 30000000000
     release_date: 2023-02-16
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    tags: []
 
   - name: writer/palmyra-e
     display_name: Palmyra E (30B)
@@ -1316,7 +1555,9 @@ models:
     num_parameters: 30000000000
     release_date: 2023-03-03
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    tags: []
 
   - name: writer/silk-road
     display_name: Silk Road (35B)
@@ -1326,7 +1567,9 @@ models:
     num_parameters: 35000000000
     release_date: 2023-04-13
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    tags: []
 
   - name: writer/palmyra-x
     display_name: Palmyra X (43B)
@@ -1336,7 +1579,9 @@ models:
     num_parameters: 43000000000
     release_date: 2023-06-11
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    tags: []
 
 
 
@@ -1348,4 +1593,7 @@ models:
     access: open
     num_parameters: 100000000000
     release_date: 2022-06-23
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+    modality: [text]
+    functionality: limited
+    ablation: true
+    tags: []
