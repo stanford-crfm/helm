@@ -73,4 +73,5 @@ def register_tokenizers_if_not_already_registered() -> None:
     global TOKENIZERS_REGISTERED
     if not TOKENIZERS_REGISTERED:
         maybe_register_tokenizer_configs_from_base_path(CONFIG_PATH)
+        maybe_register_tokenizer_configs_from_base_path(CONFIG_PATH + "/private")
         TOKENIZERS_REGISTERED = True

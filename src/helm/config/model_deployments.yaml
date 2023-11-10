@@ -402,7 +402,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
       args: {}
 
-  ## OpenAI 
+  ## HuggingFace
   - name: huggingface/gpt2
     model_name: openai/gpt2
     tokenizer_name: huggingface/gpt2

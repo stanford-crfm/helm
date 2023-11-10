@@ -273,6 +273,7 @@ def register_deployments_if_not_already_registered() -> None:
     global DEPLOYMENTS_REGISTERED
     if not DEPLOYMENTS_REGISTERED:
         maybe_register_model_deployments_from_base_path(CONFIG_PATH)
+        maybe_register_model_deployments_from_base_path(CONFIG_PATH + "/private")
         DEPLOYMENTS_REGISTERED = True
 
 

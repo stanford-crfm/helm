@@ -1,0 +1,3 @@
+# This file contains the metadata for private models
+
+models: [] # Leave empty to disable private models

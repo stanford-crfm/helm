@@ -208,4 +208,5 @@ def register_metadatas_if_not_already_registered() -> None:
     global METADATAS_REGISTERED
     if not METADATAS_REGISTERED:
         maybe_register_model_metadata_from_base_path(CONFIG_PATH)
+        maybe_register_model_metadata_from_base_path(CONFIG_PATH + "/private")
         METADATAS_REGISTERED = True
