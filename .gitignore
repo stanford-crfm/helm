@@ -46,5 +46,4 @@ notes.otl
 .nfs*
 
 # private configs
-src/helm/config/private/*.yaml
-src/helm/config/private/model_deployments.yaml
+src/helm/config/private/
