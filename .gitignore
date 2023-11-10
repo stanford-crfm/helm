@@ -47,3 +47,4 @@ notes.otl
 
 # private configs
 src/helm/config/private/*.yaml
+src/helm/config/private/model_deployments.yaml
