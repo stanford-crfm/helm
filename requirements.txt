@@ -32,7 +32,7 @@ cycler==0.11.0
 cymem==2.0.6
 Cython==0.29.32
 dacite==1.6.0
-datasets==2.5.2
+datasets==2.14.6
 dill==0.3.5.1
 distlib==0.3.6
 emoji==2.1.0
