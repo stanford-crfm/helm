@@ -12,7 +12,7 @@ class HuggingFaceWindowService(LocalWindowService):
         pretrained_model_name_or_path: Optional[str] = None,
         revision: Optional[str] = None,
         max_sequence_length: Optional[int] = None,
-        max_reqeust_length: Optional[int] = None,
+        max_request_length: Optional[int] = None,
     ):
         super().__init__(service)
         self._tokenizer_name = tokenizer_name
@@ -31,7 +31,11 @@ class HuggingFaceWindowService(LocalWindowService):
             self._max_sequence_length = max_sequence_length
         else:
             self._max_sequence_length = tokenizer.model_max_length
-        self._max_request_length = max_reqeust_length
+        # Override max_request_length if provided as an argument.
+        if max_request_length:
+            self._max_request_length = max_request_length
+        else:
+            self._max_request_length = self._max_sequence_length
 
     @property
     def max_sequence_length(self) -> int:
@@ -41,7 +45,7 @@ class HuggingFaceWindowService(LocalWindowService):
     @property
     def max_request_length(self) -> int:
         """Return the max request length of this tokenizer."""
-        return self._max_request_length or self._max_sequence_length
+        return self._max_request_length
 
     @property
     def end_of_text_token(self) -> str:
