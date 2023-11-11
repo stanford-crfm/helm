@@ -1,11 +1,9 @@
 import type GroupsTable from "@/types/GroupsTable";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export function getGroupsTablesJsonUrl(): string {
-  return getBenchmarkEndpoint(
-    `/benchmark_output/runs/${getBenchmarkSuite()}/groups.json`,
-  );
+  return getBenchmarkEndpoint(`${getVersionBaseUrl()}/groups.json`);
 }
 
 export default async function getGroupsTables(

@@ -1,4 +1,5 @@
 import type RunGroup from "@/types/RunGroup";
+import { Link as ReactRouterLink } from "react-router-dom";
 
 interface Props {
   runGroups: RunGroup[];
@@ -33,22 +34,46 @@ export default function ScenariosList({ runGroups }: Props) {
           )
           .map((topLevelGroup, idx) => (
             <li key={idx}>
-              <h2>{topLevelGroup.display_name}</h2>
-              <ul>
+              <ReactRouterLink
+                className="text-black"
+                to={"groups/" + topLevelGroup.name}
+              >
+                <h2>{topLevelGroup.display_name}</h2>
+              </ReactRouterLink>
+              <ul className="list-disc list-inside">
                 {subGroups
                   .filter((subGroup) =>
                     (topLevelGroup.subgroups || []).includes(subGroup.name),
                   )
-                  .map((subGroup, idx) => (
-                    <li
-                      key={idx}
-                      className={`${
-                        subGroup.todo ? "ml-4 text-slate-300" : "ml-4"
-                      }`}
-                    >
-                      {subGroup.display_name}
-                    </li>
-                  ))}
+                  .map((subGroup, idx) =>
+                    subGroup.todo || subGroup.name.includes("CLEVA") ? (
+                      <li
+                        key={idx}
+                        className={`${
+                          subGroup.todo ? "ml-4 text-slate-300" : "ml-4"
+                        }`}
+                      >
+                        {subGroup.display_name}
+                      </li>
+                    ) : (
+                      <ReactRouterLink
+                        className="text-black"
+                        to={"groups/" + subGroup.name}
+                      >
+                        <li
+                          key={idx}
+                          className={`${
+                            subGroup.todo ||
+                            subGroup.display_name.includes("CLEVA")
+                              ? "ml-4 text-slate-300"
+                              : "ml-4"
+                          }`}
+                        >
+                          {subGroup.display_name}
+                        </li>
+                      </ReactRouterLink>
+                    ),
+                  )}
               </ul>
             </li>
           ))}
