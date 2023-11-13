@@ -31,44 +31,42 @@ class WindowServiceSpec(ObjectSpec):
 
 @dataclass(frozen=True)
 class ModelDeployment:
-    """A model deployment is an accessible instance of this model (e.g. a hosted endpoint).
+    """
+    A model deployment is an accessible instance of this model (e.g., a hosted endpoint).
+    A model can have multiple model deployments.
+    """
 
-    A model can have multiple model deployments."""
-
-    # Name of the model deployment.
-    # Usually formatted as "<hosting_group>/<engine_name>"
-    # Example: "huggingface/t5-11b"
     name: str
+    """Name of the model deployment. Usually formatted as "<hosting_group>/<engine_name>".
+    Example: "huggingface/t5-11b"."""
 
-    # Specification for instantiating the client for this model deployment.
     client_spec: ClientSpec
+    """Specification for instantiating the client for this model deployment."""
 
-    # Name of the model that this model deployment is for.
-    # Refers to the field "name" in the Model class.
-    # If unset, defaults to the same value as `name`.
     model_name: Optional[str] = None
+    """Name of the model that this model deployment is for. Refers to the field "name" in the Model class.
+    If unset, defaults to the same value as `name`."""
 
-    # Tokenizer for this model deployment.
-    # If unset, auto-inferred by the WindowService.
     tokenizer_name: Optional[str] = None
+    """Tokenizer for this model deployment. If unset, auto-inferred by the WindowService."""
 
-    # Specification for instantiating the window service for this model deployment.
     window_service_spec: Optional[WindowServiceSpec] = None
+    """Specification for instantiating the window service for this model deployment."""
 
-    # Maximum sequence length for this model deployment.
     max_sequence_length: Optional[int] = None
+    """Maximum sequence length for this model deployment."""
 
-    # Maximum request length for this model deployment.
-    # If unset, defaults to the same value as max_sequence_length.
     max_request_length: Optional[int] = None
+    """Maximum request length for this model deployment.
+    If unset, defaults to the same value as max_sequence_length."""
 
-    # The max length of the model input and output tokens.
-    # Some models (like Anthropic/Claude and Megatron) have a specific limit sequence length + max_token.
-    # If unset, defaults to INT_MAX (i.e. bo limit).
     max_sequence_and_generated_tokens_length: Optional[int] = None
+    """The max length of the model input and output tokens.
+    Some models (like Anthropic/Claude and Megatron) have a specific limit sequence length + max_token.
+    If unset, defaults to INT_MAX (i.e., no limit)."""
 
-    # Whether this model deployment is deprecated.
     deprecated: bool = False
+    """Whether this model deployment is deprecated."""
 
     @property
     def host_organization(self) -> str:

@@ -58,46 +58,42 @@ METADATAS_REGISTERED: bool = False
 # might populate the deployment_names field.
 @dataclass(frozen=False)
 class ModelMetadata:
-    # Name of the model group (e.g. "openai/davinci").
-    # This is the name of the model, not the name of the deployment.
-    # Usually formatted as "<creator_organization>/<engine_name>".
-    # Example: "ai21/j1-jumbo"
     name: str
+    """Name of the model group (e.g., "openai/davinci"). This is the name of the model,
+    not the name of the deployment.
+    Usually formatted as "<creator_organization>/<engine_name>". Example: "ai21/j1-jumbo"."""
 
-    # Name of the organization that created the model.
     creator_organization_name: str
+    """Name of the organization that created the model."""
 
-    # Name that is going to be displayed to the user (on the website, etc.)
     display_name: str
+    """Name that is going to be displayed to the user (on the website, etc.)."""
 
-    # Description of the model, to be displayed on the website.
     description: str
+    """Description of the model, to be displayed on the website."""
 
-    # Description of the access level of the model.
-    # Should be one of the following:
-    # - "open": the model is open-source and can be downloaded from the internet.
-    # - "closed": not accessible
-    # - "limited": accessible with an API key
-    # If there are multiple deployments, this should be the most permissive access across
-    # all deployments.
     access: str
+    """Description of the access level of the model. Should be one of the following:
+    - "open": the model is open-source and can be downloaded from the internet.
+    - "closed": not accessible
+    - "limited": accessible with an API key.
+    If there are multiple deployments, this should be the most permissive access across all deployments."""
 
-    # Release date of the model.
     release_date: date
+    """Release date of the model."""
 
-    # Tags corresponding to the properties of the model.
     tags: List[str] = field(default_factory=list)
+    """Tags corresponding to the properties of the model."""
 
-    # Number of parameters in the model.
-    # This should be a string as the number of parameters is usually a round number (175B),
-    # but we set it as an int for plotting purposes.
     num_parameters: Optional[int] = None
+    """Number of parameters in the model.
+    This should be a string as the number of parameters is usually a round number (175B),
+    but we set it as an int for plotting purposes."""
 
-    # List of the model deployments for this model.
-    # Should at least contain one model deployment.
-    # Refers to the field "name" in the ModelDeployment class.
-    # Defaults to a single model deployment with the same name as the model.
     deployment_names: Optional[List[str]] = None
+    """List of the model deployments for this model. Should at least contain one model deployment.
+    Refers to the field "name" in the ModelDeployment class. Defaults to a single model deployment
+    with the same name as the model."""
 
     @property
     def creator_organization(self) -> str:
