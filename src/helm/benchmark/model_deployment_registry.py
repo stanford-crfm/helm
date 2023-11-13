@@ -154,8 +154,8 @@ def get_model_deployment(name: str) -> ModelDeployment:
 
 
 def get_deployment_name_from_model_arg(
-    model_arg: str, can_return_empy: bool = False, warn_arg_deprecated: bool = True
-) -> str:
+    model_arg: str, warn_arg_deprecated: bool = True, ignore_deprecated: bool = False
+) -> Optional[str]:
     """Returns a valid model deployment name corresponding to the given model arg.
     This is used as a backwards compatibility layer for model names that are now moved to model deployments.
     Example: "anthropic/claude-v1.3" => "anthropic/claude-v1.3"
@@ -164,11 +164,11 @@ def get_deployment_name_from_model_arg(
     The process to find a model deployment name is as follows:
     1. If there is a model deployment with the same name as the model arg, use it.
     2. If there is at least one deployment for the model, use the first one that is available.
-    3. If there are no deployments for the model, raise an error.
+    3. If there are no deployments for the model, returns None.
 
     This function will also try to find a model deployment name that is not deprecated.
-    If there are no non-deprecated deployments, it will return the first deployment (even if it's deprecated),
-    unless can_return_empy is True, in which case it will return an empty string.
+    If there are no non-deprecated deployments, it will return the first deployment (even if it's deprecated).
+    If ignore_deprecated is True, this function will return None if the model deployment is deprecated.
 
     If warn_arg_deprecated is True, this function will print a warning if the model deployment name is not the same
     as the model arg. This is to remind the user that the model name is deprecated and should be replaced with
@@ -176,8 +176,8 @@ def get_deployment_name_from_model_arg(
 
     Args:
         model_arg: The model arg to convert to a model deployment name.
-        can_return_empy: Whether to return an empty string if some model deployments were found but all are deprecated.
         warn_arg_deprecated: Whether to print a warning if the model deployment name is not the same as the model arg.
+        ignore_deprecated: Whether to return None if the model deployment is deprecated.
     """
 
     # Register model deployments if not already registered.
@@ -186,9 +186,9 @@ def get_deployment_name_from_model_arg(
     # If there is a model deployment with the same name as the model arg, use it.
     if model_arg in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
         deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_arg]
-        if deployment.deprecated and can_return_empy:
+        if deployment.deprecated and ignore_deprecated:
             hlog(f"WARNING: Model deployment {model_arg} is deprecated")
-            return ""
+            return None
         return deployment.name
 
     # If there is at least one deployment for the model, use the first one that is available.
@@ -210,8 +210,8 @@ def get_deployment_name_from_model_arg(
         # There are no non-deprecated deployments, so there are two options:
         # 1. If we can return an empty string, return it. (no model deployment is available)
         # 2. If we can't return an empty string, return the first deployment (even if it's deprecated).
-        elif can_return_empy:
-            return ""
+        elif ignore_deprecated:
+            return None
         else:
             hlog(f"WARNING: All model deployments for model {model_arg} are deprecated.")
             chosen_deployment = available_deployments[0]
@@ -224,10 +224,8 @@ def get_deployment_name_from_model_arg(
         return chosen_deployment.name
 
     # Some models are added but have no deployments yet.
-    # In this case, we return an empty string if can_return_empy is True, otherwise we raise an error.
-    if can_return_empy:
-        return ""
-    raise ValueError(f"Model deployment {model_arg} not found")
+    # In this case, we return None.
+    return None
 
 
 def get_model_deployments_by_host_organization(host_organization: str) -> List[str]:

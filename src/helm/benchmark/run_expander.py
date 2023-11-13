@@ -359,14 +359,27 @@ class ModelDeploymentRunExpander(ReplaceValueRunExpander):
             if not isinstance(value, list):
                 value = [value]
             model_deployments: List[str] = []
+
+            # If a single model name is specified, a deployment must be found and we will
+            # warn the user that the model tag is deprecated.
+            # Otherwise, we will silently ignore deprecated models.
+            ignore_deprecated: bool = not single_model
+            warn_arg_deprecated: bool = single_model
+
             for model_name in value:
-                model_deployment: str = get_deployment_name_from_model_arg(
-                    model_name, can_return_empy=not single_model, warn_arg_deprecated=single_model
+                model_deployment: Optional[str] = get_deployment_name_from_model_arg(
+                    model_name, ignore_deprecated=ignore_deprecated, warn_arg_deprecated=warn_arg_deprecated
                 )
-                if model_deployment != "":
+                if model_deployment is not None:
                     model_deployments.append(model_deployment)
-                else:
+                elif ignore_deprecated:  # Simply print a message to warn that the model is skipped
                     hlog(f"WARNING: {model_name} is deprecated. Skipping.")
+                else:  # Otherwise, we needed a deployment, so raises an error.
+                    raise ValueError(f"No deployment found for model={model_name}")
+
+            if len(model_deployments) == 0:
+                raise ValueError(f"No valid model deployments found for model={value}")
+
             value = model_deployments
 
         # Assign the processed value to self.values.
