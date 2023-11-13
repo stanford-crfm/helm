@@ -1461,3 +1461,6 @@ class TestModelProperties:
             # TODO: Give PalmyraWindowService's tokenizer a different name e.g. writer/palmyra
             if tokenizer_name != "huggingface/gpt2":
                 assert tokenizer_configs[tokenizer_name] == tokenizer_config
+
+    def test_num_models_available(self):
+        assert len(ALL_MODEL_DEPLOYMENTS) == 119
