@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 from threading import Lock
 from helm.common.cache import CacheConfig
 
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, PreTrainedTokenizerBase
 
 from helm.common.hierarchical_logger import htrack_block, hlog
 from .caching_tokenizer import CachingTokenizer
@@ -27,7 +27,7 @@ def resolve_alias(model_name: str) -> str:
 
 
 class HuggingFaceTokenizer(CachingTokenizer):
-    _tokenizers: Dict[str, AutoTokenizer] = {}
+    _tokenizers: Dict[str, PreTrainedTokenizerBase] = {}
     _tokenizers_lock: Lock = Lock()
 
     def __init__(
@@ -41,7 +41,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
         self._revision = revision
 
     @staticmethod
-    def create_tokenizer(pretrained_model_name_or_path: str, revision: Optional[str] = None) -> AutoTokenizer:
+    def create_tokenizer(pretrained_model_name_or_path: str, revision: Optional[str] = None) -> PreTrainedTokenizerBase:
         """Loads tokenizer using files from disk if they exist. Otherwise, downloads from HuggingFace."""
         # To avoid deadlocks when using HuggingFace tokenizers with multiple processes
         # TODO: Figure out if we actually need this.
@@ -72,7 +72,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
     @staticmethod
     def get_tokenizer(
         helm_tokenizer_name: str, pretrained_model_name_or_path: str, revision: Optional[str] = None
-    ) -> AutoTokenizer:
+    ) -> PreTrainedTokenizerBase:
         """
         Checks if the desired tokenizer is cached. Creates the tokenizer if it's not cached.
         Returns the tokenizer.
@@ -89,7 +89,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                     )
         return HuggingFaceTokenizer._tokenizers[helm_tokenizer_name]
 
-    def _get_tokenizer_for_request(self, request: Dict[str, Any]) -> AutoTokenizer:
+    def _get_tokenizer_for_request(self, request: Dict[str, Any]) -> PreTrainedTokenizerBase:
         """Method used in both _tokenize_do_it and _decode_do_it to get the tokenizer."""
         pretrained_model_name_or_path: str
         if self._pretrained_model_name_or_path:

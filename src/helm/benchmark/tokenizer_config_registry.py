@@ -26,7 +26,11 @@ class TokenizerConfig:
     tokenizer_spec: TokenizerSpec
     """Specification for instantiating the client for this tokenizer."""
 
-    # TODO: Add `end_of_text_token`` and `prefix_token``
+    end_of_text_token: Optional[str] = None
+    """The end of text token."""
+
+    prefix_token: Optional[str] = None
+    """The prefix token."""
 
 
 @dataclass(frozen=True)
@@ -42,7 +46,6 @@ def register_tokenizer_config(tokenizer_config: TokenizerConfig) -> None:
 
 
 def register_tokenizer_configs_from_path(path: str) -> None:
-    global _name_to_tokenizer_config
     hlog(f"Reading tokenizer configs from {path}...")
     with open(path, "r") as f:
         raw = yaml.safe_load(f)

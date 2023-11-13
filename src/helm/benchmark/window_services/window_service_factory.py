@@ -1,3 +1,5 @@
+from typing import Optional
+
 from helm.benchmark.model_deployment_registry import WindowServiceSpec, get_model_deployment
 from helm.proxy.models import (
     get_model,
@@ -12,12 +14,11 @@ from helm.proxy.models import (
     GPT4_32K_CONTEXT_WINDOW_TAG,
 )
 
+from helm.benchmark.tokenizer_config_registry import get_tokenizer_config, TokenizerConfig
 from helm.benchmark.window_services.huggingface_window_service import HuggingFaceWindowService
 from helm.benchmark.window_services.gpt2_window_service import GPT2WindowService
-from helm.benchmark.window_services.remote_window_service import get_remote_window_service
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.proxy.clients.remote_model_registry import get_remote_model
 from helm.common.object_spec import create_object, inject_object_spec_args
 
 
@@ -45,6 +46,16 @@ class WindowServiceFactory:
                 window_service_spec = WindowServiceSpec(
                     class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService", args={}
                 )
+
+            # If provided, look up special tokens from TokenizerConfig.
+            end_of_text_token: Optional[str] = None
+            prefix_token: Optional[str] = None
+            if model_deployment.tokenizer_name:
+                tokenizer_config: Optional[TokenizerConfig] = get_tokenizer_config(model_deployment.tokenizer_name)
+                if tokenizer_config:
+                    end_of_text_token = tokenizer_config.end_of_text_token
+                    prefix_token = tokenizer_config.prefix_token
+
             # Perform dependency injection to fill in remaining arguments.
             # Dependency injection is needed here for these reasons:
             #
@@ -59,11 +70,11 @@ class WindowServiceFactory:
                     "tokenizer_name": model_deployment.tokenizer_name,
                     "max_sequence_length": model_deployment.max_sequence_length,
                     "max_request_length": model_deployment.max_request_length,
+                    "end_of_text_token": end_of_text_token,
+                    "prefix_token": prefix_token,
                 },
             )
             window_service = create_object(window_service_spec)
-        elif get_remote_model(model_name):
-            window_service = get_remote_window_service(service, model_name)
         elif organization == "neurips":
             from helm.benchmark.window_services.http_model_window_service import HTTPModelWindowServce
 
@@ -82,7 +93,7 @@ class WindowServiceFactory:
                 window_service = GPT4WindowService(service)
             elif model_name in get_model_names_with_tag(GPT4_32K_CONTEXT_WINDOW_TAG):
                 window_service = GPT432KWindowService(service)
-            if model_name in get_model_names_with_tag(GPT_TURBO_CONTEXT_WINDOW_TAG):
+            elif model_name in get_model_names_with_tag(GPT_TURBO_CONTEXT_WINDOW_TAG):
                 window_service = GPTTurboWindowService(service)
             elif model_name in get_model_names_with_tag(GPT_TURBO_16K_CONTEXT_WINDOW_TAG):
                 window_service = GPTTurbo16KWindowService(service)

@@ -27,7 +27,7 @@ try:
     import anthropic
     import websocket
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["anthropic"])
 
 
 class AnthropicClient(CachingClient):

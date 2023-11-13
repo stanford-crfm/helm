@@ -22,7 +22,7 @@ try:
     from sympy import Symbol, Poly, diff
     from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e)
+    handle_module_not_found_error(e, ["scenarios"])
 
 
 # TODO: we shouldn't create an Adapter and TokenizerService in a scenario

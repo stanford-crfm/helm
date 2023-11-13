@@ -1,7 +1,14 @@
 # mypy: check_untyped_defs = False
 import importlib_resources as resources
+
+from helm.common.optional_dependencies import handle_module_not_found_error
+
 import torch
-import sentencepiece as spm
+
+try:
+    import sentencepiece as spm
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["yandex"])
 
 """
 From the YaLM GitHub repository (https://github.com/yandex/YaLM-100B),
