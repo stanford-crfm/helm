@@ -24,7 +24,7 @@ export default function ScenariosList({ runGroups }: Props) {
 
   return (
     <section>
-      <h3 className="text-3xl">{runGroups.length} Scenarios</h3>
+      <h3 className="text-3xl">{runGroups.length} scenarios</h3>
       <ul>
         {topLevelGroups
           .filter((topLevelGroup) =>
@@ -33,7 +33,7 @@ export default function ScenariosList({ runGroups }: Props) {
             ),
           )
           .map((topLevelGroup, idx) => (
-            <li key={idx}>
+            <li key={idx} className="my-3">
               <ReactRouterLink
                 className="text-black"
                 to={"groups/" + topLevelGroup.name}
