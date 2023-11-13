@@ -1,6 +1,6 @@
 import type GroupsTable from "@/types/GroupsTable";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export default async function getGroupsTablesByName(
   groupName: string,
@@ -8,9 +8,7 @@ export default async function getGroupsTablesByName(
 ): Promise<GroupsTable[]> {
   try {
     const group = await fetch(
-      getBenchmarkEndpoint(
-        `/benchmark_output/runs/${getBenchmarkSuite()}/groups/${groupName}.json`,
-      ),
+      getBenchmarkEndpoint(`${getVersionBaseUrl()}/groups/${groupName}.json`),
       { signal },
     );
 

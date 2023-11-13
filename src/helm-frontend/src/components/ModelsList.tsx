@@ -1,4 +1,5 @@
 import type Model from "@/types/Model";
+import { Link as ReactRouterLink } from "react-router-dom";
 
 interface Props {
   models: Model[];
@@ -15,9 +16,11 @@ export default function ModelsList({ models }: Props) {
               {model.creator_organization} / {model.display_name}
             </li>
           ) : (
-            <li key={idx}>
-              {model.creator_organization} / {model.display_name}
-            </li>
+            <ReactRouterLink className="text-black" to={"models"}>
+              <li key={idx}>
+                {model.creator_organization} / {model.display_name}
+              </li>
+            </ReactRouterLink>
           ),
         )}
       </ul>

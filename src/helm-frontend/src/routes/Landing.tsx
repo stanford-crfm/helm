@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
 import ModelsList from "@/components/ModelsList";
 import MetricsList from "@/components/MetricsList";
 import ScenariosList from "@/components/ScenariosList";
+import Hero from "@/components/Hero";
 
-import helmLogo from "@/assets/helm-logo.png";
 import languageModelHelm from "@/assets/language-model-helm.png";
 import scenariosByMetrics from "@/assets/scenarios-by-metrics.png";
 import taxonomyScenarios from "@/assets/taxonomy-scenarios.png";
@@ -40,7 +39,7 @@ const logos = [
   yandex,
 ];
 
-export default function Home() {
+export default function LegacyLanding() {
   const [schema, setSchema] = useState<Schema | undefined>(undefined);
 
   useEffect(() => {
@@ -60,27 +59,33 @@ export default function Home() {
 
   return (
     <>
-      <img
-        src={helmLogo}
-        alt="HELM Logo"
-        width="309"
-        height="122"
-        className="mx-auto w-309 h-122"
-      />
-      <div className="flex flex-col sm:flex-row justify-center mt-16 mb-32 flex gap-2 sm:gap-8 md:gap-32">
-        <button className="px-10 btn btn-primary rounded-md">
-          <Link to="https://crfm.stanford.edu/2022/11/17/helm.html">
-            Blog post
-          </Link>
-        </button>
-        <button className="px-10 btn btn-primary rounded-md">
-          <Link to="https://arxiv.org/pdf/2211.09110.pdf">Paper</Link>
-        </button>
-        <button className="px-10 btn btn-primary rounded-md">
-          <Link to="https://github.com/stanford-crfm/helm">Github</Link>
-        </button>
+      <Hero />
+      <div className="flex flex-col sm:flex-row justify-center mt-10 mb-10 flex gap-2 sm:gap-8 md:gap-32">
+        {" "}
+        <h1 className="text-4xl mb-4 mx-4 mt-40">
+          <strong>About HELM</strong>
+        </h1>
       </div>
-      <div className="container mx-auto text-lg">
+      <div className="container mx-auto text-lg px-16">
+        <p className="mb-20">
+          A brief description is below, for a more detailed description read our{" "}
+          <strong>
+            <a href="https://crfm.stanford.edu/2022/11/17/helm.html">
+              blog post
+            </a>
+          </strong>{" "}
+          or{" "}
+          <strong>
+            <a href="https://arxiv.org/pdf/2211.09110.pdf">paper</a>
+          </strong>
+          . For our framework, checkout{" "}
+          <strong>
+            <a href="https://github.com/stanford-crfm/helm">
+              the Github repository
+            </a>
+          </strong>
+          .{"\n"}
+        </p>
         <p>
           A language model takes in text and produces text:
           <img

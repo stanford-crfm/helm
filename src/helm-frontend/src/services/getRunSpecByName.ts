@@ -1,10 +1,10 @@
 import type RunSpec from "@/types/RunSpec";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export function getRunSpecByNameUrl(runName: string): string {
   return getBenchmarkEndpoint(
-    `/benchmark_output/runs/${getBenchmarkSuite()}/${runName}/run_spec.json`,
+    `${getVersionBaseUrl()}/${runName}/run_spec.json`,
   );
 }
 export default async function getRunSpecByName(

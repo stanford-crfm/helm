@@ -1,5 +1,6 @@
 import type Metric from "@/types/Metric";
 import type MetricGroup from "@/types/MetricGroup";
+import { Link as ReactRouterLink } from "react-router-dom";
 
 interface Props {
   metrics: Metric[];
@@ -16,11 +17,14 @@ export default function MetricList({ metrics, metricGroups }: Props) {
             {metrics.filter((metric) =>
               metricGroup.metrics.some((m) => m.name === metric.name),
             ).length > 0 ? (
-              <h4>
-                {metricGroup.display_name} ({metricGroup.name})
-              </h4>
+              <ReactRouterLink
+                className="text-black"
+                to={"groups/" + metricGroup.name}
+              >
+                <h4>{metricGroup.display_name}</h4>
+              </ReactRouterLink>
             ) : null}
-            <ul>
+            <ul className="list-disc list-inside">
               {metrics
                 .filter((metric) =>
                   metricGroup.metrics.some((m) => m.name === metric.name),
