@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import crfmLogo from "@/assets/crfm-logo.png";
-import helmLogo from "@/assets/helm-logo-simple.png";
+//import helmLogo from "@/assets/helm-logo-simple.png";
+import NavDropdown from "@/components/NavDropdown";
 
 export default function NavBar() {
   return (
@@ -25,7 +26,7 @@ export default function NavBar() {
               <Link to="scenarios">Scenarios</Link>
             </li>
             <li>
-              <Link to="groups">Results</Link>
+              <Link to="leaderboard">Leaderboard</Link>
             </li>
             <li>
               <Link to="runs" className="whitespace-nowrap">
@@ -39,9 +40,7 @@ export default function NavBar() {
         <Link to="https://crfm.stanford.edu/" className="w-24">
           <img src={crfmLogo} className="object-contain" />
         </Link>
-        <Link to="/" className="ml-4 w-24">
-          <img src={helmLogo} className="object-contain" />
-        </Link>
+        <NavDropdown></NavDropdown>
       </div>
       <div className="flex-none hidden md:block">
         <ul className="flex flex-row gap-6 px-1">
@@ -52,7 +51,7 @@ export default function NavBar() {
             <Link to="scenarios">Scenarios</Link>
           </li>
           <li>
-            <Link to="groups">Results</Link>
+            <Link to="leaderboard">Leaderboard</Link>
           </li>
           <li>
             <Link to="runs">Raw Runs</Link>

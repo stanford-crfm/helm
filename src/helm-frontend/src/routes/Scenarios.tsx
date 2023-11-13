@@ -20,7 +20,10 @@ export default function Scenarios() {
        */
       setRunGroups(
         schema.run_groups.filter(
-          (runGroup) => !runGroup.todo && runGroup.taxonomy,
+          (runGroup) =>
+            !runGroup.todo &&
+            runGroup.taxonomy &&
+            !runGroup.display_name.includes("CLEVA"),
         ),
       );
     }
@@ -52,6 +55,8 @@ export default function Scenarios() {
   if (runGroups.length === 0) {
     return <Loading />;
   }
+
+  console.log(runGroups);
 
   return (
     <>
