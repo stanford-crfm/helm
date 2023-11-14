@@ -2,6 +2,7 @@ import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass, field
 from datetime import date
+import importlib_resources as resources
 
 import dacite
 import yaml
@@ -49,8 +50,8 @@ INSTRUCTION_FOLLOWING_MODEL_TAG: str = "INSTRUCTION_FOLLOWING_MODEL_TAG"
 VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
 
 
+CONFIG_PACKAGE = "helm.config"
 MODEL_METADATA_FILE: str = "model_metadata.yaml"
-CONFIG_PATH: str = "src/helm/config"
 METADATAS_REGISTERED: bool = False
 
 
@@ -141,9 +142,8 @@ def register_model_metadata(model_metadata: ModelMetadata) -> None:
     MODEL_NAME_TO_MODEL_METADATA[model_metadata.name] = model_metadata
 
 
-def maybe_register_model_metadata_from_base_path(base_path: str) -> None:
-    """Register model metadata from prod_env/model_metadata.yaml"""
-    path = os.path.join(base_path, MODEL_METADATA_FILE)
+def maybe_register_model_metadata_from_base_path(path: str) -> None:
+    """Register model metadata from yaml file if the path exists."""
     if os.path.exists(path):
         register_model_metadata_from_path(path)
 
@@ -203,5 +203,6 @@ def get_all_instruction_following_models() -> List[str]:
 def register_metadatas_if_not_already_registered() -> None:
     global METADATAS_REGISTERED
     if not METADATAS_REGISTERED:
-        maybe_register_model_metadata_from_base_path(CONFIG_PATH)
+        path: str = resources.files(CONFIG_PACKAGE).joinpath(MODEL_METADATA_FILE)
+        maybe_register_model_metadata_from_base_path(path)
         METADATAS_REGISTERED = True

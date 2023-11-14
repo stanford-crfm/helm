@@ -1,17 +1,14 @@
 import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass
+import importlib_resources as resources
 
 import cattrs
 import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
-from helm.benchmark.model_metadata_registry import (
-    ModelMetadata,
-    get_model_metadata,
-    CONFIG_PATH,
-)
+from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata, CONFIG_PACKAGE
 
 
 MODEL_DEPLOYMENTS_FILE: str = "model_deployments.yaml"
@@ -122,9 +119,8 @@ def register_model_deployments_from_path(path: str) -> None:
         register_model_deployment(model_deployment)
 
 
-def maybe_register_model_deployments_from_base_path(base_path: str) -> None:
-    """Register model deployments from prod_env/model_deployments.yaml"""
-    path = os.path.join(base_path, MODEL_DEPLOYMENTS_FILE)
+def maybe_register_model_deployments_from_base_path(path: str) -> None:
+    """Register model deployments from yaml file if the path exists."""
     if os.path.exists(path):
         register_model_deployments_from_path(path)
 
@@ -265,5 +261,6 @@ def get_model_names_with_tokenizer(tokenizer_name: str) -> List[str]:
 def register_deployments_if_not_already_registered() -> None:
     global DEPLOYMENTS_REGISTERED
     if not DEPLOYMENTS_REGISTERED:
-        maybe_register_model_deployments_from_base_path(CONFIG_PATH)
+        path: str = resources.files(CONFIG_PACKAGE).joinpath(MODEL_DEPLOYMENTS_FILE)
+        maybe_register_model_deployments_from_base_path(path)
         DEPLOYMENTS_REGISTERED = True
