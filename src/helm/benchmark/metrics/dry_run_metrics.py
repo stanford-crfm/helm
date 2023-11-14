@@ -39,7 +39,7 @@ class Processor:
 
         # Get number of tokens in the prompt
         tokenizer: WindowService = WindowServiceFactory.get_window_service(
-            request.effective_model_deployment, self.metric_service
+            request.model_deployment, self.metric_service
         )
         num_prompt_tokens: int = tokenizer.get_num_tokens(request.prompt)
         stats.append(Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens))

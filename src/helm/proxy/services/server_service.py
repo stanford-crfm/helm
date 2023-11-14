@@ -89,7 +89,7 @@ class ServerService(Service):
         #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
-        host_organization: str = get_model_deployment_host_organization(request.effective_model_deployment)
+        host_organization: str = get_model_deployment_host_organization(request.model_deployment)
         # Make sure we can use
         self.accounts.check_can_use(auth.api_key, host_organization)
 

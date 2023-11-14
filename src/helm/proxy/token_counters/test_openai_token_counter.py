@@ -32,7 +32,7 @@ class TestOpenAITokenCounter:
         os.remove(self.cache_path)
 
     def test_count_tokens(self):
-        request = Request(prompt=TestOpenAITokenCounter.TEST_PROMPT)
+        request = Request(model_deployment="openai/text-davinci-002", prompt=TestOpenAITokenCounter.TEST_PROMPT)
         completions: List[Sequence] = [
             Sequence(
                 text=" The CRFM is dedicated to advancing our knowledge of the foundations of artificial intelligence "

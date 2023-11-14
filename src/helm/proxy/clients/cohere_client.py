@@ -45,7 +45,7 @@ class CohereClient(CachingClient):
             assert request.max_tokens > 0, "max_tokens can only be 0 if echo_prompt=True"
 
         # model: "Currently available models are small, medium, large, xlarge"
-        assert request.effective_model_deployment in get_model_deployments_by_host_organization("cohere")
+        assert request.model_deployment in get_model_deployments_by_host_organization("cohere")
         # temperature: "min value of 0.0, max value of 5.0"
         assert 0.0 <= request.temperature <= 5.0, f"Invalid temperature: {request.temperature}. Valid range: [0,5]"
         # num_generations: "min value of 1, max value of 5"
