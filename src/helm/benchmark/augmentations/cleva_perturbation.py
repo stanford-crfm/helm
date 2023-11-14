@@ -660,6 +660,7 @@ class ChinesePersonNamePerturbation(Perturbation):
             ),
             references=references,
             perturbation=self.description,
+            original_instance=instance,
         )
 
     @staticmethod

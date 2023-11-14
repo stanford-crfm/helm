@@ -44,12 +44,12 @@ class CLIPScoreMetric(Metric):
 
         prompt: str = request_state.request.prompt
         perturbation_name: str = request_state.instance.perturbation.name if request_state.instance.perturbation else ""
-        if request_state.instance.input.original_text is not None and perturbation_name in [
+        if request_state.instance.original_instance is not None and perturbation_name in [
             "translate",
             "dialect",
             "mild_mix",
         ]:
-            prompt = request_state.instance.input.original_text
+            prompt = request_state.instance.original_instance.input.text
 
         # Truncate the prompt using the CLIP tokenizer before feeding into the CLIP model.
         # Otherwise, the library will throw an error.

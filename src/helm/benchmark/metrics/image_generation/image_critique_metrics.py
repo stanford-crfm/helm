@@ -160,12 +160,12 @@ class ImageCritiqueMetric(Metric):
 
         prompt: str = request_state.request.prompt
         perturbation_name: str = request_state.instance.perturbation.name if request_state.instance.perturbation else ""
-        if request_state.instance.input.original_text is not None and perturbation_name in [
+        if request_state.instance.original_instance is not None and perturbation_name in [
             "translate",
             "dialect",
             "mild_mix",
         ]:
-            prompt = request_state.instance.input.original_text
+            prompt = request_state.instance.original_instance.input.text
 
         # Send the critique request
         template: CritiqueTaskTemplate = self._get_critique_template(adapter_spec.model)
