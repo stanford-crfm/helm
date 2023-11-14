@@ -109,7 +109,7 @@ _BUILT_IN_TOKENIZER_CONFIGS = [
         name="tiiuae/falcon-7b",
         tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
         end_of_text_token="<|endoftext|>",
-        prefix_token=None,
+        prefix_token="",
     ),
     TokenizerConfig(
         name="bigcode/santacoder",
