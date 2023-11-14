@@ -2552,8 +2552,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         expanders.append(ModelDeploymentRunExpander(args["model_deployment"]))
         args.pop("model_deployment")
     elif args.get("model", None) is not None:
-        hlog("WARNING: Using deprecated model name format. Please use model_deployment instead.")
-        expanders.append(ModelDeploymentRunExpander(args["model"], used_deprecated_model_tag=True))
+        run_expander = ModelDeploymentRunExpander(args["model"], used_deprecated_model_tag=True)
+        if not args["model"] in run_expander.values_dict:
+            # Raise a warning if model=... is used except for cases in values dict such as model=text.
+            hlog("WARNING: Using deprecated model name format. Please use model_deployment instead.")
+        expanders.append(run_expander)
         args.pop("model")
     else:
         raise ValueError("No model specified")
