@@ -10,15 +10,12 @@ from helm.common.object_spec import ObjectSpec
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
     get_model_metadata,
-    register_metadatas_if_not_already_registered,
     CONFIG_PATH,
 )
-from helm.benchmark.tokenizer_config_registry import register_tokenizers_if_not_already_registered
 
 
 MODEL_DEPLOYMENTS_FILE: str = "model_deployments.yaml"
 DEPLOYMENTS_REGISTERED: bool = False
-HELM_REGISTERED: bool = False
 
 
 class ClientSpec(ObjectSpec):
@@ -270,12 +267,3 @@ def register_deployments_if_not_already_registered() -> None:
     if not DEPLOYMENTS_REGISTERED:
         maybe_register_model_deployments_from_base_path(CONFIG_PATH)
         DEPLOYMENTS_REGISTERED = True
-
-
-def maybe_register_helm():
-    global HELM_REGISTERED
-    if not HELM_REGISTERED:
-        register_metadatas_if_not_already_registered()
-        register_tokenizers_if_not_already_registered()
-        register_deployments_if_not_already_registered()
-        HELM_REGISTERED = True
