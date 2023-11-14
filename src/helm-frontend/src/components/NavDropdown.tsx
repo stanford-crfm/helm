@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import heimLogo from "@/assets/heim-logo.png";
 
 function NavDropdown() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -39,7 +38,7 @@ function NavDropdown() {
       </div>
 
       {dropdownOpen && (
-        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+        <div className="absolute mt-2 w-96 translate-x-4 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
           <div
             className="py-1"
             role="menu"
@@ -47,32 +46,27 @@ function NavDropdown() {
             aria-labelledby="options-menu"
           >
             <div
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+              className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               role="menuitem"
             >
-              <Link to="/">
+              <Link to="https://crfm.stanford.edu/helm/latest/">
                 <div className="flex items-center">
-                  <img
-                    src="https://crfm.stanford.edu/helm/v0.3.0/images/helm-logo-simple.png"
-                    alt="Image 1"
-                    className="w-15 h-8 object-cover mr-2"
-                  />
-                  <span>Holistic evaluation of language models</span>
+                  <span>
+                    <strong>HELM: </strong>Holistic evaluation of language
+                    models
+                  </span>
                 </div>
               </Link>
             </div>
             <div
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+              className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               role="menuitem"
             >
               <Link to="https://crfm.stanford.edu/heim/latest/?">
                 <div className="flex items-center">
-                  <img
-                    src={heimLogo}
-                    alt="Image 2"
-                    className="w-15 h-8 object-cover mr-2"
-                  />
-                  <span>Holistic evaluation of image models</span>
+                  <span>
+                    <strong>HEIM: </strong>Holistic evaluation of image models
+                  </span>
                 </div>
               </Link>
             </div>
