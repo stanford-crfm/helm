@@ -594,7 +594,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=4096,
+        max_sequence_length=4095,
     ),
     ModelDeployment(
         name="mosaicml/mpt-7b",
