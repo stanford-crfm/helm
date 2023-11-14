@@ -1886,7 +1886,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     # "metrics" is a required field. The default values were populated using the link above.
     adapter_spec = AdapterSpec(
         method=get_adaptation_method(big_bench_task["metrics"]),
-        model_deployment="openai/text-curie-001",  # Can override with the `ModelRunExpander`.
+        model_deployment="openai/text-curie-001",  # Can override with the `ModelDeploymentRunExpander`.
         max_train_instances=5,  # Can override with the `MaxTrainInstancesRunExpander`.
         num_outputs=1,  # Can override with the `NumOutputsRunExpander`.
         # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",

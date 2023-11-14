@@ -378,7 +378,7 @@ class ModelDeploymentRunExpander(ReplaceValueRunExpander):
                     raise ValueError(f"No deployment found for model={model_name}")
 
             if len(model_deployments) == 0:
-                raise ValueError(f"No valid model deployments found for model={value}")
+                hlog(f"WARNING: No valid model deployments found for model={value}")
 
             value = model_deployments
 
@@ -428,12 +428,6 @@ class ModelDeploymentRunExpander(ReplaceValueRunExpander):
             else:
                 values_dict[family_name] = models
         return values_dict
-
-
-class ModelRunExpander(ModelDeploymentRunExpander):
-    @property
-    def key_name(self) -> str:
-        return "model"
 
 
 ############################################################
