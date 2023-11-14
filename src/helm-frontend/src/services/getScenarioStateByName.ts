@@ -1,8 +1,8 @@
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export function getScenarioStateByNameUrl(runName: string): string {
   return getBenchmarkEndpoint(
-    `/benchmark_output/runs/${getBenchmarkSuite()}/${runName}/scenario_state.json`,
+    `${getVersionBaseUrl()}/${runName}/scenario_state.json`,
   );
 }

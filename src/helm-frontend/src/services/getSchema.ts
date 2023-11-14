@@ -1,11 +1,12 @@
 import { parse } from "yaml";
 
 import type Schema from "@/types/Schema";
+import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
 export default async function getSchema(signal: AbortSignal): Promise<Schema> {
   try {
     const resp = await fetch(
-      "https://crfm.stanford.edu/helm/latest/schema.yaml",
+      `https://crfm.stanford.edu/helm/${getBenchmarkSuite()}/schema.yaml`,
       { signal },
     );
     const data = await resp.text();
