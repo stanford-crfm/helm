@@ -211,7 +211,7 @@ def helper_prod_test_service(request: Request, expected_text: str):
 
 
 # Models that we want to test
-prod_models = ["openai/davinci", "ai21/j1-jumbo"]
+prod_model_deployments = ["openai/davinci", "ai21/j1-jumbo"]
 
 
 # TODO: put a flag on this so that it's easy to use pytest to still run these slow tests
@@ -220,8 +220,10 @@ prod_models = ["openai/davinci", "ai21/j1-jumbo"]
 def test_prod_continue():
     # Test that we're continuing
     prompt = "Paris is the capital of"
-    for model in prod_models:
-        request = Request(prompt=prompt, model_deployment=model, max_tokens=1, num_completions=1, temperature=0)
+    for model_deployment in prod_model_deployments:
+        request = Request(
+            prompt=prompt, model_deployment=model_deployment, max_tokens=1, num_completions=1, temperature=0
+        )
         helper_prod_test_service(request, " France")
 
 
@@ -229,6 +231,8 @@ def test_prod_continue():
 def test_prod_echo():
     # If we're echoing the prompt, make sure we're getting the same thing back
     prompt = "I like pickles."
-    for model in prod_models:
-        request = Request(prompt=prompt, model_deployment=model, max_tokens=0, num_completions=1, echo_prompt=True)
+    for model_deployment in prod_model_deployments:
+        request = Request(
+            prompt=prompt, model_deployment=model_deployment, max_tokens=0, num_completions=1, echo_prompt=True
+        )
         helper_prod_test_service(request, prompt)

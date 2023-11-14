@@ -69,6 +69,8 @@ def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) 
     request: Dict[str, Any] = {}
     request["prompt"] = substitute_text(prompt, environment)
     request.update(parse_hocon(substitute_text(settings, environment)))
+    if "model_deployment" not in request and "model" not in request:
+        request["model_deployment"] = "openai/text-davinci-002"
     return Request(**request)
 
 
