@@ -52,7 +52,7 @@ class SummarizationMetric(Metric):
         # avoid triggering a bug in DataStatsMetric that raises
         # `NameError: name 'stderr' is not defined`
         if not spacy.util.is_package("en_core_web_sm"):
-            spacy.cli.download("en_core_web_sm")  # type: ignore
+            spacy.cli.download("en_core_web_sm")
 
         try:
             from summ_eval.data_stats_metric import DataStatsMetric

@@ -36,3 +36,7 @@ Examples of run specs configuration files can be found [here](https://github.com
 We used [this configuration file](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_specs_heim.conf) 
 to produce results of the paper.
 
+
+## Next steps
+
+Click [here](get_helm_rank.md) to find out how to to run the full benchmark and get your model's leaderboard rank.

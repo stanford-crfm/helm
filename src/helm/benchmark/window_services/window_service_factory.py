@@ -311,7 +311,9 @@ class WindowServiceFactory:
 
             window_service = LitGPTWindowServce(service)
         elif organization == "mistralai":
-            window_service = HuggingFaceWindowService(service, tokenizer_name="mistralai/Mistral-7B-v0.1")
+            window_service = HuggingFaceWindowService(
+                service, tokenizer_name="mistralai/Mistral-7B-v0.1", max_sequence_length=4095
+            )
         elif model_name in [
             "HuggingFaceM4/idefics-9b",
             "HuggingFaceM4/idefics-9b-instruct",

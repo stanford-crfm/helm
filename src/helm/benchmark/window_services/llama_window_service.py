@@ -21,8 +21,4 @@ class Llama2WindowService(HuggingFaceWindowService):
     #     meta-llama/Llama-2-70b-hf is not a local folder and is not a valid model identifier listed on
     #     'https://huggingface.co/models'
     def __init__(self, service: TokenizerService):
-        super().__init__(service, "meta-llama/Llama-2-7b-hf")
-
-    @property
-    def max_sequence_length(self) -> int:
-        return 4096
+        super().__init__(service, "meta-llama/Llama-2-7b-hf", max_sequence_length=4096)
