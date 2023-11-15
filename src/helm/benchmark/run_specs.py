@@ -2531,7 +2531,7 @@ def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, promp
 
 
 def get_default_model_deployment_for_model(
-    model_name: str, warn_arg_deprecated: bool = True, ignore_deprecated: bool = False
+    model_name: str, warn_arg_deprecated: bool = False, ignore_deprecated: bool = False
 ) -> Optional[str]:
     """Returns a valid model deployment name corresponding to the given model arg.
     This is used as a backwards compatibility layer for model names that are now moved to model deployments.
@@ -2587,8 +2587,9 @@ def get_default_model_deployment_for_model(
         elif ignore_deprecated:
             return None
         else:
-            hlog(f"WARNING: All model deployments for model {model_name} are deprecated.")
             chosen_deployment = available_deployments[0]
+            if warn_arg_deprecated:
+                hlog(f"WARNING: All model deployments for model {model_name} are deprecated.")
         if warn_arg_deprecated:
             hlog(
                 f"Choosing {chosen_deployment.name} (the first one) as "
