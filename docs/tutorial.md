@@ -14,8 +14,8 @@ Next, we need to create a **run spec configuration file** contining these run sp
 
 ```
 entries: [
-  {description: "mmlu:subject=anatomy,model=huggingface/gpt2", priority: 1},
-  {description: "mmlu:subject=philosophy,model=huggingface/gpt2", priority: 1},
+  {description: "mmlu:subject=anatomy,model=openai/gpt2", priority: 1},
+  {description: "mmlu:subject=philosophy,model=openai/gpt2", priority: 1},
 ]
 ```
 

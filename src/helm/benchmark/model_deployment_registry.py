@@ -79,6 +79,10 @@ class ModelDeployment:
         """
         return self.name.split("/")[1]
 
+    def __post_init__(self):
+        if not self.model_name:
+            object.__setattr__(self, "model_name", self.name)
+
 
 @dataclass(frozen=True)
 class ModelDeployments:
