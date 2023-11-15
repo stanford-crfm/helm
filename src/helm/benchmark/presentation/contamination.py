@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 import dacite
 import importlib_resources as resources
-import yaml  # type: ignore
+import yaml
 
 from helm.common.hierarchical_logger import htrack, hlog
 from helm.proxy.models import MODEL_NAME_TO_MODEL

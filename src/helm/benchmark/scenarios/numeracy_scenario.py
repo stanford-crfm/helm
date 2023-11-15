@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from itertools import combinations_with_replacement, product
 import math
-from math import comb  # type: ignore
+from math import comb
 import numpy as np
 import numpy.typing as npt
 import random
