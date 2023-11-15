@@ -176,6 +176,10 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
     ):
         hlog(f"Skipping writing display JSON for run {run_spec.name} because all output display JSON files exist.")
         return
+    if not os.path.exists(instances_file_path):
+        hlog(f"Skipping writing display JSON for run {run_spec.name} because no instance.json file exists.")
+        return
+
     scenario_state = _read_scenario_state(run_path)
     per_instance_stats = _read_per_instance_stats(run_path)
 
