@@ -1,5 +1,6 @@
 # mypy: check_untyped_defs = False
 from typing import List
+from helm.benchmark.window_services.gpt2_window_service import GPT2WindowService
 
 from helm.common.tokenization_request import TokenizationToken
 from helm.benchmark.adaptation.request_state import RequestState
@@ -8,6 +9,18 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_LANGUAGE_MODELING
 from .test_adapter import TestAdapter
 from helm.benchmark.scenarios.scenario import Instance, Input, Reference
+
+
+class MockGPT2Window(GPT2WindowService):
+    """Utility for overriding properties of a GPT2WindowService for test purposes."""
+
+    def __init__(self, service, *, max_sequence_length):
+        super().__init__(service)
+        self._max_sequence_length = max_sequence_length
+
+    @property
+    def max_sequence_length(self) -> int:
+        return self._max_sequence_length
 
 
 class TestLanguageModelingAdapter(TestAdapter):
@@ -125,3 +138,30 @@ class TestLanguageModelingAdapter(TestAdapter):
         num_tokens_2 = len(adapter_2.window_service.encode(request_long_2.prompt).token_values)
         assert num_tokens_2 == adapter.window_service.max_sequence_and_generated_tokens_length - 2000
         assert request_long_2.max_tokens == 2000
+
+    # TODO(#1969) Determine if this behavior is actually desirable.
+    def test_prompt_wrapping(self):
+        input_tokens = 25
+        max_sequence_length = 10
+        adapter_spec = AdapterSpec(
+            method=ADAPT_LANGUAGE_MODELING,
+            input_prefix="",
+            model="openai/code-davinci-002",
+            output_prefix="",
+            max_tokens=0,
+        )
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        # Monkey patch the window service to have really short max sequences.
+        adapter.window_service = MockGPT2Window(self.tokenizer_service, max_sequence_length=max_sequence_length)
+        input_text = Input(text=" ".join(str(i) for i in range(input_tokens)))
+        instance = Instance(input=input_text, references=[])
+
+        # Generate the requests
+        request_states: List[RequestState] = adapter.adapt([instance], parallelism=1).request_states
+        # A smaller window service creates more requests
+        assert len(request_states) == 3
+        assert request_states[0].request.prompt == "<|endoftext|>0 1 2 3 4 5 6 7 8 9"
+        # Only the first prompt inclues the prefix_token
+        assert request_states[1].request.prompt == " 9 10 11 12 13 14 15 16 17 18 19"
+        # The last prompt includes as many conditioning_tokens as will fit
+        assert request_states[2].request.prompt == " 14 15 16 17 18 19 20 21 22 23 24"
