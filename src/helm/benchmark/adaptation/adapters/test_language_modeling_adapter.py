@@ -160,7 +160,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         # Monkey patch the window service to have really short max sequences.
         adapter.window_service = MockGPT2Window(self.tokenizer_service, max_sequence_length=max_sequence_length)
         input_text = Input(text=" ".join(str(i) for i in range(input_tokens)))
-        instance = Instance(input=input_text, references=[])
+        instance = Instance(input=input_text, references=[], split=TEST_SPLIT)
 
         # Generate the requests
         request_states: List[RequestState] = adapter.adapt([instance], parallelism=1).request_states
