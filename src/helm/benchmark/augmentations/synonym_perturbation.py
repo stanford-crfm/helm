@@ -11,10 +11,10 @@ import spacy
 
 from helm.common.general import match_case, ensure_file_downloaded
 from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 
 
-class SynonymPerturbation(Perturbation):
+class SynonymPerturbation(TextPerturbation):
     """
     Synonyms. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/blob/main/nlaugmenter/transformations/synonym_substitution/transformation.py

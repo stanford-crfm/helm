@@ -92,7 +92,7 @@ class EntityMatchingScenario(Scenario):
             num_neg_classes: int = sum(merged["label"] == 0)
             assert num_pos_classes < num_neg_classes
             sample_fn = lambda x: x.sample(num_pos_classes)
-            merged = merged.groupby("label", group_keys=False).apply(sample_fn)  # type: ignore
+            merged = merged.groupby("label", group_keys=False).apply(sample_fn)
         return merged
 
     def serialize_row(self, row: pd.core.series.Series, column_map: Dict[str, str]) -> str:

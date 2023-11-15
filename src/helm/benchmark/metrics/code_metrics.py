@@ -106,12 +106,13 @@ class APPSMetric(Metric):
                     hlog(f"After second join thread count: {threading.active_count()}. exitcode: {p.exitcode}")
                     assert not p.is_alive(), "The code process was still alive even after calling kill."
 
-                if len(shared_list) == 0:
+                if len(shared_list) > 0:
+                    scores = shared_list[0]
+                else:
                     # Remark: ideally should consider all tests that failed;
                     # use the average number of tests here for simplicity
                     avg_number_tests = 21
-                    shared_list = [[-1] * avg_number_tests]  # type: ignore
-                scores = shared_list[0]
+                    scores = [-1] * avg_number_tests
 
                 scores = _convert_scores(scores)  # Convert list of bool/int to list of ints.
                 this_score = metric_fn(scores)

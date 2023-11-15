@@ -71,10 +71,7 @@ export default function Models() {
 
   return (
     <>
-      <PageTitle
-        title="Models"
-        subtitle="HELM evaluates models ranging from hundreds of millions to hundreds of billions of parameters. The models are trained on a varietry of data sources, such as general language understanding, instruction following, multi-task learning, code completion, chatbot functionalities, and various other applications."
-      />
+      <PageTitle title="Models" />
 
       <div className="overflow-x-auto mt-12">
         <table className="table">
@@ -106,10 +103,7 @@ export default function Models() {
           </tbody>
         </table>
 
-        <PageTitle
-          title="Analysis"
-          subtitle="Here is some high level analysis of the models that HELM supports"
-        />
+        <PageTitle title="Analysis" />
         <div className="grid md:grid-cols-3 grid-cols-1 gap-8">
           <Card className="flex flex-col justify-between">
             <Text>Models</Text>

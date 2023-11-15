@@ -797,18 +797,6 @@ ALL_MODELS = [
     ),
     Model(
         group="palmyra",
-        name="writer/palmyra-r",
-        # Does not support echo
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
-    ),
-    Model(
-        group="palmyra",
-        name="writer/camel",
-        # Does not support echo
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
-    ),
-    Model(
-        group="palmyra",
         name="writer/palmyra-instruct-30",
         # Does not support echo
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
