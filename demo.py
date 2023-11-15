@@ -25,7 +25,7 @@ print(request_result.completions[0].text)
 
 # Expect different responses for the same request but with different values for `random`.
 # Passing in the same value for `random` guarantees the same results.
-request = Request(prompt="Life is like a box of", random="1")
+request = Request(model="ai21/j2-large", model_deployment="ai21/j2-large", prompt="Life is like a box of", random="1")
 request_result = service.make_request(auth, request)
 print(request_result.completions[0].text)
 
