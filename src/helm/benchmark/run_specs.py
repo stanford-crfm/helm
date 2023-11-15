@@ -1887,7 +1887,6 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     # "metrics" is a required field. The default values were populated using the link above.
     adapter_spec = AdapterSpec(
         method=get_adaptation_method(big_bench_task["metrics"]),
-        model_deployment="openai/text-curie-001",  # Can override with the `ModelDeploymentRunExpander`.
         max_train_instances=5,  # Can override with the `MaxTrainInstancesRunExpander`.
         num_outputs=1,  # Can override with the `NumOutputsRunExpander`.
         # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",
@@ -2630,7 +2629,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
         if not run_spec.adapter_spec.model and not run_spec.adapter_spec.model_deployment:
             raise ValueError("At least one of model_deployment and model must be specified")
-        if not run_spec.adapter_spec.model and run_spec.adapter_spec.model_deployment:
+        elif not run_spec.adapter_spec.model and run_spec.adapter_spec.model_deployment:
             # Infer model from model deployment
             default_model_name = get_model_deployment(run_spec.adapter_spec.model_deployment).model_name
             if not default_model_name:
@@ -2639,7 +2638,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
                 run_spec,
                 adapter_spec=dataclasses.replace(run_spec.adapter_spec, model=default_model_name),
             )
-        if run_spec.adapter_spec.model and not run_spec.adapter_spec.model_deployment:
+        elif run_spec.adapter_spec.model and not run_spec.adapter_spec.model_deployment:
             # Infer model deployment from model
             default_model_deployment = get_default_model_deployment_for_model(run_spec.adapter_spec.model)
             if not default_model_deployment:
