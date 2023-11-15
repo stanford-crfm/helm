@@ -32,6 +32,7 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_construct_prompt(self):
         adapter_spec = AdapterSpec(
+            model="openai/davinci",
             model_deployment="openai/davinci",
             method=ADAPT_GENERATION,
             input_prefix="",
@@ -59,6 +60,7 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_construct_prompt_with_truncation(self):
         adapter_spec = AdapterSpec(
+            model="openai/davinci",
             model_deployment="openai/davinci",
             method=ADAPT_GENERATION,
             input_prefix="",
@@ -84,7 +86,9 @@ class TestGenerationAdapter(TestAdapter):
         assert prompt_text.count("eval") == 1948
 
     def test_sample_examples_without_references(self):
-        adapter_spec = AdapterSpec(method=ADAPT_GENERATION, model_deployment="openai/ada", max_train_instances=1)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION, model="openai/ada", model_deployment="openai/ada", max_train_instances=1
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
             Instance(Input(text="prompt1"), references=[]),
@@ -96,7 +100,9 @@ class TestGenerationAdapter(TestAdapter):
         assert len(examples) == 1
 
     def test_sample_examples_open_ended_generation(self):
-        adapter_spec = AdapterSpec(method=ADAPT_GENERATION, model_deployment="openai/ada", max_train_instances=3)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION, model="openai/ada", model_deployment="openai/ada", max_train_instances=3
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
 
         all_train_instances: List[Instance] = [
@@ -110,7 +116,9 @@ class TestGenerationAdapter(TestAdapter):
         assert seed0_examples != seed1_examples, "Examples should differ when changing the seed"
 
     def test_sample_examples_open_ended_generation_stress(self):
-        adapter_spec = AdapterSpec(method=ADAPT_GENERATION, model_deployment="openai/ada", max_train_instances=5)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION, model="openai/ada", model_deployment="openai/ada", max_train_instances=5
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
 
         all_train_instances: List[Instance] = [
@@ -150,7 +158,11 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_multiple_correct_reference(self):
         adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION, model_deployment="openai/ada", max_train_instances=2, sample_train=False
+            method=ADAPT_GENERATION,
+            model="openai/ada",
+            model_deployment="openai/ada",
+            max_train_instances=2,
+            sample_train=False,
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         train_instances = [
@@ -196,6 +208,7 @@ class TestGenerationAdapter(TestAdapter):
     def test_multiple_correct_reference_multi_label(self):
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
+            model="openai/ada",
             model_deployment="openai/ada",
             max_train_instances=2,
             multi_label=True,

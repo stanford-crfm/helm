@@ -10,6 +10,7 @@ class TestAI21TokenCounter:
 
     def test_count_tokens(self):
         request = Request(
+            model="openai/text-davinci-002",
             model_deployment="openai/text-davinci-002",
             prompt="The Center for Research on Foundation Models (CRFM) is "
             "an interdisciplinary initiative born out of the Stanford "

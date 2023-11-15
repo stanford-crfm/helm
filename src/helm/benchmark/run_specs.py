@@ -438,6 +438,7 @@ def get_adapter_spec1() -> AdapterSpec:
         max_eval_instances=10,
         num_outputs=3,
         num_train_trials=3,
+        model="simple/model1",
         model_deployment="simple/model1",
         temperature=1,
         stop_sequences=["."],

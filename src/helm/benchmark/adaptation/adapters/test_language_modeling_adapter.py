@@ -15,6 +15,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
+            model="openai/davinci",
             model_deployment="openai/davinci",
             output_prefix="",
             max_tokens=0,
@@ -38,6 +39,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
+            model="openai/curie",
             model_deployment="openai/curie",
             output_prefix="",
             max_tokens=0,
@@ -69,6 +71,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
+            model="anthropic/claude-v1.3",
             model_deployment="anthropic/claude-v1.3",
             output_prefix="",
             max_tokens=0,
@@ -104,6 +107,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         adapter_spec_2_ = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
+            model="anthropic/claude-v1.3",
             model_deployment="anthropic/claude-v1.3",
             output_prefix="",
             max_tokens=2000,

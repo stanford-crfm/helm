@@ -26,7 +26,7 @@ def _request_state(prediction: str, options: List[_Option]):
         request_mode=None,
         train_trial_index=0,
         output_mapping=None,
-        request=Request(model_deployment="openai/text-davinci-002"),
+        request=Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002"),
         result=RequestResult(
             success=True, embedding=[], completions=[Sequence(text=prediction, logprob=0.0, tokens=[])], cached=False
         ),

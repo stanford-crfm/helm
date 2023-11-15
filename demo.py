@@ -17,7 +17,9 @@ account: Account = service.get_account(auth)
 print(account.usages)
 
 # Make a request
-request = Request(model_deployment="ai21/j2-large", prompt="Life is like a box of", echo_prompt=True)
+request = Request(
+    model="ai21/j2-large", model_deployment="ai21/j2-large", prompt="Life is like a box of", echo_prompt=True
+)
 request_result: RequestResult = service.make_request(auth, request)
 print(request_result.completions[0].text)
 
@@ -28,7 +30,12 @@ request_result = service.make_request(auth, request)
 print(request_result.completions[0].text)
 
 # How to get the embedding for some text
-request = Request(model_deployment="openai/text-similarity-ada-002", prompt="Life is like a box of", embedding=True)
+request = Request(
+    model="openai/text-similarity-ada-002",
+    model_deployment="openai/text-similarity-ada-002",
+    prompt="Life is like a box of",
+    embedding=True,
+)
 request_result = service.make_request(auth, request)
 print(request_result.embedding)
 

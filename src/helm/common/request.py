@@ -2,7 +2,6 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
-from helm.benchmark.model_deployment_registry import get_model_deployment, ModelDeployment
 from helm.common.media_object import MultimediaObject
 from .general import indent_lines, format_text
 
@@ -15,7 +14,7 @@ class Request:
     various APIs (e.g., GPT-3, Jurassic).
     """
 
-    model_deployment: str
+    model_deployment: str = ""
     """Which model deployment to query -> Determines the Client.
     Refers to a deployment in the model deployment registry."""
 
@@ -87,19 +86,6 @@ class Request:
         This is why we need to keep track of the model engine with the model metadata.
         Example: 'openai/davinci' => 'davinci'"""
         return self.model.split("/")[1]
-
-    # If only the model_deployment has been provided, then infer the model from the model_deployment
-    # Otherwise check that the deployment correctly implements the model.
-    def __post_init__(self):
-        deployment: ModelDeployment = get_model_deployment(self.model_deployment)
-        if self.model == "":
-            # Bypassing the frozen attribute to set the model
-            object.__setattr__(self, "model", deployment.model_name)
-        elif deployment.model_name != self.model:
-            raise ValueError(
-                f"Model deployment {self.model_deployment} does not implement model {self.model}. "
-                f"Available models: {deployment.model_name}"
-            )
 
 
 @dataclass(frozen=True)

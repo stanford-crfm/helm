@@ -2,13 +2,13 @@
 
 This tutorial will explain how to use the HELM command line tools to run benchmarks, aggregate statistics, and visualize results.
 
-We will run two runs using the `mmlu` scenario on the `huggingface/gpt-2` model. The `mmlu` scenario implements the **Massive Multitask Language (MMLU)** benchmark from [this paper](https://arxiv.org/pdf/2009.03300.pdf), and consists of a Question Answering (QA) task using a dataset with questions from 57 subjects such as elementary mathematics, US history, computer science, law, and more. Note that GPT-2 performs poorly on MMLU, so this is just a proof of concept. We will run two runs: the first using questions about anatomy, and the second using questions about philosophy.
+We will run two runs using the `mmlu` scenario on the `openai/gpt2` model. The `mmlu` scenario implements the **Massive Multitask Language (MMLU)** benchmark from [this paper](https://arxiv.org/pdf/2009.03300.pdf), and consists of a Question Answering (QA) task using a dataset with questions from 57 subjects such as elementary mathematics, US history, computer science, law, and more. Note that GPT-2 performs poorly on MMLU, so this is just a proof of concept. We will run two runs: the first using questions about anatomy, and the second using questions about philosophy.
 
 ## Using `helm-run`
 
 `helm-run` is a command line tool for running benchmarks.
 
-To run this benchmark using the HELM command-line tools, we need to specify **run spec descriptions** that describes the desired runs. For this example, the run spec descriptions are `mmlu:subject=anatomy,model=huggingface/gpt-2` (for anatomy) and `mmlu:subject=philosophy,model=huggingface/gpt-2` (for philosophy).
+To run this benchmark using the HELM command-line tools, we need to specify **run spec descriptions** that describes the desired runs. For this example, the run spec descriptions are `mmlu:subject=anatomy,model=openai/gpt2` (for anatomy) and `mmlu:subject=philosophy,model=openai/gpt2` (for philosophy).
 
 Next, we need to create a **run spec configuration file** contining these run spec descriptions. A run spec configuration file is a text file containing `RunEntries` serialized to JSON, where each entry in `RunEntries` contains a run spec description. The `description` field of each entry should be a **run spec description**. Create a text file named `run_specs.conf` with the following contents:
 
@@ -35,7 +35,7 @@ The meaning of the additional arguments are as follows:
 -  The environment directory is `prod_env/` by default and can be set using `--local-path`. Credentials for making API calls should be added to a `credentials.conf` file in this directory.
 -  The output directory is `benchmark_output/` by default and can be set using `--output-path`.
 
-After running this command, navigate to the `benchmark_output/runs/v1/` directory. This should contain a two sub-directories named `mmlu:subject=anatomy,model=huggingface_gpt-2` and `mmlu:subject=philosophy,model=huggingface_gpt-2`. Note that the names of these sub-directories is based on the run spec descriptions we used earlier, but with `/` replaced with `_`.
+After running this command, navigate to the `benchmark_output/runs/v1/` directory. This should contain a two sub-directories named `mmlu:subject=anatomy,model=openai_gpt-2` and `mmlu:subject=philosophy,model=openai_gpt-2`. Note that the names of these sub-directories is based on the run spec descriptions we used earlier, but with `/` replaced with `_`.
 
 Each output sub-directory will contain several JSON files that were generated during the corresponding run:
 
