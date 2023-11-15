@@ -35,7 +35,7 @@ The meaning of the additional arguments are as follows:
 -  The environment directory is `prod_env/` by default and can be set using `--local-path`. Credentials for making API calls should be added to a `credentials.conf` file in this directory.
 -  The output directory is `benchmark_output/` by default and can be set using `--output-path`.
 
-After running this command, navigate to the `benchmark_output/runs/v1/` directory. This should contain a two sub-directories named `mmlu:subject=anatomy,model=openai_gpt-2` and `mmlu:subject=philosophy,model=openai_gpt-2`. Note that the names of these sub-directories is based on the run spec descriptions we used earlier, but with `/` replaced with `_`.
+After running this command, navigate to the `benchmark_output/runs/v1/` directory. This should contain a two sub-directories named `mmlu:subject=anatomy,model=openai_gpt2` and `mmlu:subject=philosophy,model=openai_gpt2`. Note that the names of these sub-directories is based on the run spec descriptions we used earlier, but with `/` replaced with `_`.
 
 Each output sub-directory will contain several JSON files that were generated during the corresponding run:
 
