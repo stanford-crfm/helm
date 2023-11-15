@@ -34,7 +34,9 @@ class TestServerService:
 
     def test_make_request(self):
         num_completions = 2
-        request = Request(prompt="1 2 3", model_deployment="simple/model1", num_completions=num_completions)
+        request = Request(
+            prompt="1 2 3", model="simple/model1", model_deployment="simple/model1", num_completions=num_completions
+        )
         result = self.service.make_request(self.auth, request)
         assert len(result.completions) == num_completions
 

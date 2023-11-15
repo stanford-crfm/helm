@@ -37,6 +37,7 @@ class TestOpenAITokenCostEstimator:
 
     def test_estimate_tokens(self):
         request = Request(
+            model="openai/text-davinci-002",
             model_deployment="openai/text-davinci-002",
             prompt=TestOpenAITokenCostEstimator.TEST_PROMPT,
             num_completions=3,
@@ -48,6 +49,7 @@ class TestOpenAITokenCostEstimator:
 
     def test_estimate_tokens_with_echo_prompt(self):
         request = Request(
+            model="openai/text-davinci-002",
             model_deployment="openai/text-davinci-002",
             prompt=TestOpenAITokenCostEstimator.TEST_PROMPT,
             echo_prompt=True,

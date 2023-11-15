@@ -26,7 +26,8 @@ class TestAutoClient:
 
     def test_make_request_databricks(self):
         request = Request(
-            model_deployment="databricks/dolly-v2-3b",
+            model="databricks/dolly-v2-3b",
+            model_deployment="together/dolly-v2-3b",
             prompt="Elephants are one of the most",
             temperature=0.0,
             max_tokens=10,
@@ -68,7 +69,8 @@ class TestAutoClient:
             cached=False,
         )
         request = Request(
-            model_deployment="databricks/dolly-v2-3b",
+            model="databricks/dolly-v2-3b",
+            model_deployment="together/dolly-v2-3b",
             prompt="Elephants are one of the most",
             temperature=0.0,
             max_tokens=10,

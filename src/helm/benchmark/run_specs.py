@@ -1,8 +1,10 @@
+import dataclasses
 import importlib
 import itertools
 from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
+from helm.benchmark.model_deployment_registry import ALL_MODEL_DEPLOYMENTS, DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.object_spec import ObjectSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import (
@@ -19,7 +21,6 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from .metrics.metric import MetricSpec
 from .run_expander import (
     RUN_EXPANDERS,
-    ModelDeploymentRunExpander,
     RunExpander,
     GlobalPrefixRunExpander,
     StopRunExpander,
@@ -437,6 +438,7 @@ def get_adapter_spec1() -> AdapterSpec:
         max_eval_instances=10,
         num_outputs=3,
         num_train_trials=3,
+        model="simple/model1",
         model_deployment="simple/model1",
         temperature=1,
         stop_sequences=["."],
@@ -1886,7 +1888,6 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     # "metrics" is a required field. The default values were populated using the link above.
     adapter_spec = AdapterSpec(
         method=get_adaptation_method(big_bench_task["metrics"]),
-        model_deployment="openai/text-curie-001",  # Can override with the `ModelDeploymentRunExpander`.
         max_train_instances=5,  # Can override with the `MaxTrainInstancesRunExpander`.
         num_outputs=1,  # Can override with the `NumOutputsRunExpander`.
         # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",
@@ -2530,6 +2531,80 @@ def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, promp
 ############################################################
 
 
+def get_default_model_deployment_for_model(
+    model_name: str, warn_arg_deprecated: bool = False, ignore_deprecated: bool = False
+) -> Optional[str]:
+    """Returns a valid model deployment name corresponding to the given model arg.
+    This is used as a backwards compatibility layer for model names that are now moved to model deployments.
+    Example: "anthropic/claude-v1.3" => "anthropic/claude-v1.3"
+    Example: "meta/llama-7b" => "together/llama-7b"
+
+    The process to find a model deployment name is as follows:
+    1. If there is a model deployment with the same name as the model arg, use it.
+    2. If there is at least one deployment for the model, use the first one that is available.
+    3. If there are no deployments for the model, returns None.
+
+    This function will also try to find a model deployment name that is not deprecated.
+    If there are no non-deprecated deployments, it will return the first deployment (even if it's deprecated).
+    If ignore_deprecated is True, this function will return None if the model deployment is deprecated.
+
+    If warn_arg_deprecated is True, this function will print a warning if the model deployment name is not the same
+    as the model arg. This is to remind the user that the model name is deprecated and should be replaced with
+    the model deployment name (in their config).
+
+    Args:
+        model_arg: The model arg to convert to a model deployment name.
+        warn_arg_deprecated: Whether to print a warning if the model deployment name is not the same as the model arg.
+        ignore_deprecated: Whether to return None if the model deployment is deprecated.
+    """
+
+    # If there is a model deployment with the same name as the model arg, use it.
+    if model_name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
+        deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_name]
+        if deployment.deprecated and ignore_deprecated:
+            if warn_arg_deprecated:
+                hlog(f"WARNING: Model deployment {model_name} is deprecated")
+            return None
+        return deployment.name
+
+    # If there is at least one deployment for the model, use the first one that is available.
+    available_deployments: List[ModelDeployment] = [
+        deployment for deployment in ALL_MODEL_DEPLOYMENTS if deployment.model_name == model_name
+    ]
+    if len(available_deployments) > 0:
+        available_deployment_names: List[str] = [deployment.name for deployment in available_deployments]
+        if warn_arg_deprecated:
+            hlog("WARNING: Model name is deprecated. Please use the model deployment name instead.")
+            hlog(f"Available model deployments for model {model_name}: {available_deployment_names}")
+
+        # Additionally, if there is a non-deprecated deployment, use it.
+        non_deprecated_deployments: List[ModelDeployment] = [
+            deployment for deployment in available_deployments if not deployment.deprecated
+        ]
+        if len(non_deprecated_deployments) > 0:
+            chosen_deployment = non_deprecated_deployments[0]
+        # There are no non-deprecated deployments, so there are two options:
+        # 1. If we can return an empty string, return it. (no model deployment is available)
+        # 2. If we can't return an empty string, return the first deployment (even if it's deprecated).
+        elif ignore_deprecated:
+            return None
+        else:
+            chosen_deployment = available_deployments[0]
+            if warn_arg_deprecated:
+                hlog(f"WARNING: All model deployments for model {model_name} are deprecated.")
+        if warn_arg_deprecated:
+            hlog(
+                f"Choosing {chosen_deployment.name} (the first one) as "
+                f"the default model deployment for model {model_name}"
+            )
+            hlog("If you want to use a different model deployment, please specify it explicitly.")
+        return chosen_deployment.name
+
+    # Some models are added but have no deployments yet.
+    # In this case, we return None.
+    return None
+
+
 def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     """
     Takes a specification (name, args) and returns a list of `RunSpec`s.
@@ -2542,25 +2617,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         raise ValueError(f"Unknown run spec name: {name}")
 
     # Peel off the run expanders (e.g., model)
-    # DEPRECATED: Support for the old model name format
-    # All users should be using the model_deployment keyword argument instead.
-    # TODO: Remove this once we've migrated all the configs
-    expanders: List[RunExpander] = []
-    if args.get("model_deployment", None) is not None and args.get("model", None) is not None:
-        raise ValueError("Cannot specify both model and model_deployment")
-    elif args.get("model_deployment", None) is not None:
-        expanders.append(ModelDeploymentRunExpander(args["model_deployment"]))
-        args.pop("model_deployment")
-    elif args.get("model", None) is not None:
-        run_expander = ModelDeploymentRunExpander(args["model"], used_deprecated_model_tag=True)
-        if not args["model"] in run_expander.values_dict:
-            # Raise a warning if model=... is used except for cases in values dict such as model=text.
-            hlog("WARNING: Using deprecated model name format. Please use model_deployment instead.")
-        expanders.append(run_expander)
-        args.pop("model")
-    else:
-        raise ValueError("No model specified")
-    expanders += [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
+    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs
@@ -2573,15 +2630,41 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
-        try:
-            deployment: ModelDeployment = get_model_deployment(run_spec.adapter_spec.model_deployment)
-            model_name: str = deployment.model_name or deployment.name
-            model: ModelMetadata = get_model_metadata(model_name)
-        except ValueError:
-            # Models registered from configs cannot have expanders applied to them,
-            # because the models will not have been registered yet at this point.
-            # TODO: Figure out a cleaner way to deal with this.
-            return run_spec
+        if not run_spec.adapter_spec.model and not run_spec.adapter_spec.model_deployment:
+            raise ValueError("At least one of model_deployment and model must be specified")
+        elif not run_spec.adapter_spec.model and run_spec.adapter_spec.model_deployment:
+            # Infer model from model deployment
+            default_model_name = get_model_deployment(run_spec.adapter_spec.model_deployment).model_name
+            if not default_model_name:
+                default_model_name = run_spec.adapter_spec.model_deployment
+            run_spec = dataclasses.replace(
+                run_spec,
+                adapter_spec=dataclasses.replace(run_spec.adapter_spec, model=default_model_name),
+            )
+        elif run_spec.adapter_spec.model and not run_spec.adapter_spec.model_deployment:
+            # Infer model deployment from model
+            default_model_deployment = get_default_model_deployment_for_model(run_spec.adapter_spec.model)
+            if not default_model_deployment:
+                raise ValueError(
+                    f"Unknown model or no default model deployment found for model {run_spec.adapter_spec.model}"
+                )
+            run_spec = dataclasses.replace(
+                run_spec,
+                adapter_spec=dataclasses.replace(run_spec.adapter_spec, model_deployment=default_model_deployment),
+            )
+
+        # Both model and model_deployment should now be filled
+        assert run_spec.adapter_spec.model_deployment
+        assert run_spec.adapter_spec.model
+
+        model: ModelMetadata = get_model_metadata(run_spec.adapter_spec.model)
+        deployment: ModelDeployment = get_model_deployment(run_spec.adapter_spec.model_deployment)
+        if run_spec.adapter_spec.model != deployment.model_name:
+            raise ValueError(
+                f"Invalid RunSpec: selected model deployment '{run_spec.adapter_spec.model_deployment}'"
+                f"for model '{run_spec.adapter_spec.model}' but the model deployment is "
+                f"for a different model '{deployment.model_name}'"
+            )
         # For models that strip newlines, when we're generating, we need to set
         # the delimiter to be '###' so we stop properly.
         if NO_NEWLINES_TAG in model.tags and run_spec.adapter_spec.method in (
