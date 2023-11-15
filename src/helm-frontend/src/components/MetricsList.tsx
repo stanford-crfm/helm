@@ -10,10 +10,10 @@ interface Props {
 export default function MetricList({ metrics, metricGroups }: Props) {
   return (
     <section>
-      <h3 className="text-3xl">{metrics.length} Metrics</h3>
+      <h3 className="text-3xl">{metrics.length} metrics</h3>
       <ul>
         {metricGroups.map((metricGroup, idx) => (
-          <li key={idx}>
+          <li className="my-3" key={idx}>
             {metrics.filter((metric) =>
               metricGroup.metrics.some((m) => m.name === metric.name),
             ).length > 0 ? (

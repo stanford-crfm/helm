@@ -104,7 +104,7 @@ export default function Leaderboard() {
         <PageTitle
           title={"Leaderboard"}
           subtitle={
-            "See how models rank by selecting scenario groups to see how models we've evaluated performed on them."
+            "The leaderboard shows how the various models (with particular adaptation procedures) perform across different groups of scenarios and different metrics."
           }
           markdown={true}
           className="mr-8 mb-16"

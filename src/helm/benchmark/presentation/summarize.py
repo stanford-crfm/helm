@@ -168,7 +168,7 @@ def get_coarse_adapter_spec(
 
     # Create a new adapter_spec, keeping only the model and the keys in adapter_keys_shown
     adapter_spec_kwargs = {key: adapter_spec.__dict__[key] for key in adapter_keys_shown}
-    return AdapterSpec(**adapter_spec_kwargs)  # type: ignore
+    return AdapterSpec(**adapter_spec_kwargs)
 
 
 def get_method_display_name(model_display_name: Optional[str], info: Dict[str, Any]) -> str:

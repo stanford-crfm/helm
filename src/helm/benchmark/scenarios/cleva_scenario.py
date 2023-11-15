@@ -10,7 +10,12 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_GENERATION,
 )
-from helm.common.general import ensure_file_downloaded, ensure_directory_exists
+from helm.common.general import (
+    assert_is_str,
+    assert_is_str_list,
+    ensure_file_downloaded,
+    ensure_directory_exists,
+)
 from helm.common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 from .code_scenario import CodeReference, CodeInstance
@@ -69,26 +74,17 @@ class Converter:
         """Convert a data point in CLEVA format to a HELM instance according to a given CLEVA prompt template."""
         transformed_data = self._apply_all(copy.deepcopy(data), templates)
 
-        prompt: str = transformed_data["input"]  # type: ignore
-        assert isinstance(prompt, str)
+        prompt = assert_is_str(transformed_data["input"])
         if "choices" in transformed_data:
             # This is a multiple-choice task
-            choices: List[str] = transformed_data["choices"]  # type: ignore
-            # Gurantee `choices` must be `List[str]`
-            assert isinstance(choices, list)
-            for c in choices:
-                assert isinstance(c, str)
+            choices = assert_is_str_list(transformed_data["choices"])
             references: List[Reference] = [
                 Reference(Output(text=text), tags=[CORRECT_TAG] if idx in transformed_data["label"] else [])
                 for idx, text in enumerate(choices)
             ]
         else:
             # This is a generation task
-            correct_answer: List[str] = transformed_data["label"]  # type: ignore
-            # Gurantee `label` must be `List[str]`
-            assert isinstance(correct_answer, list)
-            for a in correct_answer:
-                assert isinstance(a, str)
+            correct_answer = assert_is_str_list(transformed_data["label"])
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in correct_answer]
 
         instance = Instance(
@@ -109,15 +105,12 @@ class Converter:
         to a HELM CodeInstance according to a given CLEVA prompt template.
         """
 
-        assert isinstance(templates["input"], str)
-        data["prompt"] = templates["input"].format(**data)
-        assert isinstance(data["prompt"], str)
-        assert isinstance(data["canonical_solution"], str)
+        data["prompt"] = assert_is_str(templates["input"]).format(**data)
         instance = CodeInstance(
-            input=Input(text=data["prompt"]),
+            input=Input(text=assert_is_str(data["prompt"])),
             references=[
                 CodeReference(
-                    output=Output(text=data["canonical_solution"]),
+                    output=Output(text=assert_is_str(data["canonical_solution"])),
                     test_cases=data,
                     tags=[CORRECT_TAG],
                 )
@@ -211,27 +204,18 @@ class Converter:
                 transformed_data[k] = self._apply(data[k], template, **data)
 
         # We then merge all other fields into the `input`
-        assert isinstance(templates["input"], str), "The input field of a template should be a string"
-        data["input"] = templates["input"].format(**transformed_data)
+        data["input"] = assert_is_str(templates["input"]).format(**transformed_data)
         if "choices" in data:
             # We take the corresponding choices and apply the `label` template
             # Note: we do not allow `label` template to access other fields in multi-choice tasks
             # Overwrite `choices` to the actual continuations
-            choices: List[str] = data["choices"]  # type: ignore
-            # Gurantee `choices` must be `List[str]`
-            assert isinstance(choices, list)
-            for c in choices:
-                assert isinstance(c, str)
+            choices = assert_is_str_list(data["choices"])
             data["choices"] = [self._apply(c, templates.get("label", None), label=c) for c in choices]
         else:
             # For generation tasks, we allow it to access to other stringified fields
             kwargs = transformed_data
             del kwargs["label"]
-            labels: List[str] = data["label"]  # type: ignore
-            # Gurantee `label` must be `List[str]`
-            assert isinstance(labels, list)
-            for label in labels:
-                assert isinstance(label, str)
+            labels = assert_is_str_list(data["label"])
             data["label"] = [self._apply(x, templates.get("label", None), **kwargs, label=x) for x in labels]
         return data
 

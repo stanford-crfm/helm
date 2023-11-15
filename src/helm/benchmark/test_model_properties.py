@@ -116,7 +116,7 @@ _BUILT_IN_TOKENIZER_CONFIGS = [
         name="tiiuae/falcon-7b",
         tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
         end_of_text_token="<|endoftext|>",
-        prefix_token=None,
+        prefix_token="",
     ),
     TokenizerConfig(
         name="bigcode/santacoder",
@@ -568,7 +568,6 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
             class_name="helm.benchmark.window_services.llama_window_service.Llama2WindowService"
         ),
         max_sequence_length=4096,
-        max_request_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
         name="together/llama-2-13b",
@@ -578,7 +577,6 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
             class_name="helm.benchmark.window_services.llama_window_service.Llama2WindowService"
         ),
         max_sequence_length=4096,
-        max_request_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
         name="together/llama-2-70b",
@@ -588,7 +586,6 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
             class_name="helm.benchmark.window_services.llama_window_service.Llama2WindowService"
         ),
         max_sequence_length=4096,
-        max_request_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
         name="together/alpaca-7b",
@@ -624,7 +621,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=1000000000000000019884624838656,
+        max_sequence_length=4095,
     ),
     ModelDeployment(
         name="together/mpt-7b",
