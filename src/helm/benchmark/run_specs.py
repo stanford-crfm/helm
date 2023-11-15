@@ -2561,7 +2561,8 @@ def get_default_model_deployment_for_model(
     if model_name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
         deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_name]
         if deployment.deprecated and ignore_deprecated:
-            hlog(f"WARNING: Model deployment {model_name} is deprecated")
+            if warn_arg_deprecated:
+                hlog(f"WARNING: Model deployment {model_name} is deprecated")
             return None
         return deployment.name
 
