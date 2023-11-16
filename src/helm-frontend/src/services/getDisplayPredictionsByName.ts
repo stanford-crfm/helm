@@ -1,4 +1,5 @@
 import type DisplayPrediction from "@/types/DisplayPrediction";
+import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
 export default async function getDisplayPredictionsByName(
@@ -9,14 +10,18 @@ export default async function getDisplayPredictionsByName(
   try {
     if (suite) {
       const displayPrediction = await fetch(
-        `/benchmark_output/runs/${suite}/${runName}/display_predictions.json`,
+        getBenchmarkEndpoint(
+          `/benchmark_output/runs/${suite}/${runName}/display_predictions.json`,
+        ),
         { signal },
       );
 
       return (await displayPrediction.json()) as DisplayPrediction[];
     } else {
       const displayPrediction = await fetch(
-        `/benchmark_output/runs/${getBenchmarkSuite()}/${runName}/display_predictions.json`,
+        getBenchmarkEndpoint(
+          `/benchmark_output/runs/${getBenchmarkSuite()}/${runName}/display_predictions.json`,
+        ),
         { signal },
       );
 
