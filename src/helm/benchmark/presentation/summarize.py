@@ -1114,6 +1114,7 @@ class Summarizer:
 
         return all_tables
 
+    @htrack(None)
     def write_groups(self):
         """
         Each group selects out a set of runs.
