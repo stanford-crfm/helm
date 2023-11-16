@@ -12,7 +12,7 @@ class HuggingFaceWindowService(LocalWindowService):
         pretrained_model_name_or_path: Optional[str] = None,
         revision: Optional[str] = None,
         max_sequence_length: Optional[int] = None,
-        max_reqeust_length: Optional[int] = None,
+        max_request_length: Optional[int] = None,
         end_of_text_token: Optional[str] = None,
         prefix_token: Optional[str] = None,
     ):
@@ -30,9 +30,9 @@ class HuggingFaceWindowService(LocalWindowService):
         # Note that many Hugging Face tokenizers have incorrect sequence lengths,
         # so it is recommended to set this manually.
         self._max_sequence_length = max_sequence_length or tokenizer.model_max_length
-        self._max_request_length = max_reqeust_length or tokenizer.model_max_length
-        self._end_of_text_token = end_of_text_token or tokenizer.eos_token
-        self._prefix_token = prefix_token or tokenizer.bos_token
+        self._max_request_length = max_request_length or self._max_sequence_length
+        self._end_of_text_token = end_of_text_token or tokenizer.eos_token or ""
+        self._prefix_token = prefix_token or tokenizer.bos_token or ""
 
     @property
     def tokenizer_name(self) -> str:

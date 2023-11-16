@@ -1,6 +1,6 @@
 import type DisplayRequest from "@/types/DisplayRequest";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export default async function getDisplayRequestsByName(
   runName: string,
