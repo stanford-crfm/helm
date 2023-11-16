@@ -8,7 +8,7 @@ export default function Hero() {
       <div className="flex-1 p-4 flex flex-col justify-center">
         {" "}
         {/* Added flex and justify-center */}
-        <div className="flex justify-start ">
+        <div className="flex justify-start">
           <h1 className="text-5xl mb-4 mx-4 mt-2">
             <strong>
               A holistic framework for evaluating foundation models.
