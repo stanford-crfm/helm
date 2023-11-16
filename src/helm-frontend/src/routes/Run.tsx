@@ -62,11 +62,8 @@ export default function Run() {
       }
 
       const runsToRunSuites = await getRunsToRunSuites(signal);
-      console.log(runsToRunSuites);
       const suite = getSuiteForRun(runsToRunSuites, runName);
       setRunSuite(suite);
-
-      console.log(suite);
 
       const [
         runSpecs,
