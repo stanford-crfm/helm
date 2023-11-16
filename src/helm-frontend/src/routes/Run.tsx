@@ -25,6 +25,8 @@ import Pagination from "@/components/Pagination";
 import Model from "@/types/Model";
 import MarkdownValue from "@/components/MarkdownValue";
 import StatNameDisplay from "@/components/StatNameDisplay";
+import getRunsToRunSuites from "@/services/getRunsToRunSuites";
+import getSuiteForRun from "@/services/getSuiteForRun";
 
 const INSTANCES_PAGE_SIZE = 10;
 const METRICS_PAGE_SIZE = 50;
@@ -34,6 +36,7 @@ export default function Run() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [runSpec, setRunSpec] = useState<RunSpec | undefined>();
+  const [runSuite, setRunSuite] = useState<string | undefined>();
   const [instances, setInstances] = useState<Instance[]>([]);
   const [stats, setStats] = useState<Stat[]>([]);
   const [displayPredictionsMap, setDisplayPredictionsMap] = useState<
@@ -58,6 +61,13 @@ export default function Run() {
         return () => controller.abort();
       }
 
+      const runsToRunSuites = await getRunsToRunSuites(signal);
+      console.log(runsToRunSuites);
+      const suite = getSuiteForRun(runsToRunSuites, runName);
+      setRunSuite(suite);
+
+      console.log(suite);
+
       const [
         runSpecs,
         instancesResp,
@@ -67,11 +77,11 @@ export default function Run() {
         displayRequests,
       ] = await Promise.all([
         getRunSpecs(signal),
-        getInstances(runName, signal),
-        getStatsByName(runName, signal),
-        getScenarioByName(runName, signal),
-        getDisplayPredictionsByName(runName, signal),
-        getDisplayRequestsByName(runName, signal),
+        getInstances(runName, signal, suite),
+        getStatsByName(runName, signal, suite),
+        getScenarioByName(runName, signal, suite),
+        getDisplayPredictionsByName(runName, signal, suite),
+        getDisplayRequestsByName(runName, signal, suite),
       ]);
 
       setRunSpec(runSpecs.find((rs) => rs.name === runName));
@@ -174,7 +184,7 @@ export default function Run() {
             <ArrowDownTrayIcon className="w-6 h-6 mr-1 text text-primary" />
             <a
               className="link link-primary link-hover"
-              href={getRunSpecByNameUrl(runSpec.name)}
+              href={getRunSpecByNameUrl(runSpec.name, runSuite)}
               download="true"
               target="_blank"
             >
@@ -182,7 +192,7 @@ export default function Run() {
             </a>
             <a
               className="link link-primary link-hover"
-              href={getScenarioStateByNameUrl(runSpec.name)}
+              href={getScenarioStateByNameUrl(runSpec.name, runSuite)}
               download="true"
               target="_blank"
             >
