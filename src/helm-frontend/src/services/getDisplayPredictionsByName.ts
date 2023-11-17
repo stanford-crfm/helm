@@ -8,25 +8,16 @@ export default async function getDisplayPredictionsByName(
   suite?: string,
 ): Promise<DisplayPrediction[]> {
   try {
-    if (suite) {
-      const displayPrediction = await fetch(
-        getBenchmarkEndpoint(
-          `/benchmark_output/runs/${suite}/${runName}/display_predictions.json`,
-        ),
-        { signal },
-      );
+    const displayPrediction = await fetch(
+      getBenchmarkEndpoint(
+        `/benchmark_output/runs/${
+          suite || getBenchmarkSuite()
+        }/${runName}/display_predictions.json`,
+      ),
+      { signal },
+    );
 
-      return (await displayPrediction.json()) as DisplayPrediction[];
-    } else {
-      const displayPrediction = await fetch(
-        getBenchmarkEndpoint(
-          `/benchmark_output/runs/${getBenchmarkSuite()}/${runName}/display_predictions.json`,
-        ),
-        { signal },
-      );
-
-      return (await displayPrediction.json()) as DisplayPrediction[];
-    }
+    return (await displayPrediction.json()) as DisplayPrediction[];
   } catch (error) {
     console.log(error);
     return [];

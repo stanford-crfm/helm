@@ -8,25 +8,16 @@ export default async function getDisplayRequestsByName(
   suite?: string,
 ): Promise<DisplayRequest[]> {
   try {
-    if (suite) {
-      const displayRequest = await fetch(
-        getBenchmarkEndpoint(
-          `/benchmark_output/runs/${suite}/${runName}/display_requests.json`,
-        ),
-        { signal },
-      );
+    const displayRequest = await fetch(
+      getBenchmarkEndpoint(
+        `/benchmark_output/runs/${
+          suite || getBenchmarkSuite()
+        }/${runName}/display_requests.json`,
+      ),
+      { signal },
+    );
 
-      return (await displayRequest.json()) as DisplayRequest[];
-    } else {
-      const displayRequest = await fetch(
-        getBenchmarkEndpoint(
-          `/benchmark_output/runs/${getBenchmarkSuite()}/${runName}/display_requests.json`,
-        ),
-        { signal },
-      );
-
-      return (await displayRequest.json()) as DisplayRequest[];
-    }
+    return (await displayRequest.json()) as DisplayRequest[];
   } catch (error) {
     console.log(error);
     return [];
