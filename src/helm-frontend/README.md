@@ -7,7 +7,7 @@ This app makes use of [React](https://react.dev/) + [TypeScript](https://www.typ
 ### Installation
 
 ```bash
-npm Install
+npm install
 ```
 
 ### Develop

@@ -355,7 +355,13 @@ class Summarizer:
         """Load the runs in the run suite path."""
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
         # so filter them out.
-        run_dir_names = sorted([p for p in os.listdir(run_suite_path) if p != "eval_cache" and p != "groups"])
+        run_dir_names = sorted(
+            [
+                p
+                for p in os.listdir(run_suite_path)
+                if p != "eval_cache" and p != "groups" and os.path.isdir(os.path.join(run_suite_path, p))
+            ]
+        )
         for run_dir_name in tqdm(run_dir_names, disable=None):
             run_spec_path: str = os.path.join(run_suite_path, run_dir_name, "run_spec.json")
             stats_path: str = os.path.join(run_suite_path, run_dir_name, "stats.json")
@@ -1277,7 +1283,7 @@ class Summarizer:
         self.symlink_latest()
 
 
-@htrack(None)
+@htrack("summarize")
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(

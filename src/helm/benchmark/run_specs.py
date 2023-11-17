@@ -2038,7 +2038,7 @@ def get_med_qa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["MedQA"],
+        groups=["med_qa"],
     )
 
 

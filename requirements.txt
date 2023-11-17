@@ -67,6 +67,7 @@ jmespath==1.0.1
 joblib==1.2.0
 kiwisolver==1.4.4
 langcodes==3.3.0
+langdetect==1.0.9
 llvmlite==0.39.1
 lxml==4.9.1
 Mako==1.2.3
