@@ -8,25 +8,16 @@ export default async function getInstancesByRunName(
   suite?: string,
 ): Promise<Instance[]> {
   try {
-    if (suite) {
-      const instances = await fetch(
-        getBenchmarkEndpoint(
-          `/benchmark_output/runs/${suite}/${runName}/instances.json`,
-        ),
-        { signal },
-      );
+    const instances = await fetch(
+      getBenchmarkEndpoint(
+        `/benchmark_output/runs/${
+          suite || getBenchmarkSuite()
+        }/${runName}/instances.json`,
+      ),
+      { signal },
+    );
 
-      return (await instances.json()) as Instance[];
-    } else {
-      const instances = await fetch(
-        getBenchmarkEndpoint(
-          `/benchmark_output/runs/${getBenchmarkSuite()}/${runName}/instances.json`,
-        ),
-        { signal },
-      );
-
-      return (await instances.json()) as Instance[];
-    }
+    return (await instances.json()) as Instance[];
   } catch (error) {
     console.log(error);
     return [];

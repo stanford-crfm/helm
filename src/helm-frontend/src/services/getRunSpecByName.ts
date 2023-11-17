@@ -1,17 +1,13 @@
 import type RunSpec from "@/types/RunSpec";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
+import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
 export function getRunSpecByNameUrl(runName: string, suite?: string): string {
-  if (suite) {
-    return getBenchmarkEndpoint(
-      `/benchmark_output/runs/${suite}/${runName}/run_spec.json`,
-    );
-  } else {
-    return getBenchmarkEndpoint(
-      `${getVersionBaseUrl()}/${runName}/run_spec.json`,
-    );
-  }
+  return getBenchmarkEndpoint(
+    `/benchmark_output/runs/${
+      suite || getBenchmarkSuite()
+    }/${runName}/run_spec.json`,
+  );
 }
 export default async function getRunSpecByName(
   runName: string,

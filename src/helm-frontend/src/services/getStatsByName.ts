@@ -8,25 +8,16 @@ export default async function getStatsByName(
   suite?: string,
 ): Promise<Stat[]> {
   try {
-    if (suite) {
-      const stats = await fetch(
-        getBenchmarkEndpoint(
-          `/benchmark_output/runs/${suite}/${runName}/stats.json`,
-        ),
-        { signal },
-      );
+    const stats = await fetch(
+      getBenchmarkEndpoint(
+        `/benchmark_output/runs/${
+          suite || getBenchmarkSuite()
+        }/${runName}/stats.json`,
+      ),
+      { signal },
+    );
 
-      return (await stats.json()) as Stat[];
-    } else {
-      const stats = await fetch(
-        getBenchmarkEndpoint(
-          `/benchmark_output/runs/${getBenchmarkSuite()}/${runName}/stats.json`,
-        ),
-        { signal },
-      );
-
-      return (await stats.json()) as Stat[];
-    }
+    return (await stats.json()) as Stat[];
   } catch (error) {
     console.log(error);
     return [];
