@@ -153,6 +153,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
             model="openai/code-davinci-002",
+            model_deployment="openai/code-davinci-002",
             output_prefix="",
             max_tokens=0,
         )
