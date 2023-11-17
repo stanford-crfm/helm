@@ -123,6 +123,7 @@ def figure_out_max_prompt_length(
 
 def figure_out_max_prompt_length_plus_tokens(
     client: Any,  # Client,
+    model_deployment_name: str,
     model_name: str,
     tokenizer_name: str,
     max_prompt_length: int,
@@ -376,6 +377,7 @@ def main():
     print("========== Figure out max_prompt_length_plus_tokens ==========")
     max_prompt_length_plus_tokens: int = figure_out_max_prompt_length_plus_tokens(
         client,
+        args.model_deployment_name,
         args.model_name,
         args.tokenizer_name,
         max_prompt_length=limits.max_prompt_length,

@@ -225,7 +225,7 @@ def test_prod_continue():
     prompt = "Paris is the capital of"
     for model_deployment_name in prod_model_deployments:
         model_deployment: ModelDeployment = get_model_deployment(model_deployment_name)
-        model_name: str = model_deployment.model_name
+        model_name: str = model_deployment.model_name or model_deployment.name
         request = Request(
             prompt=prompt,
             model=model_name,
@@ -243,7 +243,7 @@ def test_prod_echo():
     prompt = "I like pickles."
     for model_deployment_name in prod_model_deployments:
         model_deployment: ModelDeployment = get_model_deployment(model_deployment_name)
-        model_name: str = model_deployment.model_name
+        model_name: str = model_deployment.model_name or model_deployment.name
         request = Request(
             prompt=prompt,
             model=model_name,

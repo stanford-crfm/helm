@@ -27,8 +27,9 @@ class ModelCritiqueClient(CritiqueClient):
     def __init__(self, client: Client, model_name):
         self._client = client
         self._model_name = model_name
-        self._model_deployment_name = get_default_model_deployment_for_model(
-            model_name, warn_arg_deprecated=False, ignore_deprecated=True
+        self._model_deployment_name = (
+            get_default_model_deployment_for_model(model_name, warn_arg_deprecated=False, ignore_deprecated=True)
+            or self._model_name
         )
 
     def _interpolate_fields(self, text: str, fields: Dict[str, str]) -> str:
