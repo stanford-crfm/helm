@@ -3,6 +3,7 @@ import pytest
 import shutil
 import tempfile
 
+from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.common.authentication import Authentication
 from helm.common.request import Request
 from helm.proxy.accounts import AuthenticationError, Accounts
@@ -222,9 +223,16 @@ prod_model_deployments = ["openai/davinci", "ai21/j1-jumbo"]
 def test_prod_continue():
     # Test that we're continuing
     prompt = "Paris is the capital of"
-    for model_deployment in prod_model_deployments:
+    for model_deployment_name in prod_model_deployments:
+        model_deployment: ModelDeployment = get_model_deployment(model_deployment_name)
+        model_name: str = model_deployment.model_name
         request = Request(
-            prompt=prompt, model_deployment=model_deployment, max_tokens=1, num_completions=1, temperature=0
+            prompt=prompt,
+            model=model_name,
+            model_deployment=model_deployment_name,
+            max_tokens=1,
+            num_completions=1,
+            temperature=0,
         )
         helper_prod_test_service(request, " France")
 
@@ -233,8 +241,15 @@ def test_prod_continue():
 def test_prod_echo():
     # If we're echoing the prompt, make sure we're getting the same thing back
     prompt = "I like pickles."
-    for model_deployment in prod_model_deployments:
+    for model_deployment_name in prod_model_deployments:
+        model_deployment: ModelDeployment = get_model_deployment(model_deployment_name)
+        model_name: str = model_deployment.model_name
         request = Request(
-            prompt=prompt, model_deployment=model_deployment, max_tokens=0, num_completions=1, echo_prompt=True
+            prompt=prompt,
+            model=model_name,
+            model_deployment=model_deployment_name,
+            max_tokens=0,
+            num_completions=1,
+            echo_prompt=True,
         )
         helper_prod_test_service(request, prompt)
