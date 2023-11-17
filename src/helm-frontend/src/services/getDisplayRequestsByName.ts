@@ -1,15 +1,18 @@
 import type DisplayRequest from "@/types/DisplayRequest";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
+import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
-export default async function getDisplayRequestssByName(
+export default async function getDisplayRequestsByName(
   runName: string,
   signal: AbortSignal,
+  suite?: string,
 ): Promise<DisplayRequest[]> {
   try {
     const displayRequest = await fetch(
       getBenchmarkEndpoint(
-        `${getVersionBaseUrl()}/${runName}/display_requests.json`,
+        `/benchmark_output/runs/${
+          suite || getBenchmarkSuite()
+        }/${runName}/display_requests.json`,
       ),
       { signal },
     );

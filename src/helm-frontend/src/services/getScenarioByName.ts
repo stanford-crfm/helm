@@ -1,15 +1,18 @@
 import Scenario from "@/types/Scenario";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
+import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
 export default async function getScenarioByName(
   scenarioName: string,
   signal: AbortSignal,
+  suite?: string,
 ): Promise<Scenario | undefined> {
   try {
     const scenario = await fetch(
       getBenchmarkEndpoint(
-        `${getVersionBaseUrl()}/${scenarioName}/scenario.json`,
+        `/benchmark_output/runs/${
+          suite || getBenchmarkSuite()
+        }/${scenarioName}/scenario.json`,
       ),
       { signal },
     );

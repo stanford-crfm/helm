@@ -1,14 +1,19 @@
 import Instance from "@/types/Instance";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
+import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
 export default async function getInstancesByRunName(
   runName: string,
   signal: AbortSignal,
+  suite?: string,
 ): Promise<Instance[]> {
   try {
     const instances = await fetch(
-      getBenchmarkEndpoint(`${getVersionBaseUrl()}/${runName}/instances.json`),
+      getBenchmarkEndpoint(
+        `/benchmark_output/runs/${
+          suite || getBenchmarkSuite()
+        }/${runName}/instances.json`,
+      ),
       { signal },
     );
 
