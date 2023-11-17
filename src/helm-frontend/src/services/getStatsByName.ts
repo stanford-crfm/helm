@@ -1,14 +1,19 @@
 import type Stat from "@/types/Stat";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
+import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
 export default async function getStatsByName(
   runName: string,
   signal: AbortSignal,
+  suite?: string,
 ): Promise<Stat[]> {
   try {
     const stats = await fetch(
-      getBenchmarkEndpoint(`${getVersionBaseUrl()}/${runName}/stats.json`),
+      getBenchmarkEndpoint(
+        `/benchmark_output/runs/${
+          suite || getBenchmarkSuite()
+        }/${runName}/stats.json`,
+      ),
       { signal },
     );
 
