@@ -85,29 +85,6 @@ class ModelMetadata:
 
     instruction_following: bool = False
     """Whether the model is instruction following or not."""
-
-    functionality: str = "undefined"
-    """Description of the functionality of the model.
-    Should be one of the following:
-    - 'full'
-    - 'limited': the model has limited capabilities
-    - 'undefined'"""
-
-    modality: List[str] = field(default_factory=list)
-    """Decription of the model's capabilities
-    Should contain a subset of the following:
-    - 'text'
-    - 'code"'
-    - 'image'
-    - 'text_similarity'
-    - 'vlm'"""
-
-    ablation: bool = False
-    """Whether the model us used for ablations and fine-grained analyses.
-    These models are selected specifically because of their low marginal cost to evaluate."""
-
-    instruction_following: bool = False
-    """Whether the model is instruction following or not."""
     tags: List[str] = field(default_factory=list)
     """Tags corresponding to the properties of the model."""
 

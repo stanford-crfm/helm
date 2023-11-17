@@ -12,8 +12,6 @@ from helm.benchmark.model_metadata_registry import (
     get_model_metadata,
     ModelMetadata,
     register_model_metadata,
-    TEXT_MODEL_TAG,
-    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, TokenizerSpec, register_tokenizer_config
 from helm.common.hierarchical_logger import hlog
@@ -55,7 +53,9 @@ def register_huggingface_model(
                 description=helm_model_name,
                 access="open",
                 release_date=date.today(),
-                tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+                modality=["text"],
+                functionality="full",
+                tags=[],
             )
         )
         hlog(f"Registered default metadata for model {helm_model_name}")
