@@ -368,13 +368,8 @@ class Summarizer:
                 hlog(f"WARNING: {run_dir_name} doesn't have run_spec.json or stats.json, skipping")
                 continue
             run_path: str = os.path.join(run_suite_path, run_dir_name)
-            self.runs.append(self.read_run(run_path))
-
-        # For each group (e.g., natural_qa), map
-        # (i) scenario spec (e.g., subject=philosophy) [optional] and
-        # (ii) adapter spec (e.g., model = openai/davinci)
-        # to list of runs
-        for run in self.runs:
+            run = self.read_run(run_path)
+            self.runs.append(run)
             if run.run_spec.name in self.runs_to_run_suites:
                 hlog(
                     f"WARNING: Run entry {run.run_spec.name} is present in two different Run Suites. "
@@ -382,6 +377,12 @@ class Summarizer:
                 )
             self.runs_to_run_suites[run.run_spec.name] = suite
 
+    def group_runs(self):
+        # For each group (e.g., natural_qa), map
+        # (i) scenario spec (e.g., subject=philosophy) [optional] and
+        # (ii) adapter spec (e.g., model = openai/davinci)
+        # to list of runs
+        for run in self.runs:
             scenario_spec = run.run_spec.scenario_spec
             adapter_spec = run.run_spec.adapter_spec
             for group_name in run.run_spec.groups:
@@ -1254,6 +1255,7 @@ class Summarizer:
     def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
         """Run the entire summarization pipeline pipeline."""
         self.read_runs()
+        self.group_runs()
         self.check_metrics_defined()
 
         self.write_run_display_json(skip_completed)
