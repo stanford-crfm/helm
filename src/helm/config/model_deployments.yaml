@@ -1246,7 +1246,7 @@ model_deployments:
   - name: together/mistral-7b-v0.1
     model_name: mistralai/mistral-7b-v0.1
     tokenizer_name: mistralai/Mistral-7B-v0.1
-    max_sequence_length: 1000000000000000019884624838656
+    max_sequence_length: 4095
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
