@@ -990,7 +990,9 @@ adapter:
   - name: sample_train
     description: If true, randomly sample N training examples; if false, select N consecutive training examples
   - name: model
-    description: Name of the language model (<organization>/<model name>) to send requests to.
+    description: DEPRECATED. Name of the language model (<creator_organization>/<model name>) to send requests to.
+  - name: model_deployment
+    description: Name of the language model (<host_organization>/<model name>) to send requests to.
   - name: temperature
     description: Temperature parameter used in generation.
   - name: max_tokens
@@ -1952,6 +1954,7 @@ run_groups:
       - synthetic_efficiency
     adapter_keys_shown:
       - model
+      - model_deployment
       - max_tokens
 
   - name: calibration
@@ -1983,6 +1986,7 @@ run_groups:
       - civil_comments
     adapter_keys_shown:
       - model
+      - model_deployment
       - max_train_instances
     subgroup_metric_groups_hidden:
       - robustness
@@ -2004,6 +2008,7 @@ run_groups:
       - bbq
     adapter_keys_shown:
       - model
+      - model_deployment
       - method
 
   - name: ablation_prompts
@@ -2018,6 +2023,7 @@ run_groups:
       - civil_comments
     adapter_keys_shown:
       - model
+      - model_deployment
       - instructions
       - input_prefix
       - input_suffix
@@ -3023,6 +3029,7 @@ run_groups:
       main_split: test
     adapter_keys_shown:
       - model
+      - model_deployment
       - max_tokens
     taxonomy:
       task: "?"

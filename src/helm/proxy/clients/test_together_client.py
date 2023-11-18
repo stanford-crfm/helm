@@ -27,6 +27,7 @@ class TestTogetherClient:
             (
                 Request(
                     model="together/redpajama-incite-base-3b-v1",
+                    model_deployment="together/redpajama-incite-base-3b-v1",
                 ),
                 {
                     "best_of": 1,
@@ -45,6 +46,7 @@ class TestTogetherClient:
             (
                 Request(
                     model="meta/llama-7b",
+                    model_deployment="together/llama-7b",
                     prompt="I am a computer scientist.",
                     temperature=0,
                     num_completions=4,
@@ -71,6 +73,7 @@ class TestTogetherClient:
             (
                 Request(
                     model="stanford/alpaca-7b",
+                    model_deployment="together/alpaca-7b",
                     stop_sequences=["\n"],
                 ),
                 {
@@ -95,4 +98,4 @@ class TestTogetherClient:
 
     def test_api_key_error(self):
         with pytest.raises(TogetherClientError):
-            self.client.make_request(Request(model="together/bloom"))
+            self.client.make_request(Request(model="bigscience/bloom", model_deployment="together/bloom"))

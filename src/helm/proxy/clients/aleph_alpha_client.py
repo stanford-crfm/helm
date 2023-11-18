@@ -2,8 +2,6 @@ import json
 import requests
 from typing import Any, Dict, List
 
-from aleph_alpha_client import Client as AlephAlphaPythonClient
-
 from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.proxy.tokenizers.tokenizer import Tokenizer
@@ -16,7 +14,6 @@ class AlephAlphaClient(CachingClient):
     def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config, tokenizer=tokenizer)
         self.api_key: str = api_key
-        self._aleph_alpha_client = AlephAlphaPythonClient(token=api_key)
 
     def _send_request(self, endpoint: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(

@@ -60,8 +60,8 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
     num_output_tokens: int,
 ) -> Optional[float]:
     estimated_runtime: Optional[float]
-    if request_state.request.model in inference_runtimes_dict:
-        inference_runtimes_dict_for_model = inference_runtimes_dict[request_state.request.model]
+    if request_state.request.model_deployment in inference_runtimes_dict:
+        inference_runtimes_dict_for_model = inference_runtimes_dict[request_state.request.model_deployment]
         runtime_per_output_token: float = inference_runtimes_dict_for_model["runtime_per_output_token"]
         raw_runtimes_for_prompt_tokens: Dict[str, float] = inference_runtimes_dict_for_model[
             "runtime_for_prompt_tokens"
@@ -583,7 +583,9 @@ class BasicMetric(Metric):
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
-        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
+        window_service: WindowService = WindowServiceFactory.get_window_service(
+            adapter_spec.model_deployment, tokenizer_service
+        )
         prompt: str = request_state.request.prompt
         num_prompt_tokens: int = window_service.get_num_tokens(prompt)
 
@@ -618,14 +620,16 @@ class BasicMetric(Metric):
 
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
-        if request_state.request.model in self.training_efficiency_dict["carbon"]:
-            training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model]["value"]
+        if request_state.request.model_deployment in self.training_efficiency_dict["carbon"]:
+            training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model_deployment]["value"]
         else:
             training_co2_cost = None
 
         training_energy_cost: Optional[float]
-        if request_state.request.model in self.training_efficiency_dict["energy"]:
-            training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model]["value"]
+        if request_state.request.model_deployment in self.training_efficiency_dict["energy"]:
+            training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model_deployment][
+                "value"
+            ]
         else:
             training_energy_cost = None
 
@@ -799,7 +803,9 @@ class BasicMetric(Metric):
         num_choices = len(references)
 
         tokenizer_service: TokenizerService = metric_service
-        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
+        window_service: WindowService = WindowServiceFactory.get_window_service(
+            adapter_spec.model_deployment, tokenizer_service
+        )
         reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
         for request_state in reference_request_states:
             assert request_state.reference_index is not None and request_state.request_mode is not None

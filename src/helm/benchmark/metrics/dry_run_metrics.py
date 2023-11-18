@@ -38,7 +38,9 @@ class Processor:
         stats.append(Stat(MetricName("max_num_completion_tokens")).add(request.num_completions * request.max_tokens))
 
         # Get number of tokens in the prompt
-        tokenizer: WindowService = WindowServiceFactory.get_window_service(request.model, self.metric_service)
+        tokenizer: WindowService = WindowServiceFactory.get_window_service(
+            request.model_deployment, self.metric_service
+        )
         num_prompt_tokens: int = tokenizer.get_num_tokens(request.prompt)
         stats.append(Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens))
 
