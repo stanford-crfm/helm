@@ -101,11 +101,11 @@ class LSATScenario(Scenario):
 
     def get_question_types(self, tags: List[str]) -> List[str]:
         question_type: str = tags[2].replace("grouping (distribution)", "distribution grouping") or "miscellaneous"
+        types = [question_type.replace(" ", "_").replace("/", "_")]
         main_type = self.subtype2type.get(question_type)
         if main_type is not None:
-            return [question_type.replace(" ", "_").replace("/", "_"), main_type]
-        else:
-            return [main_type]
+            types.append(main_type)
+        return types
 
     def get_instances(self, output_path: str) -> List[Instance]:
         data_path = os.path.join(output_path, "data")
