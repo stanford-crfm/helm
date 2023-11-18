@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import Any, List, Dict, Optional, Tuple, Type
 
-from helm.common.hierarchical_logger import hlog
 from helm.benchmark.model_metadata_registry import (
     get_all_instruction_following_models,
     get_all_code_models,
@@ -15,7 +14,7 @@ from helm.benchmark.model_metadata_registry import (
     ABLATION_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
-from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer, get_deployment_name_from_model_arg
+from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .runner import RunSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
@@ -321,56 +320,22 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     }
 
 
-class ModelDeploymentRunExpander(ReplaceValueRunExpander):
+class ModelRunExpander(ReplaceValueRunExpander):
     """
     For specifying different models.
     Note: we're assuming we don't have to change the decoding parameters for different models.
     """
 
-    name = "model_deployment"
+    name = "model"
 
-    def __init__(self, value, used_deprecated_model_tag: bool = False):
+    def __init__(self, value):
         """
-        Model deployment run expander.
-        This handles 3 cases:
-        1. The value is a model deployment name.
-        2. The value is a model name. This is deprecated but for backwards compatibility, this is still
-           supported and converted to a model deployment name (we fall back to case 1).
-        3. The value is a key in self.values_dict (for example "model=text"). This is only supported if the user
-           used the deprecated model tag (e.g., "model=text" is supported but "model_deployment=text" is not).
-           In that case, we look up the corresponding model names and fall back to case 2.
-
-        Args:
-            value(str): Either the actual value to use or a lookup into the values dict.
-            used_deprecated_model_tag(bool): Whether the deprecated model tag was used.
+        `value` is either the actual value to use or a lookup into the values dict.
         """
-        # Processes the value if it is a lookup into the values dict.
-        # This returns model names and not model deployments.
-        single_model: bool = True  # Whether the value is a single model name or a list of model names.
         if value in self.values_dict:
-            if not used_deprecated_model_tag:
-                raise ValueError(f"Cannot set model_deployment to {value}. Use model instead.")
-            value = self.values_dict[value]
-            single_model = False
-            used_deprecated_model_tag = True
-
-        # If the value is a model name, convert it to a model deployment name.
-        if used_deprecated_model_tag:
-            if not isinstance(value, list):
-                value = [value]
-            model_deployments: List[str] = []
-            for model_name in value:
-                model_deployment: str = get_deployment_name_from_model_arg(
-                    model_name, can_return_empy=not single_model, warn_arg_deprecated=single_model
-                )
-                if model_deployment != "":
-                    model_deployments.append(model_deployment)
-                else:
-                    hlog(f"WARNING: {model_name} is deprecated. Skipping.")
-            value = model_deployments
-
-        # Assign the processed value to self.values.
-        self.values = value if isinstance(value, list) else [value]
+            self.values = self.values_dict[value]
+        else:
+            self.values = [value]
 
     @property
     def values_dict(self):
@@ -384,10 +349,6 @@ class ModelDeploymentRunExpander(ReplaceValueRunExpander):
             "code": get_all_code_models(),
             "instruction_following": get_all_instruction_following_models(),
             "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
-            "gpt2_tokenizer": get_model_names_with_tokenizer("huggingface/gpt2"),
-            "ai21_tokenizer": get_model_names_with_tokenizer("ai21/j1"),
-            "cohere_tokenizer": get_model_names_with_tokenizer("cohere/cohere"),
-            "opt_tokenizer": get_model_names_with_tokenizer("meta/opt"),
             "summarization_zs": ["openai/davinci", "openai/curie", "openai/text-davinci-002", "openai/text-curie-001"],
             "biomedical": ["openai/text-davinci-003"],  # TODO: add https://huggingface.co/stanford-crfm/BioMedLM
             "interactive_qa": ["openai/text-davinci-001", "openai/davinci", "ai21/j1-jumbo", "openai/text-babbage-001"],
@@ -417,10 +378,11 @@ class ModelDeploymentRunExpander(ReplaceValueRunExpander):
         return values_dict
 
 
-class ModelRunExpander(ModelDeploymentRunExpander):
-    @property
-    def key_name(self) -> str:
-        return "model"
+class ModelDeploymentRunExpander(ReplaceValueRunExpander):
+    """For overriding model deployment"""
+
+    name = "model_deployment"
+    values_dict: Dict[str, List[Any]] = {}
 
 
 ############################################################
@@ -1148,6 +1110,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     MaxTrainInstancesRunExpander,
     MaxEvalInstancesRunExpander,
     NumOutputsRunExpander,
+    ModelRunExpander,
     ModelDeploymentRunExpander,
     DataAugmentationRunExpander,
     TokenizerRunExpander,

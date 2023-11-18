@@ -5,11 +5,11 @@ Delete this after the refactor is done."""
 import pytest
 from tempfile import TemporaryDirectory
 from typing import Any
+from helm.benchmark.config_registry import register_helm_configurations
 from helm.benchmark.model_deployment_registry import (
     ClientSpec,
     ModelDeployment,
     WindowServiceSpec,
-    maybe_register_helm,
     ALL_MODEL_DEPLOYMENTS,
 )
 from helm.benchmark.model_metadata_registry import ModelMetadata
@@ -116,7 +116,7 @@ _BUILT_IN_TOKENIZER_CONFIGS = [
         name="tiiuae/falcon-7b",
         tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
         end_of_text_token="<|endoftext|>",
-        prefix_token=None,
+        prefix_token="",
     ),
     TokenizerConfig(
         name="bigcode/santacoder",
@@ -568,7 +568,6 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
             class_name="helm.benchmark.window_services.llama_window_service.Llama2WindowService"
         ),
         max_sequence_length=4096,
-        max_request_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
         name="together/llama-2-13b",
@@ -578,7 +577,6 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
             class_name="helm.benchmark.window_services.llama_window_service.Llama2WindowService"
         ),
         max_sequence_length=4096,
-        max_request_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
         name="together/llama-2-70b",
@@ -588,7 +586,6 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
             class_name="helm.benchmark.window_services.llama_window_service.Llama2WindowService"
         ),
         max_sequence_length=4096,
-        max_request_length=1000000000000000019884624838656,
     ),
     ModelDeployment(
         name="together/alpaca-7b",
@@ -624,7 +621,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=1000000000000000019884624838656,
+        max_sequence_length=4095,
     ),
     ModelDeployment(
         name="together/mpt-7b",
@@ -1389,7 +1386,7 @@ def _full_class_name(obj: Any) -> str:
 # before running the setup_class().
 # Therefore ALL_MODEL_DEPLOYMENTS is empty and no test would be run,
 # so we need to do this here.
-maybe_register_helm()
+register_helm_configurations()
 
 
 class TestModelProperties:
@@ -1461,3 +1458,6 @@ class TestModelProperties:
             # TODO: Give PalmyraWindowService's tokenizer a different name e.g. writer/palmyra
             if tokenizer_name != "huggingface/gpt2":
                 assert tokenizer_configs[tokenizer_name] == tokenizer_config
+
+    def test_num_models_available(self):
+        assert len(ALL_MODEL_DEPLOYMENTS) == 119

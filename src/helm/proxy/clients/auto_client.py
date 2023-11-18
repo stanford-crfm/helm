@@ -56,7 +56,7 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def _provide_api_key(self, host_organization: str, model: Optional[str] = None) -> Optional[str]:
+    def _provide_api_key(self, host_organization: str, model_deployment_name: Optional[str] = None) -> Optional[str]:
         api_key_name = host_organization + "ApiKey"
         if api_key_name in self.credentials:
             hlog(f"Using host_organization api key defined in credentials.conf: {api_key_name}")
@@ -68,23 +68,26 @@ class AutoClient(Client):
             )
             return None
         deployment_api_keys = self.credentials["deployments"]
-        if model is None:
-            hlog(f"WARNING: Could not find key '{host_organization}' in credentials.conf and no model provided")
+        if model_deployment_name is None:
+            hlog(
+                f"WARNING: Could not find key '{api_key_name}' in credentials.conf "
+                "and no model_deployment_name provided"
+            )
             return None
-        if model not in deployment_api_keys:
-            hlog(f"WARNING: Could not find key '{model}' under key 'deployments' in credentials.conf")
+        if model_deployment_name not in deployment_api_keys:
+            hlog(f"WARNING: Could not find key '{model_deployment_name}' under key 'deployments' in credentials.conf")
             return None
-        return deployment_api_keys[model]
+        return deployment_api_keys[model_deployment_name]
 
-    def _get_client(self, model: str) -> Client:
+    def _get_client(self, model_deployment_name: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
         # First try to find the client in the cache
-        client: Optional[Client] = self.clients.get(model)
+        client: Optional[Client] = self.clients.get(model_deployment_name)
         if client is not None:
             return client
 
         # Otherwise, create the client
-        model_deployment: ModelDeployment = get_model_deployment(model)
+        model_deployment: ModelDeployment = get_model_deployment(model_deployment_name)
         if model_deployment:
             # Perform dependency injection to fill in remaining arguments.
             # Dependency injection is needed here for these reasons:
@@ -107,7 +110,7 @@ class AutoClient(Client):
                 model_deployment.client_spec,
                 constant_bindings={"cache_config": cache_config},
                 provider_bindings={
-                    "api_key": lambda: self._provide_api_key(host_organization, model),
+                    "api_key": lambda: self._provide_api_key(host_organization, model_deployment_name),
                     "tokenizer": lambda: self._get_tokenizer(
                         tokenizer_name=model_deployment.tokenizer_name or model_deployment.name
                     ),
@@ -119,10 +122,10 @@ class AutoClient(Client):
             )
             client = create_object(client_spec)
         else:
-            raise ValueError(f"Could not find client for model: {model}")
+            raise ValueError(f"Could not find client for model deployment: {model_deployment_name}")
 
         # Cache the client
-        self.clients[model] = client
+        self.clients[model_deployment_name] = client
 
         return client
 
@@ -137,14 +140,14 @@ class AutoClient(Client):
         def make_request_with_retry(client: Client, request: Request) -> RequestResult:
             return client.make_request(request)
 
-        client: Client = self._get_client(request.effective_model_deployment)
+        client: Client = self._get_client(request.model_deployment)
 
         try:
             return make_request_with_retry(client=client, request=request)
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = (
-                f"Failed to make request to {request.effective_model_deployment} after retrying "
+                f"Failed to make request to {request.model_deployment} after retrying "
                 f"{last_attempt.attempt_number} times"
             )
             hlog(retry_error)

@@ -76,7 +76,7 @@ models:
     access: limited
     num_parameters: 70000000000
     release_date: 2022-01-01
-  
+
   # TODO: Remove Once we have configurable model names
   - name: neurips/local
     display_name: Local service
@@ -159,6 +159,32 @@ models:
     description: The StarCoder (15.5B parameter) model trained on 80+ programming languages from The Stack (v1.2) ([model card](https://huggingface.co/bigcode/starcoder)).
     creator_organization: BigCode
     access: open
+
+  # Hugging Face
+  - name: huggingface/gpt2
+    display_name: GPT-2 (124M)
+    description: GPT-2 is a transformers model pretrained on a very large corpus of English data in a self-supervised fashion. This means it was pretrained on the raw texts only, with no humans labelling them in any way (which is why it can use lots of publicly available data) with an automatic process to generate inputs and labels from those texts.
+    creator_organization: OpenAI
+    access: open
+    num_parameters: 124000000
+  - name: huggingface/gpt2-medium
+    display_name: GPT-2 Medium (355M)
+    description: GPT-2 Medium is the 355M parameter version of GPT-2, a transformer-based language model created and released by OpenAI. The model is a pretrained model on English language using a causal language modeling (CLM) objective.
+    creator_organization: OpenAI
+    access: open
+    num_parameters: 355000000
+  - name: huggingface/gpt2-large
+    display_name: GPT-2 Large (774M)
+    description: GPT-2 Large is the 774M parameter version of GPT-2, a transformer-based language model created and released by OpenAI. The model is a pretrained model on English language using a causal language modeling (CLM) objective.
+    creator_organization: OpenAI
+    access: open
+    num_parameters: 774000000
+  - name: huggingface/gpt2-xl
+    display_name: GPT-2 XL (1.5B)
+    description: GPT-2 XL is the 1.5B parameter version of GPT-2, a transformer-based language model created and released by OpenAI. The model is a pretrained model on English language using a causal language modeling (CLM) objective.
+    creator_organization: OpenAI
+    access: open
+    num_parameters: 1500000000
 
   # Cerebras Systems
   - name: together/cerebras-gpt-6.7b
@@ -961,6 +987,8 @@ adapter:
     description: Maximum number of possible outputs to generate by sampling multiple outputs.
   - name: num_train_trials
     description: Number of trials, where in each trial we choose an independent, random set of training instances. Used to compute variance.
+  - name: sample_train
+    description: If true, randomly sample N training examples; if false, select N consecutive training examples
   - name: model
     description: DEPRECATED. Name of the language model (<creator_organization>/<model name>) to send requests to.
   - name: model_deployment
@@ -973,6 +1001,8 @@ adapter:
     description: List of sequences, where we stop generation if we encounter any of them.
   - name: random
     description: Random seed (string), which guarantees reproducibility.
+  - name: multi_label
+    description: If true, for instances with multiple correct reference, the gold answer should be considered to be all of the correct references rather than any of the correct references.
 
 ############################################################
 metrics:
@@ -1061,6 +1091,7 @@ metrics:
     short_display_name: PEM
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
+
   - name: exact_match@5
     display_name: Exact match @5
     short_display_name: EM@5
@@ -1071,6 +1102,17 @@ metrics:
     short_display_name: EM@5
     description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
     lower_is_better: false
+  - name: prefix_exact_match@5
+    display_name: Prefix exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match@5
+    display_name: Prefix quasi-exact match @5
+    short_display_name: PEM@5
+    description: Fraction of instances that the predicted output among the top 5 matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
   - name: logprob
     display_name: Log probability
     short_display_name: Logprob
@@ -3456,7 +3498,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: toxicity classification
-      what: text from Chinese social media 
+      what: text from Chinese social media
       who: web users
       when: 2022 or before
       language: Chinese

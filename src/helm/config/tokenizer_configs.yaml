@@ -185,7 +185,7 @@ tokenizer_configs:
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<|endoftext|>"
-    prefix_token: null
+    prefix_token: ""
 
   # TsinghuaKEG
   - name: TsinghuaKEG/ice

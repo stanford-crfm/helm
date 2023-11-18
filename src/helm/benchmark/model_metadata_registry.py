@@ -2,6 +2,7 @@ import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass, field
 from datetime import date
+import importlib_resources as resources
 
 import dacite
 import yaml
@@ -49,8 +50,8 @@ INSTRUCTION_FOLLOWING_MODEL_TAG: str = "INSTRUCTION_FOLLOWING_MODEL_TAG"
 VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
 
 
+CONFIG_PACKAGE = "helm.config"
 MODEL_METADATA_FILE: str = "model_metadata.yaml"
-CONFIG_PATH: str = "src/helm/config"
 METADATAS_REGISTERED: bool = False
 
 
@@ -58,46 +59,42 @@ METADATAS_REGISTERED: bool = False
 # might populate the deployment_names field.
 @dataclass(frozen=False)
 class ModelMetadata:
-    # Name of the model group (e.g. "openai/davinci").
-    # This is the name of the model, not the name of the deployment.
-    # Usually formatted as "<creator_organization>/<engine_name>".
-    # Example: "ai21/j1-jumbo"
     name: str
+    """Name of the model group (e.g., "openai/davinci"). This is the name of the model,
+    not the name of the deployment.
+    Usually formatted as "<creator_organization>/<engine_name>". Example: "ai21/j1-jumbo"."""
 
-    # Name of the organization that created the model.
     creator_organization_name: str
+    """Name of the organization that created the model."""
 
-    # Name that is going to be displayed to the user (on the website, etc.)
     display_name: str
+    """Name that is going to be displayed to the user (on the website, etc.)."""
 
-    # Description of the model, to be displayed on the website.
     description: str
+    """Description of the model, to be displayed on the website."""
 
-    # Description of the access level of the model.
-    # Should be one of the following:
-    # - "open": the model is open-source and can be downloaded from the internet.
-    # - "closed": not accessible
-    # - "limited": accessible with an API key
-    # If there are multiple deployments, this should be the most permissive access across
-    # all deployments.
     access: str
+    """Description of the access level of the model. Should be one of the following:
+    - "open": the model is open-source and can be downloaded from the internet.
+    - "closed": not accessible
+    - "limited": accessible with an API key.
+    If there are multiple deployments, this should be the most permissive access across all deployments."""
 
-    # Release date of the model.
     release_date: date
+    """Release date of the model."""
 
-    # Tags corresponding to the properties of the model.
     tags: List[str] = field(default_factory=list)
+    """Tags corresponding to the properties of the model."""
 
-    # Number of parameters in the model.
-    # This should be a string as the number of parameters is usually a round number (175B),
-    # but we set it as an int for plotting purposes.
     num_parameters: Optional[int] = None
+    """Number of parameters in the model.
+    This should be a string as the number of parameters is usually a round number (175B),
+    but we set it as an int for plotting purposes."""
 
-    # List of the model deployments for this model.
-    # Should at least contain one model deployment.
-    # Refers to the field "name" in the ModelDeployment class.
-    # Defaults to a single model deployment with the same name as the model.
     deployment_names: Optional[List[str]] = None
+    """List of the model deployments for this model. Should at least contain one model deployment.
+    Refers to the field "name" in the ModelDeployment class. Defaults to a single model deployment
+    with the same name as the model."""
 
     @property
     def creator_organization(self) -> str:
@@ -145,9 +142,8 @@ def register_model_metadata(model_metadata: ModelMetadata) -> None:
     MODEL_NAME_TO_MODEL_METADATA[model_metadata.name] = model_metadata
 
 
-def maybe_register_model_metadata_from_base_path(base_path: str) -> None:
-    """Register model metadata from prod_env/model_metadata.yaml"""
-    path = os.path.join(base_path, MODEL_METADATA_FILE)
+def maybe_register_model_metadata_from_base_path(path: str) -> None:
+    """Register model metadata from yaml file if the path exists."""
     if os.path.exists(path):
         register_model_metadata_from_path(path)
 
@@ -207,6 +203,8 @@ def get_all_instruction_following_models() -> List[str]:
 def register_metadatas_if_not_already_registered() -> None:
     global METADATAS_REGISTERED
     if not METADATAS_REGISTERED:
-        maybe_register_model_metadata_from_base_path(CONFIG_PATH)
-        maybe_register_model_metadata_from_base_path(CONFIG_PATH + "/private")
+        path: str = resources.files(CONFIG_PACKAGE).joinpath(MODEL_METADATA_FILE)
+        private_path: str = resources.files(CONFIG_PACKAGE).joinpath(f"private/{MODEL_METADATA_FILE}")
+        maybe_register_model_metadata_from_base_path(path)
+        maybe_register_model_metadata_from_base_path(private_path)
         METADATAS_REGISTERED = True

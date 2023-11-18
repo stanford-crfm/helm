@@ -13,7 +13,8 @@ from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
 from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
-from helm.benchmark.model_deployment_registry import register_model_deployments_from_path, maybe_register_helm
+from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
+from helm.benchmark.config_registry import register_helm_configurations
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
@@ -277,7 +278,7 @@ def main():
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
         )
 
-    maybe_register_helm()
+    register_helm_configurations()
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,

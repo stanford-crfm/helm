@@ -101,7 +101,7 @@ class PalmyraClient(CachingClient):
 
             if _is_content_moderation_failure(response):
                 hlog(
-                    f"WARNING: Returning empty request for {request.effective_model_deployment} "
+                    f"WARNING: Returning empty request for {request.model_deployment} "
                     "due to content moderation filter"
                 )
                 return RequestResult(

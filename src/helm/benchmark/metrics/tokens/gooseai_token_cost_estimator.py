@@ -18,7 +18,7 @@ class GooseAITokenCostEstimator(TokenCostEstimator):
         total_estimated_tokens: int = request.num_completions * request.max_tokens
         if request.echo_prompt:
             window_service: WindowService = WindowServiceFactory.get_window_service(
-                request.effective_model_deployment, metric_service
+                request.model_deployment, metric_service
             )
             total_estimated_tokens += window_service.get_num_tokens(request.prompt)
         return GooseAITokenCounter.account_for_base_tokens(total_estimated_tokens)

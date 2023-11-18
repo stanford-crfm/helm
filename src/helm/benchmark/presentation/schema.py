@@ -3,7 +3,7 @@ from datetime import date
 from typing import List, Optional, Dict
 import dacite
 import mako.template
-import yaml  # type: ignore
+import yaml
 import importlib_resources as resources
 
 from helm.common.general import hlog

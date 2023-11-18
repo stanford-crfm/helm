@@ -1161,7 +1161,6 @@ model_deployments:
     model_name: meta/llama-2-7b
     tokenizer_name: meta-llama/Llama-2-7b-hf
     max_sequence_length: 4096
-    max_request_length: 1000000000000000019884624838656
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
@@ -1173,7 +1172,6 @@ model_deployments:
     model_name: meta/llama-2-13b
     tokenizer_name: meta-llama/Llama-2-7b-hf
     max_sequence_length: 4096
-    max_request_length: 1000000000000000019884624838656
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
@@ -1185,7 +1183,6 @@ model_deployments:
     model_name: meta/llama-2-70b
     tokenizer_name: meta-llama/Llama-2-7b-hf
     max_sequence_length: 4096
-    max_request_length: 1000000000000000019884624838656
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
@@ -1249,7 +1246,7 @@ model_deployments:
   - name: together/mistral-7b-v0.1
     model_name: mistralai/mistral-7b-v0.1
     tokenizer_name: mistralai/Mistral-7B-v0.1
-    max_sequence_length: 1000000000000000019884624838656
+    max_sequence_length: 4095
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}

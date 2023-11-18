@@ -1,15 +1,13 @@
 import type GroupsMetadata from "@/types/GroupsMetadata";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export default async function getGroupsMetadata(
   signal: AbortSignal,
 ): Promise<GroupsMetadata> {
   try {
     const groups = await fetch(
-      getBenchmarkEndpoint(
-        `/benchmark_output/runs/${getBenchmarkSuite()}/groups_metadata.json`,
-      ),
+      getBenchmarkEndpoint(`${getVersionBaseUrl()}/groups_metadata.json`),
       { signal },
     );
 

@@ -5,11 +5,14 @@ import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 export default async function getStatsByName(
   runName: string,
   signal: AbortSignal,
+  suite?: string,
 ): Promise<Stat[]> {
   try {
     const stats = await fetch(
       getBenchmarkEndpoint(
-        `/benchmark_output/runs/${getBenchmarkSuite()}/${runName}/stats.json`,
+        `/benchmark_output/runs/${
+          suite || getBenchmarkSuite()
+        }/${runName}/stats.json`,
       ),
       { signal },
     );

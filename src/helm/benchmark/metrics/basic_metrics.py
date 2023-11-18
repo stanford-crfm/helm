@@ -60,8 +60,8 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
     num_output_tokens: int,
 ) -> Optional[float]:
     estimated_runtime: Optional[float]
-    if request_state.request.effective_model_deployment in inference_runtimes_dict:
-        inference_runtimes_dict_for_model = inference_runtimes_dict[request_state.request.effective_model_deployment]
+    if request_state.request.model_deployment in inference_runtimes_dict:
+        inference_runtimes_dict_for_model = inference_runtimes_dict[request_state.request.model_deployment]
         runtime_per_output_token: float = inference_runtimes_dict_for_model["runtime_per_output_token"]
         raw_runtimes_for_prompt_tokens: Dict[str, float] = inference_runtimes_dict_for_model[
             "runtime_for_prompt_tokens"
@@ -620,18 +620,16 @@ class BasicMetric(Metric):
 
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
-        if request_state.request.effective_model_deployment in self.training_efficiency_dict["carbon"]:
-            training_co2_cost = self.training_efficiency_dict["carbon"][
-                request_state.request.effective_model_deployment
-            ]["value"]
+        if request_state.request.model_deployment in self.training_efficiency_dict["carbon"]:
+            training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model_deployment]["value"]
         else:
             training_co2_cost = None
 
         training_energy_cost: Optional[float]
-        if request_state.request.effective_model_deployment in self.training_efficiency_dict["energy"]:
-            training_energy_cost = self.training_efficiency_dict["energy"][
-                request_state.request.effective_model_deployment
-            ]["value"]
+        if request_state.request.model_deployment in self.training_efficiency_dict["energy"]:
+            training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model_deployment][
+                "value"
+            ]
         else:
             training_energy_cost = None
 

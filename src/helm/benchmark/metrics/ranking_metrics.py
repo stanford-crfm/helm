@@ -7,7 +7,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import unpack_tag, CORRECT_TAG, Reference
 from helm.common.request import RequestResult
-from helm.common.general import binarize_dict
+from helm.common.general import assert_present, binarize_dict
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -205,14 +205,13 @@ class RankingMetric(Metric):
         relevance dictionary, which contains the ground truth relevance
         values for each document.
         """
-        assert all([r.model_relevance is not None for r in ranking_objs])
         if rank_limit:
             return {
-                self.get_query_string(r.reference_index): r.model_relevance  # type: ignore
+                self.get_query_string(r.reference_index): assert_present(r.model_relevance)
                 for r in ranking_objs
                 if r.rank and r.rank <= rank_limit
             }
-        return {self.get_query_string(r.reference_index): r.model_relevance for r in ranking_objs}  # type: ignore
+        return {self.get_query_string(r.reference_index): assert_present(r.model_relevance) for r in ranking_objs}
 
     def get_true_relevances(self, ranking_objects: List[RankingObject]) -> Dict[str, int]:
         """Get the true relevance dictionary."""
@@ -372,7 +371,7 @@ class RankingMetric(Metric):
         #   len(ranking_objects) minus its relevance.
         stats += [
             Stat(MetricName(f"ref{r.reference_index}_rank")).add(
-                len(ranking_objects) - r.model_relevance  # type: ignore
+                len(ranking_objects) - assert_present(r.model_relevance)
             )
             for r in ranking_objects
         ]

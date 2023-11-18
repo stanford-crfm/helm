@@ -38,6 +38,7 @@ class GenerationAdapter(InContextLearningAdapter):
             training_instances, eval_instance, include_output=False, reference_index=None
         )
         request = Request(
+            model=self.adapter_spec.model,
             model_deployment=self.adapter_spec.model_deployment,
             prompt=prompt.text,
             num_completions=self.adapter_spec.num_outputs,

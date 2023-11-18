@@ -203,9 +203,9 @@ class HuggingFaceClient(CachingClient):
         if self._pretrained_model_name_or_path:
             pretrained_model_name_or_path = self._pretrained_model_name_or_path
         else:
-            pretrained_model_name_or_path = resolve_alias(request.effective_model_deployment)
+            pretrained_model_name_or_path = resolve_alias(request.model_deployment)
         huggingface_model: HuggingFaceServer = HuggingFaceServerFactory.get_server(
-            helm_model_name=request.effective_model_deployment,
+            helm_model_name=request.model_deployment,
             pretrained_model_name_or_path=pretrained_model_name_or_path,
             revision=self._revision,
         )

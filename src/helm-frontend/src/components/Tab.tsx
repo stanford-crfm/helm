@@ -17,7 +17,7 @@ export default function Tab({
     <div
       onClick={onClick}
       className={`whitespace-nowrap text-${size} mb-[-2px] text-md tab tab-bordered${
-        active ? " tab-active" : " border-none"
+        active ? " border-2 border-grey-500 rounded" : " border-none"
       }`}
     >
       {children}

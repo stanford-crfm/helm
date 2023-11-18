@@ -250,7 +250,7 @@ class AnthropicLegacyClient(CachingClient):
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         # Validate the fields of `Request`
         if request.model_engine != "stanford-online-all-v4-s3":
-            raise ValueError(f"Invalid model: {request.effective_model_deployment}")
+            raise ValueError(f"Invalid model: {request.model}")
         if request.max_tokens > AnthropicLegacyClient.MAX_COMPLETION_LENGTH:
             raise ValueError(
                 "The value for `max_tokens` exceeds the currently supported maximum "
