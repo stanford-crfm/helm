@@ -1,19 +1,8 @@
-"""Functions used in both AutoClient and AutoTokenizer."""
+"""Functions used for credentials."""
 
-import os
 from typing import Any, Mapping, Optional
 
-from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
-
-
-def build_cache_config(cache_path: str, mongo_uri: str, organization: str) -> CacheConfig:
-    if mongo_uri:
-        return MongoCacheConfig(mongo_uri, collection_name=organization)
-
-    client_cache_path: str = os.path.join(cache_path, f"{organization}.sqlite")
-    # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
-    return SqliteCacheConfig(client_cache_path)
 
 
 def provide_api_key(

@@ -4,7 +4,8 @@ from typing import Any, Dict, Mapping, Optional
 from retrying import Attempt, RetryError
 
 from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
-from helm.common.auto_utils import build_cache_config, provide_api_key
+from helm.common.cache_utils import build_cache_config
+from helm.common.credentials_utils import provide_api_key
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
