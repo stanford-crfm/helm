@@ -39,6 +39,7 @@ class GenerationAdapter(InContextLearningAdapter):
         )
         request = Request(
             model=self.adapter_spec.model,
+            model_deployment=self.adapter_spec.model_deployment,
             prompt=prompt.text,
             num_completions=self.adapter_spec.num_outputs,
             temperature=self.adapter_spec.temperature,

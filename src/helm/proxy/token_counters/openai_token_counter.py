@@ -15,7 +15,7 @@ class OpenAITokenCounter(TokenCounter):
         Counts the total number of tokens using the suggestion here:
         https://community.openai.com/t/how-do-i-calculate-the-pricing-for-generation-of-text/11662/5
         """
-        tokenized_prompt: TokenizationRequestResult = self.huggingface_client.tokenize(
+        tokenized_prompt: TokenizationRequestResult = self.huggingface_client.tokenizer.tokenize(
             TokenizationRequest(request.prompt)
         )
         # Number of tokens in the prompt + number of tokens in all the completions

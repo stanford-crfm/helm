@@ -31,7 +31,7 @@ class AlephAlphaTokenizer(CachingTokenizer):
     def __init__(self, api_key: str, cache_config: CacheConfig) -> None:
         super().__init__(cache_config)
         self.api_key: str = api_key
-        self._aleph_alpha_client = AlephAlphaPythonClient(token=api_key)
+        self._aleph_alpha_client = AlephAlphaPythonClient(token=api_key) if api_key else None
         self._tokenizer_name_to_tokenizer: Dict[str, InternalTokenizer] = {}
 
     def _get_tokenizer(self, tokenizer_name: str) -> InternalTokenizer:
@@ -40,6 +40,8 @@ class AlephAlphaTokenizer(CachingTokenizer):
 
         # Check if the tokenizer is cached
         if tokenizer_name not in self._tokenizer_name_to_tokenizer:
+            if self._aleph_alpha_client is None:
+                raise ValueError("Aleph Alpha API key not set.")
             self._tokenizer_name_to_tokenizer[tokenizer_name] = self._aleph_alpha_client.tokenizer(tokenizer_name)
             hlog(f"Initialized tokenizer: {tokenizer_name}")
         return self._tokenizer_name_to_tokenizer[tokenizer_name]
