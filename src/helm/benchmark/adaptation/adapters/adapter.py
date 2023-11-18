@@ -21,7 +21,7 @@ class Adapter(ABC):
     def __init__(self, adapter_spec: AdapterSpec, tokenizer_service: TokenizerService):
         self.adapter_spec: AdapterSpec = adapter_spec
         self.window_service: WindowService = WindowServiceFactory.get_window_service(
-            adapter_spec.model, tokenizer_service
+            adapter_spec.model_deployment, tokenizer_service
         )
 
     @abstractmethod

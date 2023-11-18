@@ -30,7 +30,7 @@ export default function NavBar() {
             </li>
             <li>
               <Link to="runs" className="whitespace-nowrap">
-                Raw Runs
+                Explore Predictions
               </Link>
             </li>
           </ul>
@@ -54,7 +54,7 @@ export default function NavBar() {
             <Link to="scenarios">Scenarios</Link>
           </li>
           <li>
-            <Link to="runs">Raw Runs</Link>
+            <Link to="runs">Explore Predictions</Link>
           </li>
         </ul>
       </div>

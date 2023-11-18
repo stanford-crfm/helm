@@ -41,6 +41,7 @@ class MultipleChoiceSeparateAdapter(InContextLearningAdapter):
     ) -> RequestState:
         request = Request(
             model=self.adapter_spec.model,
+            model_deployment=self.adapter_spec.model_deployment,
             prompt=prompt.text,
             num_completions=1,
             temperature=0,

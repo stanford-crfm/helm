@@ -36,6 +36,12 @@ npm run test
 npm run build
 ```
 
+### Deployment
+
+For deployment, you can use the build directory out of the box (using the previous command), but will have to replace every leading / in href and src in order for deploys to GitHub Pages to work correctly.
+
+You can rename the build directory to the desired release name and upload it to GitHub pages to add a new front-end release. Currently the GitHub workflow for deploying the React front-end does not do this and is not being used.
+
 ### Linting
 
 ```bash
@@ -43,6 +49,8 @@ npm run lint
 ```
 
 ### Formatting
+
+If you don't have prettier configured in your IDE or Node environment, you will have to run the following before commiting, in order to pass tests.
 
 ```bash
 npm run format

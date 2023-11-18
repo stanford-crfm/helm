@@ -39,5 +39,5 @@ class AutoTokenCostEstimator(TokenCostEstimator):
         """
         Estimate the number of tokens for a given request based on the organization.
         """
-        token_cost_estimator: TokenCostEstimator = self._get_estimator(request.model_organization)
+        token_cost_estimator: TokenCostEstimator = self._get_estimator(request.model_host)
         return token_cost_estimator.estimate_tokens(request, metric_service)

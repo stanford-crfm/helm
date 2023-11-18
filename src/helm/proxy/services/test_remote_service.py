@@ -85,7 +85,7 @@ class TestRemoteServerService:
 
     @staticmethod
     def query(url: str, auth: Authentication, prompt: str):
-        request = Request(prompt=prompt, model="simple/model1")
+        request = Request(prompt=prompt, model="simple/model1", model_deployment="simple/model1")
         response: RequestResult = RemoteService(base_url=url).make_request(auth, request)
         response_text: str = response.completions[0].text
         # With the toy model (simple/model1), we should expect the same response as the prompt
@@ -121,7 +121,7 @@ class TestRemoteServerService:
         shutil.rmtree(cls.base_path)
 
     def test_make_request(self):
-        request = Request(prompt="1 2 3", model="simple/model1")
+        request = Request(prompt="1 2 3", model="simple/model1", model_deployment="simple/model1")
         response: RequestResult = self.service.make_request(self.auth, request)
         assert response.success
 
@@ -132,7 +132,7 @@ class TestRemoteServerService:
 
     def test_make_request_plus_sign(self):
         # Ensure + in prompt doesn't get replaced by a blank space
-        request = Request(prompt="+", model="simple/model1")
+        request = Request(prompt="+", model="simple/model1", model_deployment="simple/model1")
         response: RequestResult = self.service.make_request(self.auth, request)
         assert response.completions[0].text == "+"
         assert response.success
