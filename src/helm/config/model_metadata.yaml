@@ -558,6 +558,15 @@ models:
     tags: [VISION_LANGUAGE_MODEL_TAG]
 
 
+  # Lexica
+  - name: lexica/search-stable-diffusion-1.5
+    display_name: Lexica Search with Stable Diffusion v1.5 (1B)
+    description: Retrieves Stable Diffusion v1.5 images Lexica users generated ([docs](https://lexica.art/docs)).
+    creator_organization_name: Lexica
+    access: open
+    release_date: 2023-01-01
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
 
   # Lightning AI
   - name: lightningai/lit-gpt

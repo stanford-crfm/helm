@@ -21,6 +21,7 @@ class ImageGenerationAdapter(GenerationAdapter):
         )
         request = Request(
             model=self.adapter_spec.model,
+            model_deployment=self.adapter_spec.model_deployment,
             prompt=prompt.text,
             num_completions=self.adapter_spec.num_outputs,
             image_generation_parameters=self.adapter_spec.image_generation_parameters,

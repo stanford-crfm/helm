@@ -463,6 +463,18 @@ model_deployments:
       args: {}
 
 
+  # Lexica
+  - name: lexica/search-stable-diffusion-1.5
+    model_name: lexica/search-stable-diffusion-1.5
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 200
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.lexica_client.LexicaClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.lexica_search_window_service.LexicaSearchWindowService"
+      args: {}
+
 
   # Lighting AI
   - name: lightningai/lit-gpt

@@ -7,6 +7,8 @@ from retrying import Attempt, RetryError
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
+from helm.common.file_caches.file_cache import FileCache
+from helm.common.file_caches.local_file_cache import LocalFileCache
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.request import Request, RequestResult
@@ -106,9 +108,13 @@ class AutoClient(Client):
             host_organization: str = model_deployment.host_organization
             cache_config: CacheConfig = self._build_cache_config(host_organization)
 
+            # Initialize `FileCache` for text-to-image model APIs
+            local_file_cache_path: str = os.path.join(self.cache_path, "output", host_organization)
+            file_cache: FileCache = LocalFileCache(local_file_cache_path, file_extension="png")
+
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
-                constant_bindings={"cache_config": cache_config},
+                constant_bindings={"cache_config": cache_config, "file_cache": file_cache},
                 provider_bindings={
                     "api_key": lambda: self._provide_api_key(host_organization, model_deployment_name),
                     "tokenizer": lambda: self._get_tokenizer(
