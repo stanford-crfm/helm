@@ -203,6 +203,16 @@ def get_all_instruction_following_models() -> List[str]:
     return get_model_names_with_tag(INSTRUCTION_FOLLOWING_MODEL_TAG)
 
 
+def is_text_to_image_model(model_name: str) -> bool:
+    """Returns True if the model is a text-to-image model. False otherwise."""
+    try:
+        model: ModelMetadata = get_model_metadata(model_name)
+    except ValueError:
+        return False
+
+    return TEXT_TO_IMAGE_MODEL_TAG in model.tags
+
+
 def register_metadatas_if_not_already_registered() -> None:
     global METADATAS_REGISTERED
     if not METADATAS_REGISTERED:

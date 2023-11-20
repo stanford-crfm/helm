@@ -2,7 +2,7 @@ from typing import List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.proxy.models import is_text_to_image_model
+from helm.benchmark.model_metadata_registry import is_text_to_image_model
 from .adapter import Adapter
 from .generation_adapter import GenerationAdapter
 from .image_generation_adapter import ImageGenerationAdapter
@@ -40,7 +40,7 @@ class AdapterFactory:
         adapter: Adapter
 
         if method == ADAPT_GENERATION:
-            if is_text_to_image_model(adapter_spec.model):
+            if is_text_to_image_model(adapter_spec.model_deployment):
                 adapter = ImageGenerationAdapter(adapter_spec, tokenizer_service)
             else:
                 adapter = GenerationAdapter(adapter_spec, tokenizer_service)
