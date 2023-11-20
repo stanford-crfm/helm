@@ -29,6 +29,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
             model="openai/davinci",
+            model_deployment="openai/davinci",
             output_prefix="",
             max_tokens=0,
         )
@@ -52,6 +53,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
             model="openai/curie",
+            model_deployment="openai/curie",
             output_prefix="",
             max_tokens=0,
         )
@@ -83,6 +85,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
             model="anthropic/claude-v1.3",
+            model_deployment="anthropic/claude-v1.3",
             output_prefix="",
             max_tokens=0,
         )
@@ -120,6 +123,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
             model="anthropic/claude-v1.3",
+            model_deployment="anthropic/claude-v1.3",
             output_prefix="",
             max_tokens=2000,
         )
@@ -149,6 +153,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
             model="openai/code-davinci-002",
+            model_deployment="openai/code-davinci-002",
             output_prefix="",
             max_tokens=0,
         )

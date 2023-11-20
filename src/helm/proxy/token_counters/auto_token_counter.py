@@ -38,5 +38,5 @@ class AutoTokenCounter(TokenCounter):
         """
         Counts tokens based on the organization.
         """
-        token_counter: TokenCounter = self.get_token_counter(request.model_organization)
+        token_counter: TokenCounter = self.get_token_counter(request.model_host)
         return token_counter.count_tokens(request, completions)
