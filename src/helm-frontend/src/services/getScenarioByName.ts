@@ -10,8 +10,7 @@ export default async function getScenarioByName(
   try {
     const scenario = await fetch(
       getBenchmarkEndpoint(
-        `/benchmark_output/runs/${
-          suite || getBenchmarkSuite()
+        `/benchmark_output/runs/${suite || getBenchmarkSuite()
         }/${scenarioName}/scenario.json`,
       ),
       { signal },
