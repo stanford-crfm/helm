@@ -2,7 +2,12 @@
 # Some models have several deployments, each with different parameters.
 
 # If you want to add a new deployment, you can technically do it here but we recommend
-# you to do it in private/model_deployments.yaml instead.
+# you to do it in prod_env/model_deployments.yaml instead.
+
+# Follow the template of this file to add a new deployment. You can copy paste this to get started:
+#    # This file defines all the model deployments that you do not want to be public.
+#    model_deployments: [] # Leave empty to disable private model deployments
+
 
 model_deployments:
 

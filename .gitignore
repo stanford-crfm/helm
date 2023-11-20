@@ -44,6 +44,3 @@ notes.otl
 
 # Miscellaneous
 .nfs*
-
-# private configs
-src/helm/config/private/

@@ -200,11 +200,11 @@ def get_all_instruction_following_models() -> List[str]:
     return get_model_names_with_tag(INSTRUCTION_FOLLOWING_MODEL_TAG)
 
 
-def register_metadatas_if_not_already_registered() -> None:
+def register_metadatas_if_not_already_registered(base_path: str = "prod_env") -> None:
     global METADATAS_REGISTERED
     if not METADATAS_REGISTERED:
         path: str = resources.files(CONFIG_PACKAGE).joinpath(MODEL_METADATA_FILE)
-        private_path: str = resources.files(CONFIG_PACKAGE).joinpath(f"private/{MODEL_METADATA_FILE}")
+        private_path: str = os.path.join(base_path, MODEL_METADATA_FILE)
         maybe_register_model_metadata_from_base_path(path)
         maybe_register_model_metadata_from_base_path(private_path)
         METADATAS_REGISTERED = True

@@ -12,8 +12,6 @@ from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
-from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
-from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
 from helm.benchmark.config_registry import register_helm_configurations
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark import vlm_run_specs  # noqa
@@ -245,18 +243,6 @@ def main():
         default=None,
         help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
-    parser.add_argument(
-        "--model-metadata-paths",
-        nargs="+",
-        help="Experimental: Where to read model metadata from",
-        default=[],
-    )
-    parser.add_argument(
-        "--model-deployment-paths",
-        nargs="+",
-        help="Experimental: Where to read model deployments from",
-        default=[],
-    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
@@ -265,10 +251,6 @@ def main():
         register_huggingface_hub_model_from_flag_value(huggingface_model_name)
     for huggingface_model_path in args.enable_local_huggingface_models:
         register_huggingface_local_model_from_flag_value(huggingface_model_path)
-    for model_metadata_path in args.model_metadata_paths:
-        register_model_metadata_from_path(model_metadata_path)
-    for model_deployment_paths in args.model_deployment_paths:
-        register_model_deployments_from_path(model_deployment_paths)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
@@ -278,7 +260,7 @@ def main():
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
         )
 
-    register_helm_configurations()
+    register_helm_configurations(base_path=args.local_path)
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,

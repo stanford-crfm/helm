@@ -1,3 +1,0 @@
-# This file defines all the model deployments that you do not want to be public.
-
-model_deployments: [] # Leave empty to disable private model deployments

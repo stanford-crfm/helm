@@ -70,11 +70,11 @@ def get_tokenizer_config(name: str) -> Optional[TokenizerConfig]:
     return TOKENIZER_NAME_TO_CONFIG.get(name)
 
 
-def register_tokenizers_if_not_already_registered() -> None:
+def register_tokenizers_if_not_already_registered(base_path: str = "prod_env") -> None:
     global TOKENIZERS_REGISTERED
     if not TOKENIZERS_REGISTERED:
         path: str = resources.files(CONFIG_PACKAGE).joinpath(TOKENIZER_CONFIGS_FILE)
-        private_path: str = resources.files(CONFIG_PACKAGE).joinpath(f"private/{TOKENIZER_CONFIGS_FILE}")
+        private_path: str = os.path.join(base_path, TOKENIZER_CONFIGS_FILE)
         maybe_register_tokenizer_configs_from_base_path(path)
         maybe_register_tokenizer_configs_from_base_path(private_path)
         TOKENIZERS_REGISTERED = True

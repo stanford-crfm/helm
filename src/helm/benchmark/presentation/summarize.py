@@ -1314,6 +1314,12 @@ def main():
         help="Number of instance ids we're using; only for annotating scenario spec instance ids file",
         default=1000,
     )
+    parser.add_argument(
+        "--local-path",
+        type=str,
+        help="If running locally, the path for `ServerService`.",
+        default="prod_env",
+    )
     args = parser.parse_args()
 
     release: Optional[str] = None
@@ -1337,7 +1343,7 @@ def main():
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
 
-    register_helm_configurations()
+    register_helm_configurations(base_path=args.local_path)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(

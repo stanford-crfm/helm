@@ -177,11 +177,11 @@ def get_model_names_with_tokenizer(tokenizer_name: str) -> List[str]:
     return [deployment.model_name or deployment.name for deployment in deployments]
 
 
-def register_deployments_if_not_already_registered() -> None:
+def register_deployments_if_not_already_registered(base_path: str = "prod_env") -> None:
     global DEPLOYMENTS_REGISTERED
     if not DEPLOYMENTS_REGISTERED:
         path: str = resources.files(CONFIG_PACKAGE).joinpath(MODEL_DEPLOYMENTS_FILE)
-        private_path: str = resources.files(CONFIG_PACKAGE).joinpath(f"private/{MODEL_DEPLOYMENTS_FILE}")
+        private_path: str = os.path.join(base_path, MODEL_DEPLOYMENTS_FILE)
         maybe_register_model_deployments_from_base_path(path)
         maybe_register_model_deployments_from_base_path(private_path)
         DEPLOYMENTS_REGISTERED = True
