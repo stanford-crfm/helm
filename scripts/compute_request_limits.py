@@ -6,6 +6,7 @@
 from typing import Any, Optional, Dict
 from helm.proxy.clients.auto_client import AutoClient
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
+from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.common.request import Request
 from helm.common.tokenization_request import TokenizationRequest
 
@@ -81,6 +82,7 @@ class RequestLimits:
 
 def figure_out_max_prompt_length(
     client: AutoClient,
+    auto_tokenizer: AutoTokenizer,
     model_deployment_name: str,
     model_name: str,
     tokenizer_name: str,
@@ -89,7 +91,7 @@ def figure_out_max_prompt_length(
     prefix: str = "",
     suffix: str = "",
 ) -> RequestLimits:
-    tokenizer = client._get_tokenizer(tokenizer_name)
+    tokenizer = auto_tokenizer._get_tokenizer(tokenizer_name)
     num_tokens_prefix = get_number_of_tokens(prefix, tokenizer, tokenizer_name)
     num_tokens_suffix = get_number_of_tokens(suffix, tokenizer, tokenizer_name)
 
@@ -177,6 +179,7 @@ def figure_out_max_prompt_length_plus_tokens(
 
 def check_limits(
     client: AutoClient,
+    auto_tokenizer: AutoTokenizer,
     model_deployment_name: str,
     model_name: str,
     tokenizer_name: str,
@@ -184,7 +187,7 @@ def check_limits(
     prefix: str = "",
     suffix: str = "",
 ) -> bool:
-    tokenizer = client._get_tokenizer(tokenizer_name)
+    tokenizer = auto_tokenizer._get_tokenizer(tokenizer_name)
     result: bool = True
 
     # Check the max_prompt_length
@@ -342,6 +345,7 @@ def main():
     print(f"cache_path: {cache_path}")
 
     client = AutoClient(credentials=credentials, cache_path=cache_path)
+    auto_tokenizer = AutoTokenizer(credentials=credentials, cache_path=cache_path)
     print("client successfully created")
 
     print("Making short request...")
@@ -368,7 +372,13 @@ def main():
 
     print("========== Figure out max_prompt_length ==========")
     limits: RequestLimits = figure_out_max_prompt_length(
-        client, args.model_deployment_name, args.model_name, args.tokenizer_name, prefix=args.prefix, suffix=args.suffix
+        client,
+        auto_tokenizer,
+        args.model_deployment_name,
+        args.model_name,
+        args.tokenizer_name,
+        prefix=args.prefix,
+        suffix=args.suffix,
     )
     print(f"max_prompt_length: {limits.max_prompt_length}")
     print("===================================================")
@@ -393,6 +403,7 @@ def main():
     print("========== Check the limits ==========")
     result: bool = check_limits(
         client,
+        auto_tokenizer,
         args.model_deployment_name,
         args.model_name,
         args.tokenizer_name,

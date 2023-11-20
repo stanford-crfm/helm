@@ -18,6 +18,7 @@ from helm.benchmark.window_services.test_utils import get_tokenizer_service
 
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.proxy.clients.auto_client import AutoClient
+from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
 from collections import defaultdict
 
 
@@ -1393,6 +1394,7 @@ class TestModelProperties:
     @pytest.mark.parametrize("model", ALL_MODEL_DEPLOYMENTS)
     def test_models_has_window_service(self, model: ModelMetadata):
         auto_client = AutoClient(defaultdict(str), "", "")
+        auto_tokenizer = AutoTokenizer(defaultdict(str), "", "")
         model_deployments = {
             model_deployment.name: model_deployment for model_deployment in _BUILT_IN_MODEL_DEPLOYMENTS
         }
@@ -1413,7 +1415,7 @@ class TestModelProperties:
             client = auto_client._get_client(deployment_name)
             window_service = WindowServiceFactory.get_window_service(deployment_name, tokenizer_service)
             tokenizer_name = window_service.tokenizer_name
-            tokenizer = auto_client._get_tokenizer(tokenizer_name)
+            tokenizer = auto_tokenizer._get_tokenizer(tokenizer_name)
 
             client_class_name = _full_class_name(client)
             tokenizer_class_name = _full_class_name(tokenizer)
