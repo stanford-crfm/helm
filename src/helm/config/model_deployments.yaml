@@ -1,0 +1,1567 @@
+# This file defines all the model deployments that are supported by the Helm API.
+# Some models have several deployments, each with different parameters.
+
+# If you want to add a new deployment, you can technically do it here but we recommend
+# you to do it in private/model_deployments.yaml instead.
+
+model_deployments:
+
+  - name: simple/model1
+    model_name: simple/model1
+    tokenizer_name: simple/model1
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.simple_client.SimpleClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  # AI21 Labs
+
+  # J1 models are Deprecated by AI21 Labs
+  # API returns: Detail: Jurassic J1 models are deprecated
+  - name: ai21/j1-jumbo
+    deprecated: true
+    model_name: ai21/j1-jumbo
+    tokenizer_name: ai21/j1
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j1-large
+    deprecated: true
+    model_name: ai21/j1-large
+    tokenizer_name: ai21/j1
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j1-grande 
+    deprecated: true
+    model_name: ai21/j1-grande
+    tokenizer_name: ai21/j1
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j1-grande-v2-beta 
+    deprecated: true
+    model_name: ai21/j1-grande-v2-beta
+    tokenizer_name: ai21/j1
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j2-jumbo
+    model_name: ai21/j2-jumbo
+    tokenizer_name: ai21/j1
+    max_sequence_length: 6000
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_ai21_window_service.AI21Jurassic2JumboWindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j2-large
+    model_name: ai21/j2-large
+    tokenizer_name: ai21/j1
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+  - name: ai21/j2-grande
+    model_name: ai21/j2-grande
+    tokenizer_name: ai21/j1
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.proxy.clients.ai21_client.AI21Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
+      args:
+        gpt2_window_service:
+          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+          args: {}
+
+
+
+  # Aleph Alpha
+  - name: AlephAlpha/luminous-base
+    model_name: AlephAlpha/luminous-base
+    tokenizer_name: AlephAlpha/luminous-base
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.luminous_window_service.LuminousBaseWindowService"
+      args: {}
+
+  - name: AlephAlpha/luminous-extended
+    model_name: AlephAlpha/luminous-extended
+    tokenizer_name: AlephAlpha/luminous-extended
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.luminous_window_service.LuminousExtendedWindowService"
+      args: {}
+
+  - name: AlephAlpha/luminous-supreme
+    model_name: AlephAlpha/luminous-supreme
+    tokenizer_name: AlephAlpha/luminous-supreme
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.luminous_window_service.LuminousSupremeWindowService"
+      args: {}
+
+  # TODO: Add luminous-world once it is released.
+
+
+  
+  # Anthropic
+  - name: anthropic/claude-v1.3
+    model_name: anthropic/claude-v1.3
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 8000
+    max_sequence_and_generated_tokens_length: 9016
+    client_spec:
+      class_name: "helm.proxy.clients.anthropic_client.AnthropicClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+      args: {}
+
+  - name: anthropic/claude-instant-v1
+    model_name: anthropic/claude-instant-v1
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 8000
+    max_sequence_and_generated_tokens_length: 9016
+    client_spec:
+      class_name: "helm.proxy.clients.anthropic_client.AnthropicClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+      args: {}
+
+  - name: anthropic/claude-2.0
+    model_name: anthropic/claude-2.0
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 8000
+    max_sequence_and_generated_tokens_length: 9016
+    client_spec:
+      class_name: "helm.proxy.clients.anthropic_client.AnthropicClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+      args: {}
+
+  - name: anthropic/stanford-online-all-v4-s3
+    deprecated: true # Closed model, not accessible via API
+    model_name: anthropic/stanford-online-all-v4-s3
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.proxy.clients.anthropic_client.AnthropicLegacyClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.anthropic_window_service.LegacyAnthropicWindowService"
+      args: {}
+
+
+
+  # Cohere
+  - name: cohere/xlarge-20220609
+    model_name: cohere/xlarge-20220609
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2047
+    max_request_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
+      args: {}
+
+  - name: cohere/large-20220720
+    model_name: cohere/large-20220720
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2047
+    max_request_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
+      args: {}
+
+  - name: cohere/medium-20220720
+    model_name: cohere/medium-20220720
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2047
+    max_request_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
+      args: {}
+
+  - name: cohere/small-20220720
+    model_name: cohere/small-20220720
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2047
+    max_request_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
+      args: {}
+
+  - name: cohere/xlarge-20221108
+    model_name: cohere/xlarge-20221108
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2047
+    max_request_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
+      args: {}
+
+  - name: cohere/medium-20221108
+    model_name: cohere/medium-20221108
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2047
+    max_request_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
+      args: {}
+
+  - name: cohere/command-medium-beta
+    model_name: cohere/command-medium-beta
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2019
+    max_request_length: 2020
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      args: {}
+
+  - name: cohere/command-xlarge-beta
+    model_name: cohere/command-xlarge-beta
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2019
+    max_request_length: 2020
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      args: {}
+
+  - name: cohere/command
+    model_name: cohere/command
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2019 # TODO: verify this
+    max_request_length: 2020 # TODO: verify this
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      args: {}
+
+  - name: cohere/command-light
+    model_name: cohere/command-light
+    tokenizer_name: cohere/cohere
+    max_sequence_length: 2019 # TODO: verify this
+    max_request_length: 2020 # TODO: verify this
+    client_spec:
+      class_name: "helm.proxy.clients.cohere_client.CohereClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      args: {}
+
+
+
+  # Gooseai
+
+  ## EleutherAI
+  - name: gooseai/gpt-neo-20b
+    model_name: eleutherai/gpt-neox-20b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: gooseai/gpt-j-6b
+    model_name: eleutherai/gpt-j-6b
+    tokenizer_name: EleutherAI/gpt-j-6B
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
+      args: {}
+
+
+
+  # HuggingFace
+
+  ## Bigcode
+  - name: huggingface/santacoder
+    model_name: bigcode/santacoder
+    tokenizer_name: bigcode/santacoder
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.santacoder_window_service.SantaCoderWindowService"
+      args: {}
+
+  - name: huggingface/starcoder
+    model_name: bigcode/starcoder
+    tokenizer_name: bigcode/starcoder
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.starcoder_window_service.StarCoderWindowService"
+      args: {}
+
+  ## EleutherAI
+  - name: huggingface/gpt-j-6b
+    model_name: eleutherai/gpt-j-6b
+    tokenizer_name: EleutherAI/gpt-j-6B
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
+      args: {}
+
+  ## OpenAI 
+  - name: huggingface/gpt2
+    model_name: openai/gpt2
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 1024
+    max_request_length: 1025
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+      args: {}
+
+
+
+  # HuggingFaceM4
+  - name: HuggingFaceM4/idefics-9b
+    model_name: huggingface/idefics-9b
+    tokenizer_name: HuggingFaceM4/idefics-9b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  - name: HuggingFaceM4/idefics-9b-instruct
+    model_name: huggingface/idefics-9b-instruct
+    tokenizer_name: HuggingFaceM4/idefics-9b-instruct
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  - name: HuggingFaceM4/idefics-80b
+    model_name: huggingface/idefics-80b
+    tokenizer_name: HuggingFaceM4/idefics-80b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  - name: HuggingFaceM4/idefics-80b-instruct
+    model_name: huggingface/idefics-80b-instruct
+    tokenizer_name: HuggingFaceM4/idefics-80b-instruct
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+
+
+  # Lighting AI
+  - name: lightningai/lit-gpt
+    model_name: lightningai/lit-gpt
+    tokenizer_name: lightningai/lit-gpt
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.lit_gpt_client.LitGPTClient"
+      args: 
+        checkpoint_dir: "" # Path to the checkpoint directory
+        precision: bf16-true
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.lit_gpt_window_service.LitGPTWindowService"
+      args: {}
+
+
+
+  # Microsoft
+  - name: microsoft/TNLGv2_530B
+    model_name: microsoft/TNLGv2_530B
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2047
+    max_request_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.mt_nlg_window_service.MTNLGWindowService"
+      args: {}
+
+  - name: microsoft/TNLGv2_7B
+    model_name: microsoft/TNLGv2_7B
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2047
+    max_request_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.mt_nlg_window_service.MTNLGWindowService"
+      args: {}
+
+
+
+  # Neurips
+  - name: neurips/local
+    model_name: neurips/local
+    tokenizer_name: neurips/local
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.http_model_client.HTTPModelClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.http_model_window_service.HTTPModelWindowService"
+      args: {}
+
+
+
+  # Nvidia
+  - name: nvidia/megatron-gpt2
+    model_name: nvidia/megatron-gpt2
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 1024
+    client_spec:
+      class_name: "helm.proxy.clients.megatron_client.MegatronClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.megatron_window_service.MegatronWindowService"
+      args: {}
+
+
+
+  # OpenAI
+
+  ## GPT 3 Models
+  # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
+  # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
+  
+  - name: openai/davinci 
+    deprecated: true
+    model_name: openai/davinci
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/curie 
+    deprecated: true
+    model_name: openai/curie
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/babbage 
+    deprecated: true
+    model_name: openai/babbage
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/ada 
+    deprecated: true
+    model_name: openai/ada
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/text-davinci-003 
+    deprecated: true
+    model_name: openai/text-davinci-003
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 4000
+    max_request_length: 4001
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
+      args: {}
+
+  - name: openai/text-davinci-002 
+    deprecated: true
+    model_name: openai/text-davinci-002
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 4000
+    max_request_length: 4001
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
+      args: {}
+
+  - name: openai/text-davinci-001 
+    deprecated: true
+    model_name: openai/text-davinci-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/text-curie-001 
+    deprecated: true
+    model_name: openai/text-curie-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/text-babbage-001 
+    deprecated: true
+    model_name: openai/text-babbage-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/text-ada-001 
+    deprecated: true
+    model_name: openai/text-ada-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+
+  ## GPT 3.5 Turbo Models
+  # ChatGPT: https://openai.com/blog/chatgpt
+
+  # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
+  # sequence length is smaller at 4087 with one user input message and one assistant
+  # output message because ChatGPT uses special tokens for message roles and boundaries.
+  # We use a rounded-down sequence length of 4000 to account for these special tokens.
+  - name: openai/gpt-3.5-turbo-0301
+    model_name: openai/gpt-3.5-turbo-0301
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 4000
+    max_request_length: 4001
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.GPTTurboWindowService"
+      args: {}
+
+  # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
+  # sequence length is smaller at 4087 with one user input message and one assistant
+  # output message because ChatGPT uses special tokens for message roles and boundaries.
+  # We use a rounded-down sequence length of 4000 to account for these special tokens.
+  - name: openai/gpt-3.5-turbo-0613
+    model_name: openai/gpt-3.5-turbo-0613
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 4000
+    max_request_length: 4001
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.GPTTurboWindowService"
+      args: {}
+
+  # Claimed length is 16,384; we round down to 16,000 for the same reasons as explained
+  # in the openai/gpt-3.5-turbo-0613 comment
+  - name: openai/gpt-3.5-turbo-16k-0613
+    model_name: openai/gpt-3.5-turbo-16k-0613
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 16000
+    max_request_length: 16001
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.GPTTurbo16KWindowService"
+      args: {}
+
+
+  ## GPT 4 Models
+
+  - name: openai/gpt-4-0314
+    model_name: openai/gpt-4-0314
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 8192
+    max_request_length: 8193
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.GPT4WindowService"
+      args: {}
+
+  - name: openai/gpt-4-32k-0314
+    model_name: openai/gpt-4-32k-0314
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 32768
+    max_request_length: 32769
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.GPT432KWindowService"
+      args: {}
+
+  - name: openai/gpt-4-0613
+    model_name: openai/gpt-4-0613
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 8192
+    max_request_length: 8193
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.GPT4WindowService"
+      args: {}
+
+  - name: openai/gpt-4-32k-0613
+    model_name: openai/gpt-4-32k-0613
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 32768
+    max_request_length: 32769
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.GPT432KWindowService"
+      args: {}
+
+
+  ## Codex Models
+  # DEPRECATED: Codex models have been shut down on March 23 2023.
+
+  - name: openai/code-davinci-002 
+    deprecated: true
+    model_name: openai/code-davinci-002
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 4000
+    max_request_length: 4001
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
+      args: {}
+
+  - name: openai/code-davinci-001 
+    deprecated: true
+    model_name: openai/code-davinci-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/code-cushman-001 
+    deprecated: true
+    model_name: openai/code-cushman-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  
+  ## Text Similarity Models
+  # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
+  # The number of parameters is guessed based on the number of parameters of the
+  # corresponding GPT-3 model.
+  # DEPRECATED: Announced on July 06 2023 that first generation embeddings models
+  #  will be shut down on January 04 2024.
+
+  - name: openai/text-similarity-davinci-001 
+    deprecated: true
+    model_name: openai/text-similarity-davinci-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/text-similarity-curie-001 
+    deprecated: true
+    model_name: openai/text-similarity-curie-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/text-similarity-babbage-001 
+    deprecated: true
+    model_name: openai/text-similarity-babbage-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  - name: openai/text-similarity-ada-001 
+    deprecated: true
+    model_name: openai/text-similarity-ada-001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+  # As of 2023-11-07, text-embedding-ada-002 is not deprecated:
+  # "We recommend using text-embedding-ada-002 for nearly all use cases."
+  # Source: https://platform.openai.com/docs/guides/embeddings/what-are-embeddings
+  - name: openai/text-embedding-ada-002 
+    model_name: openai/text-embedding-ada-002
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+      args: {}
+
+
+
+  # Together
+  # The list of models served by Together changes often, to check the latest list, visit:
+  # https://docs.together.ai/docs/inference-models
+  # You can also check the playground to check that the live models are working:
+  # https://api.together.xyz/playground
+
+  ## BigScience
+  - name: together/bloom 
+    deprecated: true # Removed from together
+    model_name: bigscience/bloom
+    tokenizer_name: bigscience/bloom
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.bloom_window_service.BloomWindowService"
+      args: {}
+
+  - name: together/t0pp 
+    deprecated: true # Removed from together
+    model_name: bigscience/t0pp
+    tokenizer_name: bigscience/T0pp
+    max_sequence_length: 1024
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.t0pp_window_service.T0ppWindowService"
+      args: {}
+
+  ## Databricks
+  - name: together/dolly-v2-3b
+    model_name: databricks/dolly-v2-3b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/dolly-v2-7b
+    model_name: databricks/dolly-v2-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/dolly-v2-12b
+    model_name: databricks/dolly-v2-12b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  ## EleutherAI
+  - name: together/gpt-j-6b
+    deprecated: true # Removed from together
+    model_name: eleutherai/gpt-j-6b
+    tokenizer_name: EleutherAI/gpt-j-6B
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
+      args: {}
+
+  - name: together/gpt-neox-20b
+    deprecated: true # Removed from together
+    model_name: eleutherai/gpt-neox-20b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/pythia-1b-v0
+    model_name: eleutherai/pythia-1b-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/pythia-2.8b-v0
+    model_name: eleutherai/pythia-2.8b-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/pythia-6.9b
+    model_name: eleutherai/pythia-6.9b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/pythia-12b-v0
+    model_name: eleutherai/pythia-12b-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  ## Google
+  - name: together/t5-11b
+    deprecated: true # Removed from together
+    model_name: google/t5-11b
+    tokenizer_name: google/t5-11b
+    max_sequence_length: 511
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.t511b_window_service.T511bWindowService"
+      args: {}
+
+  - name: together/flan-t5-xxl
+    deprecated: true # Removed from together
+    model_name: google/flan-t5-xxl
+    tokenizer_name: google/flan-t5-xxl
+    max_sequence_length: 511
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.flan_t5_window_service.FlanT5WindowService"
+      args: {}
+
+  - name: together/ul2
+    deprecated: true # Removed from together
+    model_name: google/ul2
+    tokenizer_name: google/ul2
+    max_sequence_length: 511
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ul2_window_service.UL2WindowService"
+      args: {}
+
+  ## HazyResearch
+  - name: together/h3-2.7b
+    deprecated: true# Not available on Together yet
+    model_name: hazyresearch/h3-2.7b
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 1024
+    max_request_length: 1025
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+      args: {}
+
+  ## LMSYS
+  # TODO: might be deprecated. Needs to be checked.
+  # Together officialy supports vicuna 1.5, not sure if 1.3 is still supported.
+  - name: together/vicuna-7b-v1.3
+    model_name: lmsys/vicuna-7b-v1.3
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      args: {}
+
+  - name: together/vicuna-13b-v1.3
+    model_name: lmsys/vicuna-13b-v1.3
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      args: {}
+
+  ## Meta
+  - name: together/llama-7b
+    model_name: meta/llama-7b
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      args: {}
+
+  - name: together/llama-13b
+    model_name: meta/llama-13b
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      args: {}
+
+  - name: together/llama-30b
+    model_name: meta/llama-30b
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      args: {}
+
+  - name: together/llama-65b
+    model_name: meta/llama-65b
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      args: {}
+
+  - name: together/llama-2-7b
+    model_name: meta/llama-2-7b
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+      args: {}
+
+  - name: together/llama-2-13b
+    model_name: meta/llama-2-13b
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+      args: {}
+
+  - name: together/llama-2-70b
+    model_name: meta/llama-2-70b
+    tokenizer_name: meta-llama/Llama-2-7b-hf
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+      args: {}
+
+  - name: together/opt-175b
+    deprecated: true # Not available on Together yet
+    model_name: meta/opt-175b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.opt_window_service.OPTWindowService"
+      args: {}
+
+  - name: together/opt-66b
+    deprecated: true # Not available on Together yet
+    model_name: meta/opt-66b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.opt_window_service.OPTWindowService"
+      args: {}
+
+  - name: together/opt-6.7b
+    deprecated: true # Not available on Together yet
+    model_name: meta/opt-6.7b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.opt_window_service.OPTWindowService"
+      args: {}
+
+  - name: together/opt-1.3b
+    deprecated: true # Not available on Together yet
+    model_name: meta/opt-1.3b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.opt_window_service.OPTWindowService"
+      args: {}
+
+  ## MistralAI
+  - name: together/mistral-7b-v0.1
+    model_name: mistralai/mistral-7b-v0.1
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 4095
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  ## MosaicML
+  - name: together/mpt-7b
+    deprecated: true # Not available on Together yet
+    model_name: mosaicml/mpt-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/mpt-instruct-7b
+    deprecated: true # Not available on Together yet
+    model_name: mosaicml/mpt-instruct-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/mpt-30b
+    model_name: mosaicml/mpt-30b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/mpt-instruct-30b
+    model_name: mosaicml/mpt-instruct-30b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  ## StabilityAI
+  - name: together/stablelm-base-alpha-3b
+    deprecated: true # Removed from together
+    model_name: stabilityai/stablelm-base-alpha-3b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 4096
+    max_request_length: 4097
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.StableLMAlphaWindowService"
+      args: {}
+
+  - name: together/stablelm-base-alpha-7b
+    deprecated: true # Removed from together
+    model_name: stabilityai/stablelm-base-alpha-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 4096
+    max_request_length: 4097
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.StableLMAlphaWindowService"
+      args: {}
+
+  ## Stanford
+  - name: together/alpaca-7b
+    model_name: stanford/alpaca-7b
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      args: {}
+
+  ## Tiiuae
+  - name: together/falcon-7b
+    model_name: tiiuae/falcon-7b
+    tokenizer_name: tiiuae/falcon-7b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  - name: together/falcon-7b-instruct
+    model_name: tiiuae/falcon-7b-instruct
+    tokenizer_name: tiiuae/falcon-7b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  - name: together/falcon-40b
+    model_name: tiiuae/falcon-40b
+    tokenizer_name: tiiuae/falcon-7b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  - name: together/falcon-40b-instruct
+    model_name: tiiuae/falcon-40b-instruct
+    tokenizer_name: tiiuae/falcon-7b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  ## Together
+  # These are models fine-tuned by Together (and not simply hosted by Together).
+  - name: together/gpt-jt-6b-v1
+    model_name: together/gpt-jt-6b-v1
+    tokenizer_name: EleutherAI/gpt-j-6B
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
+      args: {}
+
+  - name: together/gpt-neoxt-chat-base-20b
+    model_name: together/gpt-neoxt-chat-base-20b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/redpajama-incite-base-3b-v1
+    model_name: together/redpajama-incite-base-3b-v1
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/redpajama-incite-instruct-3b-v1
+    model_name: together/redpajama-incite-instruct-3b-v1
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/redpajama-incite-base-7b
+    model_name: together/redpajama-incite-base-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  - name: together/redpajama-incite-instruct-7b
+    model_name: together/redpajama-incite-instruct-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+      args: {}
+
+  ## Tsinghua
+  - name: together/glm
+    deprecated: true # Not available on Together yet
+    model_name: tsinghua/glm
+    tokenizer_name: TsinghuaKEG/ice
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.ice_window_service.ICEWindowService"
+      args: {}
+
+  ## Yandex
+  - name: together/yalm
+    deprecated: true # Not available on Together yet
+    model_name: yandex/yalm
+    tokenizer_name: Yandex/yalm
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.yalm_window_service.YaLMWindowService"
+      args: {}
+
+
+
+  # Writer
+  - name: writer/palmyra-base
+    model_name: writer/palmyra-base
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_sequence_and_generated_tokens_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
+      args: {}
+
+  - name: writer/palmyra-large
+    model_name: writer/palmyra-large
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_sequence_and_generated_tokens_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
+      args: {}
+
+  - name: writer/palmyra-instruct-30
+    model_name: writer/palmyra-instruct-30
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_sequence_and_generated_tokens_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
+      args: {}
+
+  - name: writer/palmyra-e
+    model_name: writer/palmyra-e
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 2048
+    max_sequence_and_generated_tokens_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
+      args: {}
+
+  - name: writer/silk-road
+    model_name: writer/silk-road
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8192
+    max_sequence_and_generated_tokens_length: 8192
+    client_spec:
+      class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
+      args: {}
+
+  - name: writer/palmyra-x
+    model_name: writer/palmyra-x
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8192
+    max_sequence_and_generated_tokens_length: 8192
+    client_spec:
+      class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
+      args: {}

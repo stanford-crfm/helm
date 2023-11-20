@@ -14,6 +14,7 @@ from helm.proxy.services.remote_service import create_authentication, add_servic
 
 from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
 from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
+from helm.benchmark.config_registry import register_helm_configurations
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark import heim_run_specs  # noqa
 from helm.benchmark import vlm_run_specs  # noqa
@@ -39,7 +40,7 @@ def run_entries_to_run_specs(
 
         for run_spec in construct_run_specs(parse_object_spec(entry.description)):
             # Filter by models
-            if models_to_run and run_spec.adapter_spec.model not in models_to_run:
+            if models_to_run and run_spec.adapter_spec.model_deployment not in models_to_run:
                 continue
 
             # Filter by groups
@@ -277,6 +278,8 @@ def main():
         run_entries.extend(
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
         )
+
+    register_helm_configurations()
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,

@@ -18,7 +18,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from helm.common.request import Request, RequestResult
-from helm.proxy.models import Model
+from helm.benchmark.model_metadata_registry import ModelMetadata
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.accounts import Authentication, Account
 
@@ -33,7 +33,7 @@ MAX_EXPANSION = 1000
 class GeneralInfo:
     version: str
     example_queries: List[Query]
-    all_models: List[Model]
+    all_models: List[ModelMetadata]
 
 
 def expand_environments(environments: Dict[str, List[str]]):
@@ -73,6 +73,8 @@ def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) 
     request: Dict[str, Any] = {}
     request["prompt"] = substitute_text(prompt, environment)
     request.update(parse_hocon(substitute_text(settings, environment)))
+    if "model_deployment" not in request and "model" not in request:
+        request["model_deployment"] = "openai/text-davinci-002"
     return Request(**request)
 
 

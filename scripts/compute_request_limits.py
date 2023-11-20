@@ -1,10 +1,11 @@
 # This script is used to find out the max_prompt_length and max_prompt_length_plus_tokens for a given model.
 # You must set max_attempts to 1 in retry.py to make it work.
 # Example usage:
-# python compute_request_limits.py --model_name="writer/palmyra-base" --tokenizer_name="Writer/palmyra-base"
+# python compute_request_limits.py --model_deployment_name="writer/palmyra-base" --tokenizer_name="Writer/palmyra-base"
 
 from typing import Any, Optional, Dict
 from helm.proxy.clients.auto_client import AutoClient
+from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.common.request import Request
 from helm.common.tokenization_request import TokenizationRequest
 
@@ -40,6 +41,7 @@ def get_number_of_tokens(prompt: str, tokenizer: Tokenizer, tokenizer_name: str)
 
 def try_request(
     client: Any,
+    model_deployment_name: str,
     model_name: str,
     tokenizer_name: str,
     tokenizer: Tokenizer,
@@ -58,6 +60,7 @@ def try_request(
     try:
         request = Request(
             model=model_name,
+            model_deployment=model_deployment_name,
             prompt=prefix + " ".join(["hello"] * (sequence_length - num_tokens_prefix - num_tokens_suffix)) + suffix,
             max_tokens=num_tokens,
         )
@@ -78,6 +81,7 @@ class RequestLimits:
 
 def figure_out_max_prompt_length(
     client: AutoClient,
+    model_deployment_name: str,
     model_name: str,
     tokenizer_name: str,
     upper_bound: int = 9500,
@@ -95,7 +99,9 @@ def figure_out_max_prompt_length(
     with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
         while lower_bound < upper_bound:
             middle = math.ceil((lower_bound + upper_bound) / 2)
-            if try_request(client, model_name, tokenizer_name, tokenizer, middle, 0, prefix, suffix):
+            if try_request(
+                client, model_deployment_name, model_name, tokenizer_name, tokenizer, middle, 0, prefix, suffix
+            ):
                 lower_bound = middle
             else:
                 upper_bound = middle - 1
@@ -117,6 +123,7 @@ def figure_out_max_prompt_length(
 
 def figure_out_max_prompt_length_plus_tokens(
     client: Any,  # Client,
+    model_deployment_name: str,
     model_name: str,
     tokenizer_name: str,
     max_prompt_length: int,
@@ -130,6 +137,7 @@ def figure_out_max_prompt_length_plus_tokens(
     # Check if there is a limit (some model accept as many tokens as you want)
     if try_request(
         client,
+        model_deployment_name,
         model_name,
         tokenizer_name,
         tokenizer,
@@ -148,7 +156,17 @@ def figure_out_max_prompt_length_plus_tokens(
     with tqdm(total=int(math.log2(upper_bound - lower_bound))) as pbar:
         while lower_bound < upper_bound:
             middle = math.ceil((lower_bound + upper_bound) / 2)
-            if try_request(client, model_name, tokenizer_name, tokenizer, max_prompt_length, middle, prefix, suffix):
+            if try_request(
+                client,
+                model_deployment_name,
+                model_name,
+                tokenizer_name,
+                tokenizer,
+                max_prompt_length,
+                middle,
+                prefix,
+                suffix,
+            ):
                 lower_bound = middle
             else:
                 upper_bound = middle - 1
@@ -159,6 +177,7 @@ def figure_out_max_prompt_length_plus_tokens(
 
 def check_limits(
     client: AutoClient,
+    model_deployment_name: str,
     model_name: str,
     tokenizer_name: str,
     limits: RequestLimits,
@@ -172,7 +191,9 @@ def check_limits(
     max_prompt_length = limits.max_prompt_length
     if max_prompt_length < 0:
         print("No limit on the number of tokens")
-        if not try_request(client, model_name, tokenizer_name, tokenizer, 2**32 - 2, 0, prefix, suffix):
+        if not try_request(
+            client, model_deployment_name, model_name, tokenizer_name, tokenizer, 2**32 - 2, 0, prefix, suffix
+        ):
             print(f"There is a limit on the number of tokens. Params: max_prompt_length={2**32 - 2}, max_tokens=1")
             result = False
     else:
@@ -180,15 +201,37 @@ def check_limits(
         # If there is no limit on the number of tokens, max_prompt_length should be -1
         # And we should not be here
         # Check that max_prompt_length is ok
-        if not try_request(client, model_name, tokenizer_name, tokenizer, max_prompt_length, 0, prefix, suffix):
+        if not try_request(
+            client, model_deployment_name, model_name, tokenizer_name, tokenizer, max_prompt_length, 0, prefix, suffix
+        ):
             print(f"max_prompt_length is too big. Params: max_prompt_length={max_prompt_length}, max_tokens=1")
             result = False
         # Check that max_prompt_length + 1 is not ok
-        if try_request(client, model_name, tokenizer_name, tokenizer, max_prompt_length + 1, 0, prefix, suffix):
+        if try_request(
+            client,
+            model_deployment_name,
+            model_name,
+            tokenizer_name,
+            tokenizer,
+            max_prompt_length + 1,
+            0,
+            prefix,
+            suffix,
+        ):
             print(f"max_prompt_length could be bigger. Params: max_prompt_length={max_prompt_length+1}, max_tokens=1")
             result = False
         # Check that max_prompt_length - 1 is ok
-        if not try_request(client, model_name, tokenizer_name, tokenizer, max_prompt_length - 1, 0, prefix, suffix):
+        if not try_request(
+            client,
+            model_deployment_name,
+            model_name,
+            tokenizer_name,
+            tokenizer,
+            max_prompt_length - 1,
+            0,
+            prefix,
+            suffix,
+        ):
             print(
                 f"max_prompt_length ssems to be inconsistent. max_prompt_length={max_prompt_length} "
                 f"is ok but max_prompt_length={max_prompt_length-1} is not, with max_tokens=0"
@@ -203,7 +246,15 @@ def check_limits(
     if max_prompt_length_plus_tokens < 0:
         print("No limit on the number of tokens")
         if not try_request(
-            client, model_name, tokenizer_name, tokenizer, max(1, max_prompt_length), 2**32 - 2, prefix, suffix
+            client,
+            model_deployment_name,
+            model_name,
+            tokenizer_name,
+            tokenizer,
+            max(1, max_prompt_length),
+            2**32 - 2,
+            prefix,
+            suffix,
         ):
             print(
                 f"There is a limit on the number of tokens. Params: max_prompt_length={max_prompt_length},"
@@ -216,6 +267,7 @@ def check_limits(
         # If there is no limit on the number of tokens, we skip this test
         if not try_request(
             client,
+            model_deployment_name,
             model_name,
             tokenizer_name,
             tokenizer,
@@ -231,6 +283,7 @@ def check_limits(
             result = False
         if try_request(
             client,
+            model_deployment_name,
             model_name,
             tokenizer_name,
             tokenizer,
@@ -251,7 +304,8 @@ def check_limits(
 def get_args():
     # model_name, tokenizer_name, prefix and suffix are passed as arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, default="writer/palmyra-base")
+    parser.add_argument("--model_deployment_name", type=str, default="writer/palmyra-base")
+    parser.add_argument("--model_name", type=str, default="")
     parser.add_argument("--tokenizer_name", type=str, default="Writer/palmyra-base")
     parser.add_argument(
         "--prefix",
@@ -268,6 +322,10 @@ def get_args():
     parser.add_argument("--credentials_path", type=str, default="../prod_env/credentials.conf")
     parser.add_argument("--cache_path", type=str, default="../prod_env/cache")
     args = parser.parse_args()
+
+    if args.model_name == "":
+        model_deployment: ModelDeployment = get_model_deployment(args.model_deployment_name)
+        args.model_name = model_deployment.model_name
     return args
 
 
@@ -287,7 +345,12 @@ def main():
     print("client successfully created")
 
     print("Making short request...")
-    request = Request(model=args.model_name, prompt=args.prefix + "hello" + args.suffix, max_tokens=1)
+    request = Request(
+        model=args.model_name,
+        model_deployment=args.model_deployment_name,
+        prompt=args.prefix + "hello" + args.suffix,
+        max_tokens=1,
+    )
     response = client.make_request(request)
     if not response.success:
         raise ValueError("Request failed")
@@ -305,7 +368,7 @@ def main():
 
     print("========== Figure out max_prompt_length ==========")
     limits: RequestLimits = figure_out_max_prompt_length(
-        client, args.model_name, args.tokenizer_name, prefix=args.prefix, suffix=args.suffix
+        client, args.model_deployment_name, args.model_name, args.tokenizer_name, prefix=args.prefix, suffix=args.suffix
     )
     print(f"max_prompt_length: {limits.max_prompt_length}")
     print("===================================================")
@@ -314,6 +377,7 @@ def main():
     print("========== Figure out max_prompt_length_plus_tokens ==========")
     max_prompt_length_plus_tokens: int = figure_out_max_prompt_length_plus_tokens(
         client,
+        args.model_deployment_name,
         args.model_name,
         args.tokenizer_name,
         max_prompt_length=limits.max_prompt_length,
@@ -328,7 +392,13 @@ def main():
     # Check the limits
     print("========== Check the limits ==========")
     result: bool = check_limits(
-        client, args.model_name, args.tokenizer_name, limits, prefix=args.prefix, suffix=args.suffix
+        client,
+        args.model_deployment_name,
+        args.model_name,
+        args.tokenizer_name,
+        limits,
+        prefix=args.prefix,
+        suffix=args.suffix,
     )
     if result:
         print("All limits are respected")
