@@ -214,6 +214,25 @@ class AutoClient(Client):
             hlog(retry_error)
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
+    def get_gcs_client(self) -> "helm.proxy.clients.gcs_client.GCSClient":
+        from .gcs_client import GCSClient
+
+        bucket_name: str = self.credentials["gcsBucketName"]
+        cache_config: CacheConfig = self._build_cache_config("gcs")
+        return GCSClient(bucket_name, cache_config)
+
+    def get_nudity_check_client(self) -> "helm.proxy.clients.image_generation.nudity_check_client.NudityCheckClient":
+        from helm.proxy.clients.image_generation.nudity_check_client import NudityCheckClient
+
+        cache_config: CacheConfig = self._build_cache_config("nudity")
+        return NudityCheckClient(cache_config)
+
+    def get_clip_score_client(self) -> "helm.proxy.clients.clip_score_client.CLIPScoreClient":
+        from .clip_score_client import CLIPScoreClient
+
+        cache_config: CacheConfig = self._build_cache_config("clip_score")
+        return CLIPScoreClient(cache_config)
+
     def get_toxicity_classifier_client(self) -> ToxicityClassifierClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""
         from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
