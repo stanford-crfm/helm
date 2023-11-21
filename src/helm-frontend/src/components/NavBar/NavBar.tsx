@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import crfmLogo from "@/assets/crfm-logo.png";
-import helmLogo from "@/assets/helm-logo-simple.png";
+//import helmLogo from "@/assets/helm-logo-simple.png";
+import NavDropdown from "@/components/NavDropdown";
 
 export default function NavBar() {
   return (
@@ -19,17 +20,17 @@ export default function NavBar() {
             className="menu menu-lg dropdown-content mt-3 z-[1] p-2 bg-base-100 shadow"
           >
             <li>
+              <Link to="leaderboard">Leaderboard</Link>
+            </li>
+            <li>
               <Link to="models">Models</Link>
             </li>
             <li>
               <Link to="scenarios">Scenarios</Link>
             </li>
             <li>
-              <Link to="groups">Results</Link>
-            </li>
-            <li>
               <Link to="runs" className="whitespace-nowrap">
-                Raw Runs
+                Explore Predictions
               </Link>
             </li>
           </ul>
@@ -39,12 +40,13 @@ export default function NavBar() {
         <Link to="https://crfm.stanford.edu/" className="w-24">
           <img src={crfmLogo} className="object-contain" />
         </Link>
-        <Link to="/" className="ml-4 w-24">
-          <img src={helmLogo} className="object-contain" />
-        </Link>
+        <NavDropdown></NavDropdown>
       </div>
       <div className="flex-none hidden md:block">
         <ul className="flex flex-row gap-6 px-1">
+          <li>
+            <Link to="leaderboard">Leaderboard</Link>
+          </li>
           <li>
             <Link to="models">Models</Link>
           </li>
@@ -52,10 +54,7 @@ export default function NavBar() {
             <Link to="scenarios">Scenarios</Link>
           </li>
           <li>
-            <Link to="groups">Results</Link>
-          </li>
-          <li>
-            <Link to="runs">Raw Runs</Link>
+            <Link to="runs">Explore Predictions</Link>
           </li>
         </ul>
       </div>

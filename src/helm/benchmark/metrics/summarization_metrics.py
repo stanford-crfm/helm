@@ -52,7 +52,7 @@ class SummarizationMetric(Metric):
         # avoid triggering a bug in DataStatsMetric that raises
         # `NameError: name 'stderr' is not defined`
         if not spacy.util.is_package("en_core_web_sm"):
-            spacy.cli.download("en_core_web_sm")  # type: ignore
+            spacy.cli.download("en_core_web_sm")
 
         try:
             from summ_eval.data_stats_metric import DataStatsMetric
@@ -181,9 +181,9 @@ class SummarizationMetric(Metric):
                 self.humaneval = self._load_humaneval(eval_cache_path)
 
             # get human evaluation scores if they exist
-            model_name = adapter_spec.model.replace("/", "_")
+            deployment = adapter_spec.model_deployment.replace("/", "_")
             for metric_name in ["faithfulness", "relevance", "coherence"]:
-                val = self.humaneval[(metric_name, model_name, request_state.instance.id, pred)]
+                val = self.humaneval[(metric_name, deployment, request_state.instance.id, pred)]
                 result.append(Stat(MetricName(f"HumanEval-{metric_name}")).add(float(val)))
         except KeyError:
             pass
@@ -195,8 +195,8 @@ class SummarizationMetric(Metric):
             if self.qa_fact_eval is None:
                 self._load_qafacteval(eval_cache_path)
             assert self.qa_fact_eval is not None
-            model_name = adapter_spec.model.replace("/", "_")
-            val = self.qa_fact_eval[model_name][(request_state.instance.id, pred)]
+            deployment = adapter_spec.model_deployment.replace("/", "_")
+            val = self.qa_fact_eval[deployment][(request_state.instance.id, pred)]
             result.append(Stat(MetricName("QAFactEval")).add(float(val)))
         except KeyError:
             pass

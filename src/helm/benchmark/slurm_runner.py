@@ -131,7 +131,7 @@ class SlurmRunner(Runner):
         # When running with multiple models, sorting by RunSpec.name is a heuristic that tries to
         # spread out the load evenly across multiple models, in order to avoid overloading any single model.
         for run_spec in sorted(run_specs, key=lambda run_spec: run_spec.name):
-            if self.skip_completed_runs and self._is_run_completed(run_spec):
+            if self.skip_completed_runs and self._is_run_completed(self._get_run_path(run_spec)):
                 skipped_run_specs.append(run_spec)
             else:
                 queued_run_specs.append(run_spec)

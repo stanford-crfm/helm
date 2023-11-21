@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from itertools import combinations_with_replacement, product
 import math
-from math import comb  # type: ignore
+from math import comb
 import numpy as np
 import numpy.typing as npt
 import random
@@ -544,7 +544,7 @@ def get_numeracy_adapter_spec(
                 "max_eval_instances": max_eval_instances,
                 "num_outputs": 1,
                 "num_train_trials": 1,
-                "model": "openai/davinci",
+                "model_deployment": "openai/davinci",
                 "temperature": 0,
                 "stop_sequences": ["\n"],
                 "max_tokens": 20,

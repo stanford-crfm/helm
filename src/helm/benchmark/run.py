@@ -10,11 +10,11 @@ from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
-from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
 from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
 from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
+from helm.benchmark.config_registry import register_helm_configurations
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
@@ -39,7 +39,7 @@ def run_entries_to_run_specs(
 
         for run_spec in construct_run_specs(parse_object_spec(entry.description)):
             # Filter by models
-            if models_to_run and run_spec.adapter_spec.model not in models_to_run:
+            if models_to_run and run_spec.adapter_spec.model_deployment not in models_to_run:
                 continue
 
             # Filter by groups
@@ -240,13 +240,6 @@ def main():
         help="Experimental: Enable using AutoModelForCausalLM models from a local path.",
     )
     parser.add_argument(
-        "--enable-remote-models",
-        nargs="+",
-        default=[],
-        help="Experimental: Enable remote service models that are not available on the client. "
-        "The client will use RemoteWindowService for windowing.",
-    )
-    parser.add_argument(
         "--runner-class-name",
         type=str,
         default=None,
@@ -277,9 +270,6 @@ def main():
     for model_deployment_paths in args.model_deployment_paths:
         register_model_deployments_from_path(model_deployment_paths)
 
-    if args.server_url and args.enable_remote_models:
-        check_and_register_remote_model(args.server_url, args.enable_remote_models)
-
     run_entries: List[RunEntry] = []
     if args.conf_paths:
         run_entries.extend(read_run_entries(args.conf_paths).entries)
@@ -287,6 +277,8 @@ def main():
         run_entries.extend(
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
         )
+
+    register_helm_configurations()
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,

@@ -11,6 +11,7 @@ To run the code, refer to the User Guide's chapters:
 - [Installation](installation.md)
 - [Quick Start](quick_start.md)
 - [Tutorial](tutorial.md)
+- [Get Your Model's Leaderboard Rank](get_helm_rank.md)
 
 To add new models and scenarios, refer to the Developer Guide's chapters:
 

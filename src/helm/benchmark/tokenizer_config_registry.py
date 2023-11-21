@@ -1,15 +1,18 @@
 import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass
+import importlib_resources as resources
 
 import cattrs
 import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
+from helm.benchmark.model_metadata_registry import CONFIG_PACKAGE
 
 
-TOKENIEZR_CONFIGS_FILE = "tokenizer_configs.yaml"
+TOKENIZER_CONFIGS_FILE: str = "tokenizer_configs.yaml"
+TOKENIZERS_REGISTERED: bool = False
 
 
 class TokenizerSpec(ObjectSpec):
@@ -26,7 +29,11 @@ class TokenizerConfig:
     tokenizer_spec: TokenizerSpec
     """Specification for instantiating the client for this tokenizer."""
 
-    # TODO: Add `end_of_text_token`` and `prefix_token``
+    end_of_text_token: Optional[str] = None
+    """The end of text token."""
+
+    prefix_token: Optional[str] = None
+    """The prefix token."""
 
 
 @dataclass(frozen=True)
@@ -34,11 +41,13 @@ class TokenizerConfigs:
     tokenizer_configs: List[TokenizerConfig]
 
 
-_name_to_tokenizer_config: Dict[str, TokenizerConfig] = {}
+ALL_TOKENIZER_CONFIGS: List[TokenizerConfig] = []
+TOKENIZER_NAME_TO_CONFIG: Dict[str, TokenizerConfig] = {config.name: config for config in ALL_TOKENIZER_CONFIGS}
 
 
 def register_tokenizer_config(tokenizer_config: TokenizerConfig) -> None:
-    _name_to_tokenizer_config[tokenizer_config.name] = tokenizer_config
+    ALL_TOKENIZER_CONFIGS.append(tokenizer_config)
+    TOKENIZER_NAME_TO_CONFIG[tokenizer_config.name] = tokenizer_config
 
 
 def register_tokenizer_configs_from_path(path: str) -> None:
@@ -50,11 +59,20 @@ def register_tokenizer_configs_from_path(path: str) -> None:
         register_tokenizer_config(tokenizer_config)
 
 
-def maybe_register_tokenizer_configs_from_base_path(base_path: str) -> None:
-    path = os.path.join(base_path, TOKENIEZR_CONFIGS_FILE)
+def maybe_register_tokenizer_configs_from_base_path(path: str) -> None:
+    """Register tokenizer configs from yaml file if the path exists."""
     if os.path.exists(path):
         register_tokenizer_configs_from_path(path)
 
 
 def get_tokenizer_config(name: str) -> Optional[TokenizerConfig]:
-    return _name_to_tokenizer_config.get(name)
+    register_tokenizers_if_not_already_registered()
+    return TOKENIZER_NAME_TO_CONFIG.get(name)
+
+
+def register_tokenizers_if_not_already_registered() -> None:
+    global TOKENIZERS_REGISTERED
+    if not TOKENIZERS_REGISTERED:
+        path: str = resources.files(CONFIG_PACKAGE).joinpath(TOKENIZER_CONFIGS_FILE)
+        maybe_register_tokenizer_configs_from_base_path(path)
+        TOKENIZERS_REGISTERED = True

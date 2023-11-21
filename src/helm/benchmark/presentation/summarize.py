@@ -57,7 +57,10 @@ from helm.benchmark.presentation.contamination import (
     CONTAMINATION_STYLES,
     CONTAMINATION_LEVEL_STRONG,
 )
+from helm.benchmark.config_registry import register_helm_configurations
 from helm.benchmark.presentation.run_display import write_run_display_json
+from helm.benchmark.model_deployment_registry import get_metadata_for_deployment
+from helm.benchmark.model_metadata_registry import ModelMetadata
 
 
 OVERLAP_N_COUNT = 13
@@ -165,7 +168,7 @@ def get_coarse_adapter_spec(
 
     # Create a new adapter_spec, keeping only the model and the keys in adapter_keys_shown
     adapter_spec_kwargs = {key: adapter_spec.__dict__[key] for key in adapter_keys_shown}
-    return AdapterSpec(**adapter_spec_kwargs)  # type: ignore
+    return AdapterSpec(**adapter_spec_kwargs)
 
 
 def get_method_display_name(model_display_name: Optional[str], info: Dict[str, Any]) -> str:
@@ -178,6 +181,8 @@ def get_method_display_name(model_display_name: Optional[str], info: Dict[str, A
     info = dict(info)
     if "model" in info:
         del info["model"]
+    if "model_deployment" in info:
+        del info["model_deployment"]
 
     return (model_display_name or "???") + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
@@ -363,13 +368,8 @@ class Summarizer:
                 hlog(f"WARNING: {run_dir_name} doesn't have run_spec.json or stats.json, skipping")
                 continue
             run_path: str = os.path.join(run_suite_path, run_dir_name)
-            self.runs.append(self.read_run(run_path))
-
-        # For each group (e.g., natural_qa), map
-        # (i) scenario spec (e.g., subject=philosophy) [optional] and
-        # (ii) adapter spec (e.g., model = openai/davinci)
-        # to list of runs
-        for run in self.runs:
+            run = self.read_run(run_path)
+            self.runs.append(run)
             if run.run_spec.name in self.runs_to_run_suites:
                 hlog(
                     f"WARNING: Run entry {run.run_spec.name} is present in two different Run Suites. "
@@ -377,6 +377,12 @@ class Summarizer:
                 )
             self.runs_to_run_suites[run.run_spec.name] = suite
 
+    def group_runs(self):
+        # For each group (e.g., natural_qa), map
+        # (i) scenario spec (e.g., subject=philosophy) [optional] and
+        # (ii) adapter spec (e.g., model = openai/davinci)
+        # to list of runs
+        for run in self.runs:
             scenario_spec = run.run_spec.scenario_spec
             adapter_spec = run.run_spec.adapter_spec
             for group_name in run.run_spec.groups:
@@ -564,12 +570,12 @@ class Summarizer:
         # TODO: move to write_executive_summary()
         models_to_costs: Dict[str, Dict[str]] = defaultdict(lambda: defaultdict(int))
         for run in self.runs:
-            model: str = run.run_spec.adapter_spec.model
+            deployment: str = run.run_spec.adapter_spec.model_deployment
 
             for stat in run.stats:
                 stat_name = stat.name.name
                 if stat_name in Summarizer.COST_REPORT_FIELDS and not stat.name.split:
-                    models_to_costs[model][stat_name] += stat.sum
+                    models_to_costs[deployment][stat_name] += stat.sum
 
         # Do a second pass to add up the total number of tokens
         for costs in models_to_costs.values():
@@ -660,7 +666,7 @@ class Summarizer:
                 for subgroup in self.expand_subgroups(group):
                     for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
                         filtered_runs = self.filter_runs_by_visibility(runs, subgroup)
-                        models.add(adapter_spec.model)
+                        models.add(adapter_spec.model_deployment)
                         methods.add(adapter_spec.method)
                         for run in filtered_runs:
                             num_instances.extend(get_all_stats_by_name(run.stats, "num_instances"))
@@ -869,33 +875,28 @@ class Summarizer:
             model_order = [model.name for model in self.schema.models]
 
             def _adapter_spec_sort_key(spec):
-                index = model_order.index(spec.model) if spec.model in model_order else -1
-                return (index, spec.model)
+                index = model_order.index(spec.model_deployment) if spec.model_deployment in model_order else -1
+                return (index, spec.model_deployment)
 
             adapter_specs = list(sorted(adapter_specs, key=_adapter_spec_sort_key))
 
         # Pull out only the keys of the method adapter_spec that is needed to
         # uniquely identify the method.
-        infos = unique_simplification(list(map(asdict_without_nones, adapter_specs)), ["model"])
+        infos = unique_simplification(list(map(asdict_without_nones, adapter_specs)), ["model_deployment", "model"])
 
         assert len(adapter_specs) == len(infos), [adapter_specs, infos]
 
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            model_name: str = adapter_spec.model
-
-            # Get the model display name from the schema.
-            # Fall back to using the model name as the model display name if the model is not
-            # defined in the schema.
-            model_display_name = (
-                self.schema.name_to_model[model_name].display_name
-                if model_name in self.schema.name_to_model
-                else model_name
+            deployment: str = (
+                adapter_spec.model_deployment if len(adapter_spec.model_deployment) > 0 else adapter_spec.model
             )
+            model_metadata: ModelMetadata = get_metadata_for_deployment(deployment)
+            model_name: str = model_metadata.name
 
             runs = adapter_to_runs[adapter_spec]
-            display_name = get_method_display_name(model_display_name, info)
+            display_name = get_method_display_name(model_metadata.display_name, info)
 
             # Link to all the runs under this model
             if link_to_runs:
@@ -1254,6 +1255,7 @@ class Summarizer:
     def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
         """Run the entire summarization pipeline pipeline."""
         self.read_runs()
+        self.group_runs()
         self.check_metrics_defined()
 
         self.write_run_display_json(skip_completed)
@@ -1334,6 +1336,8 @@ def main():
         suites = args.suites
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
+
+    register_helm_configurations()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(

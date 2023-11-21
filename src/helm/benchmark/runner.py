@@ -8,6 +8,7 @@ from collections import Counter
 import dataclasses
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
+import numpy as np
 
 from tqdm import tqdm
 
@@ -15,7 +16,15 @@ from helm.common.general import ensure_directory_exists, write, asdict_without_n
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
-from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
+from .scenarios.scenario import (
+    EVAL_SPLITS,
+    TRAIN_SPLIT,
+    Scenario,
+    ScenarioSpec,
+    create_scenario,
+    Instance,
+    with_instance_ids,
+)
 from .adaptation.adapters.adapter import Adapter
 from .adaptation.adapters.adapter_factory import AdapterFactory
 from .adaptation.scenario_state import ScenarioState
@@ -103,6 +112,38 @@ def remove_per_instance_stats_nans(per_instance_stats_list: List[PerInstanceStat
     return result
 
 
+def downsample_eval_instances(instances: List[Instance], max_eval_instances: int) -> List[Instance]:
+    """
+    Get the instances necessary for this run:
+    Train instances (split=train): keep all (if any) for in-context learning
+    Eval instances (split=valid or test): keep at most `max_eval_instances` specified in `AdapterSpec` by sampling
+    Return the resulting train and eval instances.
+    """
+    all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
+
+    all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
+    if len(all_eval_instances) > max_eval_instances:
+        # The random sampling includes instances monotonically.
+        np.random.seed(0)
+        selected_eval_instances = list(
+            np.random.choice(
+                all_eval_instances,  # type: ignore
+                max_eval_instances,
+                replace=False,
+            )
+        )
+    else:
+        selected_eval_instances = all_eval_instances
+
+    hlog(
+        f"{len(instances)} instances, "
+        f"{len(all_train_instances)} train instances, "
+        f"{len(selected_eval_instances)}/{len(all_eval_instances)} eval instances"
+    )
+
+    return all_train_instances + selected_eval_instances
+
+
 class Runner:
     """
     The main entry point for running the entire benchmark.  Mostly just
@@ -145,11 +186,13 @@ class Runner:
         self.eval_cache_path: str = os.path.join(self.runs_path, "eval_cache")
         ensure_directory_exists(self.eval_cache_path)
 
-    def _is_run_completed(self, run_spec: RunSpec):
+    def _get_run_path(self, run_spec: RunSpec) -> str:
+        return os.path.join(self.runs_path, run_spec.name)
+
+    def _is_run_completed(self, run_path: str):
         """Return whether the run was previously completed.
 
         A run is completed if all of the expected output files exist."""
-        run_path: str = os.path.join(self.runs_path, run_spec.name)
         if not os.path.isdir(run_path):
             return False
         output_paths = [
@@ -182,6 +225,12 @@ class Runner:
             raise RunnerError(f"Failed runs: [{failed_runs_str}]")
 
     def run_one(self, run_spec: RunSpec):
+        run_path: str = self._get_run_path(run_spec)
+        if self.skip_completed_runs and self._is_run_completed(run_path):
+            hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
+            return
+        ensure_directory_exists(run_path)
+
         # Load the scenario
         scenario: Scenario = create_scenario(run_spec.scenario_spec)
 
@@ -194,18 +243,6 @@ class Runner:
         scenario_name_with_args = f"{scenario.name}:{args_str}" if args_str else f"{scenario.name}"
         input_instances_output_path = os.path.join(self.instances_path, scenario_name_with_args)
         input_instances_file_path = os.path.join(input_instances_output_path, "input_instances.json")
-
-        run_path: str = os.path.join(self.runs_path, run_spec.name)
-        ensure_directory_exists(run_path)
-
-        if self.skip_completed_runs and self._is_run_completed(run_spec):
-            # If scenario_state.json exists, assume that all other output files exist
-            # because scenario_state.json is the last output file to be written.
-            hlog(f"Skipping run {run_spec.name} because run is completed and all output files exist.")
-            return
-
-        # Fetch and initialize the Adapter based on the `AdapterSpec`.
-        adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
 
         instances: List[Instance]
         if self.skip_instances:
@@ -233,7 +270,9 @@ class Runner:
         instances = with_instance_ids(instances)
 
         # Get the instances necessary for this run.
-        instances = adapter.get_run_instances(instances)
+        max_eval_instances = run_spec.adapter_spec.max_eval_instances
+        if max_eval_instances is not None:
+            instances = downsample_eval_instances(instances, max_eval_instances)
 
         # Data preprocessing
         instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
@@ -241,6 +280,7 @@ class Runner:
         )
 
         # Adapt (convert to requests)
+        adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
         scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
 
         # Execute (fill up results)

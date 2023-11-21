@@ -2,7 +2,7 @@ from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 
 
-class LitGPTWindowServce(LocalWindowService):
+class LitGPTWindowService(LocalWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 

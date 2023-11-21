@@ -1,5 +1,6 @@
 import os
 from typing import Optional
+from datetime import date
 
 from helm.benchmark.model_deployment_registry import (
     ClientSpec,
@@ -7,7 +8,15 @@ from helm.benchmark.model_deployment_registry import (
     WindowServiceSpec,
     register_model_deployment,
 )
+from helm.benchmark.model_metadata_registry import (
+    get_model_metadata,
+    ModelMetadata,
+    register_model_metadata,
+    TEXT_MODEL_TAG,
+    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+)
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, TokenizerSpec, register_tokenizer_config
+from helm.common.hierarchical_logger import hlog
 
 
 def register_huggingface_model(
@@ -30,6 +39,27 @@ def register_huggingface_model(
             args=object_spec_args,
         ),
     )
+
+    # We check if the model is already registered because we don't want to
+    # overwrite the model metadata if it's already registered.
+    # If it's not registered, we register it, as otherwise an error would be thrown
+    # when we try to register the model deployment.
+    try:
+        _ = get_model_metadata(model_name=helm_model_name)
+    except ValueError:
+        register_model_metadata(
+            ModelMetadata(
+                name=helm_model_name,
+                creator_organization_name="Unknown",
+                display_name=helm_model_name,
+                description=helm_model_name,
+                access="open",
+                release_date=date.today(),
+                tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+            )
+        )
+        hlog(f"Registered default metadata for model {helm_model_name}")
+
     register_model_deployment(model_deployment)
     tokenizer_config = TokenizerConfig(
         name=helm_model_name,

@@ -36,13 +36,21 @@ class TestOpenAITokenCostEstimator:
         self._mock_metric_service.tokenize = MagicMock(return_value=tokenization_request_result)
 
     def test_estimate_tokens(self):
-        request = Request(prompt=TestOpenAITokenCostEstimator.TEST_PROMPT, num_completions=3, max_tokens=100)
+        request = Request(
+            model="openai/text-davinci-002",
+            model_deployment="openai/text-davinci-002",
+            prompt=TestOpenAITokenCostEstimator.TEST_PROMPT,
+            num_completions=3,
+            max_tokens=100,
+        )
 
         # Prompt + max number of tokens from completions = 51 + 3 * 100
         assert self._token_cost_estimator.estimate_tokens(request, self._mock_metric_service) == 51 + 3 * 100
 
     def test_estimate_tokens_with_echo_prompt(self):
         request = Request(
+            model="openai/text-davinci-002",
+            model_deployment="openai/text-davinci-002",
             prompt=TestOpenAITokenCostEstimator.TEST_PROMPT,
             echo_prompt=True,
             num_completions=1,

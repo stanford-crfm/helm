@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import Any, List, Dict, Optional, Tuple, Type
 
-from helm.proxy.models import (
+from helm.benchmark.model_metadata_registry import (
     get_all_instruction_following_models,
     get_all_code_models,
     get_all_models,
@@ -11,16 +11,10 @@ from helm.proxy.models import (
     get_model_names_with_tag,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
-    GPT2_TOKENIZER_TAG,
-    AI21_TOKENIZER_TAG,
-    COHERE_TOKENIZER_TAG,
-    OPT_TOKENIZER_TAG,
-    GPTJ_TOKENIZER_TAG,
-    GPTNEO_TOKENIZER_TAG,
-    GPT4_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
+from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .runner import RunSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
@@ -355,10 +349,6 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "code": get_all_code_models(),
             "instruction_following": get_all_instruction_following_models(),
             "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
-            "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
-            "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
-            "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
-            "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
             "summarization_zs": ["openai/davinci", "openai/curie", "openai/text-davinci-002", "openai/text-curie-001"],
             "biomedical": ["openai/text-davinci-003"],  # TODO: add https://huggingface.co/stanford-crfm/BioMedLM
             "interactive_qa": ["openai/text-davinci-001", "openai/davinci", "ai21/j1-jumbo", "openai/text-babbage-001"],
@@ -386,6 +376,13 @@ class ModelRunExpander(ReplaceValueRunExpander):
             else:
                 values_dict[family_name] = models
         return values_dict
+
+
+class ModelDeploymentRunExpander(ReplaceValueRunExpander):
+    """For overriding model deployment"""
+
+    name = "model_deployment"
+    values_dict: Dict[str, List[Any]] = {}
 
 
 ############################################################
@@ -880,18 +877,18 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
         "huggingface/santacoder": ["bigcode/santacoder"],
         "huggingface/starcoder": ["bigcode/starcoder"],
     }
-    model_tags_and_tokenizers = [
-        (GPT2_TOKENIZER_TAG, "huggingface/gpt2"),
-        (AI21_TOKENIZER_TAG, "ai21/j1"),
-        (COHERE_TOKENIZER_TAG, "cohere/cohere"),
-        (OPT_TOKENIZER_TAG, "meta/opt"),
-        (GPTJ_TOKENIZER_TAG, "eleutherai/gptj"),
-        (GPT4_TOKENIZER_TAG, "openai/cl100k_base"),
-        (GPTNEO_TOKENIZER_TAG, "eleutherai/gptneox"),
+    list_tokenizers = [
+        "huggingface/gpt2",
+        "ai21/j1",
+        "cohere/cohere",
+        "meta/opt",
+        "eleutherai/gptj",
+        "openai/cl100k_base",
+        "eleutherai/gptneox",
     ]
-    for model_tag, tokenizer in model_tags_and_tokenizers:
-        for model in get_model_names_with_tag(model_tag):
-            model_to_tokenizer_mapping[model] = [tokenizer]
+    for tokenizer_name in list_tokenizers:
+        for model in get_model_names_with_tokenizer(tokenizer_name):
+            model_to_tokenizer_mapping[model] = [tokenizer_name]
     # tokenizer=default will map to using the right tokenizer for a given model.
     values_dict = {"default": model_to_tokenizer_mapping}
 
@@ -907,10 +904,10 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
             self.all_values = [value]
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        # Find right tokenizer given model.
+        # Find right tokenizer given model deployment name.
         if isinstance(self.all_values, dict):
-            model: str = run_spec.adapter_spec.model
-            self.values = self.all_values[model] if model in self.all_values else []
+            deployment: str = run_spec.adapter_spec.model_deployment
+            self.values = self.all_values[deployment] if deployment in self.all_values else []
         else:
             self.values = self.all_values
         return super().expand(run_spec)
@@ -1114,6 +1111,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     MaxEvalInstancesRunExpander,
     NumOutputsRunExpander,
     ModelRunExpander,
+    ModelDeploymentRunExpander,
     DataAugmentationRunExpander,
     TokenizerRunExpander,
     NumPromptTokensRunExpander,
