@@ -58,7 +58,7 @@ from helm.benchmark.presentation.contamination import (
     CONTAMINATION_LEVEL_STRONG,
 )
 from helm.benchmark.config_registry import register_helm_configurations
-from helm.benchmark.presentation.run_display import write_run_display_json
+from helm.benchmark.presentation.run_display import write_run_display_json, write_run_scores_json
 from helm.benchmark.model_deployment_registry import get_metadata_for_deployment
 from helm.benchmark.model_metadata_registry import ModelMetadata
 
@@ -294,6 +294,7 @@ class Summarizer:
         self.run_suite_paths: List[str]
         self.suite: Optional[str] = None
         self.release: Optional[str] = None
+        self.scores_suite_path = os.path.join(output_path, "runs", f"{suite}-vet-scores")
         if suite:
             self.suite = suite
             self.run_release_path = os.path.join(output_path, "runs", suite)
@@ -1252,30 +1253,25 @@ class Summarizer:
             os.unlink(symlink_path)
         os.symlink(os.path.abspath(self.run_release_path), symlink_path)
 
+    def write_run_scores_json(self):
+        run_groups_by_name = {run_group.name: run_group for run_group in self.schema.run_groups}
+        core_scenarios_run_group = run_groups_by_name["core_scenarios"]
+        core_scenarios_subgroup_names = core_scenarios_run_group.subgroups
+        core_scenarios_names = []
+        for core_scenarios_subgroup_name in core_scenarios_subgroup_names:
+            core_scenarios_names.extend(run_groups_by_name[core_scenarios_subgroup_name].subgroups)
+
+        for run in self.runs:
+            print(run.run_spec.adapter_spec.model)
+            print(core_scenarios_names)
+            print(run.run_spec.groups)
+            if run.run_spec.adapter_spec.model in ['meta/llama-7b', 'meta/llama-2-7b'] and set(run.run_spec.groups) & set(core_scenarios_names):
+                write_run_scores_json(run.run_path, run.run_spec, self.schema, self.scores_suite_path)
+
     def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
         """Run the entire summarization pipeline pipeline."""
         self.read_runs()
-        self.group_runs()
-        self.check_metrics_defined()
-
-        self.write_run_display_json(skip_completed)
-
-        # Must happen after summarizer.write_run_display_json()
-        # because it uses instances.json files
-        self.read_scenario_spec_instance_ids(num_instances)
-
-        # Must happen after summarizer.read_scenario_spec_instance_ids()
-        # because it uses self.scenario_spec_instance_id_dict
-        self.read_overlap_stats()
-
-        self.write_executive_summary()
-        self.write_runs()
-        self.write_run_specs()
-        self.write_runs_to_run_suites()
-        self.write_groups()
-        self.write_cost_report()
-
-        self.symlink_latest()
+        self.write_run_scores_json()
 
 
 @htrack(None)

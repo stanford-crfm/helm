@@ -1,3 +1,4 @@
+import csv
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 import os
@@ -15,7 +16,7 @@ from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
-from helm.common.general import write
+from helm.common.general import write, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.request import Request
 from helm.common.codec import from_json, to_json
@@ -139,9 +140,56 @@ def _get_metric_names_for_groups(run_group_names: Iterable[str], schema: Schema)
     return result
 
 
+def _get_main_name_for_group(run_group_name: str, schema: Schema) -> str:
+    run_groups_by_name = {run_group.name: run_group for run_group in schema.run_groups}
+    # print(run_group_name)
+    run_group = run_groups_by_name.get(run_group_name)
+    return run_group.environment["main_name"]
+
+
+def _get_main_split_for_group(run_group_name: str, schema: Schema) -> str:
+    run_groups_by_name = {run_group.name: run_group for run_group in schema.run_groups}
+    # print(run_group_name)
+    run_group = run_groups_by_name.get(run_group_name)
+    return run_group.environment["main_split"]
+
+
 _INSTANCES_JSON_FILE_NAME = "instances.json"
 _DISPLAY_PREDICTIONS_JSON_FILE_NAME = "display_predictions.json"
 _DISPLAY_REQUESTS_JSON_FILE_NAME = "display_requests.json"
+
+_INSTANCE_SCORES_CSV = "instance_scores.csv"
+
+
+@htrack(None)
+def write_run_scores_json(run_path: str, run_spec: RunSpec, schema: Schema, scores_suite_path: str) -> None:
+    per_instance_stats_path = os.path.join(run_path, "per_instance_stats.json")
+    ensure_directory_exists(scores_suite_path, )
+    instance_scores_path = os.path.join(scores_suite_path, f"{run_spec.name}.csv")
+
+    per_instance_stats = _read_per_instance_stats(per_instance_stats_path)
+
+    main_name = _get_main_name_for_group(run_spec.groups[0], schema)
+    main_split = _get_main_split_for_group(run_spec.groups[0], schema)
+    instance_scores: List[Tuple[str, float]] = []
+    for instance_stats in per_instance_stats:
+        if instance_stats.perturbation or instance_stats.train_trial_index != 0:
+            continue
+        main_score: Optional[float] = None
+        for stat in instance_stats.stats:
+            if stat.name.name == main_name and stat.name.split == main_split and stat.name.perturbation is None and stat.count == 1:
+                main_score = stat.mean
+                break
+        # print(main_name, main_split)
+        assert main_score is not None
+        instance_scores.append((instance_stats.instance_id, main_score))
+    # print(instance_scores)
+    with open(instance_scores_path, 'w') as f:
+        csv_writer = csv.writer(f)
+        csv_writer.writerow(("instance_id", main_name))
+        csv_writer.writerows(instance_scores)
+        hlog(f"Wrote {instance_scores_path}")
+
 
 
 @htrack(None)
@@ -169,44 +217,18 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
     scenario_state_path = os.path.join(run_path, "scenario_state.json")
     per_instance_stats_path = os.path.join(run_path, "per_instance_stats.json")
 
-    if (
-        skip_completed
-        and os.path.exists(instances_file_path)
-        and os.path.exists(display_predictions_file_path)
-        and os.path.exists(display_requests_file_path)
-    ):
-        hlog(
-            f"Skipping writing display JSON for run {run_spec.name} "
-            "because all output display JSON files already exist."
-        )
-        return
-    elif not os.path.exists(scenario_state_path):
-        hlog(
-            f"Skipping writing display JSON for run {run_spec.name} because "
-            f"the scenario state JSON file does not exist at {scenario_state_path}"
-        )
-        return
-    elif not os.path.exists(per_instance_stats_path):
-        hlog(
-            f"Skipping writing display JSON for run {run_spec.name} because "
-            f"the per instance stats JSON file does not exist at {per_instance_stats_path}"
-        )
-        return
-
     scenario_state = _read_scenario_state(scenario_state_path)
     per_instance_stats = _read_per_instance_stats(per_instance_stats_path)
 
-    metric_names = _get_metric_names_for_groups(run_spec.groups, schema)
+    main_name = _get_main_name_for_group(run_spec.groups, schema)
 
-    if run_spec.adapter_spec.method in ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS:
-        metric_names.add("predicted_index")
 
     stats_by_trial: Dict[Tuple[str, Optional[PerturbationDescription], int], Dict[str, float]] = defaultdict(dict)
     for original_stats in per_instance_stats:
         stats_dict: Dict[str, float] = {
             original_stat.name.name: original_stat.mean
             for original_stat in original_stats.stats
-            if original_stat.name.name in metric_names and original_stat.mean is not None
+            if original_stat.name.name in main_name and original_stat.mean is not None
         }
 
         key = (
