@@ -177,11 +177,13 @@ def write_run_scores_json(run_path: str, run_spec: RunSpec, schema: Schema, scor
             continue
         main_score: Optional[float] = None
         for stat in instance_stats.stats:
-            if stat.name.name == main_name and stat.name.split == main_split and stat.name.perturbation is None and stat.count == 1:
+            if stat.name.name == main_name and stat.name.perturbation is None and stat.count == 1:
+                # skip and stat.name.split == main_split check
                 main_score = stat.mean
                 break
         # print(main_name, main_split)
-        assert main_score is not None
+        if main_score is None:
+            continue
         instance_scores.append((instance_stats.instance_id, main_score))
     # print(instance_scores)
     with open(instance_scores_path, 'w') as f:

@@ -1262,9 +1262,9 @@ class Summarizer:
             core_scenarios_names.extend(run_groups_by_name[core_scenarios_subgroup_name].subgroups)
 
         for run in self.runs:
-            print(run.run_spec.adapter_spec.model)
-            print(core_scenarios_names)
-            print(run.run_spec.groups)
+            # print(run.run_spec.adapter_spec.model)
+            # print(core_scenarios_names)
+            # print(run.run_spec.groups)
             if run.run_spec.adapter_spec.model in ['meta/llama-7b', 'meta/llama-2-7b'] and set(run.run_spec.groups) & set(core_scenarios_names):
                 write_run_scores_json(run.run_path, run.run_spec, self.schema, self.scores_suite_path)
 
