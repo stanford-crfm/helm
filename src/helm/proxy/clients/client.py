@@ -15,34 +15,6 @@ from helm.common.cache import Cache, CacheConfig
 
 
 class Client(ABC):
-    # TODO: This method should be removed.
-    # This only kept for the AutoClient. Eventually, we should introduce an
-    # AutoTokenizer or TokenizerFactory class.
-    @abstractmethod
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes `request.text` using `request.tokenizer`.
-
-        This simply calls the `tokenize` method of the tokenizer.
-        Some exceptions can be made (but should be avoided).
-        This is the case for the auto client, which needs to handle
-        tokenization for multiple tokenizers.
-        """
-        pass
-
-    # TODO: This method should be removed.
-    # This only kept for the AutoClient. Eventually, we should introduce an
-    # AutoTokenizer or TokenizerFactory class.
-    @abstractmethod
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes `request.tokens` using `request.tokenizer`.
-
-        This simply calls the `decode` method of the tokenizer.
-        Some exceptions can be made (but should be avoided).
-        This is the case for the auto client, which needs to handle
-        tokenization for multiple tokenizers.
-        """
-        pass
-
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
         """Makes a request to the model.

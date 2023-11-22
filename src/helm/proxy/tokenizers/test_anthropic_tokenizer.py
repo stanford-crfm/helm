@@ -30,7 +30,7 @@ class TestAnthropicTokenizer:
         result: TokenizationRequestResult = self.tokenizer.tokenize(request)
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         assert result.raw_tokens == self.TEST_TOKENS
-        result: TokenizationRequestResult = self.tokenizer.tokenize(request)
+        result = self.tokenizer.tokenize(request)
         assert result.cached, "Result should be cached"
         assert result.raw_tokens == self.TEST_TOKENS
 
@@ -39,7 +39,7 @@ class TestAnthropicTokenizer:
         result: TokenizationRequestResult = self.tokenizer.tokenize(request)
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         assert result.raw_tokens == [self.TEST_ENCODED[0]]
-        result: TokenizationRequestResult = self.tokenizer.tokenize(request)
+        result = self.tokenizer.tokenize(request)
         assert result.cached, "Result should be cached"
         assert result.raw_tokens == [self.TEST_ENCODED[0]]
 
@@ -53,6 +53,6 @@ class TestAnthropicTokenizer:
         result: DecodeRequestResult = self.tokenizer.decode(request)
         assert not result.cached, "First time making the decode request. Result should not be cached"
         assert result.text == self.TEST_PROMPT
-        result: DecodeRequestResult = self.tokenizer.decode(request)
+        result = self.tokenizer.decode(request)
         assert result.cached, "Result should be cached"
         assert result.text == self.TEST_PROMPT

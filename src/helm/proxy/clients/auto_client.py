@@ -1,11 +1,6 @@
 import os
 from dataclasses import replace
-<<<<<<< HEAD
-from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
-=======
-from pathlib import Path
 from typing import Any, Dict, Mapping, Optional
->>>>>>> Fixes
 
 from retrying import Attempt, RetryError
 
@@ -16,29 +11,13 @@ from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.request import Request, RequestResult
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
 from helm.proxy.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
 from helm.proxy.clients.huggingface_client import HuggingFaceClient
-from helm.proxy.clients.http_model_client import HTTPModelClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
-<<<<<<< HEAD
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
-
-
-if TYPE_CHECKING:
-    import helm.proxy.clients.huggingface_client
-=======
-from helm.proxy.tokenizers.tokenizer import Tokenizer
-from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
->>>>>>> Fixes
 
 
 class AuthenticationError(NonRetriableException):
@@ -138,115 +117,6 @@ class AutoClient(Client):
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
-<<<<<<< HEAD
-    # TODO: remove this method after a few weeks (2023-11-09)
-=======
-    def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
-        # First try to find the tokenizer in the cache
-        tokenizer: Optional[Tokenizer] = self.tokenizers.get(tokenizer_name)
-        if tokenizer is not None:
-            return tokenizer
-
-        # Otherwise, create the tokenizer
-        organization: str = tokenizer_name.split("/")[0]
-        cache_config: CacheConfig = self._build_cache_config(organization)
-
-        # TODO: Migrate all clients to use tokenizer configs
-        tokenizer_config = get_tokenizer_config(tokenizer_name)
-        if tokenizer_config:
-            tokenizer_spec = inject_object_spec_args(
-                tokenizer_config.tokenizer_spec, constant_bindings={"cache_config": cache_config}
-            )
-            return create_object(tokenizer_spec)
-        elif organization in [
-            "gooseai",
-            "huggingface",
-            "microsoft",
-            "google",
-            "writer",  # Palmyra
-            "nvidia",
-            "EleutherAI",
-            "facebook",
-            "meta-llama",
-            "hf-internal-testing",
-            "mistralai",
-            "HuggingFaceM4",
-            # Together
-            "together",
-            "databricks",
-            "eleutherai",
-            "lmsys",
-            "meta",
-            "mosaicml",
-            "stabilityai",
-            "stanford",
-            "tiiuae",
-            "bigcode",
-            "bigscience",
-        ]:
-            tokenizer = HuggingFaceTokenizer(cache_config=cache_config)
-        elif organization == "neurips":
-            from helm.proxy.tokenizers.http_model_tokenizer import HTTPModelTokenizer
-
-            tokenizer = HTTPModelTokenizer(cache_config=cache_config)
-        elif organization == "openai":
-            from helm.proxy.tokenizers.tiktoken_tokenizer import TiktokenTokenizer
-
-            tokenizer = TiktokenTokenizer(cache_config=cache_config)
-        elif organization == "AlephAlpha":
-            from helm.proxy.tokenizers.aleph_alpha_tokenizer import AlephAlphaTokenizer
-
-            tokenizer = AlephAlphaTokenizer(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
-        elif organization == "ai21":
-            from helm.proxy.tokenizers.ai21_tokenizer import AI21Tokenizer
-
-            tokenizer = AI21Tokenizer(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
-        elif organization == "cohere":
-            from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
-
-            tokenizer = CohereTokenizer(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
-        elif organization == "anthropic":
-            from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
-
-            tokenizer = AnthropicTokenizer(cache_config=cache_config)
-        elif organization == "simple":
-            from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
-
-            tokenizer = SimpleTokenizer()
-        elif organization == "lightningai":
-            from helm.proxy.tokenizers.lit_gpt_tokenizer import LitGPTTokenizer
-
-            tokenizer = LitGPTTokenizer(
-                cache_config=cache_config,
-                checkpoint_dir=Path(os.environ.get("LIT_GPT_CHECKPOINT_DIR", "")),
-            )
-        elif organization == "TsinghuaKEG":
-            from helm.proxy.tokenizers.ice_tokenizer import ICETokenizer
-
-            tokenizer = ICETokenizer(cache_config=cache_config)
-        elif organization == "Yandex":
-            from helm.proxy.tokenizers.yalm_tokenizer import YaLMTokenizer
-
-            tokenizer = YaLMTokenizer(cache_config=cache_config)
-
-        if tokenizer is None:
-            raise ValueError(f"Could not find tokenizer for model: {tokenizer_name}")
-
-        # Cache the tokenizer
-        self.tokenizers[tokenizer_name] = tokenizer
-
-        return tokenizer
-
->>>>>>> Fixes
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError(
-            "AutoClient.tokenize() is not supported anymore." "Use AutoTokenizer.tokenize() instead."
-        )
-
-    # TODO: remove this method after a few weeks (2023-11-09)
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("AutoClient.decode() is not supported anymore." "Use AutoTokenizer.decode() instead.")
-
     def get_toxicity_classifier_client(self) -> ToxicityClassifierClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""
         from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
@@ -313,8 +183,7 @@ class AutoClient(Client):
             assert isinstance(self._huggingface_client, HuggingFaceClient)
             return self._huggingface_client
         cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
-        tokenizer = HuggingFaceTokenizer(cache_config)
-        self._huggingface_client = HuggingFaceClient(tokenizer=tokenizer, cache_config=cache_config)
+        self._huggingface_client = HuggingFaceClient(cache_config=cache_config)
         return self._huggingface_client
 
     def get_huggingface_tokenizer(self) -> HuggingFaceTokenizer:
@@ -322,6 +191,6 @@ class AutoClient(Client):
         if self._huggingface_tokenizer:
             assert isinstance(self._huggingface_tokenizer, HuggingFaceTokenizer)
             return self._huggingface_tokenizer
-        cache_config = self._build_cache_config("huggingface")
+        cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
         self._huggingface_tokenizer = HuggingFaceTokenizer(cache_config=cache_config)
         return self._huggingface_tokenizer
