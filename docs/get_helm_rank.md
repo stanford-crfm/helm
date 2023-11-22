@@ -21,18 +21,18 @@ now that the files are in your results directory, all HELM models will be shown 
 
 ## Run Efficient-HELM
 
-According to [Efficient Benchmarking (of Language Models)](https://arxiv.org/pdf/2308.11696.pdf) a paper from IBM, which systematically analysed benchmark design choices using the HELM benchmark as an example, one can run the HELM benchmark with a fraction of the examples and still get a reliable estimation of a full run (Perlitz et al., 2023).  
+According to [Efficient Benchmarking (of Language Models)](https://arxiv.org/pdf/2308.11696.pdf) a paper from IBM Research, which systematically analysed benchmark design choices using the HELM benchmark as an example, one can run the HELM benchmark with a fraction of the examples and still get a reliable estimation of a full run (Perlitz et al., 2023).  
 
-Specifically, the authors calculated the CI $95\%$ of Rank Location from the real ranks as a function of the number of examples used per scenario and came up with the following tradeoffs[^1]:
+Specifically, the authors calculated the CI 95% of Rank Location from the real ranks as a function of the number of examples used per scenario and came up with the following tradeoffs[^1]:
 
-| Examples Per Scenario | CI $95\%$ of Rank Location | Compute saved |
-| :-------------------: | :------------------------: | :-----------: |
-|         $10$          |           $\pm5$           |  $\times400$  |
-|         $20$          |           $\pm4$           |  $\times200$  |
-|         $50$          |           $\pm3$           |  $\times80$   |
-|         $200$         |           $\pm2$           |  $\times20$   |
-|        $1000$         |           $\pm1$           |   $\times4$   |
-|          All          |           $\pm1$           |   $\times1$   |
+| Examples Per Scenario | CI 95% of Rank Location | Compute saved |
+| :-------------------: | :---------------------: | :-----------: |
+|          10           |           ±5            |     X400      |
+|          20           |           ±4            |     X200      |
+|          50           |           ±3            |      X80      |
+|          200          |           ±2            |      X20      |
+|         1000          |           ±1            |      X4       |
+|          All          |           ±1            |      X1       |
 
 
 Choose your point on your tradeoff, how accurate do you need your rank? how much time do you want to wait? Once you have chosen, download the config and define your model
@@ -81,4 +81,4 @@ helm-server
 
 ```Perlitz, Y., Bandel, E., Gera, A., Arviv, O., Ein-Dor, L., Shnarch, E., Slonim, N., Shmueli-Scheuer, M. and Choshen, L., 2023. Efficient Benchmarking (of Language Models). arXiv preprint arXiv:2308.11696.```
 
-[^1]: Note that the quantities below are the CI $95\%$ of the rank location and are thus very conservative estimates. In our experiments, we did not experience deviations above $\pm2$ for any of the options above.
+[^1]: Note that the quantities below are the CI 95% of the rank location and are thus very conservative estimates. In our experiments, we did not experience deviations above ±2 for any of the options above.]:
