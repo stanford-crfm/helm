@@ -11,7 +11,6 @@ from helm.common.request import (
     Sequence,
     Token,
 )
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
@@ -23,8 +22,8 @@ class GooseAIClient(CachingClient):
     - Supported models: https://goose.ai/docs/models
     """
 
-    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig, org_id: Optional[str] = None):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, api_key: str, cache_config: CacheConfig, org_id: Optional[str] = None):
+        super().__init__(cache_config=cache_config)
         self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://api.goose.ai/v1"

@@ -4,7 +4,6 @@ import tempfile
 
 from helm.common.cache import SqliteCacheConfig
 from helm.common.request import Request
-from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 from .together_client import TogetherClient, TogetherClientError
 
@@ -13,10 +12,7 @@ class TestTogetherClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.client = TogetherClient(
-            tokenizer=HuggingFaceTokenizer(SqliteCacheConfig(self.cache_path)),
-            cache_config=SqliteCacheConfig(self.cache_path),
-        )
+        self.client = TogetherClient(cache_config=SqliteCacheConfig(self.cache_path))
 
     def teardown_method(self, method):
         os.remove(self.cache_path)

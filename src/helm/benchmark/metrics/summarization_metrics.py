@@ -5,6 +5,7 @@ import os
 import pickle
 
 import spacy
+import spacy.cli
 from typing import List, Dict, Optional
 from collections import defaultdict
 

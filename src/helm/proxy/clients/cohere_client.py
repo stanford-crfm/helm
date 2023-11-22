@@ -12,7 +12,6 @@ from helm.common.request import (
     Token,
 )
 from helm.benchmark.model_deployment_registry import get_model_deployments_by_host_organization
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence
 from .cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
 
@@ -21,8 +20,8 @@ class CohereClient(CachingClient):
     ORGANIZATION: str = "cohere"
     GENERATE_ENDPOINT: str = "generate"
 
-    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, api_key: str, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
         self.api_key: str = api_key
 
     def make_request(self, request: Request) -> RequestResult:

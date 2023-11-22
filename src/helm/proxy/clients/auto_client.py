@@ -1,6 +1,6 @@
 import os
 from dataclasses import replace
-from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
+from typing import Any, Dict, Mapping, Optional
 
 from retrying import Attempt, RetryError
 
@@ -11,22 +11,12 @@ from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.request import Request, RequestResult
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
 from helm.proxy.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
+from helm.proxy.clients.huggingface_client import HuggingFaceClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
-from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
-
-
-if TYPE_CHECKING:
-    import helm.proxy.clients.huggingface_client
 
 
 class AuthenticationError(NonRetriableException):
@@ -43,7 +33,7 @@ class AutoClient(Client):
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
         # self._huggingface_client is lazily instantiated by get_huggingface_client()
-        self._huggingface_client: Optional["helm.proxy.clients.huggingface_client.HuggingFaceClient"] = None
+        self._huggingface_client: Optional[HuggingFaceClient] = None
         # self._critique_client is lazily instantiated by get_critique_client()
         self._critique_client: Optional[CritiqueClient] = None
         hlog(f"AutoClient: cache_path = {cache_path}")
@@ -125,16 +115,6 @@ class AutoClient(Client):
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
-    # TODO: remove this method after a few weeks (2023-11-09)
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError(
-            "AutoClient.tokenize() is not supported anymore." "Use AutoTokenizer.tokenize() instead."
-        )
-
-    # TODO: remove this method after a few weeks (2023-11-09)
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("AutoClient.decode() is not supported anymore." "Use AutoTokenizer.decode() instead.")
-
     def get_toxicity_classifier_client(self) -> ToxicityClassifierClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""
         from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
@@ -195,14 +175,11 @@ class AutoClient(Client):
             )
         return self._critique_client
 
-    def get_huggingface_client(self) -> "helm.proxy.clients.huggingface_client.HuggingFaceClient":
+    def get_huggingface_client(self) -> HuggingFaceClient:
         """Get the Hugging Face client."""
-        from helm.proxy.clients.huggingface_client import HuggingFaceClient
-
         if self._huggingface_client:
             assert isinstance(self._huggingface_client, HuggingFaceClient)
             return self._huggingface_client
         cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
-        tokenizer = HuggingFaceTokenizer(cache_config)
-        self._huggingface_client = HuggingFaceClient(tokenizer=tokenizer, cache_config=cache_config)
+        self._huggingface_client = HuggingFaceClient(cache_config=cache_config)
         return self._huggingface_client
