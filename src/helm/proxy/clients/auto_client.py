@@ -17,7 +17,6 @@ from helm.proxy.clients.huggingface_client import HuggingFaceClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
-from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 class AuthenticationError(NonRetriableException):
@@ -35,8 +34,6 @@ class AutoClient(Client):
         self.clients: Dict[str, Client] = {}
         # self._huggingface_client is lazily instantiated by get_huggingface_client()
         self._huggingface_client: Optional[HuggingFaceClient] = None
-        # self._huggingface_tokenizer is lazily instantiated by get_huggingface_tokenizer()
-        self._huggingface_tokenizer: Optional[HuggingFaceTokenizer] = None
         # self._critique_client is lazily instantiated by get_critique_client()
         self._critique_client: Optional[CritiqueClient] = None
         hlog(f"AutoClient: cache_path = {cache_path}")
@@ -89,6 +86,7 @@ class AutoClient(Client):
 
         # Cache the client
         self.clients[model_deployment_name] = client
+
         return client
 
     def make_request(self, request: Request) -> RequestResult:
@@ -185,12 +183,3 @@ class AutoClient(Client):
         cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
         self._huggingface_client = HuggingFaceClient(cache_config=cache_config)
         return self._huggingface_client
-
-    def get_huggingface_tokenizer(self) -> HuggingFaceTokenizer:
-        """Get the Hugging Face client."""
-        if self._huggingface_tokenizer:
-            assert isinstance(self._huggingface_tokenizer, HuggingFaceTokenizer)
-            return self._huggingface_tokenizer
-        cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
-        self._huggingface_tokenizer = HuggingFaceTokenizer(cache_config=cache_config)
-        return self._huggingface_tokenizer

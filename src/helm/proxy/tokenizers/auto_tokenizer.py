@@ -15,6 +15,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
@@ -25,6 +26,8 @@ class AutoTokenizer(Tokenizer):
         self.credentials = credentials
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
+        # self._huggingface_tokenizer is lazily instantiated by get_huggingface_tokenizer()
+        self._huggingface_tokenizer: Optional[HuggingFaceTokenizer] = None
         self.tokenizers: Dict[str, Tokenizer] = {}
         hlog(f"AutoTokenizer: cache_path = {cache_path}")
         hlog(f"AutoTokenizer: mongo_uri = {mongo_uri}")
@@ -87,3 +90,12 @@ class AutoTokenizer(Tokenizer):
             retry_error: str = f"Failed to decode after retrying {last_attempt.attempt_number} times"
             hlog(retry_error)
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
+
+    def get_huggingface_tokenizer(self) -> HuggingFaceTokenizer:
+        """Get the Hugging Face client."""
+        if self._huggingface_tokenizer:
+            assert isinstance(self._huggingface_tokenizer, HuggingFaceTokenizer)
+            return self._huggingface_tokenizer
+        cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
+        self._huggingface_tokenizer = HuggingFaceTokenizer(cache_config=cache_config)
+        return self._huggingface_tokenizer

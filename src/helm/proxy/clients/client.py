@@ -5,12 +5,6 @@ from typing import Dict, List, Optional
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import MultimediaObject, TEXT_TYPE
 from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-)
 from helm.common.cache import Cache, CacheConfig
 
 
@@ -47,12 +41,6 @@ class CachingClient(Client):
         else:
             cache_key = raw_request
         return cache_key
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("CachingClient.tokenize() is not supported, use self.tokenizer.tokenize instead")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("CachingClient.decode() is not supported, use self.tokenizer.decode instead")
 
 
 def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:
