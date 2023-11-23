@@ -7,11 +7,9 @@ from .image_generation_adapter import ImageGenerationAdapter
 
 
 class TestImageGenerationAdapter(TestAdapter):
-    MODEL: str = "openai/dalle-2"
-
     def test_construct_prompt(self):
         adapter_spec = AdapterSpec(
-            model=self.MODEL,
+            model_deployment="openai/dalle-2",
             method=ADAPT_GENERATION,
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)

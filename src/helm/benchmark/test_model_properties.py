@@ -1772,4 +1772,4 @@ class TestModelProperties:
                 assert tokenizer_configs[tokenizer_name] == tokenizer_config
 
     def test_num_models_available(self):
-        assert len(ALL_MODEL_DEPLOYMENTS) == 119
+        assert len(ALL_MODEL_DEPLOYMENTS) == 145

@@ -83,7 +83,9 @@ class AutoClient(Client):
                     "org_id": lambda: self.credentials.get(
                         host_organization + "OrgId", None
                     ),  # OpenAI, GooseAI, Microsoft
+                    "moderation_api_client": lambda: self.get_moderation_api_client(),  # OpenAI DALL-E
                     "lock_file_path": lambda: os.path.join(self.cache_path, f"{host_organization}.lock"),  # Microsoft
+                    "hf_auth_token": lambda: self.credentials.get("huggingfaceAuthToken", None),  # HuggingFace
                 },
             )
             client = create_object(client_spec)
@@ -109,7 +111,8 @@ class AutoClient(Client):
         client: Client = self._get_client(request.model_deployment)
 
         try:
-            return make_request_with_retry(client=client, request=request)
+            result = make_request_with_retry(client=client, request=request)
+            return result
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = (
