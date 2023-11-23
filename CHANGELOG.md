@@ -28,14 +28,14 @@
 
 Thank you to the following contributors for your work on this HELM release!
 
-- @farzaank
 - @brianwgoldman
+- @farzaank
 - @JosselinSomervilleRoberts
+- @krh26
 - @percyliang
 - @perlitz
-- @yotamp
 - @teetone
-- @krh26
+- @yotamp
 
 ## [v0.3.0] - 2023-11-01
 
