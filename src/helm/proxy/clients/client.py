@@ -5,45 +5,10 @@ from typing import Dict, List, Optional
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import MultimediaObject, TEXT_TYPE
 from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-)
 from helm.common.cache import Cache, CacheConfig
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 class Client(ABC):
-    # TODO: This method should be removed.
-    # This only kept for the AutoClient. Eventually, we should introduce an
-    # AutoTokenizer or TokenizerFactory class.
-    @abstractmethod
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes `request.text` using `request.tokenizer`.
-
-        This simply calls the `tokenize` method of the tokenizer.
-        Some exceptions can be made (but should be avoided).
-        This is the case for the auto client, which needs to handle
-        tokenization for multiple tokenizers.
-        """
-        pass
-
-    # TODO: This method should be removed.
-    # This only kept for the AutoClient. Eventually, we should introduce an
-    # AutoTokenizer or TokenizerFactory class.
-    @abstractmethod
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes `request.tokens` using `request.tokenizer`.
-
-        This simply calls the `decode` method of the tokenizer.
-        Some exceptions can be made (but should be avoided).
-        This is the case for the auto client, which needs to handle
-        tokenization for multiple tokenizers.
-        """
-        pass
-
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
         """Makes a request to the model.
@@ -54,7 +19,7 @@ class Client(ABC):
 
 
 class CachingClient(Client):
-    def __init__(self, cache_config: CacheConfig, tokenizer: Tokenizer) -> None:
+    def __init__(self, cache_config: CacheConfig) -> None:
         """Initializes the client.
 
         For most clients, both the cache config and tokenizer are required.
@@ -63,7 +28,6 @@ class CachingClient(Client):
         the request is made.
         """
         self.cache = Cache(cache_config) if cache_config is not None else None
-        self.tokenizer = tokenizer
 
     @staticmethod
     def make_cache_key(raw_request: Dict, request: Request) -> Dict:
@@ -77,16 +41,6 @@ class CachingClient(Client):
         else:
             cache_key = raw_request
         return cache_key
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        # Deprecated - use `self.tokenizer.tokenize` instead. Warn the user.
-        hlog("WARNING: CachingClient.tokenize is deprecated, use self.tokenizer.tokenize instead")
-        return self.tokenizer.tokenize(request)
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        # Deprecated - use `self.tokenizer.decode` instead. Warn the user.
-        hlog("WARNING: CachingClient.decode is deprecated, use self.tokenizer.decode instead")
-        return self.tokenizer.decode(request)
 
 
 def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:
