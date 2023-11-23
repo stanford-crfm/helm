@@ -2,6 +2,41 @@
 
 ## [Upcoming]
 
+## [v0.4.0] - 2023-11-27
+
+### Scenarios
+
+- Added VizWiz Scenario (#1983)
+
+### Framework
+
+- Added tutorial for computing the leaderboard rank of a model using the method from "Efficient Benchmarking (of Language Models)" (#1968, #1986, #1985)
+- Internal API cleanup (#1947)
+- Refactored ModelMetadata, ModelDeployment and Tokenizer (#1903, #1994)
+- Fixed a bug regarding writing `runs_to_run_suites.json` when using `helm-release` with `--release` (#2012)
+
+### Frontend
+
+- Made visual improvements and bugfixes for the new React frontend (#1947, #2000, #2005, #2018)
+
+### Evaluation Results
+
+- Added evaluation results for Mistral
+- Launched new React frontend
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @farzaank
+- @brianwgoldman
+- @JosselinSomervilleRoberts
+- @percyliang
+- @perlitz
+- @yotamp
+- @teetone
+- @krh26
+
 ## [v0.3.0] - 2023-11-01
 
 ### Models
@@ -236,7 +271,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.3.0...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.4.0...HEAD
+[v0.4.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.4.0
 [v0.3.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.3.0
 [v0.2.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.4
 [v0.2.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.3
