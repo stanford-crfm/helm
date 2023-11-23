@@ -643,7 +643,7 @@ models:
     tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
   - name: huggingface/openjourney-v1-0
-    display_name: Openjourney v2 (1B)
+    display_name: Openjourney (1B)
     description: Openjourney is an open source Stable Diffusion fine tuned model on Midjourney images ([HuggingFace model card](https://huggingface.co/prompthero/openjourney))
     creator_organization_name: PromptHero
     access: open
@@ -652,7 +652,7 @@ models:
     tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
   - name: huggingface/openjourney-v2-0
-    display_name: Openjourney v1 (1B)
+    display_name: Openjourney v2 (1B)
     description: Openjourney v2 is an open source Stable Diffusion fine tuned model on Midjourney images. Openjourney v2 is now referred to as Openjourney v4 in Hugging Face ([HuggingFace model card](https://huggingface.co/prompthero/openjourney-v4)).
     creator_organization_name: PromptHero
     access: open
