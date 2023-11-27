@@ -35,6 +35,7 @@ nav:
   - 'User Guide':
     - 'installation.md'
     - 'quick_start.md'
+    - 'get_helm_rank.md'
     - 'tutorial.md'
     - 'benchmark.md'
     - 'huggingface_models.md'
