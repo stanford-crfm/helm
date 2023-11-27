@@ -534,6 +534,13 @@ class BasicMetric(Metric):
         if request_state.output_mapping is not None:
             preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
 
+            # There can be scenario that one of preds is None out of N number of preds then to 
+            # compute metrics on it will throw the error.
+            # But preds length will be 1 with element preds = [None] and that should be string 
+            # thats why I replace None to "none".
+            if preds[0] is None and len(preds) == 1:
+                preds = ["none"]
+                
         # Compute max_prob, the probability that the model assigns to its generated text.
         # Use the log prob of sorted_completions[0], which is the completion with the highest
         # log_prob. We use this since that's what's used for computing metrics like exact_match.
