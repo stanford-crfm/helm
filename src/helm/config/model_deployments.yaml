@@ -1075,7 +1075,7 @@ model_deployments:
 
   ## HazyResearch
   - name: together/h3-2.7b
-    deprecated: true# Not available on Together yet
+    deprecated: true # Not available on Together yet
     model_name: hazyresearch/h3-2.7b
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 1024
