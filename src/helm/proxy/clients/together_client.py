@@ -6,7 +6,6 @@ from retrying import retry
 
 from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence, cleanup_str
 
 
@@ -166,8 +165,8 @@ class TogetherClient(CachingClient):
         }
         return _rewrite_raw_request_for_model_tags(raw_request, request.model_engine)
 
-    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, api_key: Optional[str] = None):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+        super().__init__(cache_config=cache_config)
         # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
         #       in credentials.conf, we rely on offline evaluation only.
         self.api_key: Optional[str] = api_key

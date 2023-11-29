@@ -2,6 +2,7 @@ import json
 import requests
 from typing import Any, Dict, List
 import traceback
+from helm.common.cache import CacheConfig
 
 from helm.common.request import (
     wrap_request_time,
@@ -12,11 +13,11 @@ from helm.common.request import (
     Token,
 )
 from helm.common.tokenization_request import TokenizationRequest
-from helm.proxy.clients.huggingface_client import HuggingFaceClient
 from helm.proxy.clients.client import CachingClient, truncate_sequence
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
-class MegatronClient(HuggingFaceClient):
+class MegatronClient(CachingClient):
     """Client for remote Megatron-LM server.
 
     This client expects an external Megatron-LM server to be run on localhost:5000. See the
@@ -24,6 +25,10 @@ class MegatronClient(HuggingFaceClient):
 
     https://github.com/NVIDIA/Megatron-LM#gpt-text-generation
     """
+
+    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
 
     def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(

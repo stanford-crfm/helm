@@ -19,7 +19,6 @@ from helm.common.request import (
 )
 from .client import CachingClient, truncate_sequence
 from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, resolve_alias
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from threading import Lock
 
 
@@ -173,12 +172,11 @@ class HuggingFaceServerFactory:
 class HuggingFaceClient(CachingClient):
     def __init__(
         self,
-        tokenizer: Tokenizer,
         cache_config: CacheConfig,
         pretrained_model_name_or_path: Optional[str] = None,
         revision: Optional[str] = None,
     ):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
         self._pretrained_model_name_or_path = pretrained_model_name_or_path
         self._revision = revision
 

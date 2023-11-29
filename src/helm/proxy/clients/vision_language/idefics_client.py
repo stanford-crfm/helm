@@ -55,7 +55,8 @@ class IDEFICSClient(CachingClient):
     BAD_WORD_TOKENS: List[str] = ["<image>", "<fake_token_around_image>"]
 
     def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
         self._device: str = get_torch_device_name()
 
     def _get_model(self, checkpoint: str) -> LoadedIDEFICSModelProcessor:
