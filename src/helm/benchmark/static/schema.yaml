@@ -1558,7 +1558,7 @@ metric_groups:
         split: ${main_split}
 
   - name: calibration_detailed
-    display_name: Calibration
+    display_name: Calibration (Detailed)
     description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
     metrics:
       - name: max_prob
@@ -1589,7 +1589,7 @@ metric_groups:
 
   # TODO: Add other robustness perturbations
   - name: robustness_detailed
-    display_name: Robustness
+    display_name: Robustness (Detailed)
     description: Measures how robust the model is to invariances.
     metrics:
       - name: ${main_name}
@@ -1608,7 +1608,7 @@ metric_groups:
 
   # TODO: Add other fairness perturbations
   - name: fairness_detailed
-    display_name: Fairness
+    display_name: Fairness (Detailed)
     description: Measures how fair the model is.
     metrics:
       - name: ${main_name}
@@ -1646,7 +1646,7 @@ metric_groups:
       split: ${main_split}
 
   - name: efficiency_detailed
-    display_name: Efficiency
+    display_name: Efficiency (Detailed)
     description: The efficiency of the model across both training and inference.
     metrics:
       - name: inference_runtime
