@@ -326,10 +326,10 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     }
 
 
-class NumRandomTrialRunExpander(ReplaceValueRunExpander):
+class NumTrialRunExpander(ReplaceValueRunExpander):
     """For getting different generations for the same requests."""
 
-    name = "num_random_trials"
+    name = "num_trials"
     values_dict = {
         "1": [1],
         "2": [2],
@@ -1159,7 +1159,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     MaxTrainInstancesRunExpander,
     MaxEvalInstancesRunExpander,
     NumOutputsRunExpander,
-    NumRandomTrialRunExpander,
+    NumTrialRunExpander,
     ModelRunExpander,
     ModelDeploymentRunExpander,
     DataAugmentationRunExpander,
