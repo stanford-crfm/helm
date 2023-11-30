@@ -103,20 +103,21 @@ class InContextLearningAdapter(Adapter, ABC):
 
         # Flatten and return
         all_request_states: List[RequestState] = [request_state for result in results for request_state in result]
-        return self._add_random_trials(all_request_states)
+        return self._add_trials(all_request_states)
 
-    def _add_random_trials(self, request_states: List[RequestState]) -> List[RequestState]:
-        if self.adapter_spec.num_random_trials <= 1:
+    def _add_trials(self, request_states: List[RequestState]) -> List[RequestState]:
+        """Expand the request states by adding trials."""
+        if self.adapter_spec.num_trials <= 1:
             return request_states
 
         all_request_states: List[RequestState] = request_states.copy()
-        for i in range(1, self.adapter_spec.num_random_trials):
+        for i in range(1, self.adapter_spec.num_trials):
             seed: str = str(i)
             for request_state in request_states:
                 request: Request = replace(request_state.request, random=seed)
                 all_request_states.append(replace(request_state, request=request))
 
-        assert len(all_request_states) == len(request_states) * self.adapter_spec.num_random_trials
+        assert len(all_request_states) == len(request_states) * self.adapter_spec.num_trials
         return all_request_states
 
     def sample_examples(

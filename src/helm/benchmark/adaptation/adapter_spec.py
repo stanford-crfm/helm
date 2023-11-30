@@ -71,7 +71,7 @@ class AdapterSpec:
     num_train_trials: int = 1
 
     # Number of trials, where we query the model with the exact same requests
-    num_random_trials: int = 1
+    num_trials: int = 1
 
     # If true, randomly sample N training examples; if false, select N consecutive training examples
     sample_train: bool = True
