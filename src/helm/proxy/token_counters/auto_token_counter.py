@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from helm.common.request import Request, Sequence
-from helm.proxy.clients.huggingface_client import HuggingFaceClient
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from .ai21_token_counter import AI21TokenCounter
 from .cohere_token_counter import CohereTokenCounter
 from .free_token_counter import FreeTokenCounter
@@ -13,16 +13,16 @@ from .token_counter import TokenCounter
 class AutoTokenCounter(TokenCounter):
     """Automatically count tokens based on the organization."""
 
-    def __init__(self, huggingface_client: HuggingFaceClient):
+    def __init__(self, huggingface_tokenizer: HuggingFaceTokenizer):
         self.token_counters: Dict[str, TokenCounter] = {}
-        self.huggingface_client: HuggingFaceClient = huggingface_client
+        self.huggingface_tokenizer: HuggingFaceTokenizer = huggingface_tokenizer
 
     def get_token_counter(self, organization: str) -> TokenCounter:
         """Return a token counter based on the organization."""
         token_counter = self.token_counters.get(organization)
         if token_counter is None:
             if organization == "openai":
-                token_counter = OpenAITokenCounter(self.huggingface_client)
+                token_counter = OpenAITokenCounter(self.huggingface_tokenizer)
             elif organization == "ai21":
                 token_counter = AI21TokenCounter()
             elif organization == "gooseai":

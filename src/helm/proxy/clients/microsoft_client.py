@@ -13,7 +13,6 @@ from helm.common.request import (
     Sequence,
     Token,
 )
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
@@ -47,12 +46,11 @@ class MicrosoftClient(CachingClient):
     def __init__(
         self,
         lock_file_path: str,
-        tokenizer: Tokenizer,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
 
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):

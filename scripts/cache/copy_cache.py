@@ -14,7 +14,7 @@ import json
 import os
 
 from sqlitedict import SqliteDict
-from helm.common.cache import _MongoKeyValueStore
+from helm.common.mongo_key_value_store import MongoKeyValueStore
 from helm.common.hierarchical_logger import hlog, htrack
 from typing import Optional
 
@@ -60,7 +60,7 @@ def copy_cache(
     hlog(f"Opening Sqlite cache {cache_path}")
     with SqliteDict(cache_path) as source_cache:
         hlog(f"Copying to MongoDB {mongo_host}")
-        with _MongoKeyValueStore(mongo_host, collection_name=organization) as target_cache:
+        with MongoKeyValueStore(mongo_host, collection_name=organization) as target_cache:
             for key, value in source_cache.items():
                 if not dry_run and (not range_start or num_items >= range_start):
                     try:

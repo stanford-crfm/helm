@@ -1,31 +1,22 @@
 import os
 from dataclasses import replace
-from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional
+from typing import Any, Dict, Mapping, Optional
 
 from retrying import Attempt, RetryError
 
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
-from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
-from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
+from helm.common.cache_utils import build_cache_config
+from helm.common.credentials_utils import provide_api_key
+from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.request import Request, RequestResult
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
 from helm.proxy.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
+from helm.proxy.clients.huggingface_client import HuggingFaceClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
-from helm.proxy.tokenizers.tokenizer import Tokenizer
-from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
-
-
-if TYPE_CHECKING:
-    import helm.proxy.clients.huggingface_client
+from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
 
 
 class AuthenticationError(NonRetriableException):
@@ -36,48 +27,17 @@ class AutoClient(Client):
     """Automatically dispatch to the proper `Client` based on the model deployment name."""
 
     def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
+        self._auto_tokenizer = AutoTokenizer(credentials, cache_path, mongo_uri)
         self.credentials = credentials
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
-        self.tokenizers: Dict[str, Tokenizer] = {}
         # self._huggingface_client is lazily instantiated by get_huggingface_client()
-        self._huggingface_client: Optional["helm.proxy.clients.huggingface_client.HuggingFaceClient"] = None
+        self._huggingface_client: Optional[HuggingFaceClient] = None
         # self._critique_client is lazily instantiated by get_critique_client()
         self._critique_client: Optional[CritiqueClient] = None
         hlog(f"AutoClient: cache_path = {cache_path}")
         hlog(f"AutoClient: mongo_uri = {mongo_uri}")
-
-    def _build_cache_config(self, organization: str) -> CacheConfig:
-        if self.mongo_uri:
-            return MongoCacheConfig(self.mongo_uri, collection_name=organization)
-
-        client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
-        # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
-        return SqliteCacheConfig(client_cache_path)
-
-    def _provide_api_key(self, host_organization: str, model_deployment_name: Optional[str] = None) -> Optional[str]:
-        api_key_name = host_organization + "ApiKey"
-        if api_key_name in self.credentials:
-            hlog(f"Using host_organization api key defined in credentials.conf: {api_key_name}")
-            return self.credentials[api_key_name]
-        if "deployments" not in self.credentials:
-            hlog(
-                "WARNING: Could not find key 'deployments' in credentials.conf, "
-                f"therefore the API key {api_key_name} should be specified."
-            )
-            return None
-        deployment_api_keys = self.credentials["deployments"]
-        if model_deployment_name is None:
-            hlog(
-                f"WARNING: Could not find key '{api_key_name}' in credentials.conf "
-                "and no model_deployment_name provided"
-            )
-            return None
-        if model_deployment_name not in deployment_api_keys:
-            hlog(f"WARNING: Could not find key '{model_deployment_name}' under key 'deployments' in credentials.conf")
-            return None
-        return deployment_api_keys[model_deployment_name]
 
     def _get_client(self, model_deployment_name: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
@@ -104,14 +64,14 @@ class AutoClient(Client):
 
             # Prepare a cache
             host_organization: str = model_deployment.host_organization
-            cache_config: CacheConfig = self._build_cache_config(host_organization)
+            cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, host_organization)
 
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
                 constant_bindings={"cache_config": cache_config},
                 provider_bindings={
-                    "api_key": lambda: self._provide_api_key(host_organization, model_deployment_name),
-                    "tokenizer": lambda: self._get_tokenizer(
+                    "api_key": lambda: provide_api_key(self.credentials, host_organization, model_deployment_name),
+                    "tokenizer": lambda: self._auto_tokenizer._get_tokenizer(
                         tokenizer_name=model_deployment.tokenizer_name or model_deployment.name
                     ),
                     "org_id": lambda: self.credentials.get(
@@ -155,70 +115,11 @@ class AutoClient(Client):
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
-    def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
-        # First try to find the tokenizer in the cache
-        tokenizer: Optional[Tokenizer] = self.tokenizers.get(tokenizer_name)
-        if tokenizer is not None:
-            return tokenizer
-
-        # Otherwise, create the tokenizer
-        organization: str = tokenizer_name.split("/")[0]
-        cache_config: CacheConfig = self._build_cache_config(organization)
-
-        tokenizer_config = get_tokenizer_config(tokenizer_name)
-        if tokenizer_config:
-            tokenizer_spec = inject_object_spec_args(
-                tokenizer_config.tokenizer_spec,
-                constant_bindings={"cache_config": cache_config},
-                provider_bindings={
-                    "api_key": lambda: self._provide_api_key(organization),
-                },
-            )
-            tokenizer = create_object(tokenizer_spec)
-
-        # Cache the tokenizer
-        assert isinstance(tokenizer, Tokenizer)  # To make mypy happy
-        self.tokenizers[tokenizer_name] = tokenizer
-
-        return tokenizer
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
-
-        def tokenize_with_retry(tokenizer: Tokenizer, request: TokenizationRequest) -> TokenizationRequestResult:
-            return tokenizer.tokenize(request)
-
-        tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer)
-
-        try:
-            return tokenize_with_retry(tokenizer=tokenizer, request=request)
-        except RetryError as e:
-            last_attempt: Attempt = e.last_attempt
-            retry_error: str = f"Failed to tokenize after retrying {last_attempt.attempt_number} times"
-            hlog(retry_error)
-            return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
-
-        def decode_with_retry(tokenizer: Tokenizer, request: DecodeRequest) -> DecodeRequestResult:
-            return tokenizer.decode(request)
-
-        tokenizer: Tokenizer = self._get_tokenizer(request.tokenizer)
-
-        try:
-            return decode_with_retry(tokenizer=tokenizer, request=request)
-        except RetryError as e:
-            last_attempt: Attempt = e.last_attempt
-            retry_error: str = f"Failed to decode after retrying {last_attempt.attempt_number} times"
-            hlog(retry_error)
-            return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
-
     def get_toxicity_classifier_client(self) -> ToxicityClassifierClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""
         from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 
-        cache_config: CacheConfig = self._build_cache_config("perspectiveapi")
+        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
 
     def get_critique_client(self) -> CritiqueClient:
@@ -244,7 +145,9 @@ class AutoClient(Client):
             surgeai_credentials = self.credentials.get("surgeaiApiKey")
             if not surgeai_credentials:
                 raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
-            self._critique_client = SurgeAICritiqueClient(surgeai_credentials, self._build_cache_config("surgeai"))
+            self._critique_client = SurgeAICritiqueClient(
+                surgeai_credentials, build_cache_config(self.cache_path, self.mongo_uri, "surgeai")
+            )
         elif critique_type == "model":
             from helm.proxy.critique.model_critique_client import ModelCritiqueClient
 
@@ -263,7 +166,7 @@ class AutoClient(Client):
             if not scale_credentials:
                 raise ValueError("scaleApiKey is required for ScaleCritiqueClient")
             self._critique_client = ScaleCritiqueClient(
-                scale_credentials, self._build_cache_config("scale"), scale_project
+                scale_credentials, build_cache_config(self.cache_path, self.mongo_uri, "scale"), scale_project
             )
         else:
             raise ValueError(
@@ -272,14 +175,11 @@ class AutoClient(Client):
             )
         return self._critique_client
 
-    def get_huggingface_client(self) -> "helm.proxy.clients.huggingface_client.HuggingFaceClient":
+    def get_huggingface_client(self) -> HuggingFaceClient:
         """Get the Hugging Face client."""
-        from helm.proxy.clients.huggingface_client import HuggingFaceClient
-
         if self._huggingface_client:
             assert isinstance(self._huggingface_client, HuggingFaceClient)
             return self._huggingface_client
-        cache_config = self._build_cache_config("huggingface")
-        tokenizer = HuggingFaceTokenizer(cache_config)
-        self._huggingface_client = HuggingFaceClient(tokenizer=tokenizer, cache_config=cache_config)
+        cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
+        self._huggingface_client = HuggingFaceClient(cache_config=cache_config)
         return self._huggingface_client

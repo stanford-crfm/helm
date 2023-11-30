@@ -97,7 +97,8 @@ class LitGPTClient(CachingClient):
         strategy: str = "auto",
         quantize: Optional[QuantizationType] = None,
     ):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
         lit_gpt = LitGPT(checkpoint_dir, precision, device, devices, strategy, quantize)
         self.model = lit_gpt.model
         self.fabric = lit_gpt.fabric

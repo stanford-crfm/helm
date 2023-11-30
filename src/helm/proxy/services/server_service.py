@@ -1,6 +1,7 @@
 import os
 import signal
 from typing import List, Optional
+from helm.common.cache_utils import build_cache_config
 
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
@@ -24,6 +25,8 @@ from helm.benchmark.model_deployment_registry import get_model_deployment_host_o
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
+from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from .service import (
     Service,
     CACHE_DIR,
@@ -47,7 +50,9 @@ class ServerService(Service):
         accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
 
         self.client = AutoClient(credentials, cache_path, mongo_uri)
-        self.token_counter = AutoTokenCounter(self.client.get_huggingface_client())
+        self.tokenizer = AutoTokenizer(credentials, cache_path, mongo_uri)
+        cache_config = build_cache_config(cache_path, mongo_uri, "huggingface")
+        self.token_counter = AutoTokenCounter(HuggingFaceTokenizer(cache_config=cache_config))
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         # Lazily instantiated by get_toxicity_scores()
         self.toxicity_classifier_client: Optional[ToxicityClassifierClient] = None
@@ -107,12 +112,12 @@ class ServerService(Service):
     def tokenize(self, auth: Authentication, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenize via an API."""
         self.accounts.authenticate(auth)
-        return self.client.tokenize(request)
+        return self.tokenizer.tokenize(request)
 
     def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes to text."""
         self.accounts.authenticate(auth)
-        return self.client.decode(request)
+        return self.tokenizer.decode(request)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request
