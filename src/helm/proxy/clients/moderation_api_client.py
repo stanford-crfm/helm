@@ -10,11 +10,6 @@ from helm.common.moderations_api_request import (
 )
 from helm.common.optional_dependencies import handle_module_not_found_error
 
-try:
-    import openai
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["openai"])
-
 
 class ModerationAPIClient:
     """
@@ -45,6 +40,11 @@ class ModerationAPIClient:
         Sends a request to OpenAI's moderation endpoint.
         https://beta.openai.com/docs/api-reference/moderations/create
         """
+        try:
+            import openai
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["openai"])
+
         raw_request: Dict[str, str] = {
             "input": request.text,
             "model": self.LATEST_MODEL if request.use_latest_model else self.STABLE_MODEL,
