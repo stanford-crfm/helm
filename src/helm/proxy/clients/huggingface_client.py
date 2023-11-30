@@ -86,7 +86,6 @@ class HuggingFaceServer:
             raw_request["max_new_tokens"] == 0
             and raw_request["num_return_sequences"] == 1
             and raw_request["echo_prompt"]
-            and raw_request["temperature"] == 1
         )
 
         # Use HuggingFace's `generate` method.
