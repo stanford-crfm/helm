@@ -2,10 +2,8 @@ from typing import List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.benchmark.model_metadata_registry import is_text_to_image_model
 from .adapter import Adapter
 from .generation_adapter import GenerationAdapter
-from .image_generation_adapter import ImageGenerationAdapter
 from .language_modeling_adapter import LanguageModelingAdapter
 from .multiple_choice_joint_adapter import MultipleChoiceJointAdapter
 from .multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
@@ -40,10 +38,7 @@ class AdapterFactory:
         adapter: Adapter
 
         if method == ADAPT_GENERATION:
-            if is_text_to_image_model(adapter_spec.model_deployment):
-                adapter = ImageGenerationAdapter(adapter_spec, tokenizer_service)
-            else:
-                adapter = GenerationAdapter(adapter_spec, tokenizer_service)
+            adapter = GenerationAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_LANGUAGE_MODELING:
             adapter = LanguageModelingAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
