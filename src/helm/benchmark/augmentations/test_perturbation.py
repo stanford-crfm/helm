@@ -236,13 +236,13 @@ def test_gender_term_perturbation():
 
 
 def test_suffix_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[SuffixPerturbation(modifications=["pixel art"])])
+    data_augmenter = DataAugmenter(perturbations=[SuffixPerturbation(suffix="pixel art")])
     instance: Instance = Instance(id="id0", input=Input(text="A blue dog"), references=[])
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     print(instances)
     assert len(instances) == 2
-    assert instances[1].perturbation.modifications == "pixel art"
+    assert instances[1].perturbation.suffix == "pixel art"
     assert instances[1].input.text == "A blue dog, pixel art"
 
 
