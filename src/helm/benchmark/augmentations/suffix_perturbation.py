@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from random import Random
-from typing import List
 
 from .perturbation import TextPerturbation
 from .perturbation_description import PerturbationDescription
@@ -8,24 +7,23 @@ from .perturbation_description import PerturbationDescription
 
 class SuffixPerturbation(TextPerturbation):
     """
-    Appends modifications to the end of the text. Example:
+    Appends a suffix to the end of the text. Example:
 
-    A picture of a dog -> A picture of a dog, picasso, happy
+    A picture of a dog -> A picture of a dog, picasso
     """
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        modifications: str = ""
+        suffix: str = ""
 
     name: str = "style"
 
-    def __init__(self, modifications: List[str]):
-        self._modifications: List[str] = modifications
+    def __init__(self, suffix: str):
+        self._suffix: str = suffix
 
     @property
     def description(self) -> PerturbationDescription:
-        return SuffixPerturbation.Description(name=self.name, modifications=",".join(self._modifications))
+        return SuffixPerturbation.Description(name=self.name, suffix=self._suffix)
 
     def perturb(self, text: str, rng: Random) -> str:
-        modifications: str = "" if len(self._modifications) == 0 else f", {', '.join(self._modifications)}"
-        return text + modifications
+        return f"{text}, {self._suffix}"

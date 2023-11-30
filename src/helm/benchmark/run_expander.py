@@ -600,10 +600,10 @@ def translate(language_code: str) -> PerturbationSpec:
     )
 
 
-def suffix(modifications: List[str]) -> PerturbationSpec:
+def suffix(text: str) -> PerturbationSpec:
     return PerturbationSpec(
         class_name="helm.benchmark.augmentations.suffix_perturbation.SuffixPerturbation",
-        args={"modifications": modifications},
+        args={"suffix": text},
     )
 
 
@@ -805,12 +805,12 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     # Styles
     "art": {
         "art": [
-            suffix(modifications=["oil painting"]),
-            suffix(modifications=["watercolor"]),
-            suffix(modifications=["pencil sketch"]),
-            suffix(modifications=["animation"]),
-            suffix(modifications=["vector graphics"]),
-            suffix(modifications=["pixel art"]),
+            suffix("oil painting"),
+            suffix("watercolor"),
+            suffix("pencil sketch"),
+            suffix("animation"),
+            suffix("vector graphics"),
+            suffix("pixel art"),
         ]
     },
 }
