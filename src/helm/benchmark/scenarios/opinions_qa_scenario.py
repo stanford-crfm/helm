@@ -107,7 +107,7 @@ class OpinionsQAScenario(Scenario):
         self.survey_type: str = survey_type
         self.context: str = context
 
-    def download_data(self):
+    def download_data(self, output_path : str):
 
         output_path: str = os.path.join(output_path, "data")
         if not os.path.exists(output_path):
@@ -129,7 +129,7 @@ class OpinionsQAScenario(Scenario):
         return df
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        self.download_data()
+        self.download_data(output_path)
 
         # Read all the instances
         instances: List[Instance] = []
