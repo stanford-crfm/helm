@@ -107,7 +107,7 @@ class OpinionsQAScenario(Scenario):
         self.survey_type: str = survey_type
         self.context: str = context
 
-    def download_data(self, output_path : str):
+    def download_data(self, output_path: str):
 
         output_path: str = os.path.join(output_path, "data")
         if not os.path.exists(output_path):
