@@ -1,6 +1,5 @@
 import os
 from typing import Optional
-from datetime import date
 
 from helm.benchmark.model_deployment_registry import (
     ClientSpec,
@@ -10,25 +9,11 @@ from helm.benchmark.model_deployment_registry import (
 )
 from helm.benchmark.model_metadata_registry import (
     get_model_metadata,
-    ModelMetadata,
+    get_default_model_metadata,
     register_model_metadata,
-    TEXT_MODEL_TAG,
-    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, TokenizerSpec, register_tokenizer_config
 from helm.common.hierarchical_logger import hlog
-
-
-def get_default_huggingface_model_metadata(helm_model_name: str) -> ModelMetadata:
-    return ModelMetadata(
-        name=helm_model_name,
-        creator_organization_name="Unknown",
-        display_name=helm_model_name,
-        description=helm_model_name,
-        access="open",
-        release_date=date.today(),
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
-    )
 
 
 def register_huggingface_model(
@@ -59,7 +44,7 @@ def register_huggingface_model(
     try:
         _ = get_model_metadata(model_name=helm_model_name)
     except ValueError:
-        register_model_metadata(get_default_huggingface_model_metadata(helm_model_name))
+        register_model_metadata(get_default_model_metadata(helm_model_name))
         hlog(f"Registered default metadata for model {helm_model_name}")
 
     register_model_deployment(model_deployment)

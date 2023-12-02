@@ -22,7 +22,7 @@ from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
 
-from helm.benchmark.huggingface_registration import get_default_huggingface_model_metadata
+from helm.benchmark.model_metadata_registry import get_default_model_metadata
 from helm.common.general import (
     write,
     ensure_directory_exists,
@@ -784,7 +784,7 @@ class Summarizer:
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
         add_win_rate: bool = False,
-        enable_huggingface_models: bool = False,
+        allow_unknown_models: bool = False,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -897,8 +897,8 @@ class Summarizer:
             try:
                 model_metadata: ModelMetadata = get_metadata_for_deployment(deployment)
             except ValueError as e:
-                if enable_huggingface_models:
-                    model_metadata = get_default_huggingface_model_metadata(deployment)
+                if allow_unknown_models:
+                    model_metadata = get_default_model_metadata(deployment)
                 else:
                     raise e
 
@@ -1055,7 +1055,7 @@ class Summarizer:
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     link_to_runs=False,
                     add_win_rate=True,
-                    enable_huggingface_models=group.enable_huggingface_models,
+                    allow_unknown_models=group.allow_unknown_models,
                 )
                 tables.append(table)
         return tables
@@ -1087,7 +1087,7 @@ class Summarizer:
                         adapter_to_runs=adapter_to_runs,
                         columns=columns,
                         link_to_runs=True,
-                        enable_huggingface_models=group.enable_huggingface_models,
+                        allow_unknown_models=group.allow_unknown_models,
                     )
                     tables.append(table)
                     scenarios_shown += 1
@@ -1101,7 +1101,7 @@ class Summarizer:
                                 columns=columns,
                                 link_to_runs=False,
                                 sub_split=sub_split,
-                                enable_huggingface_models=group.enable_huggingface_models,
+                                allow_unknown_models=group.allow_unknown_models,
                             )
                             tables.append(table)
 
@@ -1121,7 +1121,7 @@ class Summarizer:
                         adapter_to_runs=adapter_to_runs,
                         columns=columns,
                         link_to_runs=False,
-                        enable_huggingface_models=group.enable_huggingface_models,
+                        allow_unknown_models=group.allow_unknown_models,
                     )
                     tables = [table] + tables
             all_tables.extend(tables)

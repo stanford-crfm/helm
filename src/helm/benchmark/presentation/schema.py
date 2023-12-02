@@ -217,7 +217,7 @@ class RunGroup(Field):
     # Whether to accept non registered models or not.
     # Used for huggingface models, a default ModelMetadata will be used when missing,
     # Otherwise, if this is False, raises an error.
-    enable_huggingface_models: bool = True
+    allow_unknown_models: bool = True
 
 
 @dataclass
