@@ -10,7 +10,6 @@ from helm.common.request import (
     Sequence,
     Token,
 )
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence, cleanup_str
 from .ai21_utils import AI21RequestError, handle_failed_request
 
@@ -24,8 +23,8 @@ class AI21Client(CachingClient):
     COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/{model}/complete"
     EXPERIMENTAL_COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/experimental/{model}/complete"
 
-    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig, url: Optional[str] = None):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, api_key: str, cache_config: CacheConfig, url: Optional[str] = None):
+        super().__init__(cache_config=cache_config)
         self.api_key = api_key
         self.url = url
 

@@ -1,10 +1,8 @@
 import os
 import signal
 from typing import List, Optional
+from helm.common.cache_utils import build_cache_config
 
-from helm.benchmark.model_metadata_registry import maybe_register_model_metadata_from_base_path
-from helm.benchmark.model_deployment_registry import maybe_register_model_deployments_from_base_path
-from helm.benchmark.tokenizer_config_registry import maybe_register_tokenizer_configs_from_base_path
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon, get_credentials
@@ -22,10 +20,13 @@ from helm.proxy.accounts import Accounts, Account
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.example_queries import example_queries
-from helm.proxy.models import ALL_MODELS, get_model_group
+from helm.benchmark.model_metadata_registry import ALL_MODELS_METADATA
+from helm.benchmark.model_deployment_registry import get_model_deployment_host_organization
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
+from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from .service import (
     Service,
     CACHE_DIR,
@@ -48,18 +49,16 @@ class ServerService(Service):
         ensure_directory_exists(cache_path)
         accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
 
-        maybe_register_model_metadata_from_base_path(base_path)
-        maybe_register_model_deployments_from_base_path(base_path)
-        maybe_register_tokenizer_configs_from_base_path(base_path)
-
         self.client = AutoClient(credentials, cache_path, mongo_uri)
-        self.token_counter = AutoTokenCounter(self.client.get_huggingface_client())
+        self.tokenizer = AutoTokenizer(credentials, cache_path, mongo_uri)
+        cache_config = build_cache_config(cache_path, mongo_uri, "huggingface")
+        self.token_counter = AutoTokenCounter(HuggingFaceTokenizer(cache_config=cache_config))
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         # Lazily instantiated by get_toxicity_scores()
         self.toxicity_classifier_client: Optional[ToxicityClassifierClient] = None
 
     def get_general_info(self) -> GeneralInfo:
-        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
+        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS_METADATA)
 
     def get_window_service_info(self, model_name) -> WindowServiceInfo:
         # The import statement is placed here to avoid two problems, please refer to the link for details
@@ -95,9 +94,9 @@ class ServerService(Service):
         #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
-        model_group: str = get_model_group(request.model)
+        host_organization: str = get_model_deployment_host_organization(request.model_deployment)
         # Make sure we can use
-        self.accounts.check_can_use(auth.api_key, model_group)
+        self.accounts.check_can_use(auth.api_key, host_organization)
 
         # Use!
         request_result: RequestResult = self.client.make_request(request)
@@ -106,19 +105,19 @@ class ServerService(Service):
         if not request_result.cached:
             # Count the number of tokens used
             count: int = self.token_counter.count_tokens(request, request_result.completions)
-            self.accounts.use(auth.api_key, model_group, count)
+            self.accounts.use(auth.api_key, host_organization, count)
 
         return request_result
 
     def tokenize(self, auth: Authentication, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenize via an API."""
         self.accounts.authenticate(auth)
-        return self.client.tokenize(request)
+        return self.tokenizer.tokenize(request)
 
     def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes to text."""
         self.accounts.authenticate(auth)
-        return self.client.decode(request)
+        return self.tokenizer.decode(request)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         @retry_request

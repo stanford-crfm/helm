@@ -6,7 +6,6 @@ from retrying import retry
 
 from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence, cleanup_str
 
 
@@ -16,6 +15,10 @@ MODEL_ALIASES: Dict[str, str] = {
     "h3-2.7b": "h3-2.7b-h3",
     "opt-1.3b": "opt-1.3b-ft-tp1",
     "opt-6.7b": "opt-6.7b-ft-tp1",
+    "mpt-7b": "togethercomputer/mpt-7b",
+    "mpt-instruct-7b": "togethercomputer/mpt-7b-instruct",
+    "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
+    "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
     # Production models
     "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
     "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
@@ -29,6 +32,8 @@ MODEL_ALIASES: Dict[str, str] = {
     "falcon-7b-instruct": "togethercomputer/falcon-7b-instruct",
     "falcon-40b": "togethercomputer/falcon-40b",
     "falcon-40b-instruct": "togethercomputer/falcon-40b-instruct",
+    "gpt-jt-6b-v1": "togethercomputer/GPT-JT-6B-v1",
+    "gpt-neoxt-chat-base-20b": "togethercomputer/GPT-NeoXT-Chat-Base-20B",
     "llama-7b": "huggyllama/llama-7b",
     "llama-13b": "huggyllama/llama-13b",
     "llama-30b": "huggyllama/llama-30b",
@@ -37,16 +42,12 @@ MODEL_ALIASES: Dict[str, str] = {
     "llama-2-13b": "togethercomputer/llama-2-13b",
     "llama-2-70b": "togethercomputer/llama-2-70b",
     "mistral-7b-v0.1": "mistralai/Mistral-7B-v0.1",
-    "mpt-7b": "togethercomputer/mpt-7b",
-    "mpt-instruct-7b": "togethercomputer/mpt-7b-instruct",
     "mpt-30b": "togethercomputer/mpt-30b",
     "mpt-instruct-30b": "togethercomputer/mpt-30b-instruct",
     "pythia-1b-v0": "EleutherAI/pythia-1b-v0",
     "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
     "pythia-6.9b": "EleutherAI/pythia-6.9b",
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
-    "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
-    "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
     "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
     "vicuna-13b-v1.3": "lmsys/vicuna-13b-v1.3",
 }
@@ -55,7 +56,7 @@ MODEL_ALIASES: Dict[str, str] = {
 HELM users use a shorter model name (e.g. together/flan-t5-xxl)
 whereas the Together client sends and caches requests using
 a longer model name that is suffixed with the implementation framework
-(e.g. flan-t5-xxl-hf). This allows trackcing exactly which
+(e.g. flan-t5-xxl-hf). This allows tracking exactly which
 implementation was used in the cached results, since some results may
 be different depending on the implementation (e.g. efficiency metrics).
 This also allows future migration of results in the case of changes of
@@ -164,8 +165,8 @@ class TogetherClient(CachingClient):
         }
         return _rewrite_raw_request_for_model_tags(raw_request, request.model_engine)
 
-    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, api_key: Optional[str] = None):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+        super().__init__(cache_config=cache_config)
         # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
         #       in credentials.conf, we rely on offline evaluation only.
         self.api_key: Optional[str] = api_key

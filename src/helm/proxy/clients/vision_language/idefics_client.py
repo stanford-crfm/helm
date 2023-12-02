@@ -55,7 +55,8 @@ class IDEFICSClient(CachingClient):
     BAD_WORD_TOKENS: List[str] = ["<image>", "<fake_token_around_image>"]
 
     def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
         self._device: str = get_torch_device_name()
 
     def _get_model(self, checkpoint: str) -> LoadedIDEFICSModelProcessor:
@@ -78,10 +79,10 @@ class IDEFICSClient(CachingClient):
         return loaded_model_processor
 
     def make_request(self, request: Request) -> RequestResult:
-        assert request.model in _models, f"Not a valid model for this client: {request.model}"
+        assert request.model_deployment in _models, f"Not a valid model for this client: {request.model_deployment}"
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
 
-        loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.model)
+        loaded_model_processor: LoadedIDEFICSModelProcessor = self._get_model(request.model_deployment)
         model = loaded_model_processor.model
         processor = loaded_model_processor.processor
 

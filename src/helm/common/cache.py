@@ -1,34 +1,19 @@
-# mypy: check_untyped_defs = False
-from abc import abstractmethod
-import contextlib
-from dataclasses import dataclass
-import json
-from typing import Dict, Callable, Generator, Iterable, Optional, Tuple
 from collections import defaultdict
-import sqlite3
+from dataclasses import dataclass
+from typing import Dict, Callable, Generator, Optional, Tuple
+import json
 import threading
 
-from sqlitedict import SqliteDict
+import sqlite3
+
 from helm.common.general import hlog, htrack
+from helm.common.key_value_store import KeyValueStore, SqliteKeyValueStore
 from helm.proxy.retry import get_retry_decorator
-from bson.son import SON
-from bson.errors import InvalidDocument
-from pymongo import MongoClient, ReplaceOne
 
 try:
     from cPickle import loads
 except ImportError:
     from pickle import loads
-
-
-def request_to_key(request: Dict) -> str:
-    """Normalize a `request` into a `key` so that we can hash using it."""
-    return json.dumps(request, sort_keys=True)
-
-
-def key_to_request(key: str) -> Dict:
-    """Convert the normalized version to the request."""
-    return json.loads(key)
 
 
 def retry_if_write_failed(success: bool) -> bool:
@@ -44,8 +29,6 @@ retry: Callable = get_retry_decorator(
 class CacheConfig:
     """Configuration for a cache."""
 
-    pass
-
     @property
     def cache_stats_key(self) -> str:
         """The string key used by CacheStats to identify this cache."""
@@ -54,8 +37,6 @@ class CacheConfig:
 
 class KeyValueStoreCacheConfig(CacheConfig):
     """Configuration for a cache backed by a key-value store."""
-
-    pass
 
 
 @dataclass(frozen=True)
@@ -105,156 +86,6 @@ class WithFollowerCacheConfig(CacheConfig):
         return self.main.cache_stats_key
 
 
-class KeyValueStore(contextlib.AbstractContextManager):
-    """Key value store that persists writes."""
-
-    @property
-    def path(self):
-        return self._path
-
-    @abstractmethod
-    def contains(self, key: Dict) -> bool:
-        pass
-
-    @abstractmethod
-    def get(self, key: Dict) -> Optional[Dict]:
-        pass
-
-    @abstractmethod
-    def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
-        pass
-
-    @abstractmethod
-    def put(self, key: Dict, value: Dict) -> None:
-        pass
-
-    @abstractmethod
-    def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
-        pass
-
-    @abstractmethod
-    def remove(self, key: Dict) -> None:
-        pass
-
-
-class _SqliteKeyValueStore(KeyValueStore):
-    """Key value store backed by a SQLite file."""
-
-    def __init__(self, path: str):
-        self._sqlite_dict = SqliteDict(path)
-        super().__init__()
-
-    def __enter__(self) -> "_SqliteKeyValueStore":
-        self._sqlite_dict.__enter__()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        self._sqlite_dict.__exit__(exc_type, exc_value, traceback)
-
-    def contains(self, key: Dict) -> bool:
-        return request_to_key(key) in self._sqlite_dict
-
-    def get(self, key: Dict) -> Optional[Dict]:
-        key_string = request_to_key(key)
-        result = self._sqlite_dict.get(key_string)
-        if result is not None:
-            assert isinstance(result, dict)
-            return result
-        return None
-
-    def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
-        for key, value in self._sqlite_dict.items():
-            yield (key, value)
-
-    def put(self, key: Dict, value: Dict) -> None:
-        key_string = request_to_key(key)
-        self._sqlite_dict[key_string] = value
-        self._sqlite_dict.commit()
-
-    def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
-        for key, value in pairs:
-            self.put(key, value)
-
-    def remove(self, key: Dict) -> None:
-        del self._sqlite_dict[key]
-        self._sqlite_dict.commit()
-
-
-class _MongoKeyValueStore(KeyValueStore):
-    """Key value store backed by a MongoDB database."""
-
-    # The number of documents to return per batch.
-    _BATCH_SIZE: int = 8
-
-    _REQUEST_KEY = "request"
-    _RESPONSE_KEY = "response"
-
-    def __init__(self, uri: str, collection_name: str):
-        # TODO: Create client in __enter__ and clean up client in __exit__
-        self._mongodb_client: MongoClient = MongoClient(uri)
-        self._database = self._mongodb_client.get_default_database()
-        self._collection = self._database.get_collection(collection_name)
-        self._collection.create_index(self._REQUEST_KEY, unique=True)
-        super().__init__()
-
-    def __enter__(self) -> "_MongoKeyValueStore":
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        return
-
-    def _canonicalize_key(self, key: Dict) -> SON:
-        serialized = json.dumps(key, sort_keys=True)
-        return json.loads(serialized, object_pairs_hook=SON)
-
-    def contains(self, key: Dict) -> bool:
-        query = {self._REQUEST_KEY: self._canonicalize_key(key)}
-        return self._collection.find_one(query) is not None
-
-    def get(self, key: Dict) -> Optional[Dict]:
-        query = {self._REQUEST_KEY: self._canonicalize_key(key)}
-        document = self._collection.find_one(query)
-        if document is not None:
-            response = document[self._RESPONSE_KEY]
-            if isinstance(response, str):
-                return json.loads(response)
-            else:
-                return response
-        return None
-
-    def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
-        for document in self._collection.find({}).batch_size(self._BATCH_SIZE):
-            request = document[self._REQUEST_KEY]
-            response = document[self._RESPONSE_KEY]
-            if isinstance(response, str):
-                yield (request, json.loads(response))
-            else:
-                yield (request, response)
-
-    def put(self, key: Dict, value: Dict) -> None:
-        request = self._canonicalize_key(key)
-        document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
-        # The MongoDB collection should have a unique indexed on "request"
-        try:
-            self._collection.replace_one(filter={"request": request}, replacement=document, upsert=True)
-        except InvalidDocument:
-            # If the document is malformed e.g. because of null bytes in keys, instead store the response as a string.
-            alternate_document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, json.dumps(value))])
-            self._collection.replace_one(filter={"request": request}, replacement=alternate_document, upsert=True)
-
-    def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
-        operations = []
-        for key, value in pairs:
-            request = self._canonicalize_key(key)
-            document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
-            operations.append(ReplaceOne({self._REQUEST_KEY: request}, document, upsert=True))
-        # Note: unlike put, multi_put does not support documents with null bytes in keys.
-        self._collection.bulk_write(operations)
-
-    def remove(self, key: Dict) -> None:
-        self._collection.delete_one(key)
-
-
 def get_all_from_sqlite(path: str) -> Generator[Tuple[Dict, Dict], None, None]:
     """Yields all decoded key, value pairs from the SQLite cache.
 
@@ -277,9 +108,11 @@ def create_key_value_store(config: KeyValueStoreCacheConfig) -> KeyValueStore:
     """Create a key value store from the given configuration."""
     # TODO: Support creating _MongoKeyValueStore
     if isinstance(config, MongoCacheConfig):
-        return _MongoKeyValueStore(config.uri, config.collection_name)
+        from helm.common.mongo_key_value_store import MongoKeyValueStore
+
+        return MongoKeyValueStore(config.uri, config.collection_name)
     elif isinstance(config, SqliteCacheConfig):
-        return _SqliteKeyValueStore(config.path)
+        return SqliteKeyValueStore(config.path)
     else:
         raise ValueError(f"KeyValueStoreCacheConfig with unknown type: {config}")
 

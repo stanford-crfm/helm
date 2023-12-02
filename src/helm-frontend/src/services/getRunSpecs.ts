@@ -1,15 +1,13 @@
 import RunSpec from "@/types/RunSpec";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export default async function getRunSpecs(
   signal: AbortSignal,
 ): Promise<RunSpec[]> {
   try {
     const runSpecs = await fetch(
-      getBenchmarkEndpoint(
-        `/benchmark_output/runs/${getBenchmarkSuite()}/run_specs.json`,
-      ),
+      getBenchmarkEndpoint(`${getVersionBaseUrl()}/run_specs.json`),
       { signal },
     );
 

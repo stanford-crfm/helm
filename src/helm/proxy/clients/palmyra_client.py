@@ -28,9 +28,10 @@ def _is_content_moderation_failure(response: Dict) -> bool:
 
 
 class PalmyraClient(CachingClient):
-    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, api_key: str):
+        super().__init__(cache_config=cache_config)
         self.api_key: str = api_key
+        self.tokenizer = tokenizer
 
     def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -100,7 +101,10 @@ class PalmyraClient(CachingClient):
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
             if _is_content_moderation_failure(response):
-                hlog(f"WARNING: Returning empty request for {request.model} due to content moderation filter")
+                hlog(
+                    f"WARNING: Returning empty request for {request.model_deployment} "
+                    "due to content moderation filter"
+                )
                 return RequestResult(
                     success=False,
                     cached=False,

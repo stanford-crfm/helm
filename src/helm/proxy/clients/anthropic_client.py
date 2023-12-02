@@ -57,7 +57,8 @@ class AnthropicClient(CachingClient):
     PROMPT_ANSWER_START: str = "The answer is "
 
     def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, api_key: Optional[str] = None):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
         self.api_key: Optional[str] = api_key
         self._client = anthropic.Client(api_key) if api_key else None
 
@@ -241,7 +242,7 @@ class AnthropicLegacyClient(CachingClient):
 
     def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
         hlog("This client is deprecated. Please use AnthropicClient instead.")
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
         self.api_key = api_key
 
     def make_request(self, request: Request) -> RequestResult:
@@ -249,7 +250,7 @@ class AnthropicLegacyClient(CachingClient):
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         # Validate the fields of `Request`
-        if request.model != "anthropic/stanford-online-all-v4-s3":
+        if request.model_engine != "stanford-online-all-v4-s3":
             raise ValueError(f"Invalid model: {request.model}")
         if request.max_tokens > AnthropicLegacyClient.MAX_COMPLETION_LENGTH:
             raise ValueError(

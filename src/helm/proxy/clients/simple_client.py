@@ -3,15 +3,14 @@ from typing import List, Dict
 from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient
 
 
 class SimpleClient(CachingClient):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
-    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {

@@ -76,16 +76,14 @@ class DisplayRequest:
     most relevant request e.g. the request for the chosen cohice for multiple choice questions."""
 
 
-def _read_scenario_state(run_path: str) -> ScenarioState:
-    scenario_state_path: str = os.path.join(run_path, "scenario_state.json")
+def _read_scenario_state(scenario_state_path: str) -> ScenarioState:
     if not os.path.exists(scenario_state_path):
         raise ValueError(f"Could not load ScenarioState from {scenario_state_path}")
     with open(scenario_state_path) as f:
         return from_json(f.read(), ScenarioState)
 
 
-def _read_per_instance_stats(run_path: str) -> List[PerInstanceStats]:
-    per_instance_stats_path: str = os.path.join(run_path, "per_instance_stats.json")
+def _read_per_instance_stats(per_instance_stats_path: str) -> List[PerInstanceStats]:
     if not os.path.exists(per_instance_stats_path):
         raise ValueError(f"Could not load PerInstanceStats from {per_instance_stats_path}")
     with open(per_instance_stats_path) as f:
@@ -168,16 +166,35 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
     display_predictions_file_path = os.path.join(run_path, _DISPLAY_PREDICTIONS_JSON_FILE_NAME)
     display_requests_file_path = os.path.join(run_path, _DISPLAY_REQUESTS_JSON_FILE_NAME)
 
+    scenario_state_path = os.path.join(run_path, "scenario_state.json")
+    per_instance_stats_path = os.path.join(run_path, "per_instance_stats.json")
+
     if (
         skip_completed
         and os.path.exists(instances_file_path)
         and os.path.exists(display_predictions_file_path)
         and os.path.exists(display_requests_file_path)
     ):
-        hlog(f"Skipping writing display JSON for run {run_spec.name} because all output display JSON files exist.")
+        hlog(
+            f"Skipping writing display JSON for run {run_spec.name} "
+            "because all output display JSON files already exist."
+        )
         return
-    scenario_state = _read_scenario_state(run_path)
-    per_instance_stats = _read_per_instance_stats(run_path)
+    elif not os.path.exists(scenario_state_path):
+        hlog(
+            f"Skipping writing display JSON for run {run_spec.name} because "
+            f"the scenario state JSON file does not exist at {scenario_state_path}"
+        )
+        return
+    elif not os.path.exists(per_instance_stats_path):
+        hlog(
+            f"Skipping writing display JSON for run {run_spec.name} because "
+            f"the per instance stats JSON file does not exist at {per_instance_stats_path}"
+        )
+        return
+
+    scenario_state = _read_scenario_state(scenario_state_path)
+    per_instance_stats = _read_per_instance_stats(per_instance_stats_path)
 
     metric_names = _get_metric_names_for_groups(run_spec.groups, schema)
 

@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 import os
 import tempfile
 from typing import List
@@ -11,10 +10,9 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
-from .anthropic_client import AnthropicClient
 
 
-class TestAnthropicClient:
+class TestAnthropicTokenizer:
     TEST_PROMPT: str = "I am a computer scientist."
     TEST_ENCODED: List[int] = [45, 1413, 269, 6797, 22228, 18]
     TEST_TOKENS: List[str] = ["I", " am", " a", " computer", " scientist", "."]
@@ -22,42 +20,39 @@ class TestAnthropicClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.client = AnthropicClient(
-            tokenizer=AnthropicTokenizer(SqliteCacheConfig(self.cache_path)),
-            cache_config=SqliteCacheConfig(self.cache_path),
-        )
+        self.tokenizer = AnthropicTokenizer(SqliteCacheConfig(self.cache_path))
 
     def teardown_method(self, method):
         os.remove(self.cache_path)
 
     def test_tokenize(self):
         request = TokenizationRequest(text=self.TEST_PROMPT)
-        result: TokenizationRequestResult = self.client.tokenize(request)
+        result: TokenizationRequestResult = self.tokenizer.tokenize(request)
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         assert result.raw_tokens == self.TEST_TOKENS
-        result: TokenizationRequestResult = self.client.tokenize(request)
+        result = self.tokenizer.tokenize(request)
         assert result.cached, "Result should be cached"
         assert result.raw_tokens == self.TEST_TOKENS
 
     def test_encode(self):
         request = TokenizationRequest(text=self.TEST_PROMPT, encode=True, truncation=True, max_length=1)
-        result: TokenizationRequestResult = self.client.tokenize(request)
+        result: TokenizationRequestResult = self.tokenizer.tokenize(request)
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         assert result.raw_tokens == [self.TEST_ENCODED[0]]
-        result: TokenizationRequestResult = self.client.tokenize(request)
+        result = self.tokenizer.tokenize(request)
         assert result.cached, "Result should be cached"
         assert result.raw_tokens == [self.TEST_ENCODED[0]]
 
         request = TokenizationRequest(text=self.TEST_PROMPT, encode=True, truncation=True, max_length=1024)
-        result = self.client.tokenize(request)
+        result = self.tokenizer.tokenize(request)
         assert not result.cached, "First time making this particular request. Result should not be cached"
         assert result.raw_tokens == self.TEST_ENCODED
 
     def test_decode(self):
         request = DecodeRequest(tokens=self.TEST_ENCODED)
-        result: DecodeRequestResult = self.client.decode(request)
+        result: DecodeRequestResult = self.tokenizer.decode(request)
         assert not result.cached, "First time making the decode request. Result should not be cached"
         assert result.text == self.TEST_PROMPT
-        result: DecodeRequestResult = self.client.decode(request)
+        result = self.tokenizer.decode(request)
         assert result.cached, "Result should be cached"
         assert result.text == self.TEST_PROMPT

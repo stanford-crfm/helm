@@ -107,18 +107,18 @@ class OpinionsQAScenario(Scenario):
         self.survey_type: str = survey_type
         self.context: str = context
 
-    def download_data(self):
+    def download_data(self, output_path: str):
 
-        output_path: str = os.path.join(output_path, "data")
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
+        data_dir: str = os.path.join(output_path, "data")
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
 
         DOWNLOAD_FILENAMES = [self.FILE_NAME.format(wave=wave) for wave in self.PEW_SURVEY_WAVES]
         DOWNLOAD_FILENAMES += [f"{steer}.csv" for steer in ["steer-qa", "steer-bio", "steer-portray"]]
         DOWNLOAD_FILENAMES += ["Pew_American_Trends_Panel_disagreement_500.csv"]
 
         for filename in DOWNLOAD_FILENAMES:
-            data_path: str = os.path.join(output_path, filename)
+            data_path: str = os.path.join(data_dir, filename)
 
             source_url: str = self.CODALAB_URI_TEMPLATE.format(bundle=self.CODALAB_BUNDLE, filename=filename)
             ensure_file_downloaded(source_url=source_url, target_path=data_path, downloader_executable="gdown")
@@ -129,7 +129,7 @@ class OpinionsQAScenario(Scenario):
         return df
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        self.download_data()
+        self.download_data(output_path)
 
         # Read all the instances
         instances: List[Instance] = []
