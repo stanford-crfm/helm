@@ -2794,7 +2794,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: bleu
+      main_name: bleu_4
       main_split: test
     taxonomy:
       task: machine translation

@@ -399,10 +399,10 @@ def get_machine_translation_adapter_spec(
     """
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=f"Translate {source_language} to {target_language}:",
-        input_prefix="",
-        input_suffix=" = ",
-        output_prefix="",
+        instructions=f"Translate the following sentences from {source_language} to {target_language}.",
+        input_prefix=f"{source_language}: ",
+        input_suffix="\n",
+        output_prefix=f"{target_language}: ",
         output_suffix="\n",
         max_train_instances=max_train_instances,
         num_outputs=1,
@@ -622,12 +622,6 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
 
 def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"])
-
-
-def get_machine_translation_metric_specs() -> List[MetricSpec]:
-    return [
-        MetricSpec(class_name="helm.benchmark.metrics.machine_translation_metrics.MachineTranslationMetric", args={})
-    ] + get_basic_metric_specs([])
 
 
 def get_cleva_machine_translation_metric_specs() -> List[MetricSpec]:
@@ -2035,7 +2029,7 @@ def get_med_qa_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Give a letter answer among A, B, C or D.",
+        instructions="The following are multiple choice questions (with answers) about medicine.",
         input_noun="Question",
         output_noun="Answer",
     )
@@ -2246,7 +2240,7 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         name=f"wmt_14:language_pair={language_pair}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_machine_translation_metric_specs(),
+        metric_specs=get_open_ended_generation_metric_specs(),
         groups=["wmt_14"],
     )
 

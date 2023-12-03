@@ -38,7 +38,6 @@ def run_entries_to_run_specs(
             continue
 
         for run_spec in construct_run_specs(parse_object_spec(entry.description)):
-            print('RRRRRR', run_spec.adapter_spec.model_deployment, models_to_run)
             # Filter by models
             if models_to_run and run_spec.adapter_spec.model_deployment not in models_to_run:
                 continue
