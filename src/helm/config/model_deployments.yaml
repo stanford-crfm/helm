@@ -419,7 +419,7 @@ model_deployments:
 
   # HuggingFaceM4
   - name: HuggingFaceM4/idefics-9b
-    model_name: huggingface/idefics-9b
+    model_name: HuggingFaceM4/idefics-9b
     tokenizer_name: HuggingFaceM4/idefics-9b
     max_sequence_length: 2048
     client_spec:
@@ -430,7 +430,7 @@ model_deployments:
       args: {}
 
   - name: HuggingFaceM4/idefics-9b-instruct
-    model_name: huggingface/idefics-9b-instruct
+    model_name: HuggingFaceM4/idefics-9b-instruct
     tokenizer_name: HuggingFaceM4/idefics-9b-instruct
     max_sequence_length: 2048
     client_spec:
@@ -441,7 +441,7 @@ model_deployments:
       args: {}
 
   - name: HuggingFaceM4/idefics-80b
-    model_name: huggingface/idefics-80b
+    model_name: HuggingFaceM4/idefics-80b
     tokenizer_name: HuggingFaceM4/idefics-80b
     max_sequence_length: 2048
     client_spec:
@@ -452,7 +452,7 @@ model_deployments:
       args: {}
 
   - name: HuggingFaceM4/idefics-80b-instruct
-    model_name: huggingface/idefics-80b-instruct
+    model_name: HuggingFaceM4/idefics-80b-instruct
     tokenizer_name: HuggingFaceM4/idefics-80b-instruct
     max_sequence_length: 2048
     client_spec:
