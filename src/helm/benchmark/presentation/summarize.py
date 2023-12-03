@@ -275,6 +275,7 @@ class Summarizer:
         release: Optional[str],
         suites: Optional[List[str]],
         suite: Optional[str],
+        schema_file: str,
         output_path: str,
         verbose: bool,
         num_threads: int,
@@ -309,7 +310,7 @@ class Summarizer:
 
         ensure_directory_exists(self.run_release_path)
 
-        self.schema = read_schema()
+        self.schema = read_schema(schema_file)
         self.contamination = read_contamination()
         validate_contamination(self.contamination, self.schema)
 
@@ -1285,6 +1286,11 @@ def main():
         "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
     )
     parser.add_argument(
+        "--schema-file",
+        type=str,
+        help="File name of the schema to read (e.g., schema_classic.yaml).",
+    )
+    parser.add_argument(
         "--suite",
         type=str,
         help="Name of the suite this summarization should go under.",
@@ -1344,6 +1350,7 @@ def main():
         release=release,
         suites=suites,
         suite=suite,
+        schema_file=args.schema_file,
         output_path=args.output_path,
         verbose=args.debug,
         num_threads=args.num_threads,
