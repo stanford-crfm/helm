@@ -2,6 +2,7 @@ import os
 import tempfile
 
 from helm.benchmark.presentation.summarize import Summarizer
+from helm.benchmark.presentation.schema import SCHEMA_CLASSIC_YAML_FILENAME
 from helm.common.general import ensure_directory_exists
 
 
@@ -12,6 +13,7 @@ def test_summarize_suite():
             release=None,
             suites=None,
             suite="test_suite",
+            schema_file=SCHEMA_CLASSIC_YAML_FILENAME,
             output_path=output_path,
             verbose=False,
             num_threads=4,
@@ -28,6 +30,7 @@ def test_summarize_release():
             release="test_release",
             suites=["test_suite_1", "test_suite_2"],
             suite=None,
+            schema_file=SCHEMA_CLASSIC_YAML_FILENAME,
             output_path=output_path,
             verbose=False,
             num_threads=4,

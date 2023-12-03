@@ -249,8 +249,8 @@ class Schema:
 
 
 def read_schema(filename: str) -> Schema:
-    hlog(f"Reading schema file {filename} from {SCHEMA_YAML_FILENAME}...")
     schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(filename)
+    hlog(f"Reading schema file {schema_path}...")
     with schema_path.open("r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Schema, raw)
