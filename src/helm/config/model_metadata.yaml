@@ -587,7 +587,7 @@ models:
 
 
   # HuggingFace
-  - name: huggingface/idefics-9b
+  - name: HuggingFaceM4/idefics-9b
     display_name: IDEFICS (9B)
     description: IDEFICS (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
     creator_organization_name: HuggingFace
@@ -596,7 +596,7 @@ models:
     release_date: 2023-08-22
     tags: [VISION_LANGUAGE_MODEL_TAG]
 
-  - name: huggingface/idefics-9b-instruct
+  - name: HuggingFaceM4/idefics-9b-instruct
     display_name: IDEFICS instruct (9B)
     description: IDEFICS instruct (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
     creator_organization_name: HuggingFace
@@ -605,7 +605,7 @@ models:
     release_date: 2023-08-22
     tags: [VISION_LANGUAGE_MODEL_TAG]
 
-  - name: huggingface/idefics-80b
+  - name: HuggingFaceM4/idefics-80b
     display_name: IDEFICS (80B)
     description: IDEFICS (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
     creator_organization_name: HuggingFace
@@ -614,7 +614,7 @@ models:
     release_date: 2023-08-22
     tags: [VISION_LANGUAGE_MODEL_TAG]
 
-  - name: huggingface/idefics-80b-instruct
+  - name: HuggingFaceM4/idefics-80b-instruct
     display_name: IDEFICS instruct (80B)
     description: IDEFICS instruct (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
     creator_organization_name: HuggingFace
