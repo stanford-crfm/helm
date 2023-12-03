@@ -247,8 +247,7 @@ class TogetherClient(CachingClient):
                     response.raise_for_status()
                 except Exception as e:
                     raise TogetherClientError(
-                        f"Together job submission request failed with {response.status_code}: "
-                        f"{response.text}"
+                        f"Together job submission request failed with {response.status_code}: " f"{response.text}"
                     ) from e
 
                 # Process the output
