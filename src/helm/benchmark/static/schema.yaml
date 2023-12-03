@@ -2739,7 +2739,7 @@ run_groups:
     display_name: LegalBench
     description: LegalBench is a large collaboratively constructed benchmark of legal reasoning. Five representative tasks are included here. See [(Guha et al, 2023)[https://arxiv.org/abs/2308.11462] for more details.
     metric_groups:
-      - classification_metrics
+      - accuracy
       - efficiency
       - general_information
     environment:
