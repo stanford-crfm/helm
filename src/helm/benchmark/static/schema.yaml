@@ -2735,6 +2735,23 @@ run_groups:
       when: n/a
       language: synthetic
 
+  - name: legalbench
+    display_name: LegalBench
+    description: LegalBench is a large collaboratively constructed benchmark of legal reasoning. Five representative tasks are included here. See [(Guha et al, 2023)[https://arxiv.org/abs/2308.11462] for more details.
+    metric_groups:
+      - classification_metrics
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "text classification"
+      what: "fact patterns, questions, and legal documents"
+      who: "lawyers"
+      when: n/a
+      language: English
+
   - name: legal_support
     display_name: LegalSupport
     description: Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.
