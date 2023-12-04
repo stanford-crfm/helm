@@ -271,7 +271,7 @@ class FormatPromptRunExpander(RunExpander):
                 name=run_spec.name,
                 adapter_spec=replace(
                     run_spec.adapter_spec,
-                    global_prefix=self.prefix,
+                    input_prefix=self.prefix,
                     output_prefix=self.suffix,
                 ),
             ),

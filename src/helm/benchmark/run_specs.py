@@ -2745,8 +2745,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             else:
                 claude_run_expanders.append(
                     FormatPromptRunExpander(
-                        prefix=anthropic.HUMAN_PROMPT,
-                        suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}",
+                        prefix=f"{anthropic.HUMAN_PROMPT} ",
+                        suffix=f"{anthropic.AI_PROMPT} ",
                     )
                 )
             for claude_run_expander in claude_run_expanders:
