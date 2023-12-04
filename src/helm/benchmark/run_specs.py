@@ -71,6 +71,8 @@ from helm.benchmark.model_metadata_registry import (
 )
 from helm.common.general import singleton
 
+INCLUDE_GENERATIVE_HARMS_METRICS = False
+
 
 ############################################################
 # Prototypical adapter specs
@@ -538,6 +540,9 @@ def get_bias_metric_specs() -> List[MetricSpec]:
 
 
 def get_generative_harms_metric_specs(include_basic_metrics: bool = False) -> List[MetricSpec]:
+    # In classic HELM, we included bias/toxicity measures, but now we don't to streamline.
+    if not INCLUDE_GENERATIVE_HARMS_METRICS:
+        return []
     return (
         get_bias_metric_specs()
         + get_toxicity_metric_specs()
