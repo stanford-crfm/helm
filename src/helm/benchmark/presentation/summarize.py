@@ -1266,7 +1266,7 @@ class Summarizer:
         if os.path.islink(symlink_path):
             # Remove the previous symlink if it exists.
             os.unlink(symlink_path)
-        os.symlink(os.path.abspath(self.run_release_path), symlink_path)
+        os.symlink(os.path.basename(self.run_release_path), symlink_path)
 
     def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
         """Run the entire summarization pipeline."""
