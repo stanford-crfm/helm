@@ -15,7 +15,6 @@ SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
 
 # TODO: add heim, vhelm, etc.
 SCHEMA_CLASSIC_YAML_FILENAME: str = "schema_classic.yaml"
-SCHEMA_LITE_YAML_FILENAME: str = "schema_lite.yaml"
 
 
 @dataclass(frozen=True)

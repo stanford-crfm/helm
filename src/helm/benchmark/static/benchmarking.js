@@ -1595,8 +1595,7 @@ $(function () {
     window.SUITE = urlParams.suite;
   }
 
-  const schemaPromise = $.get("schema.yaml", {}, (response) => {
-    const raw = jsyaml.load(response);
+  const schemaPromise = $.getJSON(schemaJsonUrl(), {}, (raw) => {
     console.log("schema", raw);
     schema = new Schema(raw);
   });

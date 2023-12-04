@@ -26,6 +26,7 @@ from helm.common.general import (
     write,
     ensure_directory_exists,
     asdict_without_nones,
+    serialize_dates,
     parallel_map,
     singleton,
     unique_simplification,
@@ -390,6 +391,13 @@ class Summarizer:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
 
+    def write_schema(self):
+        """Write the schema file to benchmark_output so the frontend knows about it."""
+        write(
+            os.path.join(self.run_release_path, "schema.json"),
+            json.dumps(asdict_without_nones(self.schema), indent=2, default=serialize_dates)
+        )
+
     def read_runs(self):
         self.runs: List[Run] = []
         self.runs_to_run_suites: Dict[str, str] = {}
@@ -646,7 +654,8 @@ class Summarizer:
             header = [
                 HeaderCell("Group"),
                 HeaderCell("Description"),
-                # Synchronize these names with `schema.yaml`
+                # Synchronize these names with the appropriate schema file
+                # TODO: different schema files might have different fields (for multimodal)
                 HeaderCell("Adaptation method", description="Adaptation strategy (e.g., generation)"),
                 HeaderCell("# instances", description="Number of instances evaluated on"),
                 HeaderCell("# references", description="Number of references provided per instance"),
@@ -1254,7 +1263,9 @@ class Summarizer:
         os.symlink(os.path.abspath(self.run_release_path), symlink_path)
 
     def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
-        """Run the entire summarization pipeline pipeline."""
+        """Run the entire summarization pipeline."""
+        self.write_schema()
+
         self.read_runs()
         self.group_runs()
         self.check_metrics_defined()
