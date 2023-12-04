@@ -395,7 +395,7 @@ class Summarizer:
         """Write the schema file to benchmark_output so the frontend knows about it."""
         write(
             os.path.join(self.run_release_path, "schema.json"),
-            json.dumps(asdict_without_nones(self.schema), indent=2, default=serialize_dates)
+            json.dumps(asdict_without_nones(self.schema), indent=2, default=serialize_dates),
         )
 
     def read_runs(self):
