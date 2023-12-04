@@ -12,7 +12,9 @@ from helm.benchmark.augmentations.perturbation_description import PERTURBATION_W
 
 
 SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
-SCHEMA_YAML_FILENAME: str = "schema.yaml"
+
+# TODO: add heim, vhelm, etc.
+SCHEMA_CLASSIC_YAML_FILENAME: str = "schema_classic.yaml"
 
 
 @dataclass(frozen=True)
@@ -245,9 +247,9 @@ class Schema:
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema() -> Schema:
-    hlog(f"Reading schema from {SCHEMA_YAML_FILENAME}...")
-    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_YAML_FILENAME)
+def read_schema(filename: str) -> Schema:
+    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(filename)
+    hlog(f"Reading schema file {schema_path}...")
     with schema_path.open("r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Schema, raw)

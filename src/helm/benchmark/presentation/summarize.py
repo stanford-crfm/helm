@@ -26,6 +26,7 @@ from helm.common.general import (
     write,
     ensure_directory_exists,
     asdict_without_nones,
+    serialize_dates,
     parallel_map,
     singleton,
     unique_simplification,
@@ -45,7 +46,6 @@ from helm.benchmark.presentation.schema import (
     MetricNameMatcher,
     RunGroup,
     read_schema,
-    SCHEMA_YAML_FILENAME,
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
@@ -275,6 +275,7 @@ class Summarizer:
         release: Optional[str],
         suites: Optional[List[str]],
         suite: Optional[str],
+        schema_file: str,
         output_path: str,
         verbose: bool,
         num_threads: int,
@@ -293,6 +294,7 @@ class Summarizer:
         self.suites: List[str]
         self.run_suite_paths: List[str]
         self.suite: Optional[str] = None
+        self.schema_file = schema_file
         self.release: Optional[str] = None
         if suite:
             self.suite = suite
@@ -309,7 +311,7 @@ class Summarizer:
 
         ensure_directory_exists(self.run_release_path)
 
-        self.schema = read_schema()
+        self.schema = read_schema(schema_file)
         self.contamination = read_contamination()
         validate_contamination(self.contamination, self.schema)
 
@@ -339,7 +341,7 @@ class Summarizer:
                 if run_group_name not in self.schema.name_to_run_group:
                     hlog(
                         f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} "
-                        f"but undefined in {SCHEMA_YAML_FILENAME}, skipping"
+                        f"but undefined in {self.schema_file}, skipping"
                     )
                     continue
                 run_group = self.schema.name_to_run_group[run_group_name]
@@ -394,6 +396,13 @@ class Summarizer:
             for group_name in run.run_spec.groups:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
+
+    def write_schema(self):
+        """Write the schema file to benchmark_output so the frontend knows about it."""
+        write(
+            os.path.join(self.run_release_path, "schema.json"),
+            json.dumps(asdict_without_nones(self.schema), indent=2, default=serialize_dates),
+        )
 
     def read_runs(self):
         self.runs: List[Run] = []
@@ -549,7 +558,7 @@ class Summarizer:
         for metric_name, run_spec_names in metric_name_to_run_spec_names.items():
             if metric_name not in defined_metric_names:
                 hlog(
-                    f"WARNING: metric name {metric_name} undefined in {SCHEMA_YAML_FILENAME} "
+                    f"WARNING: metric name {metric_name} undefined in {self.schema_file} "
                     f"but appears in {len(run_spec_names)} run specs, including {run_spec_names[0]}"
                 )
 
@@ -651,7 +660,8 @@ class Summarizer:
             header = [
                 HeaderCell("Group"),
                 HeaderCell("Description"),
-                # Synchronize these names with `schema.yaml`
+                # Synchronize these names with the appropriate schema file
+                # TODO: different schema files might have different fields (for multimodal)
                 HeaderCell("Adaptation method", description="Adaptation strategy (e.g., generation)"),
                 HeaderCell("# instances", description="Number of instances evaluated on"),
                 HeaderCell("# references", description="Number of references provided per instance"),
@@ -822,7 +832,7 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_FILENAME}, skipping")
+                    hlog(f"WARNING: metric name {matcher.name} undefined in {self.schema_file}, skipping")
                     continue
                 metadata = {
                     "metric": header_field.get_short_display_name(),
@@ -1259,7 +1269,9 @@ class Summarizer:
         os.symlink(os.path.abspath(self.run_release_path), symlink_path)
 
     def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
-        """Run the entire summarization pipeline pipeline."""
+        """Run the entire summarization pipeline."""
+        self.write_schema()
+
         self.read_runs()
         self.group_runs()
         self.check_metrics_defined()
@@ -1289,6 +1301,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
+    )
+    parser.add_argument(
+        "--schema-file",
+        type=str,
+        help="File name of the schema to read (e.g., schema_classic.yaml).",
+        required=True,
     )
     parser.add_argument(
         "--suite",
@@ -1350,6 +1368,7 @@ def main():
         release=release,
         suites=suites,
         suite=suite,
+        schema_file=args.schema_file,
         output_path=args.output_path,
         verbose=args.debug,
         num_threads=args.num_threads,
