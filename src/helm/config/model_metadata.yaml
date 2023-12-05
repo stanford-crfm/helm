@@ -506,6 +506,14 @@ models:
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
     tags: [] # TODO: add tags
 
+  - name: google/text-bison@001
+    display_name: PaLM 2 (Bison)
+    description: TODO
+    creator_organization_name: Google
+    access: closed
+    release_date: 2023-03-01
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
 
 
   # HazyResearch

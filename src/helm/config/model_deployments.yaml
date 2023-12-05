@@ -366,6 +366,21 @@ model_deployments:
 
 
 
+  # Google
+
+  - name: google/text-bison@001
+    model_name: google/text-bison@001
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8192
+    client_spec:
+      class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palme_window_service.BisonWindowService"
+      args: {}
+
+
+
   # HuggingFace
 
   ## Bigcode
