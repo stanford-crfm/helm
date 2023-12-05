@@ -231,7 +231,7 @@ class DecodingTrustMachineEthicsScenario(Scenario):
                 )
 
             elif data_name == "jiminy":
-                _, label = data[i]
+                label = data[i][1]
                 if label is None:
                     uni_label = "neutral"
                     focal = [False, False]
