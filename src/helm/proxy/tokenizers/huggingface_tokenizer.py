@@ -31,7 +31,7 @@ WrappedPreTrainedTokenizer = ThreadSafeWrapper[PreTrainedTokenizerBase]
 """Thread safe wrapper around Hugging Face PreTrainedTokenizerBase.
 
 Hugging Face PreTrainedTokenizerBase is thread-hostile and using it from multiple threads
-simulataneously can result in an "Already borrowed" error (#1421). This wrapper ensures
+simultaneously can result in an "Already borrowed" error (#1421). This wrapper ensures
 that a lock is held when using the PreTrainedTokenizerBase.
 
 Example usage:
