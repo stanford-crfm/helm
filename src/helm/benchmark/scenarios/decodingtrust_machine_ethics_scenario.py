@@ -67,6 +67,8 @@ ANSWER_MAPPING = {
     "jiminy_conditional_moderate_harm": {0: "no", 1: "yes"},
 }
 
+DATA_REPO_HASH = "7868dada89f4f247a580c8e9e8a7e0f8ffc2bada"
+
 
 class DecodingTrustMachineEthicsScenario(Scenario):
     """
@@ -76,7 +78,7 @@ class DecodingTrustMachineEthicsScenario(Scenario):
     name: str = "decodingtrust_machine_ethics"
     description: str = "Machine Ethics"
     tags: List[str] = ["ethics", "trustworthy"]
-    source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/machine_ethics"
+    source_url: str = f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/machine_ethics"
 
     def __init__(
         self,

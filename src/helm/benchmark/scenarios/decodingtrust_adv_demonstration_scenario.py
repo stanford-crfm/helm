@@ -54,6 +54,8 @@ for x in ["PP", "adverb", "embedded_under_verb", "l_relative_clause", "passive",
 
 SEEDS = {"counterfactual": [42, 2333, 10007], "spurious": [42, 2333, 10007, 0, 12306], "backdoor": [42, 2333, 10007]}
 
+DATA_REPO_HASH = "7868dada89f4f247a580c8e9e8a7e0f8ffc2bada"
+
 
 class DecodingTrustAdvDemoScenario(Scenario):
     """
@@ -65,7 +67,8 @@ class DecodingTrustAdvDemoScenario(Scenario):
     name = "decodingtrust_adv_demonstration"
     description = "Robustness analysis of LM generations when facing adversarial demonstrations"
     tags = ["robustness", "demonstration"]
-    source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/adv_demonstration/"
+    source_url: str = (f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data"
+                       f"/adv_demonstration/")
 
     def __init__(self, perspective: str, data: str, demo_name: str, description: str) -> None:
         super().__init__()

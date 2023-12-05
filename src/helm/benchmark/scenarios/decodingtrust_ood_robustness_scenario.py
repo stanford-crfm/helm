@@ -38,6 +38,8 @@ DEMO = {
     "tweet_p0.6": ["base", "tweet_p0.6"],
 }
 
+DATA_REPO_HASH = "7868dada89f4f247a580c8e9e8a7e0f8ffc2bada"
+
 
 class DecodingTrustOODRobustnessScenario(Scenario):
     """
@@ -52,7 +54,7 @@ class DecodingTrustOODRobustnessScenario(Scenario):
     name: str = "decodingtrust_ood"
     description: str = "Out-of-distribution Robustness"
     tags: List[str] = ["robustness", "trustworthy"]
-    source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/ood/{}.json"
+    source_url: str = f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/ood/{{}}.json"
 
     def __init__(self, ood_type: str, task: str, demo_name: str, run_id: int, idk: bool) -> None:
         """

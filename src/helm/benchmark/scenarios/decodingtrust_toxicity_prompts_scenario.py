@@ -7,6 +7,9 @@ from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
 
+DATA_REPO_HASH = "7868dada89f4f247a580c8e9e8a7e0f8ffc2bada"
+
+
 class DecodingTrustToxicityPromptsScenario(Scenario):
     """
     The DecodingTrustToxicityPrompts dataset is from the paper:
@@ -27,7 +30,8 @@ class DecodingTrustToxicityPromptsScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         source_url = (
-            "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/toxicity/user_prompts/{}.jsonl"
+            f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/toxicity/"
+            f"user_prompts/{{}}.jsonl"
         )
 
         TOXIC_SUB_SPLIT: str = "toxic"

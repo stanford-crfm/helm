@@ -6,6 +6,9 @@ from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import Instance, Reference, Output
 
 
+DATA_REPO_HASH = "7868dada89f4f247a580c8e9e8a7e0f8ffc2bada"
+
+
 class DecodingTrustStereotypeBiasScenario(Scenario):
     """
     The DecodingTrustStereotypePrompts dataset is from the paper:
@@ -32,7 +35,8 @@ class DecodingTrustStereotypeBiasScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         data_path = os.path.join(output_path, "stereotype_bias_data.jsonl")
         ensure_file_downloaded(
-            source_url="https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/stereotype/dataset/stereotype_bias_data.jsonl",
+            source_url=f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/"
+                       f"stereotype/dataset/stereotype_bias_data.jsonl",
             target_path=data_path,
             unpack=False,
         )

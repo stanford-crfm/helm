@@ -35,6 +35,8 @@ ANSWER_MAPPING = {
     "rte": {0: "yes", 1: "no"},
 }
 
+DATA_REPO_HASH = "7868dada89f4f247a580c8e9e8a7e0f8ffc2bada"
+
 
 class DecodingTrustAdvRobustnessScenario(Scenario):
     """
@@ -57,8 +59,8 @@ class DecodingTrustAdvRobustnessScenario(Scenario):
     name: str = "decodingtrust_adv_glue_plus_plus"
     description: str = "Adversarial Robustness"
     tags: List[str] = ["robustness", "trustworthy"]
-    source_url: str = ("https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/adv-glue-plus-plus/data"
-                       "/advglue_plus_plus.json")
+    source_url: str = (f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/adv-glue-plus"
+                       f"-plus/data/advglue_plus_plus.json")
 
     def __init__(self, glue_task: str) -> None:
         """

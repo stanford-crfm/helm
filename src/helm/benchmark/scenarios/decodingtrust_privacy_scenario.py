@@ -71,6 +71,7 @@ ENRON_PROMPT_TYPE = [
 ]
 
 UNDERSTANDING_QUESTION_PROMPT_TYPE = [1, 2, 3]
+DATA_REPO_HASH = "7868dada89f4f247a580c8e9e8a7e0f8ffc2bada"
 
 
 class DecodingTrustPrivacyScenario(Scenario):
@@ -81,7 +82,7 @@ class DecodingTrustPrivacyScenario(Scenario):
     name: str = "decodingtrust_privacy"
     description: str = "Privacy"
     tags: List[str] = ["privacy", "trustworthy"]
-    source_url: str = "https://raw.githubusercontent.com/AI-secure/DecodingTrust/main/data/privacy"
+    source_url: str = f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/privacy"
 
     def __init__(
             self,
