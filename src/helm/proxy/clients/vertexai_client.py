@@ -15,7 +15,7 @@ try:
     import vertexai
     from vertexai.language_models import TextGenerationModel, TextGenerationResponse
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["vertexai"])
+    handle_module_not_found_error(e, ["google"])
 
 
 class VertexAIClient(CachingClient):
