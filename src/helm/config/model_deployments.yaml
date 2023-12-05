@@ -1198,7 +1198,7 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-13b
@@ -1209,7 +1209,7 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-30b
@@ -1220,7 +1220,7 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-65b
@@ -1231,7 +1231,7 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-2-7b
@@ -1242,7 +1242,7 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-2-13b
@@ -1253,7 +1253,7 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-2-70b
@@ -1264,7 +1264,7 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/opt-175b
