@@ -52,7 +52,8 @@ class TestHuggingFaceClient:
         prompt: str = "I am a computer scientist."
         result: RequestResult = self.client.make_request(
             Request(
-                model="huggingface/gpt2",
+                model="openai/gpt2",
+                model_deployment="huggingface/gpt2",
                 prompt=prompt,
                 num_completions=1,
                 max_tokens=0,
