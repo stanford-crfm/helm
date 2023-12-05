@@ -11,6 +11,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
 
+# TODO: change to `helm.benchmark.config`
 SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
 
 # TODO: add heim, vhelm, etc.
@@ -248,6 +249,7 @@ class Schema:
 
 
 def read_schema(filename: str) -> Schema:
+    # TODO: merge in model metadata from `model_metadata.yaml`
     schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(filename)
     hlog(f"Reading schema file {schema_path}...")
     with schema_path.open("r") as f:

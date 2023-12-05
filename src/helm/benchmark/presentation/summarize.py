@@ -46,6 +46,7 @@ from helm.benchmark.presentation.schema import (
     MetricNameMatcher,
     RunGroup,
     read_schema,
+    SCHEMA_CLASSIC_YAML_FILENAME,
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
@@ -1300,7 +1301,7 @@ def main():
         "--schema-file",
         type=str,
         help="File name of the schema to read (e.g., schema_classic.yaml).",
-        required=True,
+        default=SCHEMA_CLASSIC_YAML_FILENAME,
     )
     parser.add_argument(
         "--suite",

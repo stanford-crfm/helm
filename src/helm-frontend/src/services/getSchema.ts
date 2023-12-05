@@ -1,22 +1,16 @@
-import { parse } from "yaml";
-
 import type Schema from "@/types/Schema";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
-import getBenchmarkRelease from "@/utils/getBenchmarkRelease";
+import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
+
+export function getSchemaJsonUrl(): string {
+  return getBenchmarkEndpoint(`${getVersionBaseUrl()}/schema.json`);
+}
 
 export default async function getSchema(signal: AbortSignal): Promise<Schema> {
   try {
-    // TODO: this should not be hard-coded to the main website, want to be able
-    // to still run things locally.
-    const resp = await fetch(
-      `https://crfm.stanford.edu/helm/${
-        getBenchmarkRelease() || getBenchmarkSuite()
-      }/schema.json`,
-      { signal },
-    );
+    const resp = await fetch(getSchemaJsonUrl(), { signal });
     const data = await resp.text();
-    const schema = parse(data) as Schema;
-
+    const schema = JSON.parse(data) as Schema;
     return schema;
   } catch (error) {
     console.log(error);
