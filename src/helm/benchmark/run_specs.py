@@ -42,6 +42,11 @@ from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
+from .scenarios.legalbench_scenario import (
+    get_legalbench_instructions,
+    get_legalbench_max_train_instances,
+    get_legalbench_output_nouns,
+)
 from .scenarios.lextreme_scenario import (
     get_lextreme_instructions,
     get_lextreme_max_train_instances,
@@ -1772,6 +1777,29 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(["exact_match_indicator"]) + get_generative_harms_metric_specs(),
         groups=["dyck_language"],
+    )
+
+
+@run_spec_function("legalbench")
+def get_legalbench_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legalbench_scenario.LegalBenchScenario", args={"subset": subset}
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=get_legalbench_instructions(subset),
+        input_noun=None,
+        output_noun=get_legalbench_output_nouns(subset),
+        max_tokens=30,  # at most ~50 characters per label,
+        max_train_instances=get_legalbench_max_train_instances(subset),
+    )
+
+    return RunSpec(
+        name=f"legalbench:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
+        groups=["legalbench"],
     )
 
 
