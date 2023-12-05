@@ -1,12 +1,9 @@
-# mypy: check_untyped_defs = False
-import json
 import requests
-from typing import Any, Dict, List
+from typing import List
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token, ErrorFlags
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -16,16 +13,14 @@ from .client import CachingClient, truncate_sequence
 
 try:
     import vertexai
-    from vertexai.language_models import TextGenerationModel
+    from vertexai.language_models import TextGenerationModel, TextGenerationResponse
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["vertexai"])
-from toolbox.printing import debug, print_visible
 
 
 class VertexAIClient(CachingClient):
     def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, project_id: str, location: str) -> None:
         super().__init__(cache_config=cache_config)
-        print_visible(f"VertexAIClient: project_id = {project_id}")
         self.project_id = project_id
         self.location = location
         self.tokenizer = tokenizer
@@ -39,8 +34,13 @@ class VertexAIClient(CachingClient):
             "max_output_tokens": request.max_tokens,
             "top_k": request.top_k_per_token,
             "top_p": request.top_p,
-            # "stop_sequence": request.stop_sequences,
-            # "candidate_count": request.num_completions,
+            "stop_sequences": request.stop_sequences,
+            "candidate_count": request.num_completions,
+            # TODO #2084: Add support for these parameters.
+            # The parameters "echo", "frequency_penalty", and "presence_penalty" are supposed to be supported
+            # in an HTTP request (See https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text),
+            # but they are not supported in the Python SDK:
+            # https://github.com/googleapis/python-aiplatform/blob/beae48f63e40ea171c3f1625164569e7311b8e5a/vertexai/language_models/_language_models.py#L968C1-L980C1
             # "frequency_penalty": request.frequency_penalty,
             # "presence_penalty": request.presence_penalty,
             # "echo": request.echo_prompt,
@@ -54,17 +54,15 @@ class VertexAIClient(CachingClient):
             def do_it():
                 model = TextGenerationModel.from_pretrained(model_name)
                 response = model.predict(request.prompt, **parameters)
+                candidates: List[TextGenerationResponse] = response.candidates
                 response_dict = {
-                    "predictions": [{"text": completion.text for completion in response.candidates}],
+                    "predictions": [{"text": completion.text for completion in candidates}],
                 }  # TODO: Extract more information from the response
                 return response_dict
 
             # We need to include the engine's name to differentiate among requests made for different model
             # engines since the engine name is not included in the request itself.
-            # In addition, we want to make `request.num_completions` fresh
-            # requests, cache key should contain the completion_index.
-            # Echoing the original prompt is not officially supported by Writer. We instead prepend the
-            # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
+            # Same for the prompt.
             cache_key = CachingClient.make_cache_key(
                 {
                     "engine": request.model_engine,
@@ -82,12 +80,22 @@ class VertexAIClient(CachingClient):
         for prediction in response["predictions"]:
             response_text = prediction["text"]
 
+            # The Python SDK does not support echo
+            # TODO #2084: Add support for echo.
+            text: str = request.prompt + response_text if request.echo_prompt else response_text
+
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                # Writer uses the GPT-2 tokenizer
-                TokenizationRequest(request.prompt, tokenizer="huggingface/gpt2")
+                # We do not know the tokenizer name for the model, so we use google/t5-11b as a placeholder.
+                # See comment in model_deployments.yaml for more info.
+                TokenizationRequest(text, tokenizer="google/t5-11b")
             )
 
-            # Log probs are not currently not supported by the Writer, so set to 0 for now.
+            # TODO #2085: Add support for log probs.
+            # Once again, log probs seem to be supported by the API but not by the Python SDK.
+            # HTTP Response body reference:
+            # https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#response_body
+            # Python SDK reference:
+            # https://github.com/googleapis/python-aiplatform/blob/beae48f63e40ea171c3f1625164569e7311b8e5a/vertexai/language_models/_language_models.py#L868
             tokens: List[Token] = [
                 Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
             ]

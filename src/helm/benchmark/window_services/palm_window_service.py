@@ -10,6 +10,7 @@ class PaLM2WindowService(LocalWindowService):
     def tokenizer_name(self) -> str:
         """The tokenizer is most likely not correct but there is no official tokenizer.
         See comment in model_deployments.yaml for more info."""
+        # TODO #2083: Update this when the tokenizer is known.
         return "google/t5-11b"
 
     @property
@@ -22,11 +23,15 @@ class PaLM2WindowService(LocalWindowService):
 
     @property
     def end_of_text_token(self) -> str:
-        return super().end_of_text_token
+        # TODO #2083: Update this when the tokenizer is known.
+        # This is purely a guess based on T511bWindowService.
+        return "</s>"
 
     @property
     def prefix_token(self) -> str:
-        return super().prefix_token
+        # TODO #2083: Update this when the tokenizer is known.
+        # This is purely a guess based on T511bWindowService.
+        return ""
 
 
 class PaLM232KWindowService(PaLM2WindowService):
