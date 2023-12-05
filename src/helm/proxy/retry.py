@@ -41,11 +41,12 @@ def get_retry_decorator(
         Wait function to pass into `Retrying` that logs and returns the amount of time to sleep
         depending on the number of attempts and delay (in milliseconds).
         """
+        next_delay = _retrying.exponential_sleep(attempts, delay)
         hlog(
-            f"{operation} failed. Retrying (attempt #{attempts + 1}) in {delay // 1000} seconds... "
+            f"{operation} failed. Retrying (attempt #{attempts + 1}) in {next_delay // 1000} seconds... "
             "(See above for error details)"
         )
-        return _retrying.exponential_sleep(attempts, delay)
+        return next_delay
 
     def print_exception_and_traceback(exception: Exception) -> bool:
         """
