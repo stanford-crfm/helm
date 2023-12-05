@@ -107,7 +107,7 @@ The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the
 
 
 TOGETHER_SUPPORTS_ASYNC_REQUESTS = False
-"""Whether Together AI is currently supports asynchronous requests."""
+"""Whether Together AI currently supports asynchronous requests."""
 
 
 def _rewrite_raw_request_for_model_tags(raw_request: Dict[str, Any], model_engine: str) -> Dict[str, Any]:
