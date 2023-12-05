@@ -29,7 +29,7 @@ class HuggingFaceWindowService(LocalWindowService):
             pretrained_model_name_or_path=pretrained_model_name_or_path or tokenizer_name,
             revision=revision,
         ) as tokenizer:
-            self._max_sequence_length = max_sequence_length or tokenizer._model_max_length
+            self._max_sequence_length = max_sequence_length or tokenizer.model_max_length
             self._max_request_length = max_request_length or self._max_sequence_length
             self._end_of_text_token = end_of_text_token or tokenizer.eos_token or ""
             self._prefix_token = prefix_token or tokenizer.bos_token or ""
