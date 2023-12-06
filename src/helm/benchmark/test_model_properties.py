@@ -65,11 +65,12 @@ class TestModelProperties:
             client: Client = auto_client._get_client(deployment_name)  # noqa: F841
             window_service: WindowService = WindowServiceFactory.get_window_service(deployment_name, tokenizer_service)
             tokenizer: Tokenizer = auto_tokenizer._get_tokenizer(tokenizer_name)  # noqa: F841
+
             # Verify that the parameters that are redundant between the ModelDeployment, Tokenizer and the
             # WindowService are the same.
             assert window_service.tokenizer_name == deployment.tokenizer_name
             assert window_service.max_sequence_length == deployment.max_sequence_length
-            assert window_service.max_sequence_length == deployment.max_request_length
+            assert window_service.max_request_length == deployment.max_request_length
             assert (
                 window_service.max_sequence_and_generated_tokens_length
                 == deployment.max_sequence_and_generated_tokens_length
