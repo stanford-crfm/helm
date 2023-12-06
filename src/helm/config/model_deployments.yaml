@@ -381,7 +381,7 @@ model_deployments:
       args: {}
 
   - name: google/text-bison-32k
-    model_name: google/text-bison@001
+    model_name: google/text-bison-32k
     tokenizer_name: google/mt5-base
     max_sequence_length: 32000
     max_sequence_and_generated_tokens_length: 32000

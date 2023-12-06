@@ -150,6 +150,12 @@ _BUILT_IN_TOKENIZER_CONFIGS = [
         prefix_token="",
     ),
     TokenizerConfig(
+        name="google/mt5-base",
+        tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
+        end_of_text_token="</s>",
+        prefix_token="",
+    ),
+    TokenizerConfig(
         name="facebook/opt-66b",
         tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
         end_of_text_token="</s>",
@@ -786,6 +792,53 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=511,
     ),
     ModelDeployment(
+        name="google/text-bison@001",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
+        ),
+        max_sequence_length=8192,
+    ),
+    ModelDeployment(
+        name="google/text-bison-32k",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.PaLM232KWindowService"
+        ),
+        max_sequence_length=32000,
+        max_sequence_and_generated_tokens_length=32000,
+    ),
+    ModelDeployment(
+        name="google/text-unicorn@001",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
+        ),
+        max_sequence_length=8192,
+    ),
+    ModelDeployment(
+        name="google/code-bison@001",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.CodeBisonWindowService"
+        ),
+        max_sequence_length=6144,
+    ),
+    ModelDeployment(
+        name="google/code-bison-32k",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.PaLM232KWindowService"
+        ),
+        max_sequence_length=32000,
+        max_sequence_and_generated_tokens_length=32000,
+    ),
+    ModelDeployment(
         name="together/h3-2.7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="huggingface/gpt2",
@@ -1393,6 +1446,9 @@ register_helm_configurations()
 class TestModelProperties:
     @pytest.mark.parametrize("model", ALL_MODEL_DEPLOYMENTS)
     def test_models_has_window_service(self, model: ModelMetadata):
+        from toolbox.printing import debug
+
+        debug(model)
         auto_client = AutoClient(defaultdict(str), "", "")
         auto_tokenizer = AutoTokenizer(defaultdict(str), "", "")
         model_deployments = {
@@ -1462,4 +1518,4 @@ class TestModelProperties:
                 assert tokenizer_configs[tokenizer_name] == tokenizer_config
 
     def test_num_models_available(self):
-        assert len(ALL_MODEL_DEPLOYMENTS) == 119
+        assert len(ALL_MODEL_DEPLOYMENTS) == 124

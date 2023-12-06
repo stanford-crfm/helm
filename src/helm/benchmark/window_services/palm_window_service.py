@@ -11,7 +11,7 @@ class PaLM2WindowService(LocalWindowService):
         """The tokenizer is most likely not correct but there is no official tokenizer.
         See comment in model_deployments.yaml for more info."""
         # TODO #2083: Update this when the tokenizer is known.
-        return "google/t5-11b"
+        return "google/mt5-base"
 
     @property
     def max_sequence_length(self) -> int:
