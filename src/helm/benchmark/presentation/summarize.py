@@ -279,6 +279,7 @@ class Summarizer:
         output_path: str,
         verbose: bool,
         num_threads: int,
+        allow_unknown_models: bool,
     ):
         """
         A note on the relation between `release`, `suites`, and `suite`:
@@ -307,6 +308,7 @@ class Summarizer:
             self.run_suite_paths = [os.path.join(output_path, "runs", suite) for suite in suites]
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
+        self.allow_unknown_models: bool = allow_unknown_models
 
         ensure_directory_exists(self.run_release_path)
 
@@ -784,7 +786,6 @@ class Summarizer:
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
         add_win_rate: bool = False,
-        allow_unknown_models: bool = False,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -897,7 +898,7 @@ class Summarizer:
             try:
                 model_metadata: ModelMetadata = get_metadata_for_deployment(deployment)
             except ValueError as e:
-                if allow_unknown_models:
+                if self.allow_unknown_models:
                     model_metadata = get_default_model_metadata(deployment)
                 else:
                     raise e
@@ -1055,7 +1056,6 @@ class Summarizer:
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     link_to_runs=False,
                     add_win_rate=True,
-                    allow_unknown_models=group.allow_unknown_models,
                 )
                 tables.append(table)
         return tables
@@ -1087,7 +1087,6 @@ class Summarizer:
                         adapter_to_runs=adapter_to_runs,
                         columns=columns,
                         link_to_runs=True,
-                        allow_unknown_models=group.allow_unknown_models,
                     )
                     tables.append(table)
                     scenarios_shown += 1
@@ -1101,7 +1100,6 @@ class Summarizer:
                                 columns=columns,
                                 link_to_runs=False,
                                 sub_split=sub_split,
-                                allow_unknown_models=group.allow_unknown_models,
                             )
                             tables.append(table)
 
@@ -1121,7 +1119,6 @@ class Summarizer:
                         adapter_to_runs=adapter_to_runs,
                         columns=columns,
                         link_to_runs=False,
-                        allow_unknown_models=group.allow_unknown_models,
                     )
                     tables = [table] + tables
             all_tables.extend(tables)
@@ -1327,6 +1324,12 @@ def main():
         help="Number of instance ids we're using; only for annotating scenario spec instance ids file",
         default=1000,
     )
+    parser.add_argument(
+        "--allow-unknown-models",
+        type=bool,
+        help="Whether to allow unknown models in the metadata file",
+        default=True,
+    )
     args = parser.parse_args()
 
     release: Optional[str] = None
@@ -1360,6 +1363,7 @@ def main():
         output_path=args.output_path,
         verbose=args.debug,
         num_threads=args.num_threads,
+        allow_unknown_models=args.allow_unknown_models,
     )
     summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json, num_instances=args.num_instances)
     hlog("Done.")

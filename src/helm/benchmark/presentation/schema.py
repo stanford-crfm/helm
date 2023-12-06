@@ -214,11 +214,6 @@ class RunGroup(Field):
     # TODO: remove when we don't want helm-summarize to support runs before November 2023 anymore.
     adapter_keys_shown: List[str] = field(default_factory=lambda: ["model_deployment", "model"])
 
-    # Whether to accept non registered models or not.
-    # Used for huggingface models, a default ModelMetadata will be used when missing,
-    # Otherwise, if this is False, raises an error.
-    allow_unknown_models: bool = True
-
 
 @dataclass
 class Schema:
