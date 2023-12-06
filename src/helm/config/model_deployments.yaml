@@ -369,16 +369,9 @@ model_deployments:
   # Google
 
   ## PaLM 2
-  # TODO #2083: The tokenizer is most likely not correct but there is no official tokenizer
-  # for this model yet. The paper (See https://ai.google/static/documents/palm2techreport.pdf)
-  # mentions the mT5 tokenizer, but it is not clear if this is the same tokenizer
-  # that is used for the mT5 model.
-  # This question has been asked in the Google Cloud Community:
-  # https://www.googlecloudcommunity.com/gc/AI-ML/Tokenize-function-endpoint-for-PaLM-2-models/m-p/673933
-  # As of 2023-12-05, there is no answer yet.
   - name: google/text-bison@001
     model_name: google/text-bison@001
-    tokenizer_name: google/t5-11b
+    tokenizer_name: google/mt5-base
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
@@ -389,7 +382,7 @@ model_deployments:
 
   - name: google/text-bison-32k
     model_name: google/text-bison@001
-    tokenizer_name: google/t5-11b
+    tokenizer_name: google/mt5-base
     max_sequence_length: 32000
     max_sequence_and_generated_tokens_length: 32000
     client_spec:
@@ -401,7 +394,7 @@ model_deployments:
 
   - name: google/text-unicorn@001
     model_name: google/text-unicorn@001
-    tokenizer_name: google/t5-11b
+    tokenizer_name: google/mt5-base
     max_sequence_length: 8192
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
@@ -412,7 +405,7 @@ model_deployments:
 
   - name: google/code-bison@001
     model_name: google/code-bison@001
-    tokenizer_name: google/t5-11b
+    tokenizer_name: google/mt5-base
     max_sequence_length: 6144
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
@@ -423,7 +416,7 @@ model_deployments:
 
   - name: google/code-bison-32k
     model_name: google/code-bison-32k
-    tokenizer_name: google/t5-11b
+    tokenizer_name: google/mt5-base
     max_sequence_length: 32000
     max_sequence_and_generated_tokens_length: 32000
     client_spec:

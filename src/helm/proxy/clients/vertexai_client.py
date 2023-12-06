@@ -85,9 +85,7 @@ class VertexAIClient(CachingClient):
             text: str = request.prompt + response_text if request.echo_prompt else response_text
 
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                # We do not know the tokenizer name for the model, so we use google/t5-11b as a placeholder.
-                # See comment in model_deployments.yaml for more info.
-                TokenizationRequest(text, tokenizer="google/t5-11b")
+                TokenizationRequest(text, tokenizer="google/mt5-base")
             )
 
             # TODO #2085: Add support for log probs.
