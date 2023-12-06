@@ -22,7 +22,6 @@ from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
-from collections import defaultdict
 
 
 # HACK: This looks like it should be done in a setup_class()
@@ -38,10 +37,9 @@ INT_MAX: int = 2**31 - 1
 class TestModelProperties:
     @pytest.mark.parametrize("deployment_name", [deployment.name for deployment in ALL_MODEL_DEPLOYMENTS])
     def test_models_has_window_service(self, deployment_name: str):
-        auto_client = AutoClient(defaultdict(str), "", "")
-        auto_tokenizer = AutoTokenizer(defaultdict(str), "", "")
-
         with TemporaryDirectory() as tmpdir:
+            auto_client = AutoClient({}, tmpdir, "")
+            auto_tokenizer = AutoTokenizer({}, tmpdir, "")
             tokenizer_service = get_tokenizer_service(tmpdir)
 
             # Loading the TokenizerConfig and ModelMetadat ensures that they are valid.
