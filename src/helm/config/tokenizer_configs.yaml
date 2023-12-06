@@ -115,7 +115,7 @@ tokenizer_configs:
     prefix_token: ""
 
   # Hf-internal-testing
-  
+
   # Tokenizer name hf-internal-testing/llama-tokenizer is taken from:
   # https://huggingface.co/docs/transformers/main/en/model_doc/llama#transformers.LlamaTokenizerFast.example
   - name: hf-internal-testing/llama-tokenizer
@@ -161,7 +161,7 @@ tokenizer_configs:
     prefix_token: "<|endoftext|>"
 
   # Meta-llama
-  
+
   # To use the Llama-2 tokenizer:
     #
     # 1. Accept the license agreement: https://ai.meta.com/resources/models-and-libraries/llama-downloads/
