@@ -276,8 +276,12 @@ class AnthropicRunExpander(RunExpander):
                 name=run_spec.name,
                 adapter_spec=replace(
                     run_spec.adapter_spec,
-                    global_prefix=anthropic.HUMAN_PROMPT + " Here are some in-context input-output examples. Read the examples carefully to figure out the mapping. The output of the last example is not given, and your job is to figure out what it is.\n\n",
-                    global_suffix="\n\nPlease provide the output to this last example.  Please follow the format of the preceding outputs!" + anthropic.AI_PROMPT + " " + run_spec.adapter_spec.output_prefix.strip(),
+                    global_prefix=anthropic.HUMAN_PROMPT
+                    + " Here are some in-context input-output examples. Read the examples carefully to figure out the mapping. The output of the last example is not given, and your job is to figure out what it is.\n\n",
+                    global_suffix="\n\nPlease provide the output to this last example.  Please follow the format of the preceding outputs!"
+                    + anthropic.AI_PROMPT
+                    + " "
+                    + run_spec.adapter_spec.output_prefix.strip(),
                 ),
             ),
         ]
