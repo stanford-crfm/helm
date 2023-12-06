@@ -125,7 +125,7 @@ def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:
         "together",
     ]:
         return token.replace("▁", " ")
-    elif tokenizer_name is not None and tokenizer_name.startswith("huggingface"):
+    elif tokenizer_name is not None and (tokenizer_name.startswith("huggingface") or tokenizer_name.endswith("gpt2")):
         return token.replace("Ġ", " ")
     return token
 
