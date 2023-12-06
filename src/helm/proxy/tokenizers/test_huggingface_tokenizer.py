@@ -1,9 +1,10 @@
 import os
+import pytest
 import tempfile
 from typing import Optional
 
 from helm.common.cache import SqliteCacheConfig
-from helm.common.general import singleton
+from helm.common.general import parallel_map, singleton
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -58,6 +59,24 @@ class TestHuggingFaceGPT2Tokenizer:
         result = self.tokenizer.decode(request)
         assert result.cached, "Result should be cached"
         assert result.text == "I am a computer scientist."
+
+    def test_already_borrowed(self):
+        """Demonstrates the "Already borrowed" bug (#1421) caused by the thread-hostile Hugging Face tokenizer"""
+
+        def make_tokenize_request(seed: int) -> None:
+            request_length = 100
+            truncation = bool(seed % 2)
+            self.tokenizer.tokenize(
+                # The truncation parameter requires setting a flag on the Rust FastTokenizer.
+                # Concurrent requests cause concurrent mutations, which results an Rust concurrency error.
+                TokenizationRequest(
+                    text=str(seed) * request_length, tokenizer="huggingface/gpt2", encode=True, truncation=truncation
+                )
+            )
+
+        with pytest.raises(ValueError, match="Already borrowed"):
+            num_requests = 1000
+            parallel_map(make_tokenize_request, list(range(num_requests)), parallelism=8)
 
 
 class TestHuggingFaceTokenizer:

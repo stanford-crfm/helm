@@ -78,6 +78,8 @@ class AutoClient(Client):
                         host_organization + "OrgId", None
                     ),  # OpenAI, GooseAI, Microsoft
                     "lock_file_path": lambda: os.path.join(self.cache_path, f"{host_organization}.lock"),  # Microsoft
+                    "project_id": lambda: self.credentials.get(host_organization + "ProjectId", None),  # VertexAI
+                    "location": lambda: self.credentials.get(host_organization + "Location", None),  # VertexAI
                 },
             )
             client = create_object(client_spec)

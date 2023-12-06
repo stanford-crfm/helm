@@ -8,6 +8,10 @@ function versionBaseUrl() {
   }
 }
 
+function schemaJsonUrl() {
+  return `${versionBaseUrl()}/schema.json`;
+}
+
 function summaryJsonUrl() {
   return `${versionBaseUrl()}/summary.json`;
 }
