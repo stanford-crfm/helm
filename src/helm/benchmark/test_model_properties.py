@@ -1446,9 +1446,6 @@ register_helm_configurations()
 class TestModelProperties:
     @pytest.mark.parametrize("model", ALL_MODEL_DEPLOYMENTS)
     def test_models_has_window_service(self, model: ModelMetadata):
-        from toolbox.printing import debug
-
-        debug(model)
         auto_client = AutoClient(defaultdict(str), "", "")
         auto_tokenizer = AutoTokenizer(defaultdict(str), "", "")
         model_deployments = {
