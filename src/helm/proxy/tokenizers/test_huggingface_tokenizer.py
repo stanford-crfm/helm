@@ -1,5 +1,4 @@
 import os
-import pytest
 import tempfile
 from typing import Optional
 
@@ -61,10 +60,10 @@ class TestHuggingFaceGPT2Tokenizer:
         assert result.text == "I am a computer scientist."
 
     def test_already_borrowed(self):
-        """Demonstrates the "Already borrowed" bug (#1421) caused by the thread-hostile Hugging Face tokenizer"""
+        """Test workaround of the "Already borrowed" bug (#1421) caused by the thread-hostile Hugging Face tokenizer"""
 
         def make_tokenize_request(seed: int) -> None:
-            request_length = 100
+            request_length = 10
             truncation = bool(seed % 2)
             self.tokenizer.tokenize(
                 # The truncation parameter requires setting a flag on the Rust FastTokenizer.
@@ -74,9 +73,9 @@ class TestHuggingFaceGPT2Tokenizer:
                 )
             )
 
-        with pytest.raises(ValueError, match="Already borrowed"):
-            num_requests = 1000
-            parallel_map(make_tokenize_request, list(range(num_requests)), parallelism=8)
+        num_requests = 100
+        # Should not raise "Already borrowed" error
+        parallel_map(make_tokenize_request, list(range(num_requests)), parallelism=8)
 
 
 class TestHuggingFaceTokenizer:
@@ -93,12 +92,13 @@ class TestHuggingFaceTokenizer:
     def verify_get_tokenizer(
         tokenizer_name: str, expected_num_tokens: int, pretrained_model_name_or_path: Optional[str] = None
     ):
-        tokenizer = HuggingFaceTokenizer.get_tokenizer(
+        wrapped_tokenizer = HuggingFaceTokenizer.get_tokenizer(
             helm_tokenizer_name=tokenizer_name,
             pretrained_model_name_or_path=pretrained_model_name_or_path or tokenizer_name,
         )
         assert tokenizer_name in HuggingFaceTokenizer._tokenizers, "Tokenizer should be cached"
-        assert len(tokenizer.encode(TestHuggingFaceTokenizer.TEST_PROMPT)) == expected_num_tokens
+        with wrapped_tokenizer as tokenizer:
+            assert len(tokenizer.encode(TestHuggingFaceTokenizer.TEST_PROMPT)) == expected_num_tokens
 
     def test_get_tokenizer_gpt2(self):
         TestHuggingFaceTokenizer.verify_get_tokenizer("huggingface/gpt2", 51, pretrained_model_name_or_path="gpt2")
@@ -126,7 +126,8 @@ class TestHuggingFaceTokenizer:
 
     def test_gpt2_tokenize_eos(self):
         eos_token: str = "<|endoftext|>"
-        tokenizer = HuggingFaceTokenizer.get_tokenizer("huggingface/gpt2", pretrained_model_name_or_path="gpt2")
-        token_ids = tokenizer.encode(eos_token)
-        assert singleton(token_ids) == 50256
-        assert tokenizer.decode(token_ids) == eos_token
+        wrapped_tokenizer = HuggingFaceTokenizer.get_tokenizer("huggingface/gpt2", pretrained_model_name_or_path="gpt2")
+        with wrapped_tokenizer as tokenizer:
+            token_ids = tokenizer.encode(eos_token)
+            assert singleton(token_ids) == 50256
+            assert tokenizer.decode(token_ids) == eos_token

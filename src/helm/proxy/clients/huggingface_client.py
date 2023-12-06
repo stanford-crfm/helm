@@ -1,6 +1,6 @@
 from copy import deepcopy
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM
 from transformers.generation.stopping_criteria import (
     StoppingCriteria,
     StoppingCriteriaList,
@@ -18,7 +18,7 @@ from helm.common.request import (
     Token,
 )
 from .client import CachingClient, truncate_sequence
-from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, resolve_alias
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer, resolve_alias
 from threading import Lock
 
 
@@ -54,14 +54,15 @@ class HuggingFaceServer:
                 pretrained_model_name_or_path, trust_remote_code=True, **model_kwargs
             ).to(self.device)
         with htrack_block(f"Loading Hugging Face tokenizer for model {pretrained_model_name_or_path}"):
-            self.tokenizer: AutoTokenizer = HuggingFaceTokenizer.create_tokenizer(
+            self.wrapped_tokenizer: WrappedPreTrainedTokenizer = HuggingFaceTokenizer.create_tokenizer(
                 pretrained_model_name_or_path, revision
             )
 
     def serve_request(self, raw_request: Dict[str, Any]):
-        encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
-            self.device
-        )
+        with self.wrapped_tokenizer as tokenizer:
+            encoded_input = tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
+                self.device
+            )
         raw_request = deepcopy(raw_request)
         raw_request["do_sample"] = True
         raw_request["return_dict_in_generate"] = True
@@ -70,9 +71,10 @@ class HuggingFaceServer:
         del raw_request["top_k_per_token"]
         stopping_criteria: Optional[StoppingCriteriaList] = None
         if len(raw_request["stop_sequences"]) > 0:
-            stop_sequence_ids = self.tokenizer(
-                raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
-            )
+            with self.wrapped_tokenizer as tokenizer:
+                stop_sequence_ids = tokenizer(
+                    raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
+                )
             if len(stop_sequence_ids.input_ids) == 1 and len(stop_sequence_ids.input_ids[0]) == 1:
                 raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
             else:
@@ -122,12 +124,13 @@ class HuggingFaceServer:
                 for i in range(len(sequences[completion_id]) - 1):
                     logprobs = torch.nn.functional.log_softmax(scores[completion_id][i], dim=0)
                     topk_logprobs = torch.topk(logprobs, k=top_k_per_token)
-                    prompt_tokens_top_logprobs_dicts.append(
-                        {
-                            self.tokenizer.convert_ids_to_tokens(k.item()): v.item()
-                            for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)
-                        }
-                    )
+                    with self.wrapped_tokenizer as tokenizer:
+                        prompt_tokens_top_logprobs_dicts.append(
+                            {
+                                tokenizer.convert_ids_to_tokens(k.item()): v.item()
+                                for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)
+                            }
+                        )
                     prompt_tokens_logprobs.append(logprobs[sequences[completion_id][i + 1]].item())
 
         # Compute logprobs of generated tokens for each completed sequence.
@@ -140,12 +143,14 @@ class HuggingFaceServer:
                 logprobs = torch.nn.functional.log_softmax(scores[i][completion_id], dim=0)
                 # Get top tokens in terms of log probability.
                 topk_logprobs = torch.topk(logprobs, k=top_k_per_token)
-                generated_tokens_top_logprobs_dicts.append(
-                    {
-                        self.tokenizer.convert_ids_to_tokens(k.item()): v.item()
-                        for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)
-                    }
-                )
+                with self.wrapped_tokenizer as tokenizer:
+                    generated_tokens_top_logprobs_dicts.append(
+                        {
+                            tokenizer.convert_ids_to_tokens(k.item()): v.item()
+                            for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)
+                        }
+                    )
+                # Get log probability of chosen token.
                 j = i + len(encoded_input.input_ids[0])
                 generated_tokens_logprobs.append(logprobs[sequences[completion_id][j]].item())
             all_generated_tokens_logprobs.append(generated_tokens_logprobs)
@@ -155,8 +160,9 @@ class HuggingFaceServer:
         if not raw_request["echo_prompt"]:
             sequences = [sequence[len(encoded_input.input_ids[0]) :] for sequence in sequences]
 
-        all_tokens = [[self.tokenizer.decode(token) for token in sequence_tokens] for sequence_tokens in sequences]
-        all_decoded_text = self.tokenizer.batch_decode(sequences)
+        with self.wrapped_tokenizer as tokenizer:
+            all_tokens = [[tokenizer.decode(token) for token in sequence_tokens] for sequence_tokens in sequences]
+            all_decoded_text = tokenizer.batch_decode(sequences)
 
         completions = []
         for decoded_text, tokens, generated_tokens_logprobs, generated_tokens_top_logprobs_dicts in zip(
