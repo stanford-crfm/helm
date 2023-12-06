@@ -1177,7 +1177,7 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/vicuna-13b-v1.3
@@ -1188,85 +1188,85 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   ## Meta
   - name: together/llama-7b
     model_name: meta/llama-7b
     tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2048
+    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-13b
     model_name: meta/llama-13b
     tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2048
+    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-30b
     model_name: meta/llama-30b
     tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2048
+    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-65b
     model_name: meta/llama-65b
     tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2048
+    max_sequence_length: 2047  # Subtract 1 tokens to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-2-7b
     model_name: meta/llama-2-7b
     tokenizer_name: meta-llama/Llama-2-7b-hf
-    max_sequence_length: 4096
+    max_sequence_length: 4094  # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-2-13b
     model_name: meta/llama-2-13b
     tokenizer_name: meta-llama/Llama-2-7b-hf
-    max_sequence_length: 4096
+    max_sequence_length: 4094  # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/llama-2-70b
     model_name: meta/llama-2-70b
     tokenizer_name: meta-llama/Llama-2-7b-hf
-    max_sequence_length: 4096
+    max_sequence_length: 4094  # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   - name: together/opt-175b
@@ -1325,7 +1325,7 @@ model_deployments:
   - name: together/mistral-7b-v0.1
     model_name: mistralai/mistral-7b-v0.1
     tokenizer_name: mistralai/Mistral-7B-v0.1
-    max_sequence_length: 4095
+    max_sequence_length: 4095  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
@@ -1420,14 +1420,14 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   ## Tiiuae
   - name: together/falcon-7b
     model_name: tiiuae/falcon-7b
     tokenizer_name: tiiuae/falcon-7b
-    max_sequence_length: 2048
+    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
@@ -1438,7 +1438,7 @@ model_deployments:
   - name: together/falcon-7b-instruct
     model_name: tiiuae/falcon-7b-instruct
     tokenizer_name: tiiuae/falcon-7b
-    max_sequence_length: 2048
+    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
@@ -1449,7 +1449,7 @@ model_deployments:
   - name: together/falcon-40b
     model_name: tiiuae/falcon-40b
     tokenizer_name: tiiuae/falcon-7b
-    max_sequence_length: 2048
+    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
@@ -1460,7 +1460,7 @@ model_deployments:
   - name: together/falcon-40b-instruct
     model_name: tiiuae/falcon-40b-instruct
     tokenizer_name: tiiuae/falcon-7b
-    max_sequence_length: 2048
+    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
       args: {}
