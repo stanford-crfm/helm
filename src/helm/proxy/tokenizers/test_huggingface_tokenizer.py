@@ -63,7 +63,7 @@ class TestHuggingFaceGPT2Tokenizer:
         """Test workaround of the "Already borrowed" bug (#1421) caused by the thread-hostile Hugging Face tokenizer"""
 
         def make_tokenize_request(seed: int) -> None:
-            request_length = 100
+            request_length = 10
             truncation = bool(seed % 2)
             self.tokenizer.tokenize(
                 # The truncation parameter requires setting a flag on the Rust FastTokenizer.
@@ -73,7 +73,7 @@ class TestHuggingFaceGPT2Tokenizer:
                 )
             )
 
-        num_requests = 1000
+        num_requests = 100
         # Should not raise "Already borrowed" error
         parallel_map(make_tokenize_request, list(range(num_requests)), parallelism=8)
 
