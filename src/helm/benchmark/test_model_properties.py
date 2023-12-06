@@ -536,70 +536,70 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=2048,
+        max_sequence_length=2047,
     ),
     ModelDeployment(
         name="together/llama-13b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=2048,
+        max_sequence_length=2047,
     ),
     ModelDeployment(
         name="together/llama-30b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=2048,
+        max_sequence_length=2047,
     ),
     ModelDeployment(
         name="together/llama-65b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=2048,
+        max_sequence_length=2047,
     ),
     ModelDeployment(
         name="together/llama-2-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="meta-llama/Llama-2-7b-hf",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=4096,
+        max_sequence_length=4094,
     ),
     ModelDeployment(
         name="together/llama-2-13b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="meta-llama/Llama-2-7b-hf",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=4096,
+        max_sequence_length=4094,
     ),
     ModelDeployment(
         name="together/llama-2-70b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="meta-llama/Llama-2-7b-hf",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.Llama2WindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=4096,
+        max_sequence_length=4094,
     ),
     ModelDeployment(
         name="together/alpaca-7b",
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -608,7 +608,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -617,7 +617,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.llama_window_service.LlamaWindowService"
+            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -677,7 +677,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=2048,
+        max_sequence_length=2047,
     ),
     ModelDeployment(
         name="together/falcon-7b-instruct",
@@ -686,7 +686,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=2048,
+        max_sequence_length=2047,
     ),
     ModelDeployment(
         name="together/falcon-40b",
@@ -695,7 +695,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=2048,
+        max_sequence_length=2047,
     ),
     ModelDeployment(
         name="together/falcon-40b-instruct",
@@ -704,7 +704,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
         ),
-        max_sequence_length=2048,
+        max_sequence_length=2047,
     ),
     ModelDeployment(
         name="gooseai/gpt-neo-20b",
