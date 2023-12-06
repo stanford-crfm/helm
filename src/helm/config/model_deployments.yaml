@@ -1642,3 +1642,39 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
       args: {}
+
+  - name: writer/palmyra-x-v2
+    model_name: writer/palmyra-x-v2
+    tokenizer_name: writer/gpt2
+    max_sequence_length: 8192
+    max_sequence_and_generated_tokens_length: 8192
+    client_spec:
+      class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
+      args: {}
+
+  - name: writer/palmyra-x-v3
+    model_name: writer/palmyra-x-v3
+    tokenizer_name: writer/gpt2
+    max_sequence_length: 8192
+    max_sequence_and_generated_tokens_length: 8192
+    client_spec:
+      class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
+      args: {}
+
+  - name: writer/palmyra-x-32k
+    model_name: writer/palmyra-x-32k
+    tokenizer_name: writer/gpt2
+    max_sequence_length: 32000
+    max_sequence_and_generated_tokens_length: 32000
+    client_spec:
+      class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.palmyra_window_service.Palmyra32KWindowService"
+      args: {}
