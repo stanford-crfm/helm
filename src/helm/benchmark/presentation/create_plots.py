@@ -12,7 +12,7 @@ from scipy.stats import pearsonr
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.benchmark.presentation.schema import read_schema
+from helm.benchmark.presentation.schema import read_schema, SCHEMA_CLASSIC_YAML_FILENAME
 from helm.benchmark.presentation.summarize import AGGREGATE_WIN_RATE_COLUMN
 
 try:
@@ -133,7 +133,7 @@ class Plotter:
         self.plot_format = plot_format
         self._tables_cache: Dict[str, Dict[str, Table]] = {}
 
-        schema = read_schema()
+        schema = read_schema(SCHEMA_CLASSIC_YAML_FILENAME)
         self.model_metadata = {model_field.display_name: model_field for model_field in schema.models}
 
     def get_group_tables(self, group_name: str) -> Dict[str, Table]:
