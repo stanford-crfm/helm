@@ -34,8 +34,16 @@ def serve_config():
 
 
 # Shim for running helm-server for old suites from old version of helm-summarize
-# that do not contain schema.json
-# TODO(2023-05-01): Remove this.
+# that do not contain schema.json.
+#
+# The HELM web frontend expects to find a schema.json at /benchmark_output/runs/<version>/schema.json
+# which is produced by the new version of helm-summarize but not the old version.
+# When serving a suite produced by the old version of helm-summarize, the schena.json will be missing.
+# This shim supports those suites by serving a schena.json that is dynamically computed from schema_classic.yaml
+#
+# We will remove this in a few months after most users have moved to the new version of helm-summarize.
+#
+# TODO(2023-03-01): Remove this.
 @app.get("/benchmark_output/runs/<version>/schema.json")
 def server_schema(version):
     relative_schema_path = path.join("runs", version, "schema.json")
