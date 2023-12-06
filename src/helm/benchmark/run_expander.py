@@ -255,6 +255,36 @@ class GlobalPrefixRunExpander(RunExpander):
         ]
 
 
+class AnthropicRunExpander(RunExpander):
+    """Customize prompt for Claude models."""
+
+    name = "anthropic"
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        try:
+            import anthropic
+            from helm.proxy.clients.anthropic_client import AnthropicClient
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["anthropic"])
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    #global_prefix=anthropic.HUMAN_PROMPT + " Here are some in-context input-output examples. Read the examples carefully to figure out the mapping. The last [output] is not given.  Your job is to figure out what [output] is.  Pay close attention to the formatting given by previous outputs.\n\n",
+                    #global_suffix=" [output]" + anthropic.AI_PROMPT + " [output] is",
+                    input_prefix=anthropic.HUMAN_PROMPT + " ",
+                    output_prefix=anthropic.AI_PROMPT + " ",
+                ),
+            ),
+        ]
+
+
 class FormatPromptRunExpander(RunExpander):
     """Adds a prefix and suffix to the prompt."""
 

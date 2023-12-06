@@ -1242,6 +1242,18 @@ model_deployments:
       class_name: "helm.benchmark.window_services.opt_window_service.OPTWindowService"
       args: {}
 
+  # 01.AI
+  - name: together/yi-34b
+    model_name: 01ai/yi-34b
+    tokenizer_name: 01-ai/Yi-34B
+    max_sequence_length: 4095
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
   ## MistralAI
   - name: together/mistral-7b-v0.1
     model_name: mistralai/mistral-7b-v0.1

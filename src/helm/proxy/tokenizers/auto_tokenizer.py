@@ -49,6 +49,8 @@ class AutoTokenizer(Tokenizer):
                 },
             )
             tokenizer = create_object(tokenizer_spec)
+        else:
+            hlog(f"No tokenizer config for {tokenizer_name}")
 
         # Cache the tokenizer
         assert isinstance(tokenizer, Tokenizer)  # To make mypy happy

@@ -23,6 +23,7 @@ from .run_expander import (
     RUN_EXPANDERS,
     RunExpander,
     GlobalPrefixRunExpander,
+    AnthropicRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
     AddToStopRunExpander,
@@ -2722,35 +2723,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
 
         # Special handling for Anthropic Claude
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
-            try:
-                import anthropic
-                from helm.proxy.clients.anthropic_client import AnthropicClient
-            except ModuleNotFoundError as e:
-                handle_module_not_found_error(e, ["anthropic"])
-            claude_run_expanders: List[RunExpander] = []
-            claude_run_expanders.append(AddToStopRunExpander(anthropic.HUMAN_PROMPT))
-            if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags:
-                claude_run_expanders.append(IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS))
-            # Get scenario tags
-            components = run_spec.scenario_spec.class_name.split(".")
-            class_name = components[-1]
-            module_name = ".".join(components[:-1])
-            cls = getattr(importlib.import_module(module_name), class_name)
-            scenario_tags: List[str] = cls.tags
-            # If the scenario is instruction, do not use PROMPT_ANSWER_START
-            if "instructions" in scenario_tags:
-                claude_run_expanders.append(
-                    FormatPromptRunExpander(prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}")
-                )
-            else:
-                claude_run_expanders.append(
-                    FormatPromptRunExpander(
-                        prefix=f"{anthropic.HUMAN_PROMPT} ",
-                        suffix=f"{anthropic.AI_PROMPT} ",
-                    )
-                )
-            for claude_run_expander in claude_run_expanders:
-                run_spec = singleton(claude_run_expander.expand(run_spec))
+            run_spec = singleton(AnthropicRunExpander().expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
