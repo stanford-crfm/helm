@@ -1,5 +1,4 @@
 import os
-import pytest
 import tempfile
 from typing import Optional
 
@@ -61,7 +60,7 @@ class TestHuggingFaceGPT2Tokenizer:
         assert result.text == "I am a computer scientist."
 
     def test_already_borrowed(self):
-        """Demonstrates the "Already borrowed" bug (#1421) caused by the thread-hostile Hugging Face tokenizer"""
+        """Test workaround of the "Already borrowed" bug (#1421) caused by the thread-hostile Hugging Face tokenizer"""
 
         def make_tokenize_request(seed: int) -> None:
             request_length = 100
@@ -74,9 +73,9 @@ class TestHuggingFaceGPT2Tokenizer:
                 )
             )
 
-        with pytest.raises(ValueError, match="Already borrowed"):
-            num_requests = 1000
-            parallel_map(make_tokenize_request, list(range(num_requests)), parallelism=8)
+        num_requests = 1000
+        # Should not raise "Already borrowed" error
+        parallel_map(make_tokenize_request, list(range(num_requests)), parallelism=8)
 
 
 class TestHuggingFaceTokenizer:
