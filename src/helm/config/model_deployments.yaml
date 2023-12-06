@@ -1654,7 +1654,7 @@ model_deployments:
       class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
+      class_name: "helm.benchmark.window_services.palmyra_window_service.Palmyra6KWindowService"
       args: {}
 
   - name: writer/palmyra-x-v3
@@ -1666,7 +1666,7 @@ model_deployments:
       class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
       args: {}
     window_service_spec:
-      class_name: "helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
+      class_name: "helm.benchmark.window_services.palmyra_window_service.Palmyra6KWindowService"
       args: {}
 
   - name: writer/palmyra-x-32k
