@@ -24,6 +24,12 @@ from collections import defaultdict
 
 _BUILT_IN_TOKENIZER_CONFIGS = [
     TokenizerConfig(
+        name="simple/model1",
+        tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.simple_tokenizer.SimpleTokenizer"),
+        end_of_text_token="</s>",
+        prefix_token="<s>",
+    ),
+    TokenizerConfig(
         name="neurips/local",
         tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.http_model_tokenizer.HTTPModelTokenizer"),
         end_of_text_token="<|endoftext|>",
@@ -58,6 +64,18 @@ _BUILT_IN_TOKENIZER_CONFIGS = [
         tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
         end_of_text_token="<|endoftext|>",
         prefix_token="<|endoftext|>",
+    ),
+    TokenizerConfig(
+        name="microsoft/gpt2",
+        tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
+        end_of_text_token="<|endoftext|>",
+        prefix_token="<<",
+    ),
+    TokenizerConfig(
+        name="writer/gpt2",
+        tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
+        end_of_text_token="",
+        prefix_token="",
     ),
     TokenizerConfig(
         name="anthropic/claude",
@@ -891,7 +909,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="microsoft/TNLGv2_530B",
         client_spec=ClientSpec(class_name="helm.proxy.clients.microsoft_client.MicrosoftClient"),
-        tokenizer_name="huggingface/gpt2",
+        tokenizer_name="microsoft/gpt2",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.mt_nlg_window_service.MTNLGWindowService"
         ),
@@ -901,7 +919,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="microsoft/TNLGv2_7B",
         client_spec=ClientSpec(class_name="helm.proxy.clients.microsoft_client.MicrosoftClient"),
-        tokenizer_name="huggingface/gpt2",
+        tokenizer_name="microsoft/gpt2",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.mt_nlg_window_service.MTNLGWindowService"
         ),
@@ -1241,7 +1259,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="writer/palmyra-base",
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
-        tokenizer_name="huggingface/gpt2",
+        tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
         ),
@@ -1251,7 +1269,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="writer/palmyra-large",
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
-        tokenizer_name="huggingface/gpt2",
+        tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
         ),
@@ -1261,7 +1279,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="writer/palmyra-instruct-30",
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
-        tokenizer_name="huggingface/gpt2",
+        tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
         ),
@@ -1271,7 +1289,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="writer/palmyra-e",
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
-        tokenizer_name="huggingface/gpt2",
+        tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
         ),
@@ -1281,7 +1299,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="writer/silk-road",
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
-        tokenizer_name="huggingface/gpt2",
+        tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
         ),
@@ -1291,7 +1309,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="writer/palmyra-x",
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
-        tokenizer_name="huggingface/gpt2",
+        tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
         ),
@@ -1418,12 +1436,11 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="simple/model1",
         client_spec=ClientSpec(class_name="helm.proxy.clients.simple_client.SimpleClient"),
-        tokenizer_name="huggingface/gpt2",
+        tokenizer_name="simple/model1",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.simple_window_service.SimpleWindowService"
         ),
         max_sequence_length=2048,
-        max_request_length=2049,
     ),
 ]
 

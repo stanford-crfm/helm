@@ -16,6 +16,10 @@ _MODEL_NAME_ALIASES: Dict[str, str] = {
     "huggingface/gpt2": "gpt2",
     "huggingface/santacoder": "bigcode/santacoder",
     "huggingface/starcoder": "bigcode/starcoder",
+    "writer/gpt2": "gpt2",  # Palmyra models do not support echo
+    # So they have a different TokenizerConfig called "writer/gpt2"
+    # when in reality they use the same tokenizer as "huggingface/gpt2"
+    "microsoft/gpt2": "gpt2",  # Same as above
 }
 """Mapping of some HELM model names to Hugging Face pretrained model name."""
 
