@@ -351,6 +351,16 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_and_generated_tokens_length=9016,
     ),
     ModelDeployment(
+        name="anthropic/claude-2.1",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.anthropic_client.AnthropicClient"),
+        tokenizer_name="anthropic/claude",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+        ),
+        max_sequence_length=8000,
+        max_sequence_and_generated_tokens_length=9016,
+    ),
+    ModelDeployment(
         name="anthropic/claude-v1.3",
         client_spec=ClientSpec(class_name="helm.proxy.clients.anthropic_client.AnthropicClient"),
         tokenizer_name="anthropic/claude",
