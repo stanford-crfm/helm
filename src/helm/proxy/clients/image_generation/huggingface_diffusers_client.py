@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
@@ -19,15 +19,9 @@ from helm.common.tokenization_request import (
 from helm.proxy.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
 
-try:
-    from diffusers import DiffusionPipeline
-    from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["heim"])
-
 
 _models_lock: Lock = Lock()
-_models: Dict[str, DiffusionPipeline] = {}
+_models: Dict[str, Any] = {}
 
 
 class HuggingFaceDiffusersClient(Client):
@@ -39,11 +33,16 @@ class HuggingFaceDiffusersClient(Client):
         self._promptist_model = None
         self._promptist_tokenizer = None
 
-    def _get_diffuser(self, model_engine: str) -> DiffusionPipeline:
+    def _get_diffuser(self, model_engine: str):
         """
         Initialize the Diffusion Pipeline based on the model name.
         Cache the model, so it doesn't get reinitialize for a new request.
         """
+        try:
+            from diffusers import DiffusionPipeline
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         global _models_lock
         global _models
 
@@ -84,6 +83,12 @@ class HuggingFaceDiffusersClient(Client):
             return _models[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
+        try:
+            from diffusers import DiffusionPipeline
+            from diffusers.pipelines.stable_diffusion_safe import SafetyConfig
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["heim"])
+
         raw_request = {
             "prompt": request.prompt,
             # Setting this to a higher value can cause CUDA OOM

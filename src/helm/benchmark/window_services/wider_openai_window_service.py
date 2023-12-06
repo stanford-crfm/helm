@@ -50,3 +50,12 @@ class GPT432KWindowService(OpenAIChatWindowService):
 
         Source: https://platform.openai.com/docs/models"""
         return 32768
+
+
+class GPT4128KWindowService(OpenAIChatWindowService):
+    @property
+    def max_sequence_length(self) -> int:
+        """Return the max sequence length for GPT-4 turbo.
+
+        Source: https://help.openai.com/en/articles/8555510-gpt-4-turbo"""
+        return 128000
