@@ -123,7 +123,7 @@ class PalmyraClient(CachingClient):
             # The Writer API doesn't return us tokens or logprobs, so we tokenize ourselves.
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
                 # Writer uses the GPT-2 tokenizer
-                TokenizationRequest(text, tokenizer="writer/palmyra")
+                TokenizationRequest(text, tokenizer="writer/gpt2")
             )
 
             # Log probs are not currently not supported by the Writer, so set to 0 for now.
