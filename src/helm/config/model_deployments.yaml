@@ -1646,8 +1646,8 @@ model_deployments:
   - name: writer/palmyra-x-v2
     model_name: writer/palmyra-x-v2
     tokenizer_name: writer/gpt2
-    max_sequence_length: 8192
-    max_sequence_and_generated_tokens_length: 8192
+    max_sequence_length: 6000
+    max_sequence_and_generated_tokens_length: 7024
     client_spec:
       class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
       args: {}
@@ -1658,8 +1658,8 @@ model_deployments:
   - name: writer/palmyra-x-v3
     model_name: writer/palmyra-x-v3
     tokenizer_name: writer/gpt2
-    max_sequence_length: 8192
-    max_sequence_and_generated_tokens_length: 8192
+    max_sequence_length: 6000
+    max_sequence_and_generated_tokens_length: 7024
     client_spec:
       class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
       args: {}
@@ -1670,8 +1670,8 @@ model_deployments:
   - name: writer/palmyra-x-32k
     model_name: writer/palmyra-x-32k
     tokenizer_name: writer/gpt2
-    max_sequence_length: 32000
-    max_sequence_and_generated_tokens_length: 32000
+    max_sequence_length: 28000
+    max_sequence_and_generated_tokens_length: 30048
     client_spec:
       class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
       args: {}
