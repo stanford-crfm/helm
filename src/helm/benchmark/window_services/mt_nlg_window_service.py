@@ -7,6 +7,13 @@ class MTNLGWindowService(GPT2WindowService):
         super().__init__(service)
 
     @property
+    def tokenizer_name(self) -> str:
+        # TNLGv2 uses the same tokenizer as GPT2
+        # But since it has a custom tokenizer config, we need to specify it here
+        # This alias is replaced by "gpt2" in huggingface_tokenizer.py
+        return "microsoft/TNLGv2"
+
+    @property
     def max_sequence_length(self) -> int:
         """
         The max length of the model input. MT-NLG does not predict the logprob of the first

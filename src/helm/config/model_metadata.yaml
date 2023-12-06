@@ -1299,6 +1299,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/palmyra-instruct-30
+    deprecated: true # Internal error
     display_name: InstructPalmyra (30B)
     description: InstructPalmyra (30B parameters) is trained using reinforcement learning techniques based on feedback from humans.
     creator_organization_name: Writer
@@ -1309,6 +1310,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/palmyra-e
+    deprecated: true # Internal error
     display_name: Palmyra E (30B)
     description: Palmyra E (30B)
     creator_organization_name: Writer

@@ -32,6 +32,8 @@ from collections import defaultdict
 # so we need to do this here.
 register_helm_configurations()
 
+INT_MAX: int = 2**31 - 1
+
 
 class TestModelProperties:
     @pytest.mark.parametrize("deployment_name", [deployment.name for deployment in ALL_MODEL_DEPLOYMENTS])
@@ -70,10 +72,16 @@ class TestModelProperties:
             # WindowService are the same.
             assert window_service.tokenizer_name == deployment.tokenizer_name
             assert window_service.max_sequence_length == deployment.max_sequence_length
-            assert window_service.max_request_length == deployment.max_request_length
+            assert (
+                window_service.max_request_length == deployment.max_request_length
+                if deployment.max_request_length
+                else deployment.max_sequence_length
+            )
             assert (
                 window_service.max_sequence_and_generated_tokens_length
                 == deployment.max_sequence_and_generated_tokens_length
+                if deployment.max_sequence_and_generated_tokens_length
+                else INT_MAX
             )
             assert tokenizer_config.end_of_text_token == window_service.end_of_text_token
             assert tokenizer_config.prefix_token == window_service.prefix_token
