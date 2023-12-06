@@ -147,6 +147,8 @@ adapter:
     description: The description of the task that is included at the very beginning of the prompt.
   - name: global_prefix
     description: The string that is prepended to the prompt.
+  - name: global_suffix
+    description: The string that is appended to the prompt.
   - name: instance_prefix
     description: The string that is included before each instance (e.g., '\n\n').
   - name: input_prefix
