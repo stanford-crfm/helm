@@ -11,7 +11,7 @@ class MTNLGWindowService(GPT2WindowService):
         # TNLGv2 uses the same tokenizer as GPT2
         # But since it has a custom tokenizer config, we need to specify it here
         # This alias is replaced by "gpt2" in huggingface_tokenizer.py
-        return "microsoft/TNLGv2"
+        return "microsoft/gpt2"
 
     @property
     def max_sequence_length(self) -> int:

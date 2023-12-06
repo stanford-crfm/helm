@@ -485,7 +485,7 @@ model_deployments:
   # Microsoft
   - name: microsoft/TNLGv2_530B
     model_name: microsoft/TNLGv2_530B
-    tokenizer_name: microsoft/TNLGv2
+    tokenizer_name: microsoft/gpt2
     max_sequence_length: 2047
     max_request_length: 2048
     client_spec:
@@ -497,7 +497,7 @@ model_deployments:
 
   - name: microsoft/TNLGv2_7B
     model_name: microsoft/TNLGv2_7B
-    tokenizer_name: microsoft/TNLGv2
+    tokenizer_name: microsoft/gpt2
     max_sequence_length: 2047
     max_request_length: 2048
     client_spec:
@@ -1498,7 +1498,7 @@ model_deployments:
   # Writer
   - name: writer/palmyra-base
     model_name: writer/palmyra-base
-    tokenizer_name: writer/palmyra
+    tokenizer_name: writer/gpt2
     max_sequence_length: 2048
     max_sequence_and_generated_tokens_length: 2048
     client_spec:
@@ -1510,7 +1510,7 @@ model_deployments:
 
   - name: writer/palmyra-large
     model_name: writer/palmyra-large
-    tokenizer_name: writer/palmyra
+    tokenizer_name: writer/gpt2
     max_sequence_length: 2048
     max_sequence_and_generated_tokens_length: 2048
     client_spec:
@@ -1522,7 +1522,7 @@ model_deployments:
 
   - name: writer/palmyra-instruct-30
     model_name: writer/palmyra-instruct-30
-    tokenizer_name: writer/palmyra
+    tokenizer_name: writer/gpt2
     max_sequence_length: 2048
     max_sequence_and_generated_tokens_length: 2048
     client_spec:
@@ -1534,7 +1534,7 @@ model_deployments:
 
   - name: writer/palmyra-e
     model_name: writer/palmyra-e
-    tokenizer_name: writer/palmyra
+    tokenizer_name: writer/gpt2
     max_sequence_length: 2048
     max_sequence_and_generated_tokens_length: 2048
     client_spec:
@@ -1546,7 +1546,7 @@ model_deployments:
 
   - name: writer/silk-road
     model_name: writer/silk-road
-    tokenizer_name: writer/palmyra
+    tokenizer_name: writer/gpt2
     max_sequence_length: 8192
     max_sequence_and_generated_tokens_length: 8192
     client_spec:
@@ -1558,7 +1558,7 @@ model_deployments:
 
   - name: writer/palmyra-x
     model_name: writer/palmyra-x
-    tokenizer_name: writer/palmyra
+    tokenizer_name: writer/gpt2
     max_sequence_length: 8192
     max_sequence_and_generated_tokens_length: 8192
     client_spec:

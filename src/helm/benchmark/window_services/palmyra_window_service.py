@@ -10,9 +10,9 @@ class PalmyraWindowService(LocalWindowService):
     def tokenizer_name(self) -> str:
         """All Palmyra models use the same tokenizer."""
         # Palmyra models do not support echo
-        # So they have a different TokenizerConfig called "writer/palmyra"
+        # So they have a different TokenizerConfig called "writer/gpt2"
         # when in reality they use the same tokenizer as "huggingface/gpt2"
-        return "writer/palmyra"
+        return "writer/gpt2"
 
     @property
     def max_sequence_length(self) -> int:

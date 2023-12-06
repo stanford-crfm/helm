@@ -160,7 +160,7 @@ tokenizer_configs:
     prefix_token: "<s>"
 
   # Microsoft
-  - name: microsoft/TNLGv2
+  - name: microsoft/gpt2
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<|endoftext|>"
@@ -202,7 +202,7 @@ tokenizer_configs:
     prefix_token: ""
 
   # Writer
-  - name: writer/palmyra
+  - name: writer/gpt2
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: ""
