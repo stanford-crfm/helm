@@ -44,9 +44,9 @@ def serve_config():
 # We will remove this in a few months after most users have moved to the new version of helm-summarize.
 #
 # TODO(2023-03-01): Remove this.
-@app.get("/benchmark_output/runs/<version>/schema.json")
-def server_schema(version):
-    relative_schema_path = path.join("runs", version, "schema.json")
+@app.get("/benchmark_output/<runs_or_releases:re:runs|releases>/<version>/schema.json")
+def server_schema(runs_or_releases, version):
+    relative_schema_path = path.join(runs_or_releases, version, "schema.json")
     absolute_schema_path = path.join(app.config["helm.outputpath"], relative_schema_path)
     if path.isfile(absolute_schema_path):
         response = static_file(relative_schema_path, root=app.config["helm.outputpath"])
