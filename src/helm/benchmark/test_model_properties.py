@@ -150,6 +150,12 @@ _BUILT_IN_TOKENIZER_CONFIGS = [
         prefix_token="",
     ),
     TokenizerConfig(
+        name="google/mt5-base",
+        tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
+        end_of_text_token="</s>",
+        prefix_token="",
+    ),
+    TokenizerConfig(
         name="facebook/opt-66b",
         tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
         end_of_text_token="</s>",
@@ -784,6 +790,53 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
             class_name="helm.benchmark.window_services.ul2_window_service.UL2WindowService"
         ),
         max_sequence_length=511,
+    ),
+    ModelDeployment(
+        name="google/text-bison@001",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
+        ),
+        max_sequence_length=8192,
+    ),
+    ModelDeployment(
+        name="google/text-bison-32k",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.PaLM232KWindowService"
+        ),
+        max_sequence_length=32000,
+        max_sequence_and_generated_tokens_length=32000,
+    ),
+    ModelDeployment(
+        name="google/text-unicorn@001",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
+        ),
+        max_sequence_length=8192,
+    ),
+    ModelDeployment(
+        name="google/code-bison@001",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.CodeBisonWindowService"
+        ),
+        max_sequence_length=6144,
+    ),
+    ModelDeployment(
+        name="google/code-bison-32k",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        tokenizer_name="google/mt5-base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.palm_window_service.PaLM232KWindowService"
+        ),
+        max_sequence_length=32000,
+        max_sequence_and_generated_tokens_length=32000,
     ),
     ModelDeployment(
         name="together/h3-2.7b",
