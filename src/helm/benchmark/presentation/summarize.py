@@ -22,6 +22,7 @@ from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
 
+from helm.benchmark.model_metadata_registry import get_default_model_metadata
 from helm.common.general import (
     write,
     ensure_directory_exists,
@@ -278,6 +279,7 @@ class Summarizer:
         output_path: str,
         verbose: bool,
         num_threads: int,
+        allow_unknown_models: bool,
     ):
         """
         A note on the relation between `release`, `suites`, and `suite`:
@@ -306,6 +308,7 @@ class Summarizer:
             self.run_suite_paths = [os.path.join(output_path, "runs", suite) for suite in suites]
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
+        self.allow_unknown_models: bool = allow_unknown_models
 
         ensure_directory_exists(self.run_release_path)
 
@@ -892,7 +895,14 @@ class Summarizer:
             deployment: str = (
                 adapter_spec.model_deployment if len(adapter_spec.model_deployment) > 0 else adapter_spec.model
             )
-            model_metadata: ModelMetadata = get_metadata_for_deployment(deployment)
+            try:
+                model_metadata: ModelMetadata = get_metadata_for_deployment(deployment)
+            except ValueError as e:
+                if self.allow_unknown_models:
+                    model_metadata = get_default_model_metadata(deployment)
+                else:
+                    raise e
+
             model_name: str = model_metadata.name
 
             runs = adapter_to_runs[adapter_spec]
@@ -1314,6 +1324,12 @@ def main():
         help="Number of instance ids we're using; only for annotating scenario spec instance ids file",
         default=1000,
     )
+    parser.add_argument(
+        "--allow-unknown-models",
+        type=bool,
+        help="Whether to allow unknown models in the metadata file",
+        default=True,
+    )
     args = parser.parse_args()
 
     release: Optional[str] = None
@@ -1347,6 +1363,7 @@ def main():
         output_path=args.output_path,
         verbose=args.debug,
         num_threads=args.num_threads,
+        allow_unknown_models=args.allow_unknown_models,
     )
     summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json, num_instances=args.num_instances)
     hlog("Done.")
