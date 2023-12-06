@@ -44,7 +44,7 @@ def server_schema(version):
         response = static_file(relative_schema_path, root=app.config["helm.outputpath"])
     else:
         # Suite does not contain schema.json
-        # Fall back to schema_classic.json from the static directory
+        # Fall back to schema_classic.yaml from the static directory
         classic_schema_path = path.join(app.config["helm.staticpath"], SCHEMA_CLASSIC_YAML_FILENAME)
         with open(classic_schema_path, "r") as f:
             response = HTTPResponse(json.dumps(yaml.safe_load(f), indent=2, default=serialize_dates))
