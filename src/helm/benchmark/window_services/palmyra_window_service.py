@@ -46,3 +46,9 @@ class LongerPalmyraWindowService(PalmyraWindowService):
     @property
     def max_sequence_length(self) -> int:
         return 8192
+
+
+class Palmyra32KWindowService(PalmyraWindowService):
+    @property
+    def max_sequence_length(self) -> int:
+        return 32000
