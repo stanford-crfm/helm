@@ -986,6 +986,16 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=2049,
     ),
     ModelDeployment(
+        name="openai/gpt-4-1106-preview",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
+        tokenizer_name="openai/cl100k_base",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.wider_openai_window_service.GPT4128KWindowService"
+        ),
+        max_sequence_length=128000,
+        max_request_length=128001,
+    ),
+    ModelDeployment(
         name="openai/gpt-4-0314",
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="openai/cl100k_base",
@@ -1462,4 +1472,4 @@ class TestModelProperties:
                 assert tokenizer_configs[tokenizer_name] == tokenizer_config
 
     def test_num_models_available(self):
-        assert len(ALL_MODEL_DEPLOYMENTS) == 119
+        assert len(ALL_MODEL_DEPLOYMENTS) == 120
