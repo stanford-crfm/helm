@@ -180,7 +180,7 @@ tokenizer_configs:
 
 
   # 01-ai
-  - name: 01-ai/Yi-34B
+  - name: 01-ai/Yi-6B
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
