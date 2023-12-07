@@ -50,6 +50,7 @@ MODEL_ALIASES: Dict[str, str] = {
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
     "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
     "vicuna-13b-v1.3": "lmsys/vicuna-13b-v1.3",
+    "yi-6b": "zero-one-ai/Yi-6B",
     "yi-34b": "zero-one-ai/Yi-34B",
 }
 """Together model name aliases.

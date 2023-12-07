@@ -52,6 +52,13 @@ models:
     release_date: 2023-07-18
 
   # 01.AI
+  - name: 01-ai/yi-6b
+    display_name: Yi (6B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization: 01.AI
+    access: open
+    num_parameters: 6000000000
+    release_date: 2023-11-02
   - name: 01-ai/yi-34b
     display_name: Yi (34B)
     description: The Yi models are large language models trained from scratch by developers at 01.AI.

@@ -803,6 +803,14 @@ models:
 
 
   # 01.AI
+  - name: 01-ai/yi-7b
+    display_name: Yi (7B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization: 01.AI
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-11-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
   - name: 01-ai/yi-34b
     display_name: Yi (34B)
     description: The Yi models are large language models trained from scratch by developers at 01.AI.
