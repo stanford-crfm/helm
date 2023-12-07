@@ -115,12 +115,14 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
 
 
 def register_model_deployments_from_path(path: str) -> None:
+    global DEPLOYMENTS_REGISTERED
     hlog(f"Reading model deployments from {path}...")
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
     model_deployments: ModelDeployments = cattrs.structure(raw, ModelDeployments)
     for model_deployment in model_deployments.model_deployments:
         register_model_deployment(model_deployment)
+    DEPLOYMENTS_REGISTERED = True
 
 
 def maybe_register_model_deployments_from_base_path(path: str) -> None:
@@ -178,8 +180,6 @@ def get_model_names_with_tokenizer(tokenizer_name: str) -> List[str]:
 
 
 def register_deployments_if_not_already_registered() -> None:
-    global DEPLOYMENTS_REGISTERED
     if not DEPLOYMENTS_REGISTERED:
         path: str = resources.files(CONFIG_PACKAGE).joinpath(MODEL_DEPLOYMENTS_FILE)
         maybe_register_model_deployments_from_base_path(path)
-        DEPLOYMENTS_REGISTERED = True

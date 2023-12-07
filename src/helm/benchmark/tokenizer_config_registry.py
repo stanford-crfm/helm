@@ -51,12 +51,14 @@ def register_tokenizer_config(tokenizer_config: TokenizerConfig) -> None:
 
 
 def register_tokenizer_configs_from_path(path: str) -> None:
+    global TOKENIZERS_REGISTERED
     hlog(f"Reading tokenizer configs from {path}...")
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
     tokenizer_configs: TokenizerConfigs = cattrs.structure(raw, TokenizerConfigs)
     for tokenizer_config in tokenizer_configs.tokenizer_configs:
         register_tokenizer_config(tokenizer_config)
+    TOKENIZERS_REGISTERED = True
 
 
 def maybe_register_tokenizer_configs_from_base_path(path: str) -> None:
@@ -71,8 +73,6 @@ def get_tokenizer_config(name: str) -> Optional[TokenizerConfig]:
 
 
 def register_tokenizers_if_not_already_registered() -> None:
-    global TOKENIZERS_REGISTERED
     if not TOKENIZERS_REGISTERED:
         path: str = resources.files(CONFIG_PACKAGE).joinpath(TOKENIZER_CONFIGS_FILE)
         maybe_register_tokenizer_configs_from_base_path(path)
-        TOKENIZERS_REGISTERED = True

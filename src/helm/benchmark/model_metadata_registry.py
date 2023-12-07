@@ -126,6 +126,7 @@ MODEL_NAME_TO_MODEL_METADATA: Dict[str, ModelMetadata] = {model.name: model for 
 # ===================== REGISTRATION FUNCTIONS ==================== #
 def register_model_metadata_from_path(path: str) -> None:
     """Register model configurations from the given path."""
+    global METADATAS_REGISTERED
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
     # Using dacite instead of cattrs because cattrs doesn't have a default
@@ -133,6 +134,7 @@ def register_model_metadata_from_path(path: str) -> None:
     model_metadata_list = dacite.from_dict(ModelMetadataList, raw)
     for model_metadata in model_metadata_list.models:
         register_model_metadata(model_metadata)
+    METADATAS_REGISTERED = True
 
 
 def register_model_metadata(model_metadata: ModelMetadata) -> None:
@@ -201,11 +203,9 @@ def get_all_instruction_following_models() -> List[str]:
 
 
 def register_metadatas_if_not_already_registered() -> None:
-    global METADATAS_REGISTERED
     if not METADATAS_REGISTERED:
         path: str = resources.files(CONFIG_PACKAGE).joinpath(MODEL_METADATA_FILE)
         maybe_register_model_metadata_from_base_path(path)
-        METADATAS_REGISTERED = True
 
 
 def get_default_model_metadata(helm_model_name: str) -> ModelMetadata:
