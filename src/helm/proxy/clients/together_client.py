@@ -106,6 +106,10 @@ The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the
 (e.g. "stanford/alpaca-7b") or the Together model name (e.g. "togethercomputer/alpaca-7b")."""
 
 
+TOGETHER_SUPPORTS_ASYNC_REQUESTS = False
+"""Whether Together AI currently supports asynchronous requests."""
+
+
 def _rewrite_raw_request_for_model_tags(raw_request: Dict[str, Any], model_engine: str) -> Dict[str, Any]:
     """Rewrite the raw request given the model."""
     # Make a deepcopy to avoid mutating the input in unexpected ways
@@ -182,8 +186,7 @@ class TogetherClient(CachingClient):
             raise TogetherClientError("togetherApiKey not set in credentials.conf")
         headers: Dict[str, str] = {"Authorization": f"Bearer {self.api_key}"}
 
-        # TODO: Remove synchronous branch.
-        if request.model_engine in MODEL_ALIASES:
+        if TOGETHER_SUPPORTS_ASYNC_REQUESTS:
 
             def submit_job() -> str:
                 submit_request = {**raw_request, "async": True}
