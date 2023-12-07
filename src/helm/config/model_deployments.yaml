@@ -1334,6 +1334,17 @@ model_deployments:
       args: {}
 
   # 01.AI
+  - name: together/yi-6b
+    model_name: 01-ai/yi-6b
+    tokenizer_name: 01-ai/Yi-6B
+    max_sequence_length: 4095
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
   - name: together/yi-34b
     model_name: 01-ai/yi-34b
     tokenizer_name: 01-ai/Yi-34B
