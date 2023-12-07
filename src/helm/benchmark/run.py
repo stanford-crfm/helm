@@ -14,6 +14,7 @@ from helm.proxy.services.remote_service import create_authentication, add_servic
 
 from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
 from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
+from helm.benchmark.tokenizer_config_registry import register_tokenizer_configs_from_path
 from helm.benchmark.config_registry import register_helm_configurations
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark import vlm_run_specs  # noqa
@@ -257,6 +258,12 @@ def main():
         help="Experimental: Where to read model deployments from",
         default=[],
     )
+    parser.add_argument(
+        "--tokenizer-configs-paths",
+        nargs="+",
+        help="Experimental: Where to read tokenizer configurations from",
+        default=[],
+    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
@@ -269,6 +276,8 @@ def main():
         register_model_metadata_from_path(model_metadata_path)
     for model_deployment_paths in args.model_deployment_paths:
         register_model_deployments_from_path(model_deployment_paths)
+    for tokenizer_configs_paths in args.tokenizer_configs_paths:
+        register_tokenizer_configs_from_path(tokenizer_configs_paths)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
