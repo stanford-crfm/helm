@@ -15,7 +15,11 @@ class PaLM2WindowService(LocalWindowService):
 
     @property
     def max_sequence_length(self) -> int:
-        return 8192
+        return 6000  # Officially 8192
+
+    @property
+    def max_sequence_and_generated_tokens_length(self) -> int:
+        return self.max_sequence_length + 1000  # Officially 1024
 
     @property
     def max_request_length(self) -> int:
@@ -47,4 +51,8 @@ class PaLM232KWindowService(PaLM2WindowService):
 class CodeBisonWindowService(PaLM2WindowService):
     @property
     def max_sequence_length(self) -> int:
-        return 6144
+        return 6000  # Officially 6144
+
+    @property
+    def max_sequence_and_generated_tokens_length(self) -> int:
+        return self.max_request_length + 1000  # Officially 1024
