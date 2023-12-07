@@ -51,7 +51,7 @@ model_deployments:
           class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
           args: {}
 
-  - name: ai21/j1-grande 
+  - name: ai21/j1-grande
     deprecated: true
     model_name: ai21/j1-grande
     tokenizer_name: ai21/j1
@@ -66,7 +66,7 @@ model_deployments:
           class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
           args: {}
 
-  - name: ai21/j1-grande-v2-beta 
+  - name: ai21/j1-grande-v2-beta
     deprecated: true
     model_name: ai21/j1-grande-v2-beta
     tokenizer_name: ai21/j1
@@ -162,7 +162,7 @@ model_deployments:
   # TODO: Add luminous-world once it is released.
 
 
-  
+ 
   # Anthropic
   - name: anthropic/claude-v1.3
     model_name: anthropic/claude-v1.3
@@ -478,7 +478,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
       args: {}
 
-  ## OpenAI 
+  ## OpenAI
   - name: huggingface/gpt2
     model_name: openai/gpt2
     tokenizer_name: huggingface/gpt2
@@ -547,7 +547,7 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.proxy.clients.lit_gpt_client.LitGPTClient"
-      args: 
+      args:
         checkpoint_dir: "" # Path to the checkpoint directory
         precision: bf16-true
     window_service_spec:
@@ -616,8 +616,8 @@ model_deployments:
   ## GPT 3 Models
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
-  
-  - name: openai/davinci 
+ 
+  - name: openai/davinci
     deprecated: true
     model_name: openai/davinci
     tokenizer_name: huggingface/gpt2
@@ -630,7 +630,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/curie 
+  - name: openai/curie
     deprecated: true
     model_name: openai/curie
     tokenizer_name: huggingface/gpt2
@@ -643,7 +643,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/babbage 
+  - name: openai/babbage
     deprecated: true
     model_name: openai/babbage
     tokenizer_name: huggingface/gpt2
@@ -656,7 +656,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/ada 
+  - name: openai/ada
     deprecated: true
     model_name: openai/ada
     tokenizer_name: huggingface/gpt2
@@ -669,7 +669,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-davinci-003 
+  - name: openai/text-davinci-003
     deprecated: true
     model_name: openai/text-davinci-003
     tokenizer_name: huggingface/gpt2
@@ -682,7 +682,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
       args: {}
 
-  - name: openai/text-davinci-002 
+  - name: openai/text-davinci-002
     deprecated: true
     model_name: openai/text-davinci-002
     tokenizer_name: huggingface/gpt2
@@ -695,7 +695,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
       args: {}
 
-  - name: openai/text-davinci-001 
+  - name: openai/text-davinci-001
     deprecated: true
     model_name: openai/text-davinci-001
     tokenizer_name: huggingface/gpt2
@@ -708,7 +708,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-curie-001 
+  - name: openai/text-curie-001
     deprecated: true
     model_name: openai/text-curie-001
     tokenizer_name: huggingface/gpt2
@@ -721,7 +721,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-babbage-001 
+  - name: openai/text-babbage-001
     deprecated: true
     model_name: openai/text-babbage-001
     tokenizer_name: huggingface/gpt2
@@ -734,7 +734,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-ada-001 
+  - name: openai/text-ada-001
     deprecated: true
     model_name: openai/text-ada-001
     tokenizer_name: huggingface/gpt2
@@ -867,7 +867,7 @@ model_deployments:
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 
-  - name: openai/code-davinci-002 
+  - name: openai/code-davinci-002
     deprecated: true
     model_name: openai/code-davinci-002
     tokenizer_name: huggingface/gpt2
@@ -880,7 +880,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
       args: {}
 
-  - name: openai/code-davinci-001 
+  - name: openai/code-davinci-001
     deprecated: true
     model_name: openai/code-davinci-001
     tokenizer_name: huggingface/gpt2
@@ -893,7 +893,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/code-cushman-001 
+  - name: openai/code-cushman-001
     deprecated: true
     model_name: openai/code-cushman-001
     tokenizer_name: huggingface/gpt2
@@ -906,7 +906,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  
+ 
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
   # The number of parameters is guessed based on the number of parameters of the
@@ -914,7 +914,7 @@ model_deployments:
   # DEPRECATED: Announced on July 06 2023 that first generation embeddings models
   #  will be shut down on January 04 2024.
 
-  - name: openai/text-similarity-davinci-001 
+  - name: openai/text-similarity-davinci-001
     deprecated: true
     model_name: openai/text-similarity-davinci-001
     tokenizer_name: huggingface/gpt2
@@ -927,7 +927,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-similarity-curie-001 
+  - name: openai/text-similarity-curie-001
     deprecated: true
     model_name: openai/text-similarity-curie-001
     tokenizer_name: huggingface/gpt2
@@ -940,7 +940,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-similarity-babbage-001 
+  - name: openai/text-similarity-babbage-001
     deprecated: true
     model_name: openai/text-similarity-babbage-001
     tokenizer_name: huggingface/gpt2
@@ -953,7 +953,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
       args: {}
 
-  - name: openai/text-similarity-ada-001 
+  - name: openai/text-similarity-ada-001
     deprecated: true
     model_name: openai/text-similarity-ada-001
     tokenizer_name: huggingface/gpt2
@@ -969,7 +969,7 @@ model_deployments:
   # As of 2023-11-07, text-embedding-ada-002 is not deprecated:
   # "We recommend using text-embedding-ada-002 for nearly all use cases."
   # Source: https://platform.openai.com/docs/guides/embeddings/what-are-embeddings
-  - name: openai/text-embedding-ada-002 
+  - name: openai/text-embedding-ada-002
     model_name: openai/text-embedding-ada-002
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 2048
@@ -990,7 +990,7 @@ model_deployments:
   # https://api.together.xyz/playground
 
   ## BigScience
-  - name: together/bloom 
+  - name: together/bloom
     deprecated: true # Removed from together
     model_name: bigscience/bloom
     tokenizer_name: bigscience/bloom
@@ -1003,7 +1003,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.bloom_window_service.BloomWindowService"
       args: {}
 
-  - name: together/t0pp 
+  - name: together/t0pp
     deprecated: true # Removed from together
     model_name: bigscience/t0pp
     tokenizer_name: bigscience/T0pp
@@ -1331,6 +1331,29 @@ model_deployments:
       args: {}
     window_service_spec:
       class_name: "helm.benchmark.window_services.opt_window_service.OPTWindowService"
+      args: {}
+
+  # 01.AI
+  - name: together/yi-6b
+    model_name: 01-ai/yi-6b
+    tokenizer_name: 01-ai/Yi-6B
+    max_sequence_length: 4095
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  - name: together/yi-34b
+    model_name: 01-ai/yi-34b
+    tokenizer_name: 01-ai/Yi-6B
+    max_sequence_length: 4095
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
       args: {}
 
   ## MistralAI

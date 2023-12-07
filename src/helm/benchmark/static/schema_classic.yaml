@@ -624,6 +624,22 @@ models:
     num_parameters: 13000000000
     release_date: 2023-06-22
 
+  # 01.AI
+  - name: 01-ai/yi-6b
+    display_name: Yi (6B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization: 01.AI
+    access: open
+    num_parameters: 6000000000
+    release_date: 2023-11-02
+  - name: 01-ai/yi-34b
+    display_name: Yi (34B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization: 01.AI
+    access: open
+    num_parameters: 34000000000
+    release_date: 2023-11-02
+
   # Mistral AI
   - name: mistralai/mistral-7b-v0.1
     display_name: Mistral v0.1 (7B)
@@ -1292,7 +1308,7 @@ metrics:
     lower_is_better: false
   - name: math_equiv_chain_of_thought
     display_name: Equivalent (chain of thought)
-    description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thoughts prompting.
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thought prompting.
     lower_is_better: false
   - name: exact_match_indicator
     display_name: Exact match (up to specified indicator)
@@ -2769,8 +2785,8 @@ run_groups:
       language: synthetic
 
   - name: math_chain_of_thought
-    display_name: MATH (chain-of-thoughts)
-    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
+    display_name: MATH (chain-of-thought)
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
     metric_groups:
       - accuracy
       - efficiency
@@ -2824,7 +2840,7 @@ run_groups:
     display_name: LegalBench
     description: LegalBench is a large collaboratively constructed benchmark of legal reasoning. Five representative tasks are included here. See [(Guha et al, 2023)[https://arxiv.org/abs/2308.11462] for more details.
     metric_groups:
-      - classification_metrics
+      - accuracy
       - efficiency
       - general_information
     environment:
@@ -2870,6 +2886,40 @@ run_groups:
       who: n/a
       when: n/a
       language: synthetic
+
+  - name: med_qa
+    display_name: MedQA
+    description: MedQA is an open domain question answering dataset composed of questions from professional medical board exams ([Jin et al. 2020](https://arxiv.org/pdf/2009.13081.pdf)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: wmt_14
+    display_name: WMT 2014
+    description: WMT 2014 is a collection of machine translation datasets.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bleu_4
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
 
   - name: lextreme
     display_name: LEXTREME
@@ -3553,7 +3603,7 @@ run_groups:
 
   - name: cleva_mathematical_reasoning
     display_name: CLEVA (Chinese) mathematical reasoning
-    description: "Scenario that tests models' mathematical reasoning ability with chain-of-thoughts style reasoning. It contains a math word problem solving subtask."
+    description: "Scenario that tests models' mathematical reasoning ability with chain-of-thought style reasoning. It contains a math word problem solving subtask."
     metric_groups:
       - cleva_mathematical_reasoning_metrics
       - general_information

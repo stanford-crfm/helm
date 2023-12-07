@@ -1,5 +1,4 @@
 import dataclasses
-import importlib
 import itertools
 from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
@@ -17,17 +16,14 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.common.optional_dependencies import handle_module_not_found_error
 from .metrics.metric import MetricSpec
 from .run_expander import (
     RUN_EXPANDERS,
-    RunExpander,
     GlobalPrefixRunExpander,
+    AnthropicRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
-    AddToStopRunExpander,
     IncreaseMaxTokensRunExpander,
-    FormatPromptRunExpander,
     IncreaseTemperatureRunExpander,
 )
 from .runner import RunSpec
@@ -70,6 +66,8 @@ from helm.benchmark.model_metadata_registry import (
     BUGGY_TEMP_0_TAG,
 )
 from helm.common.general import singleton
+
+INCLUDE_GENERATIVE_HARMS_METRICS = False
 
 
 ############################################################
@@ -404,10 +402,10 @@ def get_machine_translation_adapter_spec(
     """
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=f"Translate {source_language} to {target_language}:",
-        input_prefix="",
-        input_suffix=" = ",
-        output_prefix="",
+        instructions=f"Translate the following sentences from {source_language} to {target_language}.",
+        input_prefix=f"{source_language}: ",
+        input_suffix="\n",
+        output_prefix=f"{target_language}: ",
         output_suffix="\n",
         max_train_instances=max_train_instances,
         num_outputs=1,
@@ -538,6 +536,9 @@ def get_bias_metric_specs() -> List[MetricSpec]:
 
 
 def get_generative_harms_metric_specs(include_basic_metrics: bool = False) -> List[MetricSpec]:
+    # In classic HELM, we included bias/toxicity measures, but now we don't to streamline.
+    if not INCLUDE_GENERATIVE_HARMS_METRICS:
+        return []
     return (
         get_bias_metric_specs()
         + get_toxicity_metric_specs()
@@ -627,12 +628,6 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
 
 def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"])
-
-
-def get_machine_translation_metric_specs() -> List[MetricSpec]:
-    return [
-        MetricSpec(class_name="helm.benchmark.metrics.machine_translation_metrics.MachineTranslationMetric", args={})
-    ] + get_basic_metric_specs([])
 
 
 def get_cleva_machine_translation_metric_specs() -> List[MetricSpec]:
@@ -2063,7 +2058,7 @@ def get_med_qa_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Give a letter answer among A, B, C or D.",
+        instructions="The following are multiple choice questions (with answers) about medicine.",
         input_noun="Question",
         output_noun="Answer",
     )
@@ -2073,7 +2068,7 @@ def get_med_qa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["MedQA"],
+        groups=["med_qa"],
     )
 
 
@@ -2274,7 +2269,7 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         name=f"wmt_14:language_pair={language_pair}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_machine_translation_metric_specs(),
+        metric_specs=get_open_ended_generation_metric_specs(),
         groups=["wmt_14"],
     )
 
@@ -2723,35 +2718,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
 
         # Special handling for Anthropic Claude
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
-            try:
-                import anthropic
-                from helm.proxy.clients.anthropic_client import AnthropicClient
-            except ModuleNotFoundError as e:
-                handle_module_not_found_error(e, ["anthropic"])
-            claude_run_expanders: List[RunExpander] = []
-            claude_run_expanders.append(AddToStopRunExpander(anthropic.HUMAN_PROMPT))
-            if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags:
-                claude_run_expanders.append(IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS))
-            # Get scenario tags
-            components = run_spec.scenario_spec.class_name.split(".")
-            class_name = components[-1]
-            module_name = ".".join(components[:-1])
-            cls = getattr(importlib.import_module(module_name), class_name)
-            scenario_tags: List[str] = cls.tags
-            # If the scenario is instruction, do not use PROMPT_ANSWER_START
-            if "instructions" in scenario_tags:
-                claude_run_expanders.append(
-                    FormatPromptRunExpander(prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}")
-                )
-            else:
-                claude_run_expanders.append(
-                    FormatPromptRunExpander(
-                        prefix=anthropic.HUMAN_PROMPT,
-                        suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}",
-                    )
-                )
-            for claude_run_expander in claude_run_expanders:
-                run_spec = singleton(claude_run_expander.expand(run_spec))
+            run_spec = singleton(AnthropicRunExpander().expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
