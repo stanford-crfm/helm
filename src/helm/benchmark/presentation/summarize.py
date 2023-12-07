@@ -1317,11 +1317,7 @@ def main():
         "--schema-file",
         type=str,
         help="File name of the schema to read (e.g., schema_classic.yaml).",
-<<<<<<< HEAD
-        required=True,
-=======
         default=SCHEMA_CLASSIC_YAML_FILENAME,
->>>>>>> main
     )
     parser.add_argument(
         "--suite",
