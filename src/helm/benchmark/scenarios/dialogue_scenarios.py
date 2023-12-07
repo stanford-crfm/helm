@@ -135,3 +135,9 @@ class EmpatheticDialoguesScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         self.download_data(output_path)
         return self.filter_instances(self.read_instances())
+
+
+if __name__ == "__main__":
+    scenario = EmpatheticDialoguesScenario()
+    instances = scenario.get_instances("./benchmark_output/scenarios/empatheticdialogues")
+    print(instances[100])

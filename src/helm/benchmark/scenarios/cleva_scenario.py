@@ -407,14 +407,14 @@ class CLEVAScenario(Scenario):
         pass
 
     @classmethod
-    def download_dataset(cls, task: str, version: str, output_path: str):
+    def download_dataset(cls, task: str, version: str, cache_dir: str):
         source_url: str = CLEVA_DATA_URL + f"/{version}/{task}.zip"
-        target_dir: str = os.path.join(output_path, "data", version)
+        target_dir: str = os.path.join(cache_dir, "data", version)
         ensure_directory_exists(target_dir)
         ensure_file_downloaded(source_url=source_url, target_path=os.path.join(target_dir, task), unpack=True)
 
-    def load_dataset(self, output_path) -> Dict[str, List[Dict[str, Any]]]:
-        data_dir: str = os.path.join(output_path, "data", self.version, self.task)
+    def load_dataset(self, cache_dir: str) -> Dict[str, List[Dict[str, Any]]]:
+        data_dir: str = os.path.join(cache_dir, "data", self.version, self.task)
         if self.subtask:
             data_dir = os.path.join(data_dir, self.subtask)
 
@@ -431,10 +431,8 @@ class CLEVAScenario(Scenario):
         return dataset
 
     @staticmethod
-    def load_prompt_templates(
-        task: str, subtask: Optional[str], version: str, output_path: str
-    ) -> List[Dict[str, Any]]:
-        prompt_dir: str = os.path.join(output_path, "data", version, task)
+    def load_prompt_templates(task: str, subtask: Optional[str], version: str, cache_dir: str) -> List[Dict[str, Any]]:
+        prompt_dir: str = os.path.join(cache_dir, "data", version, task)
         if subtask:
             prompt_dir = os.path.join(prompt_dir, subtask)
         file_path = os.path.join(prompt_dir, "prompts.json")
@@ -518,10 +516,10 @@ class CLEVAScenario(Scenario):
 
     @classmethod
     def load_inference_parameters(
-        cls, task: str, subtask: Optional[str], version: str, prompt_id: int, output_path: str
+        cls, task: str, subtask: Optional[str], version: str, prompt_id: int, cache_dir: str
     ) -> Dict[str, Any]:
         # We use a dict instead of dataclass to store hyperparameters such that we can set different default values
-        params_dir: str = os.path.join(output_path, "data", version, task)
+        params_dir: str = os.path.join(cache_dir, "data", version, task)
         if subtask:
             params_dir = os.path.join(params_dir, subtask)
         file_path = os.path.join(params_dir, "infer_params.json")

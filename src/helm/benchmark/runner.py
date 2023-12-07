@@ -191,6 +191,11 @@ class Runner:
         ensure_directory_exists(output_path)
         self.output_path = output_path
 
+        # Decide where to save input instances
+        self.instances_path: str = os.path.join(output_path, "scenario_instances")
+        ensure_directory_exists(self.instances_path)
+        self.output_path = output_path
+
         # Output the results under a folder with the name of the suite
         self.runs_path: str = os.path.join(output_path, "runs", suite)
 
@@ -249,8 +254,7 @@ class Runner:
         # This 'output_path' will be used when the model's input instances are saved.
         args_str = ",".join([f"{k}={v}" for k, v in sorted(run_spec.scenario_spec.args.items())])
         scenario_name_with_args = f"{scenario.name}:{args_str}" if args_str else f"{scenario.name}"
-        input_instances_output_path = os.path.join(self.output_path, "scenario_instances", scenario_name_with_args)
-        ensure_directory_exists(input_instances_output_path)
+        input_instances_output_path = os.path.join(self.instances_path, scenario_name_with_args)
         input_instances_file_path = os.path.join(input_instances_output_path, "input_instances.json")
 
         instances: List[Instance]
