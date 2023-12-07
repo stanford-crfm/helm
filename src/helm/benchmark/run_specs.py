@@ -1871,7 +1871,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
 @htrack("Extracting adaptation parameters from the BIG-bench task definition and building the RunSpec")
 @run_spec_function("big_bench")
 def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
-    from helm.scenarios.big_bench_scenario import BIGBenchScenario
+    from helm.benchmark.scenarios.big_bench_scenario import BIGBenchScenario
 
     def get_adaptation_method(big_bench_metrics: List[str]) -> str:
         """
