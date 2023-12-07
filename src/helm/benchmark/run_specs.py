@@ -1,5 +1,4 @@
 import dataclasses
-import importlib
 import itertools
 from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
@@ -17,31 +16,26 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.common.optional_dependencies import handle_module_not_found_error
 from .metrics.metric import MetricSpec
 from .run_expander import (
     RUN_EXPANDERS,
-    RunExpander,
     GlobalPrefixRunExpander,
+    AnthropicRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
-    AddToStopRunExpander,
     IncreaseMaxTokensRunExpander,
-    FormatPromptRunExpander,
     IncreaseTemperatureRunExpander,
 )
-from .runner import RunSpec
+from .runner import RunSpec, get_benchmark_output_path
 from .scenarios.lex_glue_scenario import (
     get_lex_glue_max_train_instances,
     get_lex_glue_instructions,
     get_lex_glue_max_tokens,
     get_lex_glue_task_type,
 )
-from .scenarios.scenario import ScenarioSpec
-from .scenarios.big_bench_scenario import BIGBenchScenario
+from .scenarios.scenario import ScenarioSpec, get_scenario_cache_path
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.copyright_scenario import datatag2hash_code
-from .scenarios.raft_scenario import get_raft_instructions
 from .scenarios.lextreme_scenario import (
     get_lextreme_instructions,
     get_lextreme_max_train_instances,
@@ -65,6 +59,8 @@ from helm.benchmark.model_metadata_registry import (
     BUGGY_TEMP_0_TAG,
 )
 from helm.common.general import singleton
+
+INCLUDE_GENERATIVE_HARMS_METRICS = False
 
 
 ############################################################
@@ -399,10 +395,10 @@ def get_machine_translation_adapter_spec(
     """
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=f"Translate {source_language} to {target_language}:",
-        input_prefix="",
-        input_suffix=" = ",
-        output_prefix="",
+        instructions=f"Translate the following sentences from {source_language} to {target_language}.",
+        input_prefix=f"{source_language}: ",
+        input_suffix="\n",
+        output_prefix=f"{target_language}: ",
         output_suffix="\n",
         max_train_instances=max_train_instances,
         num_outputs=1,
@@ -533,6 +529,9 @@ def get_bias_metric_specs() -> List[MetricSpec]:
 
 
 def get_generative_harms_metric_specs(include_basic_metrics: bool = False) -> List[MetricSpec]:
+    # In classic HELM, we included bias/toxicity measures, but now we don't to streamline.
+    if not INCLUDE_GENERATIVE_HARMS_METRICS:
+        return []
     return (
         get_bias_metric_specs()
         + get_toxicity_metric_specs()
@@ -622,12 +621,6 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
 
 def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"])
-
-
-def get_machine_translation_metric_specs() -> List[MetricSpec]:
-    return [
-        MetricSpec(class_name="helm.benchmark.metrics.machine_translation_metrics.MachineTranslationMetric", args={})
-    ] + get_basic_metric_specs([])
 
 
 def get_cleva_machine_translation_metric_specs() -> List[MetricSpec]:
@@ -1150,12 +1143,15 @@ def get_gsm_spec() -> RunSpec:
 
 @run_spec_function("raft")
 def get_raft_spec(subset: str) -> RunSpec:
+    from helm.benchmark.scenarios.raft_scenario import RAFTScenario, get_raft_instructions
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.raft_scenario.RAFTScenario", args={"subset": subset}
     )
 
+    scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), RAFTScenario.name)
     adapter_spec = get_generation_adapter_spec(
-        instructions=get_raft_instructions(subset),
+        instructions=get_raft_instructions(subset, scenario_cache_path),
         input_noun=None,
         output_noun="Label",
         max_tokens=30,  # at most ~50 characters per label
@@ -1775,6 +1771,36 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     )
 
 
+@run_spec_function("legalbench")
+def get_legalbench_spec(subset: str) -> RunSpec:
+    from helm.benchmark.scenarios.legalbench_scenario import (
+        LegalBenchScenario,
+        get_legalbench_instructions,
+        get_legalbench_max_train_instances,
+        get_legalbench_output_nouns,
+    )
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.legalbench_scenario.LegalBenchScenario", args={"subset": subset}
+    )
+    scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), LegalBenchScenario.name)
+    adapter_spec = get_generation_adapter_spec(
+        instructions=get_legalbench_instructions(subset, scenario_cache_path),
+        input_noun=None,
+        output_noun=get_legalbench_output_nouns(subset, scenario_cache_path),
+        max_tokens=30,  # at most ~50 characters per label,
+        max_train_instances=get_legalbench_max_train_instances(subset, scenario_cache_path),
+    )
+
+    return RunSpec(
+        name=f"legalbench:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
+        groups=["legalbench"],
+    )
+
+
 @run_spec_function("legal_support")
 def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -1840,6 +1866,8 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
 @htrack("Extracting adaptation parameters from the BIG-bench task definition and building the RunSpec")
 @run_spec_function("big_bench")
 def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
+    from helm.benchmark.scenarios.big_bench_scenario import BIGBenchScenario
+
     def get_adaptation_method(big_bench_metrics: List[str]) -> str:
         """
         From BIG-bench, "there are three types of BIG-bench JSON tasks - generative and scoring
@@ -1884,9 +1912,8 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     )
 
     # Get BIG-bench task definition.
-    # TODO: get `output_path` here without hardcoding
-    output_path: str = "benchmark_output/scenarios/big_bench"
-    big_bench_task: Dict = BIGBenchScenario.download_and_get_task(output_path, task, subtask)
+    scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), BIGBenchScenario.name)
+    big_bench_task: Dict = BIGBenchScenario.download_and_get_task(scenario_cache_path, task, subtask)
 
     # The JSON schema for BIG-bench can be found here:
     # https://github.com/google/BIG-bench/blob/main/docs/doc.md#json-schema.
@@ -2035,7 +2062,7 @@ def get_med_qa_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Give a letter answer among A, B, C or D.",
+        instructions="The following are multiple choice questions (with answers) about medicine.",
         input_noun="Question",
         output_noun="Answer",
     )
@@ -2045,7 +2072,7 @@ def get_med_qa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["MedQA"],
+        groups=["med_qa"],
     )
 
 
@@ -2246,7 +2273,7 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         name=f"wmt_14:language_pair={language_pair}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_machine_translation_metric_specs(),
+        metric_specs=get_open_ended_generation_metric_specs(),
         groups=["wmt_14"],
     )
 
@@ -2423,12 +2450,15 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 
 @run_spec_function("cleva")
 def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, prompt_id: int = 0) -> RunSpec:
-    from .scenarios.cleva_scenario import CLEVAScenario  # noqa
+    from helm.benchmark.scenarios.cleva_scenario import CLEVAScenario  # noqa
 
-    CLEVAScenario.download_dataset(task, version)
+    scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), CLEVAScenario.name)
+    CLEVAScenario.download_dataset(task, version, scenario_cache_path)
 
-    _, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
-    inference_parameters = CLEVAScenario.load_inference_parameters(task, subtask, version, prompt_id)
+    _, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id, scenario_cache_path)
+    inference_parameters = CLEVAScenario.load_inference_parameters(
+        task, subtask, version, prompt_id, scenario_cache_path
+    )
 
     class_name_prefix = "".join([word.capitalize() for word in task.split("_")])
     scenario_spec = ScenarioSpec(
@@ -2695,35 +2725,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
 
         # Special handling for Anthropic Claude
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
-            try:
-                import anthropic
-                from helm.proxy.clients.anthropic_client import AnthropicClient
-            except ModuleNotFoundError as e:
-                handle_module_not_found_error(e, ["anthropic"])
-            claude_run_expanders: List[RunExpander] = []
-            claude_run_expanders.append(AddToStopRunExpander(anthropic.HUMAN_PROMPT))
-            if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags:
-                claude_run_expanders.append(IncreaseMaxTokensRunExpander(value=AnthropicClient.ADDITIONAL_TOKENS))
-            # Get scenario tags
-            components = run_spec.scenario_spec.class_name.split(".")
-            class_name = components[-1]
-            module_name = ".".join(components[:-1])
-            cls = getattr(importlib.import_module(module_name), class_name)
-            scenario_tags: List[str] = cls.tags
-            # If the scenario is instruction, do not use PROMPT_ANSWER_START
-            if "instructions" in scenario_tags:
-                claude_run_expanders.append(
-                    FormatPromptRunExpander(prefix=anthropic.HUMAN_PROMPT, suffix=f"{anthropic.AI_PROMPT}")
-                )
-            else:
-                claude_run_expanders.append(
-                    FormatPromptRunExpander(
-                        prefix=anthropic.HUMAN_PROMPT,
-                        suffix=f"{anthropic.AI_PROMPT} {AnthropicClient.PROMPT_ANSWER_START}",
-                    )
-                )
-            for claude_run_expander in claude_run_expanders:
-                run_spec = singleton(claude_run_expander.expand(run_spec))
+            run_spec = singleton(AnthropicRunExpander().expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:

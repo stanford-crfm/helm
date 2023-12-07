@@ -28,9 +28,10 @@ def _is_content_moderation_failure(response: Dict) -> bool:
 
 
 class PalmyraClient(CachingClient):
-    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, api_key: str):
+        super().__init__(cache_config=cache_config)
         self.api_key: str = api_key
+        self.tokenizer = tokenizer
 
     def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -122,7 +123,7 @@ class PalmyraClient(CachingClient):
             # The Writer API doesn't return us tokens or logprobs, so we tokenize ourselves.
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
                 # Writer uses the GPT-2 tokenizer
-                TokenizationRequest(text, tokenizer="huggingface/gpt2")
+                TokenizationRequest(text, tokenizer="writer/gpt2")
             )
 
             # Log probs are not currently not supported by the Writer, so set to 0 for now.

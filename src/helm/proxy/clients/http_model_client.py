@@ -10,7 +10,6 @@ from helm.common.request import (
     Token,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
 )
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient
 
 import requests
@@ -21,13 +20,12 @@ class HTTPModelClient(CachingClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
         cache_config: CacheConfig,
         base_url: str = "http://localhost:8080",
         timeout: int = 3000,
         do_cache: bool = False,
     ):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
         self.base_url = (
             base_url if not os.environ.get("HELM_HTTP_MODEL_BASE_URL") else os.environ["HELM_HTTP_MODEL_BASE_URL"]
         )

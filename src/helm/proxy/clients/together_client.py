@@ -6,7 +6,6 @@ from retrying import retry
 
 from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
-from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence, cleanup_str
 
 
@@ -51,6 +50,8 @@ MODEL_ALIASES: Dict[str, str] = {
     "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
     "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
     "vicuna-13b-v1.3": "lmsys/vicuna-13b-v1.3",
+    "yi-6b": "zero-one-ai/Yi-6B",
+    "yi-34b": "zero-one-ai/Yi-34B",
 }
 """Together model name aliases.
 
@@ -105,6 +106,10 @@ This provides the end of sequence tokens for models that have `ADD_EOS_TOKEN_AS_
 We hardcode the end of sequence tokens as constants here instead of attepmting to auto-infer them, for simplicity.
 The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the full HELM model name
 (e.g. "stanford/alpaca-7b") or the Together model name (e.g. "togethercomputer/alpaca-7b")."""
+
+
+TOGETHER_SUPPORTS_ASYNC_REQUESTS = False
+"""Whether Together AI currently supports asynchronous requests."""
 
 
 def _rewrite_raw_request_for_model_tags(raw_request: Dict[str, Any], model_engine: str) -> Dict[str, Any]:
@@ -166,8 +171,8 @@ class TogetherClient(CachingClient):
         }
         return _rewrite_raw_request_for_model_tags(raw_request, request.model_engine)
 
-    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, api_key: Optional[str] = None):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+        super().__init__(cache_config=cache_config)
         # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
         #       in credentials.conf, we rely on offline evaluation only.
         self.api_key: Optional[str] = api_key
@@ -183,8 +188,7 @@ class TogetherClient(CachingClient):
             raise TogetherClientError("togetherApiKey not set in credentials.conf")
         headers: Dict[str, str] = {"Authorization": f"Bearer {self.api_key}"}
 
-        # TODO: Remove synchronous branch.
-        if request.model_engine in MODEL_ALIASES:
+        if TOGETHER_SUPPORTS_ASYNC_REQUESTS:
 
             def submit_job() -> str:
                 submit_request = {**raw_request, "async": True}
