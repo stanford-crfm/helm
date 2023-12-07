@@ -1871,7 +1871,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
 @htrack("Extracting adaptation parameters from the BIG-bench task definition and building the RunSpec")
 @run_spec_function("big_bench")
 def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
-    from .scenarios.big_bench_scenario import BIGBenchScenario
+    from helm.scenarios.big_bench_scenario import BIGBenchScenario
 
     def get_adaptation_method(big_bench_metrics: List[str]) -> str:
         """
@@ -2455,7 +2455,7 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 
 @run_spec_function("cleva")
 def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, prompt_id: int = 0) -> RunSpec:
-    from .scenarios.cleva_scenario import CLEVAScenario  # noqa
+    from helm.benchmark.scenarios.cleva_scenario import CLEVAScenario  # noqa
 
     scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), CLEVAScenario.name)
     CLEVAScenario.download_dataset(task, version, scenario_cache_path)

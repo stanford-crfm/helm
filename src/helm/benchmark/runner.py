@@ -194,7 +194,6 @@ class Runner:
         # Decide where to save input instances
         self.instances_path: str = os.path.join(output_path, "scenario_instances")
         ensure_directory_exists(self.instances_path)
-        self.output_path = output_path
 
         # Output the results under a folder with the name of the suite
         self.runs_path: str = os.path.join(output_path, "runs", suite)
