@@ -803,7 +803,7 @@ models:
 
 
   # 01.AI
-  - name: 01ai/yi-34b
+  - name: 01-ai/yi-34b
     display_name: Yi (34B)
     description: The Yi models are large language models trained from scratch by developers at 01.AI.
     creator_organization_name: 01.AI

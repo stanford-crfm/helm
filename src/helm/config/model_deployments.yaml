@@ -1335,7 +1335,7 @@ model_deployments:
 
   # 01.AI
   - name: together/yi-34b
-    model_name: 01ai/yi-34b
+    model_name: 01-ai/yi-34b
     tokenizer_name: 01-ai/Yi-34B
     max_sequence_length: 4095
     client_spec:

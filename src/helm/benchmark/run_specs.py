@@ -1,5 +1,4 @@
 import dataclasses
-import importlib
 import itertools
 from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
@@ -17,18 +16,14 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.common.optional_dependencies import handle_module_not_found_error
 from .metrics.metric import MetricSpec
 from .run_expander import (
     RUN_EXPANDERS,
-    RunExpander,
     GlobalPrefixRunExpander,
     AnthropicRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
-    AddToStopRunExpander,
     IncreaseMaxTokensRunExpander,
-    FormatPromptRunExpander,
     IncreaseTemperatureRunExpander,
 )
 from .runner import RunSpec

@@ -245,28 +245,7 @@ class TogetherClient(CachingClient):
                 job_id = submit_job()
                 return retrieve_job(job_id)
 
-            def do_it_sync() -> Dict[Any, Any]:
-                # Send the query
-                response = requests.post(TogetherClient.INFERENCE_ENDPOINT, headers=headers, json=raw_request)
-                try:
-                    response.raise_for_status()
-                except Exception as e:
-                    raise TogetherClientError(
-                        f"Together job submission request failed with {response.status_code}: " f"{response.text}"
-                    ) from e
-
-                # Process the output
-                response_json = response.json()
-                if response_json["status"] != "finished":
-                    raise JobNotFinishedError("Together job not finished")
-                if "output" not in response_json:
-                    raise TogetherClientError(f"Could not get output: {response_json}")
-                if "error" in response_json["output"]:
-                    error_message = response_json["output"]["error"]
-                    raise TogetherClientError(f"Error: {error_message}")
-                return response_json["output"]
-
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it_async))
         else:
 
             def do_it_sync() -> Dict[Any, Any]:
