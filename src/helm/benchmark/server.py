@@ -43,7 +43,7 @@ def serve_config():
 #
 # We will remove this in a few months after most users have moved to the new version of helm-summarize.
 #
-# TODO(2023-03-01): Remove this.
+# TODO(2024-03-01): Remove this.
 @app.get("/benchmark_output/<runs_or_releases:re:runs|releases>/<version>/schema.json")
 def server_schema(runs_or_releases, version):
     relative_schema_path = path.join(runs_or_releases, version, "schema.json")
