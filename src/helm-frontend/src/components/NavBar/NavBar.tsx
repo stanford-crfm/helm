@@ -5,8 +5,18 @@ import crfmLogo from "@/assets/crfm-logo.png";
 import NavDropdown from "@/components/NavDropdown";
 
 export default function NavBar() {
+  const navbarStyle: React.CSSProperties = {
+    position: "sticky",
+    top: "0",
+    zIndex: "1000",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    // Add any additional inline styles for the sticky navbar here
+  };
   return (
-    <nav className="navbar h-24 px-8 md:px-12 bg-base-100 max-w[1500]px">
+    <nav
+      style={navbarStyle}
+      className="navbar sticky-nav h-24 px-8 md:px-12 bg-base-100 max-w[1500]px"
+    >
       <div>
         <div className="dropdown md:hidden mr-4">
           <label
@@ -33,6 +43,9 @@ export default function NavBar() {
                 Explore Predictions
               </Link>
             </li>
+            <li>
+              <Link to="https://github.com/stanford-crfm/helm">GitHub</Link>
+            </li>
           </ul>
         </div>
       </div>
@@ -55,6 +68,9 @@ export default function NavBar() {
           </li>
           <li>
             <Link to="runs">Explore Predictions</Link>
+          </li>
+          <li>
+            <Link to="https://github.com/stanford-crfm/helm">GitHub</Link>
           </li>
         </ul>
       </div>
