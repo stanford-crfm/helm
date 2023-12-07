@@ -384,7 +384,8 @@ model_deployments:
   - name: google/text-bison@001
     model_name: google/text-bison@001
     tokenizer_name: google/mt5-base
-    max_sequence_length: 8192
+    max_sequence_length: 6000 # Officially 8192
+    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
       args: {}
@@ -407,7 +408,8 @@ model_deployments:
   - name: google/text-unicorn@001
     model_name: google/text-unicorn@001
     tokenizer_name: google/mt5-base
-    max_sequence_length: 8192
+    max_sequence_length: 6000 # Officially 8192
+    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
       args: {}
@@ -418,7 +420,8 @@ model_deployments:
   - name: google/code-bison@001
     model_name: google/code-bison@001
     tokenizer_name: google/mt5-base
-    max_sequence_length: 6144
+    max_sequence_length: 6000 # Officially 6144
+    max_sequence_and_generated_tokens_length: 7000 # Officially 7168
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
       args: {}
