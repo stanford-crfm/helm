@@ -826,7 +826,8 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
         ),
-        max_sequence_length=8192,
+        max_sequence_length=6000,
+        max_sequence_and_generated_tokens_length=7000,
     ),
     ModelDeployment(
         name="google/text-bison-32k",
@@ -845,7 +846,8 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
         ),
-        max_sequence_length=8192,
+        max_sequence_length=6000,
+        max_sequence_and_generated_tokens_length=7000,
     ),
     ModelDeployment(
         name="google/code-bison@001",
@@ -854,7 +856,8 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.palm_window_service.CodeBisonWindowService"
         ),
-        max_sequence_length=6144,
+        max_sequence_length=6000,
+        max_sequence_and_generated_tokens_length=7000,
     ),
     ModelDeployment(
         name="google/code-bison-32k",
