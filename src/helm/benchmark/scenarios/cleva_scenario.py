@@ -10,6 +10,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_GENERATION,
 )
+from helm.benchmark.runner import get_benchmark_output_path
 from helm.common.general import (
     assert_is_str,
     assert_is_str_list,
@@ -17,12 +18,21 @@ from helm.common.general import (
     ensure_directory_exists,
 )
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+    get_scenario_cache_path,
+)
 from .code_scenario import CodeReference, CodeInstance
 
 
 CLEVA_DATA_URL = "http://39.108.215.175/data"
-CLEVA_DATA_PATH = "benchmark_output/scenarios/cleva"
 
 
 @dataclass(frozen=True)
@@ -386,7 +396,10 @@ class CLEVAScenario(Scenario):
         self.subtask = subtask
         self.version = version
         self.converter = Converter()
-        self.prompt_template, _ = CLEVAScenario.get_prompt_setting(self.task, subtask, version, prompt_id)
+        scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), CLEVAScenario.name)
+        self.prompt_template, _ = CLEVAScenario.get_prompt_setting(
+            self.task, subtask, version, prompt_id, scenario_cache_path
+        )
 
     @property
     @abstractmethod
@@ -394,14 +407,14 @@ class CLEVAScenario(Scenario):
         pass
 
     @classmethod
-    def download_dataset(cls, task: str, version: str):
+    def download_dataset(cls, task: str, version: str, cache_dir: str):
         source_url: str = CLEVA_DATA_URL + f"/{version}/{task}.zip"
-        target_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version)
+        target_dir: str = os.path.join(cache_dir, "data", version)
         ensure_directory_exists(target_dir)
         ensure_file_downloaded(source_url=source_url, target_path=os.path.join(target_dir, task), unpack=True)
 
-    def load_dataset(self) -> Dict[str, List[Dict[str, Any]]]:
-        data_dir: str = os.path.join(CLEVA_DATA_PATH, "data", self.version, self.task)
+    def load_dataset(self, cache_dir: str) -> Dict[str, List[Dict[str, Any]]]:
+        data_dir: str = os.path.join(cache_dir, "data", self.version, self.task)
         if self.subtask:
             data_dir = os.path.join(data_dir, self.subtask)
 
@@ -418,8 +431,8 @@ class CLEVAScenario(Scenario):
         return dataset
 
     @staticmethod
-    def load_prompt_templates(task: str, subtask: Optional[str], version: str) -> List[Dict[str, Any]]:
-        prompt_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
+    def load_prompt_templates(task: str, subtask: Optional[str], version: str, cache_dir: str) -> List[Dict[str, Any]]:
+        prompt_dir: str = os.path.join(cache_dir, "data", version, task)
         if subtask:
             prompt_dir = os.path.join(prompt_dir, subtask)
         file_path = os.path.join(prompt_dir, "prompts.json")
@@ -432,7 +445,7 @@ class CLEVAScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        dataset = self.load_dataset()
+        dataset = self.load_dataset(output_path)
 
         # Read all the instances
         instances: List[Instance] = []
@@ -449,9 +462,9 @@ class CLEVAScenario(Scenario):
 
     @classmethod
     def get_prompt_setting(
-        cls, task: str, subtask: Optional[str], version: str, prompt_id: int
+        cls, task: str, subtask: Optional[str], version: str, prompt_id: int, output_path: str
     ) -> Tuple[Dict[str, Any], PromptSetting]:
-        prompt_templates = cls.load_prompt_templates(task, subtask, version)
+        prompt_templates = cls.load_prompt_templates(task, subtask, version, output_path)
         if prompt_id >= len(prompt_templates):
             raise ValueError(
                 f"You want to use prompt template with prompt_id {prompt_id}, but there is only"
@@ -503,10 +516,10 @@ class CLEVAScenario(Scenario):
 
     @classmethod
     def load_inference_parameters(
-        cls, task: str, subtask: Optional[str], version: str, prompt_id: int
+        cls, task: str, subtask: Optional[str], version: str, prompt_id: int, cache_dir: str
     ) -> Dict[str, Any]:
         # We use a dict instead of dataclass to store hyperparameters such that we can set different default values
-        params_dir: str = os.path.join(CLEVA_DATA_PATH, "data", version, task)
+        params_dir: str = os.path.join(cache_dir, "data", version, task)
         if subtask:
             params_dir = os.path.join(params_dir, subtask)
         file_path = os.path.join(params_dir, "infer_params.json")
@@ -916,7 +929,7 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        dataset = self.load_dataset()
+        dataset = self.load_dataset(output_path)
 
         # Read all the instances
         instances: List[Instance] = []
