@@ -30,23 +30,16 @@ from .run_expander import (
     FormatPromptRunExpander,
     IncreaseTemperatureRunExpander,
 )
-from .runner import RunSpec
+from .runner import RunSpec, get_benchmark_output_path
 from .scenarios.lex_glue_scenario import (
     get_lex_glue_max_train_instances,
     get_lex_glue_instructions,
     get_lex_glue_max_tokens,
     get_lex_glue_task_type,
 )
-from .scenarios.scenario import ScenarioSpec
-from .scenarios.big_bench_scenario import BIGBenchScenario
+from .scenarios.scenario import ScenarioSpec, get_scenario_cache_path
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.copyright_scenario import datatag2hash_code
-from .scenarios.raft_scenario import get_raft_instructions
-from .scenarios.legalbench_scenario import (
-    get_legalbench_instructions,
-    get_legalbench_max_train_instances,
-    get_legalbench_output_nouns,
-)
 from .scenarios.lextreme_scenario import (
     get_lextreme_instructions,
     get_lextreme_max_train_instances,
@@ -1155,12 +1148,15 @@ def get_gsm_spec() -> RunSpec:
 
 @run_spec_function("raft")
 def get_raft_spec(subset: str) -> RunSpec:
+    from helm.benchmark.scenarios.raft_scenario import RAFTScenario, get_raft_instructions
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.raft_scenario.RAFTScenario", args={"subset": subset}
     )
 
+    scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), RAFTScenario.name)
     adapter_spec = get_generation_adapter_spec(
-        instructions=get_raft_instructions(subset),
+        instructions=get_raft_instructions(subset, scenario_cache_path),
         input_noun=None,
         output_noun="Label",
         max_tokens=30,  # at most ~50 characters per label
@@ -1782,16 +1778,23 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
 
 @run_spec_function("legalbench")
 def get_legalbench_spec(subset: str) -> RunSpec:
+    from helm.benchmark.scenarios.legalbench_scenario import (
+        LegalBenchScenario,
+        get_legalbench_instructions,
+        get_legalbench_max_train_instances,
+        get_legalbench_output_nouns,
+    )
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.legalbench_scenario.LegalBenchScenario", args={"subset": subset}
     )
-
+    scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), LegalBenchScenario.name)
     adapter_spec = get_generation_adapter_spec(
-        instructions=get_legalbench_instructions(subset),
+        instructions=get_legalbench_instructions(subset, scenario_cache_path),
         input_noun=None,
-        output_noun=get_legalbench_output_nouns(subset),
+        output_noun=get_legalbench_output_nouns(subset, scenario_cache_path),
         max_tokens=30,  # at most ~50 characters per label,
-        max_train_instances=get_legalbench_max_train_instances(subset),
+        max_train_instances=get_legalbench_max_train_instances(subset, scenario_cache_path),
     )
 
     return RunSpec(
@@ -1868,6 +1871,8 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
 @htrack("Extracting adaptation parameters from the BIG-bench task definition and building the RunSpec")
 @run_spec_function("big_bench")
 def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
+    from .scenarios.big_bench_scenario import BIGBenchScenario
+
     def get_adaptation_method(big_bench_metrics: List[str]) -> str:
         """
         From BIG-bench, "there are three types of BIG-bench JSON tasks - generative and scoring
@@ -1912,9 +1917,8 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     )
 
     # Get BIG-bench task definition.
-    # TODO: get `output_path` here without hardcoding
-    output_path: str = "benchmark_output/scenarios/big_bench"
-    big_bench_task: Dict = BIGBenchScenario.download_and_get_task(output_path, task, subtask)
+    scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), BIGBenchScenario.name)
+    big_bench_task: Dict = BIGBenchScenario.download_and_get_task(scenario_cache_path, task, subtask)
 
     # The JSON schema for BIG-bench can be found here:
     # https://github.com/google/BIG-bench/blob/main/docs/doc.md#json-schema.
@@ -2453,10 +2457,13 @@ def get_anthropic_hh_rlhf_spec(num_respondents: int, subset: str) -> RunSpec:
 def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, prompt_id: int = 0) -> RunSpec:
     from .scenarios.cleva_scenario import CLEVAScenario  # noqa
 
-    CLEVAScenario.download_dataset(task, version)
+    scenario_cache_path = get_scenario_cache_path(get_benchmark_output_path(), CLEVAScenario.name)
+    CLEVAScenario.download_dataset(task, version, scenario_cache_path)
 
-    _, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id)
-    inference_parameters = CLEVAScenario.load_inference_parameters(task, subtask, version, prompt_id)
+    _, prompt_setting = CLEVAScenario.get_prompt_setting(task, subtask, version, prompt_id, scenario_cache_path)
+    inference_parameters = CLEVAScenario.load_inference_parameters(
+        task, subtask, version, prompt_id, scenario_cache_path
+    )
 
     class_name_prefix = "".join([word.capitalize() for word in task.split("_")])
     scenario_spec = ScenarioSpec(

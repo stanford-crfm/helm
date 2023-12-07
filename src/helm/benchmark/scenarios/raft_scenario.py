@@ -1,7 +1,6 @@
 import random
 import os
 import json
-import tempfile
 import datasets
 from pathlib import Path
 from typing import List, Dict
@@ -26,11 +25,8 @@ SUBSETS = [
 ]
 
 
-def get_raft_prompt_settings(subset: str, cache_dir=None):
+def get_raft_prompt_settings(subset: str, cache_dir: str):
     assert subset in SUBSETS, "Unknown subset: {}".format(subset)
-
-    if cache_dir is None:
-        cache_dir = tempfile.gettempdir()
 
     prompt_construction_settings_path = os.path.join(cache_dir, "raft_prompt_construction_settings.json")
     ensure_directory_exists(cache_dir)
@@ -44,7 +40,7 @@ def get_raft_prompt_settings(subset: str, cache_dir=None):
     return field_ordering[subset], instructions[subset]
 
 
-def get_raft_instructions(subset: str, cache_dir=None):
+def get_raft_instructions(subset: str, cache_dir: str):
     return get_raft_prompt_settings(subset, cache_dir)[1]
 
 
