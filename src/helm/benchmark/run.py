@@ -7,6 +7,7 @@ from helm.benchmark.huggingface_registration import (
 )
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
+from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
@@ -19,7 +20,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark import heim_run_specs  # noqa
 from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
-from .runner import Runner, RunSpec, LATEST_SYMLINK
+from .runner import Runner, RunSpec, LATEST_SYMLINK, set_benchmark_output_path
 from .run_specs import construct_run_specs
 
 
@@ -40,7 +41,7 @@ def run_entries_to_run_specs(
 
         for run_spec in construct_run_specs(parse_object_spec(entry.description)):
             # Filter by models
-            if models_to_run and run_spec.adapter_spec.model_deployment not in models_to_run:
+            if models_to_run and run_spec.adapter_spec.model not in models_to_run:
                 continue
 
             # Filter by groups
@@ -278,6 +279,11 @@ def main():
         run_entries.extend(
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
         )
+
+    # Must set benchmark output path before getting RunSpecs,
+    # because run spec functions can use the benchmark output directory for caching.
+    ensure_directory_exists(args.output_path)
+    set_benchmark_output_path(args.output_path)
 
     register_helm_configurations()
 

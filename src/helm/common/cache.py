@@ -22,7 +22,7 @@ def retry_if_write_failed(success: bool) -> bool:
 
 
 retry: Callable = get_retry_decorator(
-    "Write", max_attempts=10, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_write_failed
+    "Write", max_attempts=5, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_write_failed
 )
 
 

@@ -92,7 +92,7 @@ $(function () {
     $table.append($header);
 
     schema.run_groups.forEach((group) => {
-      if (group.category) {
+      if (group.category && group.category !== "Scenarios") {
         return;
       }
       const href = groupUrl(group.name);
@@ -1595,8 +1595,7 @@ $(function () {
     window.SUITE = urlParams.suite;
   }
 
-  const schemaPromise = $.get("schema.yaml", {}, (response) => {
-    const raw = jsyaml.load(response);
+  const schemaPromise = $.getJSON(schemaJsonUrl(), {}, (raw) => {
     console.log("schema", raw);
     schema = new Schema(raw);
   });

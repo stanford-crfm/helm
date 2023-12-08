@@ -1,7 +1,6 @@
 import random
 import os
 import json
-import tempfile
 import datasets
 from pathlib import Path
 from typing import List, Dict
@@ -20,14 +19,11 @@ SUBSETS = [
 ]
 
 
-def get_legalbench_prompt_settings(subset: str, cache_dir=None):
+def get_legalbench_prompt_settings(subset: str, cache_dir: str):
     """
     Loads prompt construction settings for all subsets.
     """
     assert subset in SUBSETS, "Unknown subset: {}".format(subset)
-
-    if cache_dir is None:
-        cache_dir = tempfile.gettempdir()
 
     prompt_construction_settings_path = os.path.join(cache_dir, "prompt_construction_settings.json")
     ensure_directory_exists(cache_dir)
@@ -48,15 +44,15 @@ def get_legalbench_prompt_settings(subset: str, cache_dir=None):
     )
 
 
-def get_legalbench_instructions(subset: str, cache_dir=None):
+def get_legalbench_instructions(subset: str, cache_dir: str):
     return get_legalbench_prompt_settings(subset, cache_dir)[1]
 
 
-def get_legalbench_output_nouns(subset: str, cache_dir=None):
+def get_legalbench_output_nouns(subset: str, cache_dir: str):
     return get_legalbench_prompt_settings(subset, cache_dir)[3]
 
 
-def get_legalbench_max_train_instances(subset: str, cache_dir=None):
+def get_legalbench_max_train_instances(subset: str, cache_dir: str):
     return get_legalbench_prompt_settings(subset, cache_dir)[4]
 
 

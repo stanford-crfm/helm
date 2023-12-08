@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from typing import List, Optional, Tuple
+import os
 from pathlib import PurePath
 import inspect
 
 from helm.common.media_object import MultimediaObject
 from helm.common.object_spec import ObjectSpec, create_object
-from helm.common.general import format_text, format_split, format_tags, indent_lines
+from helm.common.general import ensure_directory_exists, format_text, format_split, format_tags, indent_lines
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 
 """ Data splits """
@@ -252,3 +253,10 @@ class ScenarioSpec(ObjectSpec):
 def create_scenario(scenario_spec: ScenarioSpec) -> Scenario:
     """Construct the scenario and set some fields."""
     return create_object(scenario_spec)
+
+
+def get_scenario_cache_path(benchmark_output_path: str, scenario_name: str):
+    """Return a directory under benchmark_output_path in which Scenario can cache temporary data."""
+    scenarios_path: str = os.path.join(benchmark_output_path, "scenarios", scenario_name)
+    ensure_directory_exists(scenarios_path)
+    return scenarios_path

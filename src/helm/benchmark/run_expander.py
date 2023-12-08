@@ -15,6 +15,7 @@ from helm.benchmark.model_metadata_registry import (
     TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
+from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .runner import RunSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
@@ -256,6 +257,41 @@ class GlobalPrefixRunExpander(RunExpander):
         ]
 
 
+class AnthropicRunExpander(RunExpander):
+    """Customize prompt for Claude models."""
+
+    name = "anthropic"
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        try:
+            import anthropic
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["anthropic"])
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=anthropic.HUMAN_PROMPT
+                    + " Here are some in-context input-output examples. "
+                    + "Read the examples carefully to figure out the mapping. "
+                    + "The output of the last example is not given, "
+                    + "and your job is to figure out what it is.\n\n",
+                    global_suffix="\n\nPlease provide the output to this last example. "
+                    + "Please follow the format of the preceding outputs!"
+                    + anthropic.AI_PROMPT
+                    + " "
+                    + run_spec.adapter_spec.output_prefix.strip(),
+                ),
+            ),
+        ]
+
+
 class FormatPromptRunExpander(RunExpander):
     """Adds a prefix and suffix to the prompt."""
 
@@ -272,7 +308,7 @@ class FormatPromptRunExpander(RunExpander):
                 name=run_spec.name,
                 adapter_spec=replace(
                     run_spec.adapter_spec,
-                    global_prefix=self.prefix,
+                    input_prefix=self.prefix,
                     output_prefix=self.suffix,
                 ),
             ),

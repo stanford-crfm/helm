@@ -18,21 +18,21 @@ class HuggingFaceWindowService(LocalWindowService):
     ):
         super().__init__(service)
         self._tokenizer_name = tokenizer_name
-        tokenizer = HuggingFaceTokenizer.get_tokenizer(
-            helm_tokenizer_name=tokenizer_name,
-            pretrained_model_name_or_path=pretrained_model_name_or_path or tokenizer_name,
-            revision=revision,
-        )
         # Override max_sequence_length, max_request_length, end_of_text_token
         # and prefix_token if provided as an argument.
         # Otherwise, auto-infer them from the Hugging Face tokenizer.
         #
         # Note that many Hugging Face tokenizers have incorrect sequence lengths,
         # so it is recommended to set this manually.
-        self._max_sequence_length = max_sequence_length or tokenizer.model_max_length
-        self._max_request_length = max_request_length or self._max_sequence_length
-        self._end_of_text_token = end_of_text_token or tokenizer.eos_token or ""
-        self._prefix_token = prefix_token or tokenizer.bos_token or ""
+        with HuggingFaceTokenizer.get_tokenizer(
+            helm_tokenizer_name=tokenizer_name,
+            pretrained_model_name_or_path=pretrained_model_name_or_path or tokenizer_name,
+            revision=revision,
+        ) as tokenizer:
+            self._max_sequence_length = max_sequence_length or tokenizer.model_max_length
+            self._max_request_length = max_request_length or self._max_sequence_length
+            self._end_of_text_token = end_of_text_token or tokenizer.eos_token or ""
+            self._prefix_token = prefix_token or tokenizer.bos_token or ""
 
     @property
     def tokenizer_name(self) -> str:

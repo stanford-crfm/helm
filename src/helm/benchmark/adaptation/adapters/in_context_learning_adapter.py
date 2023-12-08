@@ -231,6 +231,7 @@ class InContextLearningAdapter(Adapter, ABC):
         # Prompt
         prompt = Prompt(
             global_prefix=self.adapter_spec.global_prefix,
+            global_suffix=self.adapter_spec.global_suffix,
             instructions_block=instructions_block,
             train_instance_blocks=train_instance_blocks,
             eval_instance_block=eval_instance_block,

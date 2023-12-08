@@ -9,7 +9,10 @@ class PalmyraWindowService(LocalWindowService):
     @property
     def tokenizer_name(self) -> str:
         """All Palmyra models use the same tokenizer."""
-        return "huggingface/gpt2"
+        # Palmyra models do not support echo
+        # So they have a different TokenizerConfig called "writer/gpt2"
+        # when in reality they use the same tokenizer as "huggingface/gpt2"
+        return "writer/gpt2"
 
     @property
     def max_sequence_length(self) -> int:
@@ -43,3 +46,23 @@ class LongerPalmyraWindowService(PalmyraWindowService):
     @property
     def max_sequence_length(self) -> int:
         return 8192
+
+
+class Palmyra6KWindowService(PalmyraWindowService):
+    @property
+    def max_sequence_length(self) -> int:
+        return 6000
+
+    @property
+    def max_sequence_and_generated_tokens_length(self) -> int:
+        return self.max_request_length + 1024
+
+
+class Palmyra32KWindowService(PalmyraWindowService):
+    @property
+    def max_sequence_length(self) -> int:
+        return 28000
+
+    @property
+    def max_sequence_and_generated_tokens_length(self) -> int:
+        return self.max_request_length + 2048

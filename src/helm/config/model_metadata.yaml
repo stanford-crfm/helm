@@ -179,6 +179,14 @@ models:
     release_date: 2023-07-11
     tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: anthropic/claude-2.1
+    display_name: Anthropic Claude 2.1
+    description: Claude 2.1 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2023-11-21
+    tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   # DEPRECATED: Please do not use.
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
@@ -571,6 +579,46 @@ models:
     num_parameters: 540000000000
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
     tags: [] # TODO: add tags
+
+  - name: google/text-bison@001
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/text-bison-32k
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model with a 32K context. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/text-unicorn@001
+    display_name: PaLM-2 (Unicorn)
+    description: The largest model in PaLM family. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-11-30 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/code-bison@001
+    display_name: Codey PaLM-2 (Bison)
+    description: A model fine-tuned to generate code based on a natural language description of the desired code. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
+    tags: [CODE_MODEL_TAG]
+
+  - name: google/code-bison-32k
+    display_name: Codey PaLM-2 (Bison)
+    description: Codey with a 32K context. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
+    tags: [CODE_MODEL_TAG]
 
 
 
@@ -973,6 +1021,25 @@ models:
     release_date: 2022-01-28
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+
+
+  # 01.AI
+  - name: 01-ai/yi-6b
+    display_name: Yi (6B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization_name: 01.AI
+    access: open
+    num_parameters: 6000000000
+    release_date: 2023-11-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+  - name: 01-ai/yi-34b
+    display_name: Yi (34B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization_name: 01.AI
+    access: open
+    num_parameters: 34000000000
+    release_date: 2023-11-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
   # Mistral AI
@@ -1547,6 +1614,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/palmyra-instruct-30
+    deprecated: true # Internal error
     display_name: InstructPalmyra (30B)
     description: InstructPalmyra (30B parameters) is trained using reinforcement learning techniques based on feedback from humans.
     creator_organization_name: Writer
@@ -1557,6 +1625,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/palmyra-e
+    deprecated: true # Internal error
     display_name: Palmyra E (30B)
     description: Palmyra E (30B)
     creator_organization_name: Writer
@@ -1583,6 +1652,36 @@ models:
     access: limited
     num_parameters: 43000000000
     release_date: 2023-06-11
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x-v2
+    display_name: Palmyra X V2 (33B)
+    description: Palmyra-X V2 (33B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. The pre-training data more than 2 trillion tokens types are diverse and cover a wide range of areas, used FlashAttention-2.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 33000000000
+    release_date: 2023-12-01
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x-v3
+    display_name: Palmyra X V3 (72B)
+    description: Palmyra-X V3 (72B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. It is trained via unsupervised learning and DPO and use multiquery attention.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 72000000000
+    release_date: 2023-12-01
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x-32k
+    display_name: Palmyra X-32K (33B)
+    description: Palmyra-X-32K (33B parameters) is a Transformer-based model, which is trained on large-scale pre-training data. The pre-training data types are diverse and cover a wide range of areas. These data types are used in conjunction and the alignment mechanism to extend context window.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 33000000000
+    release_date: 2023-12-01
     # Does not support echo
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 

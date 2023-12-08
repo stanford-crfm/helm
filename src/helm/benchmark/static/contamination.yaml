@@ -83,7 +83,6 @@ points:
     - openai/code-davinci-002
     - openai/code-davinci-001
     - openai/code-cushman-001
-    - openai/chat-gpt
     groups:
     - natural_qa_closedbook
     - natural_qa_openbook_longans

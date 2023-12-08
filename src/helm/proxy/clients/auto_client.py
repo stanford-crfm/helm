@@ -85,6 +85,8 @@ class AutoClient(Client):
                     ),  # OpenAI, GooseAI, Microsoft
                     "moderation_api_client": lambda: self.get_moderation_api_client(),  # OpenAI DALL-E
                     "lock_file_path": lambda: os.path.join(self.cache_path, f"{host_organization}.lock"),  # Microsoft
+                    "project_id": lambda: self.credentials.get(host_organization + "ProjectId", None),  # VertexAI
+                    "location": lambda: self.credentials.get(host_organization + "Location", None),  # VertexAI
                     "hf_auth_token": lambda: self.credentials.get("huggingfaceAuthToken", None),  # HuggingFace
                 },
             )

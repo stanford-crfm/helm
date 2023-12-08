@@ -45,3 +45,5 @@ notes.otl
 
 # Miscellaneous
 .nfs*
+
+node_modules
