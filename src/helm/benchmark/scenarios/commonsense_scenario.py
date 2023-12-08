@@ -114,6 +114,47 @@ class OpenBookQA(Scenario):
         return _make_instance(question=question, answers=answers, correct_answer=correct_answer, split=split)
 
 
+class CommonSenseQAScenario(Scenario):
+    name = "commonsenseqa"
+    description = "Benchmark from https://arxiv.org/pdf/1811.00937.pdf."
+    tags = ["knowledge", "multiple_choice"]
+
+    def get_instances(self, output_path: str) -> List[Instance]:
+        # Download the raw data
+        data_path = os.path.join(output_path, "data")
+        ensure_directory_exists(data_path)
+
+        instances = []
+        base_url = "https://s3.amazonaws.com/commensenseqa/{}_rand_split.jsonl"
+        # Ignore CommonSenseQA test set because no label information
+        split_mapping = {"train": "train", "val": "dev"}
+        for split in ["train", "val"]:
+            file_path = os.path.join(data_path, f"commonsenseqa_{split}.jsonl")
+            ensure_file_downloaded(
+                source_url=base_url.format(split_mapping[split]),
+                target_path=file_path,
+            )
+            hlog(f"Reading {file_path}")
+            with open(file_path) as f:
+                for line in f:
+                    item = json.loads(line)
+                    instances.append(self.json_to_instance(item, split))
+        return instances
+
+    @staticmethod
+    def json_to_instance(item, split) -> Instance:
+        # Note: question concept field is not used: item["question"]["question_concept"]
+        letter2idx = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4}
+        question = item["question"]["stem"]
+        answers = [answer["text"] for answer in item["question"]["choices"]]
+        correct_choice = letter2idx[item["answerKey"]]
+        correct_answer = answers[correct_choice]
+
+        assert len(answers) == 5
+        assert item["question"]["choices"][correct_choice]["label"] == item["answerKey"]
+        return _make_instance(question, answers, correct_answer, split)
+
+
 class PiqaScenario(Scenario):
     name = "piqa"
     description = "Benchmark from https://arxiv.org/pdf/1911.11641.pdf."
@@ -197,94 +238,3 @@ class SiqaScenario(Scenario):
         assert len(item) == 5
         assert correct_choice in [0, 1, 2]
         return _make_instance(question, answers, correct_answer, split)
-
-
-class CommonSenseScenario(Scenario):
-    """
-    Unified interface for all CommonSense scenarios.
-
-    - The "CommonSenseQA" benchmark from this paper:
-      https://arxiv.org/pdf/1811.00937.pdf
-
-    """
-
-    name = "commonsense"
-    description = "Unified interface for all CommonSense scenarios."
-    tags = ["knowledge", "multiple_choice"]
-
-    def __init__(self, dataset):
-        super().__init__()
-        self.dataset = dataset
-        assert self.dataset in ["commonsenseqa"]
-
-    @staticmethod
-    def process_commonsenseqa_item(item):
-        # Note: question concept field is not used: item["question"]["question_concept"]
-        letter2idx = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4}
-        question = item["question"]["stem"]
-        answers = [answer["text"] for answer in item["question"]["choices"]]
-        correct_choice = letter2idx[item["answerKey"]]
-        correct_answer = answers[correct_choice]
-
-        assert len(answers) == 5
-        assert item["question"]["choices"][correct_choice]["label"] == item["answerKey"]
-        return question, answers, correct_answer
-
-    def download_dataset(self, output_path: str):
-        # Download the raw data
-        data_path = os.path.join(output_path, "data", self.dataset)
-        ensure_directory_exists(data_path)
-
-        if self.dataset == "commonsenseqa":
-            url = "https://s3.amazonaws.com/commensenseqa/{}_rand_split.jsonl"
-            split_mapping = {"train": "train", "val": "dev"}
-            for split in ["train", "val"]:
-                ensure_file_downloaded(
-                    source_url=url.format(split_mapping[split]),
-                    target_path=os.path.join(data_path, f"commonsenseqa_{split}.jsonl"),
-                )
-        else:
-            raise ValueError(f"Unknown dataset: {self.dataset}")
-
-    def load_dataset(self, output_path: str) -> List[List[str]]:
-        data_path = os.path.join(output_path, "data", self.dataset)
-
-        if self.dataset == "commonsenseqa":
-            split_to_file = {
-                split: os.path.join(data_path, f"commonsenseqa_{split}.jsonl") for split in ["train", "val"]
-            }  # Ignore CommonSenseQA test set because no label information
-            item_process_func = self.process_commonsenseqa_item
-        else:
-            raise ValueError(f"Unknown dataset: {self.dataset}")
-
-        data = []
-        for split in split_to_file:
-            file_path = split_to_file[split]
-            if not os.path.exists(file_path):
-                raise FileNotFoundError(f"File not found: {file_path}")
-
-            hlog(f"Reading {file_path}")
-            with open(file_path) as f:
-                for line in f:
-                    item = json.loads(line)
-                    question, answers, correct_answer = item_process_func(item)
-                    data.append([question, answers, correct_answer, split])
-        return data
-
-    def get_instances(self, output_path: str) -> List[Instance]:
-        self.download_dataset(output_path)
-        data = self.load_dataset(output_path)
-
-        instances: List[Instance] = []
-
-        def answer_to_reference(answer: str) -> Reference:
-            return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
-
-        for question_id, (question, answers, correct_answer, split) in enumerate(data):
-            instance = Instance(
-                input=Input(text=question),
-                references=list(map(answer_to_reference, answers)),
-                split=_SPLIT_TRANSLATION[split],
-            )
-            instances.append(instance)
-        return instances
