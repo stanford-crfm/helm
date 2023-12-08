@@ -161,12 +161,6 @@ class CommonSenseScenario(Scenario):
     """
     Unified interface for all CommonSense scenarios.
 
-    - The "HellaSwag" benchmark from this paper:
-      https://arxiv.org/pdf/1905.07830.pdf
-
-    - The "OpenBookQA" benchmark from this paper:
-      https://aclanthology.org/D18-1260.pdf
-
     - The "CommonSenseQA" benchmark from this paper:
       https://arxiv.org/pdf/1811.00937.pdf
 
@@ -184,7 +178,7 @@ class CommonSenseScenario(Scenario):
     def __init__(self, dataset):
         super().__init__()
         self.dataset = dataset
-        assert self.dataset in ["hellaswag", "openbookqa", "commonsenseqa", "piqa", "siqa"]
+        assert self.dataset in ["commonsenseqa", "piqa", "siqa"]
 
     @staticmethod
     def process_commonsenseqa_item(item):
