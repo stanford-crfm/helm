@@ -5,7 +5,7 @@ from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
 from helm.benchmark.model_deployment_registry import ALL_MODEL_DEPLOYMENTS, DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT
-from helm.benchmark.scenarios.commonsense_scenario import HellaSwagScenario, OpenBookQA, PiqaScenario
+from helm.benchmark.scenarios.commonsense_scenario import HellaSwagScenario, OpenBookQA, PiqaScenario, SiqaScenario
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.object_spec import ObjectSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import (
@@ -997,6 +997,8 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
         )
     elif dataset == OpenBookQA.name:
         scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.commonsense_scenario.OpenBookQA", args={})
+    elif dataset == SiqaScenario.name:
+        scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.commonsense_scenario.SiqaScenario", args={})
     elif dataset == PiqaScenario.name:
         scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.commonsense_scenario.PiqaScenario", args={})
     else:

@@ -157,6 +157,48 @@ class PiqaScenario(Scenario):
         return _make_instance(question, answers, correct_answer, split)
 
 
+class SiqaScenario(Scenario):
+    name = "siqa"
+    description = "Benchmark from https://arxiv.org/pdf/1904.09728.pdf."
+    tags = ["knowledge", "multiple_choice"]
+
+    def get_instances(self, output_path: str) -> List[Instance]:
+        # Download the raw data
+        data_path = os.path.join(output_path, "data")
+        ensure_directory_exists(data_path)
+
+        ensure_file_downloaded(
+            source_url="https://storage.googleapis.com/ai2-mosaic/public/socialiqa/socialiqa-train-dev.zip",
+            target_path=os.path.join(data_path, "socialiqa-train-dev"),
+            unpack=True,
+            unpack_type="unzip",
+        )
+        # TODO The source doesn't follow the standard naming for 'val', so maybe can skip _SPLIT_TRANSLATION.
+        split_mapping = {"train": "train", "val": "dev"}
+        instances = []
+        # SIQA has no available test set
+        for split in ["train", "val"]:
+            base_path = os.path.join(data_path, "socialiqa-train-dev", "socialiqa-train-dev", f"{split_mapping[split]}")
+            data = [json.loads(line) for line in open(base_path + ".jsonl")]
+            labels = [int(line.strip()) for line in open(base_path + "-labels.lst")]
+            assert len(data) == len(labels)
+
+            for item, label in zip(data, labels):
+                instances.append(self.json_to_instance(item, label, split))
+        return instances
+
+    @staticmethod
+    def json_to_instance(item, label, split) -> Instance:
+        question = f"{item['context']} {item['question']}"
+        answers = [item["answerA"], item["answerB"], item["answerC"]]
+        correct_choice = label - 1
+        correct_answer = answers[correct_choice]
+
+        assert len(item) == 5
+        assert correct_choice in [0, 1, 2]
+        return _make_instance(question, answers, correct_answer, split)
+
+
 class CommonSenseScenario(Scenario):
     """
     Unified interface for all CommonSense scenarios.
@@ -164,8 +206,6 @@ class CommonSenseScenario(Scenario):
     - The "CommonSenseQA" benchmark from this paper:
       https://arxiv.org/pdf/1811.00937.pdf
 
-    - The "SIQA" benchmark from this paper:
-      https://arxiv.org/pdf/1904.09728.pdf
     """
 
     name = "commonsense"
@@ -175,7 +215,7 @@ class CommonSenseScenario(Scenario):
     def __init__(self, dataset):
         super().__init__()
         self.dataset = dataset
-        assert self.dataset in ["commonsenseqa", "siqa"]
+        assert self.dataset in ["commonsenseqa"]
 
     @staticmethod
     def process_commonsenseqa_item(item):
@@ -188,17 +228,6 @@ class CommonSenseScenario(Scenario):
 
         assert len(answers) == 5
         assert item["question"]["choices"][correct_choice]["label"] == item["answerKey"]
-        return question, answers, correct_answer
-
-    @staticmethod
-    def process_siqa_item(item):
-        question = f"{item['context']} {item['question']}"
-        answers = [item["answerA"], item["answerB"], item["answerC"]]
-        correct_choice = item["label"] - 1
-        correct_answer = answers[correct_choice]
-
-        assert len(item) == 6
-        assert correct_choice in [0, 1, 2]
         return question, answers, correct_answer
 
     def download_dataset(self, output_path: str):
@@ -214,40 +243,6 @@ class CommonSenseScenario(Scenario):
                     source_url=url.format(split_mapping[split]),
                     target_path=os.path.join(data_path, f"commonsenseqa_{split}.jsonl"),
                 )
-        elif self.dataset == "siqa":
-            ensure_file_downloaded(
-                source_url="https://storage.googleapis.com/ai2-mosaic/public/socialiqa/socialiqa-train-dev.zip",
-                target_path=os.path.join(data_path, "socialiqa-train-dev"),
-                unpack=True,
-                unpack_type="unzip",
-            )
-            split_mapping = {"train": "train", "val": "dev"}
-            for split in ["train", "val"]:
-                data = [
-                    json.loads(line)
-                    for line in open(
-                        os.path.join(
-                            data_path, "socialiqa-train-dev", "socialiqa-train-dev", f"{split_mapping[split]}.jsonl"
-                        )
-                    )
-                ]
-                labels = [
-                    int(line.strip())
-                    for line in open(
-                        os.path.join(
-                            data_path,
-                            "socialiqa-train-dev",
-                            "socialiqa-train-dev",
-                            f"{split_mapping[split]}-labels.lst",
-                        )
-                    )
-                ]
-                assert len(data) == len(labels)
-                for item, label in zip(data, labels):
-                    item["label"] = label
-                with open(os.path.join(data_path, f"siqa_{split}.jsonl"), "w") as f:
-                    for item in data:
-                        f.write(json.dumps(item) + "\n")
         else:
             raise ValueError(f"Unknown dataset: {self.dataset}")
 
@@ -259,11 +254,6 @@ class CommonSenseScenario(Scenario):
                 split: os.path.join(data_path, f"commonsenseqa_{split}.jsonl") for split in ["train", "val"]
             }  # Ignore CommonSenseQA test set because no label information
             item_process_func = self.process_commonsenseqa_item
-        elif self.dataset == "siqa":
-            split_to_file = {
-                split: os.path.join(data_path, f"siqa_{split}.jsonl") for split in ["train", "val"]
-            }  # SIQA has no available test set
-            item_process_func = self.process_siqa_item
         else:
             raise ValueError(f"Unknown dataset: {self.dataset}")
 
