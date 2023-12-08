@@ -38,7 +38,7 @@ function NavDropdown() {
       </div>
 
       {dropdownOpen && (
-        <div className="absolute mt-2 w-96 translate-x-4 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+        <div className="absolute mt-2 w-max translate-x-4 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
           <div
             className="py-1"
             role="menu"
