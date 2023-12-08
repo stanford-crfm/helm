@@ -270,25 +270,41 @@ class AnthropicRunExpander(RunExpander):
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["anthropic"])
 
-        return [
-            replace(
-                run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=anthropic.HUMAN_PROMPT
-                    + " Here are some in-context input-output examples. "
-                    + "Read the examples carefully to figure out the mapping. "
-                    + "The output of the last example is not given, "
-                    + "and your job is to figure out what it is.\n\n",
-                    global_suffix="\n\nPlease provide the output to this last example. "
-                    + "Please follow the format of the preceding outputs!"
-                    + anthropic.AI_PROMPT
-                    + " "
-                    + run_spec.adapter_spec.output_prefix.strip(),
+        is_completion = (run_spec.adapter_spec.max_train_instances == 0)
+        if is_completion:
+            # No in-context examples, so it's more about instruction following or completion.
+            return [
+                replace(
+                    run_spec,
+                    name=run_spec.name,
+                    adapter_spec=replace(
+                        run_spec.adapter_spec,
+                        global_prefix=anthropic.HUMAN_PROMPT + " Complete the following block of code. Wrap the code in <code></code> tags.",
+                        #global_suffix="[output]\n\nPlease determine what [output] is." +
+                        global_suffix=anthropic.AI_PROMPT, # + " [output] is",
+                    ),
                 ),
-            ),
-        ]
+            ]
+        else:
+            return [
+                replace(
+                    run_spec,
+                    name=run_spec.name,
+                    adapter_spec=replace(
+                        run_spec.adapter_spec,
+                        global_prefix=anthropic.HUMAN_PROMPT
+                        + " Here are some in-context input-output examples. "
+                        + "Read the examples carefully to figure out the mapping. "
+                        + "The output of the last example is not given, "
+                        + "and your job is to figure out what it is.\n\n",
+                        global_suffix="\n\nPlease provide the output to this last example. "
+                        + "Please follow the format of the preceding outputs!"
+                        + anthropic.AI_PROMPT
+                        + " "
+                        + run_spec.adapter_spec.output_prefix.strip(),
+                    ),
+                ),
+            ]
 
 
 class FormatPromptRunExpander(RunExpander):
