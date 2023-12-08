@@ -101,12 +101,12 @@ class CachingTokenizer(Tokenizer):
             # This is to make sure that the tokenization is correct
             if request.encode and len(tokens) > 0:
                 assert type(tokens[0].value) == int, (
-                    f"tokenize() returned integers instead of strings when encode is True: "
+                    f"tokenize() returned strings instead of integers when encode is True: "
                     f"request={request} repsonse={response}"
                 )
             elif not request.encode and len(tokens) > 0:
                 assert type(tokens[0].value) == str, (
-                    f"tokenize() returned strings instead of integers when encode is False: "
+                    f"tokenize() returned integers instead of strings when encode is False: "
                     f"request={request} repsonse={response}"
                 )
 
