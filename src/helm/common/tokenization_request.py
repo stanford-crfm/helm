@@ -19,7 +19,7 @@ class TokenizationRequest:
     text: str
 
     # Which tokenizer we should use
-    tokenizer: str = "huggingface/gpt2"
+    tokenizer: str
 
     # Whether to encode
     encode: bool = False

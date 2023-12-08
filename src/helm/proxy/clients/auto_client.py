@@ -68,7 +68,7 @@ class AutoClient(Client):
 
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
-                constant_bindings={"cache_config": cache_config},
+                constant_bindings={"cache_config": cache_config, "tokenizer_name": model_deployment.tokenizer_name},
                 provider_bindings={
                     "api_key": lambda: provide_api_key(self.credentials, host_organization, model_deployment_name),
                     "tokenizer": lambda: self._auto_tokenizer._get_tokenizer(

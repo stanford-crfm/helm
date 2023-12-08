@@ -26,7 +26,7 @@ class TestAnthropicTokenizer:
         os.remove(self.cache_path)
 
     def test_tokenize(self):
-        request = TokenizationRequest(text=self.TEST_PROMPT)
+        request = TokenizationRequest(text=self.TEST_PROMPT, tokenizer="anthropic/claude")
         result: TokenizationRequestResult = self.tokenizer.tokenize(request)
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         assert result.raw_tokens == self.TEST_TOKENS
@@ -35,7 +35,9 @@ class TestAnthropicTokenizer:
         assert result.raw_tokens == self.TEST_TOKENS
 
     def test_encode(self):
-        request = TokenizationRequest(text=self.TEST_PROMPT, encode=True, truncation=True, max_length=1)
+        request = TokenizationRequest(
+            text=self.TEST_PROMPT, tokenizer="anthropic/claude", encode=True, truncation=True, max_length=1
+        )
         result: TokenizationRequestResult = self.tokenizer.tokenize(request)
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         assert result.raw_tokens == [self.TEST_ENCODED[0]]
@@ -43,13 +45,15 @@ class TestAnthropicTokenizer:
         assert result.cached, "Result should be cached"
         assert result.raw_tokens == [self.TEST_ENCODED[0]]
 
-        request = TokenizationRequest(text=self.TEST_PROMPT, encode=True, truncation=True, max_length=1024)
+        request = TokenizationRequest(
+            text=self.TEST_PROMPT, tokenizer="anthropic/claude", encode=True, truncation=True, max_length=1024
+        )
         result = self.tokenizer.tokenize(request)
         assert not result.cached, "First time making this particular request. Result should not be cached"
         assert result.raw_tokens == self.TEST_ENCODED
 
     def test_decode(self):
-        request = DecodeRequest(tokens=self.TEST_ENCODED)
+        request = DecodeRequest(tokens=self.TEST_ENCODED, tokenizer="anthropic/claude")
         result: DecodeRequestResult = self.tokenizer.decode(request)
         assert not result.cached, "First time making the decode request. Result should not be cached"
         assert result.text == self.TEST_PROMPT
