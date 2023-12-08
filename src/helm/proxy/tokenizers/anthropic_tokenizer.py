@@ -15,6 +15,9 @@ except ModuleNotFoundError as e:
 
 class AnthropicTokenizer(CachingTokenizer):
     LOCK: threading.Lock = threading.Lock()
+    """Global lock for the Anthropic tokenizer.
+
+    The Anthropic tokenizer is a wrapper around a single global Hugging Face tokenizer, which is thread-hostile."""
 
     def __init__(self, cache_config: CacheConfig) -> None:
         super().__init__(cache_config)
