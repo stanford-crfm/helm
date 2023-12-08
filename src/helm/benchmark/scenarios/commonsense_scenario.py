@@ -35,14 +35,14 @@ def _make_instance(question: str, answers: List[str], correct_answer: str, split
     )
 
 
-class HellaswagScenario(Scenario):
+class HellaSwagScenario(Scenario):
     name = "hellaswag"
     description = "Benchmark from https://arxiv.org/pdf/1905.07830.pdf."
     tags = ["knowledge", "multiple_choice"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        data_path = os.path.join(output_path, "data", "hellaswag")
+        data_path = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
 
         instances = []
@@ -80,7 +80,7 @@ class OpenBookQA(Scenario):
 
     def get_instances(self, output_path: str):
         # Download the raw data
-        data_path = os.path.join(output_path, "data", "openbookqa")
+        data_path = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
 
         ensure_file_downloaded(
@@ -284,10 +284,6 @@ class CommonSenseScenario(Scenario):
         return data
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        if self.dataset == "hellaswag":
-            return HellaswagScenario().get_instances(output_path)
-        if self.dataset == "openbookqa":
-            return OpenBookQA().get_instances(output_path)
         self.download_dataset(output_path)
         data = self.load_dataset(output_path)
 
