@@ -164,9 +164,6 @@ class CommonSenseScenario(Scenario):
     - The "CommonSenseQA" benchmark from this paper:
       https://arxiv.org/pdf/1811.00937.pdf
 
-    - The "PIQA" benchmark from this paper:
-      https://arxiv.org/pdf/1911.11641.pdf
-
     - The "SIQA" benchmark from this paper:
       https://arxiv.org/pdf/1904.09728.pdf
     """
@@ -178,7 +175,7 @@ class CommonSenseScenario(Scenario):
     def __init__(self, dataset):
         super().__init__()
         self.dataset = dataset
-        assert self.dataset in ["commonsenseqa", "piqa", "siqa"]
+        assert self.dataset in ["commonsenseqa", "siqa"]
 
     @staticmethod
     def process_commonsenseqa_item(item):
