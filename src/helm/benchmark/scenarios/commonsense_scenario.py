@@ -114,6 +114,49 @@ class OpenBookQA(Scenario):
         return _make_instance(question=question, answers=answers, correct_answer=correct_answer, split=split)
 
 
+class PiqaScenario(Scenario):
+    name = "piqa"
+    description = "Benchmark from https://arxiv.org/pdf/1911.11641.pdf."
+    tags = ["knowledge", "multiple_choice"]
+
+    def get_instances(self, output_path: str):
+        # Download the raw data
+        data_path = os.path.join(output_path, "data")
+        ensure_directory_exists(data_path)
+
+        url = "https://yonatanbisk.com/piqa/data/{}"
+        # TODO The source actually uses TRAIN_SPLIT and VALID_SPLIT, so consider skipping "val".
+        split_mapping = {"train": "train", "val": "valid"}
+        instances = []
+        # Ignore PIQA test set because no label information
+        for split in ["train", "val"]:
+            ensure_file_downloaded(
+                source_url=url.format(f"{split_mapping[split]}.jsonl"),
+                target_path=os.path.join(data_path, f"piqa_{split}.jsonl"),
+            )
+            ensure_file_downloaded(
+                source_url=url.format(f"{split_mapping[split]}-labels.lst"),
+                target_path=os.path.join(data_path, f"piqa_{split}_labels.lst"),
+            )
+            data = [json.loads(line) for line in open(os.path.join(data_path, f"piqa_{split}.jsonl"))]
+            labels = [int(line.strip()) for line in open(os.path.join(data_path, f"piqa_{split}_labels.lst"))]
+            assert len(data) == len(labels)
+            for item, label in zip(data, labels):
+                instances.append(self.json_to_instance(item, label, split))
+        return instances
+
+    @staticmethod
+    def json_to_instance(item, label: int, split: str):
+        question = item["goal"]
+        answers = [item["sol1"], item["sol2"]]
+        correct_choice = label
+        correct_answer = answers[correct_choice]
+
+        assert len(item) == 3
+        assert correct_choice in [0, 1]
+        return _make_instance(question, answers, correct_answer, split)
+
+
 class CommonSenseScenario(Scenario):
     """
     Unified interface for all CommonSense scenarios.
