@@ -8,18 +8,24 @@ models:
     creator_organization: Anthropic
     access: limited
     release_date: 2023-07-11
+  - name: anthropic/claude-2.1
+    display_name: Anthropic Claude 2.1
+    description: Claude 2.1 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-11-21
   - name: anthropic/claude-v1.3
     display_name: Anthropic Claude v1.3
     description: A model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
     creator_organization: Anthropic
     access: limited
     release_date: 2023-03-17
-  - name: anthropic/claude-instant-v1
-    display_name: Anthropic Claude Instant V1
+  - name: anthropic/claude-instant-1.2
+    display_name: Anthropic Claude Instant 1.2
     description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
     creator_organization: Anthropic
     access: limited
-    release_date: 2023-03-17
+    release_date: 2023-08-09
 
   # Meta
   - name: meta/llama-65b
@@ -91,19 +97,54 @@ models:
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
-
   - name: openai/gpt-4-0613
     display_name: gpt-4-0613
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-06-13.
     creator_organization: OpenAI
     access: limited
     release_date: 2023-06-13
+  - name: openai/gpt-4-1106-preview
+    display_name: openai/gpt-4-1106-preview
+    description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-11-06
   - name: openai/gpt-3.5-turbo-0613
     display_name: gpt-3.5-turbo-0613
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
     creator_organization: OpenAI
     access: limited
     release_date: 2023-06-13
+
+  # Writer
+  - name: writer/palmyra-x-v2
+    display_name: Palmyra X V2 (33B)
+    description: Palmyra-X V2 (33B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. The pre-training data more than 2 trillion tokens types are diverse and cover a wide range of areas, used FlashAttention-2.
+    creator_organization: Writer
+    access: limited
+    num_parameters: 33000000000
+    release_date: 2023-12-01
+  - name: writer/palmyra-x-v3
+    display_name: Palmyra X V3 (72B)
+    description: Palmyra-X V3 (72B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. It is trained via unsupervised learning and DPO and use multiquery attention.
+    creator_organization: Writer
+    access: limited
+    num_parameters: 72000000000
+    release_date: 2023-12-01
+
+  # Google
+  - name: google/text-bison@001
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+  - name: google/text-unicorn@001
+    display_name: PaLM-2 (Unicorn)
+    description: The largest model in PaLM family. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization: Google
+    access: limited
+    release_date: 2023-11-30 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
 
   # TII UAE
   - name: tiiuae/falcon-7b
@@ -113,23 +154,9 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-03-15
-  - name: tiiuae/falcon-7b-instruct
-    display_name: Falcon-Instruct (7B)
-    description: Falcon-7B-Instruct is a 7B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
-    creator_organization: TII UAE
-    access: open
-    num_parameters: 7000000000
-    release_date: 2023-03-15
   - name: tiiuae/falcon-40b
     display_name: Falcon (40B)
     description: Falcon-40B is a 40B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
-    creator_organization: TII UAE
-    access: open
-    num_parameters: 40000000000
-    release_date: 2023-05-25
-  - name: tiiuae/falcon-40b-instruct
-    display_name: Falcon-Instruct (40B)
-    description: Falcon-40B-Instruct is a 40B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
     creator_organization: TII UAE
     access: open
     num_parameters: 40000000000
