@@ -83,14 +83,7 @@ export default function MiniLeaderboard() {
           activeGroup={activeGroup}
           ignoreHref={true}
           filtered
-          filteredModels={[
-            "Llama 2 (70B)",
-            "LLaMA (65B)",
-            "text-davinci-002",
-            "Mistral v0.1 (7B)",
-            "Cohere Command beta (52.4B)",
-            "text-davinci-003",
-          ]}
+          nModelsToAutoFilter={6}
           filteredCols={[0, 1]}
         />
       </>

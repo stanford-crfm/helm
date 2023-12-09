@@ -11,7 +11,8 @@ interface Props {
   sortable?: boolean;
   sortFirstMetric?: boolean;
   filtered?: boolean;
-  filteredModels?: any;
+  modelsToFilter?: string[];
+  nModelsToAutoFilter?: number;
   filteredCols?: any[];
 }
 
@@ -23,7 +24,8 @@ export default function LeaderboardTables({
   sortFirstMetric = true,
   filtered = false,
   filteredCols = [],
-  filteredModels = [],
+  modelsToFilter = [],
+  nModelsToAutoFilter = 0, // if non-zero, sets how many models to filter down to (ranked by first column)
 }: Props) {
   const [activeSortColumn, setActiveSortColumn] = useState<number | undefined>(
     sortFirstMetric ? 1 : undefined,
@@ -32,10 +34,23 @@ export default function LeaderboardTables({
     ...groupsTables[activeGroup],
   });
   const [sortDirection, setSortDirection] = useState<number>(1);
+  const [filteredModels, setFilteredModels] =
+    useState<string[]>(modelsToFilter);
 
   useEffect(() => {
     setActiveGroupsTable({ ...groupsTables[activeGroup] });
-  }, [activeGroup, groupsTables]);
+    // upon receiving and setting data for current table, use sort to figure out n top models
+    if (nModelsToAutoFilter) {
+      const activeRows = groupsTables[0].rows;
+      const sortedRows = activeRows.sort((a, b) => {
+        return Number(b[1].value) - Number(a[1].value);
+      });
+      // Get the top N rows
+      const topNRows = sortedRows.slice(0, nModelsToAutoFilter);
+      const topNRowNames = topNRows.map((row) => String(row[0].value));
+      setFilteredModels(topNRowNames);
+    }
+  }, [activeGroup, groupsTables, nModelsToAutoFilter]);
 
   const handleSort = (columnIndex: number) => {
     let sort = sortDirection;
@@ -122,8 +137,9 @@ export default function LeaderboardTables({
               </thead>
               <tbody>
                 {activeGroupsTable.rows
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-                  .filter((row) => filteredModels.includes(row[0].value))
+                  .filter((row) =>
+                    filteredModels.includes(String(row[0].value)),
+                  )
                   .map((row, idx) => (
                     <tr
                       key={`${activeGroup}-${idx}`}
