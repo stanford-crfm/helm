@@ -279,9 +279,9 @@ class AnthropicRunExpander(RunExpander):
                     name=run_spec.name,
                     adapter_spec=replace(
                         run_spec.adapter_spec,
-                        global_prefix=anthropic.HUMAN_PROMPT + " Complete the following block of code. Wrap the code in <code></code> tags.",
+                        global_prefix=anthropic.HUMAN_PROMPT + " Given the following text prefix (wrapped in <prefix></prefix>), output the text suffix completion (wrapped in <suffix></suffix>).\n<prefix>",
                         #global_suffix="[output]\n\nPlease determine what [output] is." +
-                        global_suffix=anthropic.AI_PROMPT, # + " [output] is",
+                        global_suffix="</prefix>" + anthropic.AI_PROMPT + " <suffix>",
                     ),
                 ),
             ]
