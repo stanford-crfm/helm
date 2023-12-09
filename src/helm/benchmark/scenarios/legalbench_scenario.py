@@ -98,7 +98,7 @@ class LegalBenchScenario(Scenario):
         return get_legalbench_prompt_settings(self.subset, cache_dir)
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        fields, _, label_key, _, _ = self.load_prompt_construction_settings(output_path)
+        fields, _, label_key, _ = self.load_prompt_construction_settings(output_path)
         cache_dir = str(Path(output_path) / "data")
 
         # Download data from Huggingface. LegalBench provides splits for samples to
