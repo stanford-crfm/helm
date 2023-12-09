@@ -20,6 +20,12 @@ models:
     creator_organization: Anthropic
     access: limited
     release_date: 2023-03-17
+  - name: anthropic/claude-instant-1.2
+    display_name: Anthropic Claude Instant 1.2
+    description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-08-09
 
   # Meta
   - name: meta/llama-65b

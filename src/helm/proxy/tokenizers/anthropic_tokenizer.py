@@ -15,6 +15,9 @@ except ModuleNotFoundError as e:
 
 class AnthropicTokenizer(CachingTokenizer):
     LOCK: threading.Lock = threading.Lock()
+    """Global lock for the Anthropic tokenizer.
+
+    The Anthropic tokenizer is a wrapper around a single global Hugging Face tokenizer, which is thread-hostile."""
 
     def __init__(self, cache_config: CacheConfig) -> None:
         super().__init__(cache_config)
@@ -26,21 +29,24 @@ class AnthropicTokenizer(CachingTokenizer):
     def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
         if request["encode"]:
             if request["truncation"]:
-                tokens = self._tokenizer.encode(
-                    request["text"],
-                    truncation=request["truncation"],
-                    max_length=request["max_length"],
-                    add_special_tokens=False,
-                )
+                with AnthropicTokenizer.LOCK:
+                    tokens = self._tokenizer.encode(
+                        request["text"],
+                        truncation=request["truncation"],
+                        max_length=request["max_length"],
+                        add_special_tokens=False,
+                    )
             else:
-                tokens = self._tokenizer.encode(request["text"], add_special_tokens=False)
+                with AnthropicTokenizer.LOCK:
+                    tokens = self._tokenizer.encode(request["text"], add_special_tokens=False)
         else:
             # No encoding, just return the token strings
             tokens = [self._tokenizer.convert_tokens_to_string([i]) for i in self._tokenizer.tokenize(request["text"])]
         return {"tokens": tokens}
 
     def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
-        text = self._tokenizer.decode(
-            request["tokens"], clean_up_tokenization_spaces=request["clean_up_tokenization_spaces"]
-        )
+        with AnthropicTokenizer.LOCK:
+            text = self._tokenizer.decode(
+                request["tokens"], clean_up_tokenization_spaces=request["clean_up_tokenization_spaces"]
+            )
         return {"text": text}

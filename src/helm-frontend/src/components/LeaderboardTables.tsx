@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
@@ -9,6 +10,9 @@ interface Props {
   ignoreHref?: boolean;
   sortable?: boolean;
   sortFirstMetric?: boolean;
+  filtered?: boolean;
+  filteredModels?: any;
+  filteredCols?: any[];
 }
 
 export default function LeaderboardTables({
@@ -17,6 +21,9 @@ export default function LeaderboardTables({
   ignoreHref = false,
   sortable = true,
   sortFirstMetric = true,
+  filtered = false,
+  filteredCols = [],
+  filteredModels = [],
 }: Props) {
   const [activeSortColumn, setActiveSortColumn] = useState<number | undefined>(
     sortFirstMetric ? 1 : undefined,
@@ -75,54 +82,133 @@ export default function LeaderboardTables({
   }, [sortFirstMetric, activeSortColumn]);
 
   return (
-    <div className="rounded-lg overflow-hidden shadow-md bg-white p-4">
-      <div className="overflow-x-auto">
-        <table className="table w-full px-4">
-          <thead>
-            <tr>
-              {activeGroupsTable.header.map((headerValue, idx) => (
-                <th
-                  key={`${activeGroup}-${idx}`}
-                  className={`${
-                    idx === activeSortColumn ? "bg-gray-100" : ""
-                  } whitespace-nowrap px-4`}
-                >
-                  <div className="flex gap-2 items-center">
-                    <span>{headerValue.value}</span>
-                    {sortable ? (
-                      <button className="link" onClick={() => handleSort(idx)}>
-                        <ChevronUpDownIcon className="w-6 h-6" />
-                      </button>
-                    ) : null}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {activeGroupsTable.rows.map((row, idx) => (
-              <tr
-                key={`${activeGroup}-${idx}`}
-                className={`${idx % 2 === 0 ? "bg-gray-50" : ""}`}
-              >
-                {" "}
-                {/* Added alternating row highlighting */}
-                {row.map((rowValue, cellIdx) => (
-                  <td
-                    key={`${activeGroup}-${cellIdx}`}
-                    className={`${cellIdx === 0 ? "text-lg" : ""}`}
+    <>
+      {filtered ? (
+        <div
+          className="rounded-2xl overflow-hidden border-2 bg-white p-1 mx-2 my-0"
+          style={{ width: "505px", height: "380px", overflow: "auto" }}
+        >
+          <div className="overflow-x-auto">
+            <table className="table w-full">
+              <thead>
+                <tr>
+                  {activeGroupsTable.header
+                    .filter(
+                      (_, cellIdx) =>
+                        filteredCols.length === 0 ||
+                        filteredCols.includes(cellIdx),
+                    )
+                    .map((headerValue, idx) => (
+                      <th
+                        key={`${activeGroup}-${idx}`}
+                        className={`${
+                          idx === activeSortColumn ? "bg-gray-100" : ""
+                        } whitespace-nowrap px-4`}
+                      >
+                        <div className="flex gap-2 items-center">
+                          <span>{headerValue.value}</span>
+                          {sortable ? (
+                            <button
+                              className="link"
+                              onClick={() => handleSort(idx)}
+                            >
+                              <ChevronUpDownIcon className="w-6 h-6" />
+                            </button>
+                          ) : null}
+                        </div>
+                      </th>
+                    ))}
+                </tr>
+              </thead>
+              <tbody>
+                {activeGroupsTable.rows
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+                  .filter((row) => filteredModels.includes(row[0].value))
+                  .map((row, idx) => (
+                    <tr
+                      key={`${activeGroup}-${idx}`}
+                      className={`${idx % 2 === 0 ? "bg-gray-50" : ""}`}
+                    >
+                      {" "}
+                      {/* Added alternating row highlighting */}
+                      {row
+                        // Filtering columns if filteredCols is provided
+                        .filter(
+                          (_, cellIdx) =>
+                            filteredCols.length === 0 ||
+                            filteredCols.includes(cellIdx),
+                        )
+                        .map((rowValue, cellIdx) => (
+                          <td
+                            key={`${activeGroup}-${cellIdx}`}
+                            className={`${cellIdx === 0 ? "text-lg" : ""}`}
+                          >
+                            <RowValue
+                              ignoreHref={ignoreHref && cellIdx === 0}
+                              value={rowValue}
+                            />
+                          </td>
+                        ))}
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-lg overflow-hidden shadow-md bg-white p-4">
+          <div className="overflow-x-auto">
+            <table className="table w-full px-4">
+              <thead>
+                <tr>
+                  {activeGroupsTable.header.map((headerValue, idx) => (
+                    <th
+                      key={`${activeGroup}-${idx}`}
+                      className={`${
+                        idx === activeSortColumn ? "bg-gray-100" : ""
+                      } whitespace-nowrap px-4`}
+                    >
+                      <div className="flex gap-2 items-center">
+                        <span>{headerValue.value}</span>
+                        {sortable ? (
+                          <button
+                            className="link"
+                            onClick={() => handleSort(idx)}
+                          >
+                            <ChevronUpDownIcon className="w-6 h-6" />
+                          </button>
+                        ) : null}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {activeGroupsTable.rows.map((row, idx) => (
+                  <tr
+                    key={`${activeGroup}-${idx}`}
+                    className={`${idx % 2 === 0 ? "bg-gray-50" : ""}`}
                   >
-                    <RowValue
-                      ignoreHref={ignoreHref && cellIdx === 0}
-                      value={rowValue}
-                    />
-                  </td>
+                    {" "}
+                    {/* Added alternating row highlighting */}
+                    {row.map((rowValue, cellIdx) => (
+                      <td
+                        key={`${activeGroup}-${cellIdx}`}
+                        className={`${cellIdx === 0 ? "text-lg" : ""}`}
+                      >
+                        <RowValue
+                          ignoreHref={ignoreHref && cellIdx === 0}
+                          value={rowValue}
+                        />
+                      </td>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

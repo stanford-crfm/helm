@@ -188,6 +188,18 @@ model_deployments:
       class_name: "helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
       args: {}
 
+  - name: anthropic/claude-instant-1.2
+    model_name: anthropic/claude-instant-1.2
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 8000
+    max_sequence_and_generated_tokens_length: 9016
+    client_spec:
+      class_name: "helm.proxy.clients.anthropic_client.AnthropicClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+      args: {}
+
   - name: anthropic/claude-2.0
     model_name: anthropic/claude-2.0
     tokenizer_name: anthropic/claude
