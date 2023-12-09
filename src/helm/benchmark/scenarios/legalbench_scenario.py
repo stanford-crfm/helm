@@ -36,7 +36,7 @@ def get_legalbench_prompt_settings(subset: str, cache_dir=None):
         target_path=prompt_construction_settings_path,
     )
     with open(prompt_construction_settings_path, "r") as f:
-        field_ordering, instructions, label_keys, output_nouns, max_train_instances = map(
+        field_ordering, instructions, label_keys, output_nouns, _ = map(
             json.loads, f.read().strip().split("\n")
         )
     return (
@@ -44,7 +44,6 @@ def get_legalbench_prompt_settings(subset: str, cache_dir=None):
         instructions[subset],
         label_keys[subset],
         output_nouns[subset],
-        max_train_instances[subset],
     )
 
 
@@ -55,9 +54,6 @@ def get_legalbench_instructions(subset: str, cache_dir=None):
 def get_legalbench_output_nouns(subset: str, cache_dir=None):
     return get_legalbench_prompt_settings(subset, cache_dir)[3]
 
-
-def get_legalbench_max_train_instances(subset: str, cache_dir=None):
-    return get_legalbench_prompt_settings(subset, cache_dir)[4]
 
 
 class LegalBenchScenario(Scenario):

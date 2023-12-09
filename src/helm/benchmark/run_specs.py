@@ -44,7 +44,6 @@ from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
 from .scenarios.legalbench_scenario import (
     get_legalbench_instructions,
-    get_legalbench_max_train_instances,
     get_legalbench_output_nouns,
 )
 from .scenarios.lextreme_scenario import (
@@ -1791,7 +1790,7 @@ def get_legalbench_spec(subset: str) -> RunSpec:
         input_noun=None,
         output_noun=get_legalbench_output_nouns(subset),
         max_tokens=30,  # at most ~50 characters per label,
-        max_train_instances=get_legalbench_max_train_instances(subset),
+        max_train_instances=5, # use 5 training instances for all subsets
     )
 
     return RunSpec(
