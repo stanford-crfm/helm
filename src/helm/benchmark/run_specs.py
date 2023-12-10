@@ -2715,12 +2715,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
             run_spec = singleton(global_prefix_expander.expand(run_spec))
 
-        # When running ChatGPT on non-language modelling tasks, increase max_tokens by 1
-        # to add room for the special message role token.
-        if OPENAI_CHATGPT_MODEL_TAG in model.tags and run_spec.adapter_spec.max_tokens:
-            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=1)
-            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
-
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
