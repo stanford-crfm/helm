@@ -83,7 +83,7 @@ export default function MiniLeaderboard() {
           activeGroup={activeGroup}
           ignoreHref={true}
           filtered
-          nModelsToAutoFilter={6}
+          numModelsToAutoFilter={6}
           filteredCols={[0, 1]}
         />
       </>
