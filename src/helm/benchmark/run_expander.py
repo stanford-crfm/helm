@@ -271,17 +271,6 @@ IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX = (
     "Please provide the output to this last example. " + "It is critical to follow the format of the preceding outputs!"
 )
 
-# Instruction-following models sometimes don't do completions naturally.
-# We have to tell it what's the prefix and ask it to output the suffix.
-COMPLETION_INSTRUCTIONS_PREFIX = (
-    "Given the following text prefix (wrapped in <prefix></prefix>), "
-    + "output the text suffix completion (wrapped in <suffix></suffix>).\n"
-    + "<prefix>"
-)
-COMPLETION_INSTRUCTIONS_SUFFIX_1 = "</prefix>"
-COMPLETION_INSTRUCTIONS_SUFFIX_2 = "<suffix>"
-
-
 class AnthropicRunExpander(RunExpander):
     """
     Custom prompt for Anthropic models.
@@ -299,40 +288,24 @@ class AnthropicRunExpander(RunExpander):
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["anthropic"])
 
-        is_completion = run_spec.adapter_spec.max_train_instances == 0
-        if is_completion:
-            # Completion (no in-context examples)
-            return [
-                replace(
-                    run_spec,
-                    name=run_spec.name,
-                    adapter_spec=replace(
-                        run_spec.adapter_spec,
-                        global_prefix=anthropic.HUMAN_PROMPT + " " + COMPLETION_INSTRUCTIONS_PREFIX,
-                        global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1
-                        + anthropic.AI_PROMPT
-                        + " "
-                        + COMPLETION_INSTRUCTIONS_SUFFIX_2,
-                    ),
+        if run_spec.adapter_spec.method != ADAPT_GENERATION:
+            return [run_spec]
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=anthropic.HUMAN_PROMPT + " " + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + anthropic.AI_PROMPT
+                    + " "
+                    + run_spec.adapter_spec.output_prefix.strip(),
                 ),
-            ]
-        else:
-            # In-context learning
-            return [
-                replace(
-                    run_spec,
-                    name=run_spec.name,
-                    adapter_spec=replace(
-                        run_spec.adapter_spec,
-                        global_prefix=anthropic.HUMAN_PROMPT + " " + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                        global_suffix="\n\n"
-                        + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                        + anthropic.AI_PROMPT
-                        + " "
-                        + run_spec.adapter_spec.output_prefix.strip(),
-                    ),
-                ),
-            ]
+            ),
+        ]
 
 
 class OpenAIRunExpander(RunExpander):
@@ -347,54 +320,23 @@ class OpenAIRunExpander(RunExpander):
         pass
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        is_completion = run_spec.adapter_spec.max_train_instances == 0
-        if is_completion:
-            # Completion (no in-context examples)
-            if run_spec.adapter_spec.model == "openai/gpt-4-1106-preview":
-                # Need instructions
-                return [
-                    replace(
-                        run_spec,
-                        name=run_spec.name,
-                        adapter_spec=replace(
-                            run_spec.adapter_spec,
-                            global_prefix=COMPLETION_INSTRUCTIONS_PREFIX,
-                            global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1
-                            + "\n\nCompletion: "
-                            + COMPLETION_INSTRUCTIONS_SUFFIX_2,
-                        ),
-                    ),
-                ]
-            else:
-                return [
-                    replace(
-                        run_spec,
-                        name=run_spec.name,
-                        adapter_spec=replace(
-                            run_spec.adapter_spec,
-                            # No prompt - just do language modeling
-                            global_prefix="",
-                            global_suffix="",
-                        ),
-                    ),
-                ]
-        else:
-            # In-context learning
-            return [
-                replace(
-                    run_spec,
-                    name=run_spec.name,
-                    adapter_spec=replace(
-                        run_spec.adapter_spec,
-                        # Give instructions
-                        global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                        global_suffix="\n\n"
-                        + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                        + "\n"
-                        + run_spec.adapter_spec.output_prefix.strip(),
-                    ),
+        if run_spec.adapter_spec.method != ADAPT_GENERATION:
+            return [run_spec]
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + "\n"
+                    + run_spec.adapter_spec.output_prefix.strip(),
                 ),
-            ]
+            ),
+        ]
 
 
 class GoogleRunExpander(RunExpander):
@@ -405,42 +347,24 @@ class GoogleRunExpander(RunExpander):
 
     name = "google"
 
-    def __init__(self):
-        pass
-
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        is_completion = run_spec.adapter_spec.max_train_instances == 0
-        if is_completion:
-            # Completion (no in-context examples)
-            return [
-                replace(
-                    run_spec,
-                    name=run_spec.name,
-                    adapter_spec=replace(
-                        run_spec.adapter_spec,
-                        global_prefix=COMPLETION_INSTRUCTIONS_PREFIX,
-                        global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1
-                        + "\n\nCompletion: "
-                        + COMPLETION_INSTRUCTIONS_SUFFIX_2,
-                    ),
+        if run_spec.adapter_spec.method != ADAPT_GENERATION:
+            return [run_spec]
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + "\n"
+                    + run_spec.adapter_spec.output_prefix.strip(),
                 ),
-            ]
-        else:
-            # In-context learning
-            return [
-                replace(
-                    run_spec,
-                    name=run_spec.name,
-                    adapter_spec=replace(
-                        run_spec.adapter_spec,
-                        global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                        global_suffix="\n\n"
-                        + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                        + "\n"
-                        + run_spec.adapter_spec.output_prefix.strip(),
-                    ),
-                ),
-            ]
+            ),
+        ]
 
 
 class FormatPromptRunExpander(RunExpander):

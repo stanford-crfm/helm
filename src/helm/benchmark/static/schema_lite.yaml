@@ -789,7 +789,6 @@ run_groups:
       - mmlu
       - math_chain_of_thought
       - gsm
-      - code_humaneval
       - legalbench
       - med_qa
       - wmt_14
@@ -907,23 +906,6 @@ run_groups:
       - general_information
     environment:
       main_name: math_equiv_chain_of_thought
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: n/a
-      who: n/a
-      when: n/a
-      language: synthetic
-
-  - name: code_humaneval
-    display_name: HumanEval (Code)
-    description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings [(Chen et al., 2021)](https://arxiv.org/pdf/2107.03374.pdf).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: pass
       main_split: test
     taxonomy:
       task: "?"
