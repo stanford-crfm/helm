@@ -357,21 +357,20 @@ models:
     release_date: 2022-11-08
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  # TODO: Fill in the details.
   - name: cohere/command
-    display_name: Cohere Command TODO
-    description: Cohere Command TODO
+    display_name: Cohere Command
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
     creator_organization_name: Cohere
     access: limited
-    release_date: 2022-11-08 # TODO
+    release_date: 2023-09-29
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command-light
-    display_name: Cohere Command TODO
-    description: Cohere Command TODO
+    display_name: Cohere Command Light
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
     creator_organization_name: Cohere
     access: limited
-    release_date: 2022-11-08 # TODO
+    release_date: 2023-09-29
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
