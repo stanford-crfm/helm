@@ -804,10 +804,10 @@ run_groups:
       main_name: f1_score
       main_split: test
     taxonomy:
-      task: question answering
+      task: short-answer question answering
       what: passages are books and movie scripts, questions are unknown
-      who: "?"
-      when: "?"
+      who: annotators from summaries
+      when: 2018
       language: English
 
   - name: natural_qa_closedbook
@@ -821,7 +821,7 @@ run_groups:
       main_name: f1_score
       main_split: valid
     taxonomy:
-      task: question answering
+      task: short-answer question answering
       what: passages from Wikipedia, questions from search queries
       who: web users
       when: 2010s
@@ -838,7 +838,7 @@ run_groups:
       main_name: f1_score
       main_split: valid
     taxonomy:
-      task: question answering
+      task: short-answer question answering
       what: passages from Wikipedia, questions from search queries
       who: web users
       when: 2010s
@@ -855,16 +855,16 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: multiple-choice question answering
+      what: elementary science
+      who: Amazon Mechnical Turk workers
+      when: 2018
       language: English
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
     short_display_name: MMLU
-    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2009.03300.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -873,14 +873,14 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: multiple-choice question answering
+      what: math, science, history, etc.
+      who: various online sources
+      when: before 2021
       language: English
 
   - name: gsm
-    display_name: GSM8K (Grade school math word problems)
+    display_name: GSM8K
     short_display_name: GSM8K
     description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/pdf/2110.14168.pdf).
     metric_groups:
@@ -891,15 +891,15 @@ run_groups:
       main_name: final_number_exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: n/a
-      who: n/a
-      when: n/a
+      task: numeric answer question answering
+      what: grade school math word problems
+      who: contractors on Upwork and Surge AI
+      when: 2021
       language: English
 
   - name: math_chain_of_thought
     display_name: MATH
-    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2103.03874.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -908,15 +908,15 @@ run_groups:
       main_name: math_equiv_chain_of_thought
       main_split: test
     taxonomy:
-      task: "?"
-      what: n/a
-      who: n/a
-      when: n/a
+      task: numeric answer question answering
+      what: math competitions (AMC, AIME, etc.)
+      who: problem setters
+      when: before 2021
       language: synthetic
 
   - name: legalbench
     display_name: LegalBench
-    description: LegalBench is a large collaboratively constructed benchmark of legal reasoning. Five representative tasks are included here. See [(Guha et al, 2023)[https://arxiv.org/abs/2308.11462] for more details.
+    description: LegalBench is a large collaboratively constructed benchmark of legal reasoning tasks [(Guha et al, 2023)](https://arxiv.org/pdf/2308.11462.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -925,10 +925,10 @@ run_groups:
       main_name: quasi_exact_match
       main_split: test
     taxonomy:
-      task: "text classification"
-      what: "fact patterns, questions, and legal documents"
-      who: "lawyers"
-      when: n/a
+      task: multiple-choice question answering
+      what: public legal and admininstrative documents, manually constructed questions
+      who: lawyers
+      when: before 2023
       language: English
 
   - name: med_qa
@@ -942,15 +942,15 @@ run_groups:
       main_name: quasi_exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: multiple-choice question answering
+      what: US medical licensing exams
+      who: problem setters
+      when: before 2020
       language: English
 
   - name: wmt_14
     display_name: WMT 2014
-    description: WMT 2014 is a collection of machine translation datasets.
+    description: WMT 2014 is a collection of machine translation datasets [(website)](https://www.statmt.org/wmt14/index.html).
     metric_groups:
       - accuracy
       - efficiency
@@ -960,7 +960,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: machine translation
-      what: n/a
-      who: n/a
-      when: n/a
-      language: English
+      what: multilingual sentences
+      who: Europarl, news, Common Crawl, etc.
+      when: before 2014
+      language: English, French, Czech, etc.
