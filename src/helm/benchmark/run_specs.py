@@ -25,7 +25,6 @@ from .run_expander import (
     GoogleRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
-    IncreaseMaxTokensRunExpander,
     IncreaseTemperatureRunExpander,
 )
 from .runner import RunSpec, get_benchmark_output_path
