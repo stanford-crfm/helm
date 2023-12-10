@@ -5,7 +5,6 @@ from urllib.parse import unquote
 from functools import partial
 
 import json
-import re
 import string
 import nltk
 import numpy as np

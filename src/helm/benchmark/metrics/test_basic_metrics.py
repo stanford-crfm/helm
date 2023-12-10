@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-from typing import Callable, List, Optional
-
 from .basic_metrics import BasicMetric, exact_match, exact_match_indicator, final_number_exact_match
 
 
