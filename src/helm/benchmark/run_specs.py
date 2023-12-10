@@ -1949,9 +1949,8 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        # TODO add generative harms when applicable
         metric_specs=get_metric_specs(big_bench_task["metrics"]),
-        groups=["BIG-bench"],
+        groups=[f"big_bench_" + task],
     )
 
 

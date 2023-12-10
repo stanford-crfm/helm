@@ -256,7 +256,7 @@ class GlobalPrefixRunExpander(RunExpander):
         ]
 
 
-# Instruction-tuned models like GPT-4, Claude, PaLM 2 don't do in-context
+# Instruction-following models like GPT-4, Claude, PaLM 2 don't do in-context
 # learning naturally like base models, and they prefer to respond in a wordy
 # way as an assistant.  Therefore, for these models, we must provide explicit
 # instructions to follow the format of the in-context examples.
@@ -271,6 +271,11 @@ IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX = (
     "Please provide the output to this last example. " + "It is critical to follow the format of the preceding outputs!"
 )
 
+# Instruction-following models sometimes don't do completions naturally.
+# We have to tell it what's the prefix and ask it to output the suffix.
+COMPLETION_INSTRUCTIONS_PREFIX = "Given the following text prefix (wrapped in <prefix></prefix>), output the text suffix completion (wrapped in <suffix></suffix>).\n<prefix>"
+COMPLETION_INSTRUCTIONS_SUFFIX_1 = "</prefix>"
+COMPLETION_INSTRUCTIONS_SUFFIX_2 = "<suffix>"
 
 class AnthropicRunExpander(RunExpander):
     """
@@ -291,20 +296,20 @@ class AnthropicRunExpander(RunExpander):
 
         is_completion = run_spec.adapter_spec.max_train_instances == 0
         if is_completion:
-            # No in-context examples, so it's more about instruction following or completion.
+            # Completion (no in-context examples)
             return [
                 replace(
                     run_spec,
                     name=run_spec.name,
                     adapter_spec=replace(
                         run_spec.adapter_spec,
-                        global_prefix=anthropic.HUMAN_PROMPT
-                        + " Given the following text prefix (wrapped in <prefix></prefix>), output the text suffix completion (wrapped in <suffix></suffix>).\n<prefix>",
-                        global_suffix="</prefix>" + anthropic.AI_PROMPT + " <suffix>",
+                        global_prefix=anthropic.HUMAN_PROMPT + " " + COMPLETION_INSTRUCTIONS_PREFIX,
+                        global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1 + anthropic.AI_PROMPT + " " + COMPLETION_INSTRUCTIONS_SUFFIX_2,
                     ),
                 ),
             ]
         else:
+            # In-context learning
             return [
                 replace(
                     run_spec,
@@ -336,26 +341,42 @@ class OpenAIRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         is_completion = run_spec.adapter_spec.max_train_instances == 0
         if is_completion:
-            # No in-context examples, so it's more about instruction following or completion.
-            return [
-                replace(
-                    run_spec,
-                    name=run_spec.name,
-                    adapter_spec=replace(
-                        run_spec.adapter_spec,
-                        # TODO
-                        global_prefix="Complete the following text.  Do not insert extra words.",
-                        global_suffix="",
+            # Completion (no in-context examples)
+            if run_spec.adapter_spec.model == "openai/gpt-4-1106-preview":
+                # Need instructions
+                return [
+                    replace(
+                        run_spec,
+                        name=run_spec.name,
+                        adapter_spec=replace(
+                            run_spec.adapter_spec,
+                            global_prefix=COMPLETION_INSTRUCTIONS_PREFIX,
+                            global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1 + "\n\nCompletion: " + COMPLETION_INSTRUCTIONS_SUFFIX_2,
+                        ),
                     ),
-                ),
-            ]
+                ]
+            else:
+                return [
+                    replace(
+                        run_spec,
+                        name=run_spec.name,
+                        adapter_spec=replace(
+                            run_spec.adapter_spec,
+                            # No prompt - just do language modeling
+                            global_prefix="",
+                            global_suffix="",
+                        ),
+                    ),
+                ]
         else:
+            # In-context learning
             return [
                 replace(
                     run_spec,
                     name=run_spec.name,
                     adapter_spec=replace(
                         run_spec.adapter_spec,
+                        # Give instructions
                         global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
                         global_suffix="\n\n"
                         + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
@@ -380,20 +401,20 @@ class GoogleRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         is_completion = run_spec.adapter_spec.max_train_instances == 0
         if is_completion:
-            # No in-context examples, so it's more about instruction following or completion.
+            # Completion (no in-context examples)
             return [
                 replace(
                     run_spec,
                     name=run_spec.name,
                     adapter_spec=replace(
                         run_spec.adapter_spec,
-                        # TODO
-                        global_prefix="Complete the following text.  Do not insert extra words.",
-                        global_suffix="",
+                        global_prefix=COMPLETION_INSTRUCTIONS_PREFIX,
+                        global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1 + "\n\nCompletion: " + COMPLETION_INSTRUCTIONS_SUFFIX_2,
                     ),
                 ),
             ]
         else:
+            # In-context learning
             return [
                 replace(
                     run_spec,
