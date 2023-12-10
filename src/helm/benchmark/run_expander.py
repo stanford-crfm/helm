@@ -277,6 +277,7 @@ COMPLETION_INSTRUCTIONS_PREFIX = "Given the following text prefix (wrapped in <p
 COMPLETION_INSTRUCTIONS_SUFFIX_1 = "</prefix>"
 COMPLETION_INSTRUCTIONS_SUFFIX_2 = "<suffix>"
 
+
 class AnthropicRunExpander(RunExpander):
     """
     Custom prompt for Anthropic models.
@@ -304,7 +305,10 @@ class AnthropicRunExpander(RunExpander):
                     adapter_spec=replace(
                         run_spec.adapter_spec,
                         global_prefix=anthropic.HUMAN_PROMPT + " " + COMPLETION_INSTRUCTIONS_PREFIX,
-                        global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1 + anthropic.AI_PROMPT + " " + COMPLETION_INSTRUCTIONS_SUFFIX_2,
+                        global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1
+                        + anthropic.AI_PROMPT
+                        + " "
+                        + COMPLETION_INSTRUCTIONS_SUFFIX_2,
                     ),
                 ),
             ]
@@ -351,7 +355,9 @@ class OpenAIRunExpander(RunExpander):
                         adapter_spec=replace(
                             run_spec.adapter_spec,
                             global_prefix=COMPLETION_INSTRUCTIONS_PREFIX,
-                            global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1 + "\n\nCompletion: " + COMPLETION_INSTRUCTIONS_SUFFIX_2,
+                            global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1
+                            + "\n\nCompletion: "
+                            + COMPLETION_INSTRUCTIONS_SUFFIX_2,
                         ),
                     ),
                 ]
@@ -409,7 +415,9 @@ class GoogleRunExpander(RunExpander):
                     adapter_spec=replace(
                         run_spec.adapter_spec,
                         global_prefix=COMPLETION_INSTRUCTIONS_PREFIX,
-                        global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1 + "\n\nCompletion: " + COMPLETION_INSTRUCTIONS_SUFFIX_2,
+                        global_suffix=COMPLETION_INSTRUCTIONS_SUFFIX_1
+                        + "\n\nCompletion: "
+                        + COMPLETION_INSTRUCTIONS_SUFFIX_2,
                     ),
                 ),
             ]
