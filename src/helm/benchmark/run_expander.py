@@ -290,9 +290,6 @@ class AnthropicRunExpander(RunExpander):
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["anthropic"])
 
-        if run_spec.adapter_spec.method != ADAPT_GENERATION:
-            return [run_spec]
-
         return [
             replace(
                 run_spec,
