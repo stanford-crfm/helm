@@ -21,6 +21,7 @@ from .run_expander import (
     RUN_EXPANDERS,
     GlobalPrefixRunExpander,
     AnthropicRunExpander,
+    OpenAIRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
     IncreaseMaxTokensRunExpander,
@@ -1136,7 +1137,7 @@ def get_gsm_spec() -> RunSpec:
         name="gsm",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match_indicator"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs(["exact_match_indicator", "final_number_exact_match"]) + get_generative_harms_metric_specs(),
         groups=["gsm"],
     )
 
@@ -2723,9 +2724,13 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
 
-        # Special handling for Anthropic Claude
+        # Anthropic prompts
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicRunExpander().expand(run_spec))
+
+        # OpenAI prompts
+        if OPENAI_CHATGPT_MODEL_TAG in model.tags:
+            run_spec = singleton(OpenAIRunExpander().expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
