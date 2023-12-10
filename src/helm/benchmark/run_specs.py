@@ -1776,7 +1776,6 @@ def get_legalbench_spec(subset: str) -> RunSpec:
     from helm.benchmark.scenarios.legalbench_scenario import (
         LegalBenchScenario,
         get_legalbench_instructions,
-        get_legalbench_max_train_instances,
         get_legalbench_output_nouns,
     )
 
@@ -1789,7 +1788,7 @@ def get_legalbench_spec(subset: str) -> RunSpec:
         input_noun=None,
         output_noun=get_legalbench_output_nouns(subset, scenario_cache_path),
         max_tokens=30,  # at most ~50 characters per label,
-        max_train_instances=get_legalbench_max_train_instances(subset, scenario_cache_path),
+        max_train_instances=5,  # Use 5 for all subsets
     )
 
     return RunSpec(
