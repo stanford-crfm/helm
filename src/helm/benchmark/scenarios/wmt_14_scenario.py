@@ -1,6 +1,6 @@
 from typing import List, Any
 from datasets import load_dataset
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import htrack_block
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
@@ -59,26 +59,26 @@ class WMT14Scenario(Scenario):
         return deduplicated_dataset
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        hlog("Loading the HuggingFace dataset. The first time could take several minutes.")
-        subset_name = f"{self.source_language if self.source_language!='en' else self.target_language}-en"
-        hf_dataset: Any = load_dataset("wmt14", subset_name)
-        splits = {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}
+        with htrack_block("Loading the HuggingFace dataset. The first time could take several minutes."):
+            subset_name = f"{self.source_language if self.source_language!='en' else self.target_language}-en"
+            hf_dataset: Any = load_dataset("wmt14", subset_name)
+            splits = {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}
 
         instances: List[Instance] = []
-        hlog("Generating instances")
-        # Some training sets are too large, so we will only take a random subset of it.
-        hf_dataset["train"] = hf_dataset["train"].shuffle(seed=42)[:MAX_TRAIN_INSTANCES]
-        hf_dataset["train"]["translation"] = self._deduplicate(hf_dataset["train"]["translation"])
-        for example in hf_dataset["train"]["translation"]:
-            source_sentence: str = example[self.source_language]
-            target_sentence: str = example[self.target_language]
-            instances.append(
-                Instance(
-                    input=Input(text=source_sentence),
-                    references=[Reference(Output(text=target_sentence), tags=[CORRECT_TAG])],
-                    split="train",
+        with htrack_block("Generating instances"):
+            # Some training sets are too large, so we will only take a random subset of it.
+            hf_dataset["train"] = hf_dataset["train"].shuffle(seed=42)[:MAX_TRAIN_INSTANCES]
+            hf_dataset["train"]["translation"] = self._deduplicate(hf_dataset["train"]["translation"])
+            for example in hf_dataset["train"]["translation"]:
+                source_sentence: str = example[self.source_language]
+                target_sentence: str = example[self.target_language]
+                instances.append(
+                    Instance(
+                        input=Input(text=source_sentence),
+                        references=[Reference(Output(text=target_sentence), tags=[CORRECT_TAG])],
+                        split="train",
+                    )
                 )
-            )
 
         # No special handling needed for validation or test.
         for split_name in ["validation", "test"]:
