@@ -807,7 +807,7 @@ run_groups:
       task: short-answer question answering
       what: passages are books and movie scripts, questions are unknown
       who: annotators from summaries
-      when: 2018
+      when: "2018"
       language: English
 
   - name: natural_qa_closedbook
@@ -858,7 +858,7 @@ run_groups:
       task: multiple-choice question answering
       what: elementary science
       who: Amazon Mechnical Turk workers
-      when: 2018
+      when: "2018"
       language: English
 
   - name: mmlu
@@ -880,7 +880,7 @@ run_groups:
       language: English
 
   - name: gsm
-    display_name: GSM8K
+    display_name: GSM8K (Grade School Math)
     short_display_name: GSM8K
     description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/pdf/2110.14168.pdf).
     metric_groups:
@@ -894,7 +894,7 @@ run_groups:
       task: numeric answer question answering
       what: grade school math word problems
       who: contractors on Upwork and Surge AI
-      when: 2021
+      when: "2021"
       language: English
 
   - name: math_chain_of_thought
