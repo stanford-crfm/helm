@@ -14,6 +14,7 @@ from helm.benchmark.model_metadata_registry import (
     ABLATION_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
+from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .runner import RunSpec
@@ -270,6 +271,7 @@ IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX = (
 IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX = (
     "Please provide the output to this last example. " + "It is critical to follow the format of the preceding outputs!"
 )
+
 
 class AnthropicRunExpander(RunExpander):
     """
