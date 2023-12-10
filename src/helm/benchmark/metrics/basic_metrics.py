@@ -212,17 +212,19 @@ def final_number_exact_match(gold: str, pred: str) -> float:
     - pred = "The answer is 15 eggs."
     - Returns 1
     """
+
     def get_final_number(x: str) -> str:
         # Note: case that's not handled is "2,300" is parsed as "300"
-        x = re.sub(',', '', x)  # To handle numbers like "2,300"
-        x = re.sub(r'[^0-9\.]', ' ', x)  # Replace non-digit, non-'.'
+        x = re.sub(",", "", x)  # To handle numbers like "2,300"
+        x = re.sub(r"[^0-9\.]", " ", x)  # Replace non-digit, non-'.'
         tokens = x.split()
-        tokens = [re.sub(r'\.$', '', x) for x in tokens]  # Remove final periods
-        tokens = [x for x in tokens if x != '']  # Remove empty tokens
+        tokens = [re.sub(r"\.$", "", x) for x in tokens]  # Remove final periods
+        tokens = [x for x in tokens if x != ""]  # Remove empty tokens
         if len(tokens) > 0:
             x = tokens[-1]
             return x
-        return ''  # No number
+        return ""  # No number
+
     return exact_match(get_final_number(gold), get_final_number(pred))
 
 

@@ -22,6 +22,7 @@ from .run_expander import (
     GlobalPrefixRunExpander,
     AnthropicRunExpander,
     OpenAIRunExpander,
+    GoogleRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
     IncreaseMaxTokensRunExpander,
@@ -53,6 +54,7 @@ from helm.benchmark.model_metadata_registry import (
     get_model_metadata,
     ANTHROPIC_CLAUDE_1_MODEL_TAG,
     ANTHROPIC_CLAUDE_2_MODEL_TAG,
+    GOOGLE_PALM_2_MODEL_TAG,
     NO_NEWLINES_TAG,
     NLG_PREFIX_TAG,
     CHATML_MODEL_TAG,
@@ -1137,7 +1139,8 @@ def get_gsm_spec() -> RunSpec:
         name="gsm",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match_indicator", "final_number_exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs(["exact_match_indicator", "final_number_exact_match"])
+        + get_generative_harms_metric_specs(),
         groups=["gsm"],
     )
 
@@ -2730,6 +2733,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # OpenAI prompts
         if OPENAI_CHATGPT_MODEL_TAG in model.tags:
             run_spec = singleton(OpenAIRunExpander().expand(run_spec))
+
+        # Google prompts
+        if GOOGLE_PALM_2_MODEL_TAG in model.tags:
+            run_spec = singleton(GoogleRunExpander().expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
