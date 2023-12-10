@@ -1799,7 +1799,7 @@ def get_legalbench_spec(subset: str) -> RunSpec:
         name=f"legalbench:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs(),
         groups=["legalbench"],
     )
 
