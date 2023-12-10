@@ -273,7 +273,11 @@ IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX = (
 
 # Instruction-following models sometimes don't do completions naturally.
 # We have to tell it what's the prefix and ask it to output the suffix.
-COMPLETION_INSTRUCTIONS_PREFIX = "Given the following text prefix (wrapped in <prefix></prefix>), output the text suffix completion (wrapped in <suffix></suffix>).\n<prefix>"
+COMPLETION_INSTRUCTIONS_PREFIX = (
+    "Given the following text prefix (wrapped in <prefix></prefix>), "
+    + "output the text suffix completion (wrapped in <suffix></suffix>).\n"
+    + "<prefix>"
+)
 COMPLETION_INSTRUCTIONS_SUFFIX_1 = "</prefix>"
 COMPLETION_INSTRUCTIONS_SUFFIX_2 = "<suffix>"
 

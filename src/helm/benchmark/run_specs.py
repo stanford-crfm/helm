@@ -1950,7 +1950,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_metric_specs(big_bench_task["metrics"]),
-        groups=[f"big_bench_" + task],
+        groups=[f"big_bench_{task}"],
     )
 
 
