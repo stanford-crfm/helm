@@ -1788,7 +1788,7 @@ def get_legalbench_spec(subset: str) -> RunSpec:
         input_noun=None,
         output_noun=get_legalbench_output_nouns(subset, scenario_cache_path),
         max_tokens=30,  # at most ~50 characters per label,
-        max_train_instances=5, # Use 5 for all subsets
+        max_train_instances=5,  # Use 5 for all subsets
     )
 
     return RunSpec(

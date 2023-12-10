@@ -32,9 +32,7 @@ def get_legalbench_prompt_settings(subset: str, cache_dir: str):
         target_path=prompt_construction_settings_path,
     )
     with open(prompt_construction_settings_path, "r") as f:
-        field_ordering, instructions, label_keys, output_nouns, _ = map(
-            json.loads, f.read().strip().split("\n")
-        )
+        field_ordering, instructions, label_keys, output_nouns, _ = map(json.loads, f.read().strip().split("\n"))
     return (
         field_ordering[subset],
         instructions[subset],
