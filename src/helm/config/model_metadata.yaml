@@ -2,7 +2,12 @@
 # The model names here should match the model names in model_deployments.yaml.
 
 # If you want to add a new model, you can technically do it here but we recommend
-# you to do it in private/model_metadata.yaml instead.
+# you to do it in prod_env/model_metadata.yaml instead.
+
+# Follow the template of this file to add a new model. You can copy paste this to get started:
+#    # This file contains the metadata for private models
+#    models: [] # Leave empty to disable private models
+
 
 models:
 

@@ -1350,6 +1350,12 @@ def main():
         default=1000,
     )
     parser.add_argument(
+        "--local-path",
+        type=str,
+        help="If running locally, the path for `ServerService`.",
+        default="prod_env",
+    )
+    parser.add_argument(
         "--allow-unknown-models",
         type=bool,
         help="Whether to allow unknown models in the metadata file",
@@ -1378,7 +1384,7 @@ def main():
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
 
-    register_helm_configurations()
+    register_helm_configurations(base_path=args.local_path)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
