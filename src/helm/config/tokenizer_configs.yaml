@@ -118,8 +118,16 @@ tokenizer_configs:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
     prefix_token: ""
+  - name: google/mt5-base
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: ""
 
   # Hf-internal-testing
+
+  # Tokenizer name hf-internal-testing/llama-tokenizer is taken from:
+  # https://huggingface.co/docs/transformers/main/en/model_doc/llama#transformers.LlamaTokenizerFast.example
   - name: hf-internal-testing/llama-tokenizer
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
@@ -163,11 +171,37 @@ tokenizer_configs:
     prefix_token: "<|endoftext|>"
 
   # Meta-llama
+
+  # To use the Llama-2 tokenizer:
+    #
+    # 1. Accept the license agreement: https://ai.meta.com/resources/models-and-libraries/llama-downloads/
+    # 2. Request to access the Hugging Face repository: https://huggingface.co/meta-llama/Llama-2-7b
+    # 3. Run `huggingface-cli login`
+    #
+    # If you encounter the following error, complete the above steps and try again:
+    #
+    #     meta-llama/Llama-2-70b-hf is not a local folder and is not a valid model identifier listed on
+    #     'https://huggingface.co/models'
   - name: meta-llama/Llama-2-7b-hf
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
     prefix_token: "<s>"
+
+
+  # 01-ai
+  - name: 01-ai/Yi-6B
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
+  # Microsoft
+  - name: microsoft/gpt2
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: "<<"
 
   # Mistralai
   - name: mistralai/Mistral-7B-v0.1
@@ -202,6 +236,13 @@ tokenizer_configs:
     tokenizer_spec:
       class_name: "helm.proxy.tokenizers.ice_tokenizer.ICETokenizer"
     end_of_text_token: "</s>"
+    prefix_token: ""
+
+  # Writer
+  - name: writer/gpt2
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: ""
     prefix_token: ""
 
   # Yandex

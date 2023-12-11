@@ -101,6 +101,12 @@ models:
     creator_organization: Anthropic
     access: limited
     release_date: 2023-07-11
+  - name: anthropic/claude-2.1
+    display_name: Anthropic Claude 2.1
+    description: Claude 2.1 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-11-21
   - name: anthropic/claude-v1.3
     display_name: Anthropic Claude v1.3
     description: A model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
@@ -113,6 +119,12 @@ models:
     creator_organization: Anthropic
     access: limited
     release_date: 2023-03-17
+  - name: anthropic/claude-instant-1.2
+    display_name: Anthropic Claude Instant 1.2
+    description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-08-09
 
   # Berkeley
   - name: together/koala-13b
@@ -185,6 +197,36 @@ models:
     creator_organization: OpenAI
     access: open
     num_parameters: 1500000000
+
+  # HuggignfaceM4
+  - name: HuggingFaceM4/idefics-9b
+    display_name: IDEFICS (9B)
+    description: IDEFICS (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization: HuggingFace
+    access: open
+    num_parameters: 9000000000
+    release_date: 2023-08-22
+  - name: HuggingFaceM4/idefics-9b-instruct
+    display_name: IDEFICS instruct (9B)
+    description: IDEFICS instruct (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization: HuggingFace
+    access: open
+    num_parameters: 9000000000
+    release_date: 2023-08-22
+  - name: HuggingFaceM4/idefics-80b
+    display_name: IDEFICS (80B)
+    description: IDEFICS (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization: HuggingFace
+    access: open
+    num_parameters: 80000000000
+    release_date: 2023-08-22
+  - name: HuggingFaceM4/idefics-80b-instruct
+    display_name: IDEFICS instruct (80B)
+    description: IDEFICS instruct (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization: HuggingFace
+    access: open
+    num_parameters: 80000000000
+    release_date: 2023-08-22
 
   # Cerebras Systems
   - name: together/cerebras-gpt-6.7b
@@ -356,7 +398,6 @@ models:
     access: open
     num_parameters: 11000000000
     release_date: 2019-10-23
-
   - name: together/ul2
     display_name: UL2 (20B)
     description: UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5 but trained with a different objective and slightly different scaling knobs ([paper](https://arxiv.org/pdf/2205.05131.pdf)).
@@ -364,19 +405,48 @@ models:
     access: open
     num_parameters: 20000000000
     release_date: 2022-05-10
-
   - name: together/flan-t5-xxl
     display_name: Flan-T5 (11B)
     description: Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks ([paper](https://arxiv.org/pdf/2210.11416.pdf)).
     creator_organization: Google
     access: open
-
   - name: google/palm
     display_name: PaLM (540B)
     description: Pathways Language Model (540B parameters) is trained using 6144 TPU v4 chips ([paper](https://arxiv.org/pdf/2204.02311.pdf)).
     creator_organization: Google
     access: closed
     todo: true
+  ## PaLM 2
+  - name: google/text-bison@001
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+  - name: google/text-bison-32k
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model with a 32K context. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+  - name: google/text-unicorn@001
+    display_name: PaLM-2 (Unicorn)
+    description: The largest model in PaLM family. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization: Google
+    access: limited
+    release_date: 2023-11-30 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+  - name: google/code-bison@001
+    display_name: Codey PaLM-2 (Bison)
+    description: A model fine-tuned to generate code based on a natural language description of the desired code. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization: Google
+    access: limited
+    release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
+  - name: google/code-bison-32k
+    display_name: Codey PaLM-2 (Bison)
+    description: Codey with a 32K context. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization: Google
+    access: limited
+    release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
 
   # HazyResearch
   - name: together/h3-2.7b
@@ -560,6 +630,22 @@ models:
     num_parameters: 13000000000
     release_date: 2023-06-22
 
+  # 01.AI
+  - name: 01-ai/yi-6b
+    display_name: Yi (6B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization: 01.AI
+    access: open
+    num_parameters: 6000000000
+    release_date: 2023-11-02
+  - name: 01-ai/yi-34b
+    display_name: Yi (34B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization: 01.AI
+    access: open
+    num_parameters: 34000000000
+    release_date: 2023-11-02
+
   # Mistral AI
   - name: mistralai/mistral-7b-v0.1
     display_name: Mistral v0.1 (7B)
@@ -715,6 +801,12 @@ models:
     creator_organization: OpenAI
     access: limited
     release_date: 2023-06-13
+  - name: openai/gpt-4-1106-preview
+    display_name: openai/gpt-4-1106-preview
+    description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2023-11-06
 
   # Together
   - name: together/Together-gpt-JT-6B-v1
@@ -885,7 +977,6 @@ models:
     access: limited
     num_parameters: 5000000000
     release_date: 2022-10-13
-    todo: true
   - name: writer/palmyra-large
     display_name: Palmyra Large (20B)
     description: Palmyra Large (20B)
@@ -893,7 +984,6 @@ models:
     access: limited
     num_parameters: 20000000000
     release_date: 2022-12-23
-    todo: true
   - name: writer/palmyra-instruct-30
     display_name: InstructPalmyra (30B)
     description: InstructPalmyra (30B parameters) is trained using reinforcement learning techniques based on feedback from humans.
@@ -901,7 +991,6 @@ models:
     access: limited
     num_parameters: 30000000000
     release_date: 2023-02-16
-    todo: true
   - name: writer/palmyra-e
     display_name: Palmyra E (30B)
     description: Palmyra E (30B)
@@ -909,7 +998,6 @@ models:
     access: limited
     num_parameters: 30000000000
     release_date: 2023-03-03
-    todo: true
   - name: writer/silk-road
     display_name: Silk Road (35B)
     description: Silk Road (35B)
@@ -917,7 +1005,6 @@ models:
     access: limited
     num_parameters: 35000000000
     release_date: 2023-04-13
-    todo: true
   - name: writer/palmyra-x
     display_name: Palmyra X (43B)
     description: Palmyra-X (43B parameters) is trained to adhere to instructions using human feedback and utilizes a technique called multiquery attention. Furthermore, a new feature called 'self-instruct' has been introduced, which includes the implementation of an early stopping criteria specifically designed for minimal instruction tuning ([paper](https://dev.writer.com/docs/becoming-self-instruct-introducing-early-stopping-criteria-for-minimal-instruct-tuning)).
@@ -925,7 +1012,27 @@ models:
     access: limited
     num_parameters: 43000000000
     release_date: 2023-06-11
-    todo: true
+  - name: writer/palmyra-x-v2
+    display_name: Palmyra X V2 (33B)
+    description: Palmyra-X V2 (33B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. The pre-training data more than 2 trillion tokens types are diverse and cover a wide range of areas, used FlashAttention-2.
+    creator_organization: Writer
+    access: limited
+    num_parameters: 33000000000
+    release_date: 2023-12-01
+  - name: writer/palmyra-x-v3
+    display_name: Palmyra X V3 (72B)
+    description: Palmyra-X V3 (72B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. It is trained via unsupervised learning and DPO and use multiquery attention.
+    creator_organization: Writer
+    access: limited
+    num_parameters: 72000000000
+    release_date: 2023-12-01
+  - name: writer/palmyra-x-32k
+    display_name: Palmyra X-32K (33B)
+    description: Palmyra-X-32K (33B parameters) is a Transformer-based model, which is trained on large-scale pre-training data. The pre-training data types are diverse and cover a wide range of areas. These data types are used in conjunction and the alignment mechanism to extend context window.
+    creator_organization: Writer
+    access: limited
+    num_parameters: 33000000000
+    release_date: 2023-12-01
 
   # Yandex
   - name: together/yalm
@@ -1207,7 +1314,7 @@ metrics:
     lower_is_better: false
   - name: math_equiv_chain_of_thought
     display_name: Equivalent (chain of thought)
-    description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thoughts prompting.
+    description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thought prompting.
     lower_is_better: false
   - name: exact_match_indicator
     display_name: Exact match (up to specified indicator)
@@ -1558,7 +1665,7 @@ metric_groups:
         split: ${main_split}
 
   - name: calibration_detailed
-    display_name: Calibration
+    display_name: Calibration (Detailed)
     description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
     metrics:
       - name: max_prob
@@ -1589,7 +1696,7 @@ metric_groups:
 
   # TODO: Add other robustness perturbations
   - name: robustness_detailed
-    display_name: Robustness
+    display_name: Robustness (Detailed)
     description: Measures how robust the model is to invariances.
     metrics:
       - name: ${main_name}
@@ -1608,7 +1715,7 @@ metric_groups:
 
   # TODO: Add other fairness perturbations
   - name: fairness_detailed
-    display_name: Fairness
+    display_name: Fairness (Detailed)
     description: Measures how fair the model is.
     metrics:
       - name: ${main_name}
@@ -1646,7 +1753,7 @@ metric_groups:
       split: ${main_split}
 
   - name: efficiency_detailed
-    display_name: Efficiency
+    display_name: Efficiency (Detailed)
     description: The efficiency of the model across both training and inference.
     metrics:
       - name: inference_runtime
@@ -2684,8 +2791,8 @@ run_groups:
       language: synthetic
 
   - name: math_chain_of_thought
-    display_name: MATH (chain-of-thoughts)
-    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
+    display_name: MATH (chain-of-thought)
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
     metric_groups:
       - accuracy
       - efficiency
@@ -2735,6 +2842,23 @@ run_groups:
       when: n/a
       language: synthetic
 
+  - name: legalbench
+    display_name: LegalBench
+    description: LegalBench is a large collaboratively constructed benchmark of legal reasoning. Five representative tasks are included here. See [(Guha et al, 2023)[https://arxiv.org/abs/2308.11462] for more details.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "text classification"
+      what: "fact patterns, questions, and legal documents"
+      who: "lawyers"
+      when: n/a
+      language: English
+
   - name: legal_support
     display_name: LegalSupport
     description: Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.
@@ -2768,6 +2892,40 @@ run_groups:
       who: n/a
       when: n/a
       language: synthetic
+
+  - name: med_qa
+    display_name: MedQA
+    description: MedQA is an open domain question answering dataset composed of questions from professional medical board exams ([Jin et al. 2020](https://arxiv.org/pdf/2009.13081.pdf)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
+
+  - name: wmt_14
+    display_name: WMT 2014
+    description: WMT 2014 is a collection of machine translation datasets.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bleu_4
+      main_split: test
+    taxonomy:
+      task: machine translation
+      what: n/a
+      who: n/a
+      when: n/a
+      language: English
 
   - name: lextreme
     display_name: LEXTREME
@@ -3451,7 +3609,7 @@ run_groups:
 
   - name: cleva_mathematical_reasoning
     display_name: CLEVA (Chinese) mathematical reasoning
-    description: "Scenario that tests models' mathematical reasoning ability with chain-of-thoughts style reasoning. It contains a math word problem solving subtask."
+    description: "Scenario that tests models' mathematical reasoning ability with chain-of-thought style reasoning. It contains a math word problem solving subtask."
     metric_groups:
       - cleva_mathematical_reasoning_metrics
       - general_information

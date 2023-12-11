@@ -38,7 +38,7 @@ function NavDropdown() {
       </div>
 
       {dropdownOpen && (
-        <div className="absolute mt-2 w-96 translate-x-4 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+        <div className="absolute mt-2 w-max translate-x-4 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
           <div
             className="py-1"
             role="menu"
@@ -62,13 +62,14 @@ function NavDropdown() {
               className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               role="menuitem"
             >
-              <Link to="https://crfm.stanford.edu/heim/latest/?">
+              <a href="https://crfm.stanford.edu/heim/latest/?">
                 <div className="flex items-center">
                   <span>
-                    <strong>HEIM: </strong>Holistic evaluation of image models
+                    <strong>HEIM: </strong>Holistic evaluation of text-to-image
+                    models
                   </span>
                 </div>
-              </Link>
+              </a>
             </div>
           </div>
         </div>

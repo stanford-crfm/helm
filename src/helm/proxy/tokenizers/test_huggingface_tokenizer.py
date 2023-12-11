@@ -1,6 +1,81 @@
+import os
+import tempfile
 from typing import Optional
-from helm.common.general import singleton
+
+from helm.common.cache import SqliteCacheConfig
+from helm.common.general import parallel_map, singleton
+from helm.common.tokenization_request import (
+    DecodeRequest,
+    DecodeRequestResult,
+    TokenizationRequest,
+    TokenizationRequestResult,
+)
 from .huggingface_tokenizer import HuggingFaceTokenizer
+
+
+class TestHuggingFaceGPT2Tokenizer:
+    def setup_method(self, method):
+        cache_file = tempfile.NamedTemporaryFile(delete=False)
+        self.cache_path: str = cache_file.name
+        self.tokenizer = HuggingFaceTokenizer(SqliteCacheConfig(self.cache_path))
+
+    def teardown_method(self, method):
+        os.remove(self.cache_path)
+
+    def test_tokenize(self):
+        request = TokenizationRequest(text="I am a computer scientist.", tokenizer="huggingface/gpt2")
+        result: TokenizationRequestResult = self.tokenizer.tokenize(request)
+        assert not result.cached, "First time making the tokenize request. Result should not be cached"
+        result = self.tokenizer.tokenize(request)
+        assert result.cached, "Result should be cached"
+        assert result.raw_tokens == ["I", " am", " a", " computer", " scientist", "."]
+
+    def test_encode(self):
+        request = TokenizationRequest(
+            text="I am a computer scientist.", tokenizer="huggingface/gpt2", encode=True, truncation=True, max_length=1
+        )
+        result: TokenizationRequestResult = self.tokenizer.tokenize(request)
+        assert not result.cached, "First time making the tokenize request. Result should not be cached"
+        result = self.tokenizer.tokenize(request)
+        assert result.cached, "Result should be cached"
+        assert result.raw_tokens == [40]
+
+        request = TokenizationRequest(
+            text="I am a computer scientist.",
+            tokenizer="huggingface/gpt2",
+            encode=True,
+            truncation=True,
+            max_length=1024,
+        )
+        result = self.tokenizer.tokenize(request)
+        assert not result.cached, "First time making this particular request. Result should not be cached"
+        assert result.raw_tokens == [40, 716, 257, 3644, 11444, 13]
+
+    def test_decode(self):
+        request = DecodeRequest(tokens=[40, 716, 257, 3644, 11444, 13], tokenizer="huggingface/gpt2")
+        result: DecodeRequestResult = self.tokenizer.decode(request)
+        assert not result.cached, "First time making the decode request. Result should not be cached"
+        result = self.tokenizer.decode(request)
+        assert result.cached, "Result should be cached"
+        assert result.text == "I am a computer scientist."
+
+    def test_already_borrowed(self):
+        """Test workaround of the "Already borrowed" bug (#1421) caused by the thread-hostile Hugging Face tokenizer"""
+
+        def make_tokenize_request(seed: int) -> None:
+            request_length = 10
+            truncation = bool(seed % 2)
+            self.tokenizer.tokenize(
+                # The truncation parameter requires setting a flag on the Rust FastTokenizer.
+                # Concurrent requests cause concurrent mutations, which results an Rust concurrency error.
+                TokenizationRequest(
+                    text=str(seed) * request_length, tokenizer="huggingface/gpt2", encode=True, truncation=truncation
+                )
+            )
+
+        num_requests = 100
+        # Should not raise "Already borrowed" error
+        parallel_map(make_tokenize_request, list(range(num_requests)), parallelism=8)
 
 
 class TestHuggingFaceTokenizer:
@@ -17,12 +92,13 @@ class TestHuggingFaceTokenizer:
     def verify_get_tokenizer(
         tokenizer_name: str, expected_num_tokens: int, pretrained_model_name_or_path: Optional[str] = None
     ):
-        tokenizer = HuggingFaceTokenizer.get_tokenizer(
+        wrapped_tokenizer = HuggingFaceTokenizer.get_tokenizer(
             helm_tokenizer_name=tokenizer_name,
             pretrained_model_name_or_path=pretrained_model_name_or_path or tokenizer_name,
         )
         assert tokenizer_name in HuggingFaceTokenizer._tokenizers, "Tokenizer should be cached"
-        assert len(tokenizer.encode(TestHuggingFaceTokenizer.TEST_PROMPT)) == expected_num_tokens
+        with wrapped_tokenizer as tokenizer:
+            assert len(tokenizer.encode(TestHuggingFaceTokenizer.TEST_PROMPT)) == expected_num_tokens
 
     def test_get_tokenizer_gpt2(self):
         TestHuggingFaceTokenizer.verify_get_tokenizer("huggingface/gpt2", 51, pretrained_model_name_or_path="gpt2")
@@ -50,7 +126,8 @@ class TestHuggingFaceTokenizer:
 
     def test_gpt2_tokenize_eos(self):
         eos_token: str = "<|endoftext|>"
-        tokenizer = HuggingFaceTokenizer.get_tokenizer("huggingface/gpt2", pretrained_model_name_or_path="gpt2")
-        token_ids = tokenizer.encode(eos_token)
-        assert singleton(token_ids) == 50256
-        assert tokenizer.decode(token_ids) == eos_token
+        wrapped_tokenizer = HuggingFaceTokenizer.get_tokenizer("huggingface/gpt2", pretrained_model_name_or_path="gpt2")
+        with wrapped_tokenizer as tokenizer:
+            token_ids = tokenizer.encode(eos_token)
+            assert singleton(token_ids) == 50256
+            assert tokenizer.decode(token_ids) == eos_token

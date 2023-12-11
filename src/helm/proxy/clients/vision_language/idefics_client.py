@@ -54,8 +54,10 @@ class IDEFICSClient(CachingClient):
     END_OF_UTTERANCE_TOKEN: str = "<end_of_utterance>"
     BAD_WORD_TOKENS: List[str] = ["<image>", "<fake_token_around_image>"]
 
-    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+    def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
         self._device: str = get_torch_device_name()
 
     def _get_model(self, checkpoint: str) -> LoadedIDEFICSModelProcessor:
@@ -141,7 +143,7 @@ class IDEFICSClient(CachingClient):
         # TODO: Does it make sense to support echo? Include these params in the cache key.
         # TODO: Together might support this model so use the TogetherClient
         tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-            TokenizationRequest(result["output"], tokenizer=request.model)
+            TokenizationRequest(result["output"], tokenizer=self.tokenizer_name)
         )
         tokens: List[Token] = [
             Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens

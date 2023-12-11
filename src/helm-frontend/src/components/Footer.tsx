@@ -5,7 +5,7 @@ export default function Footer() {
   const version = getBenchmarkRelease();
   return (
     <div className="bottom-0 right-0 p-4 bg-white-800 text-black text-right">
-      <p>Version {version}</p>
+      <p>Release {version}</p>
     </div>
   );
 }

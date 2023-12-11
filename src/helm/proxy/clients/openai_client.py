@@ -15,7 +15,6 @@ from .client import CachingClient, truncate_sequence
 
 try:
     import openai
-    import tiktoken
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
@@ -29,11 +28,14 @@ class OpenAIClient(CachingClient):
     def __init__(
         self,
         tokenizer: Tokenizer,
+        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
-        super().__init__(cache_config=cache_config, tokenizer=tokenizer)
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
         self.org_id: Optional[str] = org_id
         self.api_key: Optional[str] = api_key
         self.api_base: str = "https://api.openai.com/v1"
@@ -155,9 +157,7 @@ class OpenAIClient(CachingClient):
                 text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
                 # The OpenAI chat completion API doesn't return us tokens or logprobs, so we tokenize ourselves.
                 tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                    TokenizationRequest(
-                        text, tokenizer="openai/" + tiktoken.encoding_for_model(request.model_engine).name
-                    )
+                    TokenizationRequest(text, tokenizer=self.tokenizer_name)
                 )
                 # Log probs are not currently not supported by the OpenAI chat completion API, so set to 0 for now.
                 tokens = [

@@ -9,7 +9,6 @@ import getGroupsTablesByName from "@/services/getGroupTablesByName";
 import getGroupsMetadata from "@/services/getGroupsMetadata";
 import Loading from "@/components/Loading";
 import getGroupsTables from "@/services/getGroupsTables";
-import Alert from "@/components/Alert";
 
 interface GroupDisplayData {
   title: string;
@@ -18,7 +17,6 @@ interface GroupDisplayData {
 
 export default function Leaderboard() {
   const defaultGroup = { title: "Core Scenarios", name: "core_scenarios" };
-  //const defaultGroup.name = "core_scenarios";
   const [allGroupData, setAllGroupData] = useState<GroupDisplayData[]>([]);
   const [selectedGroupDisplayData, setSelectedGroupDisplayData] =
     useState(defaultGroup);
@@ -28,7 +26,6 @@ export default function Leaderboard() {
   >();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeGroup, setActiveGroup] = useState<number>(0);
-  console.log(allGroupData);
 
   function findMatchingGroup(
     allGroupData: GroupDisplayData[],
@@ -99,58 +96,59 @@ export default function Leaderboard() {
 
   return (
     <>
-      <Alert />
-      <div className="flex flex-row justify-between">
-        <PageTitle
-          title={"Leaderboard"}
-          subtitle={
-            "The leaderboard shows how the various models (with particular adaptation procedures) perform across different groups of scenarios and different metrics."
-          }
-          markdown={true}
-          className="mr-8 mb-16"
-        />
-        <div className="w-64 py-10 ">
-          <label
-            htmlFor="group"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Select a group:
-          </label>
-          <select
-            id="group"
-            name="group"
-            value={selectedGroupDisplayData.title}
-            onChange={(e) => updateLeaderboard(allGroupData, e.target.value)}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring focus:border-blue-300 rounded-md"
-          >
-            {allGroupData.map((group, index) => (
-              <option key={index} value={group.title}>
-                {group.title}
-              </option>
-            ))}
-          </select>
+      <>
+        <div className="flex flex-row justify-between">
+          <PageTitle
+            title={"HELM Leaderboard"}
+            subtitle={
+              "HELM is a framework for evaluating foundation models. Our leaderboard shows how the various models (with particular adaptation procedures) perform across different groups of scenarios and different metrics."
+            }
+            markdown={true}
+            className="mr-8 mb-16"
+          />
+          <div className="w-64 py-10 ">
+            <label
+              htmlFor="group"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Select a group:
+            </label>
+            <select
+              id="group"
+              name="group"
+              value={selectedGroupDisplayData.title}
+              onChange={(e) => updateLeaderboard(allGroupData, e.target.value)}
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring focus:border-blue-300 rounded-md"
+            >
+              {allGroupData.map((group, index) => (
+                <option key={index} value={group.title}>
+                  {group.title}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
-      <div className="overflow-x-auto">
-        {groupsTables.length > 1 ? (
-          <Tabs>
-            {groupsTables.map((groupsTable, idx) => (
-              <Tab
-                key={idx}
-                active={idx === activeGroup}
-                onClick={() => setActiveGroup(idx)}
-              >
-                {groupsTable.title}
-              </Tab>
-            ))}
-          </Tabs>
-        ) : null}
-      </div>
-      <LeaderboardTables
-        groupsTables={groupsTables}
-        activeGroup={activeGroup}
-        ignoreHref={true}
-      />
+        <div className="overflow-x-auto">
+          {groupsTables.length > 1 ? (
+            <Tabs>
+              {groupsTables.map((groupsTable, idx) => (
+                <Tab
+                  key={idx}
+                  active={idx === activeGroup}
+                  onClick={() => setActiveGroup(idx)}
+                >
+                  {groupsTable.title}
+                </Tab>
+              ))}
+            </Tabs>
+          ) : null}
+        </div>
+        <LeaderboardTables
+          groupsTables={groupsTables}
+          activeGroup={activeGroup}
+          ignoreHref={true}
+        />
+      </>
     </>
   );
 }

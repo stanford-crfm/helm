@@ -208,3 +208,15 @@ def register_metadatas_if_not_already_registered(base_path: str = "prod_env") ->
         maybe_register_model_metadata_from_base_path(path)
         maybe_register_model_metadata_from_base_path(private_path)
         METADATAS_REGISTERED = True
+
+
+def get_default_model_metadata(helm_model_name: str) -> ModelMetadata:
+    return ModelMetadata(
+        name=helm_model_name,
+        creator_organization_name="Unknown",
+        display_name=helm_model_name,
+        description=helm_model_name,
+        access="open",
+        release_date=date.today(),
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    )

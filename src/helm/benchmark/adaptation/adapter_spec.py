@@ -26,6 +26,9 @@ class AdapterSpec:
     # For example, it is recommended to prefix all prompts with [NLG] for UL2.
     global_prefix: str = ""
 
+    # Append all prompts with this string.
+    global_suffix: str = ""
+
     # Prompt starts with instructions
     instructions: str = ""
 
