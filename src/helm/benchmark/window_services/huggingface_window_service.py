@@ -10,11 +10,11 @@ class HuggingFaceWindowService(LocalWindowService):
         service: TokenizerService,
         tokenizer_name: str,
         pretrained_model_name_or_path: Optional[str] = None,
-        revision: Optional[str] = None,
         max_sequence_length: Optional[int] = None,
         max_request_length: Optional[int] = None,
         end_of_text_token: Optional[str] = None,
         prefix_token: Optional[str] = None,
+        **kwargs
     ):
         super().__init__(service)
         self._tokenizer_name = tokenizer_name
@@ -27,7 +27,7 @@ class HuggingFaceWindowService(LocalWindowService):
         with HuggingFaceTokenizer.get_tokenizer(
             helm_tokenizer_name=tokenizer_name,
             pretrained_model_name_or_path=pretrained_model_name_or_path or tokenizer_name,
-            revision=revision,
+            **kwargs,
         ) as tokenizer:
             self._max_sequence_length = max_sequence_length or tokenizer.model_max_length
             self._max_request_length = max_request_length or self._max_sequence_length

@@ -39,23 +39,20 @@ class StopAtSpecificTokenCriteria(StoppingCriteria):
 class HuggingFaceServer:
     """A thin wrapper around a Hugging Face AutoModelForCausalLM for HuggingFaceClient to call."""
 
-    def __init__(self, pretrained_model_name_or_path: str, revision: Optional[str] = None):
+    def __init__(self, pretrained_model_name_or_path: str, **kwargs):
         if torch.cuda.is_available():
             hlog("CUDA is available, initializing with a GPU...")
             self.device: str = "cuda:0"
         else:
             self.device = "cpu"
-        model_kwargs = {}
-        if revision:
-            model_kwargs["revision"] = revision
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
             self.model = AutoModelForCausalLM.from_pretrained(
-                pretrained_model_name_or_path, trust_remote_code=True, **model_kwargs
+                pretrained_model_name_or_path, trust_remote_code=True, **kwargs
             ).to(self.device)
         with htrack_block(f"Loading Hugging Face tokenizer for model {pretrained_model_name_or_path}"):
             self.wrapped_tokenizer: WrappedPreTrainedTokenizer = HuggingFaceTokenizer.create_tokenizer(
-                pretrained_model_name_or_path, revision
+                pretrained_model_name_or_path, **kwargs
             )
 
     def serve_request(self, raw_request: Dict[str, Any]):
@@ -189,7 +186,7 @@ class HuggingFaceServerFactory:
     _servers_lock: Lock = Lock()
 
     @staticmethod
-    def get_server(helm_model_name: str, pretrained_model_name_or_path: str, revision: Optional[str] = None) -> Any:
+    def get_server(helm_model_name: str, pretrained_model_name_or_path: str, **kwargs) -> Any:
         """
         Checks if the desired HuggingFaceModel is cached. Creates the HuggingFaceModel if it's not cached.
         Returns the HuggingFaceModel.
@@ -197,26 +194,46 @@ class HuggingFaceServerFactory:
         with HuggingFaceServerFactory._servers_lock:
             if helm_model_name not in HuggingFaceServerFactory._servers:
                 with htrack_block(
-                    f"Loading {pretrained_model_name_or_path} (revision={revision}) "
+                    f"Loading {pretrained_model_name_or_path} (kwargs={kwargs}) "
                     f"for HELM model {helm_model_name} with Hugging Face Transformers"
                 ):
                     HuggingFaceServerFactory._servers[helm_model_name] = HuggingFaceServer(
-                        pretrained_model_name_or_path, revision
+                        pretrained_model_name_or_path, **kwargs
                     )
 
         return HuggingFaceServerFactory._servers[helm_model_name]
 
 
+TORCH_DTYPE_KEY = "torch_dtype"
+TORCH_DTYPE_VALUE_PREFIX = "torch."
+
+
+def _process_huggingface_client_kwargs(raw_kwargs: Dict[str, Any]):
+    """Process the kwargs for HuggingFaceClient.
+
+    The kwargs passed to HuggingFaceClient will eventually be passed to AutoModel.from_pretrained().
+    Since the kwargs from HuggingFaceClient may be derived from configuration YAML,
+    they may contain primitive types instead of the unserializable types that
+    AutoModel.from_pretrained() expects (e.g. torch_dtype). This function converts values of
+    primitive types to values of the unserializable types."""
+    processed_kwargs = deepcopy(raw_kwargs)
+
+    # Convert torch_dtype string value to actual dtypes
+    # e.g. the string "torch.bfloat16" is converted to torch.bfloat16
+    torch_dtype = processed_kwargs.get(TORCH_DTYPE_KEY)
+    if torch_dtype and isinstance(torch_dtype, str):
+        if not torch_dtype.startswith(TORCH_DTYPE_VALUE_PREFIX):
+            raise ValueError(f'Unknown dtype "{torch_dtype}"; expected a string such as "torch.bfloat16"')
+        processed_kwargs[TORCH_DTYPE_KEY] = getattr(torch, torch_dtype[len(TORCH_DTYPE_VALUE_PREFIX) :])
+
+    return processed_kwargs
+
+
 class HuggingFaceClient(CachingClient):
-    def __init__(
-        self,
-        cache_config: CacheConfig,
-        pretrained_model_name_or_path: Optional[str] = None,
-        revision: Optional[str] = None,
-    ):
+    def __init__(self, cache_config: CacheConfig, pretrained_model_name_or_path: Optional[str] = None, **kwargs):
         super().__init__(cache_config=cache_config)
         self._pretrained_model_name_or_path = pretrained_model_name_or_path
-        self._revision = revision
+        self._kwargs = _process_huggingface_client_kwargs(kwargs)
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -243,7 +260,7 @@ class HuggingFaceClient(CachingClient):
         huggingface_model: HuggingFaceServer = HuggingFaceServerFactory.get_server(
             helm_model_name=request.model_deployment,
             pretrained_model_name_or_path=pretrained_model_name_or_path,
-            revision=self._revision,
+            **self._kwargs,
         )
 
         try:
