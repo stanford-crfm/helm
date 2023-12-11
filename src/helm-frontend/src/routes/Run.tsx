@@ -51,6 +51,7 @@ export default function Run() {
   const [totalMetricsPages, setTotalMetricsPages] = useState<number>(1);
   const [model, setModel] = useState<Model | undefined>();
   const [scenario, setScenario] = useState<Scenario | undefined>();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -261,6 +262,15 @@ export default function Run() {
         </>
       ) : (
         <div>
+          {/* Search bar */}
+          <div className="flex justify-start my-4">
+            <input
+              type="text"
+              className="input input-bordered w-full max-w-xs"
+              placeholder="Search for a metric"
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
           <div className="overflow-x-auto">
             <table className="table">
               <thead>
@@ -271,26 +281,34 @@ export default function Run() {
                 </tr>
               </thead>
               <tbody>
-                {pagedMetrics.map((stat) => (
-                  <tr>
-                    {Object.entries(stat).map(([key, value]) => {
-                      if (key === "name") {
-                        return (
-                          <td key={key}>
-                            <StatNameDisplay stat={stat} />
-                            <div className="text-sm text-gray-500">
-                              {
-                                /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
-                                value.name
-                              }
-                            </div>
-                          </td>
-                        );
-                      }
-                      return <td>{value}</td>;
-                    })}
-                  </tr>
-                ))}
+                {pagedMetrics
+                  .filter(
+                    (stat) =>
+                      !searchTerm ||
+                      stat.name.name
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase()),
+                  )
+                  .map((stat) => (
+                    <tr>
+                      {Object.entries(stat).map(([key, value]) => {
+                        if (key === "name") {
+                          return (
+                            <td key={key}>
+                              <StatNameDisplay stat={stat} />
+                              <div className="text-sm text-gray-500">
+                                {
+                                  /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
+                                  value.name
+                                }
+                              </div>
+                            </td>
+                          );
+                        }
+                        return <td>{value}</td>;
+                      })}
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

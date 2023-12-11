@@ -92,7 +92,7 @@ $(function () {
     $table.append($header);
 
     schema.run_groups.forEach((group) => {
-      if (group.category) {
+      if (group.category && group.category !== "Scenarios") {
         return;
       }
       const href = groupUrl(group.name);
