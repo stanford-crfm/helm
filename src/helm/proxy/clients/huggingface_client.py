@@ -7,8 +7,6 @@ from transformers.generation.stopping_criteria import (
 )
 from typing import Any, Dict, List, Optional
 
-from transformers import PreTrainedTokenizerBase
-
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
 from helm.common.request import (
@@ -21,7 +19,6 @@ from helm.common.request import (
 )
 from .client import CachingClient, truncate_sequence
 from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer, resolve_alias
-from helm.proxy.tokenizers.huggingface_tokenizer import resolve_alias
 from threading import Lock
 
 
@@ -54,7 +51,7 @@ class HuggingFaceServer:
                 pretrained_model_name_or_path, trust_remote_code=True, **kwargs
             ).to(self.device)
         with htrack_block(f"Loading Hugging Face tokenizer for model {pretrained_model_name_or_path}"):
-            self.tokenizer: PreTrainedTokenizerBase = HuggingFaceTokenizer.create_tokenizer(
+            self.wrapped_tokenizer: WrappedPreTrainedTokenizer = HuggingFaceTokenizer.create_tokenizer(
                 pretrained_model_name_or_path, **kwargs
             )
 

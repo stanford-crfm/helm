@@ -49,21 +49,13 @@ class HuggingFaceTokenizer(CachingTokenizer):
     _tokenizers: Dict[str, WrappedPreTrainedTokenizer] = {}
     _tokenizers_lock: Lock = Lock()
 
-    def __init__(
-        self,
-        cache_config: CacheConfig,
-        pretrained_model_name_or_path: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, cache_config: CacheConfig, pretrained_model_name_or_path: Optional[str] = None, **kwargs):
         super().__init__(cache_config=cache_config)
         self._pretrained_model_name_or_path = pretrained_model_name_or_path
         self._kwargs = kwargs
 
-
     @staticmethod
-    def create_tokenizer(
-        pretrained_model_name_or_path: str, **kwargs
-    ) -> WrappedPreTrainedTokenizer:
+    def create_tokenizer(pretrained_model_name_or_path: str, **kwargs) -> WrappedPreTrainedTokenizer:
         """Loads tokenizer using files from disk if they exist. Otherwise, downloads from HuggingFace."""
         # To avoid deadlocks when using HuggingFace tokenizers with multiple processes
         # TODO: Figure out if we actually need this.
