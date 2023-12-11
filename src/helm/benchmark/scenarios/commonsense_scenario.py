@@ -114,7 +114,6 @@ class OpenBookQA(Scenario):
         return _make_instance(question=question, answers=answers, correct_answer=correct_answer, split=split)
 
 
-
 class PiqaScenario(Scenario):
     name = "piqa"
     description = "Benchmark from https://arxiv.org/pdf/1911.11641.pdf."
