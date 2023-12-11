@@ -83,7 +83,7 @@ models:
     release_date: 2023-09-27
 
   - name: mistralai/mixtral-8x7b-32kseqlen
-    display_name: Mistral (8x7B 32K seqlen)
+    display_name: Mixtral (8x7B 32K seqlen)
     description: Mistral AI's mixture-of-experts model ([tweet](https://twitter.com/MistralAI/status/1733150512395038967)).
     creator_organization: Mistral AI
     access: open
