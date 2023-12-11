@@ -19,11 +19,14 @@ except ModuleNotFoundError as e:
 
 
 class VertexAIClient(CachingClient):
-    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, project_id: str, location: str) -> None:
+    def __init__(
+        self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, project_id: str, location: str
+    ) -> None:
         super().__init__(cache_config=cache_config)
         self.project_id = project_id
         self.location = location
         self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
 
         vertexai.init(project=self.project_id, location=self.location)
 
@@ -85,7 +88,7 @@ class VertexAIClient(CachingClient):
             text: str = request.prompt + response_text if request.echo_prompt else response_text
 
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer="google/mt5-base")
+                TokenizationRequest(text, tokenizer=self.tokenizer_name)
             )
 
             # TODO #2085: Add support for log probs.

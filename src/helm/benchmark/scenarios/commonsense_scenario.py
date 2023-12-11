@@ -160,6 +160,7 @@ class PiqaScenario(Scenario):
     description = "Benchmark from https://arxiv.org/pdf/1911.11641.pdf."
     tags = ["knowledge", "multiple_choice"]
 
+
     def get_instances(self, output_path: str):
         # Download the raw data
         data_path = os.path.join(output_path, "data")
