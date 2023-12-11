@@ -56,9 +56,12 @@ class AnthropicClient(CachingClient):
     ADDITIONAL_TOKENS: int = 5
     PROMPT_ANSWER_START: str = "The answer is "
 
-    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig, api_key: Optional[str] = None):
+    def __init__(
+        self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: Optional[str] = None
+    ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
         self.api_key: Optional[str] = api_key
         self._client = anthropic.Client(api_key) if api_key else None
 
@@ -165,7 +168,7 @@ class AnthropicClient(CachingClient):
             # The Anthropic API doesn't return us tokens or logprobs, so we tokenize ourselves.
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
                 # Anthropic uses their own tokenizer
-                TokenizationRequest(text, tokenizer=request.model_engine)
+                TokenizationRequest(text, tokenizer=self.tokenizer_name)
             )
 
             # Log probs are not currently not supported by the Anthropic, so set to 0 for now.
@@ -240,7 +243,7 @@ class AnthropicLegacyClient(CachingClient):
             hlog(f"Invalid logprobs response: {raw_response}")
             return False
 
-    def __init__(self, api_key: str, tokenizer: Tokenizer, cache_config: CacheConfig):
+    def __init__(self, api_key: str, cache_config: CacheConfig):
         hlog("This client is deprecated. Please use AnthropicClient instead.")
         super().__init__(cache_config=cache_config)
         self.api_key = api_key

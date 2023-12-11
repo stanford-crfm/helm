@@ -4,6 +4,7 @@ from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
 from helm.benchmark.model_deployment_registry import ALL_MODEL_DEPLOYMENTS, DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT
+from helm.benchmark.scenarios.commonsense_scenario import HellaSwagScenario, OpenBookQA, PiqaScenario
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.object_spec import ObjectSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import (
@@ -978,10 +979,19 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 @run_spec_function("commonsense")
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
-        args={"dataset": dataset},
-    )
+    if dataset == HellaSwagScenario.name:
+        scenario_spec = ScenarioSpec(
+            class_name="helm.benchmark.scenarios.commonsense_scenario.HellaSwagScenario", args={}
+        )
+    elif dataset == OpenBookQA.name:
+        scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.commonsense_scenario.OpenBookQA", args={})
+    elif dataset == PiqaScenario.name:
+        scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.commonsense_scenario.PiqaScenario", args={})
+    else:
+        scenario_spec = ScenarioSpec(
+            class_name="helm.benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
+            args={"dataset": dataset},
+        )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
@@ -1776,7 +1786,6 @@ def get_legalbench_spec(subset: str) -> RunSpec:
     from helm.benchmark.scenarios.legalbench_scenario import (
         LegalBenchScenario,
         get_legalbench_instructions,
-        get_legalbench_max_train_instances,
         get_legalbench_output_nouns,
     )
 
@@ -1789,7 +1798,7 @@ def get_legalbench_spec(subset: str) -> RunSpec:
         input_noun=None,
         output_noun=get_legalbench_output_nouns(subset, scenario_cache_path),
         max_tokens=30,  # at most ~50 characters per label,
-        max_train_instances=get_legalbench_max_train_instances(subset, scenario_cache_path),
+        max_train_instances=5,  # Use 5 for all subsets
     )
 
     return RunSpec(

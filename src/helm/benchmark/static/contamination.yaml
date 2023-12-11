@@ -44,6 +44,7 @@ points:
     - anthropic/stanford-online-all-v4-s3
     - anthropic/claude-v1.3
     - anthropic/claude-instant-v1
+    - anthropic/claude-instant-1.2
     groups:
     - the_pile
     level: strong

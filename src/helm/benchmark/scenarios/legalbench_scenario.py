@@ -32,15 +32,12 @@ def get_legalbench_prompt_settings(subset: str, cache_dir: str):
         target_path=prompt_construction_settings_path,
     )
     with open(prompt_construction_settings_path, "r") as f:
-        field_ordering, instructions, label_keys, output_nouns, max_train_instances = map(
-            json.loads, f.read().strip().split("\n")
-        )
+        field_ordering, instructions, label_keys, output_nouns, _ = map(json.loads, f.read().strip().split("\n"))
     return (
         field_ordering[subset],
         instructions[subset],
         label_keys[subset],
         output_nouns[subset],
-        max_train_instances[subset],
     )
 
 
@@ -50,10 +47,6 @@ def get_legalbench_instructions(subset: str, cache_dir: str):
 
 def get_legalbench_output_nouns(subset: str, cache_dir: str):
     return get_legalbench_prompt_settings(subset, cache_dir)[3]
-
-
-def get_legalbench_max_train_instances(subset: str, cache_dir: str):
-    return get_legalbench_prompt_settings(subset, cache_dir)[4]
 
 
 class LegalBenchScenario(Scenario):
@@ -98,7 +91,7 @@ class LegalBenchScenario(Scenario):
         return get_legalbench_prompt_settings(self.subset, cache_dir)
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        fields, _, label_key, _, _ = self.load_prompt_construction_settings(output_path)
+        fields, _, label_key, _ = self.load_prompt_construction_settings(output_path)
         cache_dir = str(Path(output_path) / "data")
 
         # Download data from Huggingface. LegalBench provides splits for samples to
