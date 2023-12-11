@@ -21,7 +21,10 @@ class TokenizationRequest:
     # Which tokenizer we should use
     tokenizer: str = "huggingface/gpt2"
 
-    # Whether to encode
+    # Whether to encode tokens
+    #
+    # If true, the response's TokenizationToken should contain integers.
+    # Otherwise, the response's TokenizationToken should contain strings.
     encode: bool = False
 
     # Whether to truncate
