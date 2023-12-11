@@ -114,15 +114,55 @@ class OpenBookQA(Scenario):
         return _make_instance(question=question, answers=answers, correct_answer=correct_answer, split=split)
 
 
+class PiqaScenario(Scenario):
+    name = "piqa"
+    description = "Benchmark from https://arxiv.org/pdf/1911.11641.pdf."
+    tags = ["knowledge", "multiple_choice"]
+
+    def get_instances(self, output_path: str):
+        # Download the raw data
+        data_path = os.path.join(output_path, "data")
+        ensure_directory_exists(data_path)
+
+        url = "https://yonatanbisk.com/piqa/data/{}"
+        # TODO The source actually uses TRAIN_SPLIT and VALID_SPLIT, so consider skipping "val".
+        split_mapping = {"train": "train", "val": "valid"}
+        instances = []
+        # Ignore PIQA test set because no label information
+        for split in ["train", "val"]:
+            ensure_file_downloaded(
+                source_url=url.format(f"{split_mapping[split]}.jsonl"),
+                target_path=os.path.join(data_path, f"piqa_{split}.jsonl"),
+            )
+            ensure_file_downloaded(
+                source_url=url.format(f"{split_mapping[split]}-labels.lst"),
+                target_path=os.path.join(data_path, f"piqa_{split}_labels.lst"),
+            )
+            data = [json.loads(line) for line in open(os.path.join(data_path, f"piqa_{split}.jsonl"))]
+            labels = [int(line.strip()) for line in open(os.path.join(data_path, f"piqa_{split}_labels.lst"))]
+            assert len(data) == len(labels)
+            for item, label in zip(data, labels):
+                instances.append(self.json_to_instance(item, label, split))
+        return instances
+
+    @staticmethod
+    def json_to_instance(item, label: int, split: str):
+        question = item["goal"]
+        answers = [item["sol1"], item["sol2"]]
+        correct_choice = label
+        correct_answer = answers[correct_choice]
+
+        assert len(item) == 3
+        assert correct_choice in [0, 1]
+        return _make_instance(question, answers, correct_answer, split)
+
+
 class CommonSenseScenario(Scenario):
     """
     Unified interface for all CommonSense scenarios.
 
     - The "CommonSenseQA" benchmark from this paper:
       https://arxiv.org/pdf/1811.00937.pdf
-
-    - The "PIQA" benchmark from this paper:
-      https://arxiv.org/pdf/1911.11641.pdf
 
     - The "SIQA" benchmark from this paper:
       https://arxiv.org/pdf/1904.09728.pdf
@@ -135,7 +175,7 @@ class CommonSenseScenario(Scenario):
     def __init__(self, dataset):
         super().__init__()
         self.dataset = dataset
-        assert self.dataset in ["commonsenseqa", "piqa", "siqa"]
+        assert self.dataset in ["commonsenseqa", "siqa"]
 
     @staticmethod
     def process_commonsenseqa_item(item):
@@ -148,17 +188,6 @@ class CommonSenseScenario(Scenario):
 
         assert len(answers) == 5
         assert item["question"]["choices"][correct_choice]["label"] == item["answerKey"]
-        return question, answers, correct_answer
-
-    @staticmethod
-    def process_piqa_item(item):
-        question = item["goal"]
-        answers = [item["sol1"], item["sol2"]]
-        correct_choice = item["label"]
-        correct_answer = answers[correct_choice]
-
-        assert len(item) == 4
-        assert correct_choice in [0, 1]
         return question, answers, correct_answer
 
     @staticmethod
@@ -185,26 +214,6 @@ class CommonSenseScenario(Scenario):
                     source_url=url.format(split_mapping[split]),
                     target_path=os.path.join(data_path, f"commonsenseqa_{split}.jsonl"),
                 )
-        elif self.dataset == "piqa":
-            url = "https://yonatanbisk.com/piqa/data/{}"
-            split_mapping = {"train": "train", "val": "valid"}
-            for split in ["train", "val"]:
-                ensure_file_downloaded(
-                    source_url=url.format(f"{split_mapping[split]}.jsonl"),
-                    target_path=os.path.join(data_path, f"piqa_{split}_raw.jsonl"),
-                )
-                ensure_file_downloaded(
-                    source_url=url.format(f"{split_mapping[split]}-labels.lst"),
-                    target_path=os.path.join(data_path, f"piqa_{split}_labels.lst"),
-                )
-                data = [json.loads(line) for line in open(os.path.join(data_path, f"piqa_{split}_raw.jsonl"))]
-                labels = [int(line.strip()) for line in open(os.path.join(data_path, f"piqa_{split}_labels.lst"))]
-                assert len(data) == len(labels)
-                for item, label in zip(data, labels):
-                    item["label"] = label
-                with open(os.path.join(data_path, f"piqa_{split}.jsonl"), "w") as f:
-                    for item in data:
-                        f.write(json.dumps(item) + "\n")
         elif self.dataset == "siqa":
             ensure_file_downloaded(
                 source_url="https://storage.googleapis.com/ai2-mosaic/public/socialiqa/socialiqa-train-dev.zip",
@@ -250,11 +259,6 @@ class CommonSenseScenario(Scenario):
                 split: os.path.join(data_path, f"commonsenseqa_{split}.jsonl") for split in ["train", "val"]
             }  # Ignore CommonSenseQA test set because no label information
             item_process_func = self.process_commonsenseqa_item
-        elif self.dataset == "piqa":
-            split_to_file = {
-                split: os.path.join(data_path, f"piqa_{split}.jsonl") for split in ["train", "val"]
-            }  # Ignore PIQA test set because no label information
-            item_process_func = self.process_piqa_item
         elif self.dataset == "siqa":
             split_to_file = {
                 split: os.path.join(data_path, f"siqa_{split}.jsonl") for split in ["train", "val"]
