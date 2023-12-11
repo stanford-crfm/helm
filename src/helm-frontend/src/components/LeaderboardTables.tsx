@@ -11,7 +11,8 @@ interface Props {
   sortable?: boolean;
   sortFirstMetric?: boolean;
   filtered?: boolean;
-  filteredModels?: any;
+  modelsToFilter?: string[];
+  numModelsToAutoFilter?: number;
   filteredCols?: any[];
 }
 
@@ -23,7 +24,8 @@ export default function LeaderboardTables({
   sortFirstMetric = true,
   filtered = false,
   filteredCols = [],
-  filteredModels = [],
+  modelsToFilter = [],
+  numModelsToAutoFilter = 0, // if non-zero, sets how many models to filter down to (ranked by first column)
 }: Props) {
   const [activeSortColumn, setActiveSortColumn] = useState<number | undefined>(
     sortFirstMetric ? 1 : undefined,
@@ -32,10 +34,26 @@ export default function LeaderboardTables({
     ...groupsTables[activeGroup],
   });
   const [sortDirection, setSortDirection] = useState<number>(1);
+  const [filteredModels, setFilteredModels] =
+    useState<string[]>(modelsToFilter);
 
   useEffect(() => {
     setActiveGroupsTable({ ...groupsTables[activeGroup] });
-  }, [activeGroup, groupsTables]);
+    // upon receiving and setting data for current table, use sort to figure out n top models
+    if (numModelsToAutoFilter) {
+      const activeRows = groupsTables[0].rows;
+      const sortedRows = activeRows.sort((a, b) => {
+        // assumes we sort by column 1, which represents Mean Win Rate in the Core Scenarios table
+        // this assumption works as numModelsToAutoFilter is only used in mini leaderboards
+        // which always have one main scenario we sort by
+        return Number(b[1].value) - Number(a[1].value);
+      });
+      // Get the top ModelsToAutoFilter
+      const topNumRows = sortedRows.slice(0, numModelsToAutoFilter);
+      const topNumRowNames = topNumRows.map((row) => String(row[0].value));
+      setFilteredModels(topNumRowNames);
+    }
+  }, [activeGroup, groupsTables, numModelsToAutoFilter]);
 
   const handleSort = (columnIndex: number) => {
     let sort = sortDirection;
@@ -122,8 +140,9 @@ export default function LeaderboardTables({
               </thead>
               <tbody>
                 {activeGroupsTable.rows
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-                  .filter((row) => filteredModels.includes(row[0].value))
+                  .filter((row) =>
+                    filteredModels.includes(String(row[0].value)),
+                  )
                   .map((row, idx) => (
                     <tr
                       key={`${activeGroup}-${idx}`}
