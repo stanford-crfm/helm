@@ -4,6 +4,7 @@ from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
 from helm.benchmark.model_deployment_registry import ALL_MODEL_DEPLOYMENTS, DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT
+from helm.benchmark.scenarios.commonsense_scenario import HellaSwagScenario, OpenBookQA
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.object_spec import ObjectSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import (
@@ -978,10 +979,17 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 @run_spec_function("commonsense")
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
-        args={"dataset": dataset},
-    )
+    if dataset == HellaSwagScenario.name:
+        scenario_spec = ScenarioSpec(
+            class_name="helm.benchmark.scenarios.commonsense_scenario.HellaSwagScenario", args={}
+        )
+    elif dataset == OpenBookQA.name:
+        scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.commonsense_scenario.OpenBookQA", args={})
+    else:
+        scenario_spec = ScenarioSpec(
+            class_name="helm.benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
+            args={"dataset": dataset},
+        )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
