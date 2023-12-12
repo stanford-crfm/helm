@@ -32,11 +32,11 @@ class AI21WindowService(WindowService):
         "AI21 only gave API access to their tokenizer, so this method is not supported."
     )
 
-    def __init__(self, service: TokenizerService, gpt2_window_service: GPT2WindowService):
+    def __init__(self, service: TokenizerService):
         # We need the `TokenizerService` to make requests to the server.
         self.service: TokenizerService = service
         # As explained above, we need a `GPT2WindowService` to help tokenize long text sequences.
-        self.gpt2_window_service: GPT2WindowService = gpt2_window_service
+        self.gpt2_window_service: GPT2WindowService = GPT2WindowService(service)
 
     @property
     def tokenizer_name(self) -> str:

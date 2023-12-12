@@ -1,4 +1,5 @@
 from typing import Optional
+from .window_service import INT_MAX
 from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 
@@ -10,6 +11,7 @@ class DefaultWindowService(LocalWindowService):
         tokenizer_name: str,
         max_sequence_length: int,
         max_request_length: Optional[int] = None,
+        max_sequence_and_generated_tokens_length: Optional[int] = None,
         end_of_text_token: Optional[str] = None,
         prefix_token: Optional[str] = None,
     ):
@@ -17,6 +19,7 @@ class DefaultWindowService(LocalWindowService):
         self._tokenizer_name = tokenizer_name
         self._max_sequence_length = max_sequence_length
         self._max_request_length = max_request_length or max_sequence_length
+        self._max_sequence_and_generated_tokens_length = max_sequence_and_generated_tokens_length or INT_MAX
         self._end_of_text_token = end_of_text_token or ""
         self._prefix_token = prefix_token or ""
 
@@ -31,6 +34,10 @@ class DefaultWindowService(LocalWindowService):
     @property
     def max_request_length(self) -> int:
         return self._max_request_length
+
+    @property
+    def max_sequence_and_generated_tokens_length(self) -> int:
+        return self._max_sequence_and_generated_tokens_length
 
     @property
     def end_of_text_token(self) -> str:
