@@ -12,7 +12,7 @@ interface Props {
   sortFirstMetric?: boolean;
   filtered?: boolean;
   modelsToFilter?: string[];
-  nModelsToAutoFilter?: number;
+  numModelsToAutoFilter?: number;
   filteredCols?: any[];
 }
 
@@ -25,7 +25,7 @@ export default function LeaderboardTables({
   filtered = false,
   filteredCols = [],
   modelsToFilter = [],
-  nModelsToAutoFilter = 0, // if non-zero, sets how many models to filter down to (ranked by first column)
+  numModelsToAutoFilter = 0, // if non-zero, sets how many models to filter down to (ranked by first column)
 }: Props) {
   const [activeSortColumn, setActiveSortColumn] = useState<number | undefined>(
     sortFirstMetric ? 1 : undefined,
@@ -52,17 +52,20 @@ export default function LeaderboardTables({
   useEffect(() => {
     setActiveGroupsTable({ ...groupsTables[activeGroup] });
     // upon receiving and setting data for current table, use sort to figure out n top models
-    if (nModelsToAutoFilter) {
+    if (numModelsToAutoFilter) {
       const activeRows = groupsTables[0].rows;
       const sortedRows = activeRows.sort((a, b) => {
+        // assumes we sort by column 1, which represents Mean Win Rate in the Core Scenarios table
+        // this assumption works as numModelsToAutoFilter is only used in mini leaderboards
+        // which always have one main scenario we sort by
         return Number(b[1].value) - Number(a[1].value);
       });
-      // Get the top N rows
-      const topNRows = sortedRows.slice(0, nModelsToAutoFilter);
-      const topNRowNames = topNRows.map((row) => String(row[0].value));
-      setFilteredModels(topNRowNames);
+      // Get the top ModelsToAutoFilter
+      const topNumRows = sortedRows.slice(0, numModelsToAutoFilter);
+      const topNumRowNames = topNumRows.map((row) => String(row[0].value));
+      setFilteredModels(topNumRowNames);
     }
-  }, [activeGroup, groupsTables, nModelsToAutoFilter]);
+  }, [activeGroup, groupsTables, numModelsToAutoFilter]);
 
   const handleSort = (columnIndex: number) => {
     let sort = sortDirection;
@@ -113,7 +116,7 @@ export default function LeaderboardTables({
       {filtered ? (
         <div
           className="rounded-2xl overflow-hidden border-2 bg-white p-1 mx-2 my-0"
-          style={{ overflow: "auto" }}
+          style={{ width: "505px", height: "380px", overflow: "auto" }}
         >
           <div className="overflow-x-auto">
             <table className="table w-full">
