@@ -60,40 +60,41 @@ export default function LegacyLanding() {
   return (
     <>
       <Hero />
+      <div className="mx-auto text-lg px-16">
+        <div className="container mb-12 mx-auto text-lg px-16">
+          <div className="flex flex-col sm:flex-row justify-center mt-10 mb-10 flex gap-2 sm:gap-8 md:gap-32">
+            {" "}
+            <h1 className="text-4xl  mx-4 mt-40">
+              <strong>Our Partners</strong>
+            </h1>
+          </div>
 
-      <div className="container mb-12 mx-auto text-lg px-16">
-        <div className="flex flex-col sm:flex-row justify-center mt-10 mb-10 flex gap-2 sm:gap-8 md:gap-32">
-          {" "}
-          <h1 className="text-4xl  mx-4 mt-40">
-            <strong>Our Partners</strong>
-          </h1>
+          <ol className="my-8 flex flex-col gap-32">
+            <li>
+              <div className="flex flex-wrap justify-center max-w-[1100px] mx-auto w-auto">
+                {logos.map((logo, idx) => (
+                  <div className="w-24 h-24 flex items-center m-6" key={idx}>
+                    <img
+                      src={logo}
+                      alt="Logo"
+                      className="mx-auto block"
+                      sizes="100vw"
+                    />
+                  </div>
+                ))}
+              </div>
+            </li>
+          </ol>
         </div>
-
-        <ol className="my-8 flex flex-col gap-32">
-          <li>
-            <div className="flex flex-wrap justify-center max-w-[1100px] mx-auto w-auto">
-              {logos.map((logo, idx) => (
-                <div className="w-24 h-24 flex items-center m-6" key={idx}>
-                  <img
-                    src={logo}
-                    alt="Logo"
-                    className="mx-auto block"
-                    sizes="100vw"
-                  />
-                </div>
-              ))}
-            </div>
-          </li>
-        </ol>
-      </div>
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          <ModelsList models={schema.models} />
-          <ScenariosList runGroups={schema.run_groups} />
-          <MetricsList
-            metrics={schema.metrics}
-            metricGroups={schema.metric_groups}
-          />
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <ModelsList models={schema.models} />
+            <ScenariosList runGroups={schema.run_groups} />
+            <MetricsList
+              metrics={schema.metrics}
+              metricGroups={schema.metric_groups}
+            />
+          </div>
         </div>
       </div>
     </>
