@@ -1317,7 +1317,12 @@ metrics:
     description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thought prompting.
     lower_is_better: false
   - name: exact_match_indicator
-    display_name: Exact match (up to specified indicator)
+    display_name: Exact match (final)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator (e.g., space).
+    lower_is_better: false
+  - name: final_number_exact_match
+    display_name: Exact match (final number)
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
     lower_is_better: false

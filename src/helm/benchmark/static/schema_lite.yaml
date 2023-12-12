@@ -76,11 +76,19 @@ models:
   # Mistral AI
   - name: mistralai/mistral-7b-v0.1
     display_name: Mistral v0.1 (7B)
-    description: Mistral 7B is a  7.3B parameter transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
+    description: Mistral 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
     creator_organization: Mistral AI
     access: open
     num_parameters: 7300000000
     release_date: 2023-09-27
+
+  - name: mistralai/mixtral-8x7b-32kseqlen
+    display_name: Mixtral (8x7B 32K seqlen)
+    description: Mistral AI's mixture-of-experts model ([tweet](https://twitter.com/MistralAI/status/1733150512395038967)).
+    creator_organization: Mistral AI
+    access: open
+    num_parameters: 56000000000
+    release_date: 2023-12-08
 
   # OpenAI
   - name: openai/text-davinci-003
@@ -426,11 +434,16 @@ metrics:
     description: Fraction of model outputs that are mathematically equivalent to the correct reference.
     lower_is_better: false
   - name: math_equiv_chain_of_thought
-    display_name: Equivalent (chain of thought)
+    display_name: Equivalent (CoT)
     description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thought prompting.
     lower_is_better: false
   - name: exact_match_indicator
-    display_name: Exact match (up to specified indicator)
+    display_name: Exact match (final)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator (e.g., space).
+    lower_is_better: false
+  - name: final_number_exact_match
+    display_name: Exact match (final number)
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
     lower_is_better: false
@@ -805,7 +818,6 @@ run_groups:
       - mmlu
       - math_chain_of_thought
       - gsm
-      - code_humaneval
       - legalbench
       - med_qa
       - wmt_14
@@ -821,10 +833,10 @@ run_groups:
       main_name: f1_score
       main_split: test
     taxonomy:
-      task: question answering
+      task: short-answer question answering
       what: passages are books and movie scripts, questions are unknown
-      who: "?"
-      when: "?"
+      who: annotators from summaries
+      when: "2018"
       language: English
 
   - name: natural_qa_closedbook
@@ -838,7 +850,7 @@ run_groups:
       main_name: f1_score
       main_split: valid
     taxonomy:
-      task: question answering
+      task: short-answer question answering
       what: passages from Wikipedia, questions from search queries
       who: web users
       when: 2010s
@@ -855,7 +867,7 @@ run_groups:
       main_name: f1_score
       main_split: valid
     taxonomy:
-      task: question answering
+      task: short-answer question answering
       what: passages from Wikipedia, questions from search queries
       who: web users
       when: 2010s
@@ -872,16 +884,16 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: multiple-choice question answering
+      what: elementary science
+      who: Amazon Mechnical Turk workers
+      when: "2018"
       language: English
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
     short_display_name: MMLU
-    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2009.03300.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -890,14 +902,14 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: "?"
-      who: "?"
-      when: "?"
+      task: multiple-choice question answering
+      what: math, science, history, etc.
+      who: various online sources
+      when: before 2021
       language: English
 
   - name: gsm
-    display_name: GSM8K (Grade school math word problems)
+    display_name: GSM8K (Grade School Math)
     short_display_name: GSM8K
     description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/pdf/2110.14168.pdf).
     metric_groups:
@@ -905,18 +917,18 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match_indicator
+      main_name: final_number_exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: n/a
-      who: n/a
-      when: n/a
-      language: synthetic
+      task: numeric answer question answering
+      what: grade school math word problems
+      who: contractors on Upwork and Surge AI
+      when: "2021"
+      language: English
 
   - name: math_chain_of_thought
-    display_name: MATH (chain-of-thought)
-    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
+    display_name: MATH
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thought style reasoning [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2103.03874.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -925,32 +937,15 @@ run_groups:
       main_name: math_equiv_chain_of_thought
       main_split: test
     taxonomy:
-      task: "?"
-      what: n/a
-      who: n/a
-      when: n/a
-      language: synthetic
-
-  - name: code_humaneval
-    display_name: HumanEval (Code)
-    description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings [(Chen et al., 2021)](https://arxiv.org/pdf/2107.03374.pdf).
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: pass
-      main_split: test
-    taxonomy:
-      task: "?"
-      what: n/a
-      who: n/a
-      when: n/a
+      task: numeric answer question answering
+      what: math competitions (AMC, AIME, etc.)
+      who: problem setters
+      when: before 2021
       language: synthetic
 
   - name: legalbench
     display_name: LegalBench
-    description: LegalBench is a large collaboratively constructed benchmark of legal reasoning. Five representative tasks are included here. See [(Guha et al, 2023)[https://arxiv.org/abs/2308.11462] for more details.
+    description: LegalBench is a large collaboratively constructed benchmark of legal reasoning tasks [(Guha et al, 2023)](https://arxiv.org/pdf/2308.11462.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -959,10 +954,10 @@ run_groups:
       main_name: quasi_exact_match
       main_split: test
     taxonomy:
-      task: "text classification"
-      what: "fact patterns, questions, and legal documents"
-      who: "lawyers"
-      when: n/a
+      task: multiple-choice question answering
+      what: public legal and admininstrative documents, manually constructed questions
+      who: lawyers
+      when: before 2023
       language: English
 
   - name: med_qa
@@ -976,15 +971,15 @@ run_groups:
       main_name: quasi_exact_match
       main_split: test
     taxonomy:
-      task: question answering
-      what: n/a
-      who: n/a
-      when: n/a
+      task: multiple-choice question answering
+      what: US medical licensing exams
+      who: problem setters
+      when: before 2020
       language: English
 
   - name: wmt_14
     display_name: WMT 2014
-    description: WMT 2014 is a collection of machine translation datasets.
+    description: WMT 2014 is a collection of machine translation datasets [(website)](https://www.statmt.org/wmt14/index.html).
     metric_groups:
       - accuracy
       - efficiency
@@ -994,7 +989,7 @@ run_groups:
       main_split: test
     taxonomy:
       task: machine translation
-      what: n/a
-      who: n/a
-      when: n/a
-      language: English
+      what: multilingual sentences
+      who: Europarl, news, Common Crawl, etc.
+      when: before 2014
+      language: English, French, Czech, etc.
