@@ -16,7 +16,7 @@ class OpenAITokenCounter(TokenCounter):
         https://community.openai.com/t/how-do-i-calculate-the-pricing-for-generation-of-text/11662/5
         """
         tokenized_prompt: TokenizationRequestResult = self.huggingface_tokenizer.tokenize(
-            TokenizationRequest(request.prompt)
+            TokenizationRequest(request.prompt, tokenizer="huggingface/gpt2")
         )
         # Number of tokens in the prompt + number of tokens in all the completions
         return len(tokenized_prompt.tokens) + sum([len(sequence.tokens) for sequence in completions])

@@ -22,11 +22,13 @@ LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "LIMITED_FUNCTIONALITY_TEXT_MODEL_TA
 CHATML_MODEL_TAG: str = "CHATML_MODEL_TAG"
 
 # OpenAI Chat format
-OPENAI_CHATGPT_MODEL_TAG: str = "openai_chatgpt"
+OPENAI_CHATGPT_MODEL_TAG: str = "OPENAI_CHATGPT_MODEL_TAG"
 
 # For Anthropic models
 ANTHROPIC_CLAUDE_1_MODEL_TAG: str = "ANTHROPIC_CLAUDE_1_MODEL_TAG"
 ANTHROPIC_CLAUDE_2_MODEL_TAG: str = "ANTHROPIC_CLAUDE_2_MODEL_TAG"
+
+GOOGLE_PALM_2_MODEL_TAG: str = "GOOGLE_PALM_2_MODEL_TAG"
 
 # Models which emit garbage tokens when temperature=0.
 BUGGY_TEMP_0_TAG: str = "BUGGY_TEMP_0_TAG"
@@ -213,11 +215,13 @@ def is_text_to_image_model(model_name: str) -> bool:
     return TEXT_TO_IMAGE_MODEL_TAG in model.tags
 
 
-def register_metadatas_if_not_already_registered() -> None:
+def register_metadatas_if_not_already_registered(base_path: str = "prod_env") -> None:
     global METADATAS_REGISTERED
     if not METADATAS_REGISTERED:
         path: str = resources.files(CONFIG_PACKAGE).joinpath(MODEL_METADATA_FILE)
+        private_path: str = os.path.join(base_path, MODEL_METADATA_FILE)
         maybe_register_model_metadata_from_base_path(path)
+        maybe_register_model_metadata_from_base_path(private_path)
         METADATAS_REGISTERED = True
 
 

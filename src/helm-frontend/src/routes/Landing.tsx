@@ -68,6 +68,7 @@ export default function LegacyLanding() {
             <strong>Our Partners</strong>
           </h1>
         </div>
+
         <ol className="my-8 flex flex-col gap-32">
           <li>
             <div className="flex flex-wrap justify-center max-w-[1100px] mx-auto w-auto">

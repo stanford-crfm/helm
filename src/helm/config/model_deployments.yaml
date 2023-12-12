@@ -2,7 +2,12 @@
 # Some models have several deployments, each with different parameters.
 
 # If you want to add a new deployment, you can technically do it here but we recommend
-# you to do it in private/model_deployments.yaml instead.
+# you to do it in prod_env/model_deployments.yaml instead.
+
+# Follow the template of this file to add a new deployment. You can copy paste this to get started:
+#    # This file defines all the model deployments that you do not want to be public.
+#    model_deployments: [] # Leave empty to disable private model deployments
+
 
 model_deployments:
 
@@ -201,6 +206,18 @@ model_deployments:
 
   - name: anthropic/claude-instant-v1
     model_name: anthropic/claude-instant-v1
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 8000
+    max_sequence_and_generated_tokens_length: 9016
+    client_spec:
+      class_name: "helm.proxy.clients.anthropic_client.AnthropicClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+      args: {}
+
+  - name: anthropic/claude-instant-1.2
+    model_name: anthropic/claude-instant-1.2
     tokenizer_name: anthropic/claude
     max_sequence_length: 8000
     max_sequence_and_generated_tokens_length: 9016
@@ -575,6 +592,7 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
       args: {}
+
 
   ## Text-to-Image Diffusion Models
 
@@ -1644,6 +1662,17 @@ model_deployments:
   ## MistralAI
   - name: together/mistral-7b-v0.1
     model_name: mistralai/mistral-7b-v0.1
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 4095  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+      args: {}
+
+  - name: together/mixtral-8x7b-32kseqlen
+    model_name: mistralai/mixtral-8x7b-32kseqlen
     tokenizer_name: mistralai/Mistral-7B-v0.1
     max_sequence_length: 4095  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:

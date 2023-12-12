@@ -119,6 +119,12 @@ models:
     creator_organization: Anthropic
     access: limited
     release_date: 2023-03-17
+  - name: anthropic/claude-instant-1.2
+    display_name: Anthropic Claude Instant 1.2
+    description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
+    creator_organization: Anthropic
+    access: limited
+    release_date: 2023-08-09
 
   # Berkeley
   - name: together/koala-13b
@@ -1311,7 +1317,12 @@ metrics:
     description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thought prompting.
     lower_is_better: false
   - name: exact_match_indicator
-    display_name: Exact match (up to specified indicator)
+    display_name: Exact match (final)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator (e.g., space).
+    lower_is_better: false
+  - name: final_number_exact_match
+    display_name: Exact match (final number)
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
     lower_is_better: false

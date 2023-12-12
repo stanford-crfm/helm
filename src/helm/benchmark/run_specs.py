@@ -4,6 +4,13 @@ from functools import partial
 from typing import Any, Callable, List, Dict, Optional, Set, TypeVar
 
 from helm.benchmark.model_deployment_registry import ALL_MODEL_DEPLOYMENTS, DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT
+from helm.benchmark.scenarios.commonsense_scenario import (
+    CommonSenseQAScenario,
+    HellaSwagScenario,
+    OpenBookQA,
+    PiqaScenario,
+    SiqaScenario,
+)
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.object_spec import ObjectSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import (
@@ -21,9 +28,10 @@ from .run_expander import (
     RUN_EXPANDERS,
     GlobalPrefixRunExpander,
     AnthropicRunExpander,
+    OpenAIRunExpander,
+    GoogleRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
-    IncreaseMaxTokensRunExpander,
     IncreaseTemperatureRunExpander,
 )
 from .runner import RunSpec, get_benchmark_output_path
@@ -52,6 +60,7 @@ from helm.benchmark.model_metadata_registry import (
     get_model_metadata,
     ANTHROPIC_CLAUDE_1_MODEL_TAG,
     ANTHROPIC_CLAUDE_2_MODEL_TAG,
+    GOOGLE_PALM_2_MODEL_TAG,
     NO_NEWLINES_TAG,
     NLG_PREFIX_TAG,
     CHATML_MODEL_TAG,
@@ -978,10 +987,23 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 @run_spec_function("commonsense")
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
-        args={"dataset": dataset},
-    )
+    # TODO Split these into their own run_spec_function.
+    if dataset == HellaSwagScenario.name:
+        scenario_spec = ScenarioSpec(
+            class_name="helm.benchmark.scenarios.commonsense_scenario.HellaSwagScenario", args={}
+        )
+    elif dataset == OpenBookQA.name:
+        scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.commonsense_scenario.OpenBookQA", args={})
+    elif dataset == CommonSenseQAScenario.name:
+        scenario_spec = ScenarioSpec(
+            class_name="helm.benchmark.scenarios.commonsense_scenario.CommonSenseQAScenario", args={}
+        )
+    elif dataset == SiqaScenario.name:
+        scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.commonsense_scenario.SiqaScenario", args={})
+    elif dataset == PiqaScenario.name:
+        scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.commonsense_scenario.PiqaScenario", args={})
+    else:
+        raise ValueError(f"Unknown dataset: {dataset}")
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
@@ -1136,7 +1158,8 @@ def get_gsm_spec() -> RunSpec:
         name="gsm",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match_indicator"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs(["exact_match_indicator", "final_number_exact_match"])
+        + get_generative_harms_metric_specs(),
         groups=["gsm"],
     )
 
@@ -1776,7 +1799,6 @@ def get_legalbench_spec(subset: str) -> RunSpec:
     from helm.benchmark.scenarios.legalbench_scenario import (
         LegalBenchScenario,
         get_legalbench_instructions,
-        get_legalbench_max_train_instances,
         get_legalbench_output_nouns,
     )
 
@@ -1789,14 +1811,14 @@ def get_legalbench_spec(subset: str) -> RunSpec:
         input_noun=None,
         output_noun=get_legalbench_output_nouns(subset, scenario_cache_path),
         max_tokens=30,  # at most ~50 characters per label,
-        max_train_instances=get_legalbench_max_train_instances(subset, scenario_cache_path),
+        max_train_instances=5,  # Use 5 for all subsets
     )
 
     return RunSpec(
         name=f"legalbench:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs() + get_classification_metric_specs(),
+        metric_specs=get_exact_match_metric_specs(),
         groups=["legalbench"],
     )
 
@@ -1946,9 +1968,8 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        # TODO add generative harms when applicable
         metric_specs=get_metric_specs(big_bench_task["metrics"]),
-        groups=["BIG-bench"],
+        groups=[f"big_bench_{task}"],
     )
 
 
@@ -2713,19 +2734,21 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
             run_spec = singleton(global_prefix_expander.expand(run_spec))
 
-        # When running ChatGPT on non-language modelling tasks, increase max_tokens by 1
-        # to add room for the special message role token.
-        if OPENAI_CHATGPT_MODEL_TAG in model.tags and run_spec.adapter_spec.max_tokens:
-            increase_max_tokens_expander = IncreaseMaxTokensRunExpander(value=1)
-            run_spec = singleton(increase_max_tokens_expander.expand(run_spec))
-
         if CHATML_MODEL_TAG in model.tags:
             chatml_expander = ChatMLRunExpander()
             run_spec = singleton(chatml_expander.expand(run_spec))
 
-        # Special handling for Anthropic Claude
+        # Anthropic prompts
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicRunExpander().expand(run_spec))
+
+        # OpenAI prompts
+        if OPENAI_CHATGPT_MODEL_TAG in model.tags:
+            run_spec = singleton(OpenAIRunExpander().expand(run_spec))
+
+        # Google prompts
+        if GOOGLE_PALM_2_MODEL_TAG in model.tags:
+            run_spec = singleton(GoogleRunExpander().expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:

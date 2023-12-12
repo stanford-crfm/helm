@@ -5,10 +5,10 @@ from urllib.parse import unquote
 from functools import partial
 
 import json
-import re
 import string
 import nltk
 import numpy as np
+import re
 import scipy
 import calibration as cal
 import importlib_resources as resources
@@ -200,6 +200,25 @@ def exact_match_indicator(gold: str, pred: str, indicator: str = " ") -> float:
     pred = pred.split(indicator)[-1].strip()
     gold = gold.split(indicator)[-1].strip()
     return exact_match(gold, pred)
+
+
+def final_number_exact_match(gold: str, pred: str) -> float:
+    """
+    Returns 1 iff the final number in gold and pred match.
+    Similar to exact_match_indicator.
+    Example:
+    - gold = "The answer is 15."
+    - pred = "The answer is 15 eggs."
+    - Returns 1
+    """
+
+    def get_final_number(x: str) -> str:
+        matches = re.findall(r"-?[\d,]+(?:.\d+)?", x)
+        if not matches:
+            return ""
+        return matches[-1].replace(",", "")
+
+    return exact_match(get_final_number(gold), get_final_number(pred))
 
 
 def get_num_bytes(tokens: List[Token]) -> int:
@@ -497,6 +516,7 @@ class BasicMetric(Metric):
             "prefix_exact_match": prefix_exact_match,
             "quasi_prefix_exact_match": quasi_prefix_exact_match,
             "exact_match_indicator": exact_match_indicator,
+            "final_number_exact_match": final_number_exact_match,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
             "f1_set_match": f1_set_match,
