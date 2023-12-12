@@ -17,6 +17,8 @@ def test_exact_match_indicator():
 def test_final_number_exact_match():
     assert final_number_exact_match("33", "33") == 1
     assert final_number_exact_match("33", "33 eggs.") == 1
+    assert final_number_exact_match("33", "-33") == 0
+    assert final_number_exact_match("-33", "-33") == 1
     assert final_number_exact_match("The answer is 33", "\\boxed{33}") == 1
     assert final_number_exact_match("The answer is 33", "\\boxed{33} and 34") == 0
     assert final_number_exact_match("34.2", "2") == 0
