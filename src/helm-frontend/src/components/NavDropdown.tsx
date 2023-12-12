@@ -8,11 +8,15 @@ function NavDropdown() {
     <div className="relative inline-block text-left p-2">
       <div className="inline-flex items-center p-2">
         <Link to="/">
-          <img
-            src="https://crfm.stanford.edu/helm/v0.3.0/images/helm-logo-simple.png"
-            alt="Image 1"
-            className="w-full h-10 object-cover"
-          />
+          <div className="flex items-center">
+            <img
+              src="https://crfm.stanford.edu/helm/v0.3.0/images/helm-logo-simple.png"
+              alt="Image 1"
+              className="w-full h-10 object-cover"
+            />
+
+            <div className="hidden lg:flex pl-3"> Classic </div>
+          </div>
         </Link>
 
         {/* Chevron Button */}
@@ -22,7 +26,7 @@ function NavDropdown() {
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 ml-2"
+            className="h-4 w-4 ml-2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -52,8 +56,8 @@ function NavDropdown() {
               <Link to="https://crfm.stanford.edu/helm/latest/">
                 <div className="flex items-center">
                   <span>
-                    <strong>HELM: </strong>Holistic evaluation of language
-                    models
+                    <strong>HELM Classic: </strong>Holistic evaluation of
+                    language models
                   </span>
                 </div>
               </Link>
