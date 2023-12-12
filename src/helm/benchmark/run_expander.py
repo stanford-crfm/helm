@@ -313,6 +313,8 @@ class OpenAIRunExpander(RunExpander):
     These models need more explicit instructions about following the format.
     """
 
+    # TODO: Refactor out common logic between this and GoogleRunExpander.
+
     name = "openai"
 
     def __init__(self):
@@ -343,6 +345,8 @@ class GoogleRunExpander(RunExpander):
     Custom prompt for Google models.
     These models need more explicit instructions about following the format.
     """
+
+    # TODO: Refactor out common logic between this and OpenAIRunExpander.
 
     name = "google"
 
