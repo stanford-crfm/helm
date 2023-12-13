@@ -824,7 +824,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
@@ -844,7 +844,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
