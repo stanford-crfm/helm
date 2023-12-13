@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Union, Optional
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
-    DecodeRequest,
     TokenizationRequest,
     TokenizationToken,
 )
@@ -48,7 +47,7 @@ class VertexAITokenizer(CachingTokenizer):
             ) from e
         self.access_token = creds.token
 
-    def _decode_request_to_cache_key(self, request: DecodeRequest) -> Dict[str, Any]:
+    def _tokenization_request_to_cache_key(self, request: TokenizationRequest) -> Dict[str, Any]:
         cache_key = dataclasses.asdict(request)
         # Delete encode because the Google Vertex AI API simulateously gives string and integer tokens.
         del cache_key["encode"]
