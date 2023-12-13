@@ -73,13 +73,18 @@ class VertexAITokenizer(CachingTokenizer):
         self, response: Dict[str, Any], request: TokenizationRequest
     ) -> List[TokenizationToken]:
         tokens: List[Union[int, str]]
-        if request.encode:
-            tokens = [int(token) for token in response["tokensInfo"][0]["tokenIds"]]
+        response_instance = response["tokensInfo"][0]
+        if not response_instance:
+            # Response was empty
+            tokens = []
         else:
-            tokens = [
-                base64.decodebytes(token.encode()).decode("utf-8", errors="ignore")
-                for token in response["tokensInfo"][0]["tokens"]
-            ]
+            if request.encode:
+                tokens = [int(token) for token in response_instance["tokenIds"]]
+            else:
+                tokens = [
+                    base64.decodebytes(token.encode()).decode("utf-8", errors="ignore")
+                    for token in response_instance["tokens"]
+                ]
         return [TokenizationToken(token) for token in tokens]
 
     def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
