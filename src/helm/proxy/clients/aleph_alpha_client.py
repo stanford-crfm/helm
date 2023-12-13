@@ -67,7 +67,7 @@ class AlephAlphaClient(CachingClient):
             tokens: List[Token] = []
 
             # `completion_tokens` is the list of selected tokens.
-            for i, token in enumerate(completion["completion_tokens"]):
+            for i, token in enumerate(completion.get("completion_tokens", [])):
                 # Get the top K logprobs for the ith token
                 top_logprobs: Dict[str, float] = completion["log_probs"][i]
                 # Use the selected token value to get the logprob
