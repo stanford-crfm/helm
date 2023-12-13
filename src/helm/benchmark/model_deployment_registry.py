@@ -90,7 +90,6 @@ DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT: Dict[str, ModelDeployment] = {
 
 
 def register_model_deployment(model_deployment: ModelDeployment) -> None:
-    # hlog(f"Registered model deployment {model_deployment.name}")
     DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_deployment.name] = model_deployment
     ALL_MODEL_DEPLOYMENTS.append(model_deployment)
 
@@ -126,7 +125,7 @@ def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeplo
 
 
 def get_model_deployment_host_organization(name: str) -> str:
-    """Extracts the host organization from the model deployment name.
+    """Return the host organization name based on the model deployment name.
 
     Example: "huggingface/t5-11b" -> "huggingface"""
     deployment: ModelDeployment = get_model_deployment(name)
@@ -134,7 +133,7 @@ def get_model_deployment_host_organization(name: str) -> str:
 
 
 def get_model_names_with_tokenizer(tokenizer_name: str) -> List[str]:
-    """Get all the name of the models with tokenizer `tokenizer_name`."""
+    """Return the names of all models with the given tokenizer."""
     deployments: List[ModelDeployment] = [
         deployment for deployment in ALL_MODEL_DEPLOYMENTS if deployment.tokenizer_name == tokenizer_name
     ]

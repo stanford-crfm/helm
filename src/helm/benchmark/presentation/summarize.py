@@ -145,6 +145,7 @@ def get_scenario_name(group: RunGroup, scenario_spec: ScenarioSpec):
 
 
 def get_model_metadata_for_adapter_spec(adapter_spec: AdapterSpec) -> ModelMetadata:
+    """Return the ModelMetadata for the model in the given AdapterSpec."""
     # Get model metadata based on `model` in `adapter_spec`
     try:
         return get_model_metadata(adapter_spec.model)
