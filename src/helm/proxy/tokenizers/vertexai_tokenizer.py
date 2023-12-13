@@ -56,7 +56,6 @@ class VertexAITokenizer(CachingTokenizer):
 
     def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
         text: str = request["text"]
-        print(request)
         tokenizer_name = request["tokenizer"].split("/", maxsplit=1)[1]
         url = (
             f"https://{self.location}-aiplatform.googleapis.com/v1/projects/{self.project_id}/"
@@ -75,7 +74,6 @@ class VertexAITokenizer(CachingTokenizer):
         self, response: Dict[str, Any], request: TokenizationRequest
     ) -> List[TokenizationToken]:
         tokens: List[Union[int, str]]
-        print(response)
         if request.encode:
             tokens = [int(token) for token in response["tokensInfo"][0]["tokenIds"]]
         else:
