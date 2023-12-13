@@ -81,6 +81,11 @@ class VertexAITokenizer(CachingTokenizer):
             if request.encode:
                 tokens = [int(token) for token in response_instance["tokenIds"]]
             else:
+                # errors="ignore" is needed because the tokenizer is not guaranteed to tokenize on
+                # the boundary of UTF-8 characters. The tokenization boundary can be within the bytes of
+                # a UTF-8 character.
+                #
+                # TODO(#2141): Come up with a more correct way of doing this.
                 tokens = [
                     base64.decodebytes(token.encode()).decode("utf-8", errors="ignore")
                     for token in response_instance["tokens"]

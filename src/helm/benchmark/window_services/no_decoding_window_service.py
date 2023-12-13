@@ -10,7 +10,12 @@ from helm.common.tokenization_request import (
 
 
 class NoDecodingWindowService(DefaultWindowService):
-    """A window service for tokenizers that have a unimplemented decode() method."""
+    """A window service for tokenizers that have a unimplemented decode() method.
+
+    This assumes that concatenating the tokens from the tokenize endpoint will result in the original string,
+    which is not always true for all tokenizers.
+
+    TODO(#2141): Come up with a more correct way of doing this."""
 
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         response: TokenizationRequestResult = self.service.tokenize(
