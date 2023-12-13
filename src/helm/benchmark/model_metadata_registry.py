@@ -122,6 +122,8 @@ def register_model_metadata_from_path(path: str) -> None:
     """Register model configurations from the given path."""
     with open(path, "r") as f:
         raw = yaml.safe_load(f)
+    # Using dacite instead of cattrs because cattrs doesn't have a default
+    # serialization format for dates
     model_metadata_list = dacite.from_dict(ModelMetadataList, raw)
     for model_metadata in model_metadata_list.models:
         register_model_metadata(model_metadata)
