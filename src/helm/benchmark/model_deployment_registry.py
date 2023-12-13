@@ -1,18 +1,12 @@
-import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass
-import importlib_resources as resources
 
 import cattrs
 import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
-from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata, CONFIG_PACKAGE
-
-
-MODEL_DEPLOYMENTS_FILE: str = "model_deployments.yaml"
-DEPLOYMENTS_REGISTERED: bool = False
+from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata
 
 
 class ClientSpec(ObjectSpec):
@@ -95,7 +89,6 @@ DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT: Dict[str, ModelDeployment] = {
 }
 
 
-# ===================== REGISTRATION FUNCTIONS ==================== #
 def register_model_deployment(model_deployment: ModelDeployment) -> None:
     # hlog(f"Registered model deployment {model_deployment.name}")
     DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_deployment.name] = model_deployment
@@ -123,15 +116,7 @@ def register_model_deployments_from_path(path: str) -> None:
         register_model_deployment(model_deployment)
 
 
-def maybe_register_model_deployments_from_base_path(path: str) -> None:
-    """Register model deployments from yaml file if the path exists."""
-    if os.path.exists(path):
-        register_model_deployments_from_path(path)
-
-
-# ===================== UTIL FUNCTIONS ==================== #
 def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeployment:
-    register_deployments_if_not_already_registered()
     if name not in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
         raise ValueError(f"Model deployment {name} not found")
     deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[name]
@@ -140,48 +125,17 @@ def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeplo
     return deployment
 
 
-def get_model_deployments_by_host_organization(host_organization: str) -> List[str]:
-    """
-    Gets models by host organization.
-    Example:   together => [" together/bloom", "together/t0pp", ...]
-    """
-    register_deployments_if_not_already_registered()
-    return [
-        deployment.name for deployment in ALL_MODEL_DEPLOYMENTS if deployment.host_organization == host_organization
-    ]
-
-
 def get_model_deployment_host_organization(name: str) -> str:
-    """
-    Extracts the host organization from the model deployment name.
-    Example: "huggingface/t5-11b" => "huggingface"
-    """
+    """Extracts the host organization from the model deployment name.
+
+    Example: "huggingface/t5-11b" -> "huggingface"""
     deployment: ModelDeployment = get_model_deployment(name)
     return deployment.host_organization
 
 
-def get_metadata_for_deployment(deployment_name: str) -> ModelMetadata:
-    """
-    Given a deployment name, returns the corresponding model metadata.
-    """
-    deployment: ModelDeployment = get_model_deployment(deployment_name)
-    return get_model_metadata(deployment.model_name or deployment.name)
-
-
 def get_model_names_with_tokenizer(tokenizer_name: str) -> List[str]:
     """Get all the name of the models with tokenizer `tokenizer_name`."""
-    register_deployments_if_not_already_registered()
     deployments: List[ModelDeployment] = [
         deployment for deployment in ALL_MODEL_DEPLOYMENTS if deployment.tokenizer_name == tokenizer_name
     ]
     return [deployment.model_name or deployment.name for deployment in deployments]
-
-
-def register_deployments_if_not_already_registered(base_path: str = "prod_env") -> None:
-    global DEPLOYMENTS_REGISTERED
-    if not DEPLOYMENTS_REGISTERED:
-        path: str = resources.files(CONFIG_PACKAGE).joinpath(MODEL_DEPLOYMENTS_FILE)
-        private_path: str = os.path.join(base_path, MODEL_DEPLOYMENTS_FILE)
-        maybe_register_model_deployments_from_base_path(path)
-        maybe_register_model_deployments_from_base_path(private_path)
-        DEPLOYMENTS_REGISTERED = True

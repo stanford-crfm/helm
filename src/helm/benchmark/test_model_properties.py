@@ -5,7 +5,7 @@ Delete this after the refactor is done."""
 import pytest
 from tempfile import TemporaryDirectory
 from typing import Any
-from helm.benchmark.config_registry import register_helm_configurations
+from helm.benchmark.config_registry import register_configs_from_package
 from helm.benchmark.model_deployment_registry import (
     ClientSpec,
     ModelDeployment,
@@ -1470,7 +1470,7 @@ def _full_class_name(obj: Any) -> str:
 # before running the setup_class().
 # Therefore ALL_MODEL_DEPLOYMENTS is empty and no test would be run,
 # so we need to do this here.
-register_helm_configurations()
+register_configs_from_package()
 
 
 class TestModelProperties:
