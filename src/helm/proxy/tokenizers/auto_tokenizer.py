@@ -22,13 +22,11 @@ from helm.proxy.tokenizers.tokenizer import Tokenizer
 class AutoTokenizer(Tokenizer):
     """Automatically dispatch to the proper `Tokenizer` based on the tokenizer name."""
 
-    def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
+    def __init__(self, credentials: Mapping[str, Any], cache_path: Optional[str]):
         self.credentials = credentials
         self.cache_path = cache_path
-        self.mongo_uri = mongo_uri
         self.tokenizers: Dict[str, Tokenizer] = {}
         hlog(f"AutoTokenizer: cache_path = {cache_path}")
-        hlog(f"AutoTokenizer: mongo_uri = {mongo_uri}")
 
     def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
         # First try to find the tokenizer in the cache
@@ -38,7 +36,7 @@ class AutoTokenizer(Tokenizer):
 
         # Otherwise, create the tokenizer
         organization: str = tokenizer_name.split("/")[0]
-        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, organization)
+        cache_config: CacheConfig = build_cache_config(self.cache_path, organization)
 
         tokenizer_config = get_tokenizer_config(tokenizer_name)
         if tokenizer_config:

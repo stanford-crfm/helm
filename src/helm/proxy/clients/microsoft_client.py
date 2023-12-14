@@ -1,8 +1,8 @@
 from typing import List, Optional, Dict
 
-from filelock import FileLock
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
+from threading import Lock
 
 from helm.common.cache import CacheConfig
 from helm.common.request import (
@@ -15,6 +15,12 @@ from helm.common.request import (
 )
 from .client import CachingClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
+
+
+# The Microsoft Turing server only allows a single request at a time, so acquire a
+# thread-safe lock before making a request.
+# https://github.com/microsoft/turing-academic-TNLG#rate-limitations
+_LOCK = Lock()
 
 
 class MicrosoftClient(CachingClient):
@@ -45,7 +51,6 @@ class MicrosoftClient(CachingClient):
 
     def __init__(
         self,
-        lock_file_path: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
@@ -64,14 +69,6 @@ class MicrosoftClient(CachingClient):
         self.api_key: Optional[str] = api_key
         self.api_base: str = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
-
-        # The Microsoft Turing server only allows a single request at a time, so acquire a
-        # process-safe lock before making a request.
-        # https://github.com/microsoft/turing-academic-TNLG#rate-limitations
-        #
-        # Since the model will generate roughly three tokens per second and the max context window
-        # is 2048 tokens, we expect the maximum time for a request to be fulfilled to be 700 seconds.
-        self._lock = FileLock(lock_file_path, timeout=700)
 
     def make_request(self, request: Request) -> RequestResult:
         """
@@ -110,7 +107,7 @@ class MicrosoftClient(CachingClient):
             try:
 
                 def do_it():
-                    with self._lock:
+                    with _LOCK:
                         # Following https://beta.openai.com/docs/api-reference/authentication
                         # `organization` can be set to None.
                         turing.organization = self.org_id

@@ -1,7 +1,9 @@
+import os
 from typing import List
 
 from helm.common.authentication import Authentication
 from helm.proxy.services.server_service import ServerService
+from helm.proxy.services.service import CACHE_DIR
 from helm.benchmark.metrics.metric_service import MetricService
 from .tokenizer_service import TokenizerService
 
@@ -228,5 +230,5 @@ GPT4_TEST_TOKENS: List[str] = [
 
 
 def get_tokenizer_service(local_path: str) -> TokenizerService:
-    service = ServerService(base_path=local_path, root_mode=True)
+    service = ServerService(base_path=local_path, root_mode=True, cache_path=os.path.join(local_path, CACHE_DIR))
     return MetricService(service, Authentication("test"))

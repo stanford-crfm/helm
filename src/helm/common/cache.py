@@ -7,7 +7,7 @@ import threading
 import sqlite3
 
 from helm.common.general import hlog, htrack
-from helm.common.key_value_store import KeyValueStore, SqliteKeyValueStore
+from helm.common.key_value_store import BlackHoleKeyValueStore, KeyValueStore, SqliteKeyValueStore
 from helm.proxy.retry import get_retry_decorator
 
 try:
@@ -49,6 +49,16 @@ class SqliteCacheConfig(KeyValueStoreCacheConfig):
     @property
     def cache_stats_key(self) -> str:
         return self.path
+
+
+@dataclass(frozen=True)
+class BlackHoleCacheConfig(KeyValueStoreCacheConfig):
+    """Configuration for a cache that does not save any data."""
+
+    @property
+    def cache_stats_key(self) -> str:
+        """The string key used by CacheStats to identify this cache."""
+        return "disabled_cache"
 
 
 @dataclass(frozen=True)
@@ -113,6 +123,8 @@ def create_key_value_store(config: KeyValueStoreCacheConfig) -> KeyValueStore:
         return MongoKeyValueStore(config.uri, config.collection_name)
     elif isinstance(config, SqliteCacheConfig):
         return SqliteKeyValueStore(config.path)
+    elif isinstance(config, BlackHoleCacheConfig):
+        return BlackHoleKeyValueStore()
     else:
         raise ValueError(f"KeyValueStoreCacheConfig with unknown type: {config}")
 

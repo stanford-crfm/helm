@@ -1,5 +1,6 @@
 import argparse
 from dataclasses import replace
+import os
 from typing import List, Optional
 
 
@@ -9,6 +10,7 @@ from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
+from helm.proxy.services.service import CACHE_DIR
 
 from helm.benchmark.config_registry import (
     register_configs_from_directory,
@@ -83,7 +85,7 @@ def run_benchmarking(
     skip_completed_runs: bool,
     exit_on_error: bool,
     runner_class_name: Optional[str],
-    mongo_uri: str = "",
+    cache_path: Optional[str] = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     execution_spec = ExecutionSpec(
@@ -92,7 +94,7 @@ def run_benchmarking(
         local_path=local_path,
         parallelism=num_threads,
         dry_run=dry_run,
-        mongo_uri=mongo_uri,
+        cache_path=cache_path,
     )
     with htrack_block("run_specs"):
         for run_spec in run_specs:
@@ -170,6 +172,11 @@ def add_run_args(parser: argparse.ArgumentParser):
         type=str,
         help="If running locally, the path for `ServerService`.",
         default="prod_env",
+    )
+    parser.add_argument(
+        "--disable-cache",
+        action="store_true",
+        help="If true, the request-response cache for model clients and tokenizers will be disabled.",
     )
     parser.add_argument(
         "--mongo-uri",
@@ -294,6 +301,15 @@ def main():
         Authentication("") if args.skip_instances or not args.server_url else create_authentication(args)
     )
 
+    cache_path: Optional[str]
+    if args.disable_cache:
+        cache_path = None
+    elif args.mongo_uri:
+        cache_path = args.mongo_uri
+    else:
+        cache_path = os.path.join(args.local_path, CACHE_DIR)
+        ensure_directory_exists(cache_path)
+
     run_benchmarking(
         run_specs=run_specs,
         auth=auth,
@@ -309,7 +325,7 @@ def main():
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
         runner_class_name=args.runner_class_name,
-        mongo_uri=args.mongo_uri,
+        cache_path=cache_path,
     )
 
     if args.local:

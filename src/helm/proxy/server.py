@@ -21,12 +21,14 @@ from helm.benchmark.config_registry import (
     register_builtin_configs_from_helm_package,
 )
 from helm.common.authentication import Authentication
+from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request
 from helm.common.perspective_api_request import PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest
 from helm.common.tokenization_request import TokenizationRequest, DecodeRequest
+from helm.proxy.services.service import CACHE_DIR
 from .accounts import Account
 from .services.server_service import ServerService
 from .query import Query
@@ -258,7 +260,13 @@ def main():
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.base_path)
 
-    service = ServerService(base_path=args.base_path, mongo_uri=args.mongo_uri)
+    cache_path: str
+    if args.mongo_uri:
+        cache_path = args.mongo_uri
+    else:
+        cache_path = os.path.join(args.base_path, CACHE_DIR)
+        ensure_directory_exists(cache_path)
+    service = ServerService(base_path=args.base_path, cache_path=cache_path)
 
     gunicorn_args = {
         "workers": args.workers,

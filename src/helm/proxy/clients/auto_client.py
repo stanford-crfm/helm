@@ -1,5 +1,5 @@
-import os
 from dataclasses import replace
+import os
 from typing import Any, Dict, Mapping, Optional
 
 from retrying import Attempt, RetryError
@@ -27,15 +27,13 @@ class AuthenticationError(NonRetriableException):
 class AutoClient(Client):
     """Automatically dispatch to the proper `Client` based on the model deployment name."""
 
-    def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
-        self._auto_tokenizer = AutoTokenizer(credentials, cache_path, mongo_uri)
+    def __init__(self, credentials: Mapping[str, Any], cache_path: Optional[str]):
+        self._auto_tokenizer = AutoTokenizer(credentials, cache_path)
         self.credentials = credentials
         self.cache_path = cache_path
-        self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
         self._critique_client: Optional[CritiqueClient] = None
         hlog(f"AutoClient: cache_path = {cache_path}")
-        hlog(f"AutoClient: mongo_uri = {mongo_uri}")
 
     def _get_client(self, model_deployment_name: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
@@ -62,7 +60,7 @@ class AutoClient(Client):
 
             # Prepare a cache
             host_organization: str = model_deployment.host_organization
-            cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, host_organization)
+            cache_config: CacheConfig = build_cache_config(self.cache_path, host_organization)
 
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
@@ -144,7 +142,7 @@ class AutoClient(Client):
         """Get the toxicity classifier client. We currently only support Perspective API."""
         from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 
-        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "perspectiveapi")
+        cache_config: CacheConfig = build_cache_config(self.cache_path, "perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
 
     def get_moderation_api_client(self):
@@ -178,7 +176,7 @@ class AutoClient(Client):
             if not surgeai_credentials:
                 raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
             self._critique_client = SurgeAICritiqueClient(
-                surgeai_credentials, build_cache_config(self.cache_path, self.mongo_uri, "surgeai")
+                surgeai_credentials, build_cache_config(self.cache_path, "surgeai")
             )
         elif critique_type == "model":
             from helm.proxy.critique.model_critique_client import ModelCritiqueClient
@@ -198,7 +196,7 @@ class AutoClient(Client):
             if not scale_credentials:
                 raise ValueError("scaleApiKey is required for ScaleCritiqueClient")
             self._critique_client = ScaleCritiqueClient(
-                scale_credentials, build_cache_config(self.cache_path, self.mongo_uri, "scale"), scale_project
+                scale_credentials, build_cache_config(self.cache_path, "scale"), scale_project
             )
         else:
             raise ValueError(
