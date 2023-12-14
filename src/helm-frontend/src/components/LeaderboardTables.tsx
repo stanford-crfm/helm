@@ -116,7 +116,7 @@ export default function LeaderboardTables({
       {filtered ? (
         <div
           className="rounded-2xl overflow-hidden border-2 bg-white p-1 mx-2 my-0"
-          style={{ width: "505px", height: "380px", overflow: "auto" }}
+          style={{ overflow: "auto" }}
         >
           <div className="overflow-x-auto">
             <table className="table w-full">
