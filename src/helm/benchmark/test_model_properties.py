@@ -1496,6 +1496,10 @@ class TestModelProperties:
             if "llama-2-" in model.name:
                 return
 
+            # Can't test Vertex AI because it requires Google credentials
+            if "text-bison" in model.name or "text-unicorn" in model.name:
+                return
+
             client = auto_client._get_client(deployment_name)
             window_service = WindowServiceFactory.get_window_service(deployment_name, tokenizer_service)
             tokenizer_name = window_service.tokenizer_name

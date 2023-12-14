@@ -59,6 +59,10 @@ class TestModelProperties:
             if "llama-2-" in model.name:
                 return
 
+            # Can't test Vertex AI because it requires Google credentials
+            if "text-bison" in model.name or "text-unicorn" in model.name:
+                return
+
             # Loads the model, window service and tokenizer
             # which checks that the model, window service and tokenizer are all valid,
             # and that no Client, WindowService or Tokenizer are crashing.
