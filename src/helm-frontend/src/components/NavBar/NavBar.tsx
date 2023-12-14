@@ -3,6 +3,7 @@ import { Bars3Icon } from "@heroicons/react/24/outline";
 import crfmLogo from "@/assets/crfm-logo.png";
 //import helmLogo from "@/assets/helm-logo-simple.png";
 import NavDropdown from "@/components/NavDropdown";
+import ReleaseDropdown from "../ReleaseDropdown";
 
 export default function NavBar() {
   const navbarStyle: React.CSSProperties = {
@@ -40,7 +41,7 @@ export default function NavBar() {
             </li>
             <li>
               <Link to="runs" className="whitespace-nowrap">
-                Explore Predictions
+                Predictions
               </Link>
             </li>
             <li>
@@ -67,10 +68,13 @@ export default function NavBar() {
             <Link to="scenarios">Scenarios</Link>
           </li>
           <li>
-            <Link to="runs">Explore Predictions</Link>
+            <Link to="runs">Predictions</Link>
           </li>
           <li>
             <Link to="https://github.com/stanford-crfm/helm">GitHub</Link>
+          </li>
+          <li className="hidden lg:flex">
+            <ReleaseDropdown />
           </li>
         </ul>
       </div>

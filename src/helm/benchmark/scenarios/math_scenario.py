@@ -354,7 +354,7 @@ class MATHScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         dataset = {}
-        data = typing.cast(DatasetDict, load_dataset("competition_math", ignore_verifications=True))
+        data = typing.cast(DatasetDict, load_dataset("competition_math")).sort("problem").shuffle(seed=42)
 
         def group_by_key(dataset_list, key):
             dataset_per_key = collections.defaultdict(list)

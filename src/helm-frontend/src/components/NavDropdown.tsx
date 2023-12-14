@@ -8,11 +8,22 @@ function NavDropdown() {
     <div className="relative inline-block text-left p-2">
       <div className="inline-flex items-center p-2">
         <Link to="/">
-          <img
-            src="https://crfm.stanford.edu/helm/v0.3.0/images/helm-logo-simple.png"
-            alt="Image 1"
-            className="w-full h-10 object-cover"
-          />
+          <div className="flex items-center">
+            <img
+              src="https://crfm.stanford.edu/helm/v0.3.0/images/helm-logo-simple.png"
+              alt="Image 1"
+              className="w-full h-10 object-cover"
+            />
+            {/* Manually set whether Classic or Not via config, otherwise don't show this */}
+            {window.HELM_TYPE ? (
+              <div className="hidden lg:flex pl-3">
+                {" "}
+                <strong>{window.HELM_TYPE}</strong>{" "}
+              </div>
+            ) : (
+              <> </>
+            )}
+          </div>
         </Link>
 
         {/* Chevron Button */}
@@ -22,7 +33,7 @@ function NavDropdown() {
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 ml-2"
+            className="h-4 w-4 ml-2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -52,8 +63,24 @@ function NavDropdown() {
               <Link to="https://crfm.stanford.edu/helm/latest/">
                 <div className="flex items-center">
                   <span>
-                    <strong>HELM: </strong>Holistic evaluation of language
-                    models
+                    <strong>HELM Classic: </strong>Thorough language model
+                    evaluations based on the scenarios from the original HELM
+                    paper
+                  </span>
+                </div>
+              </Link>
+            </div>
+
+            <div
+              className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+              role="menuitem"
+            >
+              <Link to="https://nlp.stanford.edu/helm/v2-lite-canary/">
+                <div className="flex items-center">
+                  <span>
+                    <strong>HELM Lite: </strong>Lightweight, broad evaluation of
+                    the capabilities of language models using in-context
+                    learning
                   </span>
                 </div>
               </Link>
