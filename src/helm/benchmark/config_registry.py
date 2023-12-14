@@ -14,9 +14,17 @@ CONFIG_PACKAGE = "helm.config"
 
 
 def register_configs_from_directory(dir_path) -> None:
-    register_model_metadata_from_path(os.path.join(dir_path, MODEL_METADATA_FILE))
-    register_tokenizer_configs_from_path(os.path.join(dir_path, TOKENIZER_CONFIGS_FILE))
-    register_model_deployments_from_path(os.path.join(dir_path, MODEL_DEPLOYMENTS_FILE))
+    model_metadata_path = os.path.join(dir_path, MODEL_METADATA_FILE)
+    if os.path.isfile(model_metadata_path):
+        register_model_metadata_from_path(model_metadata_path)
+
+    tokenizer_configs_path = os.path.join(dir_path, TOKENIZER_CONFIGS_FILE)
+    if os.path.isfile(tokenizer_configs_path):
+        register_tokenizer_configs_from_path(tokenizer_configs_path)
+
+    model_deployments_path = os.path.join(dir_path, MODEL_DEPLOYMENTS_FILE)
+    if os.path.isfile(model_deployments_path):
+        register_model_deployments_from_path(model_deployments_path)
 
 
 def register_configs_from_package() -> None:
