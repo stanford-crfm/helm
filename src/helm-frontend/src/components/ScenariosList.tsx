@@ -6,7 +6,6 @@ interface Props {
 }
 
 export default function ScenariosList({ runGroups }: Props) {
-  console.log(runGroups);
   // A run group is a scenario if it has metric groups but no subgroups.
   const scenariosByName = new Map<string, RunGroup>(
     runGroups
@@ -17,7 +16,6 @@ export default function ScenariosList({ runGroups }: Props) {
       )
       .map((runGroup) => [runGroup.name, runGroup]),
   );
-  console.log(scenariosByName);
 
   // Only count scenarios that have a category and are displayed
   // i.e. don't count "orphaned" scenarios
