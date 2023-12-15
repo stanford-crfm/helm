@@ -75,7 +75,7 @@ class ModelMetadata:
     - "limited": accessible with an API key.
     If there are multiple deployments, this should be the most permissive access across all deployments."""
 
-    release_date: date
+    release_date: Optional[date]
     """Release date of the model."""
 
     tags: List[str] = field(default_factory=list)
