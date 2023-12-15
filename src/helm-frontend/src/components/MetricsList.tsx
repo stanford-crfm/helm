@@ -10,7 +10,11 @@ export default function MetricList({ metrics, metricGroups }: Props) {
   const metricNameToMetric = new Map<string, Metric>();
   metrics.forEach((metric) => metricNameToMetric.set(metric.name, metric));
 
-  let numMetrics = 0;
+  // Only count metrics that have a group and are displayed
+  // i.e. don't count "orphaned" metrics
+  // Also, don't double-count metrics that appear in multiple groups
+  const groupedMetricNames = new Set<string>();
+
   const metricGroupsWithMetrics: [MetricGroup, Metric[]][] = [];
   metricGroups.forEach((metricGroup) => {
     const metricGroupMetrics: Metric[] = [];
@@ -18,17 +22,17 @@ export default function MetricList({ metrics, metricGroups }: Props) {
       const maybeMetric = metricNameToMetric.get(metricField.name);
       if (maybeMetric) {
         metricGroupMetrics.push(maybeMetric);
+        groupedMetricNames.add(maybeMetric.name);
       }
     });
     if (metricGroupMetrics.length > 0) {
       metricGroupsWithMetrics.push([metricGroup, metricGroupMetrics]);
-      numMetrics += metricGroupMetrics.length;
     }
   });
 
   return (
     <section>
-      <h3 className="text-3xl">{numMetrics} metrics</h3>
+      <h3 className="text-3xl">{groupedMetricNames.size} metrics</h3>
       <ul>
         {metricGroupsWithMetrics.map(([metricGroup, metrics]) => (
           <li className="my-3" key={metricGroup.name}>
