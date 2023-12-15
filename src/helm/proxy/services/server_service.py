@@ -59,7 +59,7 @@ class ServerService(Service):
         self.toxicity_classifier_client: Optional[ToxicityClassifierClient] = None
 
     def get_general_info(self) -> GeneralInfo:
-        # Can't send ModelMetadata bacause dates cannot be round-tripped toand from
+        # Can't send release_dates in ModelMetadata bacause dates cannot be round-tripped to and from JSON easily.
         # TODO(#2158): Either fix this or delete get_general_info.
         all_models = [dataclasses.replace(model_metadata, release_date=None) for model_metadata in ALL_MODELS_METADATA]
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=all_models)
