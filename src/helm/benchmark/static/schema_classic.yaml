@@ -303,6 +303,18 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
+  - name: cohere/command
+    display_name: Cohere Command
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
+    creator_organization: Cohere
+    access: limited
+    release_date: 2023-09-29
+  - name: cohere/command-light
+    display_name: Cohere Command Light
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
+    creator_organization: Cohere
+    access: limited
+    release_date: 2023-09-29
 
   # Databricks
   - name: databricks/dolly-v2-3b
@@ -802,7 +814,7 @@ models:
     access: limited
     release_date: 2023-06-13
   - name: openai/gpt-4-1106-preview
-    display_name: openai/gpt-4-1106-preview
+    display_name: gpt-4-1106-preview
     description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
     creator_organization: OpenAI
     access: limited
