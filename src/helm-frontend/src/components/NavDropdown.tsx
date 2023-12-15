@@ -60,7 +60,7 @@ function NavDropdown() {
               className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               role="menuitem"
             >
-              <Link to="https://crfm.stanford.edu/helm/latest/">
+              <Link to="https://crfm.stanford.edu/helm/classic/latest/">
                 <div className="flex items-center">
                   <span>
                     <strong>HELM Classic: </strong>Thorough language model
@@ -75,7 +75,7 @@ function NavDropdown() {
               className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               role="menuitem"
             >
-              <Link to="https://nlp.stanford.edu/helm/v2-lite-canary/">
+              <Link to="https://nlp.stanford.edu/helm/lite/latest/">
                 <div className="flex items-center">
                   <span>
                     <strong>HELM Lite: </strong>Lightweight, broad evaluation of
