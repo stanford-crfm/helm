@@ -808,18 +808,54 @@ metric_groups:
 run_groups:
   - name: core_scenarios
     display_name: Core scenarios
-    description: The scenarios where we evaluate all the models.
+    description: Scenarios that are evaluated on all models.
     category: All scenarios
+    subgroups:
+      - question_answering
+      - mathematical_reasoning
+      - legal
+      - biomedical
+      - translation
+
+  - name: question_answering
+    display_name: Question answering
+    description: In question answering, given a question and (optionally, in open-book settings) a passage, the goal is to produce the answer.
+      QA is a general format that captures a wide range of tasks involving varying levels of world and commonsense knowledge and reasoning abilities.
+    category: Core scenarios
     subgroups:
       - narrative_qa
       - natural_qa_openbook_longans
       - natural_qa_closedbook
       - openbookqa
       - mmlu
+
+  - name: mathematical_reasoning
+    display_name: Mathematical Reasoning
+    description: Evaluation of mathematical reasoning capabilities.
+    category: Core scenarios
+    subgroups:
       - math_chain_of_thought
       - gsm
+
+  - name: legal
+    display_name: Legal Domain
+    description: Evaluation of capabilities within the legal domain.
+    category: Core scenarios
+    subgroups:
       - legalbench
+
+  - name: biomedical
+    display_name: Biomedical Domain
+    description: Evaluation of capabilities within the biomedical domain.
+    category: Core scenarios
+    subgroups:
       - med_qa
+
+  - name: translation
+    display_name: Machine Translation
+    description: Evaluation of translating between different languages.
+    category: Core scenarios
+    subgroups:
       - wmt_14
 
   - name: narrative_qa
