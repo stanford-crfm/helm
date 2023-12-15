@@ -9,6 +9,7 @@ from helm.proxy.clients.huggingface_client import HuggingFaceClient
 
 
 _register_open_lm_lock = Lock()
+_register_open_lm_done = False
 
 
 def _register_open_lm_for_auto_model():
@@ -25,8 +26,11 @@ def _register_open_lm_for_auto_model():
         ) from e
 
     with _register_open_lm_lock:
-        AutoConfig.register("openlm", OpenLMConfig)
-        AutoModelForCausalLM.register(OpenLMConfig, OpenLMforCausalLM)
+        global _register_open_lm_done
+        if not _register_open_lm_done:
+            AutoConfig.register("openlm", OpenLMConfig)
+            AutoModelForCausalLM.register(OpenLMConfig, OpenLMforCausalLM)
+        _register_open_lm_done = True
 
 
 class OpenLMClient(HuggingFaceClient):
