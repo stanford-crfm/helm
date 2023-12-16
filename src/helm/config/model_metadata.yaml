@@ -1299,7 +1299,7 @@ models:
   ## GPT 4 Models
 
   - name: openai/gpt-4-1106-preview
-    display_name: openai/gpt-4-1106-preview
+    display_name: gpt-4-1106-preview
     description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
     creator_organization_name: OpenAI
     access: limited

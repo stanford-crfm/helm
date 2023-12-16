@@ -242,7 +242,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.http_model_client.HTTPModelClient"),
         tokenizer_name="neurips/local",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.http_model_window_service.HTTPModelWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -315,7 +315,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"),
         tokenizer_name="AlephAlpha/luminous-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.luminous_window_service.LuminousBaseWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -324,7 +324,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"),
         tokenizer_name="AlephAlpha/luminous-extended",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.luminous_window_service.LuminousExtendedWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -333,7 +333,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"),
         tokenizer_name="AlephAlpha/luminous-supreme",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.luminous_window_service.LuminousSupremeWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -342,7 +342,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.anthropic_client.AnthropicLegacyClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.anthropic_window_service.LegacyAnthropicWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8192,
     ),
@@ -351,7 +351,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.anthropic_client.AnthropicClient"),
         tokenizer_name="anthropic/claude",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8000,
         max_sequence_and_generated_tokens_length=9016,
@@ -361,7 +361,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.anthropic_client.AnthropicClient"),
         tokenizer_name="anthropic/claude",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8000,
         max_sequence_and_generated_tokens_length=9016,
@@ -371,7 +371,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.anthropic_client.AnthropicClient"),
         tokenizer_name="anthropic/claude",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8000,
         max_sequence_and_generated_tokens_length=9016,
@@ -381,7 +381,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.anthropic_client.AnthropicClient"),
         tokenizer_name="anthropic/claude",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.anthropic_window_service.AnthropicWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8000,
         max_sequence_and_generated_tokens_length=9016,
@@ -391,7 +391,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="bigscience/bloom",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.bloom_window_service.BloomWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -510,7 +510,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-j-6B",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -520,7 +520,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -530,7 +530,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -540,7 +540,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -550,7 +550,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -560,7 +560,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -570,7 +570,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
     ),
@@ -579,7 +579,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
     ),
@@ -588,7 +588,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
     ),
@@ -597,7 +597,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
     ),
@@ -606,7 +606,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="meta-llama/Llama-2-7b-hf",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4094,
     ),
@@ -615,7 +615,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="meta-llama/Llama-2-7b-hf",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4094,
     ),
@@ -624,7 +624,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="meta-llama/Llama-2-7b-hf",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4094,
     ),
@@ -633,7 +633,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -642,7 +642,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -651,7 +651,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -660,7 +660,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="mistralai/Mistral-7B-v0.1",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4095,
     ),
@@ -669,7 +669,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -679,7 +679,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -689,7 +689,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -699,7 +699,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -709,7 +709,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="tiiuae/falcon-7b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
     ),
@@ -718,7 +718,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="tiiuae/falcon-7b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
     ),
@@ -727,7 +727,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="tiiuae/falcon-7b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
     ),
@@ -736,7 +736,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="tiiuae/falcon-7b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
     ),
@@ -745,7 +745,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.goose_ai_client.GooseAIClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -755,7 +755,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.goose_ai_client.GooseAIClient"),
         tokenizer_name="EleutherAI/gpt-j-6B",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -765,7 +765,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.huggingface_client.HuggingFaceClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=1024,
         max_request_length=1025,
@@ -775,7 +775,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.huggingface_client.HuggingFaceClient"),
         tokenizer_name="EleutherAI/gpt-j-6B",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -785,7 +785,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.huggingface_client.HuggingFaceClient"),
         tokenizer_name="bigcode/santacoder",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.santacoder_window_service.SantaCoderWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -794,7 +794,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.huggingface_client.HuggingFaceClient"),
         tokenizer_name="bigcode/starcoder",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.starcoder_window_service.StarCoderWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8192,
     ),
@@ -830,7 +830,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
@@ -840,7 +840,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palm_window_service.PaLM232KWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=32000,
         max_sequence_and_generated_tokens_length=32000,
@@ -850,7 +850,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palm_window_service.PaLM2WindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
@@ -860,7 +860,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palm_window_service.CodeBisonWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
@@ -870,7 +870,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palm_window_service.PaLM232KWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=32000,
         max_sequence_and_generated_tokens_length=32000,
@@ -880,7 +880,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=1024,
         max_request_length=1025,
@@ -890,7 +890,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="facebook/opt-66b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.opt_window_service.OPTWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -900,7 +900,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="facebook/opt-66b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.opt_window_service.OPTWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -910,7 +910,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="facebook/opt-66b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.opt_window_service.OPTWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -920,7 +920,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="facebook/opt-66b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.opt_window_service.OPTWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -930,7 +930,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.microsoft_client.MicrosoftClient"),
         tokenizer_name="microsoft/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.mt_nlg_window_service.MTNLGWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
         max_request_length=2048,
@@ -940,7 +940,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.microsoft_client.MicrosoftClient"),
         tokenizer_name="microsoft/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.mt_nlg_window_service.MTNLGWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2047,
         max_request_length=2048,
@@ -950,7 +950,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -960,7 +960,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -970,7 +970,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -980,7 +980,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -990,7 +990,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4000,
         max_request_length=4001,
@@ -1000,7 +1000,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4000,
         max_request_length=4001,
@@ -1010,7 +1010,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1020,7 +1020,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1030,7 +1030,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1040,7 +1040,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1050,7 +1050,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.WiderOpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4000,
         max_request_length=4001,
@@ -1060,7 +1060,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1070,7 +1070,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1080,7 +1080,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="openai/cl100k_base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.GPT4128KWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=128000,
         max_request_length=128001,
@@ -1090,7 +1090,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="openai/cl100k_base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.GPT4WindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8192,
         max_request_length=8193,
@@ -1100,7 +1100,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="openai/cl100k_base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.GPT432KWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=32768,
         max_request_length=32769,
@@ -1110,7 +1110,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="openai/cl100k_base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.GPT4WindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8192,
         max_request_length=8193,
@@ -1120,7 +1120,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="openai/cl100k_base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.GPT432KWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=32768,
         max_request_length=32769,
@@ -1130,7 +1130,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="openai/cl100k_base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.GPTTurboWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4000,
         max_request_length=4001,
@@ -1140,7 +1140,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="openai/cl100k_base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.GPTTurboWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4000,
         max_request_length=4001,
@@ -1150,7 +1150,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="openai/cl100k_base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_openai_window_service.GPTTurbo16KWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=16000,
         max_request_length=16001,
@@ -1160,7 +1160,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1170,7 +1170,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1180,7 +1180,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1190,7 +1190,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1200,7 +1200,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.openai_client.OpenAIClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.openai_window_service.OpenAIWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1210,7 +1210,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-j-6B",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptj_window_service.GPTJWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1220,7 +1220,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1230,7 +1230,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1240,7 +1240,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1250,7 +1250,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1260,7 +1260,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1280,7 +1280,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
         tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_sequence_and_generated_tokens_length=2048,
@@ -1290,7 +1290,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
         tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_sequence_and_generated_tokens_length=2048,
@@ -1300,7 +1300,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
         tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_sequence_and_generated_tokens_length=2048,
@@ -1310,7 +1310,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
         tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palmyra_window_service.PalmyraWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_sequence_and_generated_tokens_length=2048,
@@ -1320,7 +1320,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
         tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8192,
         max_sequence_and_generated_tokens_length=8192,
@@ -1330,7 +1330,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.palmyra_client.PalmyraClient"),
         tokenizer_name="writer/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.palmyra_window_service.LongerPalmyraWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=8192,
         max_sequence_and_generated_tokens_length=8192,
@@ -1350,7 +1350,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.megatron_client.MegatronClient"),
         tokenizer_name="huggingface/gpt2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.megatron_window_service.MegatronWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=1024,
     ),
@@ -1359,7 +1359,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1369,7 +1369,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1379,7 +1379,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.GPTNeoXWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
         max_request_length=2049,
@@ -1389,7 +1389,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.StableLMAlphaWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4096,
         max_request_length=4097,
@@ -1399,7 +1399,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="EleutherAI/gpt-neox-20b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.gptneox_window_service.StableLMAlphaWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=4096,
         max_request_length=4097,
@@ -1410,7 +1410,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         model_name=None,
         tokenizer_name="lightningai/lit-gpt",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.lit_gpt_window_service.LitGPTWindowService", args={}
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService", args={}
         ),
         max_sequence_length=2048,
         max_request_length=None,
@@ -1421,7 +1421,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"),
         tokenizer_name="HuggingFaceM4/idefics-9b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -1430,7 +1430,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"),
         tokenizer_name="HuggingFaceM4/idefics-9b-instruct",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -1439,7 +1439,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"),
         tokenizer_name="HuggingFaceM4/idefics-80b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -1448,7 +1448,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"),
         tokenizer_name="HuggingFaceM4/idefics-80b-instruct",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -1457,7 +1457,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.simple_client.SimpleClient"),
         tokenizer_name="simple/model1",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.simple_window_service.SimpleWindowService"
+            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
     ),
@@ -1796,6 +1796,10 @@ class TestModelProperties:
             if "llama-2-" in model.name:
                 return
 
+            # Can't test Vertex AI because it requires Google credentials
+            if "text-bison" in model.name or "text-unicorn" in model.name:
+                return
+
             client = auto_client._get_client(deployment_name)
             window_service = WindowServiceFactory.get_window_service(deployment_name, tokenizer_service)
             tokenizer_name = window_service.tokenizer_name
@@ -1859,8 +1863,8 @@ class TestModelProperties:
                 model_deployment.max_sequence_and_generated_tokens_length
                 == test_model_deployment.max_sequence_and_generated_tokens_length
             )
-            # PalmyraWindowService overrides the huggingface/gpt2 tokenizer with different special tokens,
+            # DefaultWindowService overrides the huggingface/gpt2 tokenizer with different special tokens,
             # so there are currently two tokenizers named huggingface/gpt2
-            # TODO: Give PalmyraWindowService's tokenizer a different name e.g. writer/palmyra
+            # TODO: Give DefaultWindowService's tokenizer a different name e.g. writer/palmyra
             if tokenizer_name != "huggingface/gpt2":
                 assert tokenizer_configs[tokenizer_name] == tokenizer_config

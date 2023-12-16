@@ -11,6 +11,6 @@ test("displays nav bar", () => {
   );
 
   expect(screen.getByRole("navigation")).toHaveTextContent(
-    "LeaderboardModelsScenariosPredictionsGitHub Classic LeaderboardModelsScenariosPredictionsGitHub Release: undefined",
+    "LeaderboardModelsScenariosPredictionsGitHub LeaderboardModelsScenariosPredictionsGitHub Release: undefined",
   );
 });

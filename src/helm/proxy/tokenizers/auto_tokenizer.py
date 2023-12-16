@@ -47,6 +47,8 @@ class AutoTokenizer(Tokenizer):
                 constant_bindings={"cache_config": cache_config},
                 provider_bindings={
                     "api_key": lambda: provide_api_key(self.credentials, organization),
+                    "project_id": lambda: self.credentials.get(organization + "ProjectId", None),  # VertexAI
+                    "location": lambda: self.credentials.get(organization + "Location", None),  # VertexAI
                 },
             )
             tokenizer = create_object(tokenizer_spec)

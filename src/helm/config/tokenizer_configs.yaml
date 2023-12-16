@@ -123,6 +123,16 @@ tokenizer_configs:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
     prefix_token: ""
+  - name: google/text-bison@001
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.vertexai_tokenizer.VertexAITokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: ""
+  - name: google/text-unicorn@001
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.vertexai_tokenizer.VertexAITokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: ""
 
   # Hf-internal-testing
 

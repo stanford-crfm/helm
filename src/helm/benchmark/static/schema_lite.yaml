@@ -27,6 +27,20 @@ models:
     access: limited
     release_date: 2023-08-09
 
+  # Cohere
+  - name: cohere/command
+    display_name: Cohere Command
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
+    creator_organization: Cohere
+    access: limited
+    release_date: 2023-09-29
+  - name: cohere/command-light
+    display_name: Cohere Command Light
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
+    creator_organization: Cohere
+    access: limited
+    release_date: 2023-09-29
+
   # Meta
   - name: meta/llama-65b
     display_name: LLaMA (65B)
@@ -112,7 +126,7 @@ models:
     access: limited
     release_date: 2023-06-13
   - name: openai/gpt-4-1106-preview
-    display_name: openai/gpt-4-1106-preview
+    display_name: gpt-4-1106-preview
     description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
     creator_organization: OpenAI
     access: limited
@@ -169,6 +183,46 @@ models:
     access: open
     num_parameters: 40000000000
     release_date: 2023-05-25
+
+  # AI21 Labs
+  - name: ai21/j2-jumbo
+    display_name: Jurassic-2 Jumbo (178B)
+    description: Jurassic-2 Jumbo (178B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
+    creator_organization: AI21 Labs
+    access: limited
+    num_parameters: 178000000000
+    release_date: 2023-03-09
+  - name: ai21/j2-grande
+    display_name: Jurassic-2 Grande (17B)
+    description: Jurassic-2 Grande (17B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
+    creator_organization: AI21 Labs
+    access: limited
+    num_parameters: 17000000000
+    release_date: 2023-03-09
+
+  #  Aleph Alpha
+  - name: AlephAlpha/luminous-base
+    display_name: Luminous Base (13B)
+    description: Luminous Base (13B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
+    creator_organization: Aleph Alpha
+    access: limited
+    num_parameters: 13000000000
+    # TODO: get exact release date
+    release_date: 2022-01-01
+  - name: AlephAlpha/luminous-extended
+    display_name: Luminous Extended (30B)
+    description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
+    creator_organization: Aleph Alpha
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2022-01-01
+  - name: AlephAlpha/luminous-supreme
+    display_name: Luminous Supreme (70B)
+    description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
+    creator_organization: Aleph Alpha
+    access: limited
+    num_parameters: 70000000000
+    release_date: 2022-01-01
 
 ############################################################
 adapter:

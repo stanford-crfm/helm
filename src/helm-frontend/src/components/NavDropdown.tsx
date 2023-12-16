@@ -14,8 +14,15 @@ function NavDropdown() {
               alt="Image 1"
               className="w-full h-10 object-cover"
             />
-
-            <div className="hidden lg:flex pl-3"> Classic </div>
+            {/* Manually set whether Classic or Not via config, otherwise don't show this */}
+            {window.HELM_TYPE ? (
+              <div className="hidden lg:flex pl-3">
+                {" "}
+                <strong>{window.HELM_TYPE}</strong>{" "}
+              </div>
+            ) : (
+              <> </>
+            )}
           </div>
         </Link>
 
@@ -53,11 +60,27 @@ function NavDropdown() {
               className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               role="menuitem"
             >
-              <Link to="https://crfm.stanford.edu/helm/latest/">
+              <Link to="https://crfm.stanford.edu/helm/classic/latest/">
                 <div className="flex items-center">
                   <span>
-                    <strong>HELM Classic: </strong>Holistic evaluation of
-                    language models
+                    <strong>HELM Classic: </strong>Thorough language model
+                    evaluations based on the scenarios from the original HELM
+                    paper
+                  </span>
+                </div>
+              </Link>
+            </div>
+
+            <div
+              className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+              role="menuitem"
+            >
+              <Link to="https://nlp.stanford.edu/helm/lite/latest/">
+                <div className="flex items-center">
+                  <span>
+                    <strong>HELM Lite: </strong>Lightweight, broad evaluation of
+                    the capabilities of language models using in-context
+                    learning
                   </span>
                 </div>
               </Link>
