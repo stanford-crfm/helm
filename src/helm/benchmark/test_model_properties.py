@@ -1489,7 +1489,8 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.dalle2_client.DALLE2Client"),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.image_generation.dalle2_window_service.DALLE2WindowService"
+            class_name="helm.benchmark.window_services.image_generation."
+            "openai_dalle_window_service.OpenAIDALLEWindowService"
         ),
         max_sequence_length=1000,
         max_request_length=None,

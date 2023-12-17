@@ -3,7 +3,7 @@ from .clip_window_service import CLIPWindowService
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 
 
-class DALLE2WindowService(CLIPWindowService):
+class OpenAIDALLEWindowService(CLIPWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 

@@ -7,7 +7,7 @@ from helm.benchmark.window_services.test_utils import get_tokenizer_service, TES
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 
 
-class TestDALLE2WindowService:
+class TestOpenAIDALLEWindowService:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
