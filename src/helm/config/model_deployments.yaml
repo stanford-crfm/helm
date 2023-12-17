@@ -1109,8 +1109,8 @@ model_deployments:
       args: {}
 
   # Text-to-image models
-  - name: openai/dalle-2
-    model_name: openai/dalle-2
+  - name: openai/dall-e-2
+    model_name: openai/dall-e-2
     tokenizer_name: openai/clip-vit-large-patch14
     max_sequence_length: 1000
     client_spec:

@@ -11,7 +11,7 @@ class TestDALLE2WindowService:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
-        self.window_service = WindowServiceFactory.get_window_service("openai/dalle-2", service)
+        self.window_service = WindowServiceFactory.get_window_service("openai/dall-e-2", service)
 
     def teardown_method(self, method):
         shutil.rmtree(self.path)

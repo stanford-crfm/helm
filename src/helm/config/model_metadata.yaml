@@ -1420,7 +1420,7 @@ models:
     tags: [TEXT_SIMILARITY_MODEL_TAG]
 
   # Text-to-image models
-  - name: openai/dalle-2
+  - name: openai/dall-e-2
     display_name: DALL-E 2 (3.5B)
     description: DALL-E 2 is a encoder-decoder-based latent diffusion model trained on large-scale paired text-image datasets. The model is available via the OpenAI API ([paper](https://arxiv.org/abs/2204.06125)).
     creator_organization_name: OpenAI

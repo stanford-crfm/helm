@@ -258,7 +258,7 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_construct_prompt_image_generation(self):
         adapter_spec = AdapterSpec(
-            model_deployment="openai/dalle-2",
+            model_deployment="openai/dall-e-2",
             method=ADAPT_GENERATION,
             input_prefix="",
             input_suffix="",
