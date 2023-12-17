@@ -19,20 +19,22 @@ from .image_generation_client_utils import get_single_image_multimedia_object
 
 try:
     import openai
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["openai"])
+except ModuleNotFoundError as missing_module_exception:
+    handle_module_not_found_error(missing_module_exception, ["openai"])
 
 
 class DALLE2Client(Client):
     MAX_PROMPT_LENGTH: int = 1000
-    VALID_IMAGE_DIMENSIONS: List[int] = [256, 512, 1024]
     DEFAULT_IMAGE_SIZE_STR: str = "512x512"
-    CONTENT_POLICY_VIOLATED: str = (
+    VALID_IMAGE_SIZES: List[str] = ["256x256", DEFAULT_IMAGE_SIZE_STR, "1024x1024"]
+
+    # Set the finish reason to this if the prompt violates OpenAI's content policy
+    CONTENT_POLICY_VIOLATED_FINISH_REASON: str = (
         "The prompt violates OpenAI's content policy. "
         "See https://labs.openai.com/policies/content-policy for more information."
     )
 
-    # DALL-E 2 will respond with the following error messages (or even a substring of the message)
+    # The DALL-E API will respond with the following error messages (or even a substring of the message)
     # if it has any issues generating images for a particular prompt
     PROMPT_FLAGGED_ERROR: str = (
         "Your request was rejected as a result of our safety system. "
@@ -63,83 +65,112 @@ class DALLE2Client(Client):
         self.api_key: Optional[str] = api_key
         self.api_base: str = "https://api.openai.com/v1"
 
-    def make_request(self, request: Request) -> RequestResult:
-        def get_content_policy_violated_result():
-            no_image = Sequence(
-                text="",
-                logprob=0,
-                tokens=[],
-                multimodal_content=MultimediaObject(),
-                finish_reason={"reason": self.CONTENT_POLICY_VIOLATED},
-            )
-            return RequestResult(
-                success=True,
-                cached=False,
-                request_time=0,
-                completions=[no_image] * request.num_completions,
-                embedding=[],
-            )
+    def get_content_policy_violated_result(self, request: Request) -> RequestResult:
+        """
+        Return a RequestResult with no images and a finish reason indicating that the prompt / generated images
+        violate OpenAI's content policy.
+        """
+        no_image = Sequence(
+            text="",
+            logprob=0,
+            tokens=[],
+            multimodal_content=MultimediaObject(),
+            finish_reason={"reason": self.CONTENT_POLICY_VIOLATED_FINISH_REASON},
+        )
+        return RequestResult(
+            success=True,
+            cached=False,
+            request_time=0,
+            completions=[no_image] * request.num_completions,
+            embedding=[],
+        )
 
-        def get_size_str(w: Optional[int], h: Optional[int]) -> str:
-            if w is None or h is None:
-                return self.DEFAULT_IMAGE_SIZE_STR
+    def get_size_str(self, request: Request) -> str:
+        """
+        Return the size string for the image generation request.
+        If the request does not specify a size, return the default size.
+        """
+        assert request.image_generation_parameters is not None
+        w: Optional[int] = request.image_generation_parameters.output_image_width
+        h: Optional[int] = request.image_generation_parameters.output_image_height
+        if w is None or h is None:
+            return self.DEFAULT_IMAGE_SIZE_STR
 
-            assert w == h, "The DALL-E 2 API only supports generating square images."
-            assert w in self.VALID_IMAGE_DIMENSIONS, "Valid dimensions are 256x256, 512x512, or 1024x1024 pixels."
-            return f"{w}x{h}"
+        image_dimensions: str = f"{w}x{h}"
+        assert image_dimensions in self.VALID_IMAGE_SIZES, f"Valid image sizes are {self.VALID_IMAGE_SIZES}"
+        return image_dimensions
 
+    def fail_if_invalid_request(self, request: Request) -> None:
+        """
+        Validate the request to ensure it is a valid request for the DALL-E API.
+        """
+        assert request.image_generation_parameters is not None
         if len(request.prompt) > self.MAX_PROMPT_LENGTH:
             raise ValueError("The maximum length of the prompt is 1000 characters.")
         if request.num_completions < 1 or request.num_completions > 10:
             raise ValueError("`num_completions` must be between 1 and 10.")
 
+    def handle_openai_error(self, request: Request, error: Exception) -> RequestResult:
+        """
+        Handle a thrown error from the DALL-E API.
+        """
+        if (
+            str(error) in self.PROMPT_FLAGGED_ERROR
+            # Sometimes the DALL-E API will add additional information to the error message.
+            or self.PROMPT_FLAGGED_ERROR2 in str(error)
+            or self.PROMPT_FLAGGED_ERROR3 in str(error)
+        ):
+            # Some requests fail even if we check the prompt against the moderation API.
+            # For example, "black" in Spanish (negro) causes requests to DALL-E to fail even
+            # though the prompt does not get flagged by the Moderation API.
+            hlog(f"Failed safety check: {request.prompt}")
+            return self.get_content_policy_violated_result(request)
+        else:
+            return RequestResult(
+                success=False, cached=False, error=f"DALL-E error: {error}", completions=[], embedding=[]
+            )
+
+    def generate_with_dalle_api(self, raw_request: Dict[str, Any]) -> Dict:
+        """
+        Makes a single request to generate the images with the DALL-E API.
+        """
+        openai.organization = self.org_id
+        openai.api_key = self.api_key
+        openai.api_base = self.api_base
+        result = openai.Image.create(**raw_request)
+        assert "data" in result, f"Invalid response: {result} from prompt: {raw_request['prompt']}"
+
+        for image in result["data"]:
+            # Write out the image to a file and save the path
+            image["file_path"] = self.file_cache.store(lambda: base64.b64decode(image["b64_json"]))
+            # Don't cache contents of `b64_json` as we already have the image stored
+            image.pop("b64_json", None)
+        return result
+
+    def make_request(self, request: Request) -> RequestResult:
+        self.fail_if_invalid_request(request)
+
         # Use the Moderation API to check if the prompt violates OpenAI's content policy before generating images
         if self.moderation_api_client.will_be_flagged(request.prompt):
-            return get_content_policy_violated_result()
+            return self.get_content_policy_violated_result(request)
 
         # https://beta.openai.com/docs/api-reference/images/create#images/create-response_format
-        assert request.image_generation_parameters is not None
         raw_request: Dict[str, Any] = {
             "prompt": request.prompt,
             "n": request.num_completions,
-            "size": get_size_str(
-                request.image_generation_parameters.output_image_width,
-                request.image_generation_parameters.output_image_height,
-            ),
+            "size": self.get_size_str(request),
             "response_format": "b64_json",  # Always set to b64_json as URLs are only valid for an hour
         }
 
         try:
 
             def do_it():
-                openai.organization = self.org_id
-                openai.api_key = self.api_key
-                openai.api_base = self.api_base
-                result = openai.Image.create(**raw_request)
-                assert "data" in result, f"Invalid response: {result} from prompt: {request.prompt}"
-
-                for image in result["data"]:
-                    # Write out the image to a file and save the path
-                    image["file_path"] = self.file_cache.store(lambda: base64.b64decode(image["b64_json"]))
-                    image.pop("b64_json", None)
-                return result
+                return self.generate_with_dalle_api({"model": "dall-e-2", **raw_request})
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self._cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
-            if (
-                str(e) in self.PROMPT_FLAGGED_ERROR
-                or self.PROMPT_FLAGGED_ERROR2 in str(e)
-                or self.PROMPT_FLAGGED_ERROR3 in str(e)
-            ):
-                # Some requests fail even if we check the prompt against the moderation API.
-                # For example, "black" in Spanish (negro) causes requests to DALL-E to fail even
-                # though the prompt does not get flagged by the Moderation API.
-                hlog(f"Failed safety check: {request.prompt}")
-                return get_content_policy_violated_result()
-            else:
-                error: str = f"DALL-E 2 error: {e}"
-                return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+            return self.handle_openai_error(request, e)
 
         completions: List[Sequence] = [
             Sequence(

@@ -57,7 +57,10 @@ class NSFWMetric(Metric):
         num_blacked_out_images: int = 0
         nsfw_scores: List[float] = []
         for image in request_result.completions:
-            if image.finish_reason and image.finish_reason["reason"] == DALLE2Client.CONTENT_POLICY_VIOLATED:
+            if (
+                image.finish_reason
+                and image.finish_reason["reason"] == DALLE2Client.CONTENT_POLICY_VIOLATED_FINISH_REASON
+            ):
                 violates_openai_policy = True
 
             assert image.multimodal_content is not None
