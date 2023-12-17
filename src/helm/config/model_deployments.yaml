@@ -1120,6 +1120,49 @@ model_deployments:
       class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
       args: {}
 
+  - name: openai/dall-e-3
+    model_name: openai/dall-e-3
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 1000
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
+      args: {}
+
+  - name: openai/dall-e-3-natural
+    model_name: openai/dall-e-3-natural
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 1000
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
+      args: {}
+
+  - name: openai/dall-e-3-hd
+    model_name: openai/dall-e-3-hd
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 1000
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
+      args: {}
+
+  - name: openai/dall-e-3-hd-natural
+    model_name: openai/dall-e-3-hd-natural
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 1000
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
+      args: {}
 
   # Together
   # The list of models served by Together changes often, to check the latest list, visit:

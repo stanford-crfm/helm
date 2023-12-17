@@ -1429,6 +1429,41 @@ models:
     release_date: 2022-04-13
     tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
+  - name: openai/dall-e-3
+    display_name: DALL-E 3
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The default style, vivid, causes the model to lean towards generating hyper-real and dramatic images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3-natural
+    display_name: DALL-E 3 (natural style)
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The natural style causes the model to produce more natural, less hyper-real looking images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3-hd
+    display_name: DALL-E 3 HD
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The HD version creates images with finer details and greater consistency across the image, but generation is slower. The default style, vivid, causes the model to lean towards generating hyper-real and dramatic images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3-hd-natural
+    display_name: DALL-E 3 HD (natural style)
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The HD version creates images with finer details and greater consistency across the image, but generation is slower. The natural style causes the model to produce more natural, less hyper-real looking images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
   # Salesforce
   - name: salesforce/codegen # NOT SUPPORTED
