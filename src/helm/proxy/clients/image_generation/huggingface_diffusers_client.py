@@ -33,7 +33,7 @@ class HuggingFaceDiffusersClient(Client):
         self._promptist_model = None
         self._promptist_tokenizer = None
 
-    def _get_diffuser(self, model_engine: str):
+    def _get_diffuser(self, request: Request):
         """
         Initialize the Diffusion Pipeline based on the model name.
         Cache the model, so it doesn't get reinitialize for a new request.
@@ -47,6 +47,8 @@ class HuggingFaceDiffusersClient(Client):
         global _models
 
         with _models_lock:
+            model_engine: str = request.model_engine
+
             if model_engine not in _models:
                 huggingface_model_name: str
                 if model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
@@ -71,8 +73,10 @@ class HuggingFaceDiffusersClient(Client):
                     huggingface_model_name = "AIML-TUDA/stable-diffusion-safe"
                 elif model_engine == "vintedois-diffusion-v0-1":
                     huggingface_model_name = "22h/vintedois-diffusion-v0-1"
+                elif model_engine == "SSD-1B":
+                    huggingface_model_name = "segmind/SSD-1B"
                 else:
-                    raise ValueError(f"Unhandled model: {model_engine}")
+                    huggingface_model_name = request.model
 
                 pipeline = DiffusionPipeline.from_pretrained(
                     huggingface_model_name,
@@ -128,7 +132,7 @@ class HuggingFaceDiffusersClient(Client):
                 prompt: str = request.prompt
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):
-                    diffuser: DiffusionPipeline = self._get_diffuser(request.model_engine)
+                    diffuser: DiffusionPipeline = self._get_diffuser(request)
                     promptist_prompt: Optional[str] = None
 
                     images = []
@@ -136,15 +140,19 @@ class HuggingFaceDiffusersClient(Client):
                         if request.model_engine == "promptist-stable-diffusion-v1-4":
                             promptist_prompt = self._generate_promptist_prompt(prompt)
                             hlog(f"Promptist: {prompt} -> {promptist_prompt}")
-                            image = diffuser(**replace_prompt(raw_request, promptist_prompt)).images[0]
+                            image = diffuser(**replace_prompt(raw_request, promptist_prompt)).images[0]  # type: ignore
                         elif request.model_engine == "openjourney-v1-0":
                             # It is required to include "mdjrny-v4 style" in prompt for Openjourney v1
-                            image = diffuser(**replace_prompt(raw_request, f"mdjrny-v4 style {prompt}")).images[0]
+                            image = diffuser(
+                                **replace_prompt(raw_request, f"mdjrny-v4 style {prompt}")  # type: ignore
+                            ).images[0]
                         elif request.model_engine == "redshift-diffusion":
                             # It is required to include "redshift style" to generate 3D images
-                            image = diffuser(**replace_prompt(raw_request, f"redshift style {prompt}")).images[0]
+                            image = diffuser(
+                                **replace_prompt(raw_request, f"redshift style {prompt}")  # type: ignore
+                            ).images[0]
                         else:
-                            image = diffuser(**raw_request).images[0]
+                            image = diffuser(**raw_request).images[0]  # type: ignore
                         images.append(image)
 
                     assert (

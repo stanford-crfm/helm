@@ -701,6 +701,17 @@ model_deployments:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
       args: {}
 
+  - name: segmind/SSD-1B
+    model_name: segmind/SSD-1B
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
   # HuggingFaceM4
   - name: HuggingFaceM4/idefics-9b
     model_name: HuggingFaceM4/idefics-9b

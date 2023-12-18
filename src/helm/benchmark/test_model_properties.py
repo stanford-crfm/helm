@@ -1623,7 +1623,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/dreamlike-photoreal-v2-0",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1635,7 +1635,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/dreamlike-diffusion-v1-0",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1647,7 +1647,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/openjourney-v1-0",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1659,7 +1659,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/openjourney-v2-0",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1671,7 +1671,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/redshift-diffusion",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1683,7 +1683,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/promptist-stable-diffusion-v1-4",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1695,7 +1695,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/stable-diffusion-v1-4",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1707,7 +1707,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/stable-diffusion-v1-5",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1719,7 +1719,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/stable-diffusion-v2-base",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1731,7 +1731,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/stable-diffusion-v2-1-base",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1743,7 +1743,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/stable-diffusion-safe-weak",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1755,7 +1755,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/stable-diffusion-safe-medium",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1767,7 +1767,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/stable-diffusion-safe-strong",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1779,7 +1779,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/stable-diffusion-safe-max",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
@@ -1791,7 +1791,19 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="huggingface/vintedois-diffusion-v0-1",
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client." "HuggingFaceDiffusersClient"
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="segmind/SSD-1B",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
         ),
         tokenizer_name="openai/clip-vit-large-patch14",
         window_service_spec=WindowServiceSpec(
