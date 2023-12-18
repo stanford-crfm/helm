@@ -826,8 +826,16 @@ models:
     access: open
     num_parameters: 1000000000
     release_date: 2023-10-20
-    tags: [ TEXT_TO_IMAGE_MODEL_TAG ]
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
+  - name: stabilityai/stable-diffusion-xl-base-1.0
+    display_name: Stable Diffusion XL
+    description: Stable Diffusion XL (SDXL) consists of an ensemble of experts pipeline for latent diffusion. ([HuggingFace model card](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0))
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 6600000000
+    release_date: 2023-07-26
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
   # Kakao
   - name: kakaobrain/mindall-e
