@@ -1801,6 +1801,18 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_request_length=None,
     ),
     ModelDeployment(
+        name="segmind/Segmind-Vega",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
         name="segmind/SSD-1B",
         client_spec=ClientSpec(
             class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
