@@ -106,14 +106,14 @@ models:
 
   # OpenAI
   - name: openai/text-davinci-003
-    display_name: TextDavinci003
+    display_name: GPT-3.5 (text-davinci-003)
     description: text-davinci-003 model that involves reinforcement learning (PPO) with reward models. Derived from text-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-11-28
   - name: openai/text-davinci-002
-    display_name: TextDavinci002
+    display_name: GPT-3.5 (text-davinci-002)
     description: text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations. Derived from code-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
