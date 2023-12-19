@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
 import ModelsList from "@/components/ModelsList";
-import MetricsList from "@/components/MetricsList";
 import ScenariosList from "@/components/ScenariosList";
 import Hero from "@/components/Hero";
 
