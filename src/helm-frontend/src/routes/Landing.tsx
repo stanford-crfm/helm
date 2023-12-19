@@ -87,13 +87,9 @@ export default function LegacyLanding() {
           </ol>
         </div>
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <ModelsList models={schema.models} />
             <ScenariosList runGroups={schema.run_groups} />
-            <MetricsList
-              metrics={schema.metrics}
-              metricGroups={schema.metric_groups}
-            />
           </div>
         </div>
       </div>
