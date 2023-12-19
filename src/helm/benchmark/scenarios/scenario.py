@@ -149,9 +149,6 @@ class Instance:
     contrast_references: Optional[List[List[Reference]]] = None
     """References for the perturbed input above (if available)"""
 
-    original_instance: Optional["Instance"] = None
-    """Original instance from which this instance was created (if available)"""
-
     @property
     def first_correct_reference(self) -> Optional[Reference]:
         """Return the first correct reference."""

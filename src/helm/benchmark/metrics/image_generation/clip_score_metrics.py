@@ -1,6 +1,7 @@
 from statistics import mean
 from typing import List
 
+from helm.common.general import singleton
 from helm.common.request import RequestResult
 from helm.common.clip_score_request import CLIPScoreResult, CLIPScoreRequest
 from helm.benchmark.adaptation.request_state import RequestState
@@ -44,12 +45,12 @@ class CLIPScoreMetric(Metric):
 
         prompt: str = request_state.request.prompt
         perturbation_name: str = request_state.instance.perturbation.name if request_state.instance.perturbation else ""
-        if request_state.instance.original_instance is not None and perturbation_name in [
-            "translate",
-            "dialect",
-            "mild_mix",
-        ]:
-            prompt = request_state.instance.original_instance.input.text
+        if (
+            request_state.instance.contrast_inputs is not None
+            and len(request_state.instance.contrast_inputs) > 0
+            and perturbation_name in ["translate", "dialect", "mild_mix"]
+        ):
+            prompt = singleton(request_state.instance.contrast_inputs).text
 
         # Truncate the prompt using the CLIP tokenizer before feeding into the CLIP model.
         # Otherwise, the library will throw an error.

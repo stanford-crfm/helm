@@ -11,6 +11,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.common.critique_request import CritiqueTaskTemplate, CritiqueQuestionTemplate, CritiqueRequest, QuestionType
 from helm.common.file_upload_request import FileUploadResult, FileUploadRequest
+from helm.common.general import singleton
 from helm.common.images_utils import filter_blacked_out_images
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
@@ -160,12 +161,12 @@ class ImageCritiqueMetric(Metric):
 
         prompt: str = request_state.request.prompt
         perturbation_name: str = request_state.instance.perturbation.name if request_state.instance.perturbation else ""
-        if request_state.instance.original_instance is not None and perturbation_name in [
-            "translate",
-            "dialect",
-            "mild_mix",
-        ]:
-            prompt = request_state.instance.original_instance.input.text
+        if (
+            request_state.instance.contrast_inputs is not None
+            and len(request_state.instance.contrast_inputs) > 0
+            and perturbation_name in ["translate", "dialect", "mild_mix"]
+        ):
+            prompt = singleton(request_state.instance.contrast_inputs).text
 
         # Send the critique request
         template: CritiqueTaskTemplate = self._get_critique_template(adapter_spec.model)

@@ -56,7 +56,7 @@ class TextPerturbation(Perturbation, ABC):
             input=Input(text=self.perturb(instance.input.text, rng)),
             references=references,
             perturbation=description,
-            original_instance=instance,
+            contrast_inputs=[instance.input],
         )
 
     def _perturb_reference(self, reference: Reference, rng: Random) -> Reference:

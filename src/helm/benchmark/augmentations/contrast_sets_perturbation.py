@@ -80,5 +80,4 @@ class ContrastSetsPerturbation(Perturbation):
             input=perturbed_input,
             references=perturbed_references,
             perturbation=description,
-            original_instance=instance,
         )
