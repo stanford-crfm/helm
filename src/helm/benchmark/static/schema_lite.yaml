@@ -106,33 +106,33 @@ models:
 
   # OpenAI
   - name: openai/text-davinci-003
-    display_name: text-davinci-003
+    display_name: TextDavinci003
     description: text-davinci-003 model that involves reinforcement learning (PPO) with reward models. Derived from text-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-11-28
   - name: openai/text-davinci-002
-    display_name: text-davinci-002
+    display_name: TextDavinci002
     description: text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations. Derived from code-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
   - name: openai/gpt-4-0613
-    display_name: gpt-4-0613
+    display_name: GPT-4 (0613)
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-06-13.
     creator_organization: OpenAI
     access: limited
     release_date: 2023-06-13
   - name: openai/gpt-4-1106-preview
-    display_name: gpt-4-1106-preview
+    display_name: GPT-4 Turbo (1106 preview)
     description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
     creator_organization: OpenAI
     access: limited
     release_date: 2023-11-06
   - name: openai/gpt-3.5-turbo-0613
-    display_name: gpt-3.5-turbo-0613
+    display_name: GPT-3.5 Turbo (0613)
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
     creator_organization: OpenAI
     access: limited
