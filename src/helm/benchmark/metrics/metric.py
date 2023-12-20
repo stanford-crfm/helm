@@ -204,18 +204,6 @@ class Metric(MetricInterface, ABC):
                 for stat in self.derive_per_instance_stats(instance_dict):
                     merge_stat(trial_stats, add_context(stat, context))
 
-            # Compute statistics that depend on all the `RequestStates` (e.g., bias metrics).
-            # Aggregate request states and call evaluate_instances in case the metric needs it.
-            grouped_request_states: Dict[MetricContext, List[RequestState]] = defaultdict(list)
-            for instance in scenario_state.instances:
-                # TODO: do we need to support reference_index that is not None?
-                grouped_request_states[MetricContext.from_instance(instance)].extend(
-                    scenario_state.get_request_states(train_trial_index, instance, None)
-                )
-            for context, request_states in grouped_request_states.items():
-                for stat in self.evaluate_instances(request_states):
-                    merge_stat(trial_stats, add_context(stat, context))
-
             # Compute worst-case metrics.
             # This is here since we want these stats for all metrics and they
             # aggregate across contexts (perturbations).
@@ -250,10 +238,6 @@ class Metric(MetricInterface, ABC):
         eval_cache_path: str,
     ) -> List[Stat]:
         """Evaluate the references.  Override me!"""
-        return []
-
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-        """Evaluate all request states directly. Use only if nothing else works.  Override me!"""
         return []
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
