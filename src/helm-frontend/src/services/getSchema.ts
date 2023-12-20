@@ -1,21 +1,15 @@
-import { parse } from "yaml";
-
 import type Schema from "@/types/Schema";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
-import getBenchmarkRelease from "@/utils/getBenchmarkRelease";
+import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export default async function getSchema(signal: AbortSignal): Promise<Schema> {
   try {
     const resp = await fetch(
-      `https://crfm.stanford.edu/helm/${
-        getBenchmarkRelease() || getBenchmarkSuite()
-      }/schema.yaml`,
+      getBenchmarkEndpoint(`${getVersionBaseUrl()}/schema.json`),
       { signal },
     );
-    const data = await resp.text();
-    const schema = parse(data) as Schema;
 
-    return schema;
+    return (await resp.json()) as Schema;
   } catch (error) {
     console.log(error);
     return {

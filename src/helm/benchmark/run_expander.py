@@ -14,6 +14,8 @@ from helm.benchmark.model_metadata_registry import (
     ABLATION_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
+from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
+from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .runner import RunSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
@@ -255,6 +257,119 @@ class GlobalPrefixRunExpander(RunExpander):
         ]
 
 
+# Instruction-following models like GPT-4, Claude, PaLM 2 don't do in-context
+# learning naturally like base models, and they prefer to respond in a wordy
+# way as an assistant.  Therefore, for these models, we must provide explicit
+# instructions to follow the format of the in-context examples.
+IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX = (
+    "Here are some input-output examples. "
+    + "Read the examples carefully to figure out the mapping. "
+    + "The output of the last example is not given, "
+    + "and your job is to figure out what it is."
+)
+
+IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX = (
+    "Please provide the output to this last example. " + "It is critical to follow the format of the preceding outputs!"
+)
+
+
+class AnthropicRunExpander(RunExpander):
+    """
+    Custom prompt for Anthropic models.
+    These models need more explicit instructions about following the format.
+    """
+
+    name = "anthropic"
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        try:
+            import anthropic
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["anthropic"])
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=anthropic.HUMAN_PROMPT + " " + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + anthropic.AI_PROMPT
+                    + " "
+                    + run_spec.adapter_spec.output_prefix.strip(),
+                ),
+            ),
+        ]
+
+
+class OpenAIRunExpander(RunExpander):
+    """
+    Custom prompt for OpenAI models.
+    These models need more explicit instructions about following the format.
+    """
+
+    # TODO: Refactor out common logic between this and GoogleRunExpander.
+
+    name = "openai"
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if run_spec.adapter_spec.method != ADAPT_GENERATION:
+            return [run_spec]
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + "\n"
+                    + run_spec.adapter_spec.output_prefix.strip(),
+                ),
+            ),
+        ]
+
+
+class GoogleRunExpander(RunExpander):
+    """
+    Custom prompt for Google models.
+    These models need more explicit instructions about following the format.
+    """
+
+    # TODO: Refactor out common logic between this and OpenAIRunExpander.
+
+    name = "google"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if run_spec.adapter_spec.method != ADAPT_GENERATION:
+            return [run_spec]
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + "\n"
+                    + run_spec.adapter_spec.output_prefix.strip(),
+                ),
+            ),
+        ]
+
+
 class FormatPromptRunExpander(RunExpander):
     """Adds a prefix and suffix to the prompt."""
 
@@ -271,7 +386,7 @@ class FormatPromptRunExpander(RunExpander):
                 name=run_spec.name,
                 adapter_spec=replace(
                     run_spec.adapter_spec,
-                    global_prefix=self.prefix,
+                    input_prefix=self.prefix,
                     output_prefix=self.suffix,
                 ),
             ),

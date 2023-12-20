@@ -63,7 +63,7 @@ This reads the pre-existing files in `benchmark_output/runs/v1/` that were writt
 - `groups.json` contains a serialized list of `Table`, each containing information about groups in a group category.
 - `groups_metadata.json` contains a list of all the groups along with a human-readable description and a taxonomy.
 
-Additionally, for each group and group-relavent metric, it will output a pair of files: `benchmark_output/runs/v1/groups/latex/<group_name>_<metric_name>.tex` and `benchmark_output/runs/v1/groups/latex/<group_name>_<metric_name>.json`. These files contain the statistics for that metric from each run within the group.
+Additionally, for each group and group-relavent metric, it will output a pair of files: `benchmark_output/runs/v1/groups/latex/<group_name>_<metric_name>.tex` and `benchmark_output/runs/v1/groups/json/<group_name>_<metric_name>.json`. These files contain the statistics for that metric from each run within the group.
 
 <!--
 # TODO(#1441): Enable plots

@@ -9,6 +9,7 @@ from helm.common.credentials_utils import provide_api_key
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
+from helm.proxy.retry import retry_tokenizer_request
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -46,9 +47,13 @@ class AutoTokenizer(Tokenizer):
                 constant_bindings={"cache_config": cache_config},
                 provider_bindings={
                     "api_key": lambda: provide_api_key(self.credentials, organization),
+                    "project_id": lambda: self.credentials.get(organization + "ProjectId", None),  # VertexAI
+                    "location": lambda: self.credentials.get(organization + "Location", None),  # VertexAI
                 },
             )
             tokenizer = create_object(tokenizer_spec)
+        else:
+            hlog(f"No tokenizer config for {tokenizer_name}")
 
         # Cache the tokenizer
         assert isinstance(tokenizer, Tokenizer)  # To make mypy happy
@@ -59,6 +64,7 @@ class AutoTokenizer(Tokenizer):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
 
+        @retry_tokenizer_request
         def tokenize_with_retry(tokenizer: Tokenizer, request: TokenizationRequest) -> TokenizationRequestResult:
             return tokenizer.tokenize(request)
 
@@ -75,6 +81,7 @@ class AutoTokenizer(Tokenizer):
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
 
+        @retry_tokenizer_request
         def decode_with_retry(tokenizer: Tokenizer, request: DecodeRequest) -> DecodeRequestResult:
             return tokenizer.decode(request)
 

@@ -68,7 +68,7 @@ class AutoClient(Client):
 
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
-                constant_bindings={"cache_config": cache_config},
+                constant_bindings={"cache_config": cache_config, "tokenizer_name": model_deployment.tokenizer_name},
                 provider_bindings={
                     "api_key": lambda: provide_api_key(self.credentials, host_organization, model_deployment_name),
                     "tokenizer": lambda: self._auto_tokenizer._get_tokenizer(
@@ -78,6 +78,8 @@ class AutoClient(Client):
                         host_organization + "OrgId", None
                     ),  # OpenAI, GooseAI, Microsoft
                     "lock_file_path": lambda: os.path.join(self.cache_path, f"{host_organization}.lock"),  # Microsoft
+                    "project_id": lambda: self.credentials.get(host_organization + "ProjectId", None),  # VertexAI
+                    "location": lambda: self.credentials.get(host_organization + "Location", None),  # VertexAI
                 },
             )
             client = create_object(client_spec)

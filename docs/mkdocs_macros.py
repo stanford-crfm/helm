@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Optional, List
 
-from helm.benchmark.presentation.schema import read_schema, ModelField
+from helm.benchmark.presentation.schema import read_schema, SCHEMA_CLASSIC_YAML_FILENAME, ModelField
 from helm.benchmark.run_expander import RUN_EXPANDERS
 from helm.proxy.models import ALL_MODELS, Model
 
@@ -27,7 +27,8 @@ class ModelInfo(ModelField):
 def define_env(env):
     @env.macro
     def models_by_organization():
-        schema = read_schema()
+        # TODO: make this customizable
+        schema = read_schema(SCHEMA_CLASSIC_YAML_FILENAME)
         result = defaultdict(list)
 
         # Create dict name -> madel_object (ALL_MODELS)

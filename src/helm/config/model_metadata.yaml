@@ -2,7 +2,12 @@
 # The model names here should match the model names in model_deployments.yaml.
 
 # If you want to add a new model, you can technically do it here but we recommend
-# you to do it in private/model_metadata.yaml instead.
+# you to do it in prod_env/model_metadata.yaml instead.
+
+# Follow the template of this file to add a new model. You can copy paste this to get started:
+#    # This file contains the metadata for private models
+#    models: [] # Leave empty to disable private models
+
 
 models:
 
@@ -151,12 +156,28 @@ models:
     release_date: 2023-03-17
     tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: anthropic/claude-instant-1.2
+    display_name: Anthropic Claude Instant 1.2
+    description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2023-08-09
+    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: anthropic/claude-2.0
     display_name: Anthropic Claude 2.0
     description: Claude 2.0 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
     creator_organization_name: Anthropic
     access: limited
     release_date: 2023-07-11
+    tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-2.1
+    display_name: Anthropic Claude 2.1
+    description: Claude 2.1 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2023-11-21
     tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # DEPRECATED: Please do not use.
@@ -341,21 +362,20 @@ models:
     release_date: 2022-11-08
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  # TODO: Fill in the details.
   - name: cohere/command
-    display_name: Cohere Command TODO
-    description: Cohere Command TODO
+    display_name: Cohere Command
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
     creator_organization_name: Cohere
     access: limited
-    release_date: 2022-11-08 # TODO
+    release_date: 2023-09-29
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: cohere/command-light
-    display_name: Cohere Command TODO
-    description: Cohere Command TODO
+    display_name: Cohere Command Light
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
     creator_organization_name: Cohere
     access: limited
-    release_date: 2022-11-08 # TODO
+    release_date: 2023-09-29
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
@@ -506,6 +526,46 @@ models:
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
     tags: [] # TODO: add tags
 
+  - name: google/text-bison@001
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/text-bison-32k
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model with a 32K context. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/text-unicorn@001
+    display_name: PaLM-2 (Unicorn)
+    description: The largest model in PaLM family. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-11-30 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/code-bison@001
+    display_name: Codey PaLM-2 (Bison)
+    description: A model fine-tuned to generate code based on a natural language description of the desired code. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
+    tags: [CODE_MODEL_TAG]
+
+  - name: google/code-bison-32k
+    display_name: Codey PaLM-2 (Bison)
+    description: Codey with a 32K context. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
+    tags: [CODE_MODEL_TAG]
+
 
 
   # HazyResearch
@@ -521,7 +581,7 @@ models:
 
 
   # HuggingFace
-  - name: huggingface/idefics-9b
+  - name: HuggingFaceM4/idefics-9b
     display_name: IDEFICS (9B)
     description: IDEFICS (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
     creator_organization_name: HuggingFace
@@ -530,7 +590,7 @@ models:
     release_date: 2023-08-22
     tags: [VISION_LANGUAGE_MODEL_TAG]
 
-  - name: huggingface/idefics-9b-instruct
+  - name: HuggingFaceM4/idefics-9b-instruct
     display_name: IDEFICS instruct (9B)
     description: IDEFICS instruct (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
     creator_organization_name: HuggingFace
@@ -539,7 +599,7 @@ models:
     release_date: 2023-08-22
     tags: [VISION_LANGUAGE_MODEL_TAG]
 
-  - name: huggingface/idefics-80b
+  - name: HuggingFaceM4/idefics-80b
     display_name: IDEFICS (80B)
     description: IDEFICS (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
     creator_organization_name: HuggingFace
@@ -548,7 +608,7 @@ models:
     release_date: 2023-08-22
     tags: [VISION_LANGUAGE_MODEL_TAG]
 
-  - name: huggingface/idefics-80b-instruct
+  - name: HuggingFaceM4/idefics-80b-instruct
     display_name: IDEFICS instruct (80B)
     description: IDEFICS instruct (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
     creator_organization_name: HuggingFace
@@ -754,14 +814,42 @@ models:
 
 
 
+  # 01.AI
+  - name: 01-ai/yi-6b
+    display_name: Yi (6B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization_name: 01.AI
+    access: open
+    num_parameters: 6000000000
+    release_date: 2023-11-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+  - name: 01-ai/yi-34b
+    display_name: Yi (34B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization_name: 01.AI
+    access: open
+    num_parameters: 34000000000
+    release_date: 2023-11-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
   # Mistral AI
   - name: mistralai/mistral-7b-v0.1
     display_name: Mistral v0.1 (7B)
-    description: Mistral 7B is a  7.3B parameter transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
+    description: Mistral 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
     creator_organization_name: Mistral AI
     access: open
     num_parameters: 7300000000
     release_date: 2023-09-27
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mixtral-8x7b-32kseqlen
+    display_name: Mixtral (8x7B 32K seqlen)
+    description: Mistral AI's mixture-of-experts model ([tweet](https://twitter.com/MistralAI/status/1733150512395038967)).
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 56000000000
+    release_date: 2023-12-08
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
@@ -901,7 +989,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: openai/text-davinci-003 # DEPRECATED
-    display_name: text-davinci-003
+    display_name: GPT-3.5 (text-davinci-003)
     description: text-davinci-003 model that involves reinforcement learning (PPO) with reward models. Derived from text-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
@@ -912,7 +1000,7 @@ models:
   # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
   #       https://github.com/stanford-crfm/benchmarking/issues/359
   - name: openai/text-davinci-002 # DEPRECATED
-    display_name: text-davinci-002
+    display_name: GPT-3.5 (text-davinci-002)
     description: text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations. Derived from code-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
@@ -921,7 +1009,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: openai/text-davinci-001 # DEPRECATED
-    display_name: text-davinci-001
+    display_name: GPT-3.5 (text-davinci-001)
     description: text-davinci-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
@@ -961,7 +1049,7 @@ models:
   # ChatGPT: https://openai.com/blog/chatgpt
   
   - name: openai/gpt-3.5-turbo-0301
-    display_name: gpt-3.5-turbo-0301
+    display_name: GPT-3.5 Turbo (0301)
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
     creator_organization_name: OpenAI
     access: limited
@@ -969,7 +1057,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-3.5-turbo-0613
-    display_name: gpt-3.5-turbo-0613
+    display_name: GPT-3.5 Turbo (0613)
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
     creator_organization_name: OpenAI
     access: limited
@@ -988,9 +1076,17 @@ models:
 
 
   ## GPT 4 Models
-    
+
+  - name: openai/gpt-4-1106-preview
+    display_name: GPT-4 Turbo (1106 preview)
+    description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-11-06
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/gpt-4-0314
-    display_name: gpt-4-0314
+    display_name: GPT-4 (0314)
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from March 14th 2023.
     creator_organization_name: OpenAI
     access: limited
@@ -1006,7 +1102,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4-0613
-    display_name: gpt-4-0613
+    display_name: GPT-4 (0613)
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-06-13.
     creator_organization_name: OpenAI
     access: limited
@@ -1299,6 +1395,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/palmyra-instruct-30
+    deprecated: true # Internal error
     display_name: InstructPalmyra (30B)
     description: InstructPalmyra (30B parameters) is trained using reinforcement learning techniques based on feedback from humans.
     creator_organization_name: Writer
@@ -1309,6 +1406,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: writer/palmyra-e
+    deprecated: true # Internal error
     display_name: Palmyra E (30B)
     description: Palmyra E (30B)
     creator_organization_name: Writer
@@ -1335,6 +1433,36 @@ models:
     access: limited
     num_parameters: 43000000000
     release_date: 2023-06-11
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x-v2
+    display_name: Palmyra X V2 (33B)
+    description: Palmyra-X V2 (33B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. The pre-training data more than 2 trillion tokens types are diverse and cover a wide range of areas, used FlashAttention-2.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 33000000000
+    release_date: 2023-12-01
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x-v3
+    display_name: Palmyra X V3 (72B)
+    description: Palmyra-X V3 (72B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. It is trained via unsupervised learning and DPO and use multiquery attention.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 72000000000
+    release_date: 2023-12-01
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x-32k
+    display_name: Palmyra X-32K (33B)
+    description: Palmyra-X-32K (33B parameters) is a Transformer-based model, which is trained on large-scale pre-training data. The pre-training data types are diverse and cover a wide range of areas. These data types are used in conjunction and the alignment mechanism to extend context window.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 33000000000
+    release_date: 2023-12-01
     # Does not support echo
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 

@@ -26,9 +26,10 @@ class MegatronClient(CachingClient):
     https://github.com/NVIDIA/Megatron-LM#gpt-text-generation
     """
 
-    def __init__(self, tokenizer: Tokenizer, cache_config: CacheConfig):
+    def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
 
     def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -48,7 +49,7 @@ class MegatronClient(CachingClient):
         return out
 
     def _tokenize_response(self, text: str) -> List[Token]:
-        tokenized_text = self.tokenizer.tokenize(TokenizationRequest(text, tokenizer="huggingface/gpt2"))
+        tokenized_text = self.tokenizer.tokenize(TokenizationRequest(text, tokenizer=self.tokenizer_name))
 
         # TODO(tgale): Support logprobs.
         tokens = [Token(text=str(token), logprob=0, top_logprobs={}) for token in tokenized_text.raw_tokens]

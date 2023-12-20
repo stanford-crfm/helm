@@ -11,8 +11,11 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
 
+# TODO: change to `helm.benchmark.config`
 SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
-SCHEMA_YAML_FILENAME: str = "schema.yaml"
+
+# TODO: add heim, vhelm, etc.
+SCHEMA_CLASSIC_YAML_FILENAME: str = "schema_classic.yaml"
 
 
 @dataclass(frozen=True)
@@ -245,9 +248,10 @@ class Schema:
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema() -> Schema:
-    hlog(f"Reading schema from {SCHEMA_YAML_FILENAME}...")
-    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_YAML_FILENAME)
+def read_schema(filename: str) -> Schema:
+    # TODO: merge in model metadata from `model_metadata.yaml`
+    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(filename)
+    hlog(f"Reading schema file {schema_path}...")
     with schema_path.open("r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Schema, raw)
