@@ -12,7 +12,7 @@
 - Added OpenAI GPT-4 Turbo preview (#2092)
 - Added 01.AI Yi (#2009)
 - Added Mistral AI Mixtral-8x7B (#2130)
-- Fixed race condition with "Already borrowed" error for  Hugging Face tokenizers (#2091, #2116)
+- Fixed race condition with "Already borrowed" error for  Hugging Face tokenizers (#2088, #2091, #2116)
 - Support configuration precision and quantization in HuggingFaceClient (#1912)
 - Support LanguageModelingAdapter for HuggingFaceClient (#1964)
 
@@ -27,14 +27,12 @@
 ### Framework
 
 - Added tutorial for computing the leaderboard rank of a model using the method from "Efficient Benchmarking (of Language Models)" (#1968, #1986, #1985)
-- Internal API cleanup (#1947)
-- Refactored ModelMetadata, ModelDeployment and Tokenizer (#1903, #1994)
+- Refactored ModelMetadata, ModelDeployment and Tokenizer, and moved configuration to YAML files (#1903, #1994)
 - Fixed a bug regarding writing `runs_to_run_suites.json` when using `helm-release` with `--release` (#2012)
 - Made pymongo an optional dependency (#1882)
 - Made SlurmRunner retry some failed Slurm requests (#2077)
 - Shortened cache retry time (#2081)
 - Added retrying to AutoTokenizer (#2090)
-- Added retrying to AutoTokenizer (#2088, #2091)
 - Added support for user configuration of model deployments and tokenizer configurations (#1996, #2142)
 - Added support for passing in an arbitrary schema file to `helm-rummarize` (#2075)
 - Changed the prompt format for some instruction following models (#2130)
