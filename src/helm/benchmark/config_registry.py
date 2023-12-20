@@ -27,6 +27,6 @@ def register_configs_from_directory(dir_path) -> None:
         register_model_deployments_from_path(model_deployments_path)
 
 
-def register_configs_from_package() -> None:
+def register_builtin_configs_from_helm_package() -> None:
     package_path = str(resources.files(CONFIG_PACKAGE))
     register_configs_from_directory(package_path)

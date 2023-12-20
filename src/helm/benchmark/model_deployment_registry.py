@@ -6,7 +6,12 @@ import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
-from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata
+from helm.benchmark.model_metadata_registry import (
+    ModelMetadata,
+    get_model_metadata,
+    get_unknown_model_metadata,
+    register_model_metadata,
+)
 
 
 class ClientSpec(ObjectSpec):
@@ -95,15 +100,20 @@ def register_model_deployment(model_deployment: ModelDeployment) -> None:
 
     model_name: str = model_deployment.model_name or model_deployment.name
 
+    model_metadata: ModelMetadata
     try:
-        model_metadata: ModelMetadata = get_model_metadata(model_name)
-        deployment_names: List[str] = model_metadata.deployment_names or [model_metadata.name]
-        if model_deployment.name not in deployment_names:
-            if model_metadata.deployment_names is None:
-                model_metadata.deployment_names = []
-            model_metadata.deployment_names.append(model_deployment.name)
+        model_metadata = get_model_metadata(model_name)
     except ValueError:
-        raise ValueError(f"Model deployment {model_deployment.name} has no corresponding model metadata")
+        hlog(
+            f"WARNING: Could not find model metadata for model {model_name} of model deployment {model_deployment.name}"
+        )
+        model_metadata = get_unknown_model_metadata(model_name)
+        register_model_metadata(model_metadata)
+    deployment_names: List[str] = model_metadata.deployment_names or [model_metadata.name]
+    if model_deployment.name not in deployment_names:
+        if model_metadata.deployment_names is None:
+            model_metadata.deployment_names = []
+        model_metadata.deployment_names.append(model_deployment.name)
 
 
 def register_model_deployments_from_path(path: str) -> None:

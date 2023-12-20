@@ -60,7 +60,7 @@ from helm.benchmark.presentation.contamination import (
     CONTAMINATION_STYLES,
     CONTAMINATION_LEVEL_STRONG,
 )
-from helm.benchmark.config_registry import register_configs_from_package, register_configs_from_directory
+from helm.benchmark.config_registry import register_builtin_configs_from_helm_package, register_configs_from_directory
 from helm.benchmark.presentation.run_display import write_run_display_json
 from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata
 
@@ -1407,7 +1407,7 @@ def main():
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
 
-    register_configs_from_package()
+    register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface

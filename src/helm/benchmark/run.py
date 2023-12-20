@@ -15,7 +15,7 @@ from helm.proxy.services.remote_service import create_authentication, add_servic
 
 from helm.benchmark.config_registry import (
     register_configs_from_directory,
-    register_configs_from_package,
+    register_builtin_configs_from_helm_package,
 )
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark import vlm_run_specs  # noqa
@@ -251,7 +251,7 @@ def main():
     args = parser.parse_args()
     validate_args(args)
 
-    register_configs_from_package()
+    register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
 
     for huggingface_model_name in args.enable_huggingface_models:
