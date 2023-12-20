@@ -35,7 +35,7 @@ from .executor import ExecutionSpec, Executor
 from .metrics.dry_run_metrics import DryRunMetric
 from .metrics.metric_name import MetricName
 from .metrics.metric_service import MetricService
-from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
+from .metrics.metric import MetricInterface, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
 from .window_services.tokenizer_service import TokenizerService
 
 
@@ -302,7 +302,7 @@ class Runner:
         # Apply the metrics
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
-        metrics: List[Metric] = (
+        metrics: List[MetricInterface] = (
             [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
         )
         stats: List[Stat] = []
