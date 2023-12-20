@@ -2,6 +2,75 @@
 
 ## [Upcoming]
 
+## [v0.4.0] - 2023-12-20
+
+### Models
+
+- Added Google PaLM 2 (#2087, #2111, #2139)
+- Added Anthropic Claude 2.1 and Claude Instant 1.2 (#2095, #2123)
+- Added Writer Palmyra-X v2 and v3 (#2104)
+- Added OpenAI GPT-4 Turbo preview (#2092)
+- Added 01.AI Yi (#2009)
+- Added Mistral AI Mixtral-8x7B (#2130)
+- Fixed race condition with "Already borrowed" error for  Hugging Face tokenizers (#2088, #2091, #2116)
+- Support configuration precision and quantization in HuggingFaceClient (#1912)
+- Support LanguageModelingAdapter for HuggingFaceClient (#1964)
+
+### Scenarios
+
+- Added VizWiz Scenario (#1983)
+- Added LegalBench scenario (#2129)
+- Refactored CommonSenseScenario into HellaSwagScenario, OpenBookQA, SiqaScenario, and PiqaScenario (#2117, #2118, #2119)
+- Added run specs configuration for HELM Lite (#2009)
+- Changed the default metric in GSM8K to check exact match of the final number in the response (#2130)
+
+### Framework
+
+- Added tutorial for computing the leaderboard rank of a model using the method from "Efficient Benchmarking (of Language Models)" (#1968, #1986, #1985)
+- Refactored ModelMetadata, ModelDeployment and Tokenizer, and moved configuration to YAML files (#1903, #1994)
+- Fixed a bug regarding writing `runs_to_run_suites.json` when using `helm-release` with `--release` (#2012)
+- Made pymongo an optional dependency (#1882)
+- Made SlurmRunner retry some failed Slurm requests (#2077)
+- Shortened cache retry time (#2081)
+- Added retrying to AutoTokenizer (#2090)
+- Added support for user configuration of model deployments and tokenizer configurations (#1996, #2142)
+- Added support for passing in an arbitrary schema file to `helm-rummarize` (#2075)
+- Changed the prompt format for some instruction following models (#2130)
+- Added py.typed to package type information (#2169)
+
+### Frontend
+
+- Made visual improvements and bugfixes for the new React frontend (#1947, #2000, #2005, #2018)
+- Changed front page on Raect frontend to display a mini leaderboard (#2113, #2128)
+- Added a dropdown menu for switching between different HELM results websites (#1947)
+- Added a dropdown menu for switching between different versions (#2135)
+
+### Evaluation Results
+
+- Launched new React frontend
+- [HELM Classic v0.4.0](https://crfm.stanford.edu/helm/classic/v0.4.0/)
+    - Added evaluation results for Mistral
+- [HELM Lite v1.0.0](https://crfm.stanford.edu/helm/lite/v1.0.0/)
+    - Launched new [HELM Lite leaderboard](https://crfm.stanford.edu/2023/12/19/helm-lite.html) with 30 models and 10 scenarios
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @brianwgoldman
+- @dlwh
+- @farzaank
+- @JosselinSomervilleRoberts
+- @krh26
+- @neelguha
+- @percyliang
+- @perlitz
+- @pettter
+- @ruixin31
+- @teetone
+- @yifanmai
+- @yotamp
+
 ## [v0.3.0] - 2023-11-01
 
 ### Models
@@ -236,7 +305,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.3.0...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.4.0...HEAD
+[v0.4.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.4.0
 [v0.3.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.3.0
 [v0.2.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.4
 [v0.2.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.3
