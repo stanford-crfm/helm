@@ -9,7 +9,7 @@ from helm.benchmark.model_deployment_registry import (
 )
 from helm.benchmark.model_metadata_registry import (
     get_model_metadata,
-    get_default_model_metadata,
+    get_unknown_model_metadata,
     register_model_metadata,
 )
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, TokenizerSpec, register_tokenizer_config
@@ -44,7 +44,7 @@ def register_huggingface_model(
     try:
         _ = get_model_metadata(model_name=helm_model_name)
     except ValueError:
-        register_model_metadata(get_default_model_metadata(helm_model_name))
+        register_model_metadata(get_unknown_model_metadata(helm_model_name))
         hlog(f"Registered default metadata for model {helm_model_name}")
 
     register_model_deployment(model_deployment)

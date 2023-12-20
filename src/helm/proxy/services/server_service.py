@@ -1,3 +1,4 @@
+import dataclasses
 import os
 import signal
 from typing import List, Optional
@@ -72,7 +73,10 @@ class ServerService(Service):
         self.gcs_client: Optional[GCSClient] = None
 
     def get_general_info(self) -> GeneralInfo:
-        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS_METADATA)
+        # Can't send release_dates in ModelMetadata bacause dates cannot be round-tripped to and from JSON easily.
+        # TODO(#2158): Either fix this or delete get_general_info.
+        all_models = [dataclasses.replace(model_metadata, release_date=None) for model_metadata in ALL_MODELS_METADATA]
+        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=all_models)
 
     def get_window_service_info(self, model_name) -> WindowServiceInfo:
         # The import statement is placed here to avoid two problems, please refer to the link for details

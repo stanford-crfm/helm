@@ -1236,7 +1236,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: openai/text-davinci-003 # DEPRECATED
-    display_name: text-davinci-003
+    display_name: GPT-3.5 (text-davinci-003)
     description: text-davinci-003 model that involves reinforcement learning (PPO) with reward models. Derived from text-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
@@ -1247,7 +1247,7 @@ models:
   # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
   #       https://github.com/stanford-crfm/benchmarking/issues/359
   - name: openai/text-davinci-002 # DEPRECATED
-    display_name: text-davinci-002
+    display_name: GPT-3.5 (text-davinci-002)
     description: text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations. Derived from code-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
@@ -1256,7 +1256,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: openai/text-davinci-001 # DEPRECATED
-    display_name: text-davinci-001
+    display_name: GPT-3.5 (text-davinci-001)
     description: text-davinci-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
@@ -1296,7 +1296,7 @@ models:
   # ChatGPT: https://openai.com/blog/chatgpt
   
   - name: openai/gpt-3.5-turbo-0301
-    display_name: gpt-3.5-turbo-0301
+    display_name: GPT-3.5 Turbo (0301)
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
     creator_organization_name: OpenAI
     access: limited
@@ -1304,7 +1304,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-3.5-turbo-0613
-    display_name: gpt-3.5-turbo-0613
+    display_name: GPT-3.5 Turbo (0613)
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
     creator_organization_name: OpenAI
     access: limited
@@ -1325,7 +1325,7 @@ models:
   ## GPT 4 Models
 
   - name: openai/gpt-4-1106-preview
-    display_name: gpt-4-1106-preview
+    display_name: GPT-4 Turbo (1106 preview)
     description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
     creator_organization_name: OpenAI
     access: limited
@@ -1333,7 +1333,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4-0314
-    display_name: gpt-4-0314
+    display_name: GPT-4 (0314)
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from March 14th 2023.
     creator_organization_name: OpenAI
     access: limited
@@ -1349,7 +1349,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4-0613
-    display_name: gpt-4-0613
+    display_name: GPT-4 (0613)
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-06-13.
     creator_organization_name: OpenAI
     access: limited
