@@ -16,6 +16,10 @@ import time
 from dacite import from_dict
 import bottle
 
+from helm.benchmark.config_registry import (
+    register_configs_from_directory,
+    register_builtin_configs_from_helm_package,
+)
 from helm.common.authentication import Authentication
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -224,6 +228,9 @@ def main():
         default="",
     )
     args = parser.parse_args()
+
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.base_path)
 
     service = ServerService(base_path=args.base_path, mongo_uri=args.mongo_uri)
 

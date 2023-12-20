@@ -1,18 +1,11 @@
-import os
 from typing import Dict, Optional, List
 from dataclasses import dataclass
-import importlib_resources as resources
 
 import cattrs
 import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
-from helm.benchmark.model_metadata_registry import CONFIG_PACKAGE
-
-
-TOKENIZER_CONFIGS_FILE: str = "tokenizer_configs.yaml"
-TOKENIZERS_REGISTERED: bool = False
 
 
 class TokenizerSpec(ObjectSpec):
@@ -59,22 +52,5 @@ def register_tokenizer_configs_from_path(path: str) -> None:
         register_tokenizer_config(tokenizer_config)
 
 
-def maybe_register_tokenizer_configs_from_base_path(path: str) -> None:
-    """Register tokenizer configs from yaml file if the path exists."""
-    if os.path.exists(path):
-        register_tokenizer_configs_from_path(path)
-
-
 def get_tokenizer_config(name: str) -> Optional[TokenizerConfig]:
-    register_tokenizers_if_not_already_registered()
     return TOKENIZER_NAME_TO_CONFIG.get(name)
-
-
-def register_tokenizers_if_not_already_registered(base_path: str = "prod_env") -> None:
-    global TOKENIZERS_REGISTERED
-    if not TOKENIZERS_REGISTERED:
-        path: str = resources.files(CONFIG_PACKAGE).joinpath(TOKENIZER_CONFIGS_FILE)
-        private_path: str = os.path.join(base_path, TOKENIZER_CONFIGS_FILE)
-        maybe_register_tokenizer_configs_from_base_path(path)
-        maybe_register_tokenizer_configs_from_base_path(private_path)
-        TOKENIZERS_REGISTERED = True

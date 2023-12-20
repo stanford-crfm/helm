@@ -13,7 +13,10 @@ from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
-from helm.benchmark.config_registry import register_helm_configurations
+from helm.benchmark.config_registry import (
+    register_configs_from_directory,
+    register_builtin_configs_from_helm_package,
+)
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
@@ -248,6 +251,9 @@ def main():
     args = parser.parse_args()
     validate_args(args)
 
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.local_path)
+
     for huggingface_model_name in args.enable_huggingface_models:
         register_huggingface_hub_model_from_flag_value(huggingface_model_name)
     for huggingface_model_path in args.enable_local_huggingface_models:
@@ -265,8 +271,6 @@ def main():
     # because run spec functions can use the benchmark output directory for caching.
     ensure_directory_exists(args.output_path)
     set_benchmark_output_path(args.output_path)
-
-    register_helm_configurations(base_path=args.local_path)
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,

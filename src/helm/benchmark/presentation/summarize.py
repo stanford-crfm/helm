@@ -21,8 +21,9 @@ from statistics import mean, median
 from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
+from helm.benchmark.model_deployment_registry import get_model_deployment
 
-from helm.benchmark.model_metadata_registry import get_default_model_metadata
+from helm.benchmark.model_metadata_registry import get_unknown_model_metadata
 from helm.common.general import (
     write,
     ensure_directory_exists,
@@ -59,10 +60,9 @@ from helm.benchmark.presentation.contamination import (
     CONTAMINATION_STYLES,
     CONTAMINATION_LEVEL_STRONG,
 )
-from helm.benchmark.config_registry import register_helm_configurations
+from helm.benchmark.config_registry import register_builtin_configs_from_helm_package, register_configs_from_directory
 from helm.benchmark.presentation.run_display import write_run_display_json
-from helm.benchmark.model_deployment_registry import get_metadata_for_deployment
-from helm.benchmark.model_metadata_registry import ModelMetadata
+from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata
 
 
 OVERLAP_N_COUNT = 13
@@ -142,6 +142,38 @@ def dict_to_str(d: Dict[str, Any]) -> str:
 
 def get_scenario_name(group: RunGroup, scenario_spec: ScenarioSpec):
     return group.name + "_" + dict_to_str(scenario_spec.args).replace(" ", "").replace("/", "_")
+
+
+def get_model_metadata_for_adapter_spec(adapter_spec: AdapterSpec) -> ModelMetadata:
+    """Return the ModelMetadata for the model in the given AdapterSpec."""
+    # Get model metadata based on `model` in `adapter_spec`
+    try:
+        return get_model_metadata(adapter_spec.model)
+    except ValueError:
+        pass
+
+    # Get model metadata based on `model_deployment` in `adapter_spec`
+    try:
+        model_deployment = get_model_deployment(adapter_spec.model_deployment)
+        if model_deployment.model_name:
+            return get_model_metadata(model_deployment.model_name)
+    except ValueError:
+        pass
+
+    # In some cases, some models were renamed such that the old model name is now the model deployment name
+    # For instance, the model called "huggingface/gpt2" is now called "openai/gpt2", but its model deployment
+    # is still called "huggingface/gpt2".
+    # Handle these cases here.
+    # TODO: Delete this block eventually.
+    try:
+        model_deployment = get_model_deployment(adapter_spec.model)
+        if model_deployment.model_name:
+            return get_model_metadata(model_deployment.model_name)
+    except ValueError:
+        pass
+
+    # Return a placeholder "unknoown model" model metadata.
+    return get_unknown_model_metadata(adapter_spec.model)
 
 
 def get_coarse_adapter_spec(
@@ -909,16 +941,7 @@ class Summarizer:
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            deployment: str = (
-                adapter_spec.model_deployment if len(adapter_spec.model_deployment) > 0 else adapter_spec.model
-            )
-            try:
-                model_metadata: ModelMetadata = get_metadata_for_deployment(deployment)
-            except ValueError as e:
-                if self.allow_unknown_models:
-                    model_metadata = get_default_model_metadata(deployment)
-                else:
-                    raise e
+            model_metadata = get_model_metadata_for_adapter_spec(adapter_spec)
 
             model_name: str = model_metadata.name
 
@@ -1384,7 +1407,8 @@ def main():
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
 
-    register_helm_configurations(base_path=args.local_path)
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.local_path)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
