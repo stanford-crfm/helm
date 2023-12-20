@@ -168,7 +168,7 @@ class HuggingFaceDiffusersClient(Client):
                         # Write out the image to a file and save the path
                         file_location: str = self._file_cache.get_unique_file_location()
                         image.save(file_location)
-                        hlog(f"Image saved at {file_location}.")
+                        hlog(f"Image saved at {file_location}")
                         result["file_locations"].append(file_location)
                     return result
 
