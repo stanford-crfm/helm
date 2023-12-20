@@ -55,7 +55,9 @@ def get_benchmark_output_path() -> str:
 
 def get_cached_models_path() -> str:
     """Get the cached models pat within the benchmark output path."""
-    return os.path.join(get_benchmark_output_path(), _CACHED_MODELS_FOLDER)
+    path: str = os.path.join(get_benchmark_output_path(), _CACHED_MODELS_FOLDER)
+    ensure_directory_exists(path)
+    return path
 
 
 def set_benchmark_output_path(benchmark_output_path: str) -> None:
