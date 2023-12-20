@@ -848,7 +848,8 @@ class BasicMetric(Metric):
             raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
 
         stats: List[Stat] = []
-        stats.extend(self.compute_all_general_metrics(adapter_spec, request_state, metric_service))
+        for request_state in reference_request_states:
+            stats.extend(self.compute_all_general_metrics(adapter_spec, request_state, metric_service))
 
         max_prob = np.max(scipy.special.softmax(reference_scores))
 
