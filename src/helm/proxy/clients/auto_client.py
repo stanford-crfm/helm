@@ -117,8 +117,7 @@ class AutoClient(Client):
         client: Client = self._get_client(request.model_deployment)
 
         try:
-            result = make_request_with_retry(client=client, request=request)
-            return result
+            return make_request_with_retry(client=client, request=request)
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = (

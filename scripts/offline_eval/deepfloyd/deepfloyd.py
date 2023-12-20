@@ -134,7 +134,7 @@ class DeepFloyd:
         image_paths: List[str] = []
         start_time: float = time.time()
         for i in range(request.num_completions):
-            file_path: str = self._file_cache.get_unique_file_location()
+            file_path: str = self._file_cache.generate_unique_new_file_path()
             self._run_inference_single_image(request.prompt, file_path, i)
             image_paths.append(file_path)
         total_inference_time: float = time.time() - start_time

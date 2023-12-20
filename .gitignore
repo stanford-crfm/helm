@@ -11,7 +11,6 @@ benchmark_output
 www
 proxy_api_key*.txt
 microsoft_client.lock
-.helm_cache
 *.lock
 *.log
 *.out

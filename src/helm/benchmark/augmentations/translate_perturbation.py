@@ -13,6 +13,7 @@ class TranslatePerturbation(TextPerturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
+        # Language code to translate to. Needs a default value since we inherit from `PerturbationDescription`
         language_code: str = "zh-CN"
 
     name: str = "translate"

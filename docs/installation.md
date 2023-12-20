@@ -44,7 +44,7 @@ pip install "crfm-helm[heim]"
 ``` 
 
 Some models (e.g., DALLE-mini/mega) and metrics (`DetectionMetric`) require extra dependencies that are 
-not available on PyPI. To install these dependencies, run the 
+not available on PyPI. To install these dependencies, download and run the 
 [extra install script](https://github.com/stanford-crfm/helm/blob/main/install-heim-extras.sh):
 
 ```

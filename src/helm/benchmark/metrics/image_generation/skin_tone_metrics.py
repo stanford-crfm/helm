@@ -11,7 +11,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
 from helm.common.images_utils import is_blacked_out_image
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .image_metrics_utils import gather_generated_image_locations
+from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
 class SkinToneMetric(Metric):

@@ -10,7 +10,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.toxicity_utils import is_prompt_toxic
 from .q16.q16_toxicity_detector import Q16ToxicityDetector
-from .image_metrics_utils import gather_generated_image_locations
+from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
 class Q16ToxicityMetric(Metric):

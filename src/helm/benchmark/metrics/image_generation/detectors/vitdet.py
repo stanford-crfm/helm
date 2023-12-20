@@ -3,7 +3,8 @@ from typing import Dict, Any
 
 import torch
 
-from helm.common.general import ensure_file_downloaded, hlog, get_helm_cache_path
+from helm.benchmark.runner import get_cached_models_path
+from helm.common.general import ensure_file_downloaded, hlog
 from helm.common.images_utils import open_image
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.gpu_utils import get_torch_device
@@ -28,7 +29,7 @@ class ViTDetDetector(BaseDetector):
 
         super().__init__()
 
-        cache_path: str = get_helm_cache_path()
+        cache_path: str = get_cached_models_path()
         cfg_path: str = os.path.join(cache_path, "vitdet_model.yaml")
         ensure_file_downloaded(source_url=MODEL_CONFIG_DOWNLOAD_URL, target_path=cfg_path)
         cfg = LazyConfig.load(cfg_path)

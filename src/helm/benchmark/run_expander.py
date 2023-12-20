@@ -446,11 +446,7 @@ class NumTrialRunExpander(ReplaceValueRunExpander):
 
     name = "num_trials"
     values_dict = {
-        "1": [1],
-        "2": [2],
-        "3": [3],
-        "4": [4],
-        "5": [5],
+        "heim_efficiency": [5],
     }
 
 

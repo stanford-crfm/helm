@@ -73,7 +73,7 @@ class AdapterSpec:
     # set of training instances.  Used to compute error bars.
     num_train_trials: int = 1
 
-    # Number of trials, where we query the model with the exact same requests
+    # Number of trials, where we query the model with the same requests, but different random seeds
     num_trials: int = 1
 
     # If true, randomly sample N training examples; if false, select N consecutive training examples

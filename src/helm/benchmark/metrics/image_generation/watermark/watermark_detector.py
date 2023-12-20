@@ -7,7 +7,8 @@ import torch.nn.functional as F
 import torch.utils.data
 from torchvision import transforms as T
 
-from helm.common.general import get_helm_cache_path, ensure_file_downloaded, hlog
+from helm.benchmark.runner import get_cached_models_path
+from helm.common.general import ensure_file_downloaded, hlog
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -47,7 +48,7 @@ class WatermarkDetector:
             nn.Linear(in_features=256, out_features=2),
         )
 
-        watermark_model_path: str = os.path.join(get_helm_cache_path(), "watermark_model_v1.pt")
+        watermark_model_path: str = os.path.join(get_cached_models_path(), "watermark_model_v1.pt")
         ensure_file_downloaded(WatermarkDetector.MODEL_URL, watermark_model_path)
         state_dict = torch.load(watermark_model_path)
         model.load_state_dict(state_dict)

@@ -15,7 +15,7 @@ from helm.common.general import singleton
 from helm.common.images_utils import filter_blacked_out_images
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
-from .image_metrics_utils import gather_generated_image_locations
+from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
 class ImageCritiqueMetric(Metric):

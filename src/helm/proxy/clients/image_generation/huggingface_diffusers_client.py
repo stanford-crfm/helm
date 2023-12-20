@@ -166,7 +166,7 @@ class HuggingFaceDiffusersClient(Client):
 
                     for image in images:
                         # Write out the image to a file and save the path
-                        file_location: str = self._file_cache.get_unique_file_location()
+                        file_location: str = self._file_cache.generate_unique_new_file_path()  # type: ignore
                         image.save(file_location)
                         hlog(f"Image saved at {file_location}")
                         result["file_locations"].append(file_location)

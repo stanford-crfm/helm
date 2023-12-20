@@ -12,7 +12,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.metrics.metric import PerInstanceStats
-from helm.benchmark.metrics.image_generation.image_metrics_utils import gather_generated_image_locations
+from helm.common.multimodal_request_utils import gather_generated_image_locations
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
@@ -45,7 +45,7 @@ class DisplayPrediction:
     truncated_predicted_text: Optional[str]
     """The truncated prediction text, if truncation is required by the Adapter method."""
 
-    base64_images: List[str]
+    base64_images: Optional[List[str]]
     """Images in base64."""
 
     mapped_output: Optional[str]

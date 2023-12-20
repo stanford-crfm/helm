@@ -5,7 +5,8 @@ import zipfile
 import torch
 import numpy as np
 
-from helm.common.general import ensure_directory_exists, get_helm_cache_path
+from helm.benchmark.runner import get_cached_models_path
+from helm.common.general import ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
@@ -30,7 +31,7 @@ class NSFWDetector:
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
-        cache_folder: str = get_helm_cache_path()
+        cache_folder: str = get_cached_models_path()
         model_path: str
         if clip_model == "ViT-L/14":
             model_path = os.path.join(cache_folder, "clip_autokeras_binary_nsfw")

@@ -146,7 +146,6 @@ def test_space_perturbation():
     instance: Instance = Instance(id="id0", input=Input(text="Hello World!\nQuite a day, huh?"), references=[])
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.name == "space"
     assert instances[1].input.text == "Hello   World!\nQuite a  day,   huh?"
@@ -163,7 +162,6 @@ def test_dialect_perturbation():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.name == "dialect"
     assert instances[1].input.text == "I gon remember dis day to b the best day of mah life."
@@ -189,7 +187,6 @@ def test_person_name_perturbation():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.name == "person_name"
     assert (
@@ -210,7 +207,6 @@ def test_gender_pronoun_perturbation():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.mode == "pronouns"
     assert instances[1].input.text == "Did she mention that she was coming with her parents and their friends?"
@@ -228,7 +224,6 @@ def test_gender_term_perturbation():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.mode == "terms"
     assert instances[1].input.text == "His granddaughters looked a lot like their mom."
@@ -240,7 +235,6 @@ def test_suffix_perturbation():
     instance: Instance = Instance(id="id0", input=Input(text="A blue dog"), references=[])
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
-    print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.suffix == "pixel art"
     assert instances[1].input.text == "A blue dog, pixel art"
@@ -259,7 +253,6 @@ def test_gender_term_perturbation_edge_word():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=False)
 
-    print(instances)
     assert len(instances) == 1
     assert instances[0].input.text == "mom said it is okay"
     assert instances[0].references[0].output.text == "Sure he did daughter"
@@ -278,6 +271,5 @@ def test_gender_term_perturbation_consequtive_words():
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=False)
 
-    print(instances)
     assert len(instances) == 1
     assert instances[0].input.text == "I'm a mom mom: my daughter has a daughter."

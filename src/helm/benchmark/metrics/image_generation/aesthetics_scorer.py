@@ -3,10 +3,11 @@ import os
 
 import torch
 
-from helm.common.general import ensure_directory_exists, get_helm_cache_path
+from helm.common.general import ensure_directory_exists
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
 from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.benchmark.runner import get_cached_models_path
 
 
 class AestheticsScorer:
@@ -23,7 +24,7 @@ class AestheticsScorer:
     @staticmethod
     def load_model(clip_model="vit_l_14"):
         """Load the aesthetics model."""
-        cache_folder: str = os.path.join(get_helm_cache_path(), "emb_reader")
+        cache_folder: str = os.path.join(get_cached_models_path(), "emb_reader")
         ensure_directory_exists(cache_folder)
         model_path: str = os.path.join(cache_folder, f"sa_0_4_{clip_model}_linear.pth")
 

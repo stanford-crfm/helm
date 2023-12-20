@@ -10,7 +10,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.images_utils import is_blacked_out_image
-from .image_metrics_utils import gather_generated_image_locations
+from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
 class GenderMetric(Metric):

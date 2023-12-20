@@ -9,7 +9,6 @@ from torchvision.utils import save_image
 
 from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
-from helm.common.general import get_helm_cache_path
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
@@ -54,7 +53,7 @@ class CogView2Client(Client):
 
         tokenizer.add_special_tokens(["<start_of_image>", "<start_of_english>", "<start_of_chinese>"])
 
-        model_local_path: str = f"{get_helm_cache_path()}/cogview2"
+        model_local_path: str = f"{self._file_cache._location}/cogview2"  # type: ignore
         os.environ["SAT_HOME"] = f"{model_local_path}/sharefs/cogview-new"
 
         # Download the model if not yet
@@ -156,7 +155,7 @@ class CogView2Client(Client):
                     result: Dict = {"file_locations": []}
                     for image in images:
                         # Write out the image to a file and save the path
-                        file_location: str = self._file_cache.get_unique_file_location()
+                        file_location: str = self._file_cache.generate_unique_new_file_path()  # type: ignore
                         save_image(image, file_location, normalize=True)
                         hlog(f"Image saved at {file_location}.")
                         result["file_locations"].append(file_location)
