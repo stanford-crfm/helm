@@ -13,17 +13,19 @@ from .statistic import Stat, merge_stat
 
 class EvaluateInstancesMetric(MetricInterface, ABC):
     """
-    A `Metric` that
+    Metric that needs to examine all request states for all instances in the same split with the same perturbations
+    in order to determine the Stats.
     """
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
-        """
-        Metric that needs to examine all request states for all instances in the same split with the same perturbations
-        in order to determine the Stats.
-        """
+        """Aggregate over calls to evaluate_instances, which is defined by the subclass.
 
+        1. Each call has all instances for the same train trial, split, and perturbations.
+        2. For each train trial, take the mean for each Stat.
+        3. Returns Stats built from those means (e.g. the mean in the result is the mean-of-means).
+        """
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}
 
