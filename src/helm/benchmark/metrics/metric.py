@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, Iterable, Set
@@ -95,7 +95,17 @@ class Processor:
         return instance_stats
 
 
-class Metric(ABC):
+class MetricInterface(ABC):
+    """Interface for all Metrics."""
+
+    @abstractmethod
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        pass
+
+
+class Metric(MetricInterface, ABC):
     """
     A `Metric` takes the results of execution and produces `Stat`s for a
     scenario.
