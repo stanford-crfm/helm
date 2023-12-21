@@ -3,14 +3,14 @@ from typing import List
 
 from helm.common.general import singleton
 from helm.common.request import RequestResult
-from helm.common.clip_score_request import CLIPScoreResult, CLIPScoreRequest
+from helm.common.clip_score_request import DEFAULT_CLIP_SCORE_MODEL, CLIPScoreResult, CLIPScoreRequest
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
-from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
+from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.common.images_utils import is_blacked_out_image
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 
@@ -54,14 +54,15 @@ class CLIPScoreMetric(Metric):
 
         # Truncate the prompt using the CLIP tokenizer before feeding into the CLIP model.
         # Otherwise, the library will throw an error.
-        prompt = CLIPWindowService(metric_service).truncate_from_right(prompt)
+        model = DEFAULT_CLIP_SCORE_MODEL
+        prompt = WindowServiceFactory.get_window_service(model, metric_service).truncate_from_right(prompt)
 
         scores: List[float] = []
         image_locations: List[str] = gather_generated_image_locations(request_result)
         for location in image_locations:
             if not is_blacked_out_image(location):
                 result: CLIPScoreResult = metric_service.compute_clip_score(
-                    CLIPScoreRequest(prompt, location, multilingual=self._multilingual)
+                    CLIPScoreRequest(prompt, location, model=model, multilingual=self._multilingual)
                 )
                 scores.append(result.score)
 
