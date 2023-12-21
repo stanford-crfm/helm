@@ -145,7 +145,7 @@ def add_run_args(parser: argparse.ArgumentParser):
         "-m",
         "--max-eval-instances",
         type=int,
-        required=False,
+        required=True,
         help="Maximum number of instances to evaluate on, overrides the value in Adapter spec.",
     )
     parser.add_argument(
