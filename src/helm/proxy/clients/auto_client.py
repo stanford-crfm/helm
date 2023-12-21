@@ -68,15 +68,10 @@ class AutoClient(Client):
             host_organization: str = model_deployment.host_organization
             cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, host_organization)
 
-            # Initialize `FileCache` for text-to-image model APIs
-            local_file_cache_path: str = os.path.join(self.cache_path, "output", host_organization)
-            file_cache: FileCache = LocalFileCache(local_file_cache_path, file_extension="png")
-
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
                 constant_bindings={
                     "cache_config": cache_config,
-                    "file_cache": file_cache,
                     "tokenizer_name": model_deployment.tokenizer_name,
                 },
                 provider_bindings={
@@ -92,6 +87,7 @@ class AutoClient(Client):
                     "project_id": lambda: self.credentials.get(host_organization + "ProjectId", None),  # VertexAI
                     "location": lambda: self.credentials.get(host_organization + "Location", None),  # VertexAI
                     "hf_auth_token": lambda: self.credentials.get("huggingfaceAuthToken", None),  # HuggingFace
+                    "file_cache": lambda: self._get_file_cache(host_organization),  # Text-to-image models
                 },
             )
             client = create_object(client_spec)
@@ -223,3 +219,8 @@ class AutoClient(Client):
         cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
         self._huggingface_client = HuggingFaceClient(cache_config=cache_config)
         return self._huggingface_client
+
+    def _get_file_cache(self, host_organization: str) -> FileCache:
+        # Initialize `FileCache` for text-to-image model APIs
+        local_file_cache_path: str = os.path.join(self.cache_path, "output", host_organization)
+        return LocalFileCache(local_file_cache_path, file_extension="png")
