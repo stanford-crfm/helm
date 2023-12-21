@@ -12,11 +12,13 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.metrics.metric import PerInstanceStats
+from helm.common.multimodal_request_utils import gather_generated_image_locations
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.general import write
 from helm.common.hierarchical_logger import hlog, htrack
+from helm.common.images_utils import encode_base64
 from helm.common.request import Request
 from helm.common.codec import from_json, to_json
 
@@ -42,6 +44,9 @@ class DisplayPrediction:
 
     truncated_predicted_text: Optional[str]
     """The truncated prediction text, if truncation is required by the Adapter method."""
+
+    base64_images: Optional[List[str]]
+    """Images in base64."""
 
     mapped_output: Optional[str]
     """The mapped output, if an output mapping exists and the prediction can be mapped"""
@@ -73,7 +78,7 @@ class DisplayRequest:
     """The actual Request to display in the web frontend.
 
     There can be multiple requests per trial. The displayed request should be the
-    most relevant request e.g. the request for the chosen cohice for multiple choice questions."""
+    most relevant request e.g. the request for the chosen choice for multiple choice questions."""
 
 
 def _read_scenario_state(scenario_state_path: str) -> ScenarioState:
@@ -126,7 +131,7 @@ def _get_metric_names_for_group(run_group_name: str, schema: Schema) -> Set[str]
         if metric_group is None:
             continue
         for metric_name_matcher in metric_group.metrics:
-            if metric_name_matcher.perturbation_name:
+            if metric_name_matcher.perturbation_name and metric_name_matcher.perturbation_name != "__all__":
                 continue
             result.add(metric_name_matcher.substitute(run_group.environment).name)
     return result
@@ -259,6 +264,14 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
         instance_id_to_instance[
             (request_state.instance.id, request_state.instance.perturbation)
         ] = request_state.instance
+
+        # Process images and include if they exist
+        images: List[str] = [
+            encode_base64(image_location)
+            for image_location in gather_generated_image_locations(request_state.result)
+            if os.path.exists(image_location)
+        ]
+
         predictions.append(
             DisplayPrediction(
                 instance_id=request_state.instance.id,
@@ -266,6 +279,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 train_trial_index=request_state.train_trial_index,
                 predicted_text=predicted_text,
                 truncated_predicted_text=_truncate_predicted_text(predicted_text, request_state, run_spec.adapter_spec),
+                base64_images=images,
                 mapped_output=mapped_output,
                 reference_index=request_state.reference_index,
                 stats=trial_stats,

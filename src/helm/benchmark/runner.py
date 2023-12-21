@@ -35,16 +35,17 @@ from .executor import ExecutionSpec, Executor
 from .metrics.dry_run_metrics import DryRunMetric
 from .metrics.metric_name import MetricName
 from .metrics.metric_service import MetricService
-from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
+from .metrics.metric import MetricInterface, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
 from .window_services.tokenizer_service import TokenizerService
 
 
 LATEST_SYMLINK: str = "latest"
 _BENCHMARK_OUTPUT_PATH: str = "benchmark_output"
+_CACHED_MODELS_FOLDER: str = "models"
 
 
 def get_benchmark_output_path() -> str:
-    """Get the genchmark output path.
+    """Get the benchmark output path.
 
     Many run spec functions need to know the benchmark output path,
     but there is no way to pass it via  the run spec function,
@@ -52,8 +53,15 @@ def get_benchmark_output_path() -> str:
     return _BENCHMARK_OUTPUT_PATH
 
 
+def get_cached_models_path() -> str:
+    """Get the cached models pat within the benchmark output path."""
+    path: str = os.path.join(get_benchmark_output_path(), _CACHED_MODELS_FOLDER)
+    ensure_directory_exists(path)
+    return path
+
+
 def set_benchmark_output_path(benchmark_output_path: str) -> None:
-    """Set the genchmark output path."""
+    """Set the benchmark output path."""
     global _BENCHMARK_OUTPUT_PATH
     _BENCHMARK_OUTPUT_PATH = benchmark_output_path
 
@@ -302,7 +310,7 @@ class Runner:
         # Apply the metrics
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
-        metrics: List[Metric] = (
+        metrics: List[MetricInterface] = (
             [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
         )
         stats: List[Stat] = []

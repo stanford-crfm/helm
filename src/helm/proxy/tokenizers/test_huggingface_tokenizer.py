@@ -124,6 +124,9 @@ class TestHuggingFaceTokenizer:
     def test_get_santacoder(self):
         TestHuggingFaceTokenizer.verify_get_tokenizer("bigcode/santacoder", 62)
 
+    def test_get_clip_tokenizer(self):
+        TestHuggingFaceTokenizer.verify_get_tokenizer("openai/clip-vit-large-patch14", 50)
+
     def test_gpt2_tokenize_eos(self):
         eos_token: str = "<|endoftext|>"
         wrapped_tokenizer = HuggingFaceTokenizer.get_tokenizer("huggingface/gpt2", pretrained_model_name_or_path="gpt2")

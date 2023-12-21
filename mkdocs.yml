@@ -35,6 +35,7 @@ nav:
   - 'User Guide':
     - 'installation.md'
     - 'quick_start.md'
+    - 'heim.md'
     - 'get_helm_rank.md'
     - 'tutorial.md'
     - 'benchmark.md'
