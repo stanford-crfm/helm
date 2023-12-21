@@ -14,7 +14,7 @@ from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 from rouge_score import rouge_scorer
-from helm.benchmark.metrics.per_request_metrics import PerRequestMetric
+from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Token, Sequence
@@ -364,7 +364,7 @@ class BasicMetric(Metric):
 
     def __init__(self, names: List[str]):
         self.names: List[str] = names
-        self.per_request_metric = PerRequestMetric()
+        self.efficiency_metric = EfficiencyMetric()
 
     def __repr__(self):
         return f"BasicMetric({','.join(self.names)})"
@@ -523,7 +523,7 @@ class BasicMetric(Metric):
     ) -> List[Stat]:
         """Compute all metrics."""
         stats: List[Stat] = []
-        stats.extend(self.per_request_metric.evaluate_request_state(adapter_spec, request_state, metric_service))
+        stats.extend(compute_request_state_metrics(self.efficiency_metric, adapter_spec, request_state, metric_service))
 
         if len(request_state.instance.references) > 0:
             stats.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
@@ -609,7 +609,9 @@ class BasicMetric(Metric):
 
         stats: List[Stat] = []
         for request_state in reference_request_states:
-            stats.extend(self.per_request_metric.evaluate_request_state(adapter_spec, request_state, metric_service))
+            stats.extend(
+                compute_request_state_metrics(self.efficiency_metric, adapter_spec, request_state, metric_service)
+            )
 
         max_prob = np.max(scipy.special.softmax(reference_scores))
 
@@ -641,6 +643,61 @@ class BasicMetric(Metric):
         derived_stats.extend(compute_calibration_metrics(per_instance_stats))
         derived_stats.append(Stat(MetricName("num_instances")).add(len(per_instance_stats)))
         return derived_stats
+
+
+def compute_request_state_metrics(
+    efficiency_metric, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+) -> List[Stat]:
+    """
+    Compute metrics that are common to both `evaluate_generation` and `evaluate_references`.
+    """
+    stats: List[Stat] = []
+
+    stats.append(Stat(MetricName("num_references")).add(len(request_state.instance.references)))
+
+    # Copy from adapter spec
+    stats.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))
+
+    stats.extend(efficiency_metric.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
+    stats.extend(_compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
+    stats.extend(_compute_truncation_metrics(adapter_spec, request_state, metric_service))
+
+    return stats
+
+
+def _compute_finish_reason_metrics(
+    adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+) -> List[Stat]:
+    """Record how often generation finished due to reaching token limit, stop token(s), or end of text"""
+    assert request_state.result is not None
+    sequence = request_state.result.completions[0]
+    valid_reasons = [
+        "length",
+        "stop",
+        "endoftext",
+        "unknown",
+    ]
+    if sequence.finish_reason is None or sequence.finish_reason["reason"] not in valid_reasons:
+        reason = "unknown"
+    else:
+        reason = sequence.finish_reason["reason"]
+    return [
+        Stat(MetricName(f"finish_reason_{valid_reason}")).add(int(reason == valid_reason))
+        for valid_reason in valid_reasons
+    ]
+
+
+def _compute_truncation_metrics(
+    adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+) -> List[Stat]:
+    """
+    Record the number of training instances used in the prompt and whether
+    even the prompt needed to be truncated (once we hit zero training instances).
+    """
+    return [
+        Stat(MetricName("num_train_instances")).add(request_state.num_train_instances),
+        Stat(MetricName("prompt_truncated")).add(request_state.prompt_truncated),
+    ]
 
 
 def _has_non_zero_valued_logprobs(per_instance_stats: Dict[Instance, List[Stat]]) -> bool:
