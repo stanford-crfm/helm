@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from collections import defaultdict
-from typing import List, Dict, Tuple, Optional, Iterable, Set
+from typing import List, Dict, Tuple, Optional, Iterable
 
 from helm.common.object_spec import ObjectSpec, create_object
 from helm.common.general import singleton, parallel_map
@@ -126,8 +126,11 @@ class Metric(MetricInterface, ABC):
         Any logic that doesn't decompose along instances should go here, such
         as robustness.
         """
-        if scenario_state.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
-            return self.evaluate_language_modeling(scenario_state, metric_service, eval_cache_path)
+        assert scenario_state.adapter_spec.method != ADAPT_LANGUAGE_MODELING, (
+            "Metric no longer knows how to handle the language modeling adapter. "
+            + "All run_specs with that adapter should use LanguageModelingMetric. "
+            + "If you are seeing this issue, please file a Github issue."
+        )
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}
@@ -247,54 +250,6 @@ class Metric(MetricInterface, ABC):
     def derive_per_instance_stats(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
         """Derive stats based on existing per-instance stats, e.g., for calibration. Override me!"""
         return []
-
-    def evaluate_language_modeling(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
-    ) -> MetricResult:
-        global_stats: Dict[MetricName, Stat] = {}
-        # The first and only trial
-        trial_stats: Dict[MetricName, Stat] = {}
-        # Per-instance stats
-        all_per_instance_stats: List[PerInstanceStats] = []
-        instance_ids_per_context: Dict[MetricContext, Set[str]] = defaultdict(set)
-
-        for request_state in scenario_state.request_states:
-            # Evaluate request_state
-            request_stats = self.evaluate_generation(
-                scenario_state.adapter_spec, request_state, metric_service, eval_cache_path
-            )
-
-            # Add instance-related context (e.g., split, perturbation) to the metrics
-            for i, stat in enumerate(request_stats):
-                context = MetricContext.from_instance(request_state.instance)
-                request_stats[i] = add_context(stat, context)
-                assert request_state.instance.id is not None
-                instance_ids_per_context[context].add(request_state.instance.id)
-
-            # Use trial index of 0 here since we run only one trial for LM
-            assert request_state.instance.id is not None
-            all_per_instance_stats.append(
-                PerInstanceStats(request_state.instance.id, request_state.instance.perturbation, 0, request_stats)
-            )
-
-            for stat in request_stats:
-                merge_stat(trial_stats, stat)
-
-        # group stats according to the context (e.g., split, perturbation) and call derive_stats on each grouping
-        grouped_trial_stats: Dict[MetricContext, Dict[MetricName, Stat]] = defaultdict(dict)
-        for metric_name, stat in trial_stats.items():
-            grouped_trial_stats[MetricContext.from_metric_name(metric_name)][metric_name] = stat  # group by context
-
-        for context, stats_dict in grouped_trial_stats.items():
-            for stat in self.derive_stats(stats_dict):
-                merge_stat(trial_stats, add_context(stat, context))
-            # keep track of how many instances are in each subset
-            num_instances_stat = Stat(MetricName("num_instances")).add(len(instance_ids_per_context[context]))
-            merge_stat(trial_stats, add_context(num_instances_stat, context))
-
-        for stat in trial_stats.values():
-            merge_stat(global_stats, stat.take_mean())
-        return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def compute_worst_case_metrics(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
         """
