@@ -53,7 +53,7 @@ class WindowServiceFactory:
                     "prefix_token": prefix_token,
                 },
                 provider_bindings={
-                    "gpt2_window_service": lambda: WindowServiceFactory.get_window_service("openai/gpt2", service)
+                    "gpt2_window_service": lambda: WindowServiceFactory.get_window_service("huggingface/gpt2", service)
                 },
             )
             return create_object(window_service_spec)

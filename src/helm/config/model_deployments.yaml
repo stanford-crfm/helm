@@ -42,10 +42,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j1-large
     deprecated: true
@@ -56,10 +52,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j1-grande
     deprecated: true
@@ -70,10 +62,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j1-grande-v2-beta
     deprecated: true
@@ -84,10 +72,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j2-jumbo
     model_name: ai21/j2-jumbo
@@ -97,10 +81,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.wider_ai21_window_service.AI21Jurassic2JumboWindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j2-large
     model_name: ai21/j2-large
@@ -110,10 +90,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j2-grande
     model_name: ai21/j2-grande
@@ -123,10 +99,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
 
 
