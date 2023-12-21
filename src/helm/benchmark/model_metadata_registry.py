@@ -46,6 +46,9 @@ NLG_PREFIX_TAG: str = "NLG_PREFIX_TAG"
 # Some models can follow instructions.
 INSTRUCTION_FOLLOWING_MODEL_TAG: str = "INSTRUCTION_FOLLOWING_MODEL_TAG"
 
+# For text-to-image models
+TEXT_TO_IMAGE_MODEL_TAG: str = "TEXT_TO_IMAGE_MODEL_TAG"
+
 # For Vision-langauge models (VLMs)
 VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
 
@@ -166,6 +169,16 @@ def get_all_code_models() -> List[str]:
 def get_all_instruction_following_models() -> List[str]:
     """Return all model names of instruction following models."""
     return get_model_names_with_tag(INSTRUCTION_FOLLOWING_MODEL_TAG)
+
+
+def is_text_to_image_model(model_name: str) -> bool:
+    """Returns True if the model is a text-to-image model. False otherwise."""
+    try:
+        model: ModelMetadata = get_model_metadata(model_name)
+    except ValueError:
+        return False
+
+    return TEXT_TO_IMAGE_MODEL_TAG in model.tags
 
 
 def get_unknown_model_metadata(helm_model_name: str) -> ModelMetadata:

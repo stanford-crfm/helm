@@ -152,3 +152,11 @@ multiple perturbations and applying it onto a single instance.
 4. Add a new class `<Name of tokenizer>WindowService` in file `<Name of tokenizer>_window_service.py`.
    Follow what we did for `GPTJWindowService`.
 5. Import the new `WindowService` and map the model(s) to it in `WindowServiceFactory`.
+
+
+## HEIM (text-to-image evaluation)
+
+The overall code structure is the same as HELM's.
+
+When adding new scenarios and metrics for image generation, place the Python files under the `image_generation` package 
+(e.g., `src/helm/benchmark/scenarios/image_generation`).
