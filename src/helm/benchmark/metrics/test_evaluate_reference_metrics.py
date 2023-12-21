@@ -1,4 +1,8 @@
-from .basic_metrics import exact_match, exact_match_indicator, final_number_exact_match
+from helm.benchmark.metrics.evaluate_reference_metrics import (
+    exact_match,
+    exact_match_indicator,
+    final_number_exact_match,
+)
 
 
 def test_exact_match():
