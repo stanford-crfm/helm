@@ -21,6 +21,8 @@ INFERENCE_DENOISED_RUNTIMES_JSON_FILENAME: str = "inference_denoised_runtimes.js
 TRAINING_EFFICIENCY_JSON_FILENAME: str = "training_efficiency.json"
 
 
+# TODO Actually make this work like a Metric. The current state is just trying to split
+# it out of other Metrics to make refactoring easier.
 class PerRequestMetric:
     def __init__(self):
         # For Efficiency metrics:
