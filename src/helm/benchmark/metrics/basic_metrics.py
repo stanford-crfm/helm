@@ -281,7 +281,10 @@ class BasicMetric(Metric):
 
 
 def compute_request_state_metrics(
-    efficiency_metric, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    efficiency_metric: EfficiencyMetric,
+    adapter_spec: AdapterSpec,
+    request_state: RequestState,
+    metric_service: MetricService,
 ) -> List[Stat]:
     """
     Compute metrics that are common to both `evaluate_generation` and `evaluate_references`.
