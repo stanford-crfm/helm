@@ -4,11 +4,11 @@ from typing import Callable, Dict, List, Tuple, Optional
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_RANKING_BINARY
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.metrics.references_for_instance_metrics import ReferencesForInstanceMetric
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.scenario import unpack_tag, CORRECT_TAG, Reference
 from helm.common.request import RequestResult
 from helm.common.general import assert_present, binarize_dict
-from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
@@ -58,7 +58,7 @@ class RankingObject:
     model_relevance: Optional[int] = None
 
 
-class RankingMetric(Metric):
+class RankingMetric(ReferencesForInstanceMetric):
     """Ranking metric."""
 
     """ Methods supported by this metric.
