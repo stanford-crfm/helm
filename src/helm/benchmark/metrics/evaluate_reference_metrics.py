@@ -19,6 +19,12 @@ from rouge_score import rouge_scorer
 import re
 import string
 from . import code_metrics_helper
+import nltk
+
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")  # Required for rouge
 
 
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:

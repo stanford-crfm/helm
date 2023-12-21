@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import List, Dict
 from urllib.parse import unquote
 
-import nltk
 import numpy as np
 import scipy
 import calibration as cal
@@ -27,12 +26,6 @@ from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
-
-
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt")  # Required for rouge
 
 
 def get_num_bytes(tokens: List[Token]) -> int:
