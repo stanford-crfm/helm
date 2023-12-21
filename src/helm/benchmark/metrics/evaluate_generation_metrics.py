@@ -64,14 +64,6 @@ class EvaluateGenerationMetric(MetricInterface, ABC):
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
-        """
-        Main entry point for a `Metric`.  This function groups the single
-        list of `RequestState` by training trial and instance, and invokes
-        other functions to process those.  This should serve most purposes.
-
-        Any logic that doesn't decompose along instances should go here, such
-        as robustness.
-        """
         assert scenario_state.adapter_spec.method != ADAPT_LANGUAGE_MODELING, (
             "Metric no longer knows how to handle the language modeling adapter. "
             + "All run_specs with that adapter should use LanguageModelingMetric. "
