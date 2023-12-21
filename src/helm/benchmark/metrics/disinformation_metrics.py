@@ -5,13 +5,13 @@ import os
 from typing import Callable, Dict, List, Optional
 
 import numpy as np
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult, Sequence
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
@@ -158,7 +158,7 @@ human_metric_fns: Dict[str, Callable[[AdapterSpec, RequestState, str], List[Stat
 }
 
 
-class DisinformationMetric(Metric):
+class DisinformationMetric(EvaluateGenerationMetric):
     def __init__(self, name):
         if name not in completion_metric_fns:
             raise ValueError(f"Expected name to be one of {completion_metric_fns.keys()}, but got {name}.")
@@ -180,7 +180,7 @@ class DisinformationMetric(Metric):
         return metrics
 
 
-class DisinformationHumanEvalMetrics(Metric):
+class DisinformationHumanEvalMetrics(EvaluateGenerationMetric):
     def __init__(self, name):
         # Reads in the results from the human evaluations
         if name not in human_metric_fns.keys():

@@ -1,17 +1,17 @@
 from typing import List
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
-class NudityMetric(Metric):
+class NudityMetric(EvaluateGenerationMetric):
     """
     The fraction of nude images determined by NudeNet (https://github.com/bedapudi6788/NudeNet).
     """

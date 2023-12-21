@@ -210,7 +210,7 @@ class Metric(MetricInterface, ABC):
             # Compute worst-case metrics.
             # This is here since we want these stats for all metrics and they
             # aggregate across contexts (perturbations).
-            worst_case_stats = self.compute_worst_case_metrics(dict(zip(scenario_state.instances, results)))
+            worst_case_stats = compute_worst_case_metrics(dict(zip(scenario_state.instances, results)))
             for stat in worst_case_stats:
                 merge_stat(trial_stats, stat)
 
@@ -251,71 +251,68 @@ class Metric(MetricInterface, ABC):
         """Derive stats based on existing per-instance stats, e.g., for calibration. Override me!"""
         return []
 
-    def compute_worst_case_metrics(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
-        """
-        For each instance, we compute the worst case perfomance between each perturbation and the non-perturbed input
-        (perturbation=None). This allows us to reason about the invariances of a model as opposed to just looking
-        at its performance on perturbed inputs. We also compute the worst case performance across all robustness-related
-        and fairness-related perturbations (including the original input in both).
 
-        For each such worst-case metric, we record a `before_` metric that aggregates the performance on the
-        non-perturbed version of the corresponding inputs.
+def compute_worst_case_metrics(per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
+    """
+    For each instance, we compute the worst case perfomance between each perturbation and the non-perturbed input
+    (perturbation=None). This allows us to reason about the invariances of a model as opposed to just looking
+    at its performance on perturbed inputs. We also compute the worst case performance across all robustness-related
+    and fairness-related perturbations (including the original input in both).
 
-        We return the aggregate metrics across instances. Note that none of these metrics make a lot of sense if the
-        original, un-perturbed version of an Instance is not included in a scenario (i.e., we want
-        `include_original=True`).
-        """
-        # Collect statistics per input-metric pair across perturbations
-        per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
-        for instance, stats in per_instance_stats.items():
-            for stat in stats:
-                assert instance.id is not None
-                # Group all perturbations for a specific metric name together
-                per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
+    For each such worst-case metric, we record a `before_` metric that aggregates the performance on the
+    non-perturbed version of the corresponding inputs.
 
-        # Compute worst perturbation stats
-        derived_stats_dict: Dict[MetricName, Stat] = {}
-        for (metric_name, instance_id), stats in per_instance_perturbation_stats.items():
-            original_stat: Optional[Stat] = None
-            robustness_stat = Stat(
-                replace(metric_name, perturbation=PerturbationDescription(name="robustness", robustness=True))
-            )
-            fairness_stat = Stat(
-                replace(metric_name, perturbation=PerturbationDescription(name="fairness", fairness=True))
-            )
-            individual_perturbation_stats: Dict[PerturbationDescription, Stat] = {}
+    We return the aggregate metrics across instances. Note that none of these metrics make a lot of sense if the
+    original, un-perturbed version of an Instance is not included in a scenario (i.e., we want
+    `include_original=True`).
+    """
+    # Collect statistics per input-metric pair across perturbations
+    per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
+    for instance, stats in per_instance_stats.items():
+        for stat in stats:
+            assert instance.id is not None
+            # Group all perturbations for a specific metric name together
+            per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
 
-            for stat in stats:  # go through all the perturbations of the instance and merge relevant stats
-                perturbation = stat.name.perturbation
-                if perturbation is None:
-                    assert original_stat is None  # we should only have one original stat
-                    original_stat = stat
-                else:
-                    if perturbation.robustness:
-                        robustness_stat.merge(stat)
-                    if perturbation.fairness:
-                        fairness_stat.merge(stat)
-                    assert perturbation not in individual_perturbation_stats, perturbation
-                    individual_perturbation_stats[perturbation] = Stat(stat.name).merge(stat)  # copy
+    # Compute worst perturbation stats
+    derived_stats_dict: Dict[MetricName, Stat] = {}
+    for (metric_name, instance_id), stats in per_instance_perturbation_stats.items():
+        original_stat: Optional[Stat] = None
+        robustness_stat = Stat(
+            replace(metric_name, perturbation=PerturbationDescription(name="robustness", robustness=True))
+        )
+        fairness_stat = Stat(replace(metric_name, perturbation=PerturbationDescription(name="fairness", fairness=True)))
+        individual_perturbation_stats: Dict[PerturbationDescription, Stat] = {}
 
-            for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:
-                perturbation = stat.name.perturbation
-                assert perturbation is not None
+        for stat in stats:  # go through all the perturbations of the instance and merge relevant stats
+            perturbation = stat.name.perturbation
+            if perturbation is None:
+                assert original_stat is None  # we should only have one original stat
+                original_stat = stat
+            else:
+                if perturbation.robustness:
+                    robustness_stat.merge(stat)
+                if perturbation.fairness:
+                    fairness_stat.merge(stat)
+                assert perturbation not in individual_perturbation_stats, perturbation
+                individual_perturbation_stats[perturbation] = Stat(stat.name).merge(stat)  # copy
 
-                if original_stat is not None:
-                    stat.merge(original_stat)
-                    if perturbation.name not in ["robustness", "fairness"]:
-                        before = replace(perturbation, computed_on=PERTURBATION_ORIGINAL)
-                        merge_stat(
-                            derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(original_stat)
-                        )
+        for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:
+            perturbation = stat.name.perturbation
+            assert perturbation is not None
 
-                # keep the minimum performance for each input
-                worst = replace(perturbation, computed_on=PERTURBATION_WORST)
-                if stat.count > 0:
-                    # TODO: take stat.max if lower_is_better = True
-                    merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=worst)).add(stat.min))
-        return list(derived_stats_dict.values())
+            if original_stat is not None:
+                stat.merge(original_stat)
+                if perturbation.name not in ["robustness", "fairness"]:
+                    before = replace(perturbation, computed_on=PERTURBATION_ORIGINAL)
+                    merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(original_stat))
+
+            # keep the minimum performance for each input
+            worst = replace(perturbation, computed_on=PERTURBATION_WORST)
+            if stat.count > 0:
+                # TODO: take stat.max if lower_is_better = True
+                merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=worst)).add(stat.min))
+    return list(derived_stats_dict.values())
 
 
 class MetricSpec(ObjectSpec):

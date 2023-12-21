@@ -2,6 +2,7 @@ from typing import List
 
 from torchvision import transforms
 import torch
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
@@ -10,13 +11,12 @@ from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations, get_gold_image_location
 
 
-class MultiScaleStructuralSimilarityIndexMeasureMetric(Metric):
+class MultiScaleStructuralSimilarityIndexMeasureMetric(EvaluateGenerationMetric):
     """
     The Multi-scale Structural Similarity Index Measure (MS-SSIM) is measure of image quality and
     a generalization of Structural Similarity Index Measure (SSIM) by incorporating image details

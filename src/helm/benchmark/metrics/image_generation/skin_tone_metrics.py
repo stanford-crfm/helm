@@ -4,8 +4,8 @@ import numpy as np
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
@@ -14,7 +14,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
-class SkinToneMetric(Metric):
+class SkinToneMetric(EvaluateGenerationMetric):
     """
     Following https://arxiv.org/abs/2202.04053, detects the skin pixels based on RGBA and YCrCb
     color spaces for a given image and compares them to Monk Skin Tones (MST). More information

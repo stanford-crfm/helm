@@ -1,19 +1,19 @@
 import math
 from statistics import mean
 from typing import List
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 from .fractal_dimension.fractal_dimension_util import compute_fractal_dimension
 
 
-class FractalDimensionMetric(Metric):
+class FractalDimensionMetric(EvaluateGenerationMetric):
 
     # From https://www.nature.com/articles/35065154, "participants in the perception study consistently
     # preferred fractals with D values in the range of 1.3 to 1.5, irrespective of the pattern's origin.

@@ -1,19 +1,19 @@
 from typing import List, Dict, Any
 import json
 from statistics import mean
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 from .detectors.vitdet import ViTDetDetector
 
 
-class DetectionMetric(Metric):
+class DetectionMetric(EvaluateGenerationMetric):
     """
     Define metrics following DALL-EVAL (https://arxiv.org/abs/2202.04053),
     which measure whether generated images contain the correct objects, counts, and relations

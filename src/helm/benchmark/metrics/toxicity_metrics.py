@@ -1,4 +1,5 @@
 from typing import List
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.request import RequestResult
@@ -6,13 +7,12 @@ from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
-from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
 
 
-class ToxicityMetric(Metric):
+class ToxicityMetric(EvaluateGenerationMetric):
     """
     Defines metrics for toxicity.
     """

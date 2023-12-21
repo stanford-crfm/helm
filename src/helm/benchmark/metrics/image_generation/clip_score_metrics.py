@@ -1,5 +1,6 @@
 from statistics import mean
 from typing import List
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.general import singleton
 from helm.common.request import RequestResult
@@ -7,7 +8,6 @@ from helm.common.clip_score_request import CLIPScoreResult, CLIPScoreRequest
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
@@ -15,7 +15,7 @@ from helm.common.images_utils import is_blacked_out_image
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
-class CLIPScoreMetric(Metric):
+class CLIPScoreMetric(EvaluateGenerationMetric):
     """
     Defines CLIPScore-based metrics (https://arxiv.org/abs/2104.08718).
     CLIPScore is a reference free metric that can be used to evaluate the correlation between an image

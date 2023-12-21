@@ -1,4 +1,5 @@
 from typing import List
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
@@ -12,13 +13,12 @@ from helm.benchmark.scenarios.numeracy_scenario import (  # noqa
     distance_plane,
     distance_paraboloid,
 )
-from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
 
 
-class DistanceMetric(Metric):
+class DistanceMetric(EvaluateGenerationMetric):
     """Returns the minimum geometric distance between the point represented by the completion
     and the curve or surface specified by `rel_str`.
 

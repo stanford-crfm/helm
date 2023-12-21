@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .metric import Metric
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
@@ -16,7 +16,7 @@ _YES_VALUE = "Yes"
 _NO_VALUE = "No"
 
 
-class SummarizationCritiqueMetric(Metric):
+class SummarizationCritiqueMetric(EvaluateGenerationMetric):
     """Reimplementation of SummarizationMetric's evals using critique evaluation.
 
     This is a demonstration of critique evaluation and is not intended for production use."""

@@ -3,6 +3,7 @@ import math
 
 from torchvision import transforms
 import torch
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.general import hlog
 from helm.common.gpu_utils import get_torch_device
@@ -13,14 +14,13 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric import MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations, get_gold_image_location
 
 
-class UniversalImageQualityIndexMetric(Metric):
+class UniversalImageQualityIndexMetric(EvaluateGenerationMetric):
     """
     Universal Image Quality Index (UIQI) from https://ieeexplore.ieee.org/document/995823.
     The UIQI is a full-reference image quality assessment method that measures the similarity

@@ -3,6 +3,7 @@
 import threading
 import multiprocessing
 from typing import List, Union, Sequence, cast
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
@@ -11,7 +12,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.scenarios.code_scenario import CodeReference
 from . import code_metrics_helper
-from .metric import Metric, MetricResult
+from .metric import MetricResult
 from .metric_service import MetricService
 from .metric_name import MetricName
 from .statistic import Stat
@@ -46,7 +47,7 @@ def _run_test_wrapper(root: str, test: str, timeout: float, shared_list: list):
     shared_list.append(code_metrics_helper.run_test(root, test, timeout))  # type: ignore
 
 
-class APPSMetric(Metric):
+class APPSMetric(EvaluateGenerationMetric):
     def __init__(self, names, timeout):
         super(APPSMetric, self).__init__()
         for name in names:

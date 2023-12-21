@@ -6,10 +6,10 @@ from nltk.tokenize.treebank import TreebankWordTokenizer
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult
-from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
@@ -98,7 +98,7 @@ def _normalize_newline_space_tab(s: str) -> str:
     return re.sub(" +", " ", s.replace("\n", " ").replace("\t", " "))
 
 
-class BasicCopyrightMetric(Metric):
+class BasicCopyrightMetric(EvaluateGenerationMetric):
     """Basic copyright metric for evaluating surface-level similarity.
 
     This class supports `longest_common_prefix_length` and `edit_distance`.

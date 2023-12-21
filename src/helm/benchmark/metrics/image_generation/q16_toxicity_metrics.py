@@ -1,11 +1,11 @@
 from statistics import mean
 from typing import List
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.toxicity_utils import is_prompt_toxic
@@ -13,7 +13,7 @@ from .q16.q16_toxicity_detector import Q16ToxicityDetector
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
-class Q16ToxicityMetric(Metric):
+class Q16ToxicityMetric(EvaluateGenerationMetric):
     """
     Metrics for the Q16 CLIP-based toxicity detector for images (https://arxiv.org/abs/2202.06675).
     """

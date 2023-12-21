@@ -1,10 +1,10 @@
 from typing import List, Optional
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.toxicity_utils import is_prompt_toxic
@@ -13,7 +13,7 @@ from helm.common.images_utils import is_blacked_out_image
 from .nsfw_detector import NSFWDetector
 
 
-class NSFWMetric(Metric):
+class NSFWMetric(EvaluateGenerationMetric):
     """
     Defines metrics for detecting if images are "Not Suitable For Work" (NSFW).
     We use the LAION's CLIP-based NSFW detector for images

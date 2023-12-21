@@ -1,19 +1,19 @@
 from statistics import mean
 from typing import List, Optional
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 
 from helm.common.images_utils import is_blacked_out_image
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from .aesthetics_scorer import AestheticsScorer
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
-class AestheticsMetric(Metric):
+class AestheticsMetric(EvaluateGenerationMetric):
     """
     Defines metrics for LAION's CLIP-based aesthetics predictor for images
     (https://github.com/LAION-AI/aesthetic-predictor).
