@@ -4,7 +4,6 @@ from typing import Optional
 from helm.benchmark.model_deployment_registry import (
     ClientSpec,
     ModelDeployment,
-    WindowServiceSpec,
     register_model_deployment,
 )
 from helm.benchmark.model_metadata_registry import (
@@ -14,6 +13,7 @@ from helm.benchmark.model_metadata_registry import (
 )
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, TokenizerSpec, register_tokenizer_config
 from helm.common.hierarchical_logger import hlog
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 def register_huggingface_model(
@@ -23,6 +23,20 @@ def register_huggingface_model(
     if revision:
         object_spec_args["revision"] = revision
 
+    # Auto-infer model properties from the tokenizer.
+    with HuggingFaceTokenizer.create_tokenizer(**object_spec_args) as tokenizer:
+        max_sequence_length = tokenizer.model_max_length
+        end_of_text_token = tokenizer.eos_token or ""
+        prefix_token = tokenizer.bos_token or ""
+    # If the tokenizer config has a model_max_length of 1000000000000000019884624838656
+    # it means that model creator did not specify model_max_length.
+    if max_sequence_length > 1_000_000:
+        raise ValueError(
+            f"Could not infer the model_max_length of Hugging Face model {pretrained_model_name_or_path}, so "
+            f"--enable-huggingface-models and --enable-local-huggingface-models cannot be used for this model. "
+            f"Please configure the model using prod_env/model_deployments.yaml instead."
+        )
+
     model_deployment = ModelDeployment(
         name=helm_model_name,
         client_spec=ClientSpec(
@@ -31,10 +45,7 @@ def register_huggingface_model(
         ),
         model_name=helm_model_name,
         tokenizer_name=helm_model_name,
-        window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService",
-            args=object_spec_args,
-        ),
+        max_sequence_length=max_sequence_length,
     )
 
     # We check if the model is already registered because we don't want to
@@ -54,6 +65,8 @@ def register_huggingface_model(
             class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer",
             args=object_spec_args,
         ),
+        end_of_text_token=end_of_text_token,
+        prefix_token=prefix_token,
     )
     register_tokenizer_config(tokenizer_config)
 
