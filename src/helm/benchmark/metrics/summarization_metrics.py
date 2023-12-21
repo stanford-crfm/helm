@@ -12,11 +12,12 @@ from collections import defaultdict
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.metrics.evaluate_generation_metrics import EvaluateGenerationMetric
 from helm.benchmark.metrics.evaluate_reference_metrics import get_rouge_function
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .metric import Metric, MetricResult
+from .metric import MetricResult
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
@@ -32,7 +33,7 @@ HUMAN_EVAL_URL: str = (
 )
 
 
-class SummarizationMetric(Metric):
+class SummarizationMetric(EvaluateGenerationMetric):
     """Summarization Metrics
 
     This class computes the following standard summarization metrics
