@@ -19,6 +19,19 @@ model_deployments:
       class_name: "helm.proxy.clients.simple_client.SimpleClient"
       args: {}
 
+  # Adobe
+  - name: adobe/giga-gan
+    model_name: adobe/giga-gan
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.adobe_vision_client.AdobeVisionClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+
   # AI21 Labs
 
   # J1 models are Deprecated by AI21 Labs
@@ -152,10 +165,20 @@ model_deployments:
       class_name: "helm.proxy.clients.aleph_alpha_client.AlephAlphaClient"
       args: {}
 
-  # TODO: Add luminous-world once it is released.
+  # TODO: Add luminous-world once it is released
+
+  - name: AlephAlpha/m-vader
+    model_name: AlephAlpha/m-vader
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.aleph_alpha_image_generation_client.AlephAlphaImageGenerationClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
 
 
- 
   # Anthropic
   - name: anthropic/claude-v1.3
     model_name: anthropic/claude-v1.3
@@ -332,6 +355,65 @@ model_deployments:
       class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
       args: {}
 
+  # Craiyon
+
+  - name: craiyon/dalle-mini
+    model_name: craiyon/dalle-mini
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle_mini_client.DALLEMiniClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: craiyon/dalle-mega
+    model_name: craiyon/dalle-mega
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle_mini_client.DALLEMiniClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+
+  # DeepFloyd
+
+  - name: DeepFloyd/IF-I-M-v1.0
+    model_name: DeepFloyd/IF-I-M-v1.0
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.deep_floyd_client.DeepFloydClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: DeepFloyd/IF-I-L-v1.0
+    model_name: DeepFloyd/IF-I-L-v1.0
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.deep_floyd_client.DeepFloydClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: DeepFloyd/IF-I-XL-v1.0
+    model_name: DeepFloyd/IF-I-XL-v1.0
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.deep_floyd_client.DeepFloydClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
 
 
   # Gooseai
@@ -451,6 +533,207 @@ model_deployments:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
       args: {}
 
+
+  ## Text-to-Image Diffusion Models
+
+  - name: huggingface/dreamlike-diffusion-v1-0
+    model_name: huggingface/dreamlike-diffusion-v1-0
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/dreamlike-photoreal-v2-0
+    model_name: huggingface/dreamlike-photoreal-v2-0
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/openjourney-v1-0
+    model_name: huggingface/openjourney-v1-0
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/openjourney-v2-0
+    model_name: huggingface/openjourney-v2-0
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/redshift-diffusion
+    model_name: huggingface/redshift-diffusion
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/promptist-stable-diffusion-v1-4
+    model_name: huggingface/promptist-stable-diffusion-v1-4
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/stable-diffusion-v1-4
+    model_name: huggingface/stable-diffusion-v1-4
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/stable-diffusion-v1-5
+    model_name: huggingface/stable-diffusion-v1-5
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/stable-diffusion-v2-base
+    model_name: huggingface/stable-diffusion-v2-base
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/stable-diffusion-v2-1-base
+    model_name: huggingface/stable-diffusion-v2-1-base
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/stable-diffusion-safe-weak
+    model_name: huggingface/stable-diffusion-safe-weak
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/stable-diffusion-safe-medium
+    model_name: huggingface/stable-diffusion-safe-medium
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/stable-diffusion-safe-strong
+    model_name: huggingface/stable-diffusion-safe-strong
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/stable-diffusion-safe-max
+    model_name: huggingface/stable-diffusion-safe-max
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: huggingface/vintedois-diffusion-v0-1
+    model_name: huggingface/vintedois-diffusion-v0-1
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: segmind/Segmind-Vega
+    model_name: segmind/Segmind-Vega
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: segmind/SSD-1B
+    model_name: segmind/SSD-1B
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
+  - name: stabilityai/stable-diffusion-xl-base-1.0
+    model_name: stabilityai/stable-diffusion-xl-base-1.0
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
   # HuggingFaceM4
   - name: HuggingFaceM4/idefics-9b
     model_name: HuggingFaceM4/idefics-9b
@@ -484,6 +767,30 @@ model_deployments:
       class_name: "helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"
       args: {}
 
+
+  # Lexica
+  - name: lexica/search-stable-diffusion-1.5
+    model_name: lexica/search-stable-diffusion-1.5
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 200
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.lexica_client.LexicaClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.lexica_search_window_service.LexicaSearchWindowService"
+      args: {}
+
+  # Kakao
+  - name: kakaobrain/mindall-e
+    model_name: kakaobrain/mindall-e
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.mindalle_client.MinDALLEClient"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
 
 
   # Lighting AI
@@ -834,7 +1141,61 @@ model_deployments:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
       args: {}
 
+  # Text-to-image models
+  - name: openai/dall-e-2
+    model_name: openai/dall-e-2
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 1000
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle2_client.DALLE2Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
+      args: {}
 
+  - name: openai/dall-e-3
+    model_name: openai/dall-e-3
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 1000
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
+      args: {}
+
+  - name: openai/dall-e-3-natural
+    model_name: openai/dall-e-3-natural
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 1000
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
+      args: {}
+
+  - name: openai/dall-e-3-hd
+    model_name: openai/dall-e-3-hd
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 1000
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
+      args: {}
+
+  - name: openai/dall-e-3-hd-natural
+    model_name: openai/dall-e-3-hd-natural
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 1000
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.openai_dalle_window_service.OpenAIDALLEWindowService"
+      args: {}
 
   # Together
   # The list of models served by Together changes often, to check the latest list, visit:
@@ -1319,6 +1680,18 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.ice_window_service.ICEWindowService"
       args: {}
+
+  - name: thudm/cogview2
+    model_name: thudm/cogview2
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.cogview2_client.CogView2Client"
+      args: {}
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+      args: {}
+
 
   ## Yandex
   - name: together/yalm

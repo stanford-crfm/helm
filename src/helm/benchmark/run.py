@@ -18,6 +18,7 @@ from helm.benchmark.config_registry import (
     register_builtin_configs_from_helm_package,
 )
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark import heim_run_specs  # noqa
 from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK, set_benchmark_output_path
@@ -144,7 +145,7 @@ def add_run_args(parser: argparse.ArgumentParser):
         "-m",
         "--max-eval-instances",
         type=int,
-        required=True,
+        required=False,
         help="Maximum number of instances to evaluate on, overrides the value in Adapter spec.",
     )
     parser.add_argument(

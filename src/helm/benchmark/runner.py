@@ -41,10 +41,11 @@ from .window_services.tokenizer_service import TokenizerService
 
 LATEST_SYMLINK: str = "latest"
 _BENCHMARK_OUTPUT_PATH: str = "benchmark_output"
+_CACHED_MODELS_FOLDER: str = "models"
 
 
 def get_benchmark_output_path() -> str:
-    """Get the genchmark output path.
+    """Get the benchmark output path.
 
     Many run spec functions need to know the benchmark output path,
     but there is no way to pass it via  the run spec function,
@@ -52,8 +53,15 @@ def get_benchmark_output_path() -> str:
     return _BENCHMARK_OUTPUT_PATH
 
 
+def get_cached_models_path() -> str:
+    """Get the cached models pat within the benchmark output path."""
+    path: str = os.path.join(get_benchmark_output_path(), _CACHED_MODELS_FOLDER)
+    ensure_directory_exists(path)
+    return path
+
+
 def set_benchmark_output_path(benchmark_output_path: str) -> None:
-    """Set the genchmark output path."""
+    """Set the benchmark output path."""
     global _BENCHMARK_OUTPUT_PATH
     _BENCHMARK_OUTPUT_PATH = benchmark_output_path
 

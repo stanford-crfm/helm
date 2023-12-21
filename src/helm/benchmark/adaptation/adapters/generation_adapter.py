@@ -46,6 +46,7 @@ class GenerationAdapter(InContextLearningAdapter):
             max_tokens=self.adapter_spec.max_tokens,
             stop_sequences=self.adapter_spec.stop_sequences,
             random=self.adapter_spec.random,
+            image_generation_parameters=self.adapter_spec.image_generation_parameters,
         )
         request_state = RequestState(
             instance=eval_instance,
