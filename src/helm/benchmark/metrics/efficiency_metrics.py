@@ -23,7 +23,7 @@ TRAINING_EFFICIENCY_JSON_FILENAME: str = "training_efficiency.json"
 
 # TODO Actually make this work like a Metric. The current state is just trying to split
 # it out of other Metrics to make refactoring easier.
-class PerRequestMetric:
+class EfficiencyMetric:
     def __init__(self):
         # For Efficiency metrics:
         # The `inference_efficiency.json` file contains a `runtime_per_output_token` value
@@ -58,25 +58,6 @@ class PerRequestMetric:
         # used, region, etc.
         with data_package.joinpath(TRAINING_EFFICIENCY_JSON_FILENAME).open("r") as f:
             self.training_efficiency_dict = json.load(f)
-
-    def evaluate_request_state(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-    ) -> List[Stat]:
-        """
-        Compute metrics that are common to both `evaluate_generation` and `evaluate_references`.
-        """
-        stats: List[Stat] = []
-
-        stats.append(Stat(MetricName("num_references")).add(len(request_state.instance.references)))
-
-        # Copy from adapter spec
-        stats.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))
-
-        stats.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
-        stats.extend(_compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
-        stats.extend(_compute_truncation_metrics(adapter_spec, request_state, metric_service))
-
-        return stats
 
     def compute_efficiency_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -223,38 +204,3 @@ def _compute_estimated_time_from_prompt_size_and_num_output_tokens(
         estimated_runtime = None
 
     return estimated_runtime
-
-
-def _compute_finish_reason_metrics(
-    adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-) -> List[Stat]:
-    """Record how often generation finished due to reaching token limit, stop token(s), or end of text"""
-    assert request_state.result is not None
-    sequence = request_state.result.completions[0]
-    valid_reasons = [
-        "length",
-        "stop",
-        "endoftext",
-        "unknown",
-    ]
-    if sequence.finish_reason is None or sequence.finish_reason["reason"] not in valid_reasons:
-        reason = "unknown"
-    else:
-        reason = sequence.finish_reason["reason"]
-    return [
-        Stat(MetricName(f"finish_reason_{valid_reason}")).add(int(reason == valid_reason))
-        for valid_reason in valid_reasons
-    ]
-
-
-def _compute_truncation_metrics(
-    adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-) -> List[Stat]:
-    """
-    Record the number of training instances used in the prompt and whether
-    even the prompt needed to be truncated (once we hit zero training instances).
-    """
-    return [
-        Stat(MetricName("num_train_instances")).add(request_state.num_train_instances),
-        Stat(MetricName("prompt_truncated")).add(request_state.prompt_truncated),
-    ]
