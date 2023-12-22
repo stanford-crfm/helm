@@ -379,11 +379,12 @@ model_deployments:
   # Google
 
   ## Gemini
+  # See: https://ai.google.dev/models/gemini#model_variations
   - name: google/gemini
     model_name: google/gemini
     tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 6000 # Officially 8192
-    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
+    max_sequence_length: 30000 # Officially 30720
+    max_sequence_and_generated_tokens_length: 32000 # Officially max_sequence_length + 2048
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAIChatClient"
     window_service_spec:
