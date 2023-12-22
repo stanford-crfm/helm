@@ -868,7 +868,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="google/code-bison@001",
         client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
-        tokenizer_name="google/text-bison@001",
+        tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
@@ -878,7 +878,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
     ModelDeployment(
         name="google/code-bison-32k",
         client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
-        tokenizer_name="google/text-bison@001",
+        tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
             class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
