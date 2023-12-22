@@ -592,9 +592,9 @@ models:
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
     tags: [] # TODO: add tags
 
-  - name: google/gemini
+  - name: google/gemini-pro
     display_name: Gemini
-    description: Gemini is a multimodal model able to reason across text, images, video, audi and code. ([blog](https://deepmind.google/technologies/gemini/#introduction))
+    description: Gemini is a multimodal model able to reason across text, images, video, audi and code. ([paper](https://arxiv.org/abs/2312.11805))
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13

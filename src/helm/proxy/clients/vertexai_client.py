@@ -150,13 +150,7 @@ class VertexAIChatClient(VertexAIClient):
         }
 
         completions: List[Sequence] = []
-
-        # TODO: support VLM such as "gemini-pro-vision"
-        model_name: str = ""
-        if request.model_engine == "gemini":
-            model_name = "gemini-pro"
-        else:
-            raise ValueError(f"Unknown model engine: {request.model_engine}")
+        model_name: str = request.model_engine
 
         try:
 
