@@ -594,11 +594,11 @@ models:
 
   - name: google/gemini
     display_name: Gemini
-    description: google/gemini
+    description: Gemini is a multimodal model able to reason across text, images, video, audi and code. ([blog](https://deepmind.google/technologies/gemini/#introduction))
     creator_organization_name: Google
     access: limited
-    release_date: 2023-11-30
-    tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    release_date: 2023-12-13
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/text-bison@001
     display_name: PaLM-2 (Bison)
