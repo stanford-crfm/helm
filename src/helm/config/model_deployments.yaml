@@ -8,9 +8,7 @@
 #    # This file defines all the model deployments that you do not want to be public.
 #    model_deployments: [] # Leave empty to disable private model deployments
 
-
 model_deployments:
-
   - name: simple/model1
     model_name: simple/model1
     tokenizer_name: simple/model1
@@ -27,7 +25,6 @@ model_deployments:
       class_name: "helm.proxy.clients.image_generation.adobe_vision_client.AdobeVisionClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
-
 
   # AI21 Labs
 
@@ -128,8 +125,6 @@ model_deployments:
           class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
           args: {}
 
-
-
   # Aleph Alpha
   - name: AlephAlpha/luminous-base
     model_name: AlephAlpha/luminous-base
@@ -162,7 +157,6 @@ model_deployments:
       class_name: "helm.proxy.clients.image_generation.aleph_alpha_image_generation_client.AlephAlphaImageGenerationClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
-
 
   # Anthropic
   - name: anthropic/claude-v1.3
@@ -334,7 +328,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
-
   # DeepFloyd
 
   - name: DeepFloyd/IF-I-M-v1.0
@@ -364,7 +357,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
-
   # Gooseai
 
   ## EleutherAI
@@ -384,9 +376,19 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
 
-
-
   # Google
+
+  ## Gemini
+  - name: google/gemini
+    model_name: google/gemini
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 6000 # Officially 8192
+    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
+    client_spec:
+      class_name: "helm.proxy.clients.vertexai_client.VertexAIChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
 
   ## PaLM 2
   - name: google/text-bison@001
@@ -395,10 +397,9 @@ model_deployments:
     max_sequence_length: 6000 # Officially 8192
     max_sequence_and_generated_tokens_length: 7000 # Officially 9216
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
+      class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
-
 
   - name: google/text-bison-32k
     model_name: google/text-bison-32k
@@ -406,7 +407,7 @@ model_deployments:
     max_sequence_length: 32000
     max_sequence_and_generated_tokens_length: 32000
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
+      class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
 
   - name: google/text-unicorn@001
     model_name: google/text-unicorn@001
@@ -414,7 +415,7 @@ model_deployments:
     max_sequence_length: 6000 # Officially 8192
     max_sequence_and_generated_tokens_length: 7000 # Officially 9216
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
+      class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
@@ -424,7 +425,7 @@ model_deployments:
     max_sequence_length: 6000 # Officially 6144
     max_sequence_and_generated_tokens_length: 7000 # Officially 7168
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
+      class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
 
   - name: google/code-bison-32k
     model_name: google/code-bison-32k
@@ -432,9 +433,7 @@ model_deployments:
     max_sequence_length: 32000
     max_sequence_and_generated_tokens_length: 32000
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAIClient"
-
-
+      class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
 
   # HuggingFace
 
@@ -470,7 +469,6 @@ model_deployments:
     max_request_length: 1025
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
 
   ## Text-to-Image Diffusion Models
 
@@ -665,7 +663,6 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.vision_language.idefics_client.IDEFICSClient"
 
-
   # Lexica
   - name: lexica/search-stable-diffusion-1.5
     model_name: lexica/search-stable-diffusion-1.5
@@ -686,7 +683,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
-
   # Lighting AI
   - name: lightningai/lit-gpt
     model_name: lightningai/lit-gpt
@@ -697,8 +693,6 @@ model_deployments:
       args:
         checkpoint_dir: "" # Path to the checkpoint directory
         precision: bf16-true
-
-
 
   # Microsoft
   - name: microsoft/TNLGv2_530B
@@ -717,8 +711,6 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
 
-
-
   # Neurips
   - name: neurips/local
     model_name: neurips/local
@@ -726,8 +718,6 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.proxy.clients.http_model_client.HTTPModelClient"
-
-
 
   # Nvidia
   - name: nvidia/megatron-gpt2
@@ -737,14 +727,12 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.megatron_client.MegatronClient"
 
-
-
   # OpenAI
 
   ## GPT 3 Models
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
- 
+
   - name: openai/davinci
     deprecated: true
     model_name: openai/davinci
@@ -835,7 +823,6 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 
-
   ## GPT 3.5 Turbo Models
   # ChatGPT: https://openai.com/blog/chatgpt
 
@@ -872,7 +859,6 @@ model_deployments:
     max_request_length: 16001
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
-
 
   ## GPT 4 Models
 
@@ -919,7 +905,6 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 
-
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 
@@ -950,7 +935,6 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 
- 
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
   # The number of parameters is guessed based on the number of parameters of the
@@ -1215,49 +1199,49 @@ model_deployments:
   - name: together/llama-7b
     model_name: meta/llama-7b
     tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/llama-13b
     model_name: meta/llama-13b
     tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/llama-30b
     model_name: meta/llama-30b
     tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/llama-65b
     model_name: meta/llama-65b
     tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2047  # Subtract 1 tokens to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 2047 # Subtract 1 tokens to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/llama-2-7b
     model_name: meta/llama-2-7b
     tokenizer_name: meta-llama/Llama-2-7b-hf
-    max_sequence_length: 4094  # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
+    max_sequence_length: 4094 # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/llama-2-13b
     model_name: meta/llama-2-13b
     tokenizer_name: meta-llama/Llama-2-7b-hf
-    max_sequence_length: 4094  # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
+    max_sequence_length: 4094 # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/llama-2-70b
     model_name: meta/llama-2-70b
     tokenizer_name: meta-llama/Llama-2-7b-hf
-    max_sequence_length: 4094  # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
+    max_sequence_length: 4094 # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
@@ -1316,14 +1300,14 @@ model_deployments:
   - name: together/mistral-7b-v0.1
     model_name: mistralai/mistral-7b-v0.1
     tokenizer_name: mistralai/Mistral-7B-v0.1
-    max_sequence_length: 4095  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 4095 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/mixtral-8x7b-32kseqlen
     model_name: mistralai/mixtral-8x7b-32kseqlen
     tokenizer_name: mistralai/Mistral-7B-v0.1
-    max_sequence_length: 4095  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 4095 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
@@ -1393,28 +1377,28 @@ model_deployments:
   - name: together/falcon-7b
     model_name: tiiuae/falcon-7b
     tokenizer_name: tiiuae/falcon-7b
-    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/falcon-7b-instruct
     model_name: tiiuae/falcon-7b-instruct
     tokenizer_name: tiiuae/falcon-7b
-    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/falcon-40b
     model_name: tiiuae/falcon-40b
     tokenizer_name: tiiuae/falcon-7b
-    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/falcon-40b-instruct
     model_name: tiiuae/falcon-40b-instruct
     tokenizer_name: tiiuae/falcon-7b
-    max_sequence_length: 2047  # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
@@ -1489,7 +1473,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
-
   ## Yandex
   - name: together/yalm
     deprecated: true # Not available on Together yet
@@ -1501,8 +1484,6 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.yalm_window_service.YaLMWindowService"
-
-
 
   # Writer
   - name: writer/palmyra-base
