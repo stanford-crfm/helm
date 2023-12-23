@@ -41,8 +41,8 @@ class AlephAlphaImageGenerationClient(Client):
         assert request.image_generation_parameters is not None
         if request.image_generation_parameters.guidance_scale is not None:
             raw_request["guidance_scale"] = request.image_generation_parameters.guidance_scale
-        if request.image_generation_parameters.diffusion_denoising_steps is not None:
-            raw_request["steps"] = request.image_generation_parameters.diffusion_denoising_steps
+        if request.image_generation_parameters.num_inference_steps is not None:
+            raw_request["steps"] = request.image_generation_parameters.num_inference_steps
         if (
             request.image_generation_parameters.output_image_width is not None
             and request.image_generation_parameters.output_image_height is not None

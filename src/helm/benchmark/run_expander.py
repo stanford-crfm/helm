@@ -19,7 +19,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .runner import RunSpec
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec, ImageGenerationParameters, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 
@@ -394,6 +394,30 @@ class FormatPromptRunExpander(RunExpander):
         ]
 
 
+class TurboTextToImageDiffusionRunExpander(RunExpander):
+    """Image generation parameters for turbo text-to-image diffusion models."""
+
+    name = "turbo_text_to_image_diffusion"
+
+    def __init__(self, num_inference_steps: int = 2):
+        self.num_inference_steps: int = num_inference_steps
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    image_generation_parameters=ImageGenerationParameters(
+                        num_inference_steps=self.num_inference_steps,
+                        guidance_scale=0.0,  # Should disable guidance scale
+                    ),
+                ),
+            ),
+        ]
+
+
 class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
@@ -425,6 +449,7 @@ class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
     name = "max_eval_instances"
     values_dict: Dict[str, List[Any]] = {
         "default": [1_000],
+        "debug": [1],
         "heim_default": [100],
         "heim_fid": [30_000],
         "heim_art_styles": [17],

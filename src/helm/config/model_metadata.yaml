@@ -854,6 +854,15 @@ models:
     release_date: 2023-07-26
     tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
+  - name: stabilityai/sdxl-turbo
+    display_name: Stable Diffusion XL Turbo
+    description: SDXL-Turbo is a distilled version of SDXL 1.0, trained for real-time synthesis. SDXL-Turbo is based on a novel training method called Adversarial Diffusion Distillation (ADD). ([HuggingFace model card](https://huggingface.co/stabilityai/sdxl-turbo))
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 6600000000
+    release_date: 2023-11-29
+    tags: [TEXT_TO_IMAGE_MODEL_TAG, TURBO_TEXT_TO_IMAGE_MODEL_TAG]
+
   # Kakao
   - name: kakaobrain/mindall-e
     display_name: minDALL-E (1.3B)

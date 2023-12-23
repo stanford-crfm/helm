@@ -21,5 +21,5 @@ class ImageGenerationParameters:
     when generating images. Higher values will generate images that follow more
     closely to the prompt. Currently only for diffusion models."""
 
-    diffusion_denoising_steps: Optional[int] = None
+    num_inference_steps: Optional[int] = None
     """The number of denoising steps for diffusion models."""

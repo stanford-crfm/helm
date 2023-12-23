@@ -33,6 +33,7 @@ from .run_expander import (
     StopRunExpander,
     ChatMLRunExpander,
     IncreaseTemperatureRunExpander,
+    TurboTextToImageDiffusionRunExpander,
 )
 from .runner import RunSpec, get_benchmark_output_path
 from .scenarios.lex_glue_scenario import (
@@ -67,6 +68,7 @@ from helm.benchmark.model_metadata_registry import (
     CHATML_MODEL_TAG,
     OPENAI_CHATGPT_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
+    TURBO_TEXT_TO_IMAGE_MODEL_TAG,
 )
 from helm.common.general import singleton
 
@@ -2755,6 +2757,12 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:
             increase_temperature_expander = IncreaseTemperatureRunExpander(value=1e-4)
             run_spec = singleton(increase_temperature_expander.expand(run_spec))
+
+        # For turbo versions of text-to-image models that require fewer diffusion steps
+        if TURBO_TEXT_TO_IMAGE_MODEL_TAG in model.tags:
+            # Distilled versions of text-to-image models like Segmind-Vega RT and SDXL turbo only require
+            # a few steps to generate high-quality images. Reduce the number of inference steps to 2.
+            run_spec = singleton(TurboTextToImageDiffusionRunExpander(num_inference_steps=2).expand(run_spec))
 
         return run_spec
 

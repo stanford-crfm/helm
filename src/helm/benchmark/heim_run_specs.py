@@ -18,14 +18,14 @@ def get_image_generation_adapter_spec(
     output_image_width: Optional[int] = None,
     output_image_height: Optional[int] = None,
     guidance_scale: Optional[float] = None,
-    diffusion_denoising_steps: Optional[int] = None,
+    num_inference_steps: Optional[int] = None,
     random: Optional[str] = None,
 ) -> AdapterSpec:
     image_generation_parameters: ImageGenerationParameters = ImageGenerationParameters(
         output_image_width=output_image_width,
         output_image_height=output_image_height,
         guidance_scale=guidance_scale,
-        diffusion_denoising_steps=diffusion_denoising_steps,
+        num_inference_steps=num_inference_steps,
     )
 
     return AdapterSpec(

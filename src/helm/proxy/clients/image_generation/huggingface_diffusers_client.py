@@ -51,6 +51,9 @@ class HuggingFaceDiffusersClient(Client):
 
             if model_engine not in _models:
                 huggingface_model_name: str
+
+                # Except for else- case, all other cases are to maintain backward compatibility
+                # with HEIM v1, as the names for those models start with "huggingface/"
                 if model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
                     huggingface_model_name = "CompVis/stable-diffusion-v1-4"
                 elif model_engine == "stable-diffusion-v1-5":
@@ -73,8 +76,6 @@ class HuggingFaceDiffusersClient(Client):
                     huggingface_model_name = "AIML-TUDA/stable-diffusion-safe"
                 elif model_engine == "vintedois-diffusion-v0-1":
                     huggingface_model_name = "22h/vintedois-diffusion-v0-1"
-                elif model_engine == "SSD-1B":
-                    huggingface_model_name = "segmind/SSD-1B"
                 else:
                     huggingface_model_name = request.model
 
@@ -103,8 +104,8 @@ class HuggingFaceDiffusersClient(Client):
         assert request.image_generation_parameters is not None
         if request.image_generation_parameters.guidance_scale is not None:
             raw_request["guidance_scale"] = request.image_generation_parameters.guidance_scale
-        if request.image_generation_parameters.diffusion_denoising_steps is not None:
-            raw_request["num_inference_steps"] = request.image_generation_parameters.diffusion_denoising_steps
+        if request.image_generation_parameters.num_inference_steps is not None:
+            raw_request["num_inference_steps"] = request.image_generation_parameters.num_inference_steps
         if request.image_generation_parameters.output_image_width is not None:
             raw_request["width"] = request.image_generation_parameters.output_image_width
         if request.image_generation_parameters.output_image_height is not None:
