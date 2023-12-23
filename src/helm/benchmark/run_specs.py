@@ -2761,8 +2761,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # For turbo versions of text-to-image models that require fewer diffusion steps
         if TURBO_TEXT_TO_IMAGE_MODEL_TAG in model.tags:
             # Distilled versions of text-to-image models like Segmind-Vega RT and SDXL turbo only require
-            # a few steps to generate high-quality images. Reduce the number of inference steps to 2.
-            run_spec = singleton(TurboTextToImageDiffusionRunExpander(num_inference_steps=2).expand(run_spec))
+            # a few steps to generate high-quality images. Reduce the number of inference steps.
+            run_spec = singleton(TurboTextToImageDiffusionRunExpander(num_inference_steps=4).expand(run_spec))
 
         return run_spec
 

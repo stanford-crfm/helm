@@ -836,6 +836,15 @@ models:
     release_date: 2023-12-01
     tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
+  - name: segmind/Segmind-VegaRT
+    display_name: Segmind-VegaRT (119M)
+    description: Segmind-VegaRT a distilled consistency adapter for Segmind-Vega that allows to reduce the number of inference steps significantly using Latent Consistency Model (LCM) LoRA. ([HuggingFace model card](https://huggingface.co/segmind/Segmind-VegaRT))
+    creator_organization_name: Segmind
+    access: open
+    num_parameters: 119000000
+    release_date: 2023-12-12
+    tags: [TEXT_TO_IMAGE_MODEL_TAG, TURBO_TEXT_TO_IMAGE_MODEL_TAG]
+
   - name: segmind/SSD-1B
     display_name: Segmind Stable Diffusion (1B)
     description: The Segmind Stable Diffusion Model (SSD-1B) is a distilled 50% smaller version of the Stable Diffusion XL (SDXL), offering a 60% speedup while maintaining high-quality text-to-image generation capabilities. It has been trained on diverse datasets, including Grit and Midjourney scrape data, to enhance its ability to create a wide range of visual content based on textual prompts. ([HuggingFace model card](https://huggingface.co/segmind/SSD-1B))

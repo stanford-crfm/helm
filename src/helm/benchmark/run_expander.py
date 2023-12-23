@@ -399,7 +399,7 @@ class TurboTextToImageDiffusionRunExpander(RunExpander):
 
     name = "turbo_text_to_image_diffusion"
 
-    def __init__(self, num_inference_steps: int = 2):
+    def __init__(self, num_inference_steps: int = 1):
         self.num_inference_steps: int = num_inference_steps
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:

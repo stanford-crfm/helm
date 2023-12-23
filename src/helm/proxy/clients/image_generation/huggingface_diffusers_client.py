@@ -39,7 +39,7 @@ class HuggingFaceDiffusersClient(Client):
         Cache the model, so it doesn't get reinitialize for a new request.
         """
         try:
-            from diffusers import DiffusionPipeline
+            from diffusers import DiffusionPipeline, LCMScheduler
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
@@ -52,7 +52,7 @@ class HuggingFaceDiffusersClient(Client):
             if model_engine not in _models:
                 huggingface_model_name: str
 
-                # Except for else- case, all other cases are to maintain backward compatibility
+                # Most of the if cases below are to maintain backward compatibility
                 # with HEIM v1, as the names for those models start with "huggingface/"
                 if model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
                     huggingface_model_name = "CompVis/stable-diffusion-v1-4"
@@ -76,6 +76,10 @@ class HuggingFaceDiffusersClient(Client):
                     huggingface_model_name = "AIML-TUDA/stable-diffusion-safe"
                 elif model_engine == "vintedois-diffusion-v0-1":
                     huggingface_model_name = "22h/vintedois-diffusion-v0-1"
+                # End HEIM v1 models
+                elif model_engine == "Segmind-VegaRT":
+                    # Use the base model for Segmind-VegaRT - Segmind-Vega
+                    huggingface_model_name = "segmind/Segmind-Vega"
                 else:
                     huggingface_model_name = request.model
 
@@ -84,7 +88,20 @@ class HuggingFaceDiffusersClient(Client):
                     torch_dtype=torch.float16 if is_cuda_available() else torch.float,
                     use_auth_token=self._hf_auth_token,
                 )
-                _models[model_engine] = pipeline.to(get_torch_device_name())
+
+                if model_engine == "Segmind-VegaRT":
+                    pipeline.scheduler = LCMScheduler.from_config(pipeline.scheduler.config)
+                    pipeline = pipeline.to(get_torch_device_name())
+
+                    # Load and fuse LCM LoRA
+                    pipeline.load_lora_weights("segmind/Segmind-VegaRT")
+                    pipeline.fuse_lora()
+                else:
+                    pipeline = pipeline.to(get_torch_device_name())
+
+                # Cache the model, so it doesn't get reinitialized for a new request
+                _models[model_engine] = pipeline
+
             return _models[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
@@ -129,11 +146,12 @@ class HuggingFaceDiffusersClient(Client):
                 new_request["prompt"] = new_prompt
                 return new_request
 
+            diffuser: DiffusionPipeline = self._get_diffuser(request)
+
             def do_it():
                 prompt: str = request.prompt
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):
-                    diffuser: DiffusionPipeline = self._get_diffuser(request)
                     promptist_prompt: Optional[str] = None
 
                     images = []
