@@ -39,7 +39,7 @@ class HuggingFaceDiffusersClient(Client):
         Cache the model, so it doesn't get reinitialize for a new request.
         """
         try:
-            from diffusers import DiffusionPipeline, LCMScheduler
+            from diffusers import DiffusionPipeline, LCMScheduler, UNet2DConditionModel
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
@@ -56,7 +56,7 @@ class HuggingFaceDiffusersClient(Client):
                 # with HEIM v1, as the names for those models start with "huggingface/"
                 if model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
                     huggingface_model_name = "CompVis/stable-diffusion-v1-4"
-                elif model_engine == "stable-diffusion-v1-5":
+                elif model_engine in ["stable-diffusion-v1-5", "dpo-sd1.5-text2image-v1"]:
                     huggingface_model_name = "runwayml/stable-diffusion-v1-5"
                 elif model_engine == "stable-diffusion-v2-base":
                     huggingface_model_name = "stabilityai/stable-diffusion-2-base"
@@ -80,6 +80,8 @@ class HuggingFaceDiffusersClient(Client):
                 elif model_engine == "Segmind-VegaRT":
                     # Use the base model for Segmind-VegaRT - Segmind-Vega
                     huggingface_model_name = "segmind/Segmind-Vega"
+                elif model_engine == "dpo-sdxl-text2image-v1":
+                    huggingface_model_name = "stabilityai/stable-diffusion-xl-base-1.0"
                 else:
                     huggingface_model_name = request.model
 
@@ -92,10 +94,17 @@ class HuggingFaceDiffusersClient(Client):
                 if model_engine == "Segmind-VegaRT":
                     pipeline.scheduler = LCMScheduler.from_config(pipeline.scheduler.config)
                     pipeline = pipeline.to(get_torch_device_name())
-
                     # Load and fuse LCM LoRA
                     pipeline.load_lora_weights("segmind/Segmind-VegaRT")
                     pipeline.fuse_lora()
+                elif model_engine in ["dpo-sd1.5-text2image-v1", "dpo-sdxl-text2image-v1"]:
+                    unet = UNet2DConditionModel.from_pretrained(
+                        request.model,
+                        subfolder="unet",
+                        torch_dtype=torch.float16 if is_cuda_available() else torch.float,
+                    )
+                    pipeline.unet = unet
+                    pipeline = pipeline.to(get_torch_device_name())
                 else:
                     pipeline = pipeline.to(get_torch_device_name())
 

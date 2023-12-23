@@ -615,6 +615,15 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
+  - name: mhdang/dpo-sd1.5-text2image-v1
+    model_name: mhdang/dpo-sd1.5-text2image-v1
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+
   - name: segmind/Segmind-Vega
     model_name: segmind/Segmind-Vega
     tokenizer_name: openai/clip-vit-large-patch14
@@ -654,6 +663,15 @@ model_deployments:
 
   - name: stabilityai/sdxl-turbo
     model_name: stabilityai/sdxl-turbo
+    tokenizer_name: openai/clip-vit-large-patch14
+    max_sequence_length: 75
+    client_spec:
+      class_name: "helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+
+  - name: mhdang/dpo-sdxl-text2image-v1
+    model_name: mhdang/dpo-sdxl-text2image-v1
     tokenizer_name: openai/clip-vit-large-patch14
     max_sequence_length: 75
     client_spec:

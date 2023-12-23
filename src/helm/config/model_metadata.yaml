@@ -827,6 +827,15 @@ models:
     release_date: 2022-12-27
     tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
+  - name: mhdang/dpo-sd1.5-text2image-v1
+    display_name: Stable Diffusion v1.5 DPO
+    description: Stable Diffusion v1.5 finetuned with Direct Preference Optimization (DPO) to align to text human preferences by directly optimizing on human comparison data. ([HuggingFace model card](https://huggingface.co/mhdang/dpo-sd1.5-text2image-v1))
+    creator_organization_name: Salesforce
+    access: open
+    num_parameters: 1000000000
+    release_date: 2023-12-18
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
   - name: segmind/Segmind-Vega
     display_name: Segmind Stable Diffusion (0.74B)
     description: The Segmind-Vega Model is a distilled version of the Stable Diffusion XL (SDXL), offering a remarkable 70% reduction in size and an impressive 100% speedup while retaining high-quality text-to-image generation capabilities. Trained on diverse datasets, including Grit and Midjourney scrape data, it excels at creating a wide range of visual content based on textual prompts. ([HuggingFace model card](https://huggingface.co/segmind/Segmind-Vega))
@@ -871,6 +880,15 @@ models:
     num_parameters: 6600000000
     release_date: 2023-11-29
     tags: [TEXT_TO_IMAGE_MODEL_TAG, TURBO_TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: mhdang/dpo-sdxl-text2image-v1
+    display_name: Stable Diffusion XL DPO
+    description: Stable Diffusion XL finetuned with Direct Preference Optimization (DPO) to align to text human preferences by directly optimizing on human comparison data. ([HuggingFace model card](https://huggingface.co/mhdang/dpo-sdxl-text2image-v1))
+    creator_organization_name: Salesforce
+    access: open
+    num_parameters: 6600000000
+    release_date: 2023-12-18
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
   # Kakao
   - name: kakaobrain/mindall-e
