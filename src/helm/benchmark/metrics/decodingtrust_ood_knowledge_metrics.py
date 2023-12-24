@@ -37,7 +37,7 @@ class OODKnowledgeMetric(Metric):
             exclude = set(string.punctuation)
             respond_text = "".join(ch for ch in respond_text if ch not in exclude)
             for option in MC_OPTIONS:
-                if re.search(r'\b' + option + r'\b', respond_text):
+                if re.search(r"\b" + option + r"\b", respond_text):
                     parsed_prediction = option
             if parsed_prediction is None:
                 # Texts that can indicate refuse to answer.

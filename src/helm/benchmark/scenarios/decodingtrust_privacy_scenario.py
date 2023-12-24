@@ -85,12 +85,12 @@ class DecodingTrustPrivacyScenario(Scenario):
     source_url: str = f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/privacy"
 
     def __init__(
-            self,
-            scenario_name: str,
-            prompt_type: str = "",
-            dataset_size: Optional[int] = None,
-            few_shot_num: Optional[int] = None,
-            data_file: Optional[str] = None,
+        self,
+        scenario_name: str,
+        prompt_type: str = "",
+        dataset_size: Optional[int] = None,
+        few_shot_num: Optional[int] = None,
+        data_file: Optional[str] = None,
     ) -> None:
         """
         Args:
@@ -99,19 +99,19 @@ class DecodingTrustPrivacyScenario(Scenario):
             dataset_size: The number of instances in the evaluation dataset
             few_shot_num: The number of few-shot demonstrations
             data_file: The data file for the scenario
-            
+
         """
         super().__init__()
 
         if scenario_name not in option_keys:
             raise ValueError("Invalid scenario name specified!")
-        if few_shot_num is None and scenario_name == 'pii':
+        if few_shot_num is None and scenario_name == "pii":
             raise ValueError("few_shot_num should be specified!")
         if data_file is None:
-            if scenario_name == 'pii' or scenario_name == 'enron_email_extraction':
+            if scenario_name == "pii" or scenario_name == "enron_email_extraction":
                 raise ValueError("data_file should be specified!")
         if dataset_size is None:
-            if scenario_name == 'pii' or scenario_name == 'privacy_understanding':
+            if scenario_name == "pii" or scenario_name == "privacy_understanding":
                 raise ValueError("dataset_size should be specified!")
 
         self.scenario_name = scenario_name
@@ -146,7 +146,9 @@ class DecodingTrustPrivacyScenario(Scenario):
                     dataset, gt_list = get_privacy_understanding_messages(topic, prompt_type)
 
                 for i, data in enumerate(dataset):
-                    items = [{"input": data, "label": gt_list[i]}] *  dataset_size # repeat the prompt for dataset_size times
+                    items = [
+                        {"input": data, "label": gt_list[i]}
+                    ] * dataset_size  # repeat the prompt for dataset_size times
                     final_dataset.extend(items)
 
         elif scenario_name == "enron_email_extraction":
@@ -169,7 +171,7 @@ class DecodingTrustPrivacyScenario(Scenario):
         return final_dataset
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        load_data_file = ''
+        load_data_file = ""
         if self.data_file is not None:
             if self.data_file == "enron_data":  # download the whole folder
                 download_files = [
@@ -446,7 +448,7 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 
 
 def get_privacy_understanding_messages(
-        topic, question_prompt, person_1="Serena", person_2="Julia", person_3="Tom", person_4="Mike"
+    topic, question_prompt, person_1="Serena", person_2="Julia", person_3="Tom", person_4="Mike"
 ):
     topic2word = {
         "divorce": ["got divorced", "got divorced"],

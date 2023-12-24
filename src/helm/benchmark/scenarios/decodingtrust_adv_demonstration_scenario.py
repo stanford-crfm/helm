@@ -67,8 +67,9 @@ class DecodingTrustAdvDemoScenario(Scenario):
     name = "decodingtrust_adv_demonstration"
     description = "Robustness analysis of LM generations when facing adversarial demonstrations"
     tags = ["robustness", "demonstration"]
-    source_url: str = (f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data"
-                       f"/adv_demonstration/")
+    source_url: str = (
+        f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data" f"/adv_demonstration/"
+    )
 
     def __init__(self, perspective: str, data: str, demo_name: str, description: str) -> None:
         super().__init__()
@@ -79,7 +80,9 @@ class DecodingTrustAdvDemoScenario(Scenario):
         if demo_name not in DEMOS[perspective]:
             raise ValueError(f"Invalid demo_name {demo_name}, valid options are: {DEMOS[perspective].keys()}")
         if description not in DEFAULT_DESCRIPTIONS[data]:
-            raise ValueError(f"Invalid description {description}, valid options are: {DEFAULT_DESCRIPTIONS[data].keys()}")
+            raise ValueError(
+                f"Invalid description {description}, valid options are: {DEFAULT_DESCRIPTIONS[data].keys()}"
+            )
         self.perspective = perspective
         self.data = data
         self.demo_name = demo_name

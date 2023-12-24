@@ -59,8 +59,10 @@ class DecodingTrustAdvRobustnessScenario(Scenario):
     name: str = "decodingtrust_adv_glue_plus_plus"
     description: str = "Adversarial Robustness"
     tags: List[str] = ["robustness", "trustworthy"]
-    source_url: str = (f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/adv-glue-plus"
-                       f"-plus/data/advglue_plus_plus.json")
+    source_url: str = (
+        f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/adv-glue-plus"
+        f"-plus/data/advglue_plus_plus.json"
+    )
 
     def __init__(self, glue_task: str) -> None:
         """

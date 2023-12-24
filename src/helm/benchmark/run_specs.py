@@ -353,10 +353,10 @@ def get_instruct_adapter_spec(
 
 
 def get_few_shot_instruct_adapter_spec(
-        num_outputs: int = 1,
-        max_tokens: int = 512,
-        temperature: float = 0.7,
-        max_train_instances: int = 0,
+    num_outputs: int = 1,
+    max_tokens: int = 512,
+    temperature: float = 0.7,
+    max_train_instances: int = 0,
 ) -> AdapterSpec:
     """
     Few-shot instruction-following.
@@ -2684,7 +2684,9 @@ def get_decodingtrust_adv_demonstration_spec(perspective: str, data: str, demo_n
 
 
 @run_spec_function("decodingtrust_ood_robustness")
-def get_decodingtrust_ood_robustness_spec(ood_type: str, task: str, demo_name: str, run_id: int = -1, idk: bool = False) -> RunSpec:
+def get_decodingtrust_ood_robustness_spec(
+    ood_type: str, task: str, demo_name: str, run_id: int = -1, idk: bool = False
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_ood_robustness_scenario.DecodingTrustOODRobustnessScenario",
         args={"ood_type": ood_type, "task": task, "demo_name": demo_name, "run_id": run_id, "idk": idk},
@@ -2707,7 +2709,7 @@ def get_decodingtrust_ood_robustness_spec(ood_type: str, task: str, demo_name: s
             input_noun=None,
             output_noun="Answer",
             max_tokens=16,
-            max_train_instances=5
+            max_train_instances=5,
         )
     else:
         if 0 <= run_id < 3:
@@ -2727,17 +2729,16 @@ def get_decodingtrust_ood_robustness_spec(ood_type: str, task: str, demo_name: s
 
 @run_spec_function("decodingtrust_fairness")
 def get_decodingtrust_fairness_spec(
-        task: str,
-        train_base_rate: float,
-        test_base_rate: float,
-        num_train: int,
-        num_test: int
+    task: str, train_base_rate: float, test_base_rate: float, num_train: int, num_test: int
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_fairness_scenario.DecodingTrustFairnessScenario",
         args={
-            "task": task, "train_base_rate": train_base_rate, "test_base_rate": test_base_rate, "num_train": num_train,
-            "num_test": num_test
+            "task": task,
+            "train_base_rate": train_base_rate,
+            "test_base_rate": test_base_rate,
+            "num_train": num_train,
+            "num_test": num_test,
         },
     )
 
@@ -2752,14 +2753,13 @@ def get_decodingtrust_fairness_spec(
     )
 
 
-
 @run_spec_function("decodingtrust_privacy")
 def get_decodingtrust_privacy_spec(
-        scenario_name: str,
-        prompt_type: str,
-        dataset_size: Optional[int] = None,
-        few_shot_num: Optional[int] = None,
-        data_file: Optional[str] = None,
+    scenario_name: str,
+    prompt_type: str,
+    dataset_size: Optional[int] = None,
+    few_shot_num: Optional[int] = None,
+    data_file: Optional[str] = None,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_privacy_scenario.DecodingTrustPrivacyScenario",
@@ -2783,9 +2783,9 @@ def get_decodingtrust_privacy_spec(
 
 @run_spec_function("decodingtrust_machine_ethics")
 def get_decodingtrust_machine_ethics_spec(
-        data_name: str,
-        jailbreak_prompt: int,
-        evasive_sentence: int,
+    data_name: str,
+    jailbreak_prompt: int,
+    evasive_sentence: int,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_machine_ethics_scenario.DecodingTrustMachineEthicsScenario",
@@ -2871,7 +2871,7 @@ def get_decodingtrust_machine_ethics_spec(
 def get_decodingtrust_toxicity_prompts_spec(subject) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.decodingtrust_toxicity_prompts_scenario"
-                   ".DecodingTrustToxicityPromptsScenario",
+        ".DecodingTrustToxicityPromptsScenario",
         args={"subject": subject},
     )
 
@@ -3037,8 +3037,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # For models that strip newlines, when we're generating, we need to set
         # the delimiter to be '###' so we stop properly.
         if NO_NEWLINES_TAG in model.tags and run_spec.adapter_spec.method in (
-                ADAPT_GENERATION,
-                ADAPT_MULTIPLE_CHOICE_JOINT,
+            ADAPT_GENERATION,
+            ADAPT_MULTIPLE_CHOICE_JOINT,
         ):
             stop_expander = StopRunExpander(value="hash")
             run_spec = singleton(stop_expander.expand(run_spec))

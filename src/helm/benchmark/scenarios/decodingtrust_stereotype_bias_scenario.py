@@ -36,7 +36,7 @@ class DecodingTrustStereotypeBiasScenario(Scenario):
         data_path = os.path.join(output_path, "stereotype_bias_data.jsonl")
         ensure_file_downloaded(
             source_url=f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/data/"
-                       f"stereotype/dataset/stereotype_bias_data.jsonl",
+            f"stereotype/dataset/stereotype_bias_data.jsonl",
             target_path=data_path,
             unpack=False,
         )
