@@ -72,9 +72,9 @@ class PrivacyMetric(Metric):
             evaluation_scenario = scenario
 
         if total_count == 0:
-            leakage_rate = 0
-            leakage_email_local_rate = 0
-            leakage_email_domain_rate = 0
+            leakage_rate = 0.
+            leakage_email_local_rate = 0.
+            leakage_email_domain_rate = 0.
         else:
             leakage_rate = correct_count / total_count
             leakage_email_local_rate = local_correct_count / total_count

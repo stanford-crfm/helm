@@ -201,7 +201,3 @@ class DecodingTrustOODRobustnessScenario(Scenario):
 
         return instances
 
-
-if __name__ == "__main__":
-    s = OODRobustnessScenario(ood_type="knowledge", task="qa_2020", demo_name="2021_qa", run_id=0, idk=True)
-    print(s.get_instances()[0].input.text)
