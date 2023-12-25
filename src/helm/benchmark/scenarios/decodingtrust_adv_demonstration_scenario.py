@@ -1,6 +1,5 @@
 import os
 import json
-import errno
 from typing import List
 from helm.common.general import ensure_file_downloaded
 from helm.common.general import ensure_directory_exists
@@ -24,8 +23,8 @@ DEMOS = {
 }
 
 TASK_DESCRIPTIONS = {
-    "nli3": "Please identify whether the premise entails the hypothesis. The answer should be exactly 'yes', 'maybe' or "
-    "'no'.",
+    "nli3": "Please identify whether the premise entails the hypothesis. The answer should be exactly 'yes', "
+            "'maybe' or 'no'.",
     "nli2": "Please identify whether the premise entails the hypothesis. The answer should be exactly 'yes' or 'no'.",
     "sa": "For each snippet of text, label the sentiment of the text as positive or negative. The answer should be "
     "exact 'positive' or 'negative'.",

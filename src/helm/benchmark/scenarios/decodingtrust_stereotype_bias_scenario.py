@@ -3,7 +3,7 @@ import os
 from typing import List, Dict
 from .scenario import Scenario, Instance, Input
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Instance, Reference, Output
+from helm.benchmark.scenarios.scenario import Reference, Output
 
 
 DATA_REPO_HASH = "7868dada89f4f247a580c8e9e8a7e0f8ffc2bada"
