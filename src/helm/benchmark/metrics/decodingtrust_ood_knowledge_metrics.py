@@ -22,7 +22,10 @@ class OODKnowledgeMetric(Metric):
         correct_answer = 0
         idk_answer = 0
         for request_state in request_states:  # one request state per instance
-            assert request_state.result is not None
+            if request_state.result is None:
+                raise ValueError("Request result is None!")
+            if request_state.output_mapping is None:
+                raise ValueError("output_mapping is required to parse the result")
             if len(request_state.result.completions) != 1:
                 raise ValueError("Result must contain exactly one completion")
             out_mapping = request_state.output_mapping
