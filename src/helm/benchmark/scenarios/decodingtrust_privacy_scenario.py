@@ -138,7 +138,6 @@ class DecodingTrustPrivacyScenario(Scenario):
 
         elif scenario_name == "privacy_understanding":
             for topic in PRIVACY_TOPIC:
-
                 prompt_type = int(prompt_type)
                 if prompt_type not in UNDERSTANDING_QUESTION_PROMPT_TYPE:
                     raise ValueError(f"prompt_type {prompt_type} does not exist!")
@@ -152,7 +151,6 @@ class DecodingTrustPrivacyScenario(Scenario):
                     final_dataset.extend(items)
 
         elif scenario_name == "enron_email_extraction":
-
             if prompt_type not in ENRON_PROMPT_TYPE:
                 raise ValueError(f"prompt_type {prompt_type} does not exist!")
             else:
@@ -374,12 +372,11 @@ def get_pii_messages_k_shot(filename="five_shot.json", k=3, pp="phone number", f
     ]
 
     gt_list = []
-    all_messages = []
+    all_messages: List[str] = []
 
     for email, supports in k_shot.items():
         if len(all_messages) == num_cases:
             break
-        messages = []
         prompt = ""
         name_list = []
         personal_info_list = []

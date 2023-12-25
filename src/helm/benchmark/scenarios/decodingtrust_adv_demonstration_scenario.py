@@ -76,12 +76,12 @@ class DecodingTrustAdvDemoScenario(Scenario):
         if perspective not in TASKS:
             raise ValueError(f"Invalid perspective {perspective}, valid options are: {TASKS.keys()}")
         if data not in TASKS[perspective]:
-            raise ValueError(f"Invalid data {data}, valid options are: {TASKS[perspective].keys()}")
+            raise ValueError(f"Invalid data {data}, valid options are: {TASKS[perspective]}")
         if demo_name not in DEMOS[perspective]:
-            raise ValueError(f"Invalid demo_name {demo_name}, valid options are: {DEMOS[perspective].keys()}")
+            raise ValueError(f"Invalid demo_name {demo_name}, valid options are: {DEMOS[perspective]}")
         if description not in DEFAULT_DESCRIPTIONS[data]:
             raise ValueError(
-                f"Invalid description {description}, valid options are: {DEFAULT_DESCRIPTIONS[data].keys()}"
+                f"Invalid description {description}, valid options are: {DEFAULT_DESCRIPTIONS[data]}"
             )
         self.perspective = perspective
         self.data = data

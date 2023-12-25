@@ -101,8 +101,8 @@ class DecodingTrustOODRobustnessScenario(Scenario):
         return task_message
 
     def get_demonstrations(self, datasets, demo):
-        dataset_demo = []
-        dataset_example = []
+        dataset_demo: List[List] = []
+        dataset_example: List[Dict[str, str]] = []
         if self.few_shot_num == 0:
             return dataset_demo
         if self.ood_type == "knowledge":
@@ -200,4 +200,3 @@ class DecodingTrustOODRobustnessScenario(Scenario):
             instances.append(instance)
 
         return instances
-
