@@ -1,6 +1,6 @@
-import json
-import requests
 from typing import Any, Dict, List
+
+from aleph_alpha_client import Client, CompletionRequest, CompletionResponse, Prompt
 
 from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
@@ -8,34 +8,20 @@ from .client import CachingClient, truncate_sequence
 
 
 class AlephAlphaClient(CachingClient):
-    COMPLETION_ENDPOINT: str = "complete"
-
     def __init__(self, api_key: str, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
-        self.api_key: str = api_key
+        self._aleph_alpha_client = Client(token=api_key)
 
-    def _send_request(self, endpoint: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
-        response = requests.request(
-            method="POST",
-            url=f"https://api.aleph-alpha.com/{endpoint}",
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": f"Bearer {self.api_key}",
-            },
-            data=json.dumps(raw_request),
-            # Setting the nice flag prevents intensive benchmarking runs from saturating Aleph Alpha's API queues
-            params=json.dumps({"nice": True}),
-        )
-        result = json.loads(response.text)
-        assert "error" not in result, f"Request failed with error: {result['error']}"
-        return result
+    def _send_request(self, model: str, prompt: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
+        request = CompletionRequest(prompt=Prompt.from_text(prompt), **parameters)
+        response: CompletionResponse = self._aleph_alpha_client.complete(request, model=model)
+        return dict(response.to_json())
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request following https://docs.aleph-alpha.com/api/complete."""
-        raw_request = {
-            "model": request.model_engine,
-            "prompt": request.prompt,
+        model: str = request.model_engine
+        prompt: str = request.prompt
+        parameters = {
             "maximum_tokens": request.max_tokens,
             "temperature": request.temperature,
             "top_k": request.top_k_per_token,
@@ -52,12 +38,13 @@ class AlephAlphaClient(CachingClient):
         try:
 
             def do_it():
-                result = self._send_request(AlephAlphaClient.COMPLETION_ENDPOINT, raw_request)
+                result = self._send_request(model, prompt, parameters)
                 assert "completions" in result, f"Invalid response: {result}"
                 return result
 
-            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
-        except (requests.exceptions.RequestException, AssertionError) as e:
+            cache_key: Dict = CachingClient.make_cache_key({"model": model, "prompt": prompt, **parameters}, request)
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except Exception as e:
             error: str = f"AlephAlphaClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
