@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from aleph_alpha_client import Client, CompletionRequest, CompletionResponse, Prompt
 
@@ -10,9 +10,13 @@ from .client import CachingClient, truncate_sequence
 class AlephAlphaClient(CachingClient):
     def __init__(self, api_key: str, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
-        self._aleph_alpha_client = Client(token=api_key)
+        self._api_key: str = api_key
+        self._aleph_alpha_client: Optional[Client] = None
 
     def _send_request(self, model: str, prompt: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
+        if self._aleph_alpha_client is None:
+            self._aleph_alpha_client = Client(token=self._api_key)
+
         request = CompletionRequest(prompt=Prompt.from_text(prompt), **parameters)
         response: CompletionResponse = self._aleph_alpha_client.complete(request, model=model)
         return dict(response.to_json())
