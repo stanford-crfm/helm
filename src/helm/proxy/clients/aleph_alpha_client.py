@@ -1,10 +1,11 @@
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
-from aleph_alpha_client import Client, CompletionRequest, CompletionResponse, Prompt
+from aleph_alpha_client import Client, CompletionRequest, CompletionResponse, Image, Prompt
 
 from helm.common.cache import CacheConfig
+from helm.common.media_object import TEXT_TYPE
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 
 class AlephAlphaClient(CachingClient):
@@ -13,18 +14,32 @@ class AlephAlphaClient(CachingClient):
         self._api_key: str = api_key
         self._aleph_alpha_client: Optional[Client] = None
 
-    def _send_request(self, model: str, prompt: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        if self._aleph_alpha_client is None:
-            self._aleph_alpha_client = Client(token=self._api_key)
-
-        request = CompletionRequest(prompt=Prompt.from_text(prompt), **parameters)
-        response: CompletionResponse = self._aleph_alpha_client.complete(request, model=model)
-        return dict(response.to_json())
-
     def make_request(self, request: Request) -> RequestResult:
         """Make a request following https://docs.aleph-alpha.com/api/complete."""
         model: str = request.model_engine
-        prompt: str = request.prompt
+        prompt: Prompt
+        prompt_key: str = request.prompt
+
+        # Contents can either be text or a list of multimodal content made up of text, images or other content
+        if request.multimodal_prompt is not None:
+            from helm.common.images_utils import encode_base64
+
+            items = []
+            for media_object in request.multimodal_prompt.media_objects:
+                if media_object.is_type("image") and media_object.location:
+                    items.append(Image(base_64=encode_base64(media_object.location), cropping=None, controls=[]))
+                elif media_object.is_type(TEXT_TYPE):
+                    if media_object.text is None:
+                        raise ValueError("MediaObject of text type has missing text field value")
+                    items.append(media_object.text)
+                else:
+                    raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+            prompt = Prompt(items=items)
+            prompt_key = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+        else:
+            prompt = Prompt.from_text(request.prompt)
+
         parameters = {
             "maximum_tokens": request.max_tokens,
             "temperature": request.temperature,
@@ -39,14 +54,23 @@ class AlephAlphaClient(CachingClient):
             "tokens": True,  # Setting to True returns individual tokens of the completion
         }
 
+        if self._aleph_alpha_client is None:
+            self._aleph_alpha_client = Client(token=self._api_key)
+
         try:
 
             def do_it():
-                result = self._send_request(model, prompt, parameters)
+                assert self._aleph_alpha_client is not None
+                completion_response: CompletionResponse = self._aleph_alpha_client.complete(
+                    request=CompletionRequest(prompt=prompt, **parameters), model=model
+                )
+                result = dict(completion_response.to_json())
                 assert "completions" in result, f"Invalid response: {result}"
                 return result
 
-            cache_key: Dict = CachingClient.make_cache_key({"model": model, "prompt": prompt, **parameters}, request)
+            cache_key: Dict = CachingClient.make_cache_key(
+                {"model": model, "prompt": prompt_key, **parameters}, request
+            )
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
             error: str = f"AlephAlphaClient error: {e}"

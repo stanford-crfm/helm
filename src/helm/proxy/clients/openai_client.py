@@ -1,8 +1,10 @@
 # mypy: check_untyped_defs = False
 from dataclasses import replace
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, cast, Union
 
+from helm.benchmark.model_metadata_registry import model_has_tag, VISION_LANGUAGE_MODEL_TAG
 from helm.common.cache import CacheConfig
+from helm.common.media_object import TEXT_TYPE
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -54,7 +56,7 @@ class OpenAIClient(CachingClient):
                 "engine": request.model_engine,
             }
         elif self._is_chat_model_engine(request.model_engine):
-            messages: Optional[List[Dict[str, str]]] = request.messages
+            messages: Optional[List[Dict[str, Union[str, Any]]]] = request.messages
             if request.messages and len(request.messages) > 1:
                 # Checks that all messages have a role and some content
                 for message in request.messages:
@@ -71,7 +73,32 @@ class OpenAIClient(CachingClient):
                 # to be returned in a single assistant message.
                 # TODO: Support ChatML for creating multiple messages with different roles.
                 # See: https://github.com/openai/openai-python/blob/main/chatml.md
-                messages = [{"role": "user", "content": request.prompt}]
+
+                # Content can either be text or a list of multimodal content made up of text and images:
+                # https://platform.openai.com/docs/guides/vision
+                content: Union[str, List[Union[str, Any]]]
+                if request.multimodal_prompt is not None:
+                    content = []
+                    for media_object in request.multimodal_prompt.media_objects:
+                        if media_object.is_type("image") and media_object.location:
+                            from helm.common.images_utils import encode_base64
+
+                            base64_image: str = encode_base64(media_object.location)
+                            content.append(
+                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+                            )
+                        elif media_object.is_type(TEXT_TYPE):
+                            if media_object.text is None:
+                                raise ValueError("MediaObject of text type has missing text field value")
+                            content.append({"type": media_object.type, "text": media_object.text})
+                        else:
+                            raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+                else:
+                    content = request.prompt
+
+                messages = [{"role": "user", "content": content}]
+
             raw_request = {
                 "model": request.model_engine,
                 "messages": messages,
@@ -85,6 +112,11 @@ class OpenAIClient(CachingClient):
                 "presence_penalty": request.presence_penalty,
                 "frequency_penalty": request.frequency_penalty,
             }
+
+            # OpenAI's vision API doesn't allow None values for stop.
+            # Fails with "body -> stop: none is not an allowed value" if None is passed.
+            if model_has_tag(request.model, VISION_LANGUAGE_MODEL_TAG) and raw_request["stop"] is None:
+                raw_request.pop("stop")
         else:
             raw_request = {
                 "engine": request.model_engine,

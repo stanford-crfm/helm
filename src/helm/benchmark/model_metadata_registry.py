@@ -157,6 +157,11 @@ def get_model_names_with_tag(tag: str) -> List[str]:
     return [model.name for model in ALL_MODELS_METADATA if tag in model.tags]
 
 
+def model_has_tag(model_name: str, tag: str) -> bool:
+    """Return True if the model has the given tag. False otherwise."""
+    return tag in get_model_metadata(model_name).tags
+
+
 def get_all_text_models() -> List[str]:
     """Return all model names of text models."""
     return get_model_names_with_tag(TEXT_MODEL_TAG)
