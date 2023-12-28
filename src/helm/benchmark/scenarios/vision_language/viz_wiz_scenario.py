@@ -13,7 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Scenario,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_directory_exists, ensure_file_downloaded
+from helm.common.general import ensure_file_downloaded
 
 
 class VizWizScenario(Scenario):
