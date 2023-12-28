@@ -679,7 +679,7 @@ models:
     access: open
     num_parameters: 9000000000
     release_date: 2023-08-22
-    tags: [VISION_LANGUAGE_MODEL_TAG]
+    tags: [VISION_LANGUAGE_MODEL_TAG, IDEFICS_INSTRUCT_MODEL_TAG]
 
   - name: HuggingFaceM4/idefics-80b
     display_name: IDEFICS (80B)
@@ -697,7 +697,7 @@ models:
     access: open
     num_parameters: 80000000000
     release_date: 2023-08-22
-    tags: [VISION_LANGUAGE_MODEL_TAG]
+    tags: [VISION_LANGUAGE_MODEL_TAG, IDEFICS_INSTRUCT_MODEL_TAG]
 
   ## Text-to-Image Diffusion Models
   - name: huggingface/dreamlike-diffusion-v1-0

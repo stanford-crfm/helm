@@ -52,6 +52,7 @@ TEXT_TO_IMAGE_MODEL_TAG: str = "TEXT_TO_IMAGE_MODEL_TAG"
 
 # For Vision-langauge models (VLMs)
 VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
+IDEFICS_INSTRUCT_MODEL_TAG: str = "IDEFICS_INSTRUCT_MODEL_TAG"
 
 
 # Frozen is set to false as the model_deployment_registry.py file

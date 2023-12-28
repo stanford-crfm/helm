@@ -371,6 +371,31 @@ class GoogleRunExpander(RunExpander):
         ]
 
 
+class IDEFICSInstructRunExpander(RunExpander):
+    """
+    Custom prompt for IDEFICS instruct models which require a specific format.
+    See https://huggingface.co/HuggingFaceM4/idefics-80b-instruct for more information.
+    """
+
+    name = "idefics_instruct"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    input_prefix="User: ",
+                    input_suffix="<end_of_utterance>",
+                    output_prefix="\nAssistant: ",
+                    output_suffix="<end_of_utterance>",
+                    stop_sequences=["<end_of_utterance>"],
+                ),
+            ),
+        ]
+
+
 class FormatPromptRunExpander(RunExpander):
     """Adds a prefix and suffix to the prompt."""
 

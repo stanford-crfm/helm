@@ -48,16 +48,7 @@ def get_viz_wiz_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.viz_wiz_scenario.VizWizScenario", args={}
     )
-
-    # TODO: finalize the adapter spec parameters once we add more models
-    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec(
-        input_prefix="User: ",
-        input_suffix="<end_of_utterance>",
-        output_prefix="\nAssistant: ",
-        output_suffix="<end_of_utterance>",
-        stop_sequences=["<end_of_utterance>"],
-    )
-
+    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec()
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "viz_wiz"
@@ -75,16 +66,7 @@ def get_vqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.vqa_scenario.VQAScenario", args={}
     )
-
-    # TODO: finalize the adapter spec parameters once we add more models
-    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec(
-        input_prefix="User: ",
-        input_suffix="<end_of_utterance>",
-        output_prefix="\nAssistant: ",
-        output_suffix="<end_of_utterance>",
-        stop_sequences=["<end_of_utterance>"],
-    )
-
+    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec()
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "vqa"
