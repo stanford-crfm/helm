@@ -60,7 +60,6 @@ class VizWizScenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         # Download the questions and annotations
         annotations_path: str = os.path.join(output_path, "annotations")
-        ensure_directory_exists(annotations_path)
         ensure_file_downloaded(
             source_url=self.ANNOTATIONS_URL,
             target_path=annotations_path,
