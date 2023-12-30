@@ -22,7 +22,7 @@ class CIMCQAScenario(Scenario):
         "https://drive.google.com/uc?export=download&id=1siYjhDiasI5FIiS0ckLbo40UnOj8EU2h"
     )
 
-    name = "med_mcqa"
+    name = "ci_mcqa"
     description = (
         "MedMCQA is a multiple-choice question answering (MCQA) dataset designed to address "
         "real-world medical entrance exam questions."
@@ -30,7 +30,7 @@ class CIMCQAScenario(Scenario):
     tags = ["question_answering", "biomedical"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path: str = os.path.join(output_path, "data")
+        data_path: str = os.path.join(output_path, "data.json")
         ensure_file_downloaded(
             source_url=self.DATASET_DOWNLOAD_URL,
             target_path=data_path,
@@ -40,7 +40,10 @@ class CIMCQAScenario(Scenario):
 
         instances: List[Instance] = []
 
-        example = json.load(data_path)
+        print("DATA PATH: ", data_path)
+        with open(data_path, "r") as f:
+            example = json.loads(f.read(), strict=False) # to allow newline control characters
+        print("EXAMPLE: ", example)
         references = list()
         for key in example:
             if key[:2] == 'op':
