@@ -2006,6 +2006,25 @@ def get_med_mcqa_spec() -> RunSpec:
         groups=["MedMCQA"],
     )
 
+@run_spec_function("ci_mcqa")
+def get_ci_mcqa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.ci_mcqa_scenario.CIMCQAScenario", args={})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Give a letter answer among A, B, C or D.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name="ci_mcqa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["CIMCQA"],
+    )
+
 
 @run_spec_function("med_paragraph_simplification")
 def get_med_paragraph_simplification_spec() -> RunSpec:
