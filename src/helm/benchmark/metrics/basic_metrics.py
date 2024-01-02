@@ -101,7 +101,7 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     return derived_stats
 
 
-class BasicMetric(Metric):
+class BasicGenerationMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
     fairly comprehensive already, and we should try to use this as much as possible.
@@ -134,6 +134,22 @@ class BasicMetric(Metric):
         stats.extend(compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
 
         return stats
+
+    # TODO: Figure out what to do about the num_instances, which will only end up being called in
+    # BasicReferenceMetric.
+
+
+class BasicReferenceMetric(Metric):
+    """
+    Defines basic metrics for Scenarios that use one Request per Reference instead of
+    one per Instance.
+    """
+
+    def __init__(self):
+        self.efficiency_metric = EfficiencyMetric()
+
+    def __repr__(self):
+        return "BasicReferenceMetric"
 
     def evaluate_references(
         self,
