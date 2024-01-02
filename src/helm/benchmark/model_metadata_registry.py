@@ -183,8 +183,11 @@ def is_text_to_image_model(model_name: str) -> bool:
     return TEXT_TO_IMAGE_MODEL_TAG in model.tags
 
 
-def get_unknown_model_metadata(helm_model_name: str) -> ModelMetadata:
+def get_unknown_model_metadata(helm_model_name: str, tags: Optional[List[str]] = None) -> ModelMetadata:
     """Return placeholder ModelMetadata for an unknown model."""
+    if tags is None:
+        tags = [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
     return ModelMetadata(
         name=helm_model_name,
         creator_organization_name="Unknown",
@@ -192,5 +195,5 @@ def get_unknown_model_metadata(helm_model_name: str) -> ModelMetadata:
         description=helm_model_name,
         access="open",
         release_date=date.today(),
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=tags,
     )

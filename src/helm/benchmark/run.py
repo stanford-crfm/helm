@@ -243,6 +243,19 @@ def main():
         help="Experimental: Enable using AutoModelForCausalLM models from a local path.",
     )
     parser.add_argument(
+        "--enable-diffusers-models",
+        nargs="+",
+        default=[],
+        help="Experimental: Enable using DiffusionPipeline models from HuggingFace Model Hub. "
+        "Format: namespace/model_name",
+    )
+    parser.add_argument(
+        "--enable-local-diffusers-models",
+        nargs="+",
+        default=[],
+        help="Experimental: Enable using DiffusionPipeline models from a local path.",
+    )
+    parser.add_argument(
         "--runner-class-name",
         type=str,
         default=None,
@@ -259,6 +272,10 @@ def main():
         register_huggingface_hub_model_from_flag_value(huggingface_model_name)
     for huggingface_model_path in args.enable_local_huggingface_models:
         register_huggingface_local_model_from_flag_value(huggingface_model_path)
+    for huggingface_model_name in args.enable_diffusers_models:
+        register_huggingface_hub_model_from_flag_value(huggingface_model_name, is_diffusion_model=True)
+    for huggingface_model_path in args.enable_local_diffusers_models:
+        register_huggingface_local_model_from_flag_value(huggingface_model_path, is_diffusion_model=True)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:

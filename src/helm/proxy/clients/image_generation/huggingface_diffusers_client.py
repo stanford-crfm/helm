@@ -25,13 +25,21 @@ _models: Dict[str, Any] = {}
 
 
 class HuggingFaceDiffusersClient(Client):
-    def __init__(self, hf_auth_token: str, cache_config: CacheConfig, file_cache: FileCache):
+    def __init__(
+        self,
+        hf_auth_token: str,
+        cache_config: CacheConfig,
+        file_cache: FileCache,
+        pretrained_model_name_or_path: Optional[str] = None,
+    ):
         self._hf_auth_token: str = hf_auth_token
         self._cache = Cache(cache_config)
         self._file_cache: FileCache = file_cache
 
         self._promptist_model = None
         self._promptist_tokenizer = None
+
+        self._pretrained_model_name_or_path: Optional[str] = pretrained_model_name_or_path
 
     def _get_diffuser(self, request: Request):
         """
@@ -52,9 +60,13 @@ class HuggingFaceDiffusersClient(Client):
             if model_engine not in _models:
                 huggingface_model_name: str
 
+                # If `pretrained_model_name_or_path` is provided when initializing the client,
+                # then this client is specifically for that model.
+                if self._pretrained_model_name_or_path is not None:
+                    huggingface_model_name = self._pretrained_model_name_or_path
                 # Most of the if cases below are to maintain backward compatibility
                 # with HEIM v1, as the names for those models start with "huggingface/"
-                if model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
+                elif model_engine in ["stable-diffusion-v1-4", "promptist-stable-diffusion-v1-4"]:
                     huggingface_model_name = "CompVis/stable-diffusion-v1-4"
                 elif model_engine in ["stable-diffusion-v1-5", "dpo-sd1.5-text2image-v1"]:
                     huggingface_model_name = "runwayml/stable-diffusion-v1-5"
