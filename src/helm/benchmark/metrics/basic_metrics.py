@@ -167,9 +167,6 @@ class BasicGenerationMetric(Metric):
 
         return stats
 
-    # TODO: Figure out what to do about the num_instances, which will only end up being called in
-    # BasicReferenceMetric.
-
 
 class BasicReferenceMetric(Metric):
     """
