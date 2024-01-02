@@ -1,11 +1,13 @@
+from collections import defaultdict
 import math
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import List, Dict, Set
 from urllib.parse import unquote
 
 import numpy as np
 import scipy
 import calibration as cal
+from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 
@@ -22,10 +24,10 @@ from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, Instance
-from .metric import Metric, get_unique_stat_by_name
-from .metric_name import MetricName
+from .metric import Metric, MetricInterface, MetricResult, add_context, get_unique_stat_by_name
+from .metric_name import MetricContext, MetricName
 from .metric_service import MetricService
-from .statistic import Stat
+from .statistic import Stat, merge_stat
 
 
 def get_num_bytes(tokens: List[Token]) -> int:
@@ -99,6 +101,36 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
         derived_stats.append(Stat(MetricName("logprob_per_byte")).add(logprob_stat.sum / num_bytes_stat.sum))
 
     return derived_stats
+
+
+class InstancesPerSplitMetric(MetricInterface):
+    """Report the average num_instances in each MetricContext across train_trials."""
+
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        adapter_spec = scenario_state.adapter_spec
+        global_stats: Dict[MetricName, Stat] = {}
+
+        for train_trial_index in range(adapter_spec.num_train_trials):
+            trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
+            # Group instances in this train_trial by context.
+            instances_per_metric_context: Dict[MetricContext, Set[Instance]] = defaultdict(set)
+            for request_state in scenario_state.request_states:
+                if request_state.train_trial_index == train_trial_index:
+                    instances_per_metric_context[MetricContext.from_instance(request_state.instance)].add(
+                        request_state.instance
+                    )
+            for context, instance_set in instances_per_metric_context.items():
+                stat = Stat(MetricName("num_instances")).add(len(instance_set))
+                merge_stat(trial_stats, add_context(stat, context))
+
+            # We take the mean value for each trial.
+            for stat in trial_stats.values():
+                merge_stat(global_stats, stat.take_mean())
+
+        # There are no per-instance Stats.
+        return MetricResult(list(global_stats.values()), [])
 
 
 class BasicMetric(Metric):
@@ -244,7 +276,6 @@ class BasicMetric(Metric):
         """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
         derived_stats: List[Stat] = []
         derived_stats.extend(compute_calibration_metrics(per_instance_stats))
-        derived_stats.append(Stat(MetricName("num_instances")).add(len(per_instance_stats)))
         return derived_stats
 
 
