@@ -28,7 +28,6 @@ from helm.common.general import (
     write,
     ensure_directory_exists,
     asdict_without_nones,
-    serialize_dates,
     parallel_map,
     singleton,
     unique_simplification,
@@ -47,6 +46,7 @@ from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink
 from helm.benchmark.presentation.schema import (
     MetricNameMatcher,
     RunGroup,
+    Field,
     read_schema,
     SCHEMA_CLASSIC_YAML_FILENAME,
     BY_GROUP,
@@ -62,7 +62,7 @@ from helm.benchmark.presentation.contamination import (
 )
 from helm.benchmark.config_registry import register_builtin_configs_from_helm_package, register_configs_from_directory
 from helm.benchmark.presentation.run_display import write_run_display_json
-from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata
+from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata, get_all_models
 
 
 OVERLAP_N_COUNT = 13
@@ -172,7 +172,7 @@ def get_model_metadata_for_adapter_spec(adapter_spec: AdapterSpec) -> ModelMetad
     except ValueError:
         pass
 
-    # Return a placeholder "unknoown model" model metadata.
+    # Return a placeholder "unknown model" model metadata.
     return get_unknown_model_metadata(adapter_spec.model)
 
 
@@ -433,11 +433,61 @@ class Summarizer:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
 
-    def write_schema(self):
+    @dataclass(frozen=True)
+    class _ModelField(Field):
+        """The frontend version of ModelMetadata.
+
+        The frontend expects schema.json to contains a field under "model" that contains a list of `ModelField`s.
+
+        All attributes have the same meaning as in ModelMetadata."""
+
+        # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
+        creator_organization: Optional[str] = None
+        access: Optional[str] = None
+        todo: bool = False
+        release_date: Optional[str] = None
+        num_parameters: Optional[int] = None
+
+    def get_model_field_dicts(self) -> List[Dict]:
+        """Get a list of `ModelField`s dicts that will be written to schema.json.
+
+        The frontend expects schema.json to contains a field under "model" that contains a list of `ModelField`s.
+
+        This is populated by reading the `ModelMetadata` configs and filtering down to models that were
+        actually used, and converting each `ModelMetadata` to a `ModelField`."""
+        # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
+        used_model_names: Set[str] = set()
+        for run in self.runs:
+            used_model_names.add(get_model_metadata_for_adapter_spec(run.run_spec.adapter_spec).name)
+
+        model_field_dicts: List[Dict] = []
+        for model_name in get_all_models():
+            if model_name not in used_model_names:
+                continue
+            model_metadata = get_model_metadata(model_name)
+            model_field = Summarizer._ModelField(
+                name=model_metadata.name,
+                display_name=model_metadata.display_name,
+                short_display_name=model_metadata.display_name,
+                description=model_metadata.description,
+                creator_organization=model_metadata.creator_organization_name,
+                access=model_metadata.access,
+                todo=False,
+                release_date=model_metadata.release_date.isoformat() if model_metadata.release_date else None,
+                num_parameters=model_metadata.num_parameters,
+            )
+            model_field_dicts.append(asdict_without_nones(model_field))
+        return model_field_dicts
+
+    def write_schema(self) -> None:
         """Write the schema file to benchmark_output so the frontend knows about it."""
+        # Manually add the model metadata to the schema.json, where the frontend expects it.
+        # TODO: Move model metadata out of schema.json into its own model_metadata.json file.
+        raw_schema = asdict_without_nones(self.schema)
+        raw_schema["models"] = self.get_model_field_dicts()
         write(
             os.path.join(self.run_release_path, "schema.json"),
-            json.dumps(asdict_without_nones(self.schema), indent=2, default=serialize_dates),
+            json.dumps(raw_schema, indent=2),
         )
 
     def read_runs(self):
@@ -921,10 +971,10 @@ class Summarizer:
 
         adapter_specs: List[AdapterSpec] = list(adapter_to_runs.keys())
         if sort_by_model_order:
-            # Sort models by the order defined in the schema.
-            # Models not defined in the schema will be sorted alphabetically and
-            # placed before models in defined the schema.
-            model_order = [model.name for model in self.schema.models]
+            # Sort models by the order defined in the the model metadata config.
+            # Models not defined in the model metadata config will be sorted alphabetically and
+            # placed before models in defined the model metadata config.
+            model_order = get_all_models()
 
             def _adapter_spec_sort_key(spec):
                 index = model_order.index(spec.model_deployment) if spec.model_deployment in model_order else -1
@@ -1304,8 +1354,6 @@ class Summarizer:
 
     def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
         """Run the entire summarization pipeline."""
-        self.write_schema()
-
         self.read_runs()
         self.group_runs()
         self.check_metrics_defined()
@@ -1321,6 +1369,7 @@ class Summarizer:
         self.read_overlap_stats()
 
         self.write_executive_summary()
+        self.write_schema()
         self.write_runs()
         self.write_run_specs()
         self.write_runs_to_run_suites()
