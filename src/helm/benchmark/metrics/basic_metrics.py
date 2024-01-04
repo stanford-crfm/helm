@@ -37,7 +37,7 @@ from . import code_metrics_helper
 from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .statistic import Stat
+from .statistic import Stat, merge_stat
 
 
 try:
@@ -848,9 +848,12 @@ class BasicMetric(Metric):
             raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
 
         stats: List[Stat] = []
-        for request_state in reference_request_states:
-            stats.extend(self.compute_all_general_metrics(adapter_spec, request_state, metric_service))
 
+        general_metrics: Dict[MetricName, Stat] = {}
+        for request_state in reference_request_states:
+            for stat in self.compute_all_general_metrics(adapter_spec, request_state, metric_service):
+                merge_stat(general_metrics, stat)
+        stats.extend(general_metrics.values())
         max_prob = np.max(scipy.special.softmax(reference_scores))
 
         # Multiple references may attain the same maximal score; in such cases,
