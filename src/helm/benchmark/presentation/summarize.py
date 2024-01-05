@@ -1368,8 +1368,11 @@ class Summarizer:
         # because it uses self.scenario_spec_instance_id_dict
         self.read_overlap_stats()
 
-        self.write_executive_summary()
+        # Must happen after self.read_runs()
+        # because it uses self.runs
         self.write_schema()
+
+        self.write_executive_summary()
         self.write_runs()
         self.write_run_specs()
         self.write_runs_to_run_suites()
