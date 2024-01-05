@@ -10,7 +10,7 @@ export default async function getDisplayRequestsByName(
   try {
     const displayRequest = await fetch(
       getBenchmarkEndpoint(
-        `/benchmark_output/runs/${
+        `/runs/${
           suite || getBenchmarkSuite()
         }/${runName}/display_requests.json`,
       ),

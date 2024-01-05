@@ -10,7 +10,7 @@ export default async function getStatsByName(
   try {
     const stats = await fetch(
       getBenchmarkEndpoint(
-        `/benchmark_output/runs/${
+        `/runs/${
           suite || getBenchmarkSuite()
         }/${runName}/stats.json`,
       ),

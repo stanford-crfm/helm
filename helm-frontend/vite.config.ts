@@ -4,6 +4,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: "",
   plugins: [react()],
   resolve: {
     alias: {
@@ -16,5 +17,15 @@ export default defineConfig({
   },
   build: {
     outDir: `${__dirname}/../src/helm/benchmark/static_build`,
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-markdown', 'react-router-dom', 'react-spinners'],
+          tremor: ["@tremor/react"],
+          recharts: ["recharts"],
+        }
+      }
+    }
   },
 });
