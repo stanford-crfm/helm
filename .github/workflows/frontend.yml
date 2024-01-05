@@ -5,12 +5,12 @@ on:
     branches:
       - '*'
     paths:
-      - 'src/helm-frontend/**'
+      - 'helm-frontend/**'
   pull_request:
     branches:
       - '*'
     paths:
-      - 'src/helm-frontend/**'
+      - 'helm-frontend/**'
 
 jobs:
   test:
@@ -25,16 +25,16 @@ jobs:
     - name: Install Yarn
       run: npm install --global yarn
     - name: Install dependencies
-      working-directory: ./src/helm-frontend
+      working-directory: ./helm-frontend
       run: yarn install
     - name: Run lint
-      working-directory: ./src/helm-frontend
+      working-directory: ./helm-frontend
       run: yarn lint
     - name: Run check format
-      working-directory: ./src/helm-frontend
+      working-directory: ./helm-frontend
       run: yarn format:check
     - name: Run tests
-      working-directory: ./src/helm-frontend
+      working-directory: ./helm-frontend
       run: yarn test
 
   build:
@@ -56,13 +56,13 @@ jobs:
       with:
         node-version: '18'
     - name: Install Yarn
-      working-directory: ./src/helm-frontend
+      working-directory: ./helm-frontend
       run: npm install --global yarn
     - name: Install dependencies
-      working-directory: ./src/helm-frontend
+      working-directory: ./helm-frontend
       run: yarn install
     - name: Build app
-      working-directory: ./src/helm-frontend
+      working-directory: ./helm-frontend
       run: yarn build
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
