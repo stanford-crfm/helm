@@ -20,8 +20,9 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
+        // Manually chunk large libraries to keep chunk size under 500 KB
         manualChunks: {
-          react: ['react', 'react-dom', 'react-markdown', 'react-router-dom', 'react-spinners'],
+          react: ["react", "react-dom", "react-markdown", "react-router-dom", "react-spinners"],
           tremor: ["@tremor/react"],
           recharts: ["recharts"],
         }
