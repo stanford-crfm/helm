@@ -3,12 +3,13 @@ from typing import List
 import numpy as np
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric, MetricName
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
+from helm.benchmark.metrics.metric import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.common.request import Sequence
 
 
-class CLEVATopKAccuracyMetric(Metric):
+class CLEVATopKAccuracyMetric(EvaluateInstancesMetric):
     """Defines metrics for CLEVA conceptual generalization task.
 
     This is not a conventional accuracy@k metric but rather a special one taken from

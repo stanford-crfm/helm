@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 from helm.common.media_object import MultimediaObject
+from helm.common.image_generation_parameters import ImageGenerationParameters
 from .general import indent_lines, format_text
 
 
@@ -68,6 +69,9 @@ class Request:
     multimodal_prompt: Optional[MultimediaObject] = None
     """Multimodal prompt with media objects interleaved (e.g., text, video, image, text, ...)"""
 
+    image_generation_parameters: Optional[ImageGenerationParameters] = None
+    """Parameters for image generation."""
+
     @property
     def model_host(self) -> str:
         """Returns the model host (referring to the deployment).
@@ -131,6 +135,9 @@ class Sequence:
 
     # Why did the sequence finish?
     finish_reason: Optional[Dict] = None
+
+    # Could be a sequence made up of multimedia content
+    multimodal_content: Optional[MultimediaObject] = None
 
     def __add__(self, other: "Sequence") -> "Sequence":
         return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)

@@ -227,6 +227,12 @@ _BUILT_IN_TOKENIZER_CONFIGS = [
         end_of_text_token="</s>",
         prefix_token="<s>",
     ),
+    TokenizerConfig(
+        name="openai/clip-vit-large-patch14",
+        tokenizer_spec=TokenizerSpec(class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"),
+        end_of_text_token="",
+        prefix_token="",
+    ),
 ]
 
 
@@ -820,51 +826,61 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=511,
     ),
     ModelDeployment(
-        name="google/text-bison@001",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
-        tokenizer_name="google/mt5-base",
+        name="google/gemini-pro",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIChatClient"),
+        tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+        ),
+        max_sequence_length=30720,
+        max_sequence_and_generated_tokens_length=32768,
+    ),
+    ModelDeployment(
+        name="google/text-bison@001",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
+        tokenizer_name="google/text-bison@001",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
     ),
     ModelDeployment(
         name="google/text-bison-32k",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
-        tokenizer_name="google/mt5-base",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
+        tokenizer_name="google/text-bison@001",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=32000,
         max_sequence_and_generated_tokens_length=32000,
     ),
     ModelDeployment(
         name="google/text-unicorn@001",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
-        tokenizer_name="google/mt5-base",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
+        tokenizer_name="google/text-unicorn@001",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
     ),
     ModelDeployment(
         name="google/code-bison@001",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
     ),
     ModelDeployment(
         name="google/code-bison-32k",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=32000,
         max_sequence_and_generated_tokens_length=32000,
@@ -1454,6 +1470,381 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
             class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
         ),
         max_sequence_length=2048,
+    ),
+    ModelDeployment(
+        name="AlephAlpha/m-vader",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation."
+            "aleph_alpha_image_generation_client.AlephAlphaImageGenerationClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="adobe/giga-gan",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.adobe_vision_client.AdobeVisionClient"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="openai/dall-e-2",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.dalle2_client.DALLE2Client"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation."
+            "openai_dalle_window_service.OpenAIDALLEWindowService"
+        ),
+        max_sequence_length=1000,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="openai/dall-e-3",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation."
+            "openai_dalle_window_service.OpenAIDALLEWindowService"
+        ),
+        max_sequence_length=1000,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="openai/dall-e-3-natural",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation."
+            "openai_dalle_window_service.OpenAIDALLEWindowService"
+        ),
+        max_sequence_length=1000,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="openai/dall-e-3-hd",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation."
+            "openai_dalle_window_service.OpenAIDALLEWindowService"
+        ),
+        max_sequence_length=1000,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="openai/dall-e-3-hd-natural",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.dalle3_client.DALLE3Client"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation."
+            "openai_dalle_window_service.OpenAIDALLEWindowService"
+        ),
+        max_sequence_length=1000,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="lexica/search-stable-diffusion-1.5",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.lexica_client.LexicaClient"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.lexica_search_window_service."
+            "LexicaSearchWindowService"
+        ),
+        max_sequence_length=200,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="DeepFloyd/IF-I-M-v1.0",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.deep_floyd_client.DeepFloydClient"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="DeepFloyd/IF-I-L-v1.0",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.deep_floyd_client.DeepFloydClient"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="DeepFloyd/IF-I-XL-v1.0",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.deep_floyd_client.DeepFloydClient"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="kakaobrain/mindall-e",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.mindalle_client.MinDALLEClient"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="craiyon/dalle-mini",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.dalle_mini_client.DALLEMiniClient"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="craiyon/dalle-mega",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.dalle_mini_client.DALLEMiniClient"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="thudm/cogview2",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.image_generation.cogview2_client.CogView2Client"),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/dreamlike-photoreal-v2-0",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/dreamlike-diffusion-v1-0",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/openjourney-v1-0",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/openjourney-v2-0",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/redshift-diffusion",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/promptist-stable-diffusion-v1-4",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/stable-diffusion-v1-4",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/stable-diffusion-v1-5",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/stable-diffusion-v2-base",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/stable-diffusion-v2-1-base",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/stable-diffusion-safe-weak",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/stable-diffusion-safe-medium",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/stable-diffusion-safe-strong",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/stable-diffusion-safe-max",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="huggingface/vintedois-diffusion-v0-1",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="segmind/Segmind-Vega",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="segmind/SSD-1B",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
+    ),
+    ModelDeployment(
+        name="stabilityai/stable-diffusion-xl-base-1.0",
+        client_spec=ClientSpec(
+            class_name="helm.proxy.clients.image_generation.huggingface_diffusers_client.HuggingFaceDiffusersClient"
+        ),
+        tokenizer_name="openai/clip-vit-large-patch14",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+        ),
+        max_sequence_length=75,
+        max_request_length=None,
     ),
 ]
 

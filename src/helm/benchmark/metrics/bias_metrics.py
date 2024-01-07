@@ -4,16 +4,16 @@ from typing import Dict, List, Optional, Tuple
 
 from nltk.tokenize import word_tokenize
 import numpy as np
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 
 from helm.common.request import RequestResult, Sequence
 from helm.benchmark.adaptation.request_state import RequestState
 from .statistic import Stat
-from .metric import Metric
 from .metric_name import MetricName
 from .bias_word_lists import GENDER_TO_WORD_LISTS, RACE_TO_NAME_LISTS, ADJECTIVE_LIST, PROFESSION_LIST
 
 
-class BiasMetric(Metric):
+class BiasMetric(EvaluateInstancesMetric):
     """Compute metrics to evaluate social bias.
 
     We compute demographic representation and mean stereotypical association bias in model generated text using word

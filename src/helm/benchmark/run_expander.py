@@ -12,6 +12,7 @@ from helm.benchmark.model_metadata_registry import (
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     ABLATION_MODEL_TAG,
+    TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
@@ -422,7 +423,12 @@ class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
     """For overriding the number of eval instances at the run level."""
 
     name = "max_eval_instances"
-    values_dict: Dict[str, List[Any]] = {}
+    values_dict: Dict[str, List[Any]] = {
+        "default": [1_000],
+        "heim_default": [100],
+        "heim_fid": [30_000],
+        "heim_art_styles": [17],
+    }
 
 
 class NumOutputsRunExpander(ReplaceValueRunExpander):
@@ -432,6 +438,15 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     values_dict = {
         "default": [1],
         "copyright_sweep": [1, 10],
+    }
+
+
+class NumTrialRunExpander(ReplaceValueRunExpander):
+    """For getting different generations for the same requests."""
+
+    name = "num_trials"
+    values_dict = {
+        "heim_efficiency": [5],
     }
 
 
@@ -476,6 +491,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
                 "openai/text-davinci-003",
             ],
             "opinions_qa_ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
+            "text_to_image": get_model_names_with_tag(TEXT_TO_IMAGE_MODEL_TAG),
             "vlm": get_model_names_with_tag(VISION_LANGUAGE_MODEL_TAG),
         }
 
@@ -688,6 +704,20 @@ def mandarin_to_cantonese() -> PerturbationSpec:
     )
 
 
+def translate(language_code: str) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.translate_perturbation.TranslatePerturbation",
+        args={"language_code": language_code},
+    )
+
+
+def suffix(text: str) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.suffix_perturbation.SuffixPerturbation",
+        args={"suffix": text},
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -877,6 +907,21 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             ),
             simplified_to_traditional(),
             mandarin_to_cantonese(),
+        ]
+    },
+    # Multilinguality
+    "chinese": {"chinese": [translate(language_code="zh-CN")]},
+    "hindi": {"hindi": [translate(language_code="hi")]},
+    "spanish": {"spanish": [translate(language_code="es")]},
+    # Styles
+    "art": {
+        "art": [
+            suffix("oil painting"),
+            suffix("watercolor"),
+            suffix("pencil sketch"),
+            suffix("animation"),
+            suffix("vector graphics"),
+            suffix("pixel art"),
         ]
     },
 }
@@ -1225,6 +1270,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     MaxTrainInstancesRunExpander,
     MaxEvalInstancesRunExpander,
     NumOutputsRunExpander,
+    NumTrialRunExpander,
     ModelRunExpander,
     ModelDeploymentRunExpander,
     DataAugmentationRunExpander,

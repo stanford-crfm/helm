@@ -1,9 +1,15 @@
+import pytest
 from tempfile import TemporaryDirectory
 
 from helm.benchmark.scenarios.math_scenario import MATHScenario
 from helm.benchmark.scenarios.scenario import Input, Output, Reference
 
 
+# TODO: Fix the test for newer versions of diffusers: https://github.com/stanford-crfm/helm/issues/2168
+@pytest.mark.skip(
+    reason="Incompatible with newer versions with diffusers>0.24.0. Fails with "
+    '"Loading a dataset cached in a LocalFileSystem is not supported"'
+)
 def test_math_scenario_get_instances():
     math_scenario = MATHScenario(subject="number_theory", level="1")
     with TemporaryDirectory() as tmpdir:

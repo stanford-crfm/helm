@@ -18,4 +18,9 @@ helm-server
 
 Then go to http://localhost:8000/ in your browser.
 
-**Next steps:** click [here](get_helm_rank.md) to find out how to to run the full benchmark and get your model's leaderboard rank.
+
+## Next steps
+
+Click [here](get_helm_rank.md) to find out how to run the full benchmark and get your model's leaderboard rank.
+
+For the quick start page for HEIM, visit [here](heim.md).
