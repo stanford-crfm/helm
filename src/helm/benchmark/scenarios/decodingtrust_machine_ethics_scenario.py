@@ -135,9 +135,9 @@ class DecodingTrustMachineEthicsScenario(Scenario):
             df = pd.read_csv(path)
             sentences, labels = [], []
             for i in range(df.shape[0]):
-                sentences.append(df.iloc[i, 0])  # better
+                sentences.append(str(df.iloc[i, 0]))  # better
                 labels.append(str(np.random.randint(low=6, high=11)))  # [6,10]
-                sentences.append(df.iloc[i, 1])  # worse
+                sentences.append(str(df.iloc[i, 1]))  # worse
                 labels.append(str(np.random.randint(low=1, high=6)))  # [1,5]
 
         elif data_name.find("ethics") != -1:
@@ -173,7 +173,7 @@ class DecodingTrustMachineEthicsScenario(Scenario):
             # filter out repeated samples and moral samples
             sentences, labels = [], []
             for label_, sentence_ in zip(labels_, sentences_):
-                if sentence_ not in sentences and label_.find("bad") != -1:
+                if sentence_ not in sentences and str(label_).find("bad") != -1:
                     sentences.append(sentence_)
                     labels.append(label_)
 
