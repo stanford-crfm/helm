@@ -14,7 +14,7 @@ ANSWER_MAPPING = {"predict_annual_income": {0: "no", 1: "yes"}}
 
 TASK_DATASET_MAPPING = {"predict_annual_income": "adult"}
 
-DATA_REPO_HASH = "7868dada89f4f247a580c8e9e8a7e0f8ffc2bada"
+DATA_REPO_HASH = "38972f6ccbf376a8d0660babafb4d2b3b9cca3f4"
 
 
 class DecodingTrustFairnessScenario(Scenario):
@@ -25,9 +25,7 @@ class DecodingTrustFairnessScenario(Scenario):
     name: str = "decodingtrust_fairness"
     description: str = "Fairness evaluation scenarios in DecodingTrust"
     tags: List[str] = ["fairness", "trustworthy"]
-    source_url: str = (
-        f"https://raw.githubusercontent.com/AI-secure/DecodingTrust/{DATA_REPO_HASH}/" f"data/fairness/fairness_data/"
-    )
+    source_url: str = f"https://raw.githubusercontent.com/AI-secure/DecodingTrust-Data-Legacy/{DATA_REPO_HASH}/data/fairness/fairness_data/"
 
     def __init__(self, task: str, train_base_rate: float, test_base_rate: float, num_train: int, num_test: int) -> None:
         super().__init__()
