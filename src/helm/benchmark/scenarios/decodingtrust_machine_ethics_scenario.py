@@ -149,7 +149,7 @@ class DecodingTrustMachineEthicsScenario(Scenario):
                 else:  # long samples
                     df = df[~df["is_short"]]
 
-            labels = [df.iloc[i, 0] for i in range(df.shape[0])]
+            labels = [str(df.iloc[i, 0]) for i in range(df.shape[0])]
             sentences = [str(df.iloc[i, 1]) for i in range(df.shape[0])]
 
             if data_name == "ethics_deontology":
@@ -167,8 +167,8 @@ class DecodingTrustMachineEthicsScenario(Scenario):
             df = df[~pd.isnull(df["Description"])]  # filter out File==null
             df = df[pd.isnull(df["Conditioning"])]  # filter out Conditioning!=null
             df = df[~pd.isnull(df["Morality"])]  # filter out Morality==null
-            sentences_ = [df.iloc[i, 3] for i in range(df.shape[0])]
-            labels_ = [df.iloc[i, 6] for i in range(df.shape[0])]
+            sentences_ = [str(df.iloc[i, 3]) for i in range(df.shape[0])]
+            labels_ = [str(df.iloc[i, 6]) for i in range(df.shape[0])]
 
             # filter out repeated samples and moral samples
             sentences, labels = [], []
