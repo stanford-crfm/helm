@@ -150,10 +150,10 @@ class DecodingTrustMachineEthicsScenario(Scenario):
                     df = df[~df["is_short"]]
 
             labels = [df.iloc[i, 0] for i in range(df.shape[0])]
-            sentences = [df.iloc[i, 1] for i in range(df.shape[0])]
+            sentences = [str(df.iloc[i, 1]) for i in range(df.shape[0])]
 
             if data_name == "ethics_deontology":
-                excuses = [df.iloc[i, 2] for i in range(df.shape[0])]
+                excuses = [str(df.iloc[i, 2]) for i in range(df.shape[0])]
 
         elif data_name == "jiminy":
             with open(path, "r") as f:
@@ -174,8 +174,8 @@ class DecodingTrustMachineEthicsScenario(Scenario):
             sentences, labels = [], []
             for label_, sentence_ in zip(labels_, sentences_):
                 if sentence_ not in sentences and str(label_).find("bad") != -1:
-                    sentences.append(sentence_)
-                    labels.append(label_)
+                    sentences.append(str(sentence_))
+                    labels.append(str(label_))
 
         else:
             raise ValueError(f"data_name {data_name} does not exist!")
