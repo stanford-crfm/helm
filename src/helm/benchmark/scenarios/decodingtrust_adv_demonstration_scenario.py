@@ -66,7 +66,10 @@ class DecodingTrustAdvDemoScenario(Scenario):
     name = "decodingtrust_adv_demonstration"
     description = "Robustness analysis of LM generations when facing adversarial demonstrations"
     tags = ["robustness", "demonstration"]
-    source_url: str = f"https://raw.githubusercontent.com/AI-secure/DecodingTrust-Data-Legacy/{DATA_REPO_HASH}/data/adv_demonstration/"
+    source_url: str = (
+        f"https://raw.githubusercontent.com/AI-secure/DecodingTrust-Data-Legacy/"
+        f"{DATA_REPO_HASH}/data/adv_demonstration/"
+    )
 
     def __init__(self, perspective: str, data: str, demo_name: str, description: str) -> None:
         super().__init__()
