@@ -61,6 +61,7 @@ from helm.benchmark.model_metadata_registry import (
     ANTHROPIC_CLAUDE_1_MODEL_TAG,
     ANTHROPIC_CLAUDE_2_MODEL_TAG,
     GOOGLE_PALM_2_MODEL_TAG,
+    GOOGLE_GEMINI_MODEL_TAG,
     NO_NEWLINES_TAG,
     NLG_PREFIX_TAG,
     CHATML_MODEL_TAG,
@@ -2758,7 +2759,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             run_spec = singleton(OpenAIRunExpander().expand(run_spec))
 
         # Google prompts
-        if GOOGLE_PALM_2_MODEL_TAG in model.tags:
+        if GOOGLE_PALM_2_MODEL_TAG in model.tags or GOOGLE_GEMINI_MODEL_TAG in model.tags:
             run_spec = singleton(GoogleRunExpander().expand(run_spec))
 
         # For multiple choice
