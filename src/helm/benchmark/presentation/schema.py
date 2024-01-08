@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from datetime import date
 from typing import List, Optional, Dict
 import dacite
 import mako.template
@@ -44,34 +43,6 @@ class Field:
     def get_short_display_name(self) -> str:
         name = self.short_display_name or self.display_name or self.name
         return name
-
-
-# Note: also see Model from `models.py`.
-@dataclass(frozen=True)
-class ModelField(Field):
-    # Organization that originally created the model (e.g. "EleutherAI")
-    #   Note that this may be different from group or the prefix of the model `name`
-    #   ("together" in "together/gpt-j-6b") as the hosting organization
-    #   may be different from the creator organization. We also capitalize
-    #   this field properly to later display in the UI.
-    # TODO: in the future, we want to cleanup the naming in the following ways:
-    # - make the creator_organization an identifier with a separate display name
-    # - have a convention like <hosting_organization><creator_organization>/<model_name>
-    creator_organization: Optional[str] = None
-
-    # How this model is available (e.g., limited)
-    access: Optional[str] = None
-
-    # Whether we have yet to evaluate this model
-    todo: bool = False
-
-    # When was the model released
-    release_date: Optional[date] = None
-
-    # The number of parameters
-    # This should be a string as the number of parameters is usually a round number (175B),
-    # but we set it as an int for plotting purposes.
-    num_parameters: Optional[int] = None
 
 
 @dataclass(frozen=True)
@@ -222,9 +193,6 @@ class RunGroup(Field):
 class Schema:
     """Specifies information about what to display on the frontend."""
 
-    # Models
-    models: List[ModelField]
-
     # Adapter fields (e.g., temperature)
     adapter: List[Field]
 
@@ -241,7 +209,6 @@ class Schema:
     run_groups: List[RunGroup]
 
     def __post_init__(self):
-        self.name_to_model = {model.name: model for model in self.models}
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}

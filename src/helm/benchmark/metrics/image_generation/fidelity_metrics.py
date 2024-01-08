@@ -11,14 +11,14 @@ from helm.benchmark.augmentations.perturbation_description import PerturbationDe
 from helm.benchmark.scenarios.scenario import Instance
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric, MetricResult
+from helm.benchmark.metrics.metric import MetricInterface, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.images_utils import is_blacked_out_image, copy_image
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 
-class FidelityMetric(Metric):
+class FidelityMetric(MetricInterface):
     """
     Frechet Inception Distance (FID) is a measure of similarity between two sets of images.
     Inception Score (IS) measures quality and diversity of images.
