@@ -7,7 +7,6 @@ from helm.benchmark.metrics.basic_metrics import (
     compute_perplexity_metrics,
     compute_request_state_metrics,
 )
-from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 
 from helm.benchmark.adaptation.request_state import RequestState
@@ -29,8 +28,7 @@ class LanguageModelingMetric(MetricInterface):
         self.efficiency_metric = EfficiencyMetric()
 
     def __repr__(self):
-        # TODO: Should this be changed to LanguageModelingMetric?
-        return f"BasicMetric({','.join(self.names)})"
+        return "LanguageModelingMetric"
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
@@ -90,11 +88,6 @@ class LanguageModelingMetric(MetricInterface):
         """Compute all metrics."""
         stats: List[Stat] = []
         stats.extend(compute_request_state_metrics(self.efficiency_metric, adapter_spec, request_state, metric_service))
-
-        # TODO: Language modeling makes no use of the references, so maybe this isn't needed?
-        if len(request_state.instance.references) > 0:
-            stats.extend(compute_reference_metrics(self.names, adapter_spec, request_state, metric_service))
-
         stats.extend(compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
 
         return stats
