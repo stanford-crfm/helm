@@ -458,7 +458,10 @@ def get_adapter_spec1() -> AdapterSpec:
 
 
 def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicMetric", args={"names": names})]
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicMetric", args={"names": names}),
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric", args={}),
+    ]
 
 
 def get_exact_match_metric_specs() -> List[MetricSpec]:
@@ -469,6 +472,14 @@ def get_exact_match_metric_specs() -> List[MetricSpec]:
 
 def get_f1_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score"])
+
+
+def get_language_modeling_metric_specs(names: List[str]) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.language_modeling_metrics.LanguageModelingMetric", args={"names": names}
+        )
+    ]
 
 
 def get_classification_metric_specs(delimiter: Optional[str] = None) -> List[MetricSpec]:
@@ -1086,7 +1097,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         name=f"twitter_aae:demographic={demographic}",
         scenario_spec=scenario_spec,
         adapter_spec=get_language_modeling_adapter_spec(),
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_language_modeling_metric_specs([]),
         groups=["twitter_aae", f"twitter_aae_{demographic}"],
     )
 
@@ -1545,7 +1556,7 @@ def get_the_pile_spec(subset: str) -> RunSpec:
         name=f"the_pile:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=get_language_modeling_adapter_spec(),
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_language_modeling_metric_specs([]),
         groups=["the_pile"],
     )
 
@@ -1558,7 +1569,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
         name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in sorted(kwargs.items())),
         scenario_spec=scenario_spec,
         adapter_spec=get_language_modeling_adapter_spec(),
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_language_modeling_metric_specs([]),
         groups=["ice"],
     )
 
@@ -1644,7 +1655,7 @@ def get_wikitext_103_spec() -> RunSpec:
         name="wikitext_103",
         scenario_spec=scenario_spec,
         adapter_spec=get_language_modeling_adapter_spec(),
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_language_modeling_metric_specs([]),
         groups=["wikitext_103"],
     )
 
@@ -2512,7 +2523,7 @@ def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, promp
         metric_specs = get_basic_metric_specs(["code_eval_acc", "pass"]) + get_cleva_generative_harms_metric_specs()
     elif task in ["language_modeling"]:
         adapter_spec = get_language_modeling_adapter_spec()
-        metric_specs = get_basic_metric_specs([])
+        metric_specs = get_language_modeling_metric_specs([])
     else:
         if prompt_setting.method in [
             ADAPT_MULTIPLE_CHOICE_JOINT,
