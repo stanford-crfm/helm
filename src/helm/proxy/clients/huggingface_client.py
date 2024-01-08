@@ -37,6 +37,8 @@ class StopAtSpecificTokenCriteria(StoppingCriteria):
 
 
 class HuggingFaceRequest(TypedDict):
+    """Data passed between make_request and serve_request. Used as the cache key."""
+
     engine: str
     prompt: str
     temperature: float
