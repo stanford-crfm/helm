@@ -214,7 +214,7 @@ class GenderPerturbation(TextPerturbation):
     def perturb(self, text: str, rng: Random) -> str:
         """Perform the perturbations on the provided text."""
         # Substitute the words
-        for (word, synonym) in self.word_synonym_pairs:
+        for word, synonym in self.word_synonym_pairs:
             text = self.substitute_word(text, word, synonym, rng)
 
         return text

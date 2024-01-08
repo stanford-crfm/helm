@@ -448,9 +448,7 @@ def check_correctness(problem: Dict, completion: str, timeout: float, completion
     """
 
     def unsafe_execute():
-
         with create_tempdir():
-
             # These system calls are needed when cleaning up tempdir.
             import os
             import shutil
