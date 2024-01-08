@@ -5,7 +5,7 @@ import numpy as np
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.metric import Metric, MetricResult, PerInstanceStats, add_context
+from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, add_context
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -18,7 +18,7 @@ from helm.common.request import RequestResult
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 
 
-class PhotorealismCritiqueMetric(Metric):
+class PhotorealismCritiqueMetric(MetricInterface):
     """
     Critique evaluation for evaluating how photorealistic the generated images are by humans.
     """
