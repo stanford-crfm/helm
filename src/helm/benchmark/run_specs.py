@@ -456,7 +456,10 @@ def get_adapter_spec1() -> AdapterSpec:
 
 
 def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicMetric", args={"names": names})]
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicMetric", args={"names": names}),
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric", args={}),
+    ]
 
 
 def get_exact_match_metric_specs() -> List[MetricSpec]:
