@@ -127,8 +127,10 @@ class BasicMetric(Metric):
         """Compute all metrics."""
         stats: List[Stat] = []
         stats.extend(compute_request_state_metrics(self.efficiency_metric, adapter_spec, request_state, metric_service))
+        stats.extend(compute_request_state_metrics(self.efficiency_metric, adapter_spec, request_state, metric_service))
 
         if len(request_state.instance.references) > 0:
+            stats.extend(compute_reference_metrics(self.names, adapter_spec, request_state, metric_service))
             stats.extend(compute_reference_metrics(self.names, adapter_spec, request_state, metric_service))
 
         stats.extend(compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
