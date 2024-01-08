@@ -64,7 +64,7 @@ class TogetherImageGenerationClient(Client):
             raw_request["width"] = request.image_generation_parameters.output_image_width
             raw_request["height"] = request.image_generation_parameters.output_image_height
 
-        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
 
         try:
 

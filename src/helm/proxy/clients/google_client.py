@@ -32,7 +32,7 @@ class GoogleClient(CachingClient):
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = GoogleClient.convert_to_raw_request(request)
-        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
 
         try:
 

@@ -1,6 +1,6 @@
 import json
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Dict, List, Mapping, Optional
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import MultimediaObject, TEXT_TYPE
@@ -30,14 +30,14 @@ class CachingClient(Client):
         self.cache = Cache(cache_config) if cache_config is not None else None
 
     @staticmethod
-    def make_cache_key(raw_request: Dict, request: Request) -> Dict:
+    def make_cache_key(raw_request: Mapping, request: Request) -> Mapping:
         """
         Construct the key for the cache using the raw request.
         Add `request.random` to the key, if defined.
         """
         if request.random is not None:
             assert "random" not in raw_request
-            cache_key = {**raw_request, "random": request.random}
+            cache_key: Mapping = {**raw_request, "random": request.random}
         else:
             cache_key = raw_request
         return cache_key

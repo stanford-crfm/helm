@@ -43,7 +43,7 @@ class DeepFloydClient(Client):
             raise ValueError(f"Unsupported model: {request.model_engine}")
 
         raw_request = DeepFloydClient.convert_to_raw_request(request)
-        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
 
         try:
 

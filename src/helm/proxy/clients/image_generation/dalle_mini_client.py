@@ -161,7 +161,7 @@ class DALLEMiniClient(Client):
                     return result
 
             # Include the model name and number of completions in the cache key
-            cache_key: Dict = CachingClient.make_cache_key(
+            cache_key = CachingClient.make_cache_key(
                 {"model": request.model_engine, "n": request.num_completions, **raw_request}, request
             )
             results, cached = self._cache.get(cache_key, wrap_request_time(do_it))
