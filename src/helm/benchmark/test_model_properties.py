@@ -826,51 +826,61 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         max_sequence_length=511,
     ),
     ModelDeployment(
-        name="google/text-bison@001",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
-        tokenizer_name="google/mt5-base",
+        name="google/gemini-pro",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIChatClient"),
+        tokenizer_name="hf-internal-testing/llama-tokenizer",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+        ),
+        max_sequence_length=30720,
+        max_sequence_and_generated_tokens_length=32768,
+    ),
+    ModelDeployment(
+        name="google/text-bison@001",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
+        tokenizer_name="google/text-bison@001",
+        window_service_spec=WindowServiceSpec(
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
     ),
     ModelDeployment(
         name="google/text-bison-32k",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
-        tokenizer_name="google/mt5-base",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
+        tokenizer_name="google/text-bison@001",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=32000,
         max_sequence_and_generated_tokens_length=32000,
     ),
     ModelDeployment(
         name="google/text-unicorn@001",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
-        tokenizer_name="google/mt5-base",
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
+        tokenizer_name="google/text-unicorn@001",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
     ),
     ModelDeployment(
         name="google/code-bison@001",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=6000,
         max_sequence_and_generated_tokens_length=7000,
     ),
     ModelDeployment(
         name="google/code-bison-32k",
-        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAIClient"),
+        client_spec=ClientSpec(class_name="helm.proxy.clients.vertexai_client.VertexAITextClient"),
         tokenizer_name="google/mt5-base",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+            class_name="helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
         ),
         max_sequence_length=32000,
         max_sequence_and_generated_tokens_length=32000,
