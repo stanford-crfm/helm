@@ -5,7 +5,7 @@ from transformers.generation.stopping_criteria import (
     StoppingCriteria,
     StoppingCriteriaList,
 )
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
@@ -247,7 +247,7 @@ class HuggingFaceClient(CachingClient):
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
 
-        raw_request: HuggingFaceRequest = {
+        raw_request = {
             "engine": request.model_engine,
             "prompt": request.prompt,
             "temperature": 1e-7 if request.temperature == 0 else request.temperature,
