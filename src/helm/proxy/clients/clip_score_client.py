@@ -2,7 +2,7 @@ from typing import Dict, Optional
 from dataclasses import asdict
 
 from helm.common.cache import Cache, CacheConfig
-from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
+from helm.common.clip_score_request import DEFAULT_CLIP_SCORE_MODEL, CLIPScoreRequest, CLIPScoreResult
 from .clip_scorers.clip_scorer import CLIPScorer
 
 
@@ -20,7 +20,7 @@ class CLIPScoreClient:
         Compute a CLIPScore for a given caption and image.
         """
         # TODO: support multilingual CLIPScore and other CLIP models.
-        assert request.model == "openai/clip-vit-large-patch14", f"Unsupported model: {request.model}"
+        assert request.model == DEFAULT_CLIP_SCORE_MODEL, f"Unsupported model: {request.model}"
         assert not request.multilingual
 
         try:
