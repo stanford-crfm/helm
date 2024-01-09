@@ -99,8 +99,3 @@ class CohereWindowService(LocalWindowService):
             result = result[:-1]
 
         return result
-
-
-class CohereCommandWindowService(CohereWindowService):
-    # TODO: Delete this WindowService.
-    pass
