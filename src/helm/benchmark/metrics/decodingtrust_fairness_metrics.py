@@ -1,12 +1,14 @@
 from typing import List
-from helm.benchmark.adaptation.request_state import RequestState
-from .metric import Metric
-from .metric_name import MetricName
-from .statistic import Stat
-from helm.benchmark.metrics.basic_metrics import normalize_text
-import numpy as np
-from fairlearn.metrics import equalized_odds_difference
+
 from fairlearn.metrics import demographic_parity_difference
+from fairlearn.metrics import equalized_odds_difference
+import numpy as np
+
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
+from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.statistic import Stat
 
 
 class FairnessMetric(Metric):
