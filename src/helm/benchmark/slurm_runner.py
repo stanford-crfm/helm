@@ -10,6 +10,10 @@ import sys
 
 from helm.common.codec import from_json, to_json
 from helm.common.general import write
+from helm.benchmark.config_registry import (
+    register_configs_from_directory,
+    register_builtin_configs_from_helm_package,
+)
 from helm.benchmark.executor import ExecutionSpec
 from helm.benchmark.runner import Runner, RunSpec, RunnerError
 from helm.benchmark.slurm_jobs import (
@@ -300,18 +304,6 @@ class SlurmRunner(Runner):
         return slurm_job_id
 
 
-def run_as_worker(slurm_runner_spec_path: str, run_spec_path: str):
-    """Deserialize SlurmRunner and RunSpec from the given files, then run the RunSpec with the SlurmRunner.
-
-    Used by the worker Slurm jobs only."""
-    with open(slurm_runner_spec_path, "r") as f:
-        slurm_runner_spec = from_json(f.read(), SlurmRunnerSpec)
-    with open(run_spec_path, "r") as f:
-        run_spec = from_json(f.read(), RunSpec)
-    slurm_runner = SlurmRunner(**slurm_runner_spec.to_kwargs())
-    slurm_runner.run_one(run_spec)
-
-
 def main():
     """Entry point for the SlurmRunner's worker Slurm jobs that run a single RunSpec.
 
@@ -335,7 +327,19 @@ def main():
         required=True,
     )
     args = parser.parse_args()
-    run_as_worker(slurm_runner_spec_path=args.slurm_runner_spec_path, run_spec_path=args.run_spec_path)
+
+    # Deserialize SlurmRunner and RunSpec from the given files, then run the RunSpec with the SlurmRunner.
+    with open(args.slurm_runner_spec_path, "r") as f:
+        slurm_runner_spec = from_json(f.read(), SlurmRunnerSpec)
+    with open(args.run_spec_path, "r") as f:
+        run_spec = from_json(f.read(), RunSpec)
+
+    register_builtin_configs_from_helm_package()
+    if slurm_runner_spec.execution_spec.local_path is not None:
+        register_configs_from_directory(slurm_runner_spec.execution_spec.local_path)
+
+    slurm_runner = SlurmRunner(**slurm_runner_spec.to_kwargs())
+    slurm_runner.run_one(run_spec)
 
 
 if __name__ == "__main__":
