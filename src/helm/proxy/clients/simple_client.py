@@ -19,10 +19,13 @@ class SimpleClient(CachingClient):
             "n": request.num_completions,
         }
 
-        if request.model_engine == "model1":
+        if request.model_engine in ["model1", "tutorial"]:
 
             def do_it():
-                return self.invoke_model1(raw_request)
+                if request.model_engine == "model1":
+                    return self.invoke_model1(raw_request)
+                elif request.model_engine == "tutorial":
+                    return self.invoke_model_tutorial(raw_request)
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
@@ -57,4 +60,16 @@ class SimpleClient(CachingClient):
         prompt_tokens: List[str] = SimpleTokenizer.tokenize_by_space(raw_request["prompt"])
         choices = reversed(prompt_tokens[-raw_request["n"] :])
         response = {"completions": dict((text, -i) for i, text in enumerate(choices))}
+        return response
+
+    def invoke_model_tutorial(self, raw_request: Dict) -> Dict:
+        """Always returns: 'The model is generating some text. Hooray, the tutorial works! (Completion {i})'.
+        This supports multiple completions.
+        """
+        response = {
+            "completions": dict(
+                (f"The model is generating some text. Hooray, the tutorial works! (Completion {i})", -i)
+                for i in range(raw_request["n"])
+            )
+        }
         return response

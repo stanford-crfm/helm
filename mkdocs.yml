@@ -24,6 +24,8 @@ plugins:
               ignore_init_summary: true
 
   - include-markdown
+hooks:
+  - docs/mkdocs_hooks.py
 extra_css:
   - docstrings.css
 markdown_extensions:
