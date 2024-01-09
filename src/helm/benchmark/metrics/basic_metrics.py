@@ -10,6 +10,7 @@ import calibration as cal
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
+from helm.benchmark.metrics.reference_metric import ReferenceMetric
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Token, Sequence
@@ -180,7 +181,7 @@ class BasicGenerationMetric(Metric):
         return derived_stats
 
 
-class BasicReferenceMetric(Metric):
+class BasicReferenceMetric(ReferenceMetric):
     """
     Defines basic metrics for Scenarios that use one Request per Reference instead of
     one per Instance.
