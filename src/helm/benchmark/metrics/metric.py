@@ -288,7 +288,9 @@ class Metric(MetricInterface, ABC):
             for stat in stats:  # go through all the perturbations of the instance and merge relevant stats
                 perturbation = stat.name.perturbation
                 if perturbation is None:
-                    assert original_stat is None  # we should only have one original stat
+                    assert (
+                        original_stat is None
+                    ), f"For {metric_name} got both {original_stat} and {stat}"  # we should only have one original stat
                     original_stat = stat
                 else:
                     if perturbation.robustness:
