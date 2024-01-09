@@ -20,4 +20,4 @@
 
 ## HEIM (text-to-image evaluation)
 
-For a list of image-generation models, please visit the [models page](https://crfm.stanford.edu/heim/latest/?models) of the HEIM results website.
+For a list of text-to-image models, please visit the [models page](https://crfm.stanford.edu/heim/latest/?models) of the HEIM results website.
