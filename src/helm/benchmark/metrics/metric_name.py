@@ -7,7 +7,6 @@ from helm.benchmark.scenarios.scenario import Instance
 
 @dataclass(frozen=True, eq=True)
 class MetricName:
-
     # The name of the metric
     name: str
 

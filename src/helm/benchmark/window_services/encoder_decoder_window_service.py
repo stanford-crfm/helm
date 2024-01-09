@@ -2,20 +2,9 @@ from abc import ABC
 
 from helm.common.hierarchical_logger import hlog
 from .local_window_service import LocalWindowService
-from .tokenizer_service import TokenizerService
 
 
 class EncoderDecoderWindowService(LocalWindowService, ABC):
-    def __init__(self, service: TokenizerService):
-        super().__init__(service)
-
-    @property
-    def max_request_length(self) -> int:
-        """
-        Return the max request length. We set the max requests length to be `max_sequence_length`.
-        """
-        return self.max_sequence_length
-
     @property
     def max_output_length(self) -> int:
         """

@@ -13,7 +13,7 @@ MODEL_DEPLOYMENTS_FILE: str = "model_deployments.yaml"
 CONFIG_PACKAGE = "helm.config"
 
 
-def register_configs_from_directory(dir_path) -> None:
+def register_configs_from_directory(dir_path: str) -> None:
     model_metadata_path = os.path.join(dir_path, MODEL_METADATA_FILE)
     if os.path.isfile(model_metadata_path):
         register_model_metadata_from_path(model_metadata_path)

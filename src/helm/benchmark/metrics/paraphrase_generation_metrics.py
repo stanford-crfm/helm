@@ -22,7 +22,6 @@ class CLEVAParaphraseGenerationMetric(EvaluateInstancesMetric):
         self.alpha = alpha
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-
         inputs: List = []
         preds: List = []
         golds: List[List[str]] = []

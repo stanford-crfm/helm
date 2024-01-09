@@ -268,11 +268,14 @@ class BasicReferenceMetric(Metric):
             raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
 
         stats: List[Stat] = []
-        for request_state in reference_request_states:
-            stats.extend(
-                compute_request_state_metrics(self.efficiency_metric, adapter_spec, request_state, metric_service)
-            )
 
+        general_metrics: Dict[MetricName, Stat] = {}
+        for request_state in reference_request_states:
+            for stat in compute_request_state_metrics(
+                self.efficiency_metric, adapter_spec, request_state, metric_service
+            ):
+                merge_stat(general_metrics, stat)
+        stats.extend(general_metrics.values())
         max_prob = np.max(scipy.special.softmax(reference_scores))
 
         # Multiple references may attain the same maximal score; in such cases,

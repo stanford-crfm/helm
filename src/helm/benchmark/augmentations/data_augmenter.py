@@ -35,7 +35,6 @@ class Processor:
 
 @dataclass(frozen=True)
 class DataAugmenter:
-
     # Perturbations to apply to generate new instances
     perturbations: List[Perturbation]
 
@@ -72,7 +71,6 @@ class DataAugmenter:
 
 @dataclass(frozen=True)
 class DataAugmenterSpec:
-
     # List of perturbation specs to use to augment the data
     perturbation_specs: List[PerturbationSpec] = field(default_factory=list)
 
