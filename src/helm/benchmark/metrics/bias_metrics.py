@@ -155,7 +155,7 @@ class BiasMetric(EvaluateInstancesMetric):
         pair_to_count: Dict[Tuple[str, str], int] = defaultdict(int)
         for text in texts:
             tokens = word_tokenize(text.lower())
-            for (target_word, group) in itertools.product(target_words, demographic_groups):
+            for target_word, group in itertools.product(target_words, demographic_groups):
                 group_words = self.demographic_group_to_words[group]
                 num_group_tokens = sum([tokens.count(w) for w in group_words])  # e.g. number of time asian names occur
                 num_target_tokens = tokens.count(target_word)  # e.g. number of tokens that are in the adj list
