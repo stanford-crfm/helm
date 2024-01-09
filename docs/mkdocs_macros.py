@@ -1,53 +1,33 @@
-from collections import defaultdict
-from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import Dict, List, Type
 
-from helm.benchmark.presentation.schema import read_schema, SCHEMA_CLASSIC_YAML_FILENAME, ModelField
-from helm.benchmark.run_expander import RUN_EXPANDERS
-from helm.proxy.models import ALL_MODELS, Model
-
-
-@dataclass(frozen=True)
-class ModelInfo(ModelField):
-    group: Optional[str] = None
-    tags: List[str] = field(default_factory=list)
-
-    @staticmethod
-    def from_model_field_and_model_object(model_field: ModelField, model_object: Optional[Model] = None):
-        # Copy all attributes from model_field
-        # and set group to model_field.creator_organization
-        # and tags to an empty list
-        if model_object is not None:
-            model_info = ModelInfo(**model_field.__dict__, group=model_object.group, tags=model_object.tags)
-        else:
-            model_info = ModelInfo(**model_field.__dict__, group=model_field.creator_organization, tags=[])
-        return model_info
+from helm.benchmark.model_metadata_registry import ALL_MODELS_METADATA, TEXT_MODEL_TAG, CODE_MODEL_TAG, ModelMetadata
+from helm.benchmark.run_expander import RUN_EXPANDERS, RunExpander
 
 
 def define_env(env):
     @env.macro
-    def models_by_organization():
-        # TODO: make this customizable
-        schema = read_schema(SCHEMA_CLASSIC_YAML_FILENAME)
-        result = defaultdict(list)
+    def model_types_and_tags() -> Dict[str, str]:
+        return {
+            "Text": TEXT_MODEL_TAG,
+            "Code": CODE_MODEL_TAG,
+        }
 
-        # Create dict name -> madel_object (ALL_MODELS)
-        name_to_model_object = {}
-        for model_object in ALL_MODELS:
-            name_to_model_object[model_object.name] = model_object
+    @env.macro
+    def models_by_organization_with_tag(tag: str) -> Dict[str, List[ModelMetadata]]:
+        result: Dict[str, List[ModelMetadata]] = {}
 
-        for model_field in schema.models:
-            model_object = name_to_model_object.get(model_field.name, None)
-            model_info: ModelInfo = ModelInfo.from_model_field_and_model_object(model_field, model_object)
-            result[model_info.creator_organization].append(model_info)
-        if "Simple" in result:
-            del result["Simple"]
+        for model_metadata in ALL_MODELS_METADATA:
+            if tag not in model_metadata.tags:
+                continue
+            if model_metadata.creator_organization == "simple":
+                continue
+            creator_organization_name = model_metadata.creator_organization_name
+            if creator_organization_name not in result:
+                result[creator_organization_name] = []
+            result[creator_organization_name].append(model_metadata)
+
         return result
 
     @env.macro
-    def run_expanders():
+    def run_expanders() -> Dict[str, Type[RunExpander]]:
         return RUN_EXPANDERS
-
-    @env.macro
-    def render_model_tags(model):
-        return ", ".join([f"`{tag}`" for tag in model.tags])
