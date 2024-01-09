@@ -1,5 +1,5 @@
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.basic_metrics import normalize_text
+from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
 from helm.benchmark.metrics.metric import Metric, MetricName
 from helm.benchmark.metrics.statistic import Stat
 from typing import List
