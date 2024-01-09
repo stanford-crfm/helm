@@ -77,7 +77,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.wider_ai21_window_service.AI21WindowServicee"
+      class_name: "helm.benchmark.window_services.wider_ai21_window_service.AI21WindowService"
 
   - name: ai21/j2-large
     model_name: ai21/j2-large

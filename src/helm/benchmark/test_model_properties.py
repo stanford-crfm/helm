@@ -287,7 +287,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.ai21_client.AI21Client"),
         tokenizer_name="ai21/j1",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_ai21_window_service.AI21WindowServicee",
+            class_name="helm.benchmark.window_services.wider_ai21_window_service.AI21WindowService",
             args={},
         ),
         max_sequence_length=6000,
