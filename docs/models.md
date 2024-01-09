@@ -1,16 +1,16 @@
 # Models
 
-{% for model_type, model_tag in model_types_and_tags().items() %}
+## Text Models
 
-## {{ model_type }} Models
+{% for tag in ["TEXT_MODEL_TAG", "CODE_MODEL_TAG"] %}
 
-{% for organization, models in models_by_organization_with_tag(model_tag).items() %}
+{% for organization, models in models_by_organization_with_tag(tag).items() %}
 
 ### {{ organization }}
 
 {% for model in models %}
 
-#### {{ model.display_name }} (`{{ model.name }}`)
+#### {{ model.display_name }} &mdash; `{{ model.name }}`
 
 {{ model.description }}
 

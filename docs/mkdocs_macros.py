@@ -5,12 +5,6 @@ from helm.benchmark.run_expander import RUN_EXPANDERS, RunExpander
 
 
 def define_env(env):
-    @env.macro
-    def model_types_and_tags() -> Dict[str, str]:
-        return {
-            "Text": TEXT_MODEL_TAG,
-            "Code": CODE_MODEL_TAG,
-        }
 
     @env.macro
     def models_by_organization_with_tag(tag: str) -> Dict[str, List[ModelMetadata]]:
