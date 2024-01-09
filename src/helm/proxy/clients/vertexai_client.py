@@ -186,6 +186,9 @@ class VertexAIChatClient(VertexAIClient):
                 # See: https://github.com/googleapis/python-aiplatform/blob/e8c505751b10a9dc91ae2e0d6d13742d2abf945c/vertexai/generative_models/_generative_models.py#L812  # noqa: E501
                 response: GenerationResponse = model.generate_content(contents, generation_config=parameters)
                 candidates: List[Candidate] = response.candidates
+                assert (
+                    len(candidates) == request.num_completions
+                ), f"num_completions was {request.num_completions}, but got {len(candidates)} candidates"
                 response_dict = {
                     "predictions": [{"text": completion.text for completion in candidates}],
                 }  # TODO: Extract more information from the response

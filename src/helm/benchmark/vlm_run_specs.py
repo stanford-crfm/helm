@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from .adaptation.adapter_spec import AdapterSpec
-from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL
+from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
 from .metrics.metric import MetricSpec
 from .run_specs import run_spec_function, get_exact_match_metric_specs
 from .runner import RunSpec
@@ -39,6 +39,30 @@ def get_vlm_generation_adapter_spec(
     )
 
 
+def get_vlm_multiple_choice_joint_adapter_spec(
+    input_noun: Optional[str],
+    output_noun: str,
+    instructions: str = "",
+    max_train_instances: int = 0,
+) -> AdapterSpec:
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
+        global_prefix="",
+        instructions=instructions,
+        input_prefix=f"{input_noun}: " if input_noun is not None else "",
+        input_suffix="\n" if input_noun is not None else "",
+        output_prefix=f"{output_noun}: ",
+        output_suffix="\n",
+        instance_prefix="\n",
+        max_train_instances=max_train_instances,
+        num_outputs=1,
+        max_tokens=2,
+        stop_sequences=["\n"],
+        temperature=0.0,
+        random=None,
+    )
+
+
 ############################################################
 # VHELM run specs
 
@@ -72,6 +96,31 @@ def get_vqa_spec() -> RunSpec:
     run_spec_name: str = "vqa"
     return RunSpec(
         name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("heim_human_eval")
+def get_heim_human_eval_spec(question_type: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.heim_human_eval_scenario.HEIMHumanEvalScenario",
+        args={"question_type": question_type},
+    )
+
+    instructions: str = (
+        "The following are multiple choice questions (with answers) about images and their descriptions."
+    )
+    adapter_spec: AdapterSpec = get_vlm_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", instructions=instructions, max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "heim_human_eval"
+    return RunSpec(
+        name=f"{run_spec_name}:question_type={question_type}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
