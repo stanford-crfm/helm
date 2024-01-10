@@ -6,8 +6,6 @@ export function getScenarioStateByNameUrl(
   suite?: string,
 ): string {
   return getBenchmarkEndpoint(
-    `/runs/${
-      suite || getBenchmarkSuite()
-    }/${runName}/scenario_state.json`,
+    `/runs/${suite || getBenchmarkSuite()}/${runName}/scenario_state.json`,
   );
 }
