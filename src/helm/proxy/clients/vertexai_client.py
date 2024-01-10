@@ -18,6 +18,7 @@ try:
     import vertexai
     from vertexai.language_models import TextGenerationModel, TextGenerationResponse  # PaLM2
     from vertexai.preview.generative_models import GenerativeModel, GenerationResponse, Candidate, Part, Image  # Gemini
+    from google.cloud.aiplatform_v1beta1.types import SafetySetting, HarmCategory
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["google"])
 
@@ -37,6 +38,12 @@ class VertexAIClient(CachingClient, ABC):
         self.location = location
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
+
+        # VertexAI's default safety filter is overly sensitive, so we disable it.
+        self.safety_settings: Dict[HarmCategory, SafetySetting.HarmBlockThreshold] = {
+            harm_category: SafetySetting.HarmBlockThreshold(SafetySetting.HarmBlockThreshold.BLOCK_NONE)
+            for harm_category in iter(HarmCategory)
+        }
 
         vertexai.init(project=self.project_id, location=self.location)
 
@@ -201,7 +208,9 @@ class VertexAIChatClient(VertexAIClient):
                 # output to only one candidate.
                 # chat: ChatSession = model.start_chat()
                 # See: https://github.com/googleapis/python-aiplatform/blob/e8c505751b10a9dc91ae2e0d6d13742d2abf945c/vertexai/generative_models/_generative_models.py#L812  # noqa: E501
-                response: GenerationResponse = model.generate_content(contents, generation_config=parameters)
+                response: GenerationResponse = model.generate_content(
+                    contents, generation_config=parameters, safety_settings=self.safety_settings
+                )
                 candidates: List[Candidate] = response.candidates
                 response_dict = {
                     "predictions": [{"text": completion.text for completion in candidates}],
