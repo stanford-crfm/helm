@@ -10,7 +10,7 @@ export default async function getDisplayPredictionsByName(
   try {
     const displayPrediction = await fetch(
       getBenchmarkEndpoint(
-        `/benchmark_output/runs/${
+        `/runs/${
           suite || getBenchmarkSuite()
         }/${runName}/display_predictions.json`,
       ),
