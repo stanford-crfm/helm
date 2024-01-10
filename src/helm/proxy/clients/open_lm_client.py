@@ -37,7 +37,7 @@ class OpenLMClient(HuggingFaceClient):
     """Client for OpenLM: https://github.com/mlfoundations/open_lm"""
 
     def __init__(self, cache_config: CacheConfig, pretrained_model_name_or_path: Optional[str] = None, **kwargs):
+        _register_open_lm_for_auto_model()
         super().__init__(
             cache_config=cache_config, pretrained_model_name_or_path=pretrained_model_name_or_path, **kwargs
         )
-        _register_open_lm_for_auto_model()
