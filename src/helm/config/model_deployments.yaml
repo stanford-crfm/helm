@@ -1121,39 +1121,35 @@ model_deployments:
     max_sequence_length: 2048
     max_request_length: 2049
     client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
-  - name: together/pythia-1b-v0
+  - name: huggingface/pythia-1b-v0
     model_name: eleutherai/pythia-1b-v0
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
-    max_request_length: 2049
     client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
-  - name: together/pythia-2.8b-v0
+  - name: huggingface/pythia-2.8b-v0
     model_name: eleutherai/pythia-2.8b-v0
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
-    max_request_length: 2049
     client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
-  - name: together/pythia-6.9b
+  - name: huggingface/pythia-6.9b
     model_name: eleutherai/pythia-6.9b
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
-    max_request_length: 2049
     client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
-  - name: together/pythia-12b-v0
+  - name: huggingface/pythia-12b-v0
     model_name: eleutherai/pythia-12b-v0
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
-    max_request_length: 2049
     client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
   ## Google
   - name: together/t5-11b
