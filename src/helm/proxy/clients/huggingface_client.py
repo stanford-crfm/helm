@@ -5,7 +5,7 @@ from transformers.generation.stopping_criteria import (
     StoppingCriteria,
     StoppingCriteriaList,
 )
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypedDict
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
@@ -36,6 +36,20 @@ class StopAtSpecificTokenCriteria(StoppingCriteria):
         return bool(torch.all(current_sequence == stop_sequence_tensor).item())
 
 
+class HuggingFaceRequest(TypedDict):
+    """Data passed between make_request and serve_request. Used as the cache key."""
+
+    engine: str
+    prompt: str
+    temperature: float
+    num_return_sequences: int
+    max_new_tokens: int
+    top_p: float
+    echo_prompt: bool
+    top_k_per_token: int
+    stop_sequences: List
+
+
 class HuggingFaceServer:
     """A thin wrapper around a Hugging Face AutoModelForCausalLM for HuggingFaceClient to call."""
 
@@ -55,30 +69,25 @@ class HuggingFaceServer:
                 pretrained_model_name_or_path, **kwargs
             )
 
-    def serve_request(self, raw_request: Dict[str, Any]):
+    def serve_request(self, raw_request: HuggingFaceRequest):
         with self.wrapped_tokenizer as tokenizer:
             encoded_input = tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
                 self.device
             )
-        raw_request = deepcopy(raw_request)
-        raw_request["do_sample"] = True
-        raw_request["return_dict_in_generate"] = True
-        raw_request["output_scores"] = True
         top_k_per_token: int = raw_request["top_k_per_token"]
-        del raw_request["top_k_per_token"]
         stopping_criteria: Optional[StoppingCriteriaList] = None
+        optional_args = {}
         if len(raw_request["stop_sequences"]) > 0:
             with self.wrapped_tokenizer as tokenizer:
                 stop_sequence_ids = tokenizer(
                     raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
                 )
             if len(stop_sequence_ids.input_ids) == 1 and len(stop_sequence_ids.input_ids[0]) == 1:
-                raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
+                optional_args["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
             else:
                 stopping_criteria = StoppingCriteriaList()
                 for stop_sequence_input_ids in stop_sequence_ids.input_ids:
                     stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_input_ids))
-            del raw_request["stop_sequences"]
 
         # Check if we need to compute the perplexity of the prompt (#1497)
         compute_logprobs_only = (
@@ -94,16 +103,16 @@ class HuggingFaceServer:
             sequences = encoded_input["input_ids"]
             scores = output.logits
         else:
-            # Strip out irrelevant parameters
-            relevant_raw_request = {
-                key: raw_request[key]
-                for key in raw_request
-                if key not in ["engine", "prompt", "echo_prompt", "stop_sequences"]
-            }
-
             output = self.model.generate(
                 **encoded_input,
-                **relevant_raw_request,
+                temperature=raw_request["temperature"],
+                num_return_sequences=raw_request["num_return_sequences"],
+                max_new_tokens=raw_request["max_new_tokens"],
+                top_p=raw_request["top_p"],
+                do_sample=True,
+                return_dict_in_generate=True,
+                output_scores=True,
+                **optional_args,
                 stopping_criteria=stopping_criteria,
             )
             sequences = output.sequences
@@ -240,7 +249,7 @@ class HuggingFaceClient(CachingClient):
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
 
-        raw_request = {
+        raw_request: HuggingFaceRequest = {
             "engine": request.model_engine,
             "prompt": request.prompt,
             "temperature": 1e-7 if request.temperature == 0 else request.temperature,
