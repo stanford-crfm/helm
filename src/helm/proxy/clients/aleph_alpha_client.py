@@ -1,23 +1,31 @@
-from typing import Dict, List, Optional
-
-from aleph_alpha_client import Client, CompletionRequest, CompletionResponse, Image, Prompt
+from typing import Dict, List
 
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
+
+try:
+    from aleph_alpha_client import Client, CompletionRequest, CompletionResponse, Image, Prompt
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["aleph-alpha"])
 
 
 class AlephAlphaClient(CachingClient):
     def __init__(self, api_key: str, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
         self._api_key: str = api_key
-        self._aleph_alpha_client: Optional[Client] = None
+        self._aleph_alpha_client = Client(token=self._api_key) if self._api_key else None
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request following https://docs.aleph-alpha.com/api/complete."""
+        assert self._aleph_alpha_client is not None
+
         model: str = request.model_engine
         prompt: Prompt
+
+        # The prompt key is a unique identifier for the prompt
         prompt_key: str = request.prompt
 
         # Contents can either be text or a list of multimodal content made up of text, images or other content
@@ -54,9 +62,6 @@ class AlephAlphaClient(CachingClient):
             "tokens": True,  # Setting to True returns individual tokens of the completion
         }
 
-        if self._aleph_alpha_client is None:
-            self._aleph_alpha_client = Client(token=self._api_key)
-
         try:
 
             def do_it():
@@ -68,9 +73,7 @@ class AlephAlphaClient(CachingClient):
                 assert "completions" in result, f"Invalid response: {result}"
                 return result
 
-            cache_key: Dict = CachingClient.make_cache_key(
-                {"model": model, "prompt": prompt_key, **parameters}, request
-            )
+            cache_key = CachingClient.make_cache_key({"model": model, "prompt": prompt_key, **parameters}, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
             error: str = f"AlephAlphaClient error: {e}"

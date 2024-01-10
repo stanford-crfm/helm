@@ -52,6 +52,7 @@ TEXT_TO_IMAGE_MODEL_TAG: str = "TEXT_TO_IMAGE_MODEL_TAG"
 
 # For Vision-langauge models (VLMs)
 VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
+# IDEFICS require a special prompt format (see `IDEFICSInstructRunExpander`)
 IDEFICS_INSTRUCT_MODEL_TAG: str = "IDEFICS_INSTRUCT_MODEL_TAG"
 
 
@@ -180,12 +181,12 @@ def get_all_instruction_following_models() -> List[str]:
 
 def is_text_to_image_model(model_name: str) -> bool:
     """Returns True if the model is a text-to-image model. False otherwise."""
-    try:
-        model: ModelMetadata = get_model_metadata(model_name)
-    except ValueError:
-        return False
+    return model_has_tag(model_name, TEXT_TO_IMAGE_MODEL_TAG)
 
-    return TEXT_TO_IMAGE_MODEL_TAG in model.tags
+
+def is_vlm(model_name: str) -> bool:
+    """Returns True if the model is a vision-language model (VLM). False otherwise."""
+    return model_has_tag(model_name, VISION_LANGUAGE_MODEL_TAG)
 
 
 def get_unknown_model_metadata(helm_model_name: str) -> ModelMetadata:

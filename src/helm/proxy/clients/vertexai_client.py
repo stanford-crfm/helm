@@ -1,5 +1,7 @@
 import requests
-from typing import Any, List, Union
+from abc import ABC, abstractmethod
+from threading import Lock
+from typing import Any, Dict, List, Union
 
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
@@ -20,7 +22,11 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["google"])
 
 
-class VertexAIClient(CachingClient):
+_models_lock: Lock = Lock()
+_models: Dict[str, Any] = {}
+
+
+class VertexAIClient(CachingClient, ABC):
     """Client for Vertex AI models"""
 
     def __init__(
@@ -34,6 +40,7 @@ class VertexAIClient(CachingClient):
 
         vertexai.init(project=self.project_id, location=self.location)
 
+    @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
         raise NotImplementedError
 
@@ -130,13 +137,25 @@ class VertexAITextClient(VertexAIClient):
 class VertexAIChatClient(VertexAIClient):
     """Client for Vertex AI chat models (e.g., Gemini). Supports multimodal prompts."""
 
+    @staticmethod
+    def get_model(model_name: str) -> Any:
+        global _models_lock
+        global _models
+
+        with _models_lock:
+            if model_name not in _models:
+                _models[model_name] = GenerativeModel(model_name)
+            return _models[model_name]
+
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
 
         # Contents can either be text or a list of multimodal content made up of text, images or other content
-        contents: Union[str, List[Union[str, Any]]]
+        contents: Union[str, List[Union[str, Any]]] = request.prompt
         # Used to generate a unique cache key for this specific request
-        prompt_key: str
+        prompt_key: str = request.prompt
+
+        # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
         if request.multimodal_prompt is not None:
             contents = []
             for media_object in request.multimodal_prompt.media_objects:
@@ -150,8 +169,6 @@ class VertexAIChatClient(VertexAIClient):
                     raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
 
             prompt_key = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
-        else:
-            contents = prompt_key = request.prompt
 
         parameters = {
             "temperature": request.temperature,
@@ -172,7 +189,7 @@ class VertexAIChatClient(VertexAIClient):
 
         completions: List[Sequence] = []
         model_name: str = request.model_engine
-        model = GenerativeModel(model_name)
+        model = self.get_model(model_name)
 
         try:
 
