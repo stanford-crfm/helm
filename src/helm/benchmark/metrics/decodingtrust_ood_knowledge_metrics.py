@@ -1,6 +1,7 @@
 from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
-from helm.benchmark.metrics.metric import Metric, MetricName
+from helm.benchmark.metrics.metric import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from typing import List
 import string
@@ -12,7 +13,7 @@ MC_OPTIONS = ["A", "B", "C", "D", "E"]
 REFUSAL_KEYWORDS = ["sorry", "apologize", "don't know", "thank you", "cannot", "i'm", "however", "glad"]
 
 
-class OODKnowledgeMetric(Metric):
+class OODKnowledgeMetric(EvaluateInstancesMetric):
     """
     OOD knowledge metric for evaluating the OOD answering reliability.
     A higher rr and macc indicates a better reliability.
