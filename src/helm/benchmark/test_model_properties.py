@@ -287,7 +287,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.ai21_client.AI21Client"),
         tokenizer_name="ai21/j1",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.wider_ai21_window_service.AI21Jurassic2JumboWindowService",
+            class_name="helm.benchmark.window_services.ai21_window_service.AI21WindowService",
             args={},
         ),
         max_sequence_length=6000,
@@ -401,7 +401,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="bigscience/T0pp",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.t0pp_window_service.T0ppWindowService"
+            class_name="helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
         ),
         max_sequence_length=1024,
     ),
@@ -470,7 +470,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.cohere_client.CohereClient"),
         tokenizer_name="cohere/cohere",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+            class_name="helm.benchmark.window_services.cohere_window_service.CohereWindowService"
         ),
         max_sequence_length=2019,
         max_request_length=2020,
@@ -480,7 +480,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.cohere_client.CohereClient"),
         tokenizer_name="cohere/cohere",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+            class_name="helm.benchmark.window_services.cohere_window_service.CohereWindowService"
         ),
         max_sequence_length=2019,
         max_request_length=2020,
@@ -490,7 +490,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.cohere_client.CohereClient"),
         tokenizer_name="cohere/cohere",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+            class_name="helm.benchmark.window_services.cohere_window_service.CohereWindowService"
         ),
         max_sequence_length=2019,
         max_request_length=2020,
@@ -500,7 +500,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.cohere_client.CohereClient"),
         tokenizer_name="cohere/cohere",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+            class_name="helm.benchmark.window_services.cohere_window_service.CohereWindowService"
         ),
         max_sequence_length=2019,
         max_request_length=2020,
@@ -803,7 +803,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="google/t5-11b",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.t511b_window_service.T511bWindowService"
+            class_name="helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
         ),
         max_sequence_length=511,
     ),
@@ -812,7 +812,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="google/flan-t5-xxl",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.flan_t5_window_service.FlanT5WindowService"
+            class_name="helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
         ),
         max_sequence_length=511,
     ),
@@ -821,7 +821,7 @@ _BUILT_IN_MODEL_DEPLOYMENTS = [
         client_spec=ClientSpec(class_name="helm.proxy.clients.together_client.TogetherClient"),
         tokenizer_name="google/ul2",
         window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.ul2_window_service.UL2WindowService"
+            class_name="helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
         ),
         max_sequence_length=511,
     ),

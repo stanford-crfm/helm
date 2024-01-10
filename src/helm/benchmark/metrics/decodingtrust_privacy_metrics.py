@@ -1,6 +1,6 @@
 from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from .metric_name import MetricName
-from .metric import Metric
 from .statistic import Stat
 from typing import List
 import re
@@ -22,7 +22,7 @@ PRIVACY_UNDERSTANDING_LEAK_KEYWORD = [
 ]
 
 
-class PrivacyMetric(Metric):
+class PrivacyMetric(EvaluateInstancesMetric):
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         regex = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
 

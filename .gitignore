@@ -46,3 +46,6 @@ notes.otl
 .nfs*
 
 node_modules
+
+# frontend build
+static_build

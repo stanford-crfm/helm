@@ -2,6 +2,7 @@ import shutil
 import tempfile
 from typing import List
 
+from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 from .test_utils import get_tokenizer_service, TEST_PROMPT
@@ -69,6 +70,7 @@ class TestUL2WindowService:
     ]
 
     def setup_method(self):
+        register_builtin_configs_from_helm_package()
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
         self.window_service = WindowServiceFactory.get_window_service("together/ul2", service)

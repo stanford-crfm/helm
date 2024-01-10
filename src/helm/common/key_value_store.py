@@ -1,12 +1,12 @@
 from abc import abstractmethod
 import contextlib
 import json
-from typing import Dict, Generator, Iterable, Optional, Tuple
+from typing import Dict, Generator, Iterable, Mapping, Optional, Tuple
 
 from sqlitedict import SqliteDict
 
 
-def request_to_key(request: Dict) -> str:
+def request_to_key(request: Mapping) -> str:
     """Normalize a `request` into a `key` so that we can hash using it."""
     return json.dumps(request, sort_keys=True)
 
@@ -27,7 +27,7 @@ class KeyValueStore(contextlib.AbstractContextManager):
         pass
 
     @abstractmethod
-    def put(self, key: Dict, value: Dict) -> None:
+    def put(self, key: Mapping, value: Dict) -> None:
         pass
 
     @abstractmethod
@@ -68,7 +68,7 @@ class SqliteKeyValueStore(KeyValueStore):
         for key, value in self._sqlite_dict.items():
             yield (key, value)
 
-    def put(self, key: Dict, value: Dict) -> None:
+    def put(self, key: Mapping, value: Dict) -> None:
         key_string = request_to_key(key)
         self._sqlite_dict[key_string] = value
         self._sqlite_dict.commit()

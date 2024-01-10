@@ -4,9 +4,7 @@ import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
 export function getRunSpecByNameUrl(runName: string, suite?: string): string {
   return getBenchmarkEndpoint(
-    `/benchmark_output/runs/${
-      suite || getBenchmarkSuite()
-    }/${runName}/run_spec.json`,
+    `/runs/${suite || getBenchmarkSuite()}/${runName}/run_spec.json`,
   );
 }
 export default async function getRunSpecByName(

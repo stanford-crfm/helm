@@ -7,7 +7,7 @@ export default async function getRunsToRunSuites(
   try {
     const runsToRunSuites = await fetch(
       getBenchmarkEndpoint(
-        `/benchmark_output/releases/${getBenchmarkRelease()}/runs_to_run_suites.json`,
+        `/releases/${getBenchmarkRelease()}/runs_to_run_suites.json`,
       ),
       { signal },
     );

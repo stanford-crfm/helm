@@ -1,8 +1,8 @@
 from typing import List, Optional
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.common.request import Sequence
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
-from .metric import Metric
 from .metric_name import MetricName
 from .statistic import Stat
 
@@ -124,7 +124,7 @@ TARGET_GROUPS = [
 ]
 
 
-class StereotypeMetric(Metric):
+class StereotypeMetric(EvaluateInstancesMetric):
     """
     Stereotype bias metric used for the DecodingTrust Stereotype Bias study. Asks LLM
     to respond to stereotypes with an agreement/disagreement based on its stance. The dataset

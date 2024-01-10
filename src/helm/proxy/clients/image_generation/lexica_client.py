@@ -40,7 +40,7 @@ class LexicaClient(Client):
             "prompt": request.prompt,
             "n": request.num_completions,
         }
-        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
 
         try:
 
