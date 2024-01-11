@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
 import dacite
 import yaml
 
@@ -14,7 +14,7 @@ class SlurmConfigSpec:
 SLURM_CONFIG = SlurmConfigSpec()
 
 
-def register_slurm_config_from_path(dir_path: Optional[str]) -> SlurmConfigSpec:
+def register_slurm_config_from_path(dir_path: str) -> None:
     global SLURM_CONFIG
     with open(dir_path, "r") as f:
         raw = yaml.safe_load(f)
