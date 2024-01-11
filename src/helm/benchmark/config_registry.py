@@ -32,6 +32,7 @@ def register_configs_from_directory(dir_path: str) -> None:
     if os.path.isfile(slurm_config_path):
         register_slurm_config_from_path(slurm_config_path)
 
+
 def register_builtin_configs_from_helm_package() -> None:
     package_path = str(resources.files(CONFIG_PACKAGE))
     register_configs_from_directory(package_path)
