@@ -67,6 +67,7 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
         assert len(examples) == 3
 
     def test_sample_examples_unique_labels(self):
+        """This is a demonstration of behavior reported in issue #2224."""
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", model_deployment="openai/ada", max_train_instances=3
         )
