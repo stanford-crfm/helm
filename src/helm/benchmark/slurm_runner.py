@@ -28,8 +28,8 @@ from helm.benchmark.slurm_jobs import (
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack_block
 
+from helm.benchmark.slurm_config_registry import SLURM_CONFIG
 
-_DEFAULT_MAX_CONCURRENT_WORKER_SLURM_JOBS = 8
 _MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKER_SLURM_JOBS"
 _SLURM_NODE_NAMES_ENV_NAME = "HELM_SLURM_NODE_NAMES"
 
@@ -93,12 +93,11 @@ class SlurmRunner(Runner):
         self.slurm_runner_spec_path = os.path.join(self.slurm_base_dir, "slurm_runner_spec.json")
 
         # Configure max concurrent worker Slurm jobs from the environment variable.
-        # TODO: Read from a configuration file instead
         env_max_concurrent_worker_slurm_jobs = os.getenv(_MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME)
         self.max_concurrent_worker_slurm_jobs = (
             int(env_max_concurrent_worker_slurm_jobs)
             if env_max_concurrent_worker_slurm_jobs
-            else _DEFAULT_MAX_CONCURRENT_WORKER_SLURM_JOBS
+            else SLURM_CONFIG.helm_max_concurrent_worker_slurm_jobs
         )
 
     def run_all(self, run_specs: List[RunSpec]):
@@ -226,8 +225,7 @@ class SlurmRunner(Runner):
                         break
 
                     # Refresh every minute
-                    # TODO: Make this period configurable
-                    time.sleep(60)
+                    time.sleep(SLURM_CONFIG.slurm_monitor_interval)
         finally:
             # Cleanup by cancelling all jobs during program termination or if an exception is raised.
             cancel_all_jobs()
@@ -265,34 +263,48 @@ class SlurmRunner(Runner):
                 run_spec_path,
             ]
         )
-        # TODO: Make default Slurm arguments configurable.
-        raw_slurm_args: Dict[str, str] = {
-            "account": "nlp",
-            "cpus_per_task": "4",
-            "mem": "32G",
-            "gres": "gpu:0",
-            "open_mode": "append",
-            "partition": "john",
-            "time": "14-0",  # Deadline of 14 days
-            "mail_type": "FAIL",
-            "job_name": run_name,
-            "output": log_path,
-            "chdir": os.getcwd(),
-        }
-        # TODO: Move resource requirements into RunSpec.
-        slurm_node_names = os.getenv(_SLURM_NODE_NAMES_ENV_NAME)
-        if run_spec.name.startswith("msmarco:"):
-            raw_slurm_args["mem"] = "64G"
-        if "device=cuda" in run_spec.name:
-            raw_slurm_args["gres"] = "gpu:1"
-            raw_slurm_args["partition"] = "jag-hi"
-        if "model=huggingface" in run_spec.name:
-            raw_slurm_args["gres"] = "gpu:1"
-            raw_slurm_args["partition"] = "sphinx"
-            if not slurm_node_names or "sphinx" not in slurm_node_names:
-                raise Exception(f"Environment variable {_SLURM_NODE_NAMES_ENV_NAME} must be set to sphinx node names")
-        if slurm_node_names:
-            raw_slurm_args["nodelist"] = slurm_node_names
+        if SLURM_CONFIG.slurm_args is None:
+            raw_slurm_args: Dict[str, str] = {
+                "account": "nlp",
+                "cpus_per_task": "4",
+                "mem": "32G",
+                "gres": "gpu:0",
+                "open_mode": "append",
+                "partition": "john",
+                "time": "14-0",  # Deadline of 14 days
+                "mail_type": "FAIL",
+                "job_name": run_name,
+                "output": log_path,
+                "chdir": os.getcwd(),
+            }
+            # TODO: Move resource requirements into RunSpec.
+            slurm_node_names = os.getenv(_SLURM_NODE_NAMES_ENV_NAME)
+            if run_spec.name.startswith("msmarco:"):
+                raw_slurm_args["mem"] = "64G"
+            if "device=cuda" in run_spec.name:
+                raw_slurm_args["gres"] = "gpu:1"
+                raw_slurm_args["partition"] = "jag-hi"
+            if "model=huggingface" in run_spec.name:
+                raw_slurm_args["gres"] = "gpu:1"
+                raw_slurm_args["partition"] = "sphinx"
+                if not slurm_node_names or "sphinx" not in slurm_node_names:
+                    raise Exception(
+                        f"Environment variable {_SLURM_NODE_NAMES_ENV_NAME} must be set to sphinx node names"
+                    )
+            if slurm_node_names:
+                raw_slurm_args["nodelist"] = slurm_node_names
+
+        else:
+            raw_slurm_args = SLURM_CONFIG.slurm_args
+
+            dynamic_slurm_args = {
+                "job_name": run_name,
+                "output": log_path,
+                "chdir": os.getcwd(),
+            }
+
+            # User should not set these manually, overwrite them if necessary
+            raw_slurm_args.update(dynamic_slurm_args)
 
         slurm_args: Dict[str, str] = {key: shlex.quote(value) for key, value in raw_slurm_args.items()}
         # Uncomment this to get notification emails from Slurm for Slurm worker jobs.
