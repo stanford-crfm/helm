@@ -97,8 +97,6 @@ class Token:
     """
     A `Token` represents one token position in a `Sequence`, which has the
     chosen `text` as well as the top probabilities under the model.
-
-    Note: (text, logprob) could exist or not exist in `top_logprobs`.
     """
 
     # Text that was chosen
@@ -111,12 +109,8 @@ class Token:
     top_logprobs: Dict[str, float]
 
     def render_lines(self) -> List[str]:
-        top_logprobs_entries = sorted(self.top_logprobs.items(), key=lambda entry: -entry[1])
-        top_logprobs_str = (
-            "{" + ", ".join(f"{format_text(text)}: {logprob}" for text, logprob in top_logprobs_entries) + "}"
-        )
         return [
-            f"{format_text(self.text)} logprob={self.logprob} top_logprobs={top_logprobs_str}",
+            f"{format_text(self.text)} logprob={self.logprob}",
         ]
 
 
