@@ -297,11 +297,11 @@ class HuggingFaceClient(CachingClient):
                         raw_completion["prompt_logprobs"][: response["input_length"]],
                         raw_completion["prompt_top_logprobs_dicts"][: response["input_length"]],
                     ):
-                        tokens.append(Token(text=token_text, logprob=logprob, top_logprobs=top_logprobs_dict))
+                        tokens.append(Token(text=token_text, logprob=logprob))
                         sequence_logprob += logprob
                 else:
                     for token_text in raw_completion["tokens"][: response["input_length"]]:
-                        tokens.append(Token(text=token_text, logprob=0.0, top_logprobs={}))
+                        tokens.append(Token(text=token_text, logprob=0.0))
 
             else:
                 generated_tokens = raw_completion["tokens"]
@@ -310,7 +310,7 @@ class HuggingFaceClient(CachingClient):
             for token_text, logprob, top_logprobs_dict in zip(
                 generated_tokens, raw_completion["logprobs"], raw_completion["top_logprobs_dicts"]
             ):
-                tokens.append(Token(text=token_text, logprob=logprob, top_logprobs=top_logprobs_dict))
+                tokens.append(Token(text=token_text, logprob=logprob))
                 sequence_logprob += logprob
 
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)

@@ -95,7 +95,6 @@ class AlephAlphaClient(CachingClient):
                     Token(
                         text=token,
                         logprob=logprob,
-                        top_logprobs=top_logprobs,
                     )
                 )
 

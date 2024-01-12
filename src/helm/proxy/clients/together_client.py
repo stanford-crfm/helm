@@ -293,12 +293,12 @@ class TogetherClient(CachingClient):
                 ):
                     # TODO #1654: Check if this is still needed
                     text = cleanup_str(text, "together")
-                    tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+                    tokens.append(Token(text=text, logprob=logprob or 0))
                     sequence_logprob += logprob or 0
             else:
                 # hack: just make the entire text one token so that something shows up in the frontend
                 text = cleanup_str(raw_completion["text"], "together")
-                tokens.append(Token(text=text, logprob=0, top_logprobs={}))
+                tokens.append(Token(text=text, logprob=0))
 
             raw_finish_reason: Optional[str] = raw_completion.get("finish_reason")
             finish_reason: Optional[Dict] = {"reason": raw_finish_reason} if raw_finish_reason else None

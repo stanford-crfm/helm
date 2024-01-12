@@ -116,9 +116,7 @@ class VertexAITextClient(VertexAIClient):
             # https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#response_body
             # Python SDK reference:
             # https://github.com/googleapis/python-aiplatform/blob/beae48f63e40ea171c3f1625164569e7311b8e5a/vertexai/language_models/_language_models.py#L868
-            tokens: List[Token] = [
-                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-            ]
+            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Sequence(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)
@@ -237,9 +235,7 @@ class VertexAIChatClient(VertexAIClient):
             )
 
             # TODO #2085: Add support for log probs.
-            tokens: List[Token] = [
-                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-            ]
+            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Sequence(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)
