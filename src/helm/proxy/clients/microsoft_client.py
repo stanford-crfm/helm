@@ -150,9 +150,7 @@ class MicrosoftClient(CachingClient):
                 tokens: List[Token] = []
 
                 raw_data = raw_completion["logprobs"]
-                for text, logprob, top_logprobs in zip(
-                    raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
-                ):
+                for text, logprob in zip(raw_data["tokens"], raw_data["token_logprobs"]):
                     tokens.append(Token(text=text, logprob=logprob or 0))
                     sequence_logprob += logprob or 0
 
