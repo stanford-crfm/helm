@@ -48,16 +48,9 @@ def get_hateful_memes_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.hateful_memes_scenario.HatefulMemesScenario", args={}
     )
-
-    # TODO: finalize the adapter spec parameters once we add more models
     adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec(
-        input_prefix="User: ",
-        input_suffix="<end_of_utterance>",
-        output_prefix="\nAssistant: ",
-        output_suffix="<end_of_utterance>",
-        stop_sequences=["<end_of_utterance>"],
+        instructions="Answer Yes or No.",
     )
-
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "hateful_memes"
