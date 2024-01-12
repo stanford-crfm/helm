@@ -73,7 +73,7 @@ class HatefulMemesScenario(Scenario):
                     unpack=False,
                 )
                 # Some examples are missing images. Skip those for now
-                if not os.path.exists(local_image_path):
+                if not os.path.exists(local_image_path) or os.path.getsize(local_image_path) == 0:
                     continue
 
                 content: List[MediaObject] = [
