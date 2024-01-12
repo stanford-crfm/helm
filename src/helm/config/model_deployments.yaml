@@ -39,10 +39,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j1-large
     deprecated: true
@@ -53,10 +49,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j1-grande
     deprecated: true
@@ -67,10 +59,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j1-grande-v2-beta
     deprecated: true
@@ -81,10 +69,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j2-jumbo
     model_name: ai21/j2-jumbo
@@ -93,11 +77,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.wider_ai21_window_service.AI21Jurassic2JumboWindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
+      class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
 
   - name: ai21/j2-large
     model_name: ai21/j2-large
@@ -107,10 +87,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   - name: ai21/j2-grande
     model_name: ai21/j2-grande
@@ -120,10 +96,6 @@ model_deployments:
       class_name: "helm.proxy.clients.ai21_client.AI21Client"
     window_service_spec:
       class_name: "helm.benchmark.window_services.ai21_window_service.AI21WindowService"
-      args:
-        gpt2_window_service:
-          class_name: "helm.benchmark.window_services.gpt2_window_service.GPT2WindowService"
-          args: {}
 
   # Aleph Alpha
   - name: AlephAlpha/luminous-base
@@ -276,7 +248,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.cohere_client.CohereClient"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   - name: cohere/command-xlarge-beta
     model_name: cohere/command-xlarge-beta
@@ -286,7 +258,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.cohere_client.CohereClient"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   - name: cohere/command
     model_name: cohere/command
@@ -296,7 +268,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.cohere_client.CohereClient"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   - name: cohere/command-light
     model_name: cohere/command-light
@@ -306,7 +278,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.cohere_client.CohereClient"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereCommandWindowService"
+      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
 
   # Craiyon
 
@@ -1085,7 +1057,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.t0pp_window_service.T0ppWindowService"
+      class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
   ## Databricks
   - name: together/dolly-v2-3b
@@ -1172,7 +1144,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.t511b_window_service.T511bWindowService"
+      class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
   - name: together/flan-t5-xxl
     deprecated: true # Removed from together
@@ -1182,7 +1154,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.flan_t5_window_service.FlanT5WindowService"
+      class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
   - name: together/ul2
     deprecated: true # Removed from together
@@ -1192,7 +1164,7 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
     window_service_spec:
-      class_name: "helm.benchmark.window_services.ul2_window_service.UL2WindowService"
+      class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
   ## HazyResearch
   - name: together/h3-2.7b

@@ -108,7 +108,6 @@ class OpinionsQAScenario(Scenario):
         self.context: str = context
 
     def download_data(self, output_path: str):
-
         data_dir: str = os.path.join(output_path, "data")
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
@@ -150,14 +149,12 @@ class OpinionsQAScenario(Scenario):
             bios_df = pd.read_csv(bios_path, sep="\t")
 
         for split in all_splits:
-
             csv_path: str = csv_dict[split]
             assert os.path.exists(csv_path)
 
             question_df = self.read_survey_questions(csv_path)
 
             for qidx, (question, answers) in enumerate(zip(question_df["question"], question_df["options"])):
-
                 # Opinions QA test questions have no correct answer and thus we set it to be None by default
                 # for all test instances.
                 # In the case where context = steer-qa, we add demographic information in the form of a
@@ -182,7 +179,6 @@ class OpinionsQAScenario(Scenario):
                 else:
                     # context = "steer-bio"or "steer-portray"
                     for bio in bios_df["question"].values:
-
                         context = PassageQuestionInput(passage=bio, question=question + "\n")
                         instance = Instance(
                             context,

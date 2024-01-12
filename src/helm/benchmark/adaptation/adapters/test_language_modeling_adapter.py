@@ -1,6 +1,5 @@
 # mypy: check_untyped_defs = False
 from typing import List
-from helm.benchmark.window_services.gpt2_window_service import GPT2WindowService
 
 from helm.common.tokenization_request import TokenizationToken
 from helm.benchmark.adaptation.request_state import RequestState
@@ -9,18 +8,6 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_LANGUAGE_MODELING
 from .test_adapter import TestAdapter
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, Instance, Input, Reference
-
-
-class MockGPT2Window(GPT2WindowService):
-    """Utility for overriding properties of a GPT2WindowService for test purposes."""
-
-    def __init__(self, service, *, max_sequence_length):
-        super().__init__(service)
-        self._max_sequence_length = max_sequence_length
-
-    @property
-    def max_sequence_length(self) -> int:
-        return self._max_sequence_length
 
 
 class TestLanguageModelingAdapter(TestAdapter):
@@ -159,7 +146,8 @@ class TestLanguageModelingAdapter(TestAdapter):
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         # Monkey patch the window service to have really short max sequences.
-        adapter.window_service = MockGPT2Window(self.tokenizer_service, max_sequence_length=max_sequence_length)
+        adapter.window_service._max_sequence_length = max_sequence_length
+        adapter.window_service._max_request_length = max_sequence_length + 1
         input_text = Input(text=" ".join(str(i) for i in range(input_tokens)))
         instance = Instance(input=input_text, references=[], split=TEST_SPLIT)
 

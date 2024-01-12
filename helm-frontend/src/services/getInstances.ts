@@ -10,9 +10,7 @@ export default async function getInstancesByRunName(
   try {
     const instances = await fetch(
       getBenchmarkEndpoint(
-        `/benchmark_output/runs/${
-          suite || getBenchmarkSuite()
-        }/${runName}/instances.json`,
+        `/runs/${suite || getBenchmarkSuite()}/${runName}/instances.json`,
       ),
       { signal },
     );

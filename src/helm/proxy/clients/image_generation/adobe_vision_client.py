@@ -43,7 +43,7 @@ class AdobeVisionClient(Client):
 
         raw_request = AdobeVisionClient.convert_to_raw_request(request)
         raw_request.pop("random", None)
-        cache_key: Dict = CachingClient.make_cache_key(raw_request, request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
 
         try:
 

@@ -2,6 +2,9 @@ from dataclasses import dataclass
 from typing import Optional
 
 
+DEFAULT_CLIP_SCORE_MODEL = "openai/clip-vit-large-patch14"
+
+
 @dataclass(frozen=True)
 class CLIPScoreRequest:
     """
@@ -15,7 +18,7 @@ class CLIPScoreRequest:
     image_location: str
 
     # Which CLIP model to use
-    model: str = "openai/clip-vit-large-patch14"
+    model: str = DEFAULT_CLIP_SCORE_MODEL
 
     # Compute multilingual CLIPScore
     multilingual: bool = False

@@ -50,7 +50,6 @@ class BBQMetric(EvaluateInstancesMetric):
     """
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-
         amb_non_unknown = 0  # keep track of the number of non-unknowns
         disamb_non_unknown = 0  # keep track of the number of non-unknowns
 

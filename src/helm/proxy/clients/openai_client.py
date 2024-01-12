@@ -2,7 +2,7 @@
 from dataclasses import replace
 from typing import Any, Dict, List, Optional, cast, Union
 
-from helm.benchmark.model_metadata_registry import model_has_tag, VISION_LANGUAGE_MODEL_TAG
+from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
@@ -13,7 +13,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
     import openai
@@ -115,7 +115,7 @@ class OpenAIClient(CachingClient):
 
             # OpenAI's vision API doesn't allow None values for stop.
             # Fails with "body -> stop: none is not an allowed value" if None is passed.
-            if model_has_tag(request.model, VISION_LANGUAGE_MODEL_TAG) and raw_request["stop"] is None:
+            if is_vlm(request.model) and raw_request["stop"] is None:
                 raw_request.pop("stop")
         else:
             raw_request = {
@@ -167,6 +167,12 @@ class OpenAIClient(CachingClient):
                     return openai.Completion.create(**raw_request)
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
+            if is_vlm(request.model):
+                assert request.multimodal_prompt is not None
+                prompt_key: str = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+                cache_key = {**cache_key, "multimodal_prompt": prompt_key}
+                del cache_key["messages"]
+
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
             error: str = f"OpenAI error: {e}"
