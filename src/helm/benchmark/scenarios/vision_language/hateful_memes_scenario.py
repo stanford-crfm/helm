@@ -69,6 +69,7 @@ class HatefulMemesScenario(Scenario):
                     target_path=local_image_path,
                     unpack=False,
                 )
+                assert os.path.exists(local_image_path), f"Image at {local_image_path} does not exist"
 
                 content: List[MediaObject] = [
                     MediaObject(location=local_image_path, content_type="image/jpeg"),
