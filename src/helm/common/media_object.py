@@ -114,6 +114,14 @@ class MultimediaObject:
         return MultimediaObject(media_objects=self.media_objects + other.media_objects)
 
     @property
+    def size(self) -> int:
+        """
+        Get the number of `MediaObject`s in this multimodal content.
+        :return: The number of `MediaObject`s .
+        """
+        return len(self.media_objects)
+
+    @property
     def text(self) -> str:
         """
         Get the text-only part of this multimodal content.

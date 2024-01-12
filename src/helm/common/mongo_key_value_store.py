@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Generator, Iterable, Optional, Tuple
+from typing import Dict, Generator, Iterable, Mapping, Optional, Tuple
 
 from helm.common.key_value_store import KeyValueStore
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -35,7 +35,7 @@ class MongoKeyValueStore(KeyValueStore):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         return
 
-    def _canonicalize_key(self, key: Dict) -> SON:
+    def _canonicalize_key(self, key: Mapping) -> SON:
         serialized = json.dumps(key, sort_keys=True)
         return json.loads(serialized, object_pairs_hook=SON)
 
@@ -63,14 +63,15 @@ class MongoKeyValueStore(KeyValueStore):
             else:
                 yield (request, response)
 
-    def put(self, key: Dict, value: Dict) -> None:
+    def put(self, key: Mapping, value: Dict) -> None:
         request = self._canonicalize_key(key)
         document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
         # The MongoDB collection should have a unique indexed on "request"
         try:
             self._collection.replace_one(filter={"request": request}, replacement=document, upsert=True)
-        except InvalidDocument:
-            # If the document is malformed e.g. because of null bytes in keys, instead store the response as a string.
+        except (InvalidDocument, OverflowError):
+            # If the document is malformed (e.g. because of null bytes in keys) or some numbers cause overflows
+            # (e.g. integers exceed 8 bits) instead store the response as a string.
             alternate_document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, json.dumps(value))])
             self._collection.replace_one(filter={"request": request}, replacement=alternate_document, upsert=True)
 

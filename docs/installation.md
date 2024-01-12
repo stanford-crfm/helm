@@ -34,3 +34,19 @@ Within this virtual environment, run:
 ```
 pip install crfm-helm
 ```
+
+### For HEIM (text-to-image evaluation)
+
+To install the additional dependencies to run HEIM, run:
+
+```
+pip install "crfm-helm[heim]"
+``` 
+
+Some models (e.g., DALLE-mini/mega) and metrics (`DetectionMetric`) require extra dependencies that are 
+not available on PyPI. To install these dependencies, download and run the 
+[extra install script](https://github.com/stanford-crfm/helm/blob/main/install-heim-extras.sh):
+
+```
+bash install-heim-extras.sh
+```

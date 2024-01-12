@@ -21,7 +21,9 @@ from statistics import mean, median
 from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
+from helm.benchmark.model_deployment_registry import get_model_deployment
 
+from helm.benchmark.model_metadata_registry import get_unknown_model_metadata
 from helm.common.general import (
     write,
     ensure_directory_exists,
@@ -44,8 +46,9 @@ from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink
 from helm.benchmark.presentation.schema import (
     MetricNameMatcher,
     RunGroup,
+    Field,
     read_schema,
-    SCHEMA_YAML_FILENAME,
+    SCHEMA_CLASSIC_YAML_FILENAME,
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
@@ -57,10 +60,9 @@ from helm.benchmark.presentation.contamination import (
     CONTAMINATION_STYLES,
     CONTAMINATION_LEVEL_STRONG,
 )
-from helm.benchmark.config_registry import register_helm_configurations
+from helm.benchmark.config_registry import register_builtin_configs_from_helm_package, register_configs_from_directory
 from helm.benchmark.presentation.run_display import write_run_display_json
-from helm.benchmark.model_deployment_registry import get_metadata_for_deployment
-from helm.benchmark.model_metadata_registry import ModelMetadata
+from helm.benchmark.model_metadata_registry import ModelMetadata, get_model_metadata, get_all_models
 
 
 OVERLAP_N_COUNT = 13
@@ -140,6 +142,38 @@ def dict_to_str(d: Dict[str, Any]) -> str:
 
 def get_scenario_name(group: RunGroup, scenario_spec: ScenarioSpec):
     return group.name + "_" + dict_to_str(scenario_spec.args).replace(" ", "").replace("/", "_")
+
+
+def get_model_metadata_for_adapter_spec(adapter_spec: AdapterSpec) -> ModelMetadata:
+    """Return the ModelMetadata for the model in the given AdapterSpec."""
+    # Get model metadata based on `model` in `adapter_spec`
+    try:
+        return get_model_metadata(adapter_spec.model)
+    except ValueError:
+        pass
+
+    # Get model metadata based on `model_deployment` in `adapter_spec`
+    try:
+        model_deployment = get_model_deployment(adapter_spec.model_deployment)
+        if model_deployment.model_name:
+            return get_model_metadata(model_deployment.model_name)
+    except ValueError:
+        pass
+
+    # In some cases, some models were renamed such that the old model name is now the model deployment name
+    # For instance, the model called "huggingface/gpt2" is now called "openai/gpt2", but its model deployment
+    # is still called "huggingface/gpt2".
+    # Handle these cases here.
+    # TODO: Delete this block eventually.
+    try:
+        model_deployment = get_model_deployment(adapter_spec.model)
+        if model_deployment.model_name:
+            return get_model_metadata(model_deployment.model_name)
+    except ValueError:
+        pass
+
+    # Return a placeholder "unknown model" model metadata.
+    return get_unknown_model_metadata(adapter_spec.model)
 
 
 def get_coarse_adapter_spec(
@@ -275,9 +309,11 @@ class Summarizer:
         release: Optional[str],
         suites: Optional[List[str]],
         suite: Optional[str],
+        schema_file: str,
         output_path: str,
         verbose: bool,
         num_threads: int,
+        allow_unknown_models: bool,
     ):
         """
         A note on the relation between `release`, `suites`, and `suite`:
@@ -293,6 +329,7 @@ class Summarizer:
         self.suites: List[str]
         self.run_suite_paths: List[str]
         self.suite: Optional[str] = None
+        self.schema_file = schema_file
         self.release: Optional[str] = None
         if suite:
             self.suite = suite
@@ -306,10 +343,11 @@ class Summarizer:
             self.run_suite_paths = [os.path.join(output_path, "runs", suite) for suite in suites]
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
+        self.allow_unknown_models: bool = allow_unknown_models
 
         ensure_directory_exists(self.run_release_path)
 
-        self.schema = read_schema()
+        self.schema = read_schema(schema_file)
         self.contamination = read_contamination()
         validate_contamination(self.contamination, self.schema)
 
@@ -339,7 +377,7 @@ class Summarizer:
                 if run_group_name not in self.schema.name_to_run_group:
                     hlog(
                         f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} "
-                        f"but undefined in {SCHEMA_YAML_FILENAME}, skipping"
+                        f"but undefined in {self.schema_file}, skipping"
                     )
                     continue
                 run_group = self.schema.name_to_run_group[run_group_name]
@@ -360,7 +398,13 @@ class Summarizer:
         """Load the runs in the run suite path."""
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
         # so filter them out.
-        run_dir_names = sorted([p for p in os.listdir(run_suite_path) if p != "eval_cache" and p != "groups"])
+        run_dir_names = sorted(
+            [
+                p
+                for p in os.listdir(run_suite_path)
+                if p != "eval_cache" and p != "groups" and os.path.isdir(os.path.join(run_suite_path, p))
+            ]
+        )
         for run_dir_name in tqdm(run_dir_names, disable=None):
             run_spec_path: str = os.path.join(run_suite_path, run_dir_name, "run_spec.json")
             stats_path: str = os.path.join(run_suite_path, run_dir_name, "stats.json")
@@ -388,6 +432,63 @@ class Summarizer:
             for group_name in run.run_spec.groups:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
+
+    @dataclass(frozen=True)
+    class _ModelField(Field):
+        """The frontend version of ModelMetadata.
+
+        The frontend expects schema.json to contains a field under "model" that contains a list of `ModelField`s.
+
+        All attributes have the same meaning as in ModelMetadata."""
+
+        # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
+        creator_organization: Optional[str] = None
+        access: Optional[str] = None
+        todo: bool = False
+        release_date: Optional[str] = None
+        num_parameters: Optional[int] = None
+
+    def get_model_field_dicts(self) -> List[Dict]:
+        """Get a list of `ModelField`s dicts that will be written to schema.json.
+
+        The frontend expects schema.json to contains a field under "model" that contains a list of `ModelField`s.
+
+        This is populated by reading the `ModelMetadata` configs and filtering down to models that were
+        actually used, and converting each `ModelMetadata` to a `ModelField`."""
+        # TODO: Migrate frontend to use ModelMetadata instead of ModelField and delete this.
+        used_model_names: Set[str] = set()
+        for run in self.runs:
+            used_model_names.add(get_model_metadata_for_adapter_spec(run.run_spec.adapter_spec).name)
+
+        model_field_dicts: List[Dict] = []
+        for model_name in get_all_models():
+            if model_name not in used_model_names:
+                continue
+            model_metadata = get_model_metadata(model_name)
+            model_field = Summarizer._ModelField(
+                name=model_metadata.name,
+                display_name=model_metadata.display_name,
+                short_display_name=model_metadata.display_name,
+                description=model_metadata.description,
+                creator_organization=model_metadata.creator_organization_name,
+                access=model_metadata.access,
+                todo=False,
+                release_date=model_metadata.release_date.isoformat() if model_metadata.release_date else None,
+                num_parameters=model_metadata.num_parameters,
+            )
+            model_field_dicts.append(asdict_without_nones(model_field))
+        return model_field_dicts
+
+    def write_schema(self) -> None:
+        """Write the schema file to benchmark_output so the frontend knows about it."""
+        # Manually add the model metadata to the schema.json, where the frontend expects it.
+        # TODO: Move model metadata out of schema.json into its own model_metadata.json file.
+        raw_schema = asdict_without_nones(self.schema)
+        raw_schema["models"] = self.get_model_field_dicts()
+        write(
+            os.path.join(self.run_release_path, "schema.json"),
+            json.dumps(raw_schema, indent=2),
+        )
 
     def read_runs(self):
         self.runs: List[Run] = []
@@ -543,7 +644,7 @@ class Summarizer:
         for metric_name, run_spec_names in metric_name_to_run_spec_names.items():
             if metric_name not in defined_metric_names:
                 hlog(
-                    f"WARNING: metric name {metric_name} undefined in {SCHEMA_YAML_FILENAME} "
+                    f"WARNING: metric name {metric_name} undefined in {self.schema_file} "
                     f"but appears in {len(run_spec_names)} run specs, including {run_spec_names[0]}"
                 )
 
@@ -645,7 +746,8 @@ class Summarizer:
             header = [
                 HeaderCell("Group"),
                 HeaderCell("Description"),
-                # Synchronize these names with `schema.yaml`
+                # Synchronize these names with the appropriate schema file
+                # TODO: different schema files might have different fields (for multimodal)
                 HeaderCell("Adaptation method", description="Adaptation strategy (e.g., generation)"),
                 HeaderCell("# instances", description="Number of instances evaluated on"),
                 HeaderCell("# references", description="Number of references provided per instance"),
@@ -816,7 +918,7 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_FILENAME}, skipping")
+                    hlog(f"WARNING: metric name {matcher.name} undefined in {self.schema_file}, skipping")
                     continue
                 metadata = {
                     "metric": header_field.get_short_display_name(),
@@ -869,10 +971,10 @@ class Summarizer:
 
         adapter_specs: List[AdapterSpec] = list(adapter_to_runs.keys())
         if sort_by_model_order:
-            # Sort models by the order defined in the schema.
-            # Models not defined in the schema will be sorted alphabetically and
-            # placed before models in defined the schema.
-            model_order = [model.name for model in self.schema.models]
+            # Sort models by the order defined in the the model metadata config.
+            # Models not defined in the model metadata config will be sorted alphabetically and
+            # placed before models in defined the model metadata config.
+            model_order = get_all_models()
 
             def _adapter_spec_sort_key(spec):
                 index = model_order.index(spec.model_deployment) if spec.model_deployment in model_order else -1
@@ -889,10 +991,8 @@ class Summarizer:
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            deployment: str = (
-                adapter_spec.model_deployment if len(adapter_spec.model_deployment) > 0 else adapter_spec.model
-            )
-            model_metadata: ModelMetadata = get_metadata_for_deployment(deployment)
+            model_metadata = get_model_metadata_for_adapter_spec(adapter_spec)
+
             model_name: str = model_metadata.name
 
             runs = adapter_to_runs[adapter_spec]
@@ -1250,10 +1350,10 @@ class Summarizer:
         if os.path.islink(symlink_path):
             # Remove the previous symlink if it exists.
             os.unlink(symlink_path)
-        os.symlink(os.path.abspath(self.run_release_path), symlink_path)
+        os.symlink(os.path.basename(self.run_release_path), symlink_path)
 
     def run_pipeline(self, skip_completed: bool, num_instances: int) -> None:
-        """Run the entire summarization pipeline pipeline."""
+        """Run the entire summarization pipeline."""
         self.read_runs()
         self.group_runs()
         self.check_metrics_defined()
@@ -1268,6 +1368,10 @@ class Summarizer:
         # because it uses self.scenario_spec_instance_id_dict
         self.read_overlap_stats()
 
+        # Must happen after self.read_runs()
+        # because it uses self.runs
+        self.write_schema()
+
         self.write_executive_summary()
         self.write_runs()
         self.write_run_specs()
@@ -1278,11 +1382,17 @@ class Summarizer:
         self.symlink_latest()
 
 
-@htrack(None)
+@htrack("summarize")
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
+    )
+    parser.add_argument(
+        "--schema-file",
+        type=str,
+        help="File name of the schema to read (e.g., schema_classic.yaml).",
+        default=SCHEMA_CLASSIC_YAML_FILENAME,
     )
     parser.add_argument(
         "--suite",
@@ -1314,6 +1424,18 @@ def main():
         help="Number of instance ids we're using; only for annotating scenario spec instance ids file",
         default=1000,
     )
+    parser.add_argument(
+        "--local-path",
+        type=str,
+        help="If running locally, the path for `ServerService`.",
+        default="prod_env",
+    )
+    parser.add_argument(
+        "--allow-unknown-models",
+        type=bool,
+        help="Whether to allow unknown models in the metadata file",
+        default=True,
+    )
     args = parser.parse_args()
 
     release: Optional[str] = None
@@ -1337,16 +1459,19 @@ def main():
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
 
-    register_helm_configurations()
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.local_path)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
         release=release,
         suites=suites,
         suite=suite,
+        schema_file=args.schema_file,
         output_path=args.output_path,
         verbose=args.debug,
         num_threads=args.num_threads,
+        allow_unknown_models=args.allow_unknown_models,
     )
     summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json, num_instances=args.num_instances)
     hlog("Done.")

@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, Callable, Generator, Optional, Tuple
+from typing import Dict, Callable, Generator, Mapping, Optional, Tuple
 import json
 import threading
 
@@ -22,7 +22,7 @@ def retry_if_write_failed(success: bool) -> bool:
 
 
 retry: Callable = get_retry_decorator(
-    "Write", max_attempts=10, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_write_failed
+    "Write", max_attempts=5, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_write_failed
 )
 
 
@@ -118,7 +118,7 @@ def create_key_value_store(config: KeyValueStoreCacheConfig) -> KeyValueStore:
 
 
 @retry
-def write_to_key_value_store(key_value_store: KeyValueStore, key: Dict, response: Dict) -> bool:
+def write_to_key_value_store(key_value_store: KeyValueStore, key: Mapping, response: Dict) -> bool:
     """
     Write to the key value store with retry. Returns boolean indicating whether the write was successful or not.
     """
@@ -188,7 +188,7 @@ class Cache(object):
         else:
             raise ValueError(f"CacheConfig with unknown type: {config}")
 
-    def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
+    def get(self, request: Mapping, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
         cache_stats.increment_query(self.config.cache_stats_key)
 

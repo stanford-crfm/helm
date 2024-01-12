@@ -358,7 +358,7 @@ def distance_paraboloid(point: List[int], rel_str: str, TOL: float = 1e-10):
         sols = []
         # Try each possible combined solution for x, y, z, λ
         for sol_xyz, val_λs in zip(sols_xyz, vals_λ):
-            val_λs = list(set(filter(lambda _: not _.is_symbol, val_λs)))  # get distinct values for λ if there are any
+            val_λs = tuple(set(filter(lambda _: not _.is_symbol, val_λs)))  # get distinct values for λ if there are any
             if len(val_λs) > 1:  # there can be at most one distinct value for λ
                 continue
             val_λ = val_λs[0] if val_λs else λ

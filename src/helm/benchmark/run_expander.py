@@ -12,8 +12,11 @@ from helm.benchmark.model_metadata_registry import (
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     ABLATION_MODEL_TAG,
+    TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
+from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
+from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .runner import RunSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
@@ -255,6 +258,144 @@ class GlobalPrefixRunExpander(RunExpander):
         ]
 
 
+# Instruction-following models like GPT-4, Claude, PaLM 2 don't do in-context
+# learning naturally like base models, and they prefer to respond in a wordy
+# way as an assistant.  Therefore, for these models, we must provide explicit
+# instructions to follow the format of the in-context examples.
+IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX = (
+    "Here are some input-output examples. "
+    + "Read the examples carefully to figure out the mapping. "
+    + "The output of the last example is not given, "
+    + "and your job is to figure out what it is."
+)
+
+IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX = (
+    "Please provide the output to this last example. " + "It is critical to follow the format of the preceding outputs!"
+)
+
+
+class AnthropicRunExpander(RunExpander):
+    """
+    Custom prompt for Anthropic models.
+    These models need more explicit instructions about following the format.
+    """
+
+    name = "anthropic"
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        try:
+            import anthropic
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["anthropic"])
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=anthropic.HUMAN_PROMPT + " " + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + anthropic.AI_PROMPT
+                    + " "
+                    + run_spec.adapter_spec.output_prefix.strip(),
+                ),
+            ),
+        ]
+
+
+class OpenAIRunExpander(RunExpander):
+    """
+    Custom prompt for OpenAI models.
+    These models need more explicit instructions about following the format.
+    """
+
+    # TODO: Refactor out common logic between this and GoogleRunExpander.
+
+    name = "openai"
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if run_spec.adapter_spec.method != ADAPT_GENERATION:
+            return [run_spec]
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + "\n"
+                    + run_spec.adapter_spec.output_prefix.strip(),
+                ),
+            ),
+        ]
+
+
+class GoogleRunExpander(RunExpander):
+    """
+    Custom prompt for Google models.
+    These models need more explicit instructions about following the format.
+    """
+
+    # TODO: Refactor out common logic between this and OpenAIRunExpander.
+
+    name = "google"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if run_spec.adapter_spec.method != ADAPT_GENERATION:
+            return [run_spec]
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + "\n"
+                    + run_spec.adapter_spec.output_prefix.strip(),
+                ),
+            ),
+        ]
+
+
+class IDEFICSInstructRunExpander(RunExpander):
+    """
+    Custom prompt for IDEFICS instruct models which require a specific format.
+    See https://huggingface.co/HuggingFaceM4/idefics-80b-instruct for more information.
+    """
+
+    name = "idefics_instruct"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    input_prefix="User: ",
+                    input_suffix="<end_of_utterance>",
+                    output_prefix="\nAssistant: ",
+                    output_suffix="<end_of_utterance>",
+                    stop_sequences=["<end_of_utterance>"],
+                ),
+            ),
+        ]
+
+
 class FormatPromptRunExpander(RunExpander):
     """Adds a prefix and suffix to the prompt."""
 
@@ -271,7 +412,7 @@ class FormatPromptRunExpander(RunExpander):
                 name=run_spec.name,
                 adapter_spec=replace(
                     run_spec.adapter_spec,
-                    global_prefix=self.prefix,
+                    input_prefix=self.prefix,
                     output_prefix=self.suffix,
                 ),
             ),
@@ -307,7 +448,12 @@ class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
     """For overriding the number of eval instances at the run level."""
 
     name = "max_eval_instances"
-    values_dict: Dict[str, List[Any]] = {}
+    values_dict: Dict[str, List[Any]] = {
+        "default": [1_000],
+        "heim_default": [100],
+        "heim_fid": [30_000],
+        "heim_art_styles": [17],
+    }
 
 
 class NumOutputsRunExpander(ReplaceValueRunExpander):
@@ -317,6 +463,15 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     values_dict = {
         "default": [1],
         "copyright_sweep": [1, 10],
+    }
+
+
+class NumTrialRunExpander(ReplaceValueRunExpander):
+    """For getting different generations for the same requests."""
+
+    name = "num_trials"
+    values_dict = {
+        "heim_efficiency": [5],
     }
 
 
@@ -361,6 +516,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
                 "openai/text-davinci-003",
             ],
             "opinions_qa_ai21": ["ai21/j1-grande", "ai21/j1-jumbo", "ai21/j1-grande-v2-beta"],
+            "text_to_image": get_model_names_with_tag(TEXT_TO_IMAGE_MODEL_TAG),
             "vlm": get_model_names_with_tag(VISION_LANGUAGE_MODEL_TAG),
         }
 
@@ -573,6 +729,20 @@ def mandarin_to_cantonese() -> PerturbationSpec:
     )
 
 
+def translate(language_code: str) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.translate_perturbation.TranslatePerturbation",
+        args={"language_code": language_code},
+    )
+
+
+def suffix(text: str) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.suffix_perturbation.SuffixPerturbation",
+        args={"suffix": text},
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -762,6 +932,21 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             ),
             simplified_to_traditional(),
             mandarin_to_cantonese(),
+        ]
+    },
+    # Multilinguality
+    "chinese": {"chinese": [translate(language_code="zh-CN")]},
+    "hindi": {"hindi": [translate(language_code="hi")]},
+    "spanish": {"spanish": [translate(language_code="es")]},
+    # Styles
+    "art": {
+        "art": [
+            suffix("oil painting"),
+            suffix("watercolor"),
+            suffix("pencil sketch"),
+            suffix("animation"),
+            suffix("vector graphics"),
+            suffix("pixel art"),
         ]
     },
 }
@@ -1110,6 +1295,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     MaxTrainInstancesRunExpander,
     MaxEvalInstancesRunExpander,
     NumOutputsRunExpander,
+    NumTrialRunExpander,
     ModelRunExpander,
     ModelDeploymentRunExpander,
     DataAugmentationRunExpander,

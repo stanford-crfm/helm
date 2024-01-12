@@ -5,6 +5,8 @@ from typing import Any, Dict, Mapping, Optional
 from retrying import Attempt, RetryError
 
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
+from helm.common.file_caches.file_cache import FileCache
+from helm.common.file_caches.local_file_cache import LocalFileCache
 from helm.common.cache_utils import build_cache_config
 from helm.common.credentials_utils import provide_api_key
 from helm.common.cache import CacheConfig
@@ -68,7 +70,10 @@ class AutoClient(Client):
 
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
-                constant_bindings={"cache_config": cache_config},
+                constant_bindings={
+                    "cache_config": cache_config,
+                    "tokenizer_name": model_deployment.tokenizer_name,
+                },
                 provider_bindings={
                     "api_key": lambda: provide_api_key(self.credentials, host_organization, model_deployment_name),
                     "tokenizer": lambda: self._auto_tokenizer._get_tokenizer(
@@ -77,7 +82,12 @@ class AutoClient(Client):
                     "org_id": lambda: self.credentials.get(
                         host_organization + "OrgId", None
                     ),  # OpenAI, GooseAI, Microsoft
+                    "moderation_api_client": lambda: self.get_moderation_api_client(),  # OpenAI DALL-E
                     "lock_file_path": lambda: os.path.join(self.cache_path, f"{host_organization}.lock"),  # Microsoft
+                    "project_id": lambda: self.credentials.get(host_organization + "ProjectId", None),  # VertexAI
+                    "location": lambda: self.credentials.get(host_organization + "Location", None),  # VertexAI
+                    "hf_auth_token": lambda: self.credentials.get("huggingfaceAuthToken", None),  # HuggingFace
+                    "file_cache": lambda: self._get_file_cache(host_organization),  # Text-to-image models
                 },
             )
             client = create_object(client_spec)
@@ -115,12 +125,38 @@ class AutoClient(Client):
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
+    def get_gcs_client(self):
+        from .gcs_client import GCSClient
+
+        bucket_name: str = self.credentials["gcsBucketName"]
+        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "gcs")
+        return GCSClient(bucket_name, cache_config)
+
+    def get_nudity_check_client(self):
+        from helm.proxy.clients.image_generation.nudity_check_client import NudityCheckClient
+
+        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "nudity")
+        return NudityCheckClient(cache_config)
+
+    def get_clip_score_client(self):
+        from .clip_score_client import CLIPScoreClient
+
+        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "clip_score")
+        return CLIPScoreClient(cache_config)
+
     def get_toxicity_classifier_client(self) -> ToxicityClassifierClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""
         from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 
         cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
+
+    def get_moderation_api_client(self):
+        """Get the ModerationAPI client."""
+        from .moderation_api_client import ModerationAPIClient
+
+        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "ModerationAPI")
+        return ModerationAPIClient(self.credentials.get("openaiApiKey", ""), cache_config)
 
     def get_critique_client(self) -> CritiqueClient:
         """Get the critique client."""
@@ -183,3 +219,8 @@ class AutoClient(Client):
         cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
         self._huggingface_client = HuggingFaceClient(cache_config=cache_config)
         return self._huggingface_client
+
+    def _get_file_cache(self, host_organization: str) -> FileCache:
+        # Initialize `FileCache` for text-to-image model APIs
+        local_file_cache_path: str = os.path.join(self.cache_path, "output", host_organization)
+        return LocalFileCache(local_file_cache_path, file_extension="png")

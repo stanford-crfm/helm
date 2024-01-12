@@ -50,6 +50,7 @@ google-api-core==2.10.1
 google-api-python-client==2.64.0
 google-auth==2.12.0
 google-auth-httplib2==0.1.0
+google-cloud-aiplatform==1.38.1
 googleapis-common-protos==1.56.4
 greenlet==1.1.3
 gunicorn==20.1.0
@@ -67,6 +68,7 @@ jmespath==1.0.1
 joblib==1.2.0
 kiwisolver==1.4.4
 langcodes==3.3.0
+langdetect==1.0.9
 llvmlite==0.39.1
 lxml==4.9.1
 Mako==1.2.3
@@ -86,6 +88,7 @@ nodeenv==1.7.0
 numba==0.56.4
 numpy==1.23.3
 openai==0.27.8
+opencv-python==4.8.1.78
 openpyxl==3.0.10
 outcome==1.2.0
 packaging==21.3
@@ -192,3 +195,4 @@ zipp==3.11.0
 zope.event==4.5.0
 zope.interface==5.4.0
 zstandard==0.18.0
+fairlearn==0.9.0

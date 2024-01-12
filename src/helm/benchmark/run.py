@@ -7,18 +7,21 @@ from helm.benchmark.huggingface_registration import (
 )
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
+from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
-from helm.benchmark.model_metadata_registry import register_model_metadata_from_path
-from helm.benchmark.model_deployment_registry import register_model_deployments_from_path
-from helm.benchmark.config_registry import register_helm_configurations
+from helm.benchmark.config_registry import (
+    register_configs_from_directory,
+    register_builtin_configs_from_helm_package,
+)
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark import heim_run_specs  # noqa
 from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
-from .runner import Runner, RunSpec, LATEST_SYMLINK
+from .runner import Runner, RunSpec, LATEST_SYMLINK, set_benchmark_output_path
 from .run_specs import construct_run_specs
 
 
@@ -39,7 +42,7 @@ def run_entries_to_run_specs(
 
         for run_spec in construct_run_specs(parse_object_spec(entry.description)):
             # Filter by models
-            if models_to_run and run_spec.adapter_spec.model_deployment not in models_to_run:
+            if models_to_run and run_spec.adapter_spec.model not in models_to_run:
                 continue
 
             # Filter by groups
@@ -245,30 +248,17 @@ def main():
         default=None,
         help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
-    parser.add_argument(
-        "--model-metadata-paths",
-        nargs="+",
-        help="Experimental: Where to read model metadata from",
-        default=[],
-    )
-    parser.add_argument(
-        "--model-deployment-paths",
-        nargs="+",
-        help="Experimental: Where to read model deployments from",
-        default=[],
-    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
+
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.local_path)
 
     for huggingface_model_name in args.enable_huggingface_models:
         register_huggingface_hub_model_from_flag_value(huggingface_model_name)
     for huggingface_model_path in args.enable_local_huggingface_models:
         register_huggingface_local_model_from_flag_value(huggingface_model_path)
-    for model_metadata_path in args.model_metadata_paths:
-        register_model_metadata_from_path(model_metadata_path)
-    for model_deployment_paths in args.model_deployment_paths:
-        register_model_deployments_from_path(model_deployment_paths)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
@@ -278,7 +268,10 @@ def main():
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
         )
 
-    register_helm_configurations()
+    # Must set benchmark output path before getting RunSpecs,
+    # because run spec functions can use the benchmark output directory for caching.
+    ensure_directory_exists(args.output_path)
+    set_benchmark_output_path(args.output_path)
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,

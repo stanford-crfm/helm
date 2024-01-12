@@ -10,7 +10,6 @@ from helm.common.object_spec import ObjectSpec, create_object
 
 
 class Perturbation(ABC):
-
     # Unique name to describe perturbation
     name: str
 
@@ -56,11 +55,18 @@ class TextPerturbation(Perturbation, ABC):
             input=Input(text=self.perturb(instance.input.text, rng)),
             references=references,
             perturbation=description,
+            contrast_inputs=[instance.input],
         )
 
     def _perturb_reference(self, reference: Reference, rng: Random) -> Reference:
         """Generates a new Reference by perturbing the output and tagging the Reference."""
-        return replace(reference, output=Output(text=self.perturb(reference.output.text, rng)), tags=reference.tags)
+        return replace(
+            reference,
+            output=Output(
+                text=self.perturb(reference.output.text, rng), multimedia_content=reference.output.multimedia_content
+            ),
+            tags=reference.tags,
+        )
 
     @abstractmethod
     def perturb(self, text: str, rng: Random) -> str:

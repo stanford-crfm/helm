@@ -8,7 +8,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
-from .metric import Metric, MetricResult, PerInstanceStats
+from .metric import MetricInterface, MetricResult, PerInstanceStats
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .tokens.auto_token_cost_estimator import AutoTokenCostEstimator
@@ -47,7 +47,7 @@ class Processor:
         return stats
 
 
-class DryRunMetric(Metric):
+class DryRunMetric(MetricInterface):
     """Metrics for dry run."""
 
     def __init__(self):

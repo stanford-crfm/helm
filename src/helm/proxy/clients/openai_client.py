@@ -1,8 +1,10 @@
 # mypy: check_untyped_defs = False
 from dataclasses import replace
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, cast, Union
 
+from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common.cache import CacheConfig
+from helm.common.media_object import TEXT_TYPE
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -11,11 +13,10 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
     import openai
-    import tiktoken
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
@@ -29,12 +30,14 @@ class OpenAIClient(CachingClient):
     def __init__(
         self,
         tokenizer: Tokenizer,
+        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
         self.org_id: Optional[str] = org_id
         self.api_key: Optional[str] = api_key
         self.api_base: str = "https://api.openai.com/v1"
@@ -53,7 +56,7 @@ class OpenAIClient(CachingClient):
                 "engine": request.model_engine,
             }
         elif self._is_chat_model_engine(request.model_engine):
-            messages: Optional[List[Dict[str, str]]] = request.messages
+            messages: Optional[List[Dict[str, Union[str, Any]]]] = request.messages
             if request.messages and len(request.messages) > 1:
                 # Checks that all messages have a role and some content
                 for message in request.messages:
@@ -70,7 +73,32 @@ class OpenAIClient(CachingClient):
                 # to be returned in a single assistant message.
                 # TODO: Support ChatML for creating multiple messages with different roles.
                 # See: https://github.com/openai/openai-python/blob/main/chatml.md
-                messages = [{"role": "user", "content": request.prompt}]
+
+                # Content can either be text or a list of multimodal content made up of text and images:
+                # https://platform.openai.com/docs/guides/vision
+                content: Union[str, List[Union[str, Any]]]
+                if request.multimodal_prompt is not None:
+                    content = []
+                    for media_object in request.multimodal_prompt.media_objects:
+                        if media_object.is_type("image") and media_object.location:
+                            from helm.common.images_utils import encode_base64
+
+                            base64_image: str = encode_base64(media_object.location)
+                            content.append(
+                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+                            )
+                        elif media_object.is_type(TEXT_TYPE):
+                            if media_object.text is None:
+                                raise ValueError("MediaObject of text type has missing text field value")
+                            content.append({"type": media_object.type, "text": media_object.text})
+                        else:
+                            raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+                else:
+                    content = request.prompt
+
+                messages = [{"role": "user", "content": content}]
+
             raw_request = {
                 "model": request.model_engine,
                 "messages": messages,
@@ -84,6 +112,11 @@ class OpenAIClient(CachingClient):
                 "presence_penalty": request.presence_penalty,
                 "frequency_penalty": request.frequency_penalty,
             }
+
+            # OpenAI's vision API doesn't allow None values for stop.
+            # Fails with "body -> stop: none is not an allowed value" if None is passed.
+            if is_vlm(request.model) and raw_request["stop"] is None:
+                raw_request.pop("stop")
         else:
             raw_request = {
                 "engine": request.model_engine,
@@ -134,6 +167,12 @@ class OpenAIClient(CachingClient):
                     return openai.Completion.create(**raw_request)
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
+            if is_vlm(request.model):
+                assert request.multimodal_prompt is not None
+                prompt_key: str = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+                cache_key = {**cache_key, "multimodal_prompt": prompt_key}
+                del cache_key["messages"]
+
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
             error: str = f"OpenAI error: {e}"
@@ -156,9 +195,7 @@ class OpenAIClient(CachingClient):
                 text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
                 # The OpenAI chat completion API doesn't return us tokens or logprobs, so we tokenize ourselves.
                 tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                    TokenizationRequest(
-                        text, tokenizer="openai/" + tiktoken.encoding_for_model(request.model_engine).name
-                    )
+                    TokenizationRequest(text, tokenizer=self.tokenizer_name)
                 )
                 # Log probs are not currently not supported by the OpenAI chat completion API, so set to 0 for now.
                 tokens = [

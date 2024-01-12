@@ -44,3 +44,8 @@ notes.otl
 
 # Miscellaneous
 .nfs*
+
+node_modules
+
+# frontend build
+static_build

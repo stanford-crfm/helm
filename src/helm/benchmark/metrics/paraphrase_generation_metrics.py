@@ -1,13 +1,13 @@
 from typing import List
 
 from helm.benchmark.adaptation.request_state import RequestState
-from .metric import Metric
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from .metric_name import MetricName
 from .statistic import Stat
 from nltk.translate.bleu_score import corpus_bleu
 
 
-class CLEVAParaphraseGenerationMetric(Metric):
+class CLEVAParaphraseGenerationMetric(EvaluateInstancesMetric):
     """
     Compute the Chinese iBLEU score for Paraphrase Generation scenarios of CLEVA benchmark.
     This implementation allows variable number of references (i.e., golds).
@@ -22,7 +22,6 @@ class CLEVAParaphraseGenerationMetric(Metric):
         self.alpha = alpha
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-
         inputs: List = []
         preds: List = []
         golds: List[List[str]] = []
