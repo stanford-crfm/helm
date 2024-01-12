@@ -2,6 +2,7 @@ import os.path
 from typing import List
 
 from datasets import load_dataset
+from tqdm import tqdm
 
 from helm.benchmark.scenarios.scenario import (
     ALL_SPLITS,
@@ -56,10 +57,12 @@ class HatefulMemesScenario(Scenario):
 
         instances: List[Instance] = []
         for split in ALL_SPLITS:
-            for row in load_dataset(
-                "neuralcatcher/hateful_memes",
-                split="validation" if split == VALID_SPLIT else split,
-                cache_dir=output_path,
+            for row in tqdm(
+                load_dataset(
+                    "neuralcatcher/hateful_memes",
+                    split="validation" if split == VALID_SPLIT else split,
+                    cache_dir=output_path,
+                )
             ):
                 # Download the meme
                 image_path: str = row["img"]
@@ -69,7 +72,9 @@ class HatefulMemesScenario(Scenario):
                     target_path=local_image_path,
                     unpack=False,
                 )
-                assert os.path.exists(local_image_path), f"Image at {local_image_path} does not exist"
+                # Some examples are missing images. Skip those for now
+                if not os.path.exists(local_image_path):
+                    continue
 
                 content: List[MediaObject] = [
                     MediaObject(location=local_image_path, content_type="image/jpeg"),
