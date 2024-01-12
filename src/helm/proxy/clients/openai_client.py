@@ -45,6 +45,22 @@ class OpenAIClient(CachingClient):
     def _is_chat_model_engine(self, model_engine: str):
         return model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4")
 
+    def _set_access_info(self):
+        # Following https://beta.openai.com/docs/api-reference/authentication
+        # `organization` can be set to None.
+        openai.organization = self.org_id
+        openai.api_key = self.api_key
+        openai.api_base = self.api_base
+
+    def _get_cache_key(self, raw_request, request):
+        cache_key = CachingClient.make_cache_key(raw_request, request)
+        if is_vlm(request.model):
+            assert request.multimodal_prompt is not None
+            prompt_key: str = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+            cache_key = {**cache_key, "multimodal_prompt": prompt_key}
+            del cache_key["messages"]
+        return cache_key
+
     def make_request(self, request: Request) -> RequestResult:
         if self.api_key is None:
             raise ValueError("OpenAI API key is required")
@@ -138,41 +154,27 @@ class OpenAIClient(CachingClient):
             raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
             raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
 
+        if request.embedding:
+
+            def do_it():
+                self._set_access_info()
+                return openai.Embedding.create(**raw_request)
+
+        elif self._is_chat_model_engine(request.model_engine):
+
+            def do_it():
+                self._set_access_info()
+                return openai.ChatCompletion.create(**raw_request)
+
+        else:
+
+            def do_it():
+                self._set_access_info()
+                openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
+                return openai.Completion.create(**raw_request)
+
         try:
-            if request.embedding:
-
-                def do_it():
-                    openai.organization = self.org_id
-                    openai.api_key = self.api_key
-                    openai.api_base = self.api_base
-                    return openai.Embedding.create(**raw_request)
-
-            elif self._is_chat_model_engine(request.model_engine):
-
-                def do_it():
-                    openai.organization = self.org_id
-                    openai.api_key = self.api_key
-                    openai.api_base = self.api_base
-                    return openai.ChatCompletion.create(**raw_request)
-
-            else:
-
-                def do_it():
-                    # Following https://beta.openai.com/docs/api-reference/authentication
-                    # `organization` can be set to None.
-                    openai.organization = self.org_id
-                    openai.api_key = self.api_key
-                    openai.api_base = self.api_base
-                    openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
-                    return openai.Completion.create(**raw_request)
-
-            cache_key = CachingClient.make_cache_key(raw_request, request)
-            if is_vlm(request.model):
-                assert request.multimodal_prompt is not None
-                prompt_key: str = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
-                cache_key = {**cache_key, "multimodal_prompt": prompt_key}
-                del cache_key["messages"]
-
+            cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
             error: str = f"OpenAI error: {e}"
