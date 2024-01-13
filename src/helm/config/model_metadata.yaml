@@ -1077,7 +1077,7 @@ models:
 
   - name: microsoft/llava-1.5-7b-hf
     display_name: LLaVA 1.5 (7B)
-    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data.
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
     creator_organization_name: Microsoft
     access: open
     num_parameters: 7000000000
@@ -1086,7 +1086,7 @@ models:
 
   - name: microsoft/llava-1.5-13b-hf
     display_name: LLaVA 1.5 (13B)
-    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data.
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
     creator_organization_name: Microsoft
     access: open
     num_parameters: 13000000000

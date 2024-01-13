@@ -56,6 +56,7 @@ class HuggingFaceVLMClient(CachingClient):
         image: Optional[Image.Image] = None
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("image") and media_object.location:
+                # TODO #2235: Figure out is fome HuggingFace models support multiple images
                 if image is not None:
                     raise ValueError("Only one image is supported in the multimodal prompt")
                 image = open_image(media_object.location)
