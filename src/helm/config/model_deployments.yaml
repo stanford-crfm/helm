@@ -457,6 +457,21 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+  
+  - name: huggingface/llava-1.5-13b-hf
+    model_name: microsoft/llava-1.5-13b-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+
+  ## Mistral AI
+  - name: huggingface/bakLlava-v1-hf
+    model_name: mistralai/bakLlava-v1-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
 
   ## OpenAI
   - name: huggingface/gpt2
