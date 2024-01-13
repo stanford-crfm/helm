@@ -32,6 +32,8 @@ class HuggingFaceVLMClient(CachingClient):
     _models: Dict[str, ImageToTextPipeline] = {}
     _models_aliases: Dict[str, str] = {
         "huggingface/llava-1.5-7b-hf": "llava-hf/llava-1.5-7b-hf",
+        "huggingface/llava-1.5-13b-hf": "llava-hf/llava-1.5-13b-hf",
+        "huggingface/bakLlava-v1-hf": "llava-hf/bakLlava-v1-hf",
     }
 
     def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
