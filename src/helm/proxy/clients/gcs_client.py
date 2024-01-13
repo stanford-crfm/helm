@@ -22,7 +22,7 @@ class GCSClient:
 
     def __init__(self, bucket_name: str, cache_config: CacheConfig):
         try:
-            from google.cloud import storage
+            from google.cloud import storage  # type: ignore
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
@@ -33,7 +33,7 @@ class GCSClient:
     def upload(self, request: FileUploadRequest) -> FileUploadResult:
         """Uploads a file to GCS."""
         try:
-            from google.cloud import storage
+            from google.cloud import storage  # type: ignore
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
