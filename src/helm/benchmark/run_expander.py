@@ -405,7 +405,6 @@ class LlavaRunExpander(RunExpander):
     name = "llava"
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        print("=============\n===========\n================\nLLAVA\n===============\n===============\n===============")
         return [
             replace(
                 run_spec,
