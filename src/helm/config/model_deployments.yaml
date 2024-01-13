@@ -441,6 +441,14 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
+  ## Microsoft
+  - name: huggingface/llava-1.5-7b-hf
+    model_name: microsoft/llava-1.5-7b-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client"
+
   ## OpenAI
   - name: huggingface/gpt2
     model_name: openai/gpt2
@@ -690,13 +698,6 @@ model_deployments:
     max_request_length: 2048
     client_spec:
       class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
-
-  - name: llava-hf/llava-1.5-7b-hf
-    model_name: llava-hf/llava-1.5-7b-hf
-    tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client"
 
   # Neurips
   - name: neurips/local

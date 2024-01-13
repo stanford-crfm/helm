@@ -30,7 +30,9 @@ class HuggingFaceVLMClient(CachingClient):
 
     _models_lock: Lock = Lock()
     _models: Dict[str, ImageToTextPipeline] = {}
-    _models_aliases: Dict[str, str] = {}
+    _models_aliases: Dict[str, str] = {
+        "huggingface/llava-1.5-7b-hf": "llava-hf/llava-1.5-7b-hf",
+    }
 
     def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
