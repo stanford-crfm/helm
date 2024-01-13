@@ -1,8 +1,21 @@
 # mypy: check_untyped_defs = False
+from typing import List, Set
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, TRAIN_SPLIT, Instance, Input, Output, Reference, CORRECT_TAG
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_MULTIPLE_CHOICE_JOINT
 from .test_adapter import TestAdapter
+
+
+def _make_instance(
+    text: str, reference_texts: List[str], correct_references: Set[int], is_eval: bool = False
+) -> Instance:
+    references = []
+    for i, reference_text in enumerate(reference_texts):
+        tags = [CORRECT_TAG] if i in correct_references else []
+        references.append(Reference(Output(text=reference_text), tags=tags))
+
+    split = TEST_SPLIT if is_eval else TRAIN_SPLIT
+    return Instance(Input(text=text), references=references, split=split)
 
 
 class TestMultipleChoiceJointAdapter(TestAdapter):
@@ -52,6 +65,47 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
 
         examples = adapter.sample_examples(all_train_instances, seed=0)
         assert len(examples) == 3
+
+    def test_sample_examples_unique_labels(self):
+        """This is a demonstration of behavior reported in issue #2224."""
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", model_deployment="openai/ada", max_train_instances=3
+        )
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        all_train_instances = [
+            # Three with 0 being correct.
+            _make_instance("one", ["0", "1"], correct_references={0}),
+            _make_instance("two", ["2", "3"], correct_references={0}),
+            _make_instance("three", ["4", "5"], correct_references={0}),
+            # Two with 1 being correct.
+            _make_instance("four", ["6", "7"], correct_references={1}),
+            _make_instance("five", ["8", "9"], correct_references={1}),
+        ]
+        eval_instance = _make_instance("eval", ["10", "11"], correct_references={1}, is_eval=True)
+        actual_instances = adapter.adapt(all_train_instances + [eval_instance], parallelism=1).request_states
+        assert len(actual_instances) == 1
+        # In every case, we are showing that model that Output should be "A".
+        assert actual_instances[0].request.prompt == (
+            "Input: three\n"
+            "A. 4\n"
+            "B. 5\n"
+            "Output: A\n"
+            "\n"
+            "Input: two\n"
+            "A. 2\n"
+            "B. 3\n"
+            "Output: A\n"
+            "\n"
+            "Input: one\n"
+            "A. 0\n"
+            "B. 1\n"
+            "Output: A\n"
+            "\n"
+            "Input: eval\n"
+            "A. 10\n"
+            "B. 11\n"
+            "Output:"
+        )
 
     def test_multiple_correct_reference(self):
         adapter_spec = AdapterSpec(

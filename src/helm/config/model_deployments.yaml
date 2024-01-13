@@ -362,6 +362,15 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
+  - name: google/gemini-pro-vision
+    model_name: google/gemini-pro-vision
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 12288
+    max_sequence_and_generated_tokens_length: 16384
+    client_spec:
+      class_name: "helm.proxy.clients.vertexai_client.VertexAIChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
   ## PaLM 2
   - name: google/text-bison@001
@@ -890,6 +899,15 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 32768
     max_request_length: 32769
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4-vision-preview
+    model_name: openai/gpt-4-vision-preview
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000  # According to https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
+    max_request_length: 128001
+    max_sequence_and_generated_tokens_length: 132096
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 

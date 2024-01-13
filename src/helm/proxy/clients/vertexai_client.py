@@ -1,7 +1,10 @@
 import requests
-from typing import List
+from abc import ABC, abstractmethod
+from threading import Lock
+from typing import Any, Dict, List, Union
 
 from helm.common.cache import CacheConfig
+from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
@@ -9,17 +12,21 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
     import vertexai
     from vertexai.language_models import TextGenerationModel, TextGenerationResponse  # PaLM2
-    from vertexai.preview.generative_models import GenerativeModel, GenerationResponse, Candidate  # Gemini
+    from vertexai.preview.generative_models import GenerativeModel, GenerationResponse, Candidate, Part, Image  # Gemini
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["google"])
 
 
-class VertexAIClient(CachingClient):
+_models_lock: Lock = Lock()
+_models: Dict[str, Any] = {}
+
+
+class VertexAIClient(CachingClient, ABC):
     """Client for Vertex AI models"""
 
     def __init__(
@@ -33,6 +40,7 @@ class VertexAIClient(CachingClient):
 
         vertexai.init(project=self.project_id, location=self.location)
 
+    @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
         raise NotImplementedError
 
@@ -127,11 +135,41 @@ class VertexAITextClient(VertexAIClient):
 
 
 class VertexAIChatClient(VertexAIClient):
-    """Client for Vertex AI chat models
-    This client is used for Gemini for example."""
+    """Client for Vertex AI chat models (e.g., Gemini). Supports multimodal prompts."""
+
+    @staticmethod
+    def get_model(model_name: str) -> Any:
+        global _models_lock
+        global _models
+
+        with _models_lock:
+            if model_name not in _models:
+                _models[model_name] = GenerativeModel(model_name)
+            return _models[model_name]
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
+
+        # Contents can either be text or a list of multimodal content made up of text, images or other content
+        contents: Union[str, List[Union[str, Any]]] = request.prompt
+        # Used to generate a unique cache key for this specific request
+        prompt_key: str = request.prompt
+
+        # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
+        if request.multimodal_prompt is not None:
+            contents = []
+            for media_object in request.multimodal_prompt.media_objects:
+                if media_object.is_type("image") and media_object.location:
+                    contents.append(Part.from_image(Image.load_from_file(media_object.location)))
+                elif media_object.is_type(TEXT_TYPE):
+                    if media_object.text is None:
+                        raise ValueError("MediaObject of text type has missing text field value")
+                    contents.append(media_object.text)
+                else:
+                    raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+            prompt_key = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+
         parameters = {
             "temperature": request.temperature,
             "max_output_tokens": request.max_tokens,
@@ -151,25 +189,18 @@ class VertexAIChatClient(VertexAIClient):
 
         completions: List[Sequence] = []
         model_name: str = request.model_engine
+        model = self.get_model(model_name)
 
         try:
 
             def do_it():
-                model = GenerativeModel(model_name)
-
-                # Here we differ from Vertex AI's tutotial.
+                # Here we differ from Vertex AI's tutorial.
                 # https://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/send-chat-prompts-gemini#send_chat_prompts   # noqa: E501
                 # It would advise to use model.start_chat() but since we do not want to use Chat capabilities of
                 # Vertex AI, we use model.generate_text() instead. Furthermore, chat.send_message() restricts the
                 # output to only one candidate.
                 # chat: ChatSession = model.start_chat()
                 # See: https://github.com/googleapis/python-aiplatform/blob/e8c505751b10a9dc91ae2e0d6d13742d2abf945c/vertexai/generative_models/_generative_models.py#L812  # noqa: E501
-
-                # TODO: Support VLM.
-                # content can contain a list of Image, txt and more.
-                # See: https://github.com/googleapis/python-aiplatform/blob/e8c505751b10a9dc91ae2e0d6d13742d2abf945c/vertexai/generative_models/_generative_models.py#L672C14-L672C14  # noqa: E501
-                contents = request.prompt
-
                 response: GenerationResponse = model.generate_content(contents, generation_config=parameters)
                 candidates: List[Candidate] = response.candidates
                 response_dict = {
@@ -183,7 +214,7 @@ class VertexAIChatClient(VertexAIClient):
             cache_key = CachingClient.make_cache_key(
                 {
                     "model_name": model_name,
-                    "prompt": request.prompt,
+                    "prompt": prompt_key,
                     **parameters,
                 },
                 request,
