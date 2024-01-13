@@ -52,7 +52,7 @@ class HuggingFaceVLMClient(CachingClient):
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
 
         # Build the prompt
-        prompt: str = "<image>"
+        prompt: str = ""
         image: Optional[Image.Image] = None
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("image") and media_object.location:
