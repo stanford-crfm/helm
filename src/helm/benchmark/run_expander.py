@@ -405,6 +405,7 @@ class LlavaRunExpander(RunExpander):
     name = "llava"
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        print("=============\n===========\n================\nLLAVA\n===============\n===============\n===============")
         return [
             replace(
                 run_spec,
@@ -412,7 +413,9 @@ class LlavaRunExpander(RunExpander):
                 adapter_spec=replace(
                     run_spec.adapter_spec,
                     input_prefix="USER: <image>",
+                    input_suffix="",
                     output_prefix="\nASSISTANT: ",
+                    output_suffix="",
                 ),
             ),
         ]
