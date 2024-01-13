@@ -1067,6 +1067,15 @@ models:
     release_date: 2022-01-28
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: microsoft/llava-1.5-7b-hf
+    display_name: LLaVA 1.5 (7B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data.
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-10-05
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
 
 
   # 01.AI
