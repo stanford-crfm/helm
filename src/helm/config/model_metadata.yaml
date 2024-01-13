@@ -1082,7 +1082,7 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2023-10-05
-    tags: [VISION_LANGUAGE_MODEL_TAG]
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_TAG]
 
 
 

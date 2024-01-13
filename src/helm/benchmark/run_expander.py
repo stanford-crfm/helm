@@ -396,6 +396,28 @@ class IDEFICSInstructRunExpander(RunExpander):
         ]
 
 
+class LlavaRunExpander(RunExpander):
+    """
+    Custom prompt for Llava 1.5 models which should use a specific format.
+    See https://colab.research.google.com/drive/1qsl6cd2c8gGtEW1xV5io7S8NHh-Cp1TV?usp=sharing for more information.
+    """
+
+    name = "llava"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    input_prefix="USER: <image>",
+                    output_prefix="\nASSISTANT: ",
+                ),
+            ),
+        ]
+
+
 class FormatPromptRunExpander(RunExpander):
     """Adds a prefix and suffix to the prompt."""
 
