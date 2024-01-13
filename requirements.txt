@@ -1,6 +1,6 @@
 2captcha-python==1.1.3
 absl-py==1.2.0
-accelerate=0.25.0
+accelerate==0.25.0
 aiodns==3.0.0
 aiohttp==3.8.5
 aiohttp-retry==2.8.3
