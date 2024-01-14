@@ -16,7 +16,6 @@ bitarray==2.7.3
 black==22.10.0
 blis==0.7.8
 boto3==1.24.89
-botocore==1.27.89
 bottle==0.12.25
 cachetools==5.3.2
 catalogue==2.0.10
