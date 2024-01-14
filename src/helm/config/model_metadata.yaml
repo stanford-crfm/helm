@@ -1092,7 +1092,16 @@ models:
     num_parameters: 13000000000
     release_date: 2023-10-05
     tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
-
+    
+  
+  - name: openflamingo/OpenFlamingo-9B-vitl-mpt7b
+    display_name: OpenFlamingo (9B)
+    description: OpenFlamingo is an open source implementation of DeepMind's Flamingo models. This 9B-parameter model uses a CLIP ViT-L/14 vision encoder and MPT-7B language model. ([paper](https://arxiv.org/abs/2308.01390))
+    creator_organization_name: OpenFlamingo
+    access: open
+    num_parameters: 9000000000
+    release_date: 2023-08-02
+    tags: [VISION_LANGUAGE_MODEL_TAG, OPEN_FLAMINGO_MODEL_TAG]
 
 
   # 01.AI

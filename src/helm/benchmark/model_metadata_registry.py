@@ -56,10 +56,13 @@ VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
 IDEFICS_INSTRUCT_MODEL_TAG: str = "IDEFICS_INSTRUCT_MODEL_TAG"
 # Llava should use a special prompt format (see `LlavaRunExpander`)
 LLAVA_MODEL_TAG: str = "LLAVA_MODEL_TAG"
-
+# OpenFlamingo
+OPEN_FLAMINGO_MODEL_TAG: str = "OPEN_FLAMINGO_MODEL_TAG"
 
 # Frozen is set to false as the model_deployment_registry.py file
 # might populate the deployment_names field.
+
+
 @dataclass(frozen=False)
 class ModelMetadata:
     name: str
