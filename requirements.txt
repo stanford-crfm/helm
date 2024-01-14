@@ -91,6 +91,7 @@ nodeenv==1.7.0
 numba==0.56.4
 numpy==1.23.3
 openai==0.27.8
+open-clip-torch==2.24.0
 opencv-python==4.8.1.78
 openpyxl==3.0.10
 outcome==1.2.0
