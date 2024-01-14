@@ -115,7 +115,7 @@ class OpenFlamingoClient(CachingClient):
         tokens: List[Token] = [
             Token(text=str(self.tokenizer.decode(id)), logprob=0, top_logprobs={}) for id in lang_x["input_ids"][0]
         ]
-        completions: List[Sequence] = [Sequence(text=result["generated_text"], logprob=0, tokens=tokens)]
+        completions: List[Sequence] = [Sequence(text=result["output"], logprob=0, tokens=tokens)]
         return RequestResult(
             success=True,
             cached=cached,
