@@ -14,7 +14,7 @@ beautifulsoup4==4.11.1
 bert-score==0.3.13
 bitarray==2.7.3
 black==22.10.0
-blanc==0.2.7
+blanc==0.3.4
 blis==0.7.8
 boto3==1.24.89
 botocore==1.27.89
