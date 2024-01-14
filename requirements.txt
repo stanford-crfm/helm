@@ -139,7 +139,7 @@ scaleapi==2.13.0
 scikit-learn==1.1.2
 scipy==1.10.0
 selenium==4.8.0
-sentencepiece==0.1.97
+sentencepiece==0.1.98
 simple-slurm==0.2.6
 six==1.16.0
 smart-open==5.2.1
