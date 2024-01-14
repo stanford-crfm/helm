@@ -3,7 +3,7 @@ from typing import List
 
 import torch
 from huggingface_hub import hf_hub_download
-from open_flamingo import create_model_and_transforms
+from helm.proxy.clients.vision_language.open_flamingo import create_model_and_transforms
 
 from helm.common.cache import CacheConfig
 from helm.common.images_utils import open_image
