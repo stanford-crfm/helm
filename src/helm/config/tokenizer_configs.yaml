@@ -165,6 +165,12 @@ tokenizer_configs:
       class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "</s>"
     prefix_token: "<s>"
+    
+  - name: anas-awadalla/mpt-7b
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
 
   # Huggingface
   - name: huggingface/gpt2
