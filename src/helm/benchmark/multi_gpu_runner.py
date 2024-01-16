@@ -12,9 +12,9 @@ from helm.benchmark.runner import Runner, RunSpec, RunnerError
 
 from helm.common.hierarchical_logger import hlog, htrack_block
 
-from helm.benchmark.slurm_config_registry import SLURM_CONFIG
+from helm.benchmark.runner_config_registry import RUNNER_CONFIG
 
-_MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKER_SLURM_JOBS"
+_MAX_CONCURRENT_WORKERS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKERS"
 
 
 def worker_initialize(gpu_id: int):
@@ -49,11 +49,11 @@ class MultiGPURunner(Runner):
             exit_on_error=exit_on_error,
         )
         # Configure max concurrent worker jobs from the environment variable.
-        env_max_concurrent_worker_slurm_jobs = os.getenv(_MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME)
-        self.max_concurrent_worker_slurm_jobs = (
-            int(env_max_concurrent_worker_slurm_jobs)
-            if env_max_concurrent_worker_slurm_jobs
-            else SLURM_CONFIG.helm_max_concurrent_worker_slurm_jobs
+        env_max_concurrent_workers = os.getenv(_MAX_CONCURRENT_WORKERS_ENV_NAME)
+        self.max_concurrent_workers = (
+            int(env_max_concurrent_workers)
+            if env_max_concurrent_workers
+            else RUNNER_CONFIG.helm_max_concurrent_workers
         )
 
     def safe_run_one(self, run_spec: RunSpec):
@@ -74,9 +74,9 @@ class MultiGPURunner(Runner):
         # Set the start method to forkserver to avoid issues with CUDA.
         multiprocessing.set_start_method("forkserver")
 
-        with multiprocessing.Pool(processes=self.max_concurrent_worker_slurm_jobs) as pool:
+        with multiprocessing.Pool(processes=self.max_concurrent_workers) as pool:
             # Pin GPUs to each worker process
-            pool.starmap(worker_initialize, [(i,) for i in range(self.max_concurrent_worker_slurm_jobs)])
+            pool.starmap(worker_initialize, [(i,) for i in range(self.max_concurrent_workers)])
 
             # Run all queued tasks
             error_msgs = pool.map(self.safe_run_one, run_specs)
