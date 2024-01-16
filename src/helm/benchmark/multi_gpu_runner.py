@@ -1,3 +1,5 @@
+import signal
+import threading
 import traceback
 from typing import List
 import os
@@ -18,6 +20,22 @@ from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.benchmark.runner_config_registry import RUNNER_CONFIG
 
 _MAX_CONCURRENT_WORKERS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKERS"
+
+
+# From https://stackoverflow.com/questions/71300294/how-to-terminate-pythons-processpoolexecutor-when-parent-process-dies
+def start_thread_to_terminate_when_parent_process_dies(ppid):
+    pid = os.getpid()
+
+    def f():
+        while True:
+            try:
+                os.kill(ppid, 0)
+            except OSError:
+                os.kill(pid, signal.SIGTERM)
+            time.sleep(1)
+
+    thread = threading.Thread(target=f, daemon=True)
+    thread.start()
 
 
 def initialize_worker(gpu_id: int):
@@ -83,7 +101,11 @@ class MultiGPURunner(Runner):
         # Set the start method to forkserver to avoid issues with CUDA.
         multiprocessing.set_start_method("forkserver")
 
-        with Pool(max_workers=self.max_concurrent_workers) as pool:
+        with Pool(
+            max_workers=self.max_concurrent_workers,
+            initializer=start_thread_to_terminate_when_parent_process_dies,
+            initargs=(os.getpid(),),
+        ) as pool:
             # Pin GPUs to each worker process
             pool.map(initialize_worker, [i for i in range(self.max_concurrent_workers)])
 
