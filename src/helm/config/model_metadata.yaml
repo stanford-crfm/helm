@@ -650,7 +650,7 @@ models:
 
 
 
-    # HuggingFace
+  # HuggingFace
   - name: HuggingFaceM4/idefics-9b
     display_name: IDEFICS (9B)
     description: IDEFICS (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
