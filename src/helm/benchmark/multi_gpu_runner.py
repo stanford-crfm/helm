@@ -1,6 +1,7 @@
 import traceback
 from typing import List
 import os
+import time
 import torch.multiprocessing as multiprocessing
 from concurrent.futures import ProcessPoolExecutor as Pool
 from tqdm import tqdm
@@ -19,14 +20,17 @@ from helm.benchmark.runner_config_registry import RUNNER_CONFIG
 _MAX_CONCURRENT_WORKERS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKERS"
 
 
-def worker_initialize(gpu_id: int):
+def initialize_worker(gpu_id: int):
+    hlog(f"Worker {gpu_id} initializing")
+
+    # Wait for 0.1 seconds to ensure all workers are initialized with different CUDA_VISIBLE_DEVICES
+    time.sleep(0.1)
+
     # Pin GPU to worker process
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
 
     # Necessary for code_metrics in humaneval to work properly
     multiprocessing.set_start_method("fork", force=True)
-
-    hlog(f"Worker {gpu_id} initializing with CUDA_VISIBLE_DEVICES={os.environ['CUDA_VISIBLE_DEVICES']}")
 
 
 class MultiGPURunner(Runner):
@@ -81,7 +85,7 @@ class MultiGPURunner(Runner):
 
         with Pool(max_workers=self.max_concurrent_workers) as pool:
             # Pin GPUs to each worker process
-            pool.map(worker_initialize, [i for i in range(self.max_concurrent_workers)])
+            pool.map(initialize_worker, [i for i in range(self.max_concurrent_workers)])
 
             # Run all queued tasks
             error_msgs = list(tqdm(pool.map(self.safe_run_one, run_specs), total=len(run_specs), disable=None))
