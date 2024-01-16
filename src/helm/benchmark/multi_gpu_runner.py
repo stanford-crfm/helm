@@ -2,6 +2,8 @@ import traceback
 from typing import List
 import os
 import torch.multiprocessing as multiprocessing
+from concurrent.futures import ProcessPoolExecutor as Pool
+from tqdm import tqdm
 
 from helm.benchmark.config_registry import (
     register_configs_from_directory,
@@ -18,7 +20,12 @@ _MAX_CONCURRENT_WORKERS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKERS"
 
 
 def worker_initialize(gpu_id: int):
+    # Pin GPU to worker process
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+
+    # Necessary for code_metrics in humaneval to work properly
+    multiprocessing.set_start_method("fork", force=True)
+
     hlog(f"Worker {gpu_id} initializing with CUDA_VISIBLE_DEVICES={os.environ['CUDA_VISIBLE_DEVICES']}")
 
 
@@ -51,9 +58,7 @@ class MultiGPURunner(Runner):
         # Configure max concurrent worker jobs from the environment variable.
         env_max_concurrent_workers = os.getenv(_MAX_CONCURRENT_WORKERS_ENV_NAME)
         self.max_concurrent_workers = (
-            int(env_max_concurrent_workers)
-            if env_max_concurrent_workers
-            else RUNNER_CONFIG.helm_max_concurrent_workers
+            int(env_max_concurrent_workers) if env_max_concurrent_workers else RUNNER_CONFIG.helm_max_concurrent_workers
         )
 
     def safe_run_one(self, run_spec: RunSpec):
@@ -74,12 +79,12 @@ class MultiGPURunner(Runner):
         # Set the start method to forkserver to avoid issues with CUDA.
         multiprocessing.set_start_method("forkserver")
 
-        with multiprocessing.Pool(processes=self.max_concurrent_workers) as pool:
+        with Pool(max_workers=self.max_concurrent_workers) as pool:
             # Pin GPUs to each worker process
-            pool.starmap(worker_initialize, [(i,) for i in range(self.max_concurrent_workers)])
+            pool.map(worker_initialize, [i for i in range(self.max_concurrent_workers)])
 
             # Run all queued tasks
-            error_msgs = pool.map(self.safe_run_one, run_specs)
+            error_msgs = list(tqdm(pool.map(self.safe_run_one, run_specs), total=len(run_specs), disable=None))
 
         # Raise exception for failed runs, if any.
         failed_run_names = [
