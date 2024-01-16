@@ -5,7 +5,6 @@ import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
 import Schema from "@/types/Schema";
 import getSchema from "@/services/getSchema";
-import { Link } from "react-router-dom";
 
 interface Props {
   groupsTables: GroupsTable[];
@@ -95,50 +94,6 @@ export default function LeaderboardTables({
       }
     }
     return "";
-  };
-
-  interface TooltipInfo {
-    show: boolean;
-    rowIndex: number;
-    colIndex: number;
-    content: string;
-    link: string;
-  }
-
-  interface TooltipProps {
-    show: boolean;
-    content: string;
-    link: string;
-  }
-
-  const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo>({
-    show: false,
-    rowIndex: -1,
-    colIndex: -1,
-    content: "",
-    link: "",
-  });
-
-  const Tooltip: React.FC<TooltipProps> = ({ show, content, link }) => {
-    if (!show) return null;
-    return (
-      <div className="absolute bg-white border border-gray-200 p-2 shadow-lg">
-        <Link to={link}>{content}</Link>
-      </div>
-    );
-  };
-
-  const showTooltip = (
-    rowIndex: number,
-    colIndex: number,
-    content: string,
-    link: string,
-  ) => {
-    setTooltipInfo({ show: true, rowIndex, colIndex, content, link });
-  };
-
-  const hideTooltip = () => {
-    setTooltipInfo({ ...tooltipInfo, show: false });
   };
 
   interface HeaderValueObject {
@@ -327,38 +282,24 @@ export default function LeaderboardTables({
                     {" "}
                     {/* Added alternating row highlighting */}
                     {row.map((rowValue, cellIdx) => (
-                      <td
-                        key={`${activeGroup}-${cellIdx}`}
-                        className={`${cellIdx === 0 ? "text-lg" : ""}`}
-                        onMouseEnter={() =>
-                          showTooltip(
-                            idx,
-                            cellIdx,
-                            `Click to see predictions for ${getGroupForRunName(
-                              getHeaderValue(activeGroupsTable.header[cellIdx]),
-                            )}: ${getModelForRunName(String(row[0].value))}`,
-                            `/runs/?q=${getGroupForRunName(
-                              getHeaderValue(activeGroupsTable.header[cellIdx]),
-                            )}.*${getModelForRunName(String(row[0].value))}`,
-                          )
-                        }
-                        onMouseLeave={hideTooltip}
+                      <a
+                        href={`/runs/?q=${getGroupForRunName(
+                          getHeaderValue(activeGroupsTable.header[cellIdx]),
+                        )}.*${getModelForRunName(String(row[0].value))}`}
                       >
-                        <RowValue
-                          ignoreHref={ignoreHref && cellIdx === 0}
-                          value={rowValue}
-                        />
-                        {tooltipInfo.show &&
-                          tooltipInfo.rowIndex === idx &&
-                          tooltipInfo.colIndex === cellIdx &&
-                          cellIdx > 1 && (
-                            <Tooltip
-                              show={true}
-                              content={tooltipInfo.content}
-                              link={tooltipInfo.link}
-                            />
-                          )}
-                      </td>
+                        <td
+                          key={`${activeGroup}-${cellIdx}`}
+                          className={`${cellIdx === 0 ? "text-lg" : ""}`}
+                          title={`Click value to see predictions for ${getGroupForRunName(
+                            getHeaderValue(activeGroupsTable.header[cellIdx]),
+                          )}: ${getModelForRunName(String(row[0].value))}`}
+                        >
+                          <RowValue
+                            ignoreHref={ignoreHref && cellIdx === 0}
+                            value={rowValue}
+                          />
+                        </td>
+                      </a>
                     ))}
                   </tr>
                 ))}
