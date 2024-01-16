@@ -39,6 +39,13 @@ def get_vlm_generation_adapter_spec(
     )
 
 
+def get_short_answer_generation_adapter_spec():
+    return get_vlm_generation_adapter_spec(
+        instructions="Just give a short answer without answering in a complete sentence.",
+        max_tokens=20,
+    )
+
+
 def get_vlm_multiple_choice_joint_adapter_spec(
     input_noun: Optional[str],
     output_noun: str,
@@ -73,7 +80,8 @@ def get_hateful_memes_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.hateful_memes_scenario.HatefulMemesScenario", args={}
     )
     adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec(
-        instructions="Answer Yes or No.",
+        instructions="Answer Yes or No without an explanation.",
+        max_tokens=3,
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
@@ -92,7 +100,7 @@ def get_viz_wiz_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.viz_wiz_scenario.VizWizScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec()
+    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "viz_wiz"
@@ -110,7 +118,7 @@ def get_vqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.vqa_scenario.VQAScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec()
+    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "vqa"
