@@ -19,6 +19,17 @@ models:
     release_date: 2023-01-01
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  # Adobe
+  - name: adobe/giga-gan
+    display_name: GigaGAN (1B)
+    description: GigaGAN is a GAN model that produces high-quality images extremely quickly. The model was trained on text and image pairs from LAION2B-en and COYO-700M. ([paper](https://arxiv.org/abs/2303.05511)).
+    creator_organization_name: Adobe
+    access: limited
+    num_parameters: 1000000000
+    release_date: 2023-06-22
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+
   # AI21 Labs
   - name: ai21/j1-jumbo # DEPRECATED
     display_name: J1-Jumbo v1 (178B)
@@ -102,7 +113,7 @@ models:
     # TODO: get exact release date
     release_date: 2022-01-01
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: AlephAlpha/luminous-extended
     display_name: Luminous Extended (30B)
@@ -112,7 +123,7 @@ models:
     num_parameters: 30000000000
     release_date: 2022-01-01
     # Does not support echo
-    tags: [TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: AlephAlpha/luminous-supreme
     display_name: Luminous Supreme (70B)
@@ -122,7 +133,7 @@ models:
     num_parameters: 70000000000
     release_date: 2022-01-01
     # Does not support echo.
-    # TODO: images will be supported in the near future. Add IMAGE_MODEL_TAG.
+    # Currently, only Luminous-extended and Luminous-base support multimodal inputs
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
   
   # TODO: Uncomment when luminous-world is released.
@@ -136,6 +147,15 @@ models:
   #   # Does not support echo.
   #   tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+
+  - name: AlephAlpha/m-vader
+    display_name: MultiFusion (13B)
+    description: MultiFusion is a multimodal, multilingual diffusion model that extend the capabilities of Stable Diffusion v1.4 by integrating different pre-trained modules, which transfers capabilities to the downstream model ([paper](https://arxiv.org/abs/2305.15296))
+    creator_organization_name: Aleph Alpha
+    access: limited
+    num_parameters: 13000000000
+    release_date: 2023-05-24
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
 
   # Anthropic
@@ -378,6 +398,52 @@ models:
     release_date: 2023-09-29
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  # Craiyon
+  - name: craiyon/dalle-mini
+    display_name: DALL-E mini (0.4B)
+    description: DALL-E mini is an open-source text-to-image model that attempt to reproduce OpenAI's DALL-E 1 ([code](https://github.com/borisdayma/dalle-mini)).
+    creator_organization_name: Craiyon
+    access: open
+    num_parameters: 400000000
+    release_date: 2022-04-21
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: craiyon/dalle-mega
+    display_name: DALL-E mega (2.6B)
+    description: DALL-E mega is an open-source text-to-image model that attempt to reproduce OpenAI's DALL-E 1 ([code](https://github.com/borisdayma/dalle-mini)).
+    creator_organization_name: Craiyon
+    access: open
+    num_parameters: 2600000000
+    release_date: 2022-04-21
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  # DeepFloyd
+  - name: DeepFloyd/IF-I-M-v1.0
+    display_name: DeepFloyd IF Medium (0.4B)
+    description: DeepFloyd-IF is a pixel-based text-to-image triple-cascaded diffusion model with state-of-the-art photorealism and language understanding (paper coming soon).
+    creator_organization_name: DeepFloyd
+    access: open
+    num_parameters: 400000000
+    release_date: 2023-04-28
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: DeepFloyd/IF-I-L-v1.0
+    display_name: DeepFloyd IF Large (0.9B)
+    description: DeepFloyd-IF is a pixel-based text-to-image triple-cascaded diffusion model with state-of-the-art photorealism and language understanding (paper coming soon).
+    creator_organization_name: DeepFloyd
+    access: open
+    num_parameters: 900000000
+    release_date: 2023-04-28
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: DeepFloyd/IF-I-XL-v1.0
+    display_name: DeepFloyd IF X-Large (4.3B)
+    description: DeepFloyd-IF is a pixel-based text-to-image triple-cascaded diffusion model with state-of-the-art photorealism and language understanding (paper coming soon).
+    creator_organization_name: DeepFloyd
+    access: open
+    num_parameters: 4300000000
+    release_date: 2023-04-28
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
 
   # Databricks
@@ -526,6 +592,22 @@ models:
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
     tags: [] # TODO: add tags
 
+  - name: google/gemini-pro
+    display_name: Gemini
+    description: Gemini is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/gemini-pro-vision
+    display_name: Gemini
+    description: Gemini is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG]
+
   - name: google/text-bison@001
     display_name: PaLM-2 (Bison)
     description: The best value PaLM model. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
@@ -597,7 +679,7 @@ models:
     access: open
     num_parameters: 9000000000
     release_date: 2023-08-22
-    tags: [VISION_LANGUAGE_MODEL_TAG]
+    tags: [VISION_LANGUAGE_MODEL_TAG, IDEFICS_INSTRUCT_MODEL_TAG]
 
   - name: HuggingFaceM4/idefics-80b
     display_name: IDEFICS (80B)
@@ -615,8 +697,189 @@ models:
     access: open
     num_parameters: 80000000000
     release_date: 2023-08-22
-    tags: [VISION_LANGUAGE_MODEL_TAG]
+    tags: [VISION_LANGUAGE_MODEL_TAG, IDEFICS_INSTRUCT_MODEL_TAG]
 
+  ## Text-to-Image Diffusion Models
+  - name: huggingface/dreamlike-diffusion-v1-0
+    display_name: Dreamlike Diffusion v1.0 (1B)
+    description: Dreamlike Diffusion v1.0 is Stable Diffusion v1.5 fine tuned on high quality art ([HuggingFace model card](https://huggingface.co/dreamlike-art/dreamlike-diffusion-1.0))
+    creator_organization_name: dreamlike.art
+    access: open
+    num_parameters: 1000000000
+    release_date: 2023-03-08
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/dreamlike-photoreal-v2-0
+    display_name: Dreamlike Photoreal v2.0 (1B)
+    description: Dreamlike Photoreal v2.0 is a photorealistic model based on Stable Diffusion v1.5 ([HuggingFace model card](https://huggingface.co/dreamlike-art/dreamlike-photoreal-2.0))
+    creator_organization_name: dreamlike.art
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-23
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/openjourney-v1-0
+    display_name: Openjourney (1B)
+    description: Openjourney is an open source Stable Diffusion fine tuned model on Midjourney images ([HuggingFace model card](https://huggingface.co/prompthero/openjourney))
+    creator_organization_name: PromptHero
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-01  # TODO: get the exact date
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/openjourney-v2-0
+    display_name: Openjourney v2 (1B)
+    description: Openjourney v2 is an open source Stable Diffusion fine tuned model on Midjourney images. Openjourney v2 is now referred to as Openjourney v4 in Hugging Face ([HuggingFace model card](https://huggingface.co/prompthero/openjourney-v4)).
+    creator_organization_name: PromptHero
+    access: open
+    num_parameters: 1000000000
+    release_date: 2023-01-01  # TODO: get the exact date
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/promptist-stable-diffusion-v1-4
+    display_name: Promptist + Stable Diffusion v1.4 (1B)
+    description: Trained with human preferences, Promptist optimizes user input into model-preferred prompts for Stable Diffusion v1.4 ([paper](https://arxiv.org/abs/2212.09611))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-12-19
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/redshift-diffusion
+    display_name: Redshift Diffusion (1B)
+    description: Redshift Diffusion is an open source Stable Diffusion model fine tuned on high resolution 3D artworks ([HuggingFace model card](https://huggingface.co/nitrosocke/redshift-diffusion))
+    creator_organization_name: nitrosocke
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-29
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-safe-weak
+    display_name: Safe Stable Diffusion weak (1B)
+    description: Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces inappropriate content ([paper](https://arxiv.org/abs/2211.05105)).
+    creator_organization_name: TU Darmstadt
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-09
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-safe-medium
+    display_name: Safe Stable Diffusion medium (1B)
+    description: Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces inappropriate content ([paper](https://arxiv.org/abs/2211.05105))
+    creator_organization_name: TU Darmstadt
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-09
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-safe-strong
+    display_name: Safe Stable Diffusion strong (1B)
+    description: Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces inappropriate content ([paper](https://arxiv.org/abs/2211.05105))
+    creator_organization_name: TU Darmstadt
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-09
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-safe-max
+    display_name: Safe Stable Diffusion max (1B)
+    description: Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces inappropriate content ([paper](https://arxiv.org/abs/2211.05105))
+    creator_organization_name: TU Darmstadt
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-09
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-v1-4
+    display_name: Stable Diffusion v1.4 (1B)
+    description: Stable Diffusion v1.4 is a latent text-to-image diffusion model capable of generating photorealistic images given any text input ([paper](https://arxiv.org/abs/2112.10752))
+    creator_organization_name: Ludwig Maximilian University of Munich CompVis
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-08-01
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-v1-5
+    display_name: Stable Diffusion v1.5 (1B)
+    description: The Stable-Diffusion-v1-5 checkpoint was initialized with the weights of the Stable-Diffusion-v1-2 checkpoint and subsequently fine-tuned on 595k steps at resolution 512x512 on laion-aesthetics v2 5+ and 10% dropping of the text-conditioning to improve classifier-free guidance sampling ([paper](https://arxiv.org/abs/2112.10752))
+    creator_organization_name: Runway
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-10-20
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-v2-base
+    display_name: Stable Diffusion v2 base (1B)
+    description: The model is trained from scratch 550k steps at resolution 256x256 on a subset of LAION-5B filtered for explicit pornographic material, using the LAION-NSFW classifier with punsafe=0.1 and an aesthetic score greater than 4.5. Then it is further trained for 850k steps at resolution 512x512 on the same dataset on images with resolution greater than 512x512 ([paper](https://arxiv.org/abs/2112.10752))
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-23
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-v2-1-base
+    display_name: Stable Diffusion v2.1 base (1B)
+    description: This stable-diffusion-2-1-base model fine-tunes stable-diffusion-2-base with 220k extra steps taken, with punsafe=0.98 on the same dataset ([paper](https://arxiv.org/abs/2112.10752))
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-23
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/vintedois-diffusion-v0-1
+    display_name: Vintedois (22h) Diffusion model v0.1 (1B)
+    description: Vintedois (22h) Diffusion model v0.1 is Stable Diffusion v1.5 that was finetuned on a large amount of high quality images with simple prompts to generate beautiful images without a lot of prompt engineering ([HuggingFace model card](https://huggingface.co/22h/vintedois-diffusion-v0-1))
+    creator_organization_name: 22 Hours
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-12-27
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: segmind/Segmind-Vega
+    display_name: Segmind Stable Diffusion (0.74B)
+    description: The Segmind-Vega Model is a distilled version of the Stable Diffusion XL (SDXL), offering a remarkable 70% reduction in size and an impressive 100% speedup while retaining high-quality text-to-image generation capabilities. Trained on diverse datasets, including Grit and Midjourney scrape data, it excels at creating a wide range of visual content based on textual prompts. ([HuggingFace model card](https://huggingface.co/segmind/Segmind-Vega))
+    creator_organization_name: Segmind
+    access: open
+    num_parameters: 740000000
+    release_date: 2023-12-01
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: segmind/SSD-1B
+    display_name: Segmind Stable Diffusion (1B)
+    description: The Segmind Stable Diffusion Model (SSD-1B) is a distilled 50% smaller version of the Stable Diffusion XL (SDXL), offering a 60% speedup while maintaining high-quality text-to-image generation capabilities. It has been trained on diverse datasets, including Grit and Midjourney scrape data, to enhance its ability to create a wide range of visual content based on textual prompts. ([HuggingFace model card](https://huggingface.co/segmind/SSD-1B))
+    creator_organization_name: Segmind
+    access: open
+    num_parameters: 1000000000
+    release_date: 2023-10-20
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: stabilityai/stable-diffusion-xl-base-1.0
+    display_name: Stable Diffusion XL
+    description: Stable Diffusion XL (SDXL) consists of an ensemble of experts pipeline for latent diffusion. ([HuggingFace model card](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0))
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 6600000000
+    release_date: 2023-07-26
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  # Kakao
+  - name: kakaobrain/mindall-e
+    display_name: minDALL-E (1.3B)
+    description: minDALL-E, named after minGPT, is an autoregressive text-to-image generation model trained on 14 million image-text pairs ([code](https://github.com/kakaobrain/minDALL-E))
+    creator_organization_name: Kakao
+    access: open
+    num_parameters: 1300000000
+    release_date: 2021-12-13
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  # Lexica
+  - name: lexica/search-stable-diffusion-1.5
+    display_name: Lexica Search with Stable Diffusion v1.5 (1B)
+    description: Retrieves Stable Diffusion v1.5 images Lexica users generated ([docs](https://lexica.art/docs)).
+    creator_organization_name: Lexica
+    access: open
+    release_date: 2023-01-01
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
 
   # Lightning AI
@@ -812,6 +1075,24 @@ models:
     release_date: 2022-01-28
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: microsoft/llava-1.5-7b-hf
+    display_name: LLaVA 1.5 (7B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-10-05
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
+
+  - name: microsoft/llava-1.5-13b-hf
+    display_name: LLaVA 1.5 (13B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-10-05
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
+
 
 
   # 01.AI
@@ -851,6 +1132,15 @@ models:
     num_parameters: 56000000000
     release_date: 2023-12-08
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/bakLlava-v1-hf
+    display_name: BakLLaVA v1 (7B)
+    description: BakLLaVA v1 is a Mistral 7B base augmented with the LLaVA 1.5 architecture. ([blog](https://huggingface.co/llava-hf/bakLlava-v1-hf))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-10-16
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
 
 
 
@@ -989,7 +1279,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: openai/text-davinci-003 # DEPRECATED
-    display_name: text-davinci-003
+    display_name: GPT-3.5 (text-davinci-003)
     description: text-davinci-003 model that involves reinforcement learning (PPO) with reward models. Derived from text-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
@@ -1000,7 +1290,7 @@ models:
   # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
   #       https://github.com/stanford-crfm/benchmarking/issues/359
   - name: openai/text-davinci-002 # DEPRECATED
-    display_name: text-davinci-002
+    display_name: GPT-3.5 (text-davinci-002)
     description: text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations. Derived from code-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
@@ -1009,7 +1299,7 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: openai/text-davinci-001 # DEPRECATED
-    display_name: text-davinci-001
+    display_name: GPT-3.5 (text-davinci-001)
     description: text-davinci-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization_name: OpenAI
     access: limited
@@ -1049,7 +1339,7 @@ models:
   # ChatGPT: https://openai.com/blog/chatgpt
   
   - name: openai/gpt-3.5-turbo-0301
-    display_name: gpt-3.5-turbo-0301
+    display_name: GPT-3.5 Turbo (0301)
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
     creator_organization_name: OpenAI
     access: limited
@@ -1057,7 +1347,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-3.5-turbo-0613
-    display_name: gpt-3.5-turbo-0613
+    display_name: GPT-3.5 Turbo (0613)
     description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
     creator_organization_name: OpenAI
     access: limited
@@ -1078,7 +1368,7 @@ models:
   ## GPT 4 Models
 
   - name: openai/gpt-4-1106-preview
-    display_name: openai/gpt-4-1106-preview
+    display_name: GPT-4 Turbo (1106 preview)
     description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
     creator_organization_name: OpenAI
     access: limited
@@ -1086,7 +1376,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4-0314
-    display_name: gpt-4-0314
+    display_name: GPT-4 (0314)
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from March 14th 2023.
     creator_organization_name: OpenAI
     access: limited
@@ -1102,7 +1392,7 @@ models:
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4-0613
-    display_name: gpt-4-0613
+    display_name: GPT-4 (0613)
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-06-13.
     creator_organization_name: OpenAI
     access: limited
@@ -1117,6 +1407,13 @@ models:
     release_date: 2023-06-13
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/gpt-4-vision-preview
+    display_name: GPT-4V (preview)
+    description: GPT-4V is a large multimodal model that accepts both text and images and is optimized for chat but works well for traditional completions tasks.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-11-06
+    tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
 
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
@@ -1198,7 +1495,51 @@ models:
     release_date: 2022-12-15 # Blog post date
     tags: [TEXT_SIMILARITY_MODEL_TAG]
 
+  # Text-to-image models
+  - name: openai/dall-e-2
+    display_name: DALL-E 2 (3.5B)
+    description: DALL-E 2 is a encoder-decoder-based latent diffusion model trained on large-scale paired text-image datasets. The model is available via the OpenAI API ([paper](https://arxiv.org/abs/2204.06125)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 3500000000
+    release_date: 2022-04-13
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
+  - name: openai/dall-e-3
+    display_name: DALL-E 3
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The default style, vivid, causes the model to lean towards generating hyper-real and dramatic images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3-natural
+    display_name: DALL-E 3 (natural style)
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The natural style causes the model to produce more natural, less hyper-real looking images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3-hd
+    display_name: DALL-E 3 HD
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The HD version creates images with finer details and greater consistency across the image, but generation is slower. The default style, vivid, causes the model to lean towards generating hyper-real and dramatic images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3-hd-natural
+    display_name: DALL-E 3 HD (natural style)
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The HD version creates images with finer details and greater consistency across the image, but generation is slower. The natural style causes the model to produce more natural, less hyper-real looking images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
 
   # Salesforce
   - name: salesforce/codegen # NOT SUPPORTED
@@ -1351,6 +1692,16 @@ models:
 
 
   # Tsinghua
+
+  - name: thudm/cogview2
+    display_name: CogView2 (6B)
+    description: CogView2 is a hierarchical transformer (6B-9B-9B parameters) for text-to-image generation that supports both English and Chinese input text ([paper](https://arxiv.org/abs/2105.13290))
+    creator_organization_name: Tsinghua
+    access: open
+    num_parameters: 6000000000
+    release_date: 2022-06-15
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
   - name: tsinghua/glm
     display_name: GLM (130B)
     description: GLM (130B parameters) is an open bilingual (English & Chinese) bidirectional dense model that was trained using General Language Model (GLM) procedure ([paper](https://arxiv.org/pdf/2210.02414.pdf)).

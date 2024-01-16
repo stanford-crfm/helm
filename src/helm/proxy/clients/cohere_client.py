@@ -11,7 +11,6 @@ from helm.common.request import (
     Sequence,
     Token,
 )
-from helm.benchmark.model_deployment_registry import get_model_deployments_by_host_organization
 from .client import CachingClient, truncate_sequence
 from .cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
 
@@ -43,8 +42,6 @@ class CohereClient(CachingClient):
             # so `max_tokens` has to be greater than 0 when `return_likelihoods` is set to "GENERATION".
             assert request.max_tokens > 0, "max_tokens can only be 0 if echo_prompt=True"
 
-        # model: "Currently available models are small, medium, large, xlarge"
-        assert request.model_deployment in get_model_deployments_by_host_organization("cohere")
         # temperature: "min value of 0.0, max value of 5.0"
         assert 0.0 <= request.temperature <= 5.0, f"Invalid temperature: {request.temperature}. Valid range: [0,5]"
         # num_generations: "min value of 1, max value of 5"

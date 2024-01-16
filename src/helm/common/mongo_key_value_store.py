@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Generator, Iterable, Optional, Tuple
+from typing import Dict, Generator, Iterable, Mapping, Optional, Tuple
 
 from helm.common.key_value_store import KeyValueStore
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -35,7 +35,7 @@ class MongoKeyValueStore(KeyValueStore):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         return
 
-    def _canonicalize_key(self, key: Dict) -> SON:
+    def _canonicalize_key(self, key: Mapping) -> SON:
         serialized = json.dumps(key, sort_keys=True)
         return json.loads(serialized, object_pairs_hook=SON)
 
@@ -63,7 +63,7 @@ class MongoKeyValueStore(KeyValueStore):
             else:
                 yield (request, response)
 
-    def put(self, key: Dict, value: Dict) -> None:
+    def put(self, key: Mapping, value: Dict) -> None:
         request = self._canonicalize_key(key)
         document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
         # The MongoDB collection should have a unique indexed on "request"

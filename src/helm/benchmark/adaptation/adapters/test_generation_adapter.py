@@ -15,6 +15,7 @@ from helm.benchmark.run_specs import get_scenario_spec1, get_adapter_spec1
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_GENERATION
+from .generation_adapter import GenerationAdapter
 from .test_adapter import TestAdapter
 
 
@@ -254,3 +255,24 @@ class TestGenerationAdapter(TestAdapter):
             "Input: First reference is correct\n"
             "Output:"
         )
+
+    def test_construct_prompt_image_generation(self):
+        adapter_spec = AdapterSpec(
+            model_deployment="openai/dall-e-2",
+            method=ADAPT_GENERATION,
+            input_prefix="",
+            input_suffix="",
+            output_prefix="",
+            output_suffix="",
+            max_train_instances=0,
+            num_outputs=1,
+            max_tokens=0,
+        )
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        assert isinstance(adapter, GenerationAdapter)
+
+        eval_instance = Instance(Input(text="a blue dog"), references=[])
+        prompt: Prompt = adapter.construct_prompt([], eval_instance, include_output=False, reference_index=None)
+
+        assert adapter.window_service.fits_within_context_window(prompt.text)
+        assert prompt.text == "a blue dog"
