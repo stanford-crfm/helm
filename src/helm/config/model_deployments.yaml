@@ -441,7 +441,57 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
+  ## Databricks
+  - name: huggingface/dolly-v2-3b
+    model_name: databricks/dolly-v2-3b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/dolly-v2-7b
+    model_name: databricks/dolly-v2-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/dolly-v2-12b
+    model_name: databricks/dolly-v2-12b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
   ## EleutherAI
+  - name: huggingface/pythia-1b-v0
+    model_name: eleutherai/pythia-1b-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/pythia-2.8b-v0
+    model_name: eleutherai/pythia-2.8b-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/pythia-6.9b
+    model_name: eleutherai/pythia-6.9b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/pythia-12b-v0
+    model_name: eleutherai/pythia-12b-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
   - name: huggingface/gpt-j-6b
     model_name: eleutherai/gpt-j-6b
     tokenizer_name: EleutherAI/gpt-j-6B
@@ -449,6 +499,58 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  ## LMSYS
+  - name: huggingface/vicuna-7b-v1.3
+    model_name: lmsys/vicuna-7b-v1.3
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/vicuna-13b-v1.3
+    model_name: lmsys/vicuna-13b-v1.3
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  ## Meta
+  - name: huggingface/opt-175b
+    model_name: meta/opt-175b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: facebook/opt-175b
+
+  - name: huggingface/opt-66b
+    model_name: meta/opt-66b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: facebook/opt-66b
+
+  - name: huggingface/opt-6.7b
+    model_name: meta/opt-6.7b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: facebook/opt-6.7b
+
+  - name: huggingface/opt-1.3b
+    model_name: meta/opt-1.3b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: facebook/opt-1.3b
 
   ## Microsoft
   - name: huggingface/llava-1.5-7b-hf
@@ -473,12 +575,62 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
 
+  ## MosaicML
+  - name: huggingface/mpt-7b
+    model_name: mosaicml/mpt-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: mosaicml/mpt-7b
+
+  - name: huggingface/mpt-instruct-7b
+    model_name: mosaicml/mpt-instruct-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: mosaicml/mpt-7b-instruct
+
+  - name: huggingface/mpt-30b
+    model_name: mosaicml/mpt-30b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/mpt-instruct-30b
+    model_name: mosaicml/mpt-instruct-30b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: mosaicml/mpt-30b-instruct
+
   ## OpenAI
   - name: huggingface/gpt2
     model_name: openai/gpt2
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 1024
     max_request_length: 1025
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  ## StabilityAI
+  - name: huggingface/stablelm-base-alpha-3b
+    model_name: stabilityai/stablelm-base-alpha-3b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/stablelm-base-alpha-7b
+    model_name: stabilityai/stablelm-base-alpha-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 4096
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
@@ -1082,28 +1234,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
-  ## Databricks
-  - name: huggingface/dolly-v2-3b
-    model_name: databricks/dolly-v2-3b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
-  - name: huggingface/dolly-v2-7b
-    model_name: databricks/dolly-v2-7b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
-  - name: huggingface/dolly-v2-12b
-    model_name: databricks/dolly-v2-12b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
   ## EleutherAI
   - name: together/gpt-j-6b
     deprecated: true # Removed from together
@@ -1120,34 +1250,6 @@ model_deployments:
     tokenizer_name: EleutherAI/gpt-neox-20b
     max_sequence_length: 2048
     max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
-  - name: huggingface/pythia-1b-v0
-    model_name: eleutherai/pythia-1b-v0
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
-  - name: huggingface/pythia-2.8b-v0
-    model_name: eleutherai/pythia-2.8b-v0
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
-  - name: huggingface/pythia-6.9b
-    model_name: eleutherai/pythia-6.9b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
-  - name: huggingface/pythia-12b-v0
-    model_name: eleutherai/pythia-12b-v0
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
@@ -1181,21 +1283,6 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
-
-  ## LMSYS
-  - name: huggingface/vicuna-7b-v1.3
-    model_name: lmsys/vicuna-7b-v1.3
-    tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
-  - name: huggingface/vicuna-13b-v1.3
-    model_name: lmsys/vicuna-13b-v1.3
-    tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
   ## Meta
   - name: together/llama-7b
@@ -1247,42 +1334,6 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
-  - name: huggingface/opt-175b
-    model_name: meta/opt-175b
-    tokenizer_name: facebook/opt-66b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-      args:
-        pretrained_model_name_or_path: facebook/opt-175b
-
-  - name: huggingface/opt-66b
-    model_name: meta/opt-66b
-    tokenizer_name: facebook/opt-66b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-      args:
-        pretrained_model_name_or_path: facebook/opt-66b
-
-  - name: huggingface/opt-6.7b
-    model_name: meta/opt-6.7b
-    tokenizer_name: facebook/opt-66b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-      args:
-        pretrained_model_name_or_path: facebook/opt-6.7b
-
-  - name: huggingface/opt-1.3b
-    model_name: meta/opt-1.3b
-    tokenizer_name: facebook/opt-66b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-      args:
-        pretrained_model_name_or_path: facebook/opt-1.3b
-
   # 01.AI
   - name: together/yi-6b
     model_name: 01-ai/yi-6b
@@ -1312,56 +1363,6 @@ model_deployments:
     max_sequence_length: 4095 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  ## MosaicML
-  - name: huggingface/mpt-7b
-    model_name: mosaicml/mpt-7b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-      args:
-        pretrained_model_name_or_path: mosaicml/mpt-7b
-
-  - name: huggingface/mpt-instruct-7b
-    model_name: mosaicml/mpt-instruct-7b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-      args:
-        pretrained_model_name_or_path: mosaicml/mpt-7b-instruct
-
-  - name: huggingface/mpt-30b
-    model_name: mosaicml/mpt-30b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
-  - name: together/mpt-instruct-30b
-    model_name: mosaicml/mpt-instruct-30b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-      args:
-        pretrained_model_name_or_path: mosaicml/mpt-30b-instruct
-
-  ## StabilityAI
-  - name: huggingface/stablelm-base-alpha-3b
-    model_name: stabilityai/stablelm-base-alpha-3b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 4096
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
-
-  - name: huggingface/stablelm-base-alpha-7b
-    model_name: stabilityai/stablelm-base-alpha-7b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 4096
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
   ## Stanford
   - name: together/alpaca-7b
