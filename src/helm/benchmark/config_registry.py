@@ -10,7 +10,7 @@ from helm.benchmark.runner_config_registry import register_runner_config_from_pa
 MODEL_METADATA_FILE: str = "model_metadata.yaml"
 TOKENIZER_CONFIGS_FILE: str = "tokenizer_configs.yaml"
 MODEL_DEPLOYMENTS_FILE: str = "model_deployments.yaml"
-SLURM_CONFIG_FILE: str = "slurm_config.yaml"
+RUNNER_CONFIG_FILE: str = "runner_config.yaml"
 
 CONFIG_PACKAGE = "helm.config"
 
@@ -28,7 +28,7 @@ def register_configs_from_directory(dir_path: str) -> None:
     if os.path.isfile(model_deployments_path):
         register_model_deployments_from_path(model_deployments_path)
 
-    runner_config_path = os.path.join(dir_path, SLURM_CONFIG_FILE)
+    runner_config_path = os.path.join(dir_path, RUNNER_CONFIG_FILE)
     if os.path.isfile(runner_config_path):
         register_runner_config_from_path(runner_config_path)
 
