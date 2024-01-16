@@ -22,7 +22,8 @@ from helm.benchmark.runner_config_registry import RUNNER_CONFIG
 _MAX_CONCURRENT_WORKERS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKERS"
 
 
-# From https://stackoverflow.com/questions/71300294/how-to-terminate-pythons-processpoolexecutor-when-parent-process-dies
+# From
+# https://stackoverflow.com/questions/71300294/how-to-terminate-pythons-processpoolexecutor-when-parent-process-dies
 def start_thread_to_terminate_when_parent_process_dies(ppid):
     pid = os.getpid()
 
