@@ -815,6 +815,7 @@ class Summarizer:
         contamination_level: Optional[str],
         additional_info: Optional[str],
         hide_value: bool = False,
+        is_scenario_table: bool = False,
     ) -> Cell:
         """
         Use the metric name identified by `matcher` to pull out the stats from
@@ -872,14 +873,25 @@ class Summarizer:
         if contamination_level is not None:
             style = CONTAMINATION_STYLES.get(contamination_level, style)
 
-        return Cell(value=value, description=description, style=style, contamination_level=contamination_level)
+        # Link the runs that this cell was aggregated from, if this is not a scenario table.
+        # Scenario tables link to the runs in the model cells,
+        # whereas non-scenario tables link to the runs in the metrics cells.
+        run_spec_names = None if is_scenario_table else aggregated_run_specs
+
+        return Cell(
+            value=value,
+            description=description,
+            style=style,
+            contamination_level=contamination_level,
+            run_spec_names=run_spec_names,
+        )
 
     def create_group_table(
         self,
         name: str,
         title: str,
         adapter_to_runs: Dict[AdapterSpec, List[Run]],
-        link_to_runs: bool,
+        is_scenario_table: bool,
         columns: List[Tuple[RunGroup, str]],  # run_group, metric_group
         sort_by_model_order: bool = True,
         sub_split: Optional[str] = None,
@@ -998,21 +1010,30 @@ class Summarizer:
             runs = adapter_to_runs[adapter_spec]
             display_name = get_method_display_name(model_metadata.display_name, info)
 
-            # Link to all the runs under this model
-            if link_to_runs:
+            # Link the runs that this row was aggregated from, if this is a scenario table.
+            # Scenario tables link to the runs in the model cells,
+            # whereas non-scenario tables link to the runs in the metrics cells.
+            run_spec_names: Optional[List[str]]
+            if is_scenario_table:
                 run_spec_names = [run.run_spec.name for run in runs]
                 href = run_spec_names_to_url(run_spec_names)
             else:
+                run_spec_names = None
                 href = None
 
             # Render contamination information
             point = self.contamination.get_point(model_name, columns[0][0].name)
             if num_groups == 1 and point is not None:  # display contamination information at the adapter level
                 cells = [
-                    Cell(display_name + CONTAMINATION_SYMBOLS[point.level], description=point.description, href=href)
+                    Cell(
+                        display_name + CONTAMINATION_SYMBOLS[point.level],
+                        description=point.description,
+                        href=href,
+                        run_spec_names=run_spec_names,
+                    )
                 ]
             else:
-                cells = [Cell(display_name, description="", href=href)]
+                cells = [Cell(display_name, description="", href=href, run_spec_names=run_spec_names)]
             assert len(group_names) == len(matchers)
             for group_name, matcher in zip(group_names, matchers):
                 group_runs = [run for run in runs if group_name in run.run_spec.groups]
@@ -1052,6 +1073,7 @@ class Summarizer:
                         contamination_level,
                         additional_info=description,
                         hide_value=hide_value,
+                        is_scenario_table=is_scenario_table,
                     )
                 )
 
@@ -1061,7 +1083,7 @@ class Summarizer:
         # There could be a ton of runs, so only do this if there are 2-5
         # TODO: replace in frontend with a selector to choose which rows to visualize.
         links = []
-        if link_to_runs:
+        if is_scenario_table:
             all_run_spec_names = []
             for adapter_spec, runs in adapter_to_runs.items():
                 if len(runs) > 1:
@@ -1144,7 +1166,7 @@ class Summarizer:
                     title=display_name,
                     adapter_to_runs=adapter_to_runs,
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
-                    link_to_runs=False,
+                    is_scenario_table=False,
                     add_win_rate=True,
                 )
                 tables.append(table)
@@ -1176,7 +1198,7 @@ class Summarizer:
                         name=scenario_name,
                         adapter_to_runs=adapter_to_runs,
                         columns=columns,
-                        link_to_runs=True,
+                        is_scenario_table=True,
                     )
                     tables.append(table)
                     scenarios_shown += 1
@@ -1188,7 +1210,7 @@ class Summarizer:
                                 name=f"{subgroup.name}:sub_split={sub_split}",
                                 adapter_to_runs=adapter_to_runs,
                                 columns=columns,
-                                link_to_runs=False,
+                                is_scenario_table=False,
                                 sub_split=sub_split,
                             )
                             tables.append(table)
@@ -1208,7 +1230,7 @@ class Summarizer:
                         name=subgroup.name,
                         adapter_to_runs=adapter_to_runs,
                         columns=columns,
-                        link_to_runs=False,
+                        is_scenario_table=False,
                     )
                     tables = [table] + tables
             all_tables.extend(tables)
