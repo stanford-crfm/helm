@@ -211,6 +211,10 @@ class VertexAIChatClient(VertexAIClient):
                 response: GenerationResponse = model.generate_content(
                     contents, generation_config=parameters, safety_settings=self.safety_settings
                 )
+                print("\n\n\n\n\n\n\n\n")
+                print("response")
+                print(response)
+                print("\n\n\n\n\n\n\n\n")
                 candidates: List[Candidate] = response.candidates
                 response_dict = {
                     "predictions": [{"text": completion.text for completion in candidates}],
@@ -235,6 +239,9 @@ class VertexAIChatClient(VertexAIClient):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         for prediction in response["predictions"]:
+            print("\n\n\n\n\n\n\n\n")
+            print(prediction)
+            print("\n\n\n\n\n\n\n\n")
             response_text = prediction["text"]
 
             # The Python SDK does not support echo
