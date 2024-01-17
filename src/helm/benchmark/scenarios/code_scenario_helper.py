@@ -9,6 +9,7 @@ import os
 import shutil
 import sys
 import tempfile
+from typing import IO
 
 
 def _find_indentation(line, config):
@@ -95,6 +96,7 @@ def run(fd_in, fd_out, config):
 def run_files(filenames, config):
     for filename in filenames:
         with codecs.open(filename, encoding=config["encoding"]) as fd_in:
+            fd_out: IO
             if config["dry-run"]:
                 print("Filename: %s" % filename)
                 fd_out = sys.stdout
@@ -133,7 +135,7 @@ def main(args):
         "s:": "tabsize=",
         "a": "all-tabs",
     }
-    optlist, filenames = getopt.getopt(args[1:], "".join(possible_args.keys()), possible_args.values())
+    optlist, filenames = getopt.getopt(args[1:], "".join(possible_args.keys()), list(possible_args.values()))
 
     shortargs, longargs = [], []
     for shortarg in possible_args:

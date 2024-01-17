@@ -1,0 +1,1830 @@
+# This file defines all the models officially supported by the Helm API.
+# The model names here should match the model names in model_deployments.yaml.
+
+# If you want to add a new model, you can technically do it here but we recommend
+# you to do it in prod_env/model_metadata.yaml instead.
+
+# Follow the template of this file to add a new model. You can copy paste this to get started:
+#    # This file contains the metadata for private models
+#    models: [] # Leave empty to disable private models
+
+
+models:
+
+  - name: simple/model1
+    display_name: Simple Model 1
+    description: This is a test model.
+    creator_organization_name: Helm
+    access: open
+    release_date: 2023-01-01
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  # Adobe
+  - name: adobe/giga-gan
+    display_name: GigaGAN (1B)
+    description: GigaGAN is a GAN model that produces high-quality images extremely quickly. The model was trained on text and image pairs from LAION2B-en and COYO-700M. ([paper](https://arxiv.org/abs/2303.05511)).
+    creator_organization_name: Adobe
+    access: limited
+    num_parameters: 1000000000
+    release_date: 2023-06-22
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+
+  # AI21 Labs
+  - name: ai21/j1-jumbo # DEPRECATED
+    display_name: J1-Jumbo v1 (178B)
+    description: Jurassic-1 Jumbo (178B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 178000000000
+    release_date: 2021-08-11
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: ai21/j1-large # DEPRECATED
+    display_name: J1-Large v1 (7.5B)
+    description: Jurassic-1 Large (7.5B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 7500000000
+    release_date: 2021-08-11
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: ai21/j1-grande # DEPRECATED
+    display_name: J1-Grande v1 (17B)
+    description: Jurassic-1 Grande (17B parameters) with a "few tweaks" to the training process ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 17000000000
+    release_date: 2022-05-03
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: ai21/j1-grande-v2-beta # DEPRECATED
+    display_name: J1-Grande v2 beta (17B)
+    description: Jurassic-1 Grande v2 beta (17B parameters)
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 17000000000
+    release_date: 2022-10-28
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: ai21/j2-jumbo
+    display_name: Jurassic-2 Jumbo (178B)
+    description: Jurassic-2 Jumbo (178B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 178000000000
+    release_date: 2023-03-09
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: ai21/j2-large
+    display_name: Jurassic-2 Large (7.5B)
+    description: Jurassic-2 Large (7.5B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 7500000000
+    release_date: 2023-03-09
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: ai21/j2-grande
+    display_name: Jurassic-2 Grande (17B)
+    description: Jurassic-2 Grande (17B parameters) ([docs](https://www.ai21.com/blog/introducing-j2))
+    creator_organization_name: AI21 Labs
+    access: limited
+    num_parameters: 17000000000
+    release_date: 2023-03-09
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  # TODO(1524): Change AI21 model names
+  # - j2-jumbo -> j2-ultra
+  # - j2-grande -> j2-mid
+  # - j2-large -> j2-light
+
+
+
+  # Aleph Alpha
+  # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
+  # TODO: add Luminous World when it's released
+  - name: AlephAlpha/luminous-base
+    display_name: Luminous Base (13B)
+    description: Luminous Base (13B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
+    creator_organization_name: Aleph Alpha
+    access: limited
+    num_parameters: 13000000000
+    # TODO: get exact release date
+    release_date: 2022-01-01
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: AlephAlpha/luminous-extended
+    display_name: Luminous Extended (30B)
+    description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
+    creator_organization_name: Aleph Alpha
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2022-01-01
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: AlephAlpha/luminous-supreme
+    display_name: Luminous Supreme (70B)
+    description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
+    creator_organization_name: Aleph Alpha
+    access: limited
+    num_parameters: 70000000000
+    release_date: 2022-01-01
+    # Does not support echo.
+    # Currently, only Luminous-extended and Luminous-base support multimodal inputs
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+  
+  # TODO: Uncomment when luminous-world is released.
+  # - name: AlephAlpha/luminous-world # Not released yet.
+  #   display_name: Luminous World (178B)
+  #   description: Luminous World (178B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/))
+  #   creator_organization_name: Aleph Alpha
+  #   access: limited
+  #   num_parameters: TBD
+  #   release_date: TBD
+  #   # Does not support echo.
+  #   tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+  - name: AlephAlpha/m-vader
+    display_name: MultiFusion (13B)
+    description: MultiFusion is a multimodal, multilingual diffusion model that extend the capabilities of Stable Diffusion v1.4 by integrating different pre-trained modules, which transfers capabilities to the downstream model ([paper](https://arxiv.org/abs/2305.15296))
+    creator_organization_name: Aleph Alpha
+    access: limited
+    num_parameters: 13000000000
+    release_date: 2023-05-24
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+
+  # Anthropic
+  - name: anthropic/claude-v1.3
+    display_name: Anthropic Claude v1.3
+    description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
+    creator_organization_name: Anthropic
+    access: limited
+    num_parameters: 52000000000
+    release_date: 2023-03-17
+    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+ 
+  - name: anthropic/claude-instant-v1
+    display_name: Anthropic Claude Instant V1
+    description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2023-03-17
+    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-instant-1.2
+    display_name: Anthropic Claude Instant 1.2
+    description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2023-08-09
+    tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-2.0
+    display_name: Anthropic Claude 2.0
+    description: Claude 2.0 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2023-07-11
+    tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-2.1
+    display_name: Anthropic Claude 2.1
+    description: Claude 2.1 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2023-11-21
+    tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # DEPRECATED: Please do not use.
+  - name: anthropic/stanford-online-all-v4-s3
+    display_name: Anthropic-LM v4-s3 (52B)
+    description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
+    creator_organization_name: Anthropic
+    access: closed
+    num_parameters: 52000000000
+    release_date: 2021-12-01
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+
+
+
+  # Berkeley
+  - name: berkeley/koala-13b # NOT SUPPORTED
+    display_name: Koala (13B)
+    description: Koala (13B) is a chatbot fine-tuned from Llama (13B) on dialogue data gathered from the web. ([blog post](https://bair.berkeley.edu/blog/2023/04/03/koala/))
+    creator_organization_name: UC Berkeley
+    access: open
+    num_parameters: 13000000000
+    release_date: 2022-04-03
+    tags: [] # TODO: add tags
+
+
+
+  # BigScience
+  - name: bigscience/bloom
+    display_name: BLOOM (176B)
+    description: BLOOM (176B parameters) is an autoregressive model trained on 46 natural languages and 13 programming languages ([paper](https://arxiv.org/pdf/2211.05100.pdf)).
+    creator_organization_name: BigScience
+    access: open
+    num_parameters: 176000000000
+    release_date: 2022-06-28
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+
+  - name: bigscience/bloomz # NOT SUPPORTED
+    display_name: BLOOMZ (176B)
+    description: BLOOMZ (176B parameters) is BLOOM that has been fine-tuned on natural language instructions ([details](https://huggingface.co/bigscience/bloomz)).
+    creator_organization_name: BigScience
+    access: open
+    num_parameters: 176000000000
+    release_date: 2022-11-03
+    tags: [] # TODO: add tags
+
+  - name: bigscience/t0pp
+    display_name: T0pp (11B)
+    description: T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks specified in natural language prompts ([paper](https://arxiv.org/pdf/2110.08207.pdf)).
+    creator_organization_name: BigScience
+    access: open
+    num_parameters: 11000000000
+    release_date: 2021-10-15
+    # Does not support echo.
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
+
+
+
+  # BigCode
+  - name: bigcode/santacoder
+    display_name: SantaCoder (1.1B)
+    description: SantaCoder (1.1B parameters) model trained on the Python, Java, and JavaScript subset of The Stack (v1.1) ([model card](https://huggingface.co/bigcode/santacoder)).
+    creator_organization_name: BigCode
+    access: open
+    num_parameters: 1100000000
+    release_date: 2023-01-09 # ArXiv submission date
+    tags: [CODE_MODEL_TAG]
+
+  - name: bigcode/starcoder
+    display_name: StarCoder (15.5B)
+    description: The StarCoder (15.5B parameter) model trained on 80+ programming languages from The Stack (v1.2) ([model card](https://huggingface.co/bigcode/starcoder)).
+    creator_organization_name: BigCode
+    access: open
+    num_parameters: 15500000000
+    release_date: 2023-05-09 # ArXiv submission date
+    tags: [CODE_MODEL_TAG]
+
+
+
+  # Cerebras Systems
+  - name: cerebras/cerebras-gpt-6.7b # NOT SUPPORTED
+    display_name: Cerebras GPT (6.7B)
+    description: Cerebras GPT is a family of open compute-optimal language models scaled from 111M to 13B parameters trained on the Eleuther Pile. ([paper](https://arxiv.org/pdf/2304.03208.pdf))
+    creator_organization_name: Cerebras
+    access: limited
+    num_parameters: 6700000000
+    release_date: 2023-04-06
+    tags: [] # TODO: add tags
+
+  - name: cerebras/cerebras-gpt-13b # NOT SUPPORTED
+    display_name: Cerebras GPT (13B)
+    description: Cerebras GPT is a family of open compute-optimal language models scaled from 111M to 13B parameters trained on the Eleuther Pile. ([paper](https://arxiv.org/pdf/2304.03208.pdf))
+    creator_organization_name: Cerebras
+    access: limited
+    num_parameters: 13000000000
+    release_date: 2023-04-06
+    tags: [] # TODO: add tags
+
+
+
+  # Cohere
+  # Model versioning and the possible versions are not documented here:
+  # https://docs.cohere.ai/generate-reference#model-optional.
+  # So, instead, we got the names of the models from the Cohere Playground.
+  #
+  # Note that their tokenizer and model were trained on English text and
+  # they do not have a dedicated decode API endpoint, so the adaptation
+  # step for language modeling fails for certain Scenarios:
+  # the_pile:subset=ArXiv
+  # the_pile:subset=Github
+  # the_pile:subset=PubMed Central
+
+  # TODO: Consider renaming to new model names.
+  - name: cohere/xlarge-20220609
+    display_name: Cohere xlarge v20220609 (52.4B)
+    description: Cohere xlarge v20220609 (52.4B parameters)
+    creator_organization_name: Cohere
+    access: limited
+    num_parameters: 52400000000
+    release_date: 2022-06-09
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: cohere/large-20220720 # DEPRECATED
+    display_name: Cohere large v20220720 (13.1B)
+    description: Cohere large v20220720 (13.1B parameters), which is deprecated by Cohere as of December 2, 2022.
+    creator_organization_name: Cohere
+    access: limited
+    num_parameters: 13100000000
+    release_date: 2022-07-20
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: cohere/medium-20220720
+    display_name: Cohere medium v20220720 (6.1B)
+    description: Cohere medium v20220720 (6.1B parameters)
+    creator_organization_name: Cohere
+    access: limited
+    num_parameters: 6100000000
+    release_date: 2022-07-20
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: cohere/small-20220720 # DEPRECATED
+    display_name: Cohere small v20220720 (410M)
+    description: Cohere small v20220720 (410M parameters), which is deprecated by Cohere as of December 2, 2022.
+    creator_organization_name: Cohere
+    access: limited
+    num_parameters: 410000000
+    release_date: 2022-07-20
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: cohere/xlarge-20221108
+    display_name: Cohere xlarge v20221108 (52.4B)
+    description: Cohere xlarge v20221108 (52.4B parameters)
+    creator_organization_name: Cohere
+    access: limited
+    num_parameters: 52400000000
+    release_date: 2022-11-08
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: cohere/medium-20221108 # DEPRECATED
+    display_name: Cohere medium v20221108 (6.1B)
+    description: Cohere medium v20221108 (6.1B parameters)
+    creator_organization_name: Cohere
+    access: limited
+    num_parameters: 6100000000
+    release_date: 2022-11-08
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: cohere/command-medium-beta # DEPRECATED
+    display_name: Cohere Command beta (6.1B)
+    description: Cohere Command beta (6.1B parameters) is fine-tuned from the medium model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+    creator_organization_name: Cohere
+    access: limited
+    num_parameters: 6100000000
+    release_date: 2022-11-08
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: cohere/command-xlarge-beta # DEPRECATED
+    display_name: Cohere Command beta (52.4B)
+    description: Cohere Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
+    creator_organization_name: Cohere
+    access: limited
+    num_parameters: 52400000000
+    release_date: 2022-11-08
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: cohere/command
+    display_name: Cohere Command
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
+    creator_organization_name: Cohere
+    access: limited
+    release_date: 2023-09-29
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: cohere/command-light
+    display_name: Cohere Command Light
+    description: Command is Cohere’s flagship text generation model. It is trained to follow user commands and to be instantly useful in practical business applications. [docs](https://docs.cohere.com/reference/generate) and [changelog](https://docs.cohere.com/changelog)
+    creator_organization_name: Cohere
+    access: limited
+    release_date: 2023-09-29
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # Craiyon
+  - name: craiyon/dalle-mini
+    display_name: DALL-E mini (0.4B)
+    description: DALL-E mini is an open-source text-to-image model that attempt to reproduce OpenAI's DALL-E 1 ([code](https://github.com/borisdayma/dalle-mini)).
+    creator_organization_name: Craiyon
+    access: open
+    num_parameters: 400000000
+    release_date: 2022-04-21
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: craiyon/dalle-mega
+    display_name: DALL-E mega (2.6B)
+    description: DALL-E mega is an open-source text-to-image model that attempt to reproduce OpenAI's DALL-E 1 ([code](https://github.com/borisdayma/dalle-mini)).
+    creator_organization_name: Craiyon
+    access: open
+    num_parameters: 2600000000
+    release_date: 2022-04-21
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  # DeepFloyd
+  - name: DeepFloyd/IF-I-M-v1.0
+    display_name: DeepFloyd IF Medium (0.4B)
+    description: DeepFloyd-IF is a pixel-based text-to-image triple-cascaded diffusion model with state-of-the-art photorealism and language understanding (paper coming soon).
+    creator_organization_name: DeepFloyd
+    access: open
+    num_parameters: 400000000
+    release_date: 2023-04-28
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: DeepFloyd/IF-I-L-v1.0
+    display_name: DeepFloyd IF Large (0.9B)
+    description: DeepFloyd-IF is a pixel-based text-to-image triple-cascaded diffusion model with state-of-the-art photorealism and language understanding (paper coming soon).
+    creator_organization_name: DeepFloyd
+    access: open
+    num_parameters: 900000000
+    release_date: 2023-04-28
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: DeepFloyd/IF-I-XL-v1.0
+    display_name: DeepFloyd IF X-Large (4.3B)
+    description: DeepFloyd-IF is a pixel-based text-to-image triple-cascaded diffusion model with state-of-the-art photorealism and language understanding (paper coming soon).
+    creator_organization_name: DeepFloyd
+    access: open
+    num_parameters: 4300000000
+    release_date: 2023-04-28
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+
+  # Databricks
+  - name: databricks/dolly-v2-3b
+    display_name: Dolly V2 (3B)
+    description: Dolly V2 (3B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
+    creator_organization_name: Databricks
+    access: open
+    num_parameters: 2517652480
+    release_date: 2023-04-12
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: databricks/dolly-v2-7b
+    display_name: Dolly V2 (7B)
+    description: Dolly V2 (7B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
+    creator_organization_name: Databricks
+    access: open
+    num_parameters: 6444163072
+    release_date: 2023-04-12
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: databricks/dolly-v2-12b
+    display_name: Dolly V2 (12B)
+    description: Dolly V2 (12B) is an instruction-following large language model trained on the Databricks machine learning platform. It is based on pythia-12b.
+    creator_organization_name: Databricks
+    access: open
+    num_parameters: 11327027200
+    release_date: 2023-04-12
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # DeepMind
+  - name: deepmind/gopher # NOT SUPPORTED
+    display_name: Gopher (280B)
+    description: Gopher (280B parameters) ([paper](https://arxiv.org/pdf/2112.11446.pdf)).
+    creator_organization_name: DeepMind
+    access: closed
+    num_parameters: 280000000000
+    release_date: 2021-12-08
+    tags: [] # TODO: add tags
+
+  - name: deepmind/chinchilla # NOT SUPPORTED
+    display_name: Chinchilla (70B)
+    description: Chinchilla (70B parameters) ([paper](https://arxiv.org/pdf/2203.15556.pdf)).
+    creator_organization_name: DeepMind
+    access: closed
+    num_parameters: 70000000000
+    release_date: 2022-03-31
+    tags: [] # TODO: add tags
+
+
+
+  # EleutherAI
+  - name: eleutherai/gpt-j-6b # Served by GooseAi, HuggingFace and Together.
+    display_name: GPT-J (6B)
+    description: GPT-J (6B parameters) autoregressive language model trained on The Pile ([details](https://arankomatsuzaki.wordpress.com/2021/06/04/gpt-j/)).
+    creator_organization_name: EleutherAI
+    access: open
+    num_parameters: 6000000000
+    release_date: 2021-06-04
+    # TODO: The BUGGY_TEMP_0_TAG is a deployment related tag (Together).
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, BUGGY_TEMP_0_TAG]
+
+  - name: eleutherai/gpt-neox-20b # Served by GooseAi and Together.
+    display_name: GPT-NeoX (20B)
+    description: GPT-NeoX (20B parameters) autoregressive language model trained on The Pile ([paper](https://arxiv.org/pdf/2204.06745.pdf)).
+    creator_organization_name: EleutherAI
+    access: open
+    num_parameters: 20000000000
+    release_date: 2022-02-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+
+  - name: eleutherai/pythia-1b-v0
+    display_name: Pythia (1B)
+    description: Pythia (1B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization_name: EleutherAI
+    access: open
+    num_parameters: 805736448
+    release_date: 2023-02-13
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: eleutherai/pythia-2.8b-v0
+    display_name: Pythia (2.8B)
+    description: Pythia (2.8B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization_name: EleutherAI
+    access: open
+    num_parameters: 2517652480
+    release_date: 2023-02-13
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: eleutherai/pythia-6.9b
+    display_name: Pythia (6.9B)
+    description: Pythia (6.9B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization_name: EleutherAI
+    access: open
+    num_parameters: 6444163072
+    release_date: 2023-02-13
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: eleutherai/pythia-12b-v0
+    display_name: Pythia (12B)
+    description: Pythia (12B parameters). The Pythia project combines interpretability analysis and scaling laws to understand how knowledge develops and evolves during training in autoregressive transformers.
+    creator_organization_name: EleutherAI
+    access: open
+    num_parameters: 11327027200
+    release_date: 2023-02-13
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # Google
+  - name: google/t5-11b
+    display_name: T5 (11B)
+    description: T5 (11B parameters) is an encoder-decoder model trained on a multi-task mixture, where each task is converted into a text-to-text format ([paper](https://arxiv.org/pdf/1910.10683.pdf)).
+    creator_organization_name: Google
+    access: open
+    num_parameters: 11000000000
+    release_date: 2019-10-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
+
+  - name: google/ul2
+    display_name: UL2 (20B)
+    description: UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5 but trained with a different objective and slightly different scaling knobs ([paper](https://arxiv.org/pdf/2205.05131.pdf)).
+    creator_organization_name: Google
+    access: open
+    num_parameters: 20000000000
+    release_date: 2022-05-10
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG, NLG_PREFIX_TAG]
+
+  - name: google/flan-t5-xxl
+    display_name: Flan-T5 (11B)
+    description: Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks ([paper](https://arxiv.org/pdf/2210.11416.pdf)).
+    creator_organization_name: Google
+    access: open
+    num_parameters: 11000000000
+    release_date: 2022-12-06 # Paper date
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: google/palm # NOT SUPPORTED
+    display_name: PaLM (540B)
+    description: Pathways Language Model (540B parameters) is trained using 6144 TPU v4 chips ([paper](https://arxiv.org/pdf/2204.02311.pdf)).
+    creator_organization_name: Google
+    access: closed
+    num_parameters: 540000000000
+    release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
+    tags: [] # TODO: add tags
+
+  - name: google/gemini-pro
+    display_name: Gemini
+    description: Gemini is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/gemini-pro-vision
+    display_name: Gemini
+    description: Gemini is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG]
+
+  - name: google/text-bison@001
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/text-bison-32k
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model with a 32K context. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/text-unicorn@001
+    display_name: PaLM-2 (Unicorn)
+    description: The largest model in PaLM family. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-11-30 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/code-bison@001
+    display_name: Codey PaLM-2 (Bison)
+    description: A model fine-tuned to generate code based on a natural language description of the desired code. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
+    tags: [CODE_MODEL_TAG]
+
+  - name: google/code-bison-32k
+    display_name: Codey PaLM-2 (Bison)
+    description: Codey with a 32K context. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
+    tags: [CODE_MODEL_TAG]
+
+
+
+  # HazyResearch
+  - name: hazyresearch/h3-2.7b
+    display_name: H3 (2.7B)
+    description: H3 (2.7B parameters) is a decoder-only language model based on state space models ([paper](https://arxiv.org/abs/2212.14052)).
+    creator_organization_name: HazyResearch
+    access: open
+    num_parameters: 2700000000
+    release_date: 2023-01-23
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # HuggingFace
+  - name: HuggingFaceM4/idefics-9b
+    display_name: IDEFICS (9B)
+    description: IDEFICS (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 9000000000
+    release_date: 2023-08-22
+    tags: [VISION_LANGUAGE_MODEL_TAG]
+
+  - name: HuggingFaceM4/idefics-9b-instruct
+    display_name: IDEFICS instruct (9B)
+    description: IDEFICS instruct (9B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 9000000000
+    release_date: 2023-08-22
+    tags: [VISION_LANGUAGE_MODEL_TAG, IDEFICS_INSTRUCT_MODEL_TAG]
+
+  - name: HuggingFaceM4/idefics-80b
+    display_name: IDEFICS (80B)
+    description: IDEFICS (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 80000000000
+    release_date: 2023-08-22
+    tags: [VISION_LANGUAGE_MODEL_TAG]
+
+  - name: HuggingFaceM4/idefics-80b-instruct
+    display_name: IDEFICS instruct (80B)
+    description: IDEFICS instruct (80B parameters) is an open-source model based on DeepMind's Flamingo. ([blog](https://huggingface.co/blog/idefics))
+    creator_organization_name: HuggingFace
+    access: open
+    num_parameters: 80000000000
+    release_date: 2023-08-22
+    tags: [VISION_LANGUAGE_MODEL_TAG, IDEFICS_INSTRUCT_MODEL_TAG]
+
+  ## Text-to-Image Diffusion Models
+  - name: huggingface/dreamlike-diffusion-v1-0
+    display_name: Dreamlike Diffusion v1.0 (1B)
+    description: Dreamlike Diffusion v1.0 is Stable Diffusion v1.5 fine tuned on high quality art ([HuggingFace model card](https://huggingface.co/dreamlike-art/dreamlike-diffusion-1.0))
+    creator_organization_name: dreamlike.art
+    access: open
+    num_parameters: 1000000000
+    release_date: 2023-03-08
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/dreamlike-photoreal-v2-0
+    display_name: Dreamlike Photoreal v2.0 (1B)
+    description: Dreamlike Photoreal v2.0 is a photorealistic model based on Stable Diffusion v1.5 ([HuggingFace model card](https://huggingface.co/dreamlike-art/dreamlike-photoreal-2.0))
+    creator_organization_name: dreamlike.art
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-23
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/openjourney-v1-0
+    display_name: Openjourney (1B)
+    description: Openjourney is an open source Stable Diffusion fine tuned model on Midjourney images ([HuggingFace model card](https://huggingface.co/prompthero/openjourney))
+    creator_organization_name: PromptHero
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-01  # TODO: get the exact date
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/openjourney-v2-0
+    display_name: Openjourney v2 (1B)
+    description: Openjourney v2 is an open source Stable Diffusion fine tuned model on Midjourney images. Openjourney v2 is now referred to as Openjourney v4 in Hugging Face ([HuggingFace model card](https://huggingface.co/prompthero/openjourney-v4)).
+    creator_organization_name: PromptHero
+    access: open
+    num_parameters: 1000000000
+    release_date: 2023-01-01  # TODO: get the exact date
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/promptist-stable-diffusion-v1-4
+    display_name: Promptist + Stable Diffusion v1.4 (1B)
+    description: Trained with human preferences, Promptist optimizes user input into model-preferred prompts for Stable Diffusion v1.4 ([paper](https://arxiv.org/abs/2212.09611))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-12-19
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/redshift-diffusion
+    display_name: Redshift Diffusion (1B)
+    description: Redshift Diffusion is an open source Stable Diffusion model fine tuned on high resolution 3D artworks ([HuggingFace model card](https://huggingface.co/nitrosocke/redshift-diffusion))
+    creator_organization_name: nitrosocke
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-29
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-safe-weak
+    display_name: Safe Stable Diffusion weak (1B)
+    description: Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces inappropriate content ([paper](https://arxiv.org/abs/2211.05105)).
+    creator_organization_name: TU Darmstadt
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-09
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-safe-medium
+    display_name: Safe Stable Diffusion medium (1B)
+    description: Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces inappropriate content ([paper](https://arxiv.org/abs/2211.05105))
+    creator_organization_name: TU Darmstadt
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-09
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-safe-strong
+    display_name: Safe Stable Diffusion strong (1B)
+    description: Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces inappropriate content ([paper](https://arxiv.org/abs/2211.05105))
+    creator_organization_name: TU Darmstadt
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-09
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-safe-max
+    display_name: Safe Stable Diffusion max (1B)
+    description: Safe Stable Diffusion is an extension to the Stable Diffusion that drastically reduces inappropriate content ([paper](https://arxiv.org/abs/2211.05105))
+    creator_organization_name: TU Darmstadt
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-09
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-v1-4
+    display_name: Stable Diffusion v1.4 (1B)
+    description: Stable Diffusion v1.4 is a latent text-to-image diffusion model capable of generating photorealistic images given any text input ([paper](https://arxiv.org/abs/2112.10752))
+    creator_organization_name: Ludwig Maximilian University of Munich CompVis
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-08-01
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-v1-5
+    display_name: Stable Diffusion v1.5 (1B)
+    description: The Stable-Diffusion-v1-5 checkpoint was initialized with the weights of the Stable-Diffusion-v1-2 checkpoint and subsequently fine-tuned on 595k steps at resolution 512x512 on laion-aesthetics v2 5+ and 10% dropping of the text-conditioning to improve classifier-free guidance sampling ([paper](https://arxiv.org/abs/2112.10752))
+    creator_organization_name: Runway
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-10-20
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-v2-base
+    display_name: Stable Diffusion v2 base (1B)
+    description: The model is trained from scratch 550k steps at resolution 256x256 on a subset of LAION-5B filtered for explicit pornographic material, using the LAION-NSFW classifier with punsafe=0.1 and an aesthetic score greater than 4.5. Then it is further trained for 850k steps at resolution 512x512 on the same dataset on images with resolution greater than 512x512 ([paper](https://arxiv.org/abs/2112.10752))
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-23
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/stable-diffusion-v2-1-base
+    display_name: Stable Diffusion v2.1 base (1B)
+    description: This stable-diffusion-2-1-base model fine-tunes stable-diffusion-2-base with 220k extra steps taken, with punsafe=0.98 on the same dataset ([paper](https://arxiv.org/abs/2112.10752))
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-11-23
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: huggingface/vintedois-diffusion-v0-1
+    display_name: Vintedois (22h) Diffusion model v0.1 (1B)
+    description: Vintedois (22h) Diffusion model v0.1 is Stable Diffusion v1.5 that was finetuned on a large amount of high quality images with simple prompts to generate beautiful images without a lot of prompt engineering ([HuggingFace model card](https://huggingface.co/22h/vintedois-diffusion-v0-1))
+    creator_organization_name: 22 Hours
+    access: open
+    num_parameters: 1000000000
+    release_date: 2022-12-27
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: segmind/Segmind-Vega
+    display_name: Segmind Stable Diffusion (0.74B)
+    description: The Segmind-Vega Model is a distilled version of the Stable Diffusion XL (SDXL), offering a remarkable 70% reduction in size and an impressive 100% speedup while retaining high-quality text-to-image generation capabilities. Trained on diverse datasets, including Grit and Midjourney scrape data, it excels at creating a wide range of visual content based on textual prompts. ([HuggingFace model card](https://huggingface.co/segmind/Segmind-Vega))
+    creator_organization_name: Segmind
+    access: open
+    num_parameters: 740000000
+    release_date: 2023-12-01
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: segmind/SSD-1B
+    display_name: Segmind Stable Diffusion (1B)
+    description: The Segmind Stable Diffusion Model (SSD-1B) is a distilled 50% smaller version of the Stable Diffusion XL (SDXL), offering a 60% speedup while maintaining high-quality text-to-image generation capabilities. It has been trained on diverse datasets, including Grit and Midjourney scrape data, to enhance its ability to create a wide range of visual content based on textual prompts. ([HuggingFace model card](https://huggingface.co/segmind/SSD-1B))
+    creator_organization_name: Segmind
+    access: open
+    num_parameters: 1000000000
+    release_date: 2023-10-20
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: stabilityai/stable-diffusion-xl-base-1.0
+    display_name: Stable Diffusion XL
+    description: Stable Diffusion XL (SDXL) consists of an ensemble of experts pipeline for latent diffusion. ([HuggingFace model card](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0))
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 6600000000
+    release_date: 2023-07-26
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  # Kakao
+  - name: kakaobrain/mindall-e
+    display_name: minDALL-E (1.3B)
+    description: minDALL-E, named after minGPT, is an autoregressive text-to-image generation model trained on 14 million image-text pairs ([code](https://github.com/kakaobrain/minDALL-E))
+    creator_organization_name: Kakao
+    access: open
+    num_parameters: 1300000000
+    release_date: 2021-12-13
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  # Lexica
+  - name: lexica/search-stable-diffusion-1.5
+    display_name: Lexica Search with Stable Diffusion v1.5 (1B)
+    description: Retrieves Stable Diffusion v1.5 images Lexica users generated ([docs](https://lexica.art/docs)).
+    creator_organization_name: Lexica
+    access: open
+    release_date: 2023-01-01
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+
+  # Lightning AI
+  - name: lightningai/lit-gpt
+    display_name: Lit-GPT
+    description: Lit-GPT is an optimized collection of open-source LLMs for finetuning and inference. It supports – Falcon, Llama 2, Vicuna, LongChat, and other top-performing open-source large language models.
+    creator_organization_name: Lightning AI
+    access: open
+    release_date: 2023-04-04
+    tags: [TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # LMSYS
+  - name: lmsys/vicuna-7b-v1.3
+    display_name: Vicuna v1.3 (7B)
+    description: Vicuna v1.3 (7B) is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
+    creator_organization_name: LMSYS
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-06-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: lmsys/vicuna-13b-v1.3
+    display_name: Vicuna v1.3 (13B)
+    description: Vicuna v1.3 (13B) is an open-source chatbot trained by fine-tuning LLaMA on user-shared conversations collected from ShareGPT.
+    creator_organization_name: LMSYS
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-06-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+
+
+  # Meta
+  - name: meta/opt-iml-175b # NOT SUPPORTED
+    display_name: OPT-IML (175B)
+    description: OPT-IML (175B parameters) is a suite of decoder-only transformer LMs that are multi-task fine-tuned on 2000 datasets ([paper](https://arxiv.org/pdf/2212.12017.pdf)).
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 175000000000
+    release_date: 2022-12-22
+    tags: [] # TODO: add tags
+
+  - name: meta/opt-iml-30b # NOT SUPPORTED
+    display_name: OPT-IML (30B)
+    description: OPT-IML (30B parameters) is a suite of decoder-only transformer LMs that are multi-task fine-tuned on 2000 datasets ([paper](https://arxiv.org/pdf/2212.12017.pdf)).
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 30000000000
+    release_date: 2022-12-22
+    tags: [] # TODO: add tags
+
+  - name: meta/opt-175b
+    display_name: OPT (175B)
+    description: Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 175000000000
+    release_date: 2022-05-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+
+  - name: meta/opt-66b
+    display_name: OPT (66B)
+    description: Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 66000000000
+    release_date: 2022-05-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
+
+  - name: meta/opt-6.7b
+    display_name: OPT (6.7B)
+    description: Open Pre-trained Transformers (6.7B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 6700000000
+    release_date: 2022-05-02
+    # TODO: The BUGGY_TEMP_0_TAG is a deployment related tag (Together).
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, BUGGY_TEMP_0_TAG]
+
+  - name: meta/opt-1.3b
+    display_name: OPT (1.3B)
+    description: Open Pre-trained Transformers (1.3B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([paper](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 1300000000
+    release_date: 2022-05-02
+    # TODO: The BUGGY_TEMP_0_TAG is a deployment related tag (Together).
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, BUGGY_TEMP_0_TAG]
+
+  - name: meta/galactica-120b # NOT SUPPORTED
+    display_name: Galactica (120B)
+    description: Galactica (120B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 120000000000
+    release_date: 2022-11-15
+    tags: [] # TODO: add tags
+
+  - name: meta/galactica-30b # NOT SUPPORTED
+    display_name: Galactica (30B)
+    description: Galactica (30B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 30000000000
+    release_date: 2022-11-15
+    tags: [] # TODO: add tags
+
+  - name: meta/llama-7b
+    display_name: LLaMA (7B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-02-24
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-13b
+    display_name: LLaMA (13B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-02-24
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-30b
+    display_name: LLaMA (30B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-02-24
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-65b
+    display_name: LLaMA (65B)
+    description: LLaMA is a collection of foundation language models ranging from 7B to 65B parameters.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 65000000000
+    release_date: 2023-02-24
+    # TODO(#1828): Upgrade to FULL_FUNCTIONALITY_TEXT_MODEL_TAG
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-2-7b
+    display_name: Llama 2 (7B)
+    description: Llama 2 pretrained models are trained on 2 trillion tokens, and have double the context length than Llama 1.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-07-18
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-2-13b
+    display_name: Llama 2 (13B)
+    description: Llama 2 pretrained models are trained on 2 trillion tokens, and have double the context length than Llama 1.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-07-18
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: meta/llama-2-70b
+    display_name: Llama 2 (70B)
+    description: Llama 2 pretrained models are trained on 2 trillion tokens, and have double the context length than Llama 1.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2023-07-18
+    # TODO(#1828): Upgrade to FULL_FUNCTIONALITY_TEXT_MODEL_TAG
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # Microsoft/NVIDIA
+  - name: microsoft/TNLGv2_530B
+    display_name: TNLG v2 (530B)
+    description: TNLG v2 (530B parameters) autoregressive language model trained on a filtered subset of the Pile and CommonCrawl ([paper](https://arxiv.org/pdf/2201.11990.pdf)).
+    creator_organization_name: Microsoft/NVIDIA
+    access: closed
+    num_parameters: 530000000000
+    release_date: 2022-01-28
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: microsoft/TNLGv2_7B
+    display_name: TNLG v2 (6.7B)
+    description: TNLG v2 (6.7B parameters) autoregressive language model trained on a filtered subset of the Pile and CommonCrawl ([paper](https://arxiv.org/pdf/2201.11990.pdf)).
+    creator_organization_name: Microsoft/NVIDIA
+    access: closed
+    num_parameters: 6700000000
+    release_date: 2022-01-28
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: microsoft/llava-1.5-7b-hf
+    display_name: LLaVA 1.5 (7B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-10-05
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
+
+  - name: microsoft/llava-1.5-13b-hf
+    display_name: LLaVA 1.5 (13B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-10-05
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
+
+
+
+  # 01.AI
+  - name: 01-ai/yi-6b
+    display_name: Yi (6B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization_name: 01.AI
+    access: open
+    num_parameters: 6000000000
+    release_date: 2023-11-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+  - name: 01-ai/yi-34b
+    display_name: Yi (34B)
+    description: The Yi models are large language models trained from scratch by developers at 01.AI.
+    creator_organization_name: 01.AI
+    access: open
+    num_parameters: 34000000000
+    release_date: 2023-11-02
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+  # Mistral AI
+  - name: mistralai/mistral-7b-v0.1
+    display_name: Mistral v0.1 (7B)
+    description: Mistral 7B is a 7.3B parameter transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 7300000000
+    release_date: 2023-09-27
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mixtral-8x7b-32kseqlen
+    display_name: Mixtral (8x7B 32K seqlen)
+    description: Mistral AI's mixture-of-experts model ([tweet](https://twitter.com/MistralAI/status/1733150512395038967)).
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 56000000000
+    release_date: 2023-12-08
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/bakLlava-v1-hf
+    display_name: BakLLaVA v1 (7B)
+    description: BakLLaVA v1 is a Mistral 7B base augmented with the LLaVA 1.5 architecture. ([blog](https://huggingface.co/llava-hf/bakLlava-v1-hf))
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-10-16
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
+
+
+
+  # MosaicML
+  - name: mosaicml/mpt-7b
+    display_name: MPT (7B)
+    description: MPT (7B) is a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization_name: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: mosaicml/mpt-7b-chat # NOT SUPPORTED
+    display_name: MPT-Chat (7B)
+    description: MPT-Chat (7B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT (30B) , a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization_name: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
+    tags: [] # TODO: add tags
+
+  - name: mosaicml/mpt-instruct-7b
+    display_name: MPT-Instruct (7B)
+    description: MPT-Instruct (7B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization_name: MosaicML
+    access: open
+    num_parameters: 6700000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: mosaicml/mpt-30b
+    display_name: MPT (30B)
+    description: MPT (30B) is a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization_name: MosaicML
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-06-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: mosaicml/mpt-30b-chat # NOT SUPPORTED
+    display_name: MPT-Chat (30B)
+    description: MPT-Chat (30B) is a chatbot-like model for dialogue generation. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization_name: MosaicML
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-06-22
+    tags: [] # TODO: add tags
+
+  - name: mosaicml/mpt-instruct-30b
+    display_name: MPT-Instruct (30B)
+    description: MPT-Instruct (30B) is a model for short-form instruction following. It is built by finetuning MPT (30B), a Transformer trained from scratch on 1T tokens of text and code.
+    creator_organization_name: MosaicML
+    access: open
+    num_parameters: 30000000000
+    release_date: 2023-06-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # Neurips
+  - name: neurips/local
+    display_name: Neurips Local
+    description: Neurips Local
+    creator_organization_name: Neurips
+    access: open
+    release_date: 2023-06-01
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # NVIDIA
+  - name: nvidia/megatron-gpt2
+    display_name: Megatron GPT2
+    description: GPT-2 implemented in Megatron-LM ([paper](https://arxiv.org/abs/1909.08053)).
+    creator_organization_name: NVIDIA
+    access: open
+    release_date: 2019-09-17 # paper date
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, BUGGY_TEMP_0_TAG]
+
+
+
+  # OpenAI
+
+  ## GPT 2 Models
+  # Not served by OpenAI, instead served by HuggingFace.
+
+  - name: openai/gpt2
+    display_name: GPT-2 (1.5B)
+    description: GPT-2 (1.5B parameters) is a transformer model trained on a large corpus of English text in a self-supervised fashion ([paper](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf)).
+    creator_organization_name: OpenAI
+    access: open
+    num_parameters: 1500000000
+    release_date: 2019-02-14
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+  ## GPT 3 Models
+  # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
+  # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
+
+  - name: openai/davinci # DEPRECATED
+    display_name: davinci (175B)
+    description: Original GPT-3 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 175000000000
+    release_date: 2020-05-28
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: openai/curie # DEPRECATED
+    display_name: curie (6.7B)
+    description: Original GPT-3 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 6700000000
+    release_date: 2020-05-28
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: openai/babbage # DEPRECATED
+    display_name: babbage (1.3B)
+    description: Original GPT-3 (1.3B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 1300000000
+    release_date: 2020-05-28
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: openai/ada # DEPRECATED
+    display_name: ada (350M)
+    description: Original GPT-3 (350M parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 350000000
+    release_date: 2020-05-28
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: openai/text-davinci-003 # DEPRECATED
+    display_name: GPT-3.5 (text-davinci-003)
+    description: text-davinci-003 model that involves reinforcement learning (PPO) with reward models. Derived from text-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 175000000000
+    release_date: 2022-11-28
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
+  #       https://github.com/stanford-crfm/benchmarking/issues/359
+  - name: openai/text-davinci-002 # DEPRECATED
+    display_name: GPT-3.5 (text-davinci-002)
+    description: text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations. Derived from code-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 175000000000
+    release_date: 2022-01-27
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: openai/text-davinci-001 # DEPRECATED
+    display_name: GPT-3.5 (text-davinci-001)
+    description: text-davinci-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 175000000000
+    release_date: 2022-01-27
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: openai/text-curie-001 # DEPRECATED
+    display_name: text-curie-001
+    description: text-curie-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 6700000000
+    release_date: 2022-01-27
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: openai/text-babbage-001 # DEPRECATED
+    display_name: text-babbage-001
+    description: text-babbage-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 1300000000
+    release_date: 2022-01-27
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: openai/text-ada-001 # DEPRECATED
+    display_name: text-ada-001
+    description: text-ada-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 350000000
+    release_date: 2022-01-27
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+  ## GPT 3.5 Turbo Models
+  # ChatGPT: https://openai.com/blog/chatgpt
+  
+  - name: openai/gpt-3.5-turbo-0301
+    display_name: GPT-3.5 Turbo (0301)
+    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-03-01
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-3.5-turbo-0613
+    display_name: GPT-3.5 Turbo (0613)
+    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-06-13
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  # Claimed length is 16,384; we round down to 16,000 for the same reasons as explained
+  # in the openai/gpt-3.5-turbo-0613 comment
+  - name: openai/gpt-3.5-turbo-16k-0613
+    display_name: gpt-3.5-turbo-16k-0613
+    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13 with a longer context length of 16,384 tokens.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-06-13
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+
+  ## GPT 4 Models
+
+  - name: openai/gpt-4-1106-preview
+    display_name: GPT-4 Turbo (1106 preview)
+    description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-11-06
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4-0314
+    display_name: GPT-4 (0314)
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from March 14th 2023.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-03-14
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4-32k-0314
+    display_name: gpt-4-32k-0314
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 with a longer context length of 32,768 tokens from March 14th 2023.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-03-14
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4-0613
+    display_name: GPT-4 (0613)
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-06-13.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-06-13
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4-32k-0613
+    display_name: gpt-4-32k-0613
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 with a longer context length of 32,768 tokens from 2023-06-13.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-06-13
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4-vision-preview
+    display_name: GPT-4V (preview)
+    description: GPT-4V is a large multimodal model that accepts both text and images and is optimized for chat but works well for traditional completions tasks.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-11-06
+    tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG]
+
+  ## Codex Models
+  # DEPRECATED: Codex models have been shut down on March 23 2023.
+
+  - name: openai/code-davinci-002 # DEPRECATED
+    display_name: code-davinci-002
+    description: Codex-style model that is designed for pure code-completion tasks ([docs](https://beta.openai.com/docs/models/codex)).
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2021-07-01 # TODO: Find correct date (this is for v1)
+    tags: [CODE_MODEL_TAG]
+
+  - name: openai/code-davinci-001 # DEPRECATED
+    display_name: code-davinci-001
+    description: code-davinci-001 model
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2021-07-01 # Paper date
+    tags: [CODE_MODEL_TAG]
+
+  - name: openai/code-cushman-001 # DEPRECATED
+    display_name: code-cushman-001 (12B)
+    description: Codex-style model that is a stronger, multilingual version of the Codex (12B) model in the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 12000000000
+    release_date: 2021-07-01 # Paper date
+    tags: [CODE_MODEL_TAG]
+
+
+  ## Text Similarity Models
+  # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
+  # The number of parameters is guessed based on the number of parameters of the
+  # corresponding GPT-3 model.
+  # DEPRECATED: Announced on July 06 2023 that first generation embeddings models
+  #  will be shut down on January 04 2024.
+
+  - name: openai/text-similarity-davinci-001 # DEPRECATED
+    display_name: text-similarity-davinci-001
+    description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 175000000000
+    release_date: 2022-01-25 # Blog post date
+    tags: [TEXT_SIMILARITY_MODEL_TAG]
+
+  - name: openai/text-similarity-curie-001 # DEPRECATED
+    display_name: text-similarity-curie-001
+    description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 6700000000
+    release_date: 2022-01-25 # Blog post date
+    tags: [TEXT_SIMILARITY_MODEL_TAG]
+
+  - name: openai/text-similarity-babbage-001 # DEPRECATED
+    display_name: text-similarity-babbage-001
+    description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 1300000000
+    release_date: 2022-01-25 # Blog post date
+    tags: [TEXT_SIMILARITY_MODEL_TAG]
+
+  - name: openai/text-similarity-ada-001 # DEPRECATED
+    display_name: text-similarity-ada-001
+    description: Embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/introducing-text-and-code-embeddings)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 350000000
+    release_date: 2022-01-25 # Blog post date
+    tags: [TEXT_SIMILARITY_MODEL_TAG]
+
+  - name: openai/text-embedding-ada-002
+    display_name: text-embedding-ada-002
+    description: An improved embedding model that is designed for text similarity tasks ([docs](https://openai.com/blog/new-and-improved-embedding-model)).
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2022-12-15 # Blog post date
+    tags: [TEXT_SIMILARITY_MODEL_TAG]
+
+  # Text-to-image models
+  - name: openai/dall-e-2
+    display_name: DALL-E 2 (3.5B)
+    description: DALL-E 2 is a encoder-decoder-based latent diffusion model trained on large-scale paired text-image datasets. The model is available via the OpenAI API ([paper](https://arxiv.org/abs/2204.06125)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 3500000000
+    release_date: 2022-04-13
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3
+    display_name: DALL-E 3
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The default style, vivid, causes the model to lean towards generating hyper-real and dramatic images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3-natural
+    display_name: DALL-E 3 (natural style)
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The natural style causes the model to produce more natural, less hyper-real looking images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3-hd
+    display_name: DALL-E 3 HD
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The HD version creates images with finer details and greater consistency across the image, but generation is slower. The default style, vivid, causes the model to lean towards generating hyper-real and dramatic images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: openai/dall-e-3-hd-natural
+    display_name: DALL-E 3 HD (natural style)
+    description: DALL-E 3 is a text-to-image generation model built natively on ChatGPT, used to prompt engineer automatically. The HD version creates images with finer details and greater consistency across the image, but generation is slower. The natural style causes the model to produce more natural, less hyper-real looking images. The model is available via the OpenAI API ([paper](https://cdn.openai.com/papers/dall-e-3.pdf)).
+    creator_organization_name: OpenAI
+    access: limited
+    num_parameters: 0
+    release_date: 2023-11-06
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  # Salesforce
+  - name: salesforce/codegen # NOT SUPPORTED
+    display_name: CodeGen (16B)
+    description: CodeGen (16B parameters) is an open dense code model trained for multi-turn program synthesis ([blog](https://arxiv.org/pdf/2203.13474.pdf)).
+    creator_organization_name: Tsinghua
+    access: open
+    num_parameters: 16000000000
+    release_date: 2022-03-25
+    tags: [] # TODO: add tags
+
+
+
+  # Stability AI
+  - name: stabilityai/stablelm-base-alpha-3b
+    display_name: StableLM-Base-Alpha (3B)
+    description: StableLM-Base-Alpha is a suite of 3B and 7B parameter decoder-only language models pre-trained on a diverse collection of English datasets with a sequence length of 4096 to push beyond the context window limitations of existing open-source language models.
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-04-20
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: stabilityai/stablelm-base-alpha-7b
+    display_name: StableLM-Base-Alpha (7B)
+    description: StableLM-Base-Alpha is a suite of 3B and 7B parameter decoder-only language models pre-trained on a diverse collection of English datasets with a sequence length of 4096 to push beyond the context window limitations of existing open-source language models.
+    creator_organization_name: Stability AI
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-04-20
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # Stanford
+  - name: stanford/alpaca-7b
+    display_name: Alpaca (7B)
+    description: Alpaca 7B is a model fine-tuned from the LLaMA 7B model on 52K instruction-following demonstrations
+    creator_organization_name: Stanford
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-13
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+
+
+  # TII UAE
+  - name: tiiuae/falcon-7b
+    display_name: Falcon (7B)
+    description: Falcon-7B is a 7B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: tiiuae/falcon-7b-instruct
+    display_name: Falcon-Instruct (7B)
+    description: Falcon-7B-Instruct is a 7B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-03-15
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: tiiuae/falcon-40b
+    display_name: Falcon (40B)
+    description: Falcon-40B is a 40B parameters causal decoder-only model built by TII and trained on 1,500B tokens of RefinedWeb enhanced with curated corpora.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 40000000000
+    release_date: 2023-05-25
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: tiiuae/falcon-40b-instruct
+    display_name: Falcon-Instruct (40B)
+    description: Falcon-40B-Instruct is a 40B parameters causal decoder-only model built by TII based on Falcon-7B and finetuned on a mixture of chat/instruct datasets.
+    creator_organization_name: TII UAE
+    access: open
+    num_parameters: 40000000000
+    release_date: 2023-05-25
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # Together
+  - name: together/gpt-jt-6b-v1
+    display_name: GPT-JT (6B)
+    description: GPT-JT (6B parameters) is a fork of GPT-J ([blog post](https://www.together.xyz/blog/releasing-v1-of-gpt-jt-powered-by-open-source-ai)).
+    creator_organization_name: Together
+    access: open
+    num_parameters: 6700000000
+    release_date: 2022-11-29
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: together/gpt-neoxt-chat-base-20b
+    display_name: GPT-NeoXT-Chat-Base (20B)
+    description: GPT-NeoXT-Chat-Base (20B) is fine-tuned from GPT-NeoX, serving as a base model for developing open-source chatbots.
+    creator_organization_name: Together
+    access: open
+    num_parameters: 20000000000
+    release_date: 2023-03-08
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG]
+
+  - name: together/redpajama-incite-base-3b-v1
+    display_name: RedPajama-INCITE-Base-v1 (3B)
+    description: RedPajama-INCITE-Base-v1 (3B parameters) is a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization_name: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: together/redpajama-incite-instruct-3b-v1
+    display_name: RedPajama-INCITE-Instruct-v1 (3B)
+    description: RedPajama-INCITE-Instruct-v1 (3B parameters) is a model fine-tuned for few-shot applications on the data of GPT-JT. It is built from RedPajama-INCITE-Base-v1 (3B), a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization_name: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: together/redpajama-incite-chat-3b-v1 # NOT SUPPORTED
+    display_name: RedPajama-INCITE-Chat-v1 (3B)
+    description: RedPajama-INCITE-Chat-v1 (3B parameters) is a model fine-tuned on OASST1 and Dolly2 to enhance chatting ability. It is built from RedPajama-INCITE-Base-v1 (3B), a 3 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization_name: Together
+    access: open
+    num_parameters: 3000000000
+    release_date: 2023-05-05
+    tafs: [] # TODO: add tags
+
+  - name: together/redpajama-incite-base-7b
+    display_name: RedPajama-INCITE-Base (7B)
+    description: RedPajama-INCITE-Base (7B parameters) is a 7 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization_name: Together
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: together/redpajama-incite-instruct-7b
+    display_name: RedPajama-INCITE-Instruct (7B)
+    description: RedPajama-INCITE-Instruct (7B parameters) is a model fine-tuned for few-shot applications on the data of GPT-JT. It is built from RedPajama-INCITE-Base (7B), a 7 billion base model that aims to replicate the LLaMA recipe as closely as possible.
+    creator_organization_name: Together
+    access: open
+    num_parameters: 7000000000
+    release_date: 2023-05-05
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # Tsinghua
+
+  - name: thudm/cogview2
+    display_name: CogView2 (6B)
+    description: CogView2 is a hierarchical transformer (6B-9B-9B parameters) for text-to-image generation that supports both English and Chinese input text ([paper](https://arxiv.org/abs/2105.13290))
+    creator_organization_name: Tsinghua
+    access: open
+    num_parameters: 6000000000
+    release_date: 2022-06-15
+    tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  - name: tsinghua/glm
+    display_name: GLM (130B)
+    description: GLM (130B parameters) is an open bilingual (English & Chinese) bidirectional dense model that was trained using General Language Model (GLM) procedure ([paper](https://arxiv.org/pdf/2210.02414.pdf)).
+    creator_organization_name: Tsinghua
+    access: open
+    num_parameters: 130000000000
+    release_date: 2022-08-04
+    # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
+    # bidirectional attention and do not perform predictions on them.
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG]
+
+  - name: tsinghua/codegeex # NOT SUPPORTED
+    display_name: CodeGeeX (13B)
+    description: CodeGeeX (13B parameters) is an open dense code model trained on more than 20 programming languages on a corpus of more than 850B tokens ([blog](http://keg.cs.tsinghua.edu.cn/codegeex/)).
+    creator_organization_name: Tsinghua
+    access: open
+    num_parameters: 13000000000
+    release_date: 2022-09-19
+    tags: [] # TODO: add tags
+
+
+
+  # Writer
+  - name: writer/palmyra-base
+    display_name: Palmyra Base (5B)
+    description: Palmyra Base (5B)
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 5000000000
+    release_date: 2022-10-13
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-large
+    display_name: Palmyra Large (20B)
+    description: Palmyra Large (20B)
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 20000000000
+    release_date: 2022-12-23
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-instruct-30
+    deprecated: true # Internal error
+    display_name: InstructPalmyra (30B)
+    description: InstructPalmyra (30B parameters) is trained using reinforcement learning techniques based on feedback from humans.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-02-16
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-e
+    deprecated: true # Internal error
+    display_name: Palmyra E (30B)
+    description: Palmyra E (30B)
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2023-03-03
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/silk-road
+    display_name: Silk Road (35B)
+    description: Silk Road (35B)
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 35000000000
+    release_date: 2023-04-13
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x
+    display_name: Palmyra X (43B)
+    description: Palmyra-X (43B parameters) is trained to adhere to instructions using human feedback and utilizes a technique called multiquery attention. Furthermore, a new feature called 'self-instruct' has been introduced, which includes the implementation of an early stopping criteria specifically designed for minimal instruction tuning ([paper](https://dev.writer.com/docs/becoming-self-instruct-introducing-early-stopping-criteria-for-minimal-instruct-tuning)).
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 43000000000
+    release_date: 2023-06-11
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x-v2
+    display_name: Palmyra X V2 (33B)
+    description: Palmyra-X V2 (33B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. The pre-training data more than 2 trillion tokens types are diverse and cover a wide range of areas, used FlashAttention-2.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 33000000000
+    release_date: 2023-12-01
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x-v3
+    display_name: Palmyra X V3 (72B)
+    description: Palmyra-X V3 (72B parameters) is a Transformer-based model, which is trained on extremely large-scale pre-training data. It is trained via unsupervised learning and DPO and use multiquery attention.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 72000000000
+    release_date: 2023-12-01
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: writer/palmyra-x-32k
+    display_name: Palmyra X-32K (33B)
+    description: Palmyra-X-32K (33B parameters) is a Transformer-based model, which is trained on large-scale pre-training data. The pre-training data types are diverse and cover a wide range of areas. These data types are used in conjunction and the alignment mechanism to extend context window.
+    creator_organization_name: Writer
+    access: limited
+    num_parameters: 33000000000
+    release_date: 2023-12-01
+    # Does not support echo
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
+
+  # Yandex
+  - name: yandex/yalm
+    display_name: YaLM (100B)
+    description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](https://github.com/yandex/YaLM-100B)).
+    creator_organization_name: Yandex
+    access: open
+    num_parameters: 100000000000
+    release_date: 2022-06-23
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]

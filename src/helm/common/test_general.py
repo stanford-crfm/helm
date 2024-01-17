@@ -1,6 +1,14 @@
 import shutil
 import os
-from helm.common.general import ensure_file_downloaded, format_tags, flatten_list, format_split, unique_simplification
+from helm.common.general import (
+    ensure_file_downloaded,
+    format_tags,
+    flatten_list,
+    format_split,
+    get_file_name,
+    unique_simplification,
+    is_url,
+)
 
 
 def test_ensure_file_downloaded():
@@ -47,3 +55,12 @@ def test_unique_simplification():
         {"n": 3},
         {"n": 4},
     ]
+
+
+def test_get_file_name():
+    assert get_file_name("/path/to/image.png") == "image.png"
+
+
+def test_is_url():
+    assert is_url("https://crfm.stanford.edu")
+    assert not is_url("/some/path")

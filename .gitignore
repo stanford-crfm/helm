@@ -11,10 +11,17 @@ benchmark_output
 www
 proxy_api_key*.txt
 microsoft_client.lock
+*.lock
 *.log
 *.out
 *.jsonl
 nltk_data/
+
+# MechanicalTurkCritiqueClient
+mturk/
+
+# SlurmRunner
+slurm/
 
 # Where data lives (e.g., newsqa)
 restricted
@@ -37,3 +44,8 @@ notes.otl
 
 # Miscellaneous
 .nfs*
+
+node_modules
+
+# frontend build
+static_build

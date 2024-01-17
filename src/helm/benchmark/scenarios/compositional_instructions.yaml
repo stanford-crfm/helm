@@ -1,0 +1,70 @@
+rules:
+- category: Root
+  expansions:
+    - text: ${Task} ${Style}
+
+- category: Task
+  expansions:
+    - text: Explain ${HowTo}
+    - text: Explain ${Topic}
+    - text: Tell me a joke about ${Topic}
+    - text: Tell me a joke about ${TopicPair}
+    - text: What are the similarities between ${TopicPair}
+    - text: What are the differences between ${TopicPair}
+    - text: Tell me 5 surprising facts about ${Topic}
+    - text: Persuade me to learn about ${Topic}
+
+- category: HowTo
+  expansions:
+    - text: how airplanes fly
+    - text: how maglev trains work
+    - text: how to grow tomatoes in the wintertime
+
+- category: Topic
+  expansions:
+    - text: the quicksort algorithm
+    - text: stochastic gradient descent
+    - text: the Great Vowel Shift
+    - text: northern lights
+    - text: the Romantic period
+    - text: the Civil Rights movement
+    - text: the Pacific Northwest
+    - text: El Niño
+
+- category: TopicPair
+  expansions:
+    - text: north and south
+    - text: gradient descent and gradient ascent
+    - text: vowels and consonants
+    - text: C and C++
+    - text: Google and Microsoft
+    - text: US and Canada
+    - text: cats and dogs
+    - text: the Baroque period and the Romantic period
+
+- category: Style
+  expansions:
+    - text: as a paragraph.
+    - text: as a haiku.
+    - text: as a limerick.
+    - text: in the style of a Shakespeare sonnet.
+    - text: in the style of a court case.
+    - text: in the style of Snoop Dogg.
+    - text: so that a ${Age}-year old can understand it.
+    - text: in ${Language}.
+    - text: in 3 bullet points.
+    - text: in 8 bullet points.
+
+- category: Age
+  expansions:
+    - text: "5"
+    - text: "9"
+    - text: "13"
+
+- category: Language
+  expansions:
+    - text: Italian
+    - text: Greek
+    - text: Indian
+    - text: Chinese
+    - text: Thai

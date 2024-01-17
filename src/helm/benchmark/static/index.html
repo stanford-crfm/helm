@@ -22,6 +22,10 @@
             <li class="nav-item"><a class="nav-link active" href="?models=1">Models</a></li>
             <li class="nav-item"><a class="nav-link active" href="?scenarios=1">Scenarios</a></li>
             <li class="nav-item"><a class="nav-link active" href="?groups=1">Results</a></li>
+            <!--
+            TODO(#1441): Enable plots.
+            <li class="nav-item"><a class="nav-link active" href="?plots=1">Plots</a></li>
+            -->
             <li class="nav-item"><a class="nav-link active" href="?runs=1">Raw runs</a></li>
           </ul>
         </div>
@@ -42,10 +46,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.29.0/js/jquery.tablesorter.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <!-- *GTAG*
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0MW28MP3W"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', 'G-T0MW28MP3W');
+    </script>
+      *GTAG* -->
+    <script src="config.js"></script>
     <script src="general.js"></script>
     <script src="utils.js"></script>
-    <script src="json-urls-root.js"></script>
     <script src="json-urls.js"></script>
     <script src="benchmarking.js"></script>
+    <script src="plot-captions.js"></script>
   </body>
 </html>

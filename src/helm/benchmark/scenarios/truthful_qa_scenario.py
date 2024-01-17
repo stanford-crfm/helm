@@ -3,7 +3,7 @@ import os
 from typing import List, Dict, Any
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, VALID_SPLIT, TRAIN_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, VALID_SPLIT, TRAIN_SPLIT, CORRECT_TAG, Input, Output
 
 
 class TruthfulQAScenario(Scenario):
@@ -64,17 +64,17 @@ class TruthfulQAScenario(Scenario):
         self.task = task
         assert self.task in self.TASK_NAMES
 
-    def download_dataset(self):
+    def download_dataset(self, output_path: str):
         """Downloads the TruthfulQA dataset."""
         # Download the raw data
-        data_dir = os.path.join(self.output_path, "data")
+        data_dir = os.path.join(output_path, "data")
         url = "https://raw.githubusercontent.com/sylinrl/TruthfulQA/main/TruthfulQA.csv"
         ensure_directory_exists(data_dir)
         ensure_file_downloaded(source_url=url, target_path=os.path.join(data_dir, self.DATASET_FILE_NAME))
 
-    def load_dataset(self) -> List[Dict[str, Any]]:
+    def load_dataset(self, output_path: str) -> List[Dict[str, Any]]:
         """Loads the dataset downloaded in download_dataset()."""
-        file_path = os.path.join(self.output_path, "data", self.DATASET_FILE_NAME)
+        file_path = os.path.join(output_path, "data", self.DATASET_FILE_NAME)
         data = []
         with open(file_path, encoding="utf-8") as f:
             # Skip headers
@@ -93,7 +93,7 @@ class TruthfulQAScenario(Scenario):
                 data.append(data_point)
         return data
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """Returns the instances for this scenario."""
 
         def format_str(unformatted_str: str) -> str:
@@ -107,9 +107,9 @@ class TruthfulQAScenario(Scenario):
 
         def get_references(best_answer: str, incorrect_answers: List[str]) -> List[Reference]:
             # Prepare the references list
-            references = [Reference(output=ans, tags=[]) for ans in incorrect_answers]
-            correct_reference = Reference(output=best_answer, tags=[CORRECT_TAG])
-            references.append(correct_reference)
+            references = [Reference(Output(text=ans), tags=[]) for ans in incorrect_answers]
+            references.append(Reference(Output(text=best_answer), tags=[CORRECT_TAG]))
+
             # To ensure that we have some variety at where the option with the correct answer
             # appears (A, B, C etc.) we use ascii value of the first character of the best_answer
             # string (ord) and use ord mod the list length to rotate the references list.
@@ -122,14 +122,14 @@ class TruthfulQAScenario(Scenario):
             for dt in data:
                 if self.task == self.MULTIPLE_CHOICE_SINGLE_ANSWER:
                     # Format the fields of the question
-                    question = dt["question"].strip()
-                    best_answer = format_str(dt["best_answer"])
-                    incorrect_answers = split_multiple_answer_string(dt["incorrect_answers"])
+                    question: str = dt["question"].strip()
+                    best_answer: str = format_str(dt["best_answer"])
+                    incorrect_answers: List[str] = split_multiple_answer_string(dt["incorrect_answers"])
 
                     # Prepare the instance
                     references = get_references(best_answer, incorrect_answers)
                     instance = Instance(
-                        input=question,
+                        input=Input(text=question),
                         references=references,
                         split=split,
                     )
@@ -137,8 +137,8 @@ class TruthfulQAScenario(Scenario):
             return instances
 
         # Body of the function
-        self.download_dataset()
-        data = self.load_dataset()
+        self.download_dataset(output_path)
+        data = self.load_dataset(output_path)
         split_k = int(len(data) * self.TRAIN_RATIO)
         train_instances: List[Instance] = get_split_instances(TRAIN_SPLIT, data[:split_k])
         valid_instances: List[Instance] = get_split_instances(VALID_SPLIT, data[split_k:])

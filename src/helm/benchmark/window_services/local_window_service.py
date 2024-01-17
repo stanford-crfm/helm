@@ -1,7 +1,7 @@
-from abc import abstractmethod
+from abc import ABC
 from typing import List, Optional, cast
 
-from .window_service import WindowService, EncodeResult
+from .window_service import ConfigurableWindowService, EncodeResult
 from .tokenizer_service import TokenizerService
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -10,16 +10,29 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
+from helm.proxy.clients.client import cleanup_tokens
 
 
-class LocalWindowService(WindowService):
-    def __init__(self, service: TokenizerService):
+class LocalWindowService(ConfigurableWindowService, ABC):
+    def __init__(
+        self,
+        service: TokenizerService,
+        tokenizer_name: str,
+        max_sequence_length: int,
+        max_request_length: Optional[int] = None,
+        max_sequence_and_generated_tokens_length: Optional[int] = None,
+        end_of_text_token: Optional[str] = None,
+        prefix_token: Optional[str] = None,
+    ):
+        super().__init__(
+            tokenizer_name=tokenizer_name,
+            max_sequence_length=max_sequence_length,
+            max_request_length=max_request_length,
+            max_sequence_and_generated_tokens_length=max_sequence_and_generated_tokens_length,
+            end_of_text_token=end_of_text_token,
+            prefix_token=prefix_token,
+        )
         self.service: TokenizerService = service
-
-    @property
-    @abstractmethod
-    def tokenizer_name(self) -> str:
-        pass
 
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """
@@ -65,7 +78,9 @@ class LocalWindowService(WindowService):
         response: TokenizationRequestResult = self.service.tokenize(
             TokenizationRequest(text, tokenizer=self.tokenizer_name)
         )
-        return cast(List[str], response.raw_tokens)
+        tokens: List[str] = cast(List[str], response.raw_tokens)
+        tokens = cleanup_tokens(tokens, self.tokenizer_name)
+        return tokens
 
     def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text and returns the number of tokens."""
@@ -92,7 +107,10 @@ class LocalWindowService(WindowService):
         max_length: int = self.max_request_length - expected_completion_token_length
         result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
 
-        # Validate that the truncated text now fits. Fail fast otherwise.
-        num_tokens: int = self.get_num_tokens(result)
-        assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
+        # HACK: For the vast majority of cases, the above logic works, but it sometimes doesn't work
+        # for non-English, non-Chinese text (e.g., Russian from multi_eurlex. See more
+        # in https://github.com/stanford-crfm/helm/issues/1448).
+        # Truncate by removing character by character until the prompt fits within the context window.
+        while not self.fits_within_context_window(result, expected_completion_token_length):
+            result = result[:-1]
         return result

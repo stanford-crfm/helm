@@ -63,13 +63,13 @@ example_queries = [
             """
             temperature: 0
             stop_sequences: [.]
-            model: ${model}  # Try out multiple models
+            model_deployment: ${model_deployment}  # Try out multiple models
             """
         ),
         environments=dedent(
             """
             occupation: [mathematician, lawyer, doctor]
-            model: [openai/davinci, ai21/j1-jumbo]
+            model_deployment: [openai/davinci, ai21/j1-jumbo]
             """
         ),
     ),
@@ -88,12 +88,12 @@ example_queries = [
             temperature: 0.5
             stop_sequences: [\\n]
             num_completions: 5
-            model: ${model}  # Try out GPT-3 and Jurassic
+            model_deployment: ${model_deployment}  # Try out GPT-3 and Jurassic
             """
         ),
         environments=dedent(
             """
-            model: [openai/davinci, ai21/j1-jumbo]
+            model_deployment: [openai/davinci, ai21/j1-jumbo]
             """
         ),
     ),
@@ -122,12 +122,12 @@ example_queries = [
             temperature: 0
             max_tokens: 1
             top_k_per_token: 4
-            model: ${model}  # Try out GPT-3 and Jurassic
+            model_deployment: ${model_deployment}  # Try out GPT-3 and Jurassic
             """
         ),
         environments=dedent(
             """
-            model: [openai/davinci, ai21/j1-jumbo]
+            model_deployment: [openai/davinci, ai21/j1-jumbo]
             """
         ),
     ),
@@ -135,7 +135,7 @@ example_queries = [
         prompt="Takes two vectors a and b and returns their Euclidean distance",
         settings=dedent(
             """
-            model: openai/code-davinci-001  # Codex for code generation
+            model_deployment: openai/code-davinci-001  # Codex for code generation
             """
         ),
         environments="",
@@ -144,22 +144,18 @@ example_queries = [
         prompt="The quick brown fox",
         settings=dedent(
             """
-            model: ${model}
+            model_deployment: ${model_deployment}
             temperature: 0.3
             stop_sequences: [\\n]
             """
         ),
         environments=dedent(
             """
-            model: [
-                "openai/text-davinci-002", "openai/davinci",
-                "ai21/j1-jumbo", "ai21/j1-grande",
-                "anthropic/stanford-online-all-v4-s3",
-                "cohere/xlarge-20220609", "cohere/xlarge-update",
-                "microsoft/TNLGv2_530B",
-                "together/gpt-j-6b", "together/gpt-neox-20b",
-                "together/bloom", "together/opt-175b",
-                "together/glm", "together/ul2", "together/t0pp",
+            model_deployment: [
+                "openai/davinci", "openai/text-davinci-002",
+                "openai/text-davinci-003", "ai21/j1-grande-v2-beta",
+                "together/gpt-j-6b", "together/gpt-jt-6b-v1",
+                "together/bloom", "together/opt-175b"
             ]
             """
         ),

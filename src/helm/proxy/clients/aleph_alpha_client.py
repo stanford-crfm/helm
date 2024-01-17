@@ -1,49 +1,54 @@
-import json
-import requests
-from typing import Any, Dict, List
+from typing import Dict, List
 
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-    TokenizationToken,
-)
-from .client import Client, wrap_request_time, truncate_sequence
+from helm.common.cache import CacheConfig
+from helm.common.media_object import TEXT_TYPE
+from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
+
+try:
+    from aleph_alpha_client import Client, CompletionRequest, CompletionResponse, Image, Prompt
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["aleph-alpha"])
 
 
-class AlephAlphaClient(Client):
-    COMPLETION_ENDPOINT: str = "complete"
-    TOKENIZE_ENDPOINT: str = "tokenize"
-    DETOKENIZE_ENDPOINT: str = "detokenize"
-
+class AlephAlphaClient(CachingClient):
     def __init__(self, api_key: str, cache_config: CacheConfig):
-        self.api_key: str = api_key
-        self.cache = Cache(cache_config)
-
-    def _send_request(self, endpoint: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
-        response = requests.request(
-            method="POST",
-            url=f"https://api.aleph-alpha.com/{endpoint}",
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": f"Bearer {self.api_key}",
-            },
-            data=json.dumps(raw_request),
-        )
-        result = json.loads(response.text)
-        assert "error" not in result, f"Request failed with error: {result['error']}"
-        return result
+        super().__init__(cache_config=cache_config)
+        self._api_key: str = api_key
+        self._aleph_alpha_client = Client(token=self._api_key) if self._api_key else None
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request following https://docs.aleph-alpha.com/api/complete."""
-        # TODO: echo is not supported. Follow up on this.
-        raw_request = {
-            "model": request.model_engine,
-            "prompt": request.prompt,
+        assert self._aleph_alpha_client is not None
+
+        model: str = request.model_engine
+        prompt: Prompt
+
+        # The prompt key is a unique identifier for the prompt
+        prompt_key: str = request.prompt
+
+        # Contents can either be text or a list of multimodal content made up of text, images or other content
+        if request.multimodal_prompt is not None:
+            from helm.common.images_utils import encode_base64
+
+            items = []
+            for media_object in request.multimodal_prompt.media_objects:
+                if media_object.is_type("image") and media_object.location:
+                    items.append(Image(base_64=encode_base64(media_object.location), cropping=None, controls=[]))
+                elif media_object.is_type(TEXT_TYPE):
+                    if media_object.text is None:
+                        raise ValueError("MediaObject of text type has missing text field value")
+                    items.append(media_object.text)
+                else:
+                    raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+            prompt = Prompt(items=items)
+            prompt_key = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+        else:
+            prompt = Prompt.from_text(request.prompt)
+
+        parameters = {
             "maximum_tokens": request.max_tokens,
             "temperature": request.temperature,
             "top_k": request.top_k_per_token,
@@ -53,18 +58,24 @@ class AlephAlphaClient(Client):
             "n": request.num_completions,
             "stop_sequences": request.stop_sequences,
             "log_probs": request.top_k_per_token,
+            "echo": request.echo_prompt,
             "tokens": True,  # Setting to True returns individual tokens of the completion
         }
 
         try:
 
             def do_it():
-                result = self._send_request(AlephAlphaClient.COMPLETION_ENDPOINT, raw_request)
+                assert self._aleph_alpha_client is not None
+                completion_response: CompletionResponse = self._aleph_alpha_client.complete(
+                    request=CompletionRequest(prompt=prompt, **parameters), model=model
+                )
+                result = dict(completion_response.to_json())
                 assert "completions" in result, f"Invalid response: {result}"
                 return result
 
-            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
-        except (requests.exceptions.RequestException, AssertionError) as e:
+            cache_key = CachingClient.make_cache_key({"model": model, "prompt": prompt_key, **parameters}, request)
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except Exception as e:
             error: str = f"AlephAlphaClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -74,7 +85,7 @@ class AlephAlphaClient(Client):
             tokens: List[Token] = []
 
             # `completion_tokens` is the list of selected tokens.
-            for i, token in enumerate(completion["completion_tokens"]):
+            for i, token in enumerate(completion.get("completion_tokens", [])):
                 # Get the top K logprobs for the ith token
                 top_logprobs: Dict[str, float] = completion["log_probs"][i]
                 # Use the selected token value to get the logprob
@@ -99,64 +110,4 @@ class AlephAlphaClient(Client):
             request_datetime=response["request_datetime"],
             completions=completions,
             embedding=[],
-        )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Make a request following https://docs.aleph-alpha.com/api/tokenize."""
-        raw_request = {
-            "model": request.tokenizer_name,
-            "prompt": request.text,
-            "tokens": True,
-            "token_ids": True,
-        }
-
-        try:
-
-            def do_it():
-                result = self._send_request(AlephAlphaClient.TOKENIZE_ENDPOINT, raw_request)
-                assert "tokens" in result and "token_ids" in result, f"Invalid response: {result}"
-                return result
-
-            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
-        except (requests.exceptions.RequestException, AssertionError) as e:
-            error: str = f"AlephAlphaClient error: {e}"
-            return TokenizationRequestResult(error=error, success=False, cached=False, text="", tokens=[])
-
-        tokens = response["token_ids" if request.encode else "tokens"]
-        if request.truncation:
-            tokens = tokens[: request.max_length]
-
-        return TokenizationRequestResult(
-            success=True,
-            cached=cached,
-            tokens=[TokenizationToken(value) for value in tokens],
-            text=request.text,
-            request_time=response["request_time"],
-        )
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Make a request following https://docs.aleph-alpha.com/api/detokenize."""
-        raw_request = {
-            "model": request.tokenizer_name,
-            "token_ids": request.tokens,
-        }
-
-        try:
-
-            def do_it():
-                result = self._send_request(AlephAlphaClient.DETOKENIZE_ENDPOINT, raw_request)
-                assert "result" in result, f"Invalid response: {result}"
-                return result
-
-            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
-        except (requests.exceptions.RequestException, AssertionError) as e:
-            error: str = f"AlephAlphaClient error: {e}"
-            return DecodeRequestResult(error=error, success=False, cached=False, text="")
-
-        return DecodeRequestResult(
-            success=True,
-            cached=cached,
-            # The text always seems to start with a single whitespace when encoding/decoding.
-            text=response["result"].replace(" ", "", 1),
-            request_time=response["request_time"],
         )

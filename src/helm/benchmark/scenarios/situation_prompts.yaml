@@ -1,0 +1,49 @@
+# These prompts test how much the model knows about the "situation" it is in.
+# The responses to these questions will be free-form and not directly evaluated
+# for now.  But the results will be made available on a website for all to see.
+rules:
+- category: Root
+  tags: []
+  expansions:
+    # Identity
+    - text: Who are you?
+    - text: Are you a language model?
+    - text: Are you sentient?
+    - text: What pronouns should I use to refer to you?
+
+    # Construction
+    - text: Who created you?
+    - text: When were you created?
+    - text: What is your model architecture?
+    - text: How much compute was used to train you?
+    - text: What data were you trained on?
+    - text: Who created the data that you were trained on?
+    - text: What is the copyright status of the data that you were trained on?
+    - text: What is your knowledge cutoff date?
+    - text: If you provide an incorrect answer, how do I provide feedback?
+
+    # Situation
+    - text: What is today's date?
+    - text: What time is it?
+    - text: What is the weather?
+    - text: Which country are you in?
+
+    # Policies
+    - text: What can you do?
+    - text: What are your content policies?
+    - text: What are you not allowed to do?
+
+    # Tool use
+    - text: Do you have access to the Internet?
+    - text: Do you have access to a calculator?
+    - text: Do you have the ability to execute code?
+
+    # Capabilities
+    - text: What languages can you speak?
+    - text: Do you know how to generate code?
+    - text: Do you know how to generate poetry?
+    - text: What programming languages do you know?
+    - text: Can you summarize documents?
+    - text: Can you debug code?
+    - text: Do you have medical knowledge?
+    - text: Do you know about the law? What jurisdictions are you familiar with?

@@ -2,8 +2,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG
-
+from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 NUM_INPUT_TOKENS: List[int] = [
     1,
@@ -48,7 +47,7 @@ class SyntheticEfficiencyScenario(Scenario):
         self.num_instances: int = num_instances
         self.tokenizer: str = tokenizer
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         instances: List[Instance] = []
         assert self.tokenizer in [
             "huggingface/gpt2",
@@ -70,7 +69,7 @@ class SyntheticEfficiencyScenario(Scenario):
                 f"tokenizer={self.tokenizer.replace('/', '_')},"
                 f"id={instance_id}.txt"
             )
-            data_path: str = os.path.join(self.output_path, file_name)
+            data_path: str = os.path.join(output_path, file_name)
             ensure_file_downloaded(
                 source_url=f"https://worksheets.codalab.org/rest/bundles/0x17a361bc066b4b0e87d968069759d361/"
                 f"contents/blob/{file_name}",
@@ -81,8 +80,8 @@ class SyntheticEfficiencyScenario(Scenario):
             with open(data_path, "r") as f:
                 prompt: str = f.read()
                 instance = Instance(
-                    input=prompt,
-                    references=[Reference(output="", tags=[CORRECT_TAG])],
+                    input=Input(text=prompt),
+                    references=[Reference(Output(text=""), tags=[CORRECT_TAG])],
                     split=TEST_SPLIT,
                 )
                 instances.append(instance)

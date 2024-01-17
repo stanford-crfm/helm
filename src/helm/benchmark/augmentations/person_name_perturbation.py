@@ -7,7 +7,7 @@ from pathlib import Path
 from random import Random
 from typing import Dict, List, Optional, Set
 
-from helm.benchmark.scenarios.scenario import Instance, Reference
+from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists, match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -30,10 +30,11 @@ class PersonNamePerturbation(Perturbation):
     LINE_SEP = "\n"
 
     """ Information needed to download person_names.txt """
-    CODALAB_URI_TEMPLATE: str = "https://worksheets.codalab.org/rest/bundles/{bundle}/contents/blob/"
-    CODALAB_BUNDLE: str = "0xa65e8f9a107c44f198eb4ad356bbda34"
     FILE_NAME: str = "person_names.txt"
-    SOURCE_URI: str = CODALAB_URI_TEMPLATE.format(bundle=CODALAB_BUNDLE)
+    SOURCE_URI: str = (
+        "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
+        "augmentations/person_name_perturbation/person_names.txt"
+    )
     OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
 
     """ Name types """
@@ -79,7 +80,7 @@ class PersonNamePerturbation(Perturbation):
         If name_file_path isn't provided, we use our default name mapping
         file, which can be found at:
 
-            https://worksheets.codalab.org/rest/bundles/0xa65e8f9a107c44f198eb4ad356bbda34/contents/blob/
+            https://storage.googleapis.com/crfm-helm-public/source_datasets/augmentations/person_name_perturbation/person_names.txt
 
         The **available categories** in our default file and their values are as follows:
 
@@ -214,7 +215,7 @@ class PersonNamePerturbation(Perturbation):
         return possible_names
 
     def download_name_file(self) -> str:
-        """Download the name file from CodaLab"""
+        """Download the name file from Google Cloud Storage"""
         data_path = os.path.join(self.output_path, "data")
         file_path: str = os.path.join(data_path, self.FILE_NAME)
         ensure_directory_exists(data_path)
@@ -262,13 +263,6 @@ class PersonNamePerturbation(Perturbation):
         name = rng.choice(list(options))
         return name
 
-    def perturb(self, text: str, rng: Random) -> str:
-        """
-        Perturbing the text is handled in `perturb_with_persistency` to ensure that perturbed names
-        in `Instance`s and `Reference`s match.
-        """
-        pass
-
     def perturb_with_persistency(
         self, text: str, rng: Random, name_substitution_mapping: Dict[str, str], skipped_tokens: Set[str]
     ) -> str:
@@ -315,8 +309,10 @@ class PersonNamePerturbation(Perturbation):
             references = [
                 replace(
                     reference,
-                    output=self.perturb_with_persistency(
-                        reference.output, rng, name_substitution_mapping, skipped_tokens
+                    output=Output(
+                        text=self.perturb_with_persistency(
+                            reference.output.text, rng, name_substitution_mapping, skipped_tokens
+                        )
                     ),
                     tags=reference.tags,
                 )
@@ -325,7 +321,9 @@ class PersonNamePerturbation(Perturbation):
 
         return replace(
             instance,
-            input=self.perturb_with_persistency(instance.input, rng, name_substitution_mapping, skipped_tokens),
+            input=Input(
+                text=self.perturb_with_persistency(instance.input.text, rng, name_substitution_mapping, skipped_tokens)
+            ),
             references=references,
             perturbation=self.description,
         )

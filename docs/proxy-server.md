@@ -14,8 +14,10 @@ To use the REST API, see [demo.py](https://github.com/stanford-crfm/benchmarking
 Create `prod_env/credentials.conf` to contain the API keys for any language
 models you have access to.
 
-    openaiApiKey: ...
-    ai21ApiKey: ...
+    {
+        openaiApiKey: "...",
+        ai21ApiKey: "..."
+    }
 
 To start a local server (go to `http://localhost:1959` to try it out):
 

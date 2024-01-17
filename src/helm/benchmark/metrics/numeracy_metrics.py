@@ -1,7 +1,8 @@
 from typing import List
 
 from helm.common.request import RequestResult
-from helm.benchmark.adapter import AdapterSpec, RequestState
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.scenarios.numeracy_scenario import (  # noqa
     NumeracyScenario,
     Polynomial,
@@ -44,9 +45,9 @@ class DistanceMetric(Metric):
         2. percent valid metric in range [0., 1.] of completions that are a valid number, ignoring commas.
         """
         references = request_state.instance.references
-        _, rel_str, relation_type = map(lambda _: _.output, references)
-        input = request_state.instance.input
-        datapoint_input = input.split("\n")[-1]
+        _, rel_str, relation_type = map(lambda _: _.output.text, references)
+        input_text: str = request_state.instance.input.text
+        datapoint_input = input_text.split("\n")[-1]
         val = list(map(int, datapoint_input.split(NumeracyScenario.delimiter)))
 
         distance_func = globals()[f"distance_{relation_type}"]

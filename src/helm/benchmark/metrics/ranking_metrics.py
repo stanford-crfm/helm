@@ -1,16 +1,22 @@
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Tuple, Optional
 
-import pytrec_eval
-
+from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_RANKING_BINARY
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.benchmark.scenarios.scenario import unpack_tag, CORRECT_TAG, Reference
 from helm.common.request import RequestResult
-from helm.common.general import binarize_dict
+from helm.common.general import assert_present, binarize_dict
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
-from ..adapter import AdapterSpec, RequestState, CORRECT_TAG, ADAPT_RANKING_BINARY
-from ..scenarios.scenario import unpack_tag
+
+try:
+    import pytrec_eval
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["metrics"])
 
 
 @dataclass
@@ -199,14 +205,13 @@ class RankingMetric(Metric):
         relevance dictionary, which contains the ground truth relevance
         values for each document.
         """
-        assert all([r.model_relevance is not None for r in ranking_objs])
         if rank_limit:
             return {
-                self.get_query_string(r.reference_index): r.model_relevance  # type: ignore
+                self.get_query_string(r.reference_index): assert_present(r.model_relevance)
                 for r in ranking_objs
                 if r.rank and r.rank <= rank_limit
             }
-        return {self.get_query_string(r.reference_index): r.model_relevance for r in ranking_objs}  # type: ignore
+        return {self.get_query_string(r.reference_index): assert_present(r.model_relevance) for r in ranking_objs}
 
     def get_true_relevances(self, ranking_objects: List[RankingObject]) -> Dict[str, int]:
         """Get the true relevance dictionary."""
@@ -252,11 +257,11 @@ class RankingMetric(Metric):
         """Create a RankingObject from a RequestState."""
         # Get reference index
         assert request_state.reference_index is not None
-        reference_index = request_state.reference_index
-        reference = request_state.instance.references[request_state.reference_index]
+        reference_index: int = request_state.reference_index
+        reference: Reference = request_state.instance.references[request_state.reference_index]
 
         # Get gold, relevance and rank fields
-        gold = CORRECT_TAG in reference.tags
+        is_gold: bool = CORRECT_TAG in reference.tags
         relevance, rank = None, None
         for tag in reference.tags:
             if "relevance" in tag:
@@ -271,8 +276,8 @@ class RankingMetric(Metric):
         # Create a RankingObject
         ranking_object = RankingObject(
             reference_index=reference_index,
-            text=reference.output,
-            gold=gold,
+            text=reference.output.text,
+            gold=is_gold,
             relevance=relevance,
             rank=rank,
             model_output=model_output,
@@ -366,7 +371,7 @@ class RankingMetric(Metric):
         #   len(ranking_objects) minus its relevance.
         stats += [
             Stat(MetricName(f"ref{r.reference_index}_rank")).add(
-                len(ranking_objects) - r.model_relevance  # type: ignore
+                len(ranking_objects) - assert_present(r.model_relevance)
             )
             for r in ranking_objects
         ]

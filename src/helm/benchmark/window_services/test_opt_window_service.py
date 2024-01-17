@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 
+from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
 from .test_utils import get_tokenizer_service, TEST_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
@@ -8,6 +9,7 @@ from .window_service_factory import WindowServiceFactory
 
 class TestOPTWindowService:
     def setup_method(self):
+        register_builtin_configs_from_helm_package()
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
         self.window_service = WindowServiceFactory.get_window_service("together/opt-175b", service)
@@ -76,55 +78,55 @@ class TestOPTWindowService:
     def test_tokenize(self):
         assert self.window_service.tokenize(TEST_PROMPT) == [
             "The",
-            "ĠCenter",
-            "Ġfor",
-            "ĠResearch",
-            "Ġon",
-            "ĠFoundation",
-            "ĠModels",
-            "Ġ(",
+            " Center",
+            " for",
+            " Research",
+            " on",
+            " Foundation",
+            " Models",
+            " (",
             "CR",
             "FM",
             ")",
-            "Ġis",
-            "Ġan",
-            "Ġinter",
+            " is",
+            " an",
+            " inter",
             "disciplinary",
-            "Ġinitiative",
-            "Ġborn",
-            "Ġout",
-            "Ġof",
-            "Ġthe",
-            "ĠStanford",
-            "ĠInstitute",
-            "Ġfor",
-            "ĠHuman",
+            " initiative",
+            " born",
+            " out",
+            " of",
+            " the",
+            " Stanford",
+            " Institute",
+            " for",
+            " Human",
             "-",
             "Cent",
             "ered",
-            "ĠArtificial",
-            "ĠIntelligence",
-            "Ġ(",
+            " Artificial",
+            " Intelligence",
+            " (",
             "HA",
             "I",
             ")",
-            "Ġthat",
-            "Ġaims",
-            "Ġto",
-            "Ġmake",
-            "Ġfundamental",
-            "Ġadvances",
-            "Ġin",
-            "Ġthe",
-            "Ġstudy",
+            " that",
+            " aims",
+            " to",
+            " make",
+            " fundamental",
+            " advances",
+            " in",
+            " the",
+            " study",
             ",",
-            "Ġdevelopment",
+            " development",
             ",",
-            "Ġand",
-            "Ġdeployment",
-            "Ġof",
-            "Ġfoundation",
-            "Ġmodels",
+            " and",
+            " deployment",
+            " of",
+            " foundation",
+            " models",
             ".",
         ]
 

@@ -1,5 +1,5 @@
 from helm.benchmark.run_specs import get_scenario_spec_tiny
-from .scenario import create_scenario, Scenario
+from helm.benchmark.scenarios.scenario import create_scenario, Scenario, Input, PassageQuestionInput
 
 
 class TestScenario:
@@ -7,7 +7,7 @@ class TestScenario:
         self.scenario: Scenario = create_scenario(get_scenario_spec_tiny())
 
     def test_render_lines(self):
-        instances = self.scenario.get_instances()
+        instances = self.scenario.get_instances(output_path="")
         assert self.scenario.render_lines(instances) == [
             "name: simple1",
             "description: A simple scenario",
@@ -34,3 +34,22 @@ class TestScenario:
             '  reference []: "-1"',
             "}",
         ]
+
+    def test_definition_path(self):
+        assert (
+            self.scenario.definition_path
+            == "https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/simple_scenarios.py"
+        )
+
+
+def test_input_equality():
+    input1 = Input(text="input1")
+    assert input1 == input1
+    assert input1 == Input(text="input1")
+    assert input1 != Input(text="input2")
+
+
+def test_passage_question_input():
+    assert (
+        PassageQuestionInput(passage="Short passage", question="question?").text == "Short passage\nQuestion: question?"
+    )

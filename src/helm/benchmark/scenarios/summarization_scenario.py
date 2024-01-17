@@ -3,7 +3,7 @@ import pickle
 
 from typing import List, Optional
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class SummarizationScenario(Scenario):
@@ -62,13 +62,13 @@ class SummarizationScenario(Scenario):
         """
         super().__init__()
         if dataset_name not in ["xsum", "xsum-sampled", "cnn-dm"]:
-            raise Exception(f"Uknown dataset_name: {dataset_name}")
+            raise Exception(f"Unknown dataset_name: {dataset_name}")
         self.dataset_name = dataset_name
         self.sampling_min_length = sampling_min_length
         self.sampling_max_length = sampling_max_length
         self.doc_max_length = doc_max_length
 
-    def _clean_and_truncate(self, text: str, max_length: Optional[int] = None):
+    def _clean_and_truncate(self, text: str, max_length: Optional[int] = None) -> str:
         text = text.replace("\n", " ")
         return " ".join(text.split()[:max_length])
 
@@ -90,8 +90,8 @@ class SummarizationScenario(Scenario):
 
         return False
 
-    def _download_dataset(self, url, tag):
-        data_dir = os.path.join(self.output_path, "data")
+    def _download_dataset(self, url, tag, output_path: str):
+        data_dir = os.path.join(output_path, "data")
         ensure_directory_exists(data_dir)
         ensure_file_downloaded(source_url=url, target_path=os.path.join(data_dir, f"{tag}.pk"))
 
@@ -100,20 +100,29 @@ class SummarizationScenario(Scenario):
 
         return dataset
 
-    def _load_dataset(self, dataset_name: str):
+    def _load_dataset(self, dataset_name: str, output_path: str):
         if dataset_name == "xsum":
-            url = "https://worksheets.codalab.org/rest/bundles/0xac5607f21bf945939edc56ea945496d5/contents/blob/"
-            dataset = self._download_dataset(url, "xsum")
+            url = (
+                "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
+                "scenarios/summarization_scenario/xsum.pk"
+            )
+            dataset = self._download_dataset(url, "xsum", output_path)
             article_key = "document"
             summary_key = "summary"
         elif dataset_name == "xsum-sampled":
-            url = "https://worksheets.codalab.org/rest/bundles/0xcfbb0ef1226040f78e58060c9e4d13cf/contents/blob/"
-            dataset = self._download_dataset(url, "xsum-sampled")
+            url = (
+                "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
+                "scenarios/summarization_scenario/xsum-sampled.pk"
+            )
+            dataset = self._download_dataset(url, "xsum-sampled", output_path)
             article_key = "document"
             summary_key = "summary"
         elif dataset_name == "cnn-dm":
-            url = "https://worksheets.codalab.org/rest/bundles/0x07630390bbda44879a2ad36e2125d64c/contents/blob/"
-            dataset = self._download_dataset(url, "cnndm")
+            url = (
+                "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
+                "scenarios/summarization_scenario/cnndm.pk"
+            )
+            dataset = self._download_dataset(url, "cnndm", output_path)
             article_key = "article"
             summary_key = "highlights"
         else:
@@ -121,8 +130,8 @@ class SummarizationScenario(Scenario):
 
         return dataset, article_key, summary_key
 
-    def get_instances(self) -> List[Instance]:
-        dataset, article_key, summary_key = self._load_dataset(self.dataset_name)
+    def get_instances(self, output_path: str) -> List[Instance]:
+        dataset, article_key, summary_key = self._load_dataset(self.dataset_name, output_path)
 
         splits = {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}
 
@@ -130,8 +139,8 @@ class SummarizationScenario(Scenario):
 
         for split_name, split in splits.items():
             for example in dataset[split_name]:
-                article = self._clean_and_truncate(example[article_key], self.doc_max_length)
-                summary = self._clean_and_truncate(example[summary_key])
+                article: str = self._clean_and_truncate(example[article_key], self.doc_max_length)
+                summary: str = self._clean_and_truncate(example[summary_key])
 
                 if split_name == "train":
                     art_len = len(article.split())
@@ -144,7 +153,11 @@ class SummarizationScenario(Scenario):
                             continue
 
                 instances.append(
-                    Instance(input=article, references=[Reference(output=summary, tags=[CORRECT_TAG])], split=split)
+                    Instance(
+                        input=Input(text=article),
+                        references=[Reference(Output(text=summary), tags=[CORRECT_TAG])],
+                        split=split,
+                    )
                 )
 
         return instances

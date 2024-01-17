@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 """
 This script samples triples to use and constructs sentences from templates.
 
@@ -76,7 +77,7 @@ def main():
     # Select head QIDS to include in dataset
     selected = []
     all_qids = set()
-    for p in tqdm(prop_map):
+    for p in tqdm(prop_map, disable=None):
         np.random.seed(0)
         head_qids = list(prop_map[p].keys())
         idxs = np.random.choice(len(head_qids), min(1000, len(head_qids)), replace=False)

@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import typing
+from typing import List
 from collections import Counter
 from dacite import from_dict
 
@@ -11,9 +12,10 @@ from helm.common.cache import (
     MongoCacheConfig,
     SqliteCacheConfig,
     create_key_value_store,
-    request_to_key,
 )
+from helm.common.key_value_store import request_to_key
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.proxy.clients.google_client import GoogleClient
 from helm.proxy.clients.together_client import TogetherClient
 from helm.proxy.clients.microsoft_client import MicrosoftClient
 
@@ -23,13 +25,16 @@ Exports raw requests from a run suite to a jsonl file.
 
 Usage:
 
-    python3 scripts/offline_eval/export_requests.py <Org - one of 'microsoft' or 'together'> <Path to run suite>
+    python3 scripts/offline_eval/export_requests.py <organization> <Path to run suite>
 
     Example:
 
       python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v4-dryrun
 
 """
+
+# List of organizations currently supported for offline batch evaluation
+SUPPORTED_ORGS: List[str] = ["together", "google", "microsoft"]
 
 
 @htrack("Generating jsonl file with list of raw requests")
@@ -39,11 +44,20 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
     where each line represents a single request.
     """
 
-    def process_together_request(request: Request):
-        raw_request: typing.Dict = TogetherClient.convert_to_raw_request(request)
-        # Only export requests that we are not in the cache
+    def fetch_client():
+        if organization == "together":
+            return TogetherClient
+        elif organization == "google":
+            return GoogleClient
+        else:
+            raise ValueError(f"Invalid organization: {organization}")
+
+    def process_request(request: Request):
+        raw_request: typing.Dict = fetch_client().convert_to_raw_request(request)
+
+        # Only export requests that are not in the cache
         if not store.contains(raw_request):
-            request_json: str = request_to_key(raw_request)
+            request_json: str = request_to_key({"scenario": scenario_name, "request": raw_request})
             out_file.write(request_json + "\n")
             counts["pending_count"] += 1
         else:
@@ -88,6 +102,12 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
                         )
                         continue
 
+                    # Extract the name of the scenario from scenario.json
+                    scenario_name: str
+                    with open(os.path.join(run_path, "scenario.json")) as scenario_file:
+                        scenario = json.load(scenario_file)
+                        scenario_name = scenario["name"]
+
                     with open(scenario_state_path) as scenario_state_file:
                         scenario_state = json.load(scenario_state_file)
                         model_name: str = scenario_state["adapter_spec"]["model"]
@@ -99,15 +119,13 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
 
                         for request_state in scenario_state["request_states"]:
                             request: Request = from_dict(Request, request_state["request"])
-                            if current_organization == "together":
-                                process_together_request(request)
-                            elif current_organization == "microsoft":
+                            if current_organization == "microsoft":
                                 try:
                                     process_microsoft_request(request)
                                 except ValueError as e:
                                     hlog(f"Error while processing Microsoft request: {e}\nRequest: {request}")
                             else:
-                                raise ValueError(f"Unhandled organization: {current_organization}.")
+                                process_request(request)
 
                     hlog(f"Wrote {counts['pending_count']} requests so far.")
 
@@ -130,9 +148,7 @@ if __name__ == "__main__":
             "Example format: mongodb://[username:password@]host1[:port1]/dbname"
         ),
     )
-    parser.add_argument(
-        "organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"]
-    )
+    parser.add_argument("organization", type=str, help="Organization to export requests for", choices=SUPPORTED_ORGS)
     parser.add_argument("run_suite_path", type=str, help="Path to run path.")
     parser.add_argument("--output-path", type=str, default="requests.jsonl", help="Path to jsonl file.")
     args = parser.parse_args()

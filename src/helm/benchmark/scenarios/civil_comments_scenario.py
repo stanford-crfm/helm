@@ -13,6 +13,7 @@ from .scenario import (
     PassageQuestionInput,
     Reference,
     Scenario,
+    Output,
 )
 
 
@@ -92,8 +93,8 @@ class CivilCommentsScenario(Scenario):
         ), f"Invalid demographic: {demographic}"
         self.demographic: str = demographic
 
-    def get_instances(self) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, "wilds_civil_comments.csv")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path: str = os.path.join(output_path, "wilds_civil_comments.csv")
         ensure_file_downloaded(
             source_url=CivilCommentsScenario.DATASET_DOWNLOAD_URL,
             target_path=data_path,
@@ -118,8 +119,8 @@ class CivilCommentsScenario(Scenario):
                 sub_split = "non-toxic"
 
             instance = Instance(
-                input=PassageQuestionInput(str(row["comment_text"]), question="Is the passage above toxic?").to_text(),
-                references=[Reference(output=expected_output, tags=[CORRECT_TAG])],
+                input=PassageQuestionInput(str(row["comment_text"]), "Is the passage above toxic?"),
+                references=[Reference(Output(text=expected_output), tags=[CORRECT_TAG])],
                 split=CivilCommentsScenario.SPLIT_MAPPING[str(row["split"])],
                 sub_split=sub_split,
             )

@@ -9,12 +9,11 @@ from helm.common.tokenization_request import (
     TokenizationToken,
     TextRange,
 )
-from .window_service import WindowService, EncodeResult
+from .window_service import ConfigurableWindowService, EncodeResult, WindowService
 from .tokenizer_service import TokenizerService
-from .gpt2_window_service import GPT2WindowService
 
 
-class AI21WindowService(WindowService):
+class AI21WindowService(ConfigurableWindowService):
     """Tokenizes by making a request to the proxy server with REST endpoint: `/api/tokenize`."""
 
     # AI21's tokenizer API rejects a tokenization request if the input sequence is too long, so
@@ -32,34 +31,29 @@ class AI21WindowService(WindowService):
         "AI21 only gave API access to their tokenizer, so this method is not supported."
     )
 
-    def __init__(self, service: TokenizerService, gpt2_window_service: GPT2WindowService):
+    def __init__(
+        self,
+        gpt2_window_service: WindowService,
+        service: TokenizerService,
+        tokenizer_name: str,
+        max_sequence_length: int,
+        max_request_length: Optional[int] = None,
+        max_sequence_and_generated_tokens_length: Optional[int] = None,
+        end_of_text_token: Optional[str] = None,
+        prefix_token: Optional[str] = None,
+    ):
+        super().__init__(
+            tokenizer_name=tokenizer_name,
+            max_sequence_length=max_sequence_length,
+            max_request_length=max_request_length,
+            max_sequence_and_generated_tokens_length=max_sequence_and_generated_tokens_length,
+            end_of_text_token=end_of_text_token,
+            prefix_token=prefix_token,
+        )
         # We need the `TokenizerService` to make requests to the server.
         self.service: TokenizerService = service
         # As explained above, we need a `GPT2WindowService` to help tokenize long text sequences.
-        self.gpt2_window_service: GPT2WindowService = gpt2_window_service
-
-    @property
-    def max_sequence_length(self) -> int:
-        """
-        The max token length of the model in. The AI21 server automatically prepends a token to every prompt,
-        so the actual max sequence length is 2048-1 = 2047.
-        """
-        return 2047
-
-    @property
-    def max_request_length(self) -> int:
-        """The max sequence length is the same as the max request length for AI21."""
-        return self.max_sequence_length
-
-    @property
-    def end_of_text_token(self) -> str:
-        # TODO: I'm not sure what their end of text token is. I don't think it's documented.
-        return " "
-
-    @property
-    def prefix_token(self) -> str:
-        """AI21 tokenizers do no have a prefix token"""
-        return ""
+        self.gpt2_window_service: WindowService = gpt2_window_service
 
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """
@@ -187,7 +181,7 @@ class AI21WindowService(WindowService):
 
     def _make_tokenization_request(self, text: str) -> TokenizationRequestResult:
         """Sends a request to the server to tokenize the text via the `TokenizerService`."""
-        return self.service.tokenize(TokenizationRequest(text=text, tokenizer="ai21/j1"))
+        return self.service.tokenize(TokenizationRequest(text=text, tokenizer=self.tokenizer_name))
 
     def _make_long_tokenization_request(self, text: str) -> Tuple[List[TokenizationToken], str]:
         """If the text is too long  (longer than 11,000 tokens when tokenized by the GPT-2 tokenizer),

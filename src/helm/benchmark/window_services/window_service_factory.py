@@ -1,88 +1,61 @@
-from helm.proxy.models import get_model, get_model_names_with_tag, Model, WIDER_CONTEXT_WINDOW_TAG
-from .ai21_window_service import AI21WindowService
-from .anthropic_window_service import AnthropicWindowService
-from .cohere_window_service import CohereWindowService
-from .luminous_window_service import (
-    LuminousBaseWindowService,
-    LuminousExtendedWindowService,
-    LuminousSupremeWindowService,
-    LuminousWorldWindowService,
-)
-from .openai_window_service import OpenAIWindowService
-from .wider_openai_window_service import WiderOpenAIWindowService
-from .mt_nlg_window_service import MTNLGWindowService
-from .bloom_window_service import BloomWindowService
-from .ice_window_service import ICEWindowService
-from .gpt2_window_service import GPT2WindowService
-from .gptj_window_service import GPTJWindowService
-from .gptneox_window_service import GPTNeoXWindowService
-from .opt_window_service import OPTWindowService
-from .t0pp_window_service import T0ppWindowService
-from .t511b_window_service import T511bWindowService
-from .ul2_window_service import UL2WindowService
-from .yalm_window_service import YaLMWindowService
-from .window_service import WindowService
-from .tokenizer_service import TokenizerService
+from typing import Optional
+
+from helm.benchmark.model_deployment_registry import ModelDeployment, WindowServiceSpec, get_model_deployment
+from helm.benchmark.tokenizer_config_registry import TokenizerConfig, get_tokenizer_config
+from helm.benchmark.window_services.window_service import WindowService
+from helm.benchmark.window_services.tokenizer_service import TokenizerService
+from helm.common.object_spec import create_object, inject_object_spec_args
 
 
 class WindowServiceFactory:
     @staticmethod
-    def get_window_service(model_name: str, service: TokenizerService) -> WindowService:
+    def get_window_service(model_deployment_name: str, service: TokenizerService) -> WindowService:
         """
         Returns a `WindowService` given the name of the model.
         Make sure this function returns instantaneously on repeated calls.
         """
-        model: Model = get_model(model_name)
-        organization: str = model.organization
-        engine: str = model.engine
-
-        window_service: WindowService
-        if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
-            window_service = WiderOpenAIWindowService(service)
-        elif organization == "openai" or organization == "simple":
-            window_service = OpenAIWindowService(service)
-        elif organization == "AlephAlpha":
-            if engine == "luminous-base":
-                window_service = LuminousBaseWindowService(service)
-            elif engine == "luminous-extended":
-                window_service = LuminousExtendedWindowService(service)
-            elif engine == "luminous-supreme":
-                window_service = LuminousSupremeWindowService(service)
-            elif engine == "luminous-world":
-                window_service = LuminousWorldWindowService(service)
+        model_deployment: Optional[ModelDeployment] = get_model_deployment(model_deployment_name)
+        if model_deployment:
+            # If the model deployment specifies a WindowServiceSpec, instantiate it.
+            window_service_spec: WindowServiceSpec
+            if model_deployment.window_service_spec:
+                window_service_spec = model_deployment.window_service_spec
             else:
-                raise ValueError(f"Unhandled Aleph Alpha model: {engine}")
-        elif organization == "microsoft":
-            window_service = MTNLGWindowService(service)
-        elif organization == "anthropic":
-            window_service = AnthropicWindowService(service)
-        elif model_name == "huggingface/gpt2":
-            window_service = GPT2WindowService(service)
-        elif model_name == "together/bloom":
-            window_service = BloomWindowService(service)
-        elif model_name == "together/glm":
-            # From https://github.com/THUDM/GLM-130B, "the tokenizer is implemented based on
-            # icetk---a unified multimodal tokenizer for images, Chinese, and English."
-            window_service = ICEWindowService(service)
-        elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "gooseai/gpt-j-6b"]:
-            window_service = GPTJWindowService(service)
-        elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b"]:
-            window_service = GPTNeoXWindowService(service)
-        elif model_name in ["together/opt-66b", "together/opt-175b"]:
-            window_service = OPTWindowService(service)
-        elif model_name == "together/t0pp":
-            window_service = T0ppWindowService(service)
-        elif model_name == "together/t5-11b":
-            window_service = T511bWindowService(service)
-        elif model_name == "together/ul2":
-            window_service = UL2WindowService(service)
-        elif model_name == "together/yalm":
-            window_service = YaLMWindowService(service)
-        elif organization == "cohere":
-            window_service = CohereWindowService(service)
-        elif organization == "ai21":
-            window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
-        else:
-            raise ValueError(f"Unhandled model name: {model_name}")
+                window_service_spec = WindowServiceSpec(
+                    class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService", args={}
+                )
 
-        return window_service
+            # If provided, look up special tokens from TokenizerConfig.
+            end_of_text_token: Optional[str] = None
+            prefix_token: Optional[str] = None
+            if model_deployment.tokenizer_name:
+                tokenizer_config: Optional[TokenizerConfig] = get_tokenizer_config(model_deployment.tokenizer_name)
+                if tokenizer_config:
+                    end_of_text_token = tokenizer_config.end_of_text_token
+                    prefix_token = tokenizer_config.prefix_token
+
+            # Perform dependency injection to fill in remaining arguments.
+            # Dependency injection is needed here for these reasons:
+            #
+            # 1. Different window services have different parameters. Dependency injection provides arguments
+            #    that match the parameters of the window services.
+            # 2. Some arguments, such as the tokenizer service, are not static data objects that can be
+            #    in the users configuration file. Instead, they have to be constructed dynamically at runtime.
+            window_service_spec = inject_object_spec_args(
+                window_service_spec,
+                constant_bindings={
+                    "service": service,
+                    "tokenizer_name": model_deployment.tokenizer_name,
+                    "max_sequence_length": model_deployment.max_sequence_length,
+                    "max_request_length": model_deployment.max_request_length,
+                    "max_sequence_and_generated_tokens_length": model_deployment.max_sequence_and_generated_tokens_length,  # noqa
+                    "end_of_text_token": end_of_text_token,
+                    "prefix_token": prefix_token,
+                },
+                provider_bindings={
+                    "gpt2_window_service": lambda: WindowServiceFactory.get_window_service("huggingface/gpt2", service)
+                },
+            )
+            return create_object(window_service_spec)
+
+        raise ValueError(f"Unhandled model deployment name: {model_deployment_name}")

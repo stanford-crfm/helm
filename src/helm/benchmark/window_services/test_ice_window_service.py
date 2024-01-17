@@ -2,6 +2,7 @@ import shutil
 import tempfile
 from typing import List
 
+from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 from .test_utils import get_tokenizer_service, TEST_PROMPT
@@ -63,6 +64,7 @@ class TestICEWindowService:
     ]
 
     def setup_method(self):
+        register_builtin_configs_from_helm_package()
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
         self.window_service = WindowServiceFactory.get_window_service("together/glm", service)
@@ -81,55 +83,55 @@ class TestICEWindowService:
 
     def test_tokenize(self):
         assert self.window_service.tokenize(TEST_PROMPT) == [
-            "▁The",
-            "▁Center",
-            "▁for",
-            "▁Research",
-            "▁on",
-            "▁Foundation",
-            "▁Models",
-            "▁(",
+            " The",
+            " Center",
+            " for",
+            " Research",
+            " on",
+            " Foundation",
+            " Models",
+            " (",
             "CR",
             "FM",
             ")",
-            "▁is",
-            "▁an",
-            "▁in",
+            " is",
+            " an",
+            " in",
             "terdisciplinary",
-            "▁initiative",
-            "▁born",
-            "▁out",
-            "▁of",
-            "▁the",
-            "▁Stanford",
-            "▁Institute",
-            "▁for",
-            "▁Human",
+            " initiative",
+            " born",
+            " out",
+            " of",
+            " the",
+            " Stanford",
+            " Institute",
+            " for",
+            " Human",
             "-",
             "Center",
             "ed",
-            "▁Artificial",
-            "▁Intelligence",
-            "▁(",
+            " Artificial",
+            " Intelligence",
+            " (",
             "HAI",
             ")",
-            "▁that",
-            "▁aims",
-            "▁to",
-            "▁make",
-            "▁fundamental",
-            "▁advances",
-            "▁in",
-            "▁the",
-            "▁study",
+            " that",
+            " aims",
+            " to",
+            " make",
+            " fundamental",
+            " advances",
+            " in",
+            " the",
+            " study",
             ",",
-            "▁development",
+            " development",
             ",",
-            "▁and",
-            "▁deployment",
-            "▁of",
-            "▁foundation",
-            "▁models",
+            " and",
+            " deployment",
+            " of",
+            " foundation",
+            " models",
             ".",
         ]
 

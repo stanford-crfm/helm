@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from typing import List, Optional, Tuple
-import re
+import os
+from pathlib import PurePath
 import inspect
 
+from helm.common.media_object import MultimediaObject
 from helm.common.object_spec import ObjectSpec, create_object
-from helm.common.general import format_text, format_split, format_tags, indent_lines
+from helm.common.general import ensure_directory_exists, format_text, format_split, format_tags, indent_lines
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 
 """ Data splits """
@@ -49,39 +51,47 @@ def unpack_tag(tag: str) -> Tuple[str, str]:
     return key, value
 
 
-class Input(ABC):
-    """
-    The text corresponding to the input of an Instance. We want to subclass this for structure inputs (e.g., QA).
-    """
-
-    @abstractmethod
-    def to_text(self):
-        pass
-
-
 @dataclass(frozen=True)
-class RawInput(Input):
+class Input:
     """
-    Contains a single text string.
+    The input of an `Instance`.
     """
 
-    text: str
+    text: str = ""
+    """The text of the input (e.g, passage to summarize, text for sentiment analysis, etc.)"""
 
-    def to_text(self):
-        return self.text
+    multimedia_content: Optional[MultimediaObject] = None
+    """A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
 @dataclass(frozen=True)
 class PassageQuestionInput(Input):
     """
-    Passage-question pair used for question answering scenarios.
+    Passage-question pair used for question answering Scenarios.
     """
 
-    passage: str
-    question: str
+    def __init__(
+        self,
+        passage: str,
+        question: str,
+        passage_prefix: str = "",
+        question_prefix: str = "Question: ",
+        separator: str = "\n",
+    ):
+        super().__init__(f"{passage_prefix}{passage}{separator}{question_prefix}{question}")
 
-    def to_text(self, passage_prefix: str = "", question_prefix: str = "Question: ", separator: str = "\n"):
-        return f"{passage_prefix}{self.passage}{separator}{question_prefix}{self.question}"
+
+@dataclass(frozen=True)
+class Output:
+    """
+    The output of a `Reference`.
+    """
+
+    text: str = ""
+    """The text of the output."""
+
+    multimedia_content: Optional[MultimediaObject] = None
+    """The output can be multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
 @dataclass(frozen=True)
@@ -93,8 +103,8 @@ class Reference:
     multiple-choice exam).
     """
 
-    output: str
-    """The output text"""
+    output: Output
+    """The output"""
 
     tags: List[str]
     """Extra metadata (e.g., whether it's correct/factual/toxic)"""
@@ -104,7 +114,7 @@ class Reference:
         return CORRECT_TAG in self.tags
 
     def render_lines(self) -> List[str]:
-        return [f"reference {format_tags(self.tags)}: {format_text(self.output)}"]
+        return [f"reference {format_tags(self.tags)}: {format_text(self.output.text)}"]
 
 
 @dataclass(frozen=True, eq=False)
@@ -115,8 +125,8 @@ class Instance:
     Note: `eq=False` means that we hash by the identity.
     """
 
-    input: str  # TODO: eventually, we want to replace this with the Input defined above
-    """The input text"""
+    input: Input
+    """The input"""
 
     references: List[Reference]
     """References that helps us evaluate"""
@@ -133,7 +143,7 @@ class Instance:
     perturbation: Optional[PerturbationDescription] = None
     """Description of the Perturbation that was applied when creating this Instance"""
 
-    contrast_inputs: Optional[List[str]] = None
+    contrast_inputs: Optional[List[Input]] = None
     """Perturbed input as defined by contrast sets (if available)"""
 
     contrast_references: Optional[List[List[Reference]]] = None
@@ -147,8 +157,13 @@ class Instance:
                 return reference
         return None
 
+    @property
+    def all_correct_references(self) -> List[Reference]:
+        """Return all correct references."""
+        return [reference for reference in self.references if reference.is_correct]
+
     def render_lines(self) -> List[str]:
-        info = [f"input: {format_text(self.input)}"]
+        info = [f"input: {format_text(self.input.text)}"]
         if self.sub_split:
             info.append(f"sub_split: {format_text(self.sub_split)}")
         if self.id:
@@ -163,7 +178,7 @@ class Instance:
 
 
 # TODO(#1212): Scenario should not be a dataclass.
-@dataclass  # type: ignore
+@dataclass
 class Scenario(ABC):
     """
     A scenario represents a (task, data distribution).
@@ -186,22 +201,21 @@ class Scenario(ABC):
     tags: List[str] = field(init=False)
     """Extra metadata (e.g., whether this is a question answering or commonsense task)"""
 
-    # Set by Runner.
-    # TODO: ideally would pass this into `get_instances` to not have to mutate.
-    output_path: str = field(init=False, default="")
-    """Where downloaded data is cached (to be set by the `Runner`)"""
-
     definition_path: str = field(init=False)
     """Where the scenario subclass for `self` is defined."""
 
     def __post_init__(self) -> None:
-        # Assume `/.../src/helm/benchmark/...`
-        path = inspect.getfile(type(self))
-        # Strip out prefix in absolute path and replace with GitHub link.
-        self.definition_path = re.sub(r"^.*\/src/", "https://github.com/stanford-crfm/helm/blob/main/src/", path)
+        parts = list(PurePath(inspect.getfile(type(self))).parts)
+        path = parts.pop()
+        parts.reverse()
+        for part in parts:
+            path = part + "/" + path
+            if part == "helm":
+                break
+        self.definition_path = "https://github.com/stanford-crfm/helm/blob/main/src/" + path
 
     @abstractmethod
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """
         Does the main work in the `Scenario` (e.g., download datasets, convert
         it into a list of instances).
@@ -236,3 +250,10 @@ class ScenarioSpec(ObjectSpec):
 def create_scenario(scenario_spec: ScenarioSpec) -> Scenario:
     """Construct the scenario and set some fields."""
     return create_object(scenario_spec)
+
+
+def get_scenario_cache_path(benchmark_output_path: str, scenario_name: str):
+    """Return a directory under benchmark_output_path in which Scenario can cache temporary data."""
+    scenarios_path: str = os.path.join(benchmark_output_path, "scenarios", scenario_name)
+    ensure_directory_exists(scenarios_path)
+    return scenarios_path

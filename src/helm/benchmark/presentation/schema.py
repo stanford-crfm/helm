@@ -1,9 +1,8 @@
 from dataclasses import dataclass, field
-from datetime import date
 from typing import List, Optional, Dict
 import dacite
 import mako.template
-import yaml  # type: ignore
+import yaml
 import importlib_resources as resources
 
 from helm.common.general import hlog
@@ -11,11 +10,11 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
 
+# TODO: change to `helm.benchmark.config`
 SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
-SCHEMA_YAML_FILENAME: str = "schema.yaml"
 
-UP_ARROW = "\u2191"
-DOWN_ARROW = "\u2193"
+# TODO: add heim, vhelm, etc.
+SCHEMA_CLASSIC_YAML_FILENAME: str = "schema_classic.yaml"
 
 
 @dataclass(frozen=True)
@@ -37,35 +36,13 @@ class Field:
     # Description of the field
     description: Optional[str] = None
 
-    # Whether a lower vaue for this field corresponds to a better model (e.g., False for accuracy, True for perplexity)
-    lower_is_better: bool = False
+    # Whether a lower vaue for this field corresponds to a better model
+    # (e.g., False for accuracy, True for perplexity, None for num_trials)
+    lower_is_better: Optional[bool] = None
 
-    def get_short_display_name(self, arrow: bool = False) -> str:
+    def get_short_display_name(self) -> str:
         name = self.short_display_name or self.display_name or self.name
-        if arrow:
-            name += " " + (DOWN_ARROW if self.lower_is_better else UP_ARROW)
         return name
-
-
-# Note: also see Model from `models.py` (in the future, possibly unify).
-@dataclass(frozen=True)
-class ModelField(Field):
-    # Who created it (e.g., OpenAI)
-    creator_organization: Optional[str] = None
-
-    # How this model is available (e.g., limited)
-    access: Optional[str] = None
-
-    # Whether we have yet to evaluate this model
-    todo: bool = False
-
-    # When was the model released
-    release_date: Optional[date] = None
-
-    # The number of parameters
-    # This should be a string as the number of parameters is usually a round number (175B),
-    # but we set it as an int for plotting purposes.
-    num_parameters: Optional[int] = None
 
 
 @dataclass(frozen=True)
@@ -176,6 +153,9 @@ class RunGroup(Field):
     # groups for each metric (BY_METRIC)
     subgroup_display_mode: str = BY_METRIC
 
+    # Any subgroup metric groups we want to hide (e.g., robustness when running without perturbations)
+    subgroup_metric_groups_hidden: List[str] = field(default_factory=list)
+
     # Defines variables that are substituted in any of the metrics
     environment: Dict[str, str] = field(default_factory=dict)
 
@@ -201,17 +181,17 @@ class RunGroup(Field):
 
     # Which adapter_spec fields we should preserve when displaying methods for this group
     # When we are constructing a table where the rows are methods, what constitutes a "method" is given by the set of
-    # adapter keys. By default, this should just be "model" (e.g., BLOOM), where details like "num_train_instances" are
-    # "marginalized out". However, for ablations, we want to include both "model" and "num_train_instances".
-    adapter_keys_shown: List[str] = field(default_factory=lambda: ["model"])
+    # adapter keys. By default, this should just be "model_deployment" (e.g., BLOOM), where details like
+    # "num_train_instances" are "marginalized out". However, for ablations, we want to include both "model_deployment"
+    # and "num_train_instances".
+    # NOTE: "model" is kept for backward compatibility reason.
+    # TODO: remove when we don't want helm-summarize to support runs before November 2023 anymore.
+    adapter_keys_shown: List[str] = field(default_factory=lambda: ["model_deployment", "model"])
 
 
 @dataclass
 class Schema:
     """Specifies information about what to display on the frontend."""
-
-    # Models
-    models: List[ModelField]
 
     # Adapter fields (e.g., temperature)
     adapter: List[Field]
@@ -229,16 +209,16 @@ class Schema:
     run_groups: List[RunGroup]
 
     def __post_init__(self):
-        self.name_to_model = {model.name: model for model in self.models}
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema():
-    hlog(f"Reading schema from {SCHEMA_YAML_FILENAME}...")
-    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_YAML_FILENAME)
+def read_schema(filename: str) -> Schema:
+    # TODO: merge in model metadata from `model_metadata.yaml`
+    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(filename)
+    hlog(f"Reading schema file {schema_path}...")
     with schema_path.open("r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Schema, raw)

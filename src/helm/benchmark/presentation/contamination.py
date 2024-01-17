@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from typing import List, Optional
 import dacite
 import importlib_resources as resources
-import yaml  # type: ignore
+import yaml
 
 from helm.common.hierarchical_logger import htrack, hlog
-from helm.proxy.models import MODEL_NAME_TO_MODEL
+from helm.benchmark.model_metadata_registry import MODEL_NAME_TO_MODEL_METADATA
 from helm.benchmark.presentation.schema import Schema
 
 
@@ -70,7 +70,7 @@ def validate_contamination(contamination: Contamination, schema: Schema):
     """Make sure models and groups in contamination are defined according to `schema`."""
     for point in contamination.points:
         for model in point.models:
-            if model not in MODEL_NAME_TO_MODEL:
+            if model not in MODEL_NAME_TO_MODEL_METADATA:
                 hlog(f"WARNING: model {model} not defined in schema")
         for group in point.groups:
             if group not in schema.name_to_run_group:

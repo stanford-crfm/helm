@@ -67,7 +67,7 @@ from copy import copy
 from typing import List, Dict, Literal, Tuple
 from dataclasses import dataclass
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 @dataclass(frozen=True)
@@ -352,7 +352,7 @@ class SRNScenario(Scenario):
         )
         return rules, test_fact, test_rules_used, target_fact
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Read all the instances
         instances: List[Instance] = []
         random.seed(self.random_seed)
@@ -373,9 +373,10 @@ class SRNScenario(Scenario):
                 split = VALID_SPLIT
             else:
                 split = TEST_SPLIT
+
             instance = Instance(
-                input=question,
-                references=[Reference(output=str(target_fact), tags=[CORRECT_TAG])],
+                input=Input(text=question),
+                references=[Reference(Output(text=str(target_fact)), tags=[CORRECT_TAG])],
                 split=split,
             )
             instances.append(instance)

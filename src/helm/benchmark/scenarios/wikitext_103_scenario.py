@@ -4,7 +4,7 @@ from typing import List
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, TEST_SPLIT
+from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
 
 class Wikitext103Scenario(Scenario):
@@ -23,9 +23,9 @@ class Wikitext103Scenario(Scenario):
     description = "The WikiText language modeling dataset containing over 103 million words"
     tags = ["language_modeling"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        data_path = os.path.join(self.output_path, "data")
+        data_path = os.path.join(output_path, "data")
         ensure_file_downloaded(
             source_url="https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-103-raw-v1.zip",
             target_path=data_path,
@@ -70,7 +70,7 @@ class Wikitext103Scenario(Scenario):
             ):
                 # Create an instance and append it to instances
                 if document_buffer:
-                    instance = Instance(input="".join(document_buffer), references=[], split=TEST_SPLIT)
+                    instance = Instance(Input(text="".join(document_buffer)), references=[], split=TEST_SPLIT)
                     instances.append(instance)
                 document_buffer = lines[i : i + 3]
                 i += 3
@@ -79,7 +79,7 @@ class Wikitext103Scenario(Scenario):
                 i += 1
         # Add the last instance to instances
         if document_buffer:
-            instance = Instance(input="".join(document_buffer), references=[], split=TEST_SPLIT)
+            instance = Instance(Input(text="".join(document_buffer)), references=[], split=TEST_SPLIT)
             instances.append(instance)
 
         # The test set of Wikitext-103 contains 60 articles

@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from random import Random
 
 from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 
 
-class TyposPerturbation(Perturbation):
+class TyposPerturbation(TextPerturbation):
     """
     Typos. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/tree/main/transformations/butter_fingers_perturbation

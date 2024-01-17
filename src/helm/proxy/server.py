@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# mypy: check_untyped_defs = False
 
 """
 Starts a REST server for the frontend to interact with.
@@ -16,14 +16,26 @@ import time
 from dacite import from_dict
 import bottle
 
+from helm.benchmark.config_registry import (
+    register_configs_from_directory,
+    register_builtin_configs_from_helm_package,
+)
 from helm.common.authentication import Authentication
 from helm.common.hierarchical_logger import hlog
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request
 from helm.common.perspective_api_request import PerspectiveAPIRequest
+from helm.common.moderations_api_request import ModerationAPIRequest
 from helm.common.tokenization_request import TokenizationRequest, DecodeRequest
 from .accounts import Account
 from .services.server_service import ServerService
 from .query import Query
+
+try:
+    import gunicorn  # noqa
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["proxy-server"])
+
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
@@ -76,10 +88,24 @@ def handle_static_filename(filename):
     return resp
 
 
+@app.get("/output/<filename:path>")
+def handle_output_filename(filename):
+    resp = bottle.static_file(filename, root=app.config["crfm.proxy.outputpath"])
+    return resp
+
+
 @app.get("/api/general_info")
 def handle_get_general_info():
     def perform(args):
         return dataclasses.asdict(service.get_general_info())
+
+    return safe_call(perform)
+
+
+@app.get("/api/window_service_info")
+def handle_get_window_service_info():
+    def perform(args):
+        return dataclasses.asdict(service.get_window_service_info(args["model_name"]))
 
     return safe_call(perform)
 
@@ -184,6 +210,16 @@ def handle_toxicity_request():
     return safe_call(perform)
 
 
+@app.get("/api/moderation")
+def handle_moderation_request():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        request = ModerationAPIRequest(**json.loads(args["request"]))
+        return dataclasses.asdict(service.get_moderation_results(auth, request))
+
+    return safe_call(perform)
+
+
 @app.get("/api/shutdown")
 def handle_shutdown():
     def perform(args):
@@ -210,6 +246,9 @@ def main():
     )
     args = parser.parse_args()
 
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.base_path)
+
     service = ServerService(base_path=args.base_path, mongo_uri=args.mongo_uri)
 
     gunicorn_args = {
@@ -223,4 +262,5 @@ def main():
 
     # Clear arguments before running gunicorn as it also uses argparse
     sys.argv = [sys.argv[0]]
+    app.config["crfm.proxy.outputpath"] = os.path.join(os.path.realpath(args.base_path), "cache", "output")
     app.run(host="0.0.0.0", port=args.port, server="gunicorn", **gunicorn_args)

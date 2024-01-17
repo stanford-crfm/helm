@@ -4,7 +4,8 @@ from typing import Dict, List, Tuple
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from .entity_matching_scenario_fixed_random_state import set_fixed_random_state_for_dataset
 
 
 class EntityMatchingScenario(Scenario):
@@ -91,7 +92,7 @@ class EntityMatchingScenario(Scenario):
             num_neg_classes: int = sum(merged["label"] == 0)
             assert num_pos_classes < num_neg_classes
             sample_fn = lambda x: x.sample(num_pos_classes)
-            merged = merged.groupby("label", group_keys=False).apply(sample_fn)  # type: ignore
+            merged = merged.groupby("label", group_keys=False).apply(sample_fn)
         return merged
 
     def serialize_row(self, row: pd.core.series.Series, column_map: Dict[str, str]) -> str:
@@ -101,8 +102,9 @@ class EntityMatchingScenario(Scenario):
             res.append(f"{c_map}: {row[c_og]}".strip())
         return ". ".join(res)
 
-    def get_instances(self) -> List[Instance]:
-        data_path = Path(self.output_path) / "data" / self.dataset
+    def get_instances(self, output_path: str) -> List[Instance]:
+        set_fixed_random_state_for_dataset(output_path, self.dataset)
+        data_path = Path(output_path) / "data" / self.dataset
         data_path.parent.mkdir(parents=True, exist_ok=True)
         ensure_file_downloaded(
             source_url=f"http://pages.cs.wisc.edu/~anhai/data1/deepmatcher_data/"
@@ -114,7 +116,7 @@ class EntityMatchingScenario(Scenario):
         )
         # Read in tableA and tableB
         tableA, tableB = self.read_tables(data_path)
-        # Columns for row cerialization; do not add id column
+        # Columns for row serialization; do not add id column
         column_mapA = {f"{c}_A": c for c in tableA.columns if c != "id"}
         column_mapB = {f"{c}_B": c for c in tableB.columns if c != "id"}
         # Read in tables and matches
@@ -129,14 +131,14 @@ class EntityMatchingScenario(Scenario):
         for split, example_df in labeled_examples.items():
             hlog(f"Processing {split} with {example_df.shape[0]} rows")
             for _, pair in example_df.iterrows():
-                resA = self.serialize_row(pair, column_mapA)
-                resB = self.serialize_row(pair, column_mapB)
-                input = f"Product A is {resA}. Product B is {resB}. Are A and B the same?"
-                label = "Yes" if pair["label"] else "No"
+                resA: str = self.serialize_row(pair, column_mapA)
+                resB: str = self.serialize_row(pair, column_mapB)
+                input: str = f"Product A is {resA}. Product B is {resB}. Are A and B the same?"
+                label: str = "Yes" if pair["label"] else "No"
 
                 instance = Instance(
-                    input=input,
-                    references=[Reference(output=label, tags=[CORRECT_TAG])],
+                    input=Input(text=input),
+                    references=[Reference(Output(text=label), tags=[CORRECT_TAG])],
                     split=split,
                 )
 

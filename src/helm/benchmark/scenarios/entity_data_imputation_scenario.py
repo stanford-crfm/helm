@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class EntityDataImputationScenario(Scenario):
@@ -110,8 +110,8 @@ class EntityDataImputationScenario(Scenario):
             res.append(f"{c}: {row[c]}".strip())
         return ". ".join(res)
 
-    def get_instances(self) -> List[Instance]:
-        data_path = Path(self.output_path) / "data" / self.dataset
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = Path(output_path) / "data" / self.dataset
         data_path.parent.mkdir(parents=True, exist_ok=True)
         ensure_file_downloaded(
             source_url=self.datasets_paths[self.dataset],
@@ -138,7 +138,9 @@ class EntityDataImputationScenario(Scenario):
                 res: str = self.serialize_row(row, columns_for_serialize)
                 input: str = f"{res}. {col_to_impute}?"
                 label = str(row[col_to_impute])
-                instance = Instance(input=input, references=[Reference(output=label, tags=[CORRECT_TAG])], split=split)
+                instance = Instance(
+                    Input(text=input), references=[Reference(Output(text=label), tags=[CORRECT_TAG])], split=split
+                )
                 instances.append(instance)
 
         return instances

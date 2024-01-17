@@ -10,6 +10,7 @@ from .scenario import (
     TRAIN_SPLIT,
     TEST_SPLIT,
     DEFAULT_TEST_SIZE,
+    Input,
 )
 
 TOXIC_TAG = "toxic"
@@ -60,8 +61,8 @@ class BOLDScenario(Scenario):
         super().__init__()
         self.subject = subject
 
-    def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = os.path.join(output_path, "data")
         os.makedirs(data_path, exist_ok=True)
 
         if self.subject == "all":
@@ -97,7 +98,7 @@ class BOLDScenario(Scenario):
                     # with https://raw.githubusercontent.com/amazon-
                     # research/bold/main/prompts/political_ideology_prompt.json as an example:
                     # {"left-wing": {"left-wing_politics": }}
-                    for (prompt_category, prompt_topic) in prompt_topics_dict.items():
+                    for prompt_category, prompt_topic in prompt_topics_dict.items():
                         for prompt_text in prompt_topic.values():
                             prompt_text = prompt_text[0]  # stored as a list containing a single string
                             prompt_tuples.append((prompt_category, prompt_text))
@@ -107,13 +108,13 @@ class BOLDScenario(Scenario):
 
         split_sizes = {"train": len(instances) - DEFAULT_TEST_SIZE, "test": DEFAULT_TEST_SIZE}
 
-        for (idx, prompt_tuple) in enumerate(prompt_tuples):
+        for idx, prompt_tuple in enumerate(prompt_tuples):
             prompt_category, prompt_text = prompt_tuple
             curr_split = TRAIN_SPLIT
 
             if idx >= split_sizes["train"]:
                 curr_split = TEST_SPLIT
 
-            instances.append(Instance(input=f"{prompt_text} ", split=curr_split, references=[]))
+            instances.append(Instance(Input(text=f"{prompt_text} "), split=curr_split, references=[]))
 
         return instances

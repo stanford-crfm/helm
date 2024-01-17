@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List
 from helm.common.cache import create_key_value_store, MongoCacheConfig
 from helm.common.general import parse_hocon
 from helm.common.hierarchical_logger import hlog, htrack
-from helm.proxy.clients.anthropic_client import AnthropicClient
+from helm.proxy.clients.anthropic_client import AnthropicLegacyClient
 from helm.proxy.retry import get_retry_decorator
 
 
@@ -35,7 +35,7 @@ retry_request: Callable = get_retry_decorator(
 
 @retry_request
 def make_logprobs_request_with_retry(
-    client: AnthropicClient, text: str, top_k_per_token: int, model_engine: str
+    client: AnthropicLegacyClient, text: str, top_k_per_token: int, model_engine: str
 ) -> Dict[str, List[str]]:
     return client.make_logprobs_request(text, top_k_per_token, model_engine)
 
@@ -47,7 +47,7 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
         api_key: str = credentials["anthropicApiKey"]
 
     cache_config = MongoCacheConfig(mongo_uri, collection_name="anthropic")
-    client = AnthropicClient(api_key, cache_config)
+    client = AnthropicLegacyClient(api_key=api_key, cache_config=cache_config)
 
     with create_key_value_store(cache_config) as cache:
         for i, (request, response) in enumerate(cache.get_all()):
@@ -77,7 +77,7 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
                 response["request_time"] += request_time
                 process_time = request_time
 
-                for key in AnthropicClient.LOGPROBS_RESPONSE_KEYS:
+                for key in AnthropicLegacyClient.LOGPROBS_RESPONSE_KEYS:
                     # This is a naive approach where we just take the last k tokens and log probs,
                     # where k is the number of tokens in the completion. Ideally, log probs would
                     # be included as part of the response for the inference endpoint.

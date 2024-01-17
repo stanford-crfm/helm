@@ -3,6 +3,15 @@ from typing import List, Optional, Union
 
 
 @dataclass(frozen=True)
+class WindowServiceInfo:
+    tokenizer_name: str
+    max_sequence_length: int
+    max_request_length: int
+    end_of_text_token: str
+    prefix_token: str
+
+
+@dataclass(frozen=True)
 class TokenizationRequest:
     """A `TokenizationRequest` specifies how to tokenize some text."""
 
@@ -10,9 +19,12 @@ class TokenizationRequest:
     text: str
 
     # Which tokenizer we should use
-    tokenizer: str = "huggingface/gpt2"
+    tokenizer: str
 
-    # Whether to encode
+    # Whether to encode tokens
+    #
+    # If true, the response's TokenizationToken should contain integers.
+    # Otherwise, the response's TokenizationToken should contain strings.
     encode: bool = False
 
     # Whether to truncate

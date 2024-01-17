@@ -4,7 +4,7 @@ from typing import List
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .scenario import CORRECT_TAG, Reference, Scenario, Instance, TEST_SPLIT
+from .scenario import CORRECT_TAG, Reference, Scenario, Instance, Input, TEST_SPLIT, Output
 
 
 class BLiMPScenario(Scenario):
@@ -114,9 +114,9 @@ class BLiMPScenario(Scenario):
         assert phenomenon in self.phenomenon_to_paradigms, f"Unsupported phenomenon: {phenomenon}"
         self.phenomenon: str = phenomenon
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(output_path, "data")
         ensure_file_downloaded(
             source_url="https://github.com/alexwarstadt/blimp/blob/master/BLiMP.zip?raw=true",
             target_path=data_path,
@@ -138,10 +138,10 @@ class BLiMPScenario(Scenario):
                     # "lexically_identical": true, "pairID": "0"}
                     example = json.loads(line)
                     instance = Instance(
-                        input="",
+                        input=Input(text=""),
                         references=[
-                            Reference(output=example["sentence_good"], tags=[CORRECT_TAG]),
-                            Reference(output=example["sentence_bad"], tags=[]),
+                            Reference(Output(text=example["sentence_good"]), tags=[CORRECT_TAG]),
+                            Reference(Output(text=example["sentence_bad"]), tags=[]),
                         ],
                         split=TEST_SPLIT,
                     )

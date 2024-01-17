@@ -1,3 +1,5 @@
-recursive-include src/helm/benchmark/efficiency_data/ *.json
+recursive-include src/helm/ py.typed
+recursive-include src/helm/proxy/clients/ *.sp
+recursive-include src/helm/benchmark/ *.json
 recursive-include src/helm/benchmark/static/ *.css *.html *.js *.png *.yaml
-include requirements.txt
+recursive-include src/helm/config/ *.yaml
