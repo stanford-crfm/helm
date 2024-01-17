@@ -43,3 +43,4 @@ jobs:
         delete-branch: true
         title: 'Build frontend'
         body: Auto-generated from GitHub Actions.
+        base: main
