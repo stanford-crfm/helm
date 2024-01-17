@@ -16,8 +16,6 @@ export default defineConfig({
     environment: "jsdom",
   },
   build: {
-    outDir: `${__dirname}/../src/helm/benchmark/static_build`,
-    emptyOutDir: true,
     rollupOptions: {
       output: {
         // Manually chunk large libraries to keep chunk size under 500 KB
