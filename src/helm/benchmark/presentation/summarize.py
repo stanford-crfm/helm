@@ -876,14 +876,14 @@ class Summarizer:
         # Link the runs that this cell was aggregated from, if this is not a scenario table.
         # Scenario tables link to the runs in the model cells,
         # whereas non-scenario tables link to the runs in the metrics cells.
-        run_names = None if is_scenario_table else aggregated_run_specs
+        run_spec_names = None if is_scenario_table else aggregated_run_specs
 
         return Cell(
             value=value,
             description=description,
             style=style,
             contamination_level=contamination_level,
-            run_names=run_names,
+            run_spec_names=run_spec_names,
         )
 
     def create_group_table(
@@ -1029,11 +1029,11 @@ class Summarizer:
                         display_name + CONTAMINATION_SYMBOLS[point.level],
                         description=point.description,
                         href=href,
-                        run_names=run_spec_names,
+                        run_spec_names=run_spec_names,
                     )
                 ]
             else:
-                cells = [Cell(display_name, description="", href=href, run_names=run_spec_names)]
+                cells = [Cell(display_name, description="", href=href, run_spec_names=run_spec_names)]
             assert len(group_names) == len(matchers)
             for group_name, matcher in zip(group_names, matchers):
                 group_runs = [run for run in runs if group_name in run.run_spec.groups]
