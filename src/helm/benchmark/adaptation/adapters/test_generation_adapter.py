@@ -24,12 +24,13 @@ class TestGenerationAdapter(TestAdapter):
         scenario = create_scenario(get_scenario_spec1())
         adapter_spec = get_adapter_spec1()
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        scenario_state = adapter.adapt(scenario.get_instances(output_path=""), parallelism=1)
+        instances = scenario.get_instances(output_path="")
+        request_states = adapter.adapt(instances, parallelism=1)
+        non_train_instances = [instance for instance in instances if instance.split != TRAIN_SPLIT]
 
         # Make sure we generated the right number of request_states:
         # For each trial, instance and reference (+ 1 for free-form generation).
-        num_instances = len(scenario_state.instances)
-        assert num_instances * adapter_spec.num_train_trials == len(scenario_state.request_states)
+        assert len(non_train_instances) * adapter_spec.num_train_trials == len(request_states)
 
     def test_construct_prompt(self):
         adapter_spec = AdapterSpec(
@@ -195,7 +196,7 @@ class TestGenerationAdapter(TestAdapter):
             ],
             split=TEST_SPLIT,
         )
-        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1).request_states
+        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1)
         assert len(actual_instances) == 1
         assert actual_instances[0].request.prompt == (
             "Input: Second reference is correct\n"
@@ -245,7 +246,7 @@ class TestGenerationAdapter(TestAdapter):
             ],
             split=TEST_SPLIT,
         )
-        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1).request_states
+        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1)
         assert len(actual_instances) == 1
         assert actual_instances[0].request.prompt == (
             "Input: Second reference is correct\n"

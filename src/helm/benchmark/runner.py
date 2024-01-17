@@ -11,6 +11,7 @@ from typing import Any, Dict, List
 import numpy as np
 
 from tqdm import tqdm
+from helm.benchmark.adaptation.request_state import RequestState
 
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
 from helm.common.hierarchical_logger import hlog, htrack_block
@@ -302,7 +303,8 @@ class Runner:
 
         # Adapt (convert to requests)
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
-        scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
+        request_states: List[RequestState] = adapter.adapt(instances, self.executor.execution_spec.parallelism)
+        scenario_state: ScenarioState = ScenarioState(run_spec.adapter_spec, request_states)
 
         # Execute (fill up results)
         scenario_state = self.executor.execute(scenario_state)
