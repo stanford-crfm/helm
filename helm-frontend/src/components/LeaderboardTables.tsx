@@ -282,24 +282,24 @@ export default function LeaderboardTables({
                     {" "}
                     {/* Added alternating row highlighting */}
                     {row.map((rowValue, cellIdx) => (
-                      <a
-                        href={`/runs/?q=${getGroupForRunName(
+                      <td
+                        key={`${activeGroup}-${cellIdx}`}
+                        className={`${cellIdx === 0 ? "text-lg" : ""}`}
+                        title={`Click value to see predictions for ${getGroupForRunName(
                           getHeaderValue(activeGroupsTable.header[cellIdx]),
-                        )}.*${getModelForRunName(String(row[0].value))}`}
+                        )}: ${getModelForRunName(String(row[0].value))}`}
                       >
-                        <td
-                          key={`${activeGroup}-${cellIdx}`}
-                          className={`${cellIdx === 0 ? "text-lg" : ""}`}
-                          title={`Click value to see predictions for ${getGroupForRunName(
+                        <a
+                          href={`#/runs/?q=${getGroupForRunName(
                             getHeaderValue(activeGroupsTable.header[cellIdx]),
-                          )}: ${getModelForRunName(String(row[0].value))}`}
+                          )}.*${getModelForRunName(String(row[0].value))}`}
                         >
                           <RowValue
                             ignoreHref={ignoreHref && cellIdx === 0}
                             value={rowValue}
                           />
-                        </td>
-                      </a>
+                        </a>
+                      </td>
                     ))}
                   </tr>
                 ))}
