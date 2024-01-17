@@ -12,7 +12,10 @@ class TestTogetherClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.client = TogetherClient(cache_config=SqliteCacheConfig(self.cache_path))
+        self.client = TogetherClient(
+            cache_config=SqliteCacheConfig(self.cache_path),
+            together_model="togethercomputer/RedPajama-INCITE-Base-3B-v1",
+        )
 
     def teardown_method(self, method):
         os.remove(self.cache_path)
@@ -90,7 +93,7 @@ class TestTogetherClient:
         ],
     )
     def test_convert_to_raw_request(self, test_input, expected):
-        assert expected == TogetherClient.convert_to_raw_request(test_input)
+        assert expected == self.client.convert_to_raw_request(test_input)
 
     def test_api_key_error(self):
         with pytest.raises(TogetherClientError):
