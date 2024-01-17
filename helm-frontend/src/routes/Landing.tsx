@@ -25,7 +25,7 @@ import together from "@/assets/logos/together.png";
 import tsinghuaKeg from "@/assets/logos/tsinghua-keg.png";
 import writer from "@/assets/logos/writer.png";
 import yandex from "@/assets/logos/yandex.png";
-import yi from "@/assets/logos/yi.png";
+import zeroOne from "@/assets/logos/01-ai.png";
 
 const logos = [
   ai21,
@@ -45,7 +45,7 @@ const logos = [
   tsinghuaKeg,
   writer,
   yandex,
-  yi,
+  zeroOne,
 ];
 
 export default function LegacyLanding() {
