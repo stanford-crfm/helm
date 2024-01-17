@@ -3,8 +3,6 @@ from typing import Dict, List
 import numpy as np
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, add_context
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
@@ -92,18 +90,15 @@ class ImageCritiqueMetric(MetricInterface):
 
     def evaluate(
         self,
-        scenario_state: ScenarioState,
+        request_states: List[RequestState],
         metric_service: MetricService,
         eval_cache_path: str,
         parallelism: int,
     ) -> MetricResult:
-        request_states: List[RequestState] = []
         if self._use_perturbed:
-            for request_state in scenario_state.request_states:
+            for request_state in request_states:
                 if request_state.instance.perturbation is not None:
                     request_states.append(request_state)
-        else:
-            request_states = scenario_state.request_states
 
         np.random.seed(0)
         if self._num_examples < len(request_states):
@@ -120,7 +115,6 @@ class ImageCritiqueMetric(MetricInterface):
         for request_state in request_states:
             context = MetricContext.from_instance(request_state.instance)
             stats_without_context = self.evaluate_generation(
-                scenario_state.adapter_spec,
                 request_state,
                 metric_service,
                 eval_cache_path,
@@ -141,7 +135,6 @@ class ImageCritiqueMetric(MetricInterface):
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,
@@ -169,7 +162,7 @@ class ImageCritiqueMetric(MetricInterface):
             prompt = singleton(request_state.instance.contrast_inputs).text
 
         # Send the critique request
-        template: CritiqueTaskTemplate = self._get_critique_template(adapter_spec.model)
+        template: CritiqueTaskTemplate = self._get_critique_template(request_state.request.model)
         request = CritiqueRequest(template=template, fields={"prompt": prompt, "image": upload_result.url})
         result = metric_service.make_critique_request(request)
         if not result or not result.responses:

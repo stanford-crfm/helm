@@ -2,7 +2,6 @@ from dataclasses import replace
 from typing import Callable, Dict, List, Optional, Set, Tuple, cast
 import numpy as np
 from functools import partial
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
 from helm.benchmark.metrics.metric_name import MetricName
@@ -265,7 +264,7 @@ def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
 # TODO This should probably be made into an implementation of MetricInterface. For now it lives here
 # just to separate it from basic_metrics.py.
 def compute_reference_metrics(
-    names: List[str], adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    names: List[str], request_state: RequestState, metric_service: MetricService
 ) -> List[Stat]:
     """
     Setup:
@@ -281,6 +280,8 @@ def compute_reference_metrics(
     - ${score}@k: max_{i,j} score(Gi, Pj)
     """
 
+    num_outputs = max(request_state.request.top_k_per_token, request_state.request.num_completions)
+
     def compute_metrics_helper(
         name: MetricName,
         score_func: Callable,
@@ -292,7 +293,7 @@ def compute_reference_metrics(
             results = [score_func((gold.output.text, gold.test_cases), pred) for gold in code_golds for pred in preds]
             _len, _sum = len(results), int(sum(results))  # Cast to int to make type match.
             score_1 = pass_at_k_estimator(_len, _sum, 1)
-            score_k = pass_at_k_estimator(_len, _sum, adapter_spec.num_outputs)
+            score_k = pass_at_k_estimator(_len, _sum, num_outputs)
         elif name.name == "code_eval_acc":
             score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
             code_golds = cast(List[CodeReference], golds)
@@ -306,8 +307,8 @@ def compute_reference_metrics(
             score_k = max(score_func(gold.output.text, pred) for gold in golds for pred in preds)
 
         metrics = [Stat(name).add(score_1)]  # score_1 corresponds using one prediction
-        if adapter_spec.num_outputs != 1:
-            metrics.append(Stat(replace(name, name=f"{name.name}@{adapter_spec.num_outputs}")).add(score_k))
+        if num_outputs != 1:
+            metrics.append(Stat(replace(name, name=f"{name.name}@{num_outputs}")).add(score_k))
         return metrics
 
     # maps each string metric name to its associated function

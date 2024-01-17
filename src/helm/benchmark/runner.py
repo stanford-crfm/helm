@@ -319,7 +319,7 @@ class Runner:
             for metric in metrics:
                 with htrack_block(metric):
                     metric_result: MetricResult = metric.evaluate(
-                        scenario_state,
+                        scenario_state.request_states,
                         self.metric_service,
                         self.eval_cache_path,
                         self.executor.execution_spec.parallelism,

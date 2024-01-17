@@ -5,7 +5,6 @@ import importlib_resources as resources
 
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
@@ -59,9 +58,7 @@ class EfficiencyMetric:
         with data_package.joinpath(TRAINING_EFFICIENCY_JSON_FILENAME).open("r") as f:
             self.training_efficiency_dict = json.load(f)
 
-    def compute_efficiency_metrics(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-    ) -> List[Stat]:
+    def compute_efficiency_metrics(self, request_state: RequestState, metric_service: MetricService) -> List[Stat]:
         """Compute efficiency metrics for both inference and training.
         For inference, we record both the actual runtime and an estimated idealized runtime
         for the given request with an optimized software implementation run on A100 GPU(s),
@@ -89,7 +86,7 @@ class EfficiencyMetric:
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
         window_service: WindowService = WindowServiceFactory.get_window_service(
-            adapter_spec.model_deployment, tokenizer_service
+            request_state.request.model_deployment, tokenizer_service
         )
         prompt: str = request_state.request.prompt
         num_prompt_tokens: int = window_service.get_num_tokens(prompt)

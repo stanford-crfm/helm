@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 from helm.common.general import parallel_map
 from helm.common.request import Request
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.window_services.window_service import WindowService
@@ -58,7 +57,7 @@ class DryRunMetric(MetricInterface):
 
     def evaluate(
         self,
-        scenario_state: ScenarioState,
+        request_states: List[RequestState],
         metric_service: MetricService,
         eval_cache_path: str,
         parallelism: int,
@@ -69,7 +68,7 @@ class DryRunMetric(MetricInterface):
         processor = Processor(token_cost_estimator=self.token_cost_estimator, metric_service=metric_service)
         results: List[List[Stat]] = parallel_map(
             processor.process,
-            scenario_state.request_states,
+            request_states,
             parallelism=parallelism,
         )
 
@@ -81,7 +80,7 @@ class DryRunMetric(MetricInterface):
                 request_state.train_trial_index,
                 stats,
             )
-            for request_state, stats in zip(scenario_state.request_states, results)
+            for request_state, stats in zip(request_states, results)
         ]
 
         # Aggregate
@@ -90,6 +89,6 @@ class DryRunMetric(MetricInterface):
             for stat in instance_stats:
                 merge_stat(stats, stat)
 
-        merge_stat(stats, Stat(MetricName("num_requests")).add(len(scenario_state.request_states)))
+        merge_stat(stats, Stat(MetricName("num_requests")).add(len(request_states)))
 
         return MetricResult(list(stats.values()), per_instance_stats)

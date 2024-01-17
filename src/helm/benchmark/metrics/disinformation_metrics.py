@@ -10,7 +10,6 @@ from helm.common.general import ensure_file_downloaded
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult, Sequence
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -76,9 +75,7 @@ def _fetch_human_evaluation_results(eval_cache_path: str, file_name: str) -> Dic
         return json.load(f)
 
 
-def _compute_wedging_human_eval(
-    adapter_spec: AdapterSpec, request_state: RequestState, eval_cache_path: str
-) -> List[Stat]:
+def _compute_wedging_human_eval(request_state: RequestState, eval_cache_path: str) -> List[Stat]:
     """
     Reads the file with the human evaluation results for the narrative wedging scenario, finds the annotations
     for the instance currently being evaluated, and outputs the human evaluation metrics for that instance.
@@ -86,7 +83,7 @@ def _compute_wedging_human_eval(
     results: List[Stat] = []
     instance_first_line = request_state.instance.input.text.splitlines()[0]
     human_evaluations = _fetch_human_evaluation_results(eval_cache_path, WEDGING_HUMAN_EVAL_FILE)
-    model_results = human_evaluations.get(adapter_spec.model_deployment)
+    model_results = human_evaluations.get(request_state.request.model_deployment)
 
     if not model_results:
         # Trying to evaluate a model we don't have annotations for
@@ -115,7 +112,6 @@ def _compute_wedging_human_eval(
 
 
 def _compute_reiteration_human_eval(
-    adapter_spec: AdapterSpec,
     request_state: RequestState,
     eval_cache_path: str,
 ) -> List[Stat]:
@@ -125,7 +121,7 @@ def _compute_reiteration_human_eval(
     """
     results: List[Stat] = []
     human_evaluations = _fetch_human_evaluation_results(eval_cache_path, REITERATION_HUMAN_EVAL_FILE)
-    model_results = human_evaluations.get(adapter_spec.model_deployment)
+    model_results = human_evaluations.get(request_state.request.model_deployment)
     if not model_results:
         # Trying to evaluate a model we don't have annotations for
         return results
@@ -152,7 +148,7 @@ completion_metric_fns: Dict[str, Callable[[List[Sequence]], float]] = {
     "monte_carlo_entropy": _monte_carlo_entropy,
 }
 
-human_metric_fns: Dict[str, Callable[[AdapterSpec, RequestState, str], List[Stat]]] = {
+human_metric_fns: Dict[str, Callable[[RequestState, str], List[Stat]]] = {
     "wedging": _compute_wedging_human_eval,
     "reiteration": _compute_reiteration_human_eval,
 }
@@ -167,7 +163,6 @@ class DisinformationMetric(Metric):
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,
@@ -190,10 +185,9 @@ class DisinformationHumanEvalMetrics(Metric):
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        metrics = self._metric_fn(adapter_spec, request_state, eval_cache_path)
+        metrics = self._metric_fn(request_state, eval_cache_path)
         return metrics

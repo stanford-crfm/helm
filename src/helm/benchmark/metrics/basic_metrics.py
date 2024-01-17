@@ -7,19 +7,13 @@ from urllib.parse import unquote
 import numpy as np
 import scipy
 import calibration as cal
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Token, Sequence
-from helm.benchmark.adaptation.adapters.adapter_factory import (
-    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-    ADAPT_RANKING_BINARY,
-)
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.metrics.metric import group_request_states_by_train_trial
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
@@ -107,20 +101,18 @@ class InstancesPerSplitMetric(MetricInterface):
     """Report the average num_instances in each MetricContext across train_trials."""
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+        self, request_states: List[RequestState], metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
-        adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}
 
-        for train_trial_index in range(adapter_spec.num_train_trials):
+        for trial_request_states in group_request_states_by_train_trial(request_states):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
             # Group instances in this train_trial by context.
             instances_per_metric_context: Dict[MetricContext, Set[Instance]] = defaultdict(set)
-            for request_state in scenario_state.request_states:
-                if request_state.train_trial_index == train_trial_index:
-                    instances_per_metric_context[MetricContext.from_instance(request_state.instance)].add(
-                        request_state.instance
-                    )
+            for request_state in trial_request_states:
+                instances_per_metric_context[MetricContext.from_instance(request_state.instance)].add(
+                    request_state.instance
+                )
             for context, instance_set in instances_per_metric_context.items():
                 stat = Stat(MetricName("num_instances")).add(len(instance_set))
                 merge_stat(trial_stats, add_context(stat, context))
@@ -151,25 +143,23 @@ class BasicMetric(Metric):
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
         """Compute all metrics."""
         stats: List[Stat] = []
-        stats.extend(compute_request_state_metrics(self.efficiency_metric, adapter_spec, request_state, metric_service))
+        stats.extend(compute_request_state_metrics(self.efficiency_metric, request_state, metric_service))
 
         if len(request_state.instance.references) > 0:
-            stats.extend(compute_reference_metrics(self.names, adapter_spec, request_state, metric_service))
+            stats.extend(compute_reference_metrics(self.names, request_state, metric_service))
 
-        stats.extend(compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
+        stats.extend(compute_language_modeling_metrics(request_state, metric_service))
 
         return stats
 
     def evaluate_references(
         self,
-        adapter_spec: AdapterSpec,
         reference_request_states: List[RequestState],
         metric_service: MetricService,
         eval_cache_path: str,
@@ -218,37 +208,34 @@ class BasicMetric(Metric):
         num_choices = len(references)
 
         tokenizer_service: TokenizerService = metric_service
-        window_service: WindowService = WindowServiceFactory.get_window_service(
-            adapter_spec.model_deployment, tokenizer_service
-        )
+        model_deployment: str = reference_request_states[0].request.model_deployment
+        window_service: WindowService = WindowServiceFactory.get_window_service(model_deployment, tokenizer_service)
         reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
         for request_state in reference_request_states:
             assert request_state.reference_index is not None and request_state.request_mode is not None
             reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
             reference_stats[reference_key] = compute_logprob_and_length(request_state, window_service)
 
-        if adapter_spec.method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_RANKING_BINARY]:
-            reference_scores = [
-                reference_stats[ReferenceKey(i, "original")].logprob
-                / reference_stats[ReferenceKey(i, "original")].num_tokens
-                for i in range(num_choices)
-            ]
-        elif adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
+        is_calibrated = any([request_state.request_mode == "calibration" for request_state in reference_request_states])
+
+        if is_calibrated:
             reference_scores = [
                 reference_stats[ReferenceKey(i, "original")].logprob
                 - reference_stats[ReferenceKey(i, "calibration")].logprob
                 for i in range(num_choices)
             ]
         else:
-            raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
+            reference_scores = [
+                reference_stats[ReferenceKey(i, "original")].logprob
+                / reference_stats[ReferenceKey(i, "original")].num_tokens
+                for i in range(num_choices)
+            ]
 
         stats: List[Stat] = []
 
         general_metrics: Dict[MetricName, Stat] = {}
         for request_state in reference_request_states:
-            for stat in compute_request_state_metrics(
-                self.efficiency_metric, adapter_spec, request_state, metric_service
-            ):
+            for stat in compute_request_state_metrics(self.efficiency_metric, request_state, metric_service):
                 merge_stat(general_metrics, stat)
         stats.extend(general_metrics.values())
         max_prob = np.max(scipy.special.softmax(reference_scores))
@@ -284,7 +271,6 @@ class BasicMetric(Metric):
 
 def compute_request_state_metrics(
     efficiency_metric: EfficiencyMetric,
-    adapter_spec: AdapterSpec,
     request_state: RequestState,
     metric_service: MetricService,
 ) -> List[Stat]:
@@ -294,20 +280,14 @@ def compute_request_state_metrics(
     stats: List[Stat] = []
 
     stats.append(Stat(MetricName("num_references")).add(len(request_state.instance.references)))
-
-    # Copy from adapter spec
-    stats.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))
-
-    stats.extend(efficiency_metric.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
-    stats.extend(_compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
-    stats.extend(_compute_truncation_metrics(adapter_spec, request_state, metric_service))
+    stats.extend(efficiency_metric.compute_efficiency_metrics(request_state, metric_service))
+    stats.extend(_compute_finish_reason_metrics(request_state, metric_service))
+    stats.extend(_compute_truncation_metrics(request_state, metric_service))
 
     return stats
 
 
-def _compute_finish_reason_metrics(
-    adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-) -> List[Stat]:
+def _compute_finish_reason_metrics(request_state: RequestState, metric_service: MetricService) -> List[Stat]:
     """Record how often generation finished due to reaching token limit, stop token(s), or end of text"""
     assert request_state.result is not None
     sequence = request_state.result.completions[0]
@@ -327,9 +307,7 @@ def _compute_finish_reason_metrics(
     ]
 
 
-def _compute_truncation_metrics(
-    adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-) -> List[Stat]:
+def _compute_truncation_metrics(request_state: RequestState, metric_service: MetricService) -> List[Stat]:
     """
     Record the number of training instances used in the prompt and whether
     even the prompt needed to be truncated (once we hit zero training instances).
@@ -340,9 +318,7 @@ def _compute_truncation_metrics(
     ]
 
 
-def compute_language_modeling_metrics(
-    adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-) -> List[Stat]:
+def compute_language_modeling_metrics(request_state: RequestState, metric_service: MetricService) -> List[Stat]:
     """Compute the logprob and normalization factors for the first completion"""
     assert request_state.result is not None
     sequence = request_state.result.completions[0]

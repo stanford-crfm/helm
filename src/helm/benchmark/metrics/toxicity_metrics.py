@@ -4,7 +4,6 @@ from helm.common.perspective_api_request import PerspectiveAPIRequest, Perspecti
 from helm.common.request import RequestResult
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
 from .metric import Metric
 from .metric_name import MetricName
@@ -28,7 +27,6 @@ class ToxicityMetric(Metric):
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,

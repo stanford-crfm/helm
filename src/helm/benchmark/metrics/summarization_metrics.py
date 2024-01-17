@@ -9,9 +9,7 @@ import spacy.cli
 from typing import List, Dict, Optional
 from collections import defaultdict
 
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.evaluate_reference_metrics import get_rouge_function
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
@@ -118,7 +116,7 @@ class SummarizationMetric(Metric):
         return all_humaneval_scores
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+        self, request_states: List[RequestState], metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         if self.compute_faithfulness:
             # When running with a GPU and parallelism > 1, errors with "...in layer_norm
@@ -130,7 +128,7 @@ class SummarizationMetric(Metric):
             )
             parallelism = 1
 
-        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
+        return super().evaluate(request_states, metric_service, eval_cache_path, parallelism=parallelism)
 
     def _compute_rouge(self, refs: List[str], pred: str) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
@@ -164,7 +162,6 @@ class SummarizationMetric(Metric):
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,
@@ -182,7 +179,7 @@ class SummarizationMetric(Metric):
                 self.humaneval = self._load_humaneval(eval_cache_path)
 
             # get human evaluation scores if they exist
-            deployment = adapter_spec.model_deployment.replace("/", "_")
+            deployment = request_state.request.model_deployment.replace("/", "_")
             for metric_name in ["faithfulness", "relevance", "coherence"]:
                 val = self.humaneval[(metric_name, deployment, request_state.instance.id, pred)]
                 result.append(Stat(MetricName(f"HumanEval-{metric_name}")).add(float(val)))
@@ -196,7 +193,7 @@ class SummarizationMetric(Metric):
             if self.qa_fact_eval is None:
                 self._load_qafacteval(eval_cache_path)
             assert self.qa_fact_eval is not None
-            deployment = adapter_spec.model_deployment.replace("/", "_")
+            deployment = request_state.request.model_deployment.replace("/", "_")
             val = self.qa_fact_eval[deployment][(request_state.instance.id, pred)]
             result.append(Stat(MetricName("QAFactEval")).add(float(val)))
         except KeyError:
