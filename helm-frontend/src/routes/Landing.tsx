@@ -25,7 +25,7 @@ import together from "@/assets/logos/together.png";
 import tsinghuaKeg from "@/assets/logos/tsinghua-keg.png";
 import writer from "@/assets/logos/writer.png";
 import yandex from "@/assets/logos/yandex.png";
-import zeroOne from "@/assets/logos/01-ai.png";
+import zeroOne from "@/assets/logos/01.png";
 
 const logos = [
   ai21,
