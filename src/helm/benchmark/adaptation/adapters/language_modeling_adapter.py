@@ -1,7 +1,6 @@
 from typing import List, Tuple, Optional
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, EVAL_SPLITS
 from helm.benchmark.window_services.window_service import EncodeResult
 from helm.common.general import flatten_list, parallel_map
@@ -26,7 +25,7 @@ class LanguageModelingAdapter(Adapter):
     """
 
     @htrack(None)
-    def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
+    def adapt(self, instances: List[Instance], parallelism: int) -> List[RequestState]:
         """
         Takes a list of `Instance`s and builds a list of corresponding `RequestState`s.
         Only requires eval instances.
@@ -46,7 +45,7 @@ class LanguageModelingAdapter(Adapter):
         )
         hlog(f"{len(all_request_states)} requests")
 
-        return ScenarioState(self.adapter_spec, all_request_states)
+        return all_request_states
 
     def _generate_requests(self, eval_instance: Instance) -> List[RequestState]:
         """
