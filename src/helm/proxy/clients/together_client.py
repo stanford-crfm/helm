@@ -101,7 +101,7 @@ class TogetherClient(CachingClient):
         # Following the examples from https://github.com/togethercomputer/open-models-api
         raw_request = {
             "request_type": "language-model-inference",
-            "model": self.together_model,
+            "model": self.together_model or request.model,
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
@@ -114,7 +114,7 @@ class TogetherClient(CachingClient):
         }
         return _rewrite_raw_request_for_model_tags(raw_request, request.model_engine)
 
-    def __init__(self, cache_config: CacheConfig, together_model: str, api_key: Optional[str] = None):
+    def __init__(self, cache_config: CacheConfig, together_model: Optional[str], api_key: Optional[str] = None):
         super().__init__(cache_config=cache_config)
         # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
         #       in credentials.conf, we rely on offline evaluation only.

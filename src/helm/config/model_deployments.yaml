@@ -500,6 +500,14 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
+  - name: huggingface/gpt-neox-20b
+    model_name: eleutherai/gpt-neox-20b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
   ## LMSYS
   - name: huggingface/vicuna-7b-v1.3
     model_name: lmsys/vicuna-7b-v1.3
@@ -1223,8 +1231,6 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: bigscience/bloom
 
   - name: together/t0pp
     deprecated: true  # Removed from Together
@@ -1233,31 +1239,8 @@ model_deployments:
     max_sequence_length: 1024
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: bigscience/T0pp
     window_service_spec:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
-
-  ## EleutherAI
-  - name: together/gpt-j-6b
-    deprecated: true  # Removed from Together
-    model_name: eleutherai/gpt-j-6b
-    tokenizer_name: EleutherAI/gpt-j-6B
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: eleutherai/gpt-j-6b
-
-  - name: together/gpt-neox-20b
-    deprecated: true  # Removed from Together
-    model_name: eleutherai/gpt-neox-20b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
   ## Google
   - name: together/t5-11b
@@ -1267,8 +1250,6 @@ model_deployments:
     max_sequence_length: 511
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: google/t5-11b
     window_service_spec:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
@@ -1279,8 +1260,6 @@ model_deployments:
     max_sequence_length: 511
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: google/flan-t5-xxl
     window_service_spec:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
@@ -1291,8 +1270,6 @@ model_deployments:
     max_sequence_length: 511
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: google/ul2
     window_service_spec:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
@@ -1516,8 +1493,6 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: tsinghua/glm
     window_service_spec:
       class_name: "helm.benchmark.window_services.ice_window_service.ICEWindowService"
 
@@ -1539,8 +1514,6 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: yandex/yalm
     window_service_spec:
       class_name: "helm.benchmark.window_services.yalm_window_service.YaLMWindowService"
 
