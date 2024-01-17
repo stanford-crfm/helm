@@ -8,9 +8,6 @@ on:
       - 'main'
     paths:
       - 'helm-frontend/**'
-  pull_request:
-    branches:
-      - '*'
 
 jobs:
   build:
@@ -43,4 +40,3 @@ jobs:
         delete-branch: true
         title: 'Build frontend'
         body: Auto-generated from GitHub Actions.
-        base: main
