@@ -18,23 +18,36 @@ export default function Runs() {
   );
   const [totalPages, setTotalPages] = useState<number>(1);
   const [filteredRunSpecs, setFilteredRunSpecs] = useState<RunSpec[]>([]);
-  const [useRegex, setUseRegex] = useState<boolean>(false);
+  const [useRegex, setUseRegex] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>(
+    searchParams.get("q") || "",
+  );
 
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
       const runSpecs = await getRunSpecs(controller.signal);
       setRunSpecs(runSpecs);
-      setFilteredRunSpecs(runSpecs);
-      setTotalPages(Math.ceil(runSpecs.length / PAGE_SIZE));
+      filterRunSpecs(searchQuery, runSpecs);
     }
 
     void fetchData();
     return () => controller.abort();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
 
-  if (runSpecs.length === 0) {
-    return <Loading />;
+  useEffect(() => {
+    filterRunSpecs(searchQuery, runSpecs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runSpecs, searchQuery]);
+
+  function filterRunSpecs(query: string, runSpecs: RunSpec[]) {
+    const regex = useRegex ? new RegExp(query) : null;
+    const filtered = runSpecs.filter((runSpec) =>
+      regex ? regex.test(runSpec.name) : runSpec.name.includes(query),
+    );
+    setFilteredRunSpecs(filtered);
+    setTotalPages(Math.ceil(filtered.length / PAGE_SIZE));
   }
 
   const handleSearch = (e: SyntheticEvent) => {
@@ -43,36 +56,20 @@ export default function Runs() {
     const target = e.target as typeof e.target & {
       q: { value: string };
     };
-    const q = (() => {
-      if (target.q === undefined) {
-        return "";
-      }
-      if (useRegex) {
-        return new RegExp(target.q.value);
-      }
-      return target.q.value;
-    })();
-
-    const filteredRunSpecs = (() => {
-      if (q === "") {
-        return runSpecs;
-      }
-      return runSpecs.filter((runSpec) => {
-        if (q instanceof RegExp) {
-          return q.test(runSpec.name);
-        }
-        return runSpec.name.includes(q);
-      });
-    })();
-
-    setFilteredRunSpecs(filteredRunSpecs);
-    setTotalPages(Math.ceil(filteredRunSpecs.length / PAGE_SIZE));
+    const newQuery = target.q.value;
+    setSearchQuery(newQuery);
+    setSearchParams({ q: newQuery, page: "1" });
+    filterRunSpecs(newQuery, runSpecs);
   };
 
   const pagedRunSpecs = filteredRunSpecs.slice(
     (currentPage - 1) * PAGE_SIZE,
-    (currentPage - 1) * PAGE_SIZE + PAGE_SIZE,
+    currentPage * PAGE_SIZE,
   );
+
+  if (runSpecs.length === 0) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -84,6 +81,8 @@ export default function Runs() {
             name="q"
             placeholder="Search"
             className="input input-bordered"
+            value={searchQuery} // Updated to bind the value to the searchQuery state
+            onChange={(e) => setSearchQuery(e.target.value)} // Added to handle changes in the input
           />
           <label className="label">
             <span className="label-text-alt flex item-center">
