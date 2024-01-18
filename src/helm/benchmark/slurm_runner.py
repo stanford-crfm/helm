@@ -28,7 +28,7 @@ from helm.benchmark.slurm_jobs import (
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack_block
 
-from helm.benchmark.slurm_config_registry import SLURM_CONFIG
+from helm.benchmark.runner_config_registry import RUNNER_CONFIG
 
 _MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKER_SLURM_JOBS"
 _SLURM_NODE_NAMES_ENV_NAME = "HELM_SLURM_NODE_NAMES"
@@ -97,7 +97,7 @@ class SlurmRunner(Runner):
         self.max_concurrent_worker_slurm_jobs = (
             int(env_max_concurrent_worker_slurm_jobs)
             if env_max_concurrent_worker_slurm_jobs
-            else SLURM_CONFIG.helm_max_concurrent_worker_slurm_jobs
+            else RUNNER_CONFIG.helm_max_concurrent_workers
         )
 
     def run_all(self, run_specs: List[RunSpec]):
@@ -225,7 +225,7 @@ class SlurmRunner(Runner):
                         break
 
                     # Refresh every minute
-                    time.sleep(SLURM_CONFIG.slurm_monitor_interval)
+                    time.sleep(RUNNER_CONFIG.slurm_monitor_interval)
         finally:
             # Cleanup by cancelling all jobs during program termination or if an exception is raised.
             cancel_all_jobs()
@@ -263,7 +263,7 @@ class SlurmRunner(Runner):
                 run_spec_path,
             ]
         )
-        if SLURM_CONFIG.slurm_args is None:
+        if RUNNER_CONFIG.slurm_args is None:
             raw_slurm_args: Dict[str, str] = {
                 "account": "nlp",
                 "cpus_per_task": "4",
@@ -295,7 +295,7 @@ class SlurmRunner(Runner):
                 raw_slurm_args["nodelist"] = slurm_node_names
 
         else:
-            raw_slurm_args = SLURM_CONFIG.slurm_args
+            raw_slurm_args = RUNNER_CONFIG.slurm_args
 
             dynamic_slurm_args = {
                 "job_name": run_name,
