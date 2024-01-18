@@ -75,7 +75,12 @@ class MultipleChoiceJointMultimodalAdapter(InContextLearningMultimodalAdapter, A
         output: str = no_correct_references
         for reference_index, reference in enumerate(instance.references):
             prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
-            result = result.add_textual_suffix(prefix + reference.output.text + self.adapter_spec.reference_suffix)
+
+            if reference.output.multimedia_content is not None:
+                result.combine(reference.output.multimedia_content)
+            else:
+                result = result.add_textual_suffix(prefix + reference.output.text + self.adapter_spec.reference_suffix)
+
             if reference.is_correct:
                 if output == no_correct_references:
                     output = self.get_reference_prefix("A", reference_index)

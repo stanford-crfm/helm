@@ -131,24 +131,28 @@ def get_vqa_spec() -> RunSpec:
     )
 
 
-@run_spec_function("heim_human_eval")
-def get_heim_human_eval_spec(question_type: str) -> RunSpec:
+@run_spec_function("mmmu")
+def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.heim_human_eval_scenario.HEIMHumanEvalScenario",
-        args={"question_type": question_type},
+        class_name="helm.benchmark.scenarios.vision_language.mmmu_scenario.MMMUScenario",
+        args={"subject": subject, "question_type": question_type},
     )
 
-    instructions: str = (
-        "The following are multiple choice questions (with answers) about images and their descriptions."
-    )
-    adapter_spec: AdapterSpec = get_vlm_multiple_choice_joint_adapter_spec(
-        input_noun=None, output_noun="Answer", instructions=instructions, max_train_instances=0
-    )
+    adapter_spec: AdapterSpec
+    if question_type == "open":
+        adapter_spec = get_short_answer_generation_adapter_spec()
+    elif question_type == "multiple-choice":
+        instructions: str = "Answer the multiple choice question by just giving the letter of the correct answer."
+        adapter_spec = get_vlm_multiple_choice_joint_adapter_spec(
+            input_noun=None, output_noun="Answer", instructions=instructions, max_train_instances=0
+        )
+    else:
+        raise ValueError(f"Invalid question type: {question_type}")
+
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
-
-    run_spec_name: str = "heim_human_eval"
+    run_spec_name: str = "mmmu"
     return RunSpec(
-        name=f"{run_spec_name}:question_type={question_type}",
+        name=f"{run_spec_name}:subject={subject},question_type={question_type}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
