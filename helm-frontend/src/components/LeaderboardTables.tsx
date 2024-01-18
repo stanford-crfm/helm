@@ -82,8 +82,6 @@ export default function LeaderboardTables({
   const getGroupForRunName = (rawGroup: string): string => {
     const groupSplit = replaceLastHyphen(rawGroup).split("*");
     const group = groupSplit[0].trim();
-    console.log(group);
-    console.log(schema?.run_groups);
     if (schema) {
       const foundItem = schema.run_groups.find(
         (item) =>
@@ -296,7 +294,7 @@ export default function LeaderboardTables({
                         >
                           <RowValue
                             ignoreHref={ignoreHref && cellIdx === 0}
-                            value={rowValue}
+                            value={{ ...rowValue }}
                           />
                         </a>
                       </td>
