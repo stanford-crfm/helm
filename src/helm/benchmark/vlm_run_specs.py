@@ -12,7 +12,7 @@ from .scenarios.scenario import ScenarioSpec
 # Prototypical adapter specs for VLM evaluation
 
 
-def get_vlm_generation_adapter_spec(
+def get_generation_adapter_spec(
     instructions: str = "",
     input_prefix: str = "",
     input_suffix: str = "",
@@ -40,13 +40,13 @@ def get_vlm_generation_adapter_spec(
 
 
 def get_short_answer_generation_adapter_spec():
-    return get_vlm_generation_adapter_spec(
+    return get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=20,
     )
 
 
-def get_vlm_multiple_choice_joint_adapter_spec(
+def get_multiple_choice_joint_adapter_spec(
     input_noun: Optional[str],
     output_noun: str,
     instructions: str = "",
@@ -79,7 +79,7 @@ def get_hateful_memes_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.hateful_memes_scenario.HatefulMemesScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec(
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
         instructions="Answer Yes or No without an explanation.",
         max_tokens=3,
     )
@@ -143,7 +143,7 @@ def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
         adapter_spec = get_short_answer_generation_adapter_spec()
     elif question_type == "multiple-choice":
         instructions: str = "Answer the multiple choice question by just giving the letter of the correct answer."
-        adapter_spec = get_vlm_multiple_choice_joint_adapter_spec(
+        adapter_spec = get_multiple_choice_joint_adapter_spec(
             input_noun=None, output_noun="Answer", instructions=instructions, max_train_instances=0
         )
     else:
