@@ -7,6 +7,7 @@ import type Taxonomy from "@/types/Taxonomy";
 export default interface RunGroup {
   name: string;
   display_name: string;
+  short_display_name?: string;
   description: string;
   environment?: {
     main_name: string;
