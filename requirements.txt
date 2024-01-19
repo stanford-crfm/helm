@@ -163,6 +163,10 @@ tls-client==0.1.8
 tokenizers>=0.13.3
 toml==0.10.2
 tomli==2.0.1
+torch==1.12.1 ; sys_platform == "darwin"
+torchvision==0.13.1 ; sys_platform == "darwin"
+torch==1.12.1+cu113 ; sys_platform == "linux"
+torchvision==0.13.1+cu113 ; sys_platform == "linux"
 tqdm==4.64.1
 transformers==4.36.0
 trio==0.22.0
