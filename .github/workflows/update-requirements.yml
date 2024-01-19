@@ -16,6 +16,7 @@ on:
 
 jobs:
   update-requirements:
+    name: Update requirements.txt
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -37,6 +38,9 @@ jobs:
       - name: Upgrade pip
         run: pip install --upgrade pip
       - name: Install PyTorch manually
+        # PyTorch has to be installed manually in a separate step with --no-cache-dir
+        # to avoid pip getting killed because PyTorch is too big
+        # See: https://stackoverflow.com/a/54329850
         run: pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_stable.html torch==1.12.1+cu113 torchvision==0.13.1+cu113
       - name: Install dependencies
         run: pip install -e .[all]
@@ -54,3 +58,4 @@ jobs:
           branch: actions/update-requirements
           delete-branch: true
           body: Auto-generated from GitHub Actions.
+          base: main  # delete this
