@@ -1,5 +1,6 @@
-# This job updates the pinned versions for all Python dependencies
-# including transitive dependencies in requirements.txt
+# This GitHub Actions workflow automatically updates the pinned versions
+# in requirements.txt for all Python dependencies (including transitive dependencies)
+# whenever setup.cfg is modified.
 
 name: Resolve Python Dependencies
 
