@@ -1,13 +1,18 @@
-# Build the frontend from source, and open a pull request to commit the build artifacts.
-# This allows Python users to use the React frontend without installing and running Node.
-name: Build Frontend
+# This job updates the pinned versions for all Python dependencies
+# including transitive dependencies in requirements.txt
+
+name: Resolve Python Dependencies
 
 on:
   push:
     branches:
-      - 'main'
+      - "main"
     paths:
-      - 'helm-frontend/**'
+      - "setup.cfg"
+  # Delete this before merging
+  pull_request:
+    paths:
+      - "setup.cfg"
 
 jobs:
   build:
@@ -34,12 +39,14 @@ jobs:
       - name: Install dependencies
         run: pip install -e .[all]
       - name: Write dependencies to requirements.txt
-        run: adsf > asdf
+        # sed is used to loosen the version matches for PyTorch and JAX libraries
+        # so that any CUDA version matches
+        run: pip freeze | sed '/^torch\|^jax/s/==/~=/' > requirements.txt
       - name: Create pull request
         uses: peter-evans/create-pull-request@v5
         with:
           commit-message: Update requirements.txt
-          branch: actions/build-frontend
+          title: "Update requirements.txt"
+          branch: actions/update-requirements
           delete-branch: true
-          title: 'Update requirements.txt'
           body: Auto-generated from GitHub Actions.
