@@ -2,7 +2,7 @@
 # in requirements.txt for all Python dependencies (including transitive dependencies)
 # whenever setup.cfg is modified.
 
-name: Resolve Python Dependencies
+name: Update requirements.txt
 
 on:
   push:
@@ -10,13 +10,12 @@ on:
       - "main"
     paths:
       - "setup.cfg"
-  # Delete this before merging
   pull_request:
     paths:
       - "setup.cfg"
 
 jobs:
-  build:
+  update-requirements:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -37,8 +36,12 @@ jobs:
             pip-
       - name: Upgrade pip
         run: pip install --upgrade pip
+      - name: Install PyTorch manually
+        run: pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_stable.html torch==1.12.1+cu113 torchvision==0.13.1+cu113
       - name: Install dependencies
         run: pip install -e .[all]
+      - name: Verify dependencies
+        run: pip check
       - name: Write dependencies to requirements.txt
         # sed is used to loosen the version matches for PyTorch and JAX libraries
         # so that any CUDA version matches
