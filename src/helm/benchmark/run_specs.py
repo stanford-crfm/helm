@@ -32,7 +32,6 @@ from .run_expander import (
     GoogleRunExpander,
     IDEFICSInstructRunExpander,
     LlavaRunExpander,
-    OpenFlamingoRunExpander,
     StopRunExpander,
     ChatMLRunExpander,
     IncreaseTemperatureRunExpander,
@@ -67,7 +66,6 @@ from helm.benchmark.model_metadata_registry import (
     GOOGLE_GEMINI_MODEL_TAG,
     IDEFICS_INSTRUCT_MODEL_TAG,
     LLAVA_MODEL_TAG,
-    OPEN_FLAMINGO_MODEL_TAG,
     NO_NEWLINES_TAG,
     NLG_PREFIX_TAG,
     CHATML_MODEL_TAG,
@@ -3094,10 +3092,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # Llava
         if LLAVA_MODEL_TAG in model.tags:
             run_spec = singleton(LlavaRunExpander().expand(run_spec))
-
-        # OpenFlamingo
-        if OPEN_FLAMINGO_MODEL_TAG in model.tags:
-            run_spec = singleton(OpenFlamingoRunExpander().expand(run_spec))
 
         # For multiple choice
         if BUGGY_TEMP_0_TAG in model.tags and run_spec.adapter_spec.temperature == 0:

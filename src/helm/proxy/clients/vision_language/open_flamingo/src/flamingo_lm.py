@@ -1,3 +1,7 @@
+"""
+Source: https://github.com/mlfoundations/open_flamingo
+"""
+
 import torch.nn as nn
 from .helpers import GatedCrossAttentionBlock
 from .utils import getattr_recursive, setattr_recursive

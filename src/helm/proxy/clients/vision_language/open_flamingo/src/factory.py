@@ -1,3 +1,7 @@
+"""
+Source: https://github.com/mlfoundations/open_flamingo
+"""
+
 from typing import Optional
 
 from transformers import AutoModelForCausalLM, AutoTokenizer

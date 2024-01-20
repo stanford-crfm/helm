@@ -23,7 +23,9 @@ except ModuleNotFoundError as e:
 class OpenFlamingoClient(CachingClient):
     """
     OpenFlamingo is an open source implementation of DeepMind's Flamingo models.
-    https://huggingface.co/openflamingo/OpenFlamingo-9B-vitl-mpt7b
+    Implementation following:
+        https://github.com/mlfoundations/open_flamingo
+        https://huggingface.co/openflamingo/OpenFlamingo-9B-vitl-mpt7b
     """
 
     END_OF_CHUNK_TOKEN: str = "<|endofchunk|>"

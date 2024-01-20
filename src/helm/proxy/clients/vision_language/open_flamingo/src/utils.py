@@ -1,3 +1,8 @@
+"""
+Source: https://github.com/mlfoundations/open_flamingo
+"""
+
+
 def extend_instance(obj, mixin):
     """Apply mixins to a class instance after creation"""
     base_cls = obj.__class__

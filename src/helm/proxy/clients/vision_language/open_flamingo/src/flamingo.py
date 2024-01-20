@@ -1,3 +1,7 @@
+"""
+Source: https://github.com/mlfoundations/open_flamingo
+"""
+
 import torch
 from einops import rearrange
 from torch import nn
