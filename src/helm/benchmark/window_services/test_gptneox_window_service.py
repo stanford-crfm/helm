@@ -68,7 +68,7 @@ class TestGPTNeoXWindowService:
         register_builtin_configs_from_helm_package()
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
-        self.window_service = WindowServiceFactory.get_window_service("together/gpt-neox-20b", service)
+        self.window_service = WindowServiceFactory.get_window_service("huggingface/gpt-neox-20b", service)
 
     def teardown_method(self, method):
         shutil.rmtree(self.path)
