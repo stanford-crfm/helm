@@ -1,10 +1,35 @@
 from typing import Optional, Tuple
 
-from latex import build_pdf
-from pdf2image import convert_from_bytes
-from PIL import ImageOps
 import io
 import os
+
+from helm.common.optional_dependencies import OptionalDependencyNotInstalled
+
+try:
+    from latex import build_pdf
+    from pdf2image import convert_from_bytes
+    from PIL import ImageOps
+except ModuleNotFoundError as e:
+    raise OptionalDependencyNotInstalled(
+        f"Optional dependency {e.name} is not installed. "
+        "Please run `pip install latex pdf2image Pillow` to install it."
+    ) from e
+
+TEX_BEGIN = r"""
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{stfloats}
+\usepackage{epstopdf}
+\usepackage{pgfplots}
+\begin{document}"""
+
+TEX_END = r"""\end{document}"""
 
 
 def latex_to_pdf(latex_code: str, assets_path: str) -> io.BytesIO:
@@ -45,6 +70,6 @@ def latex_to_image(
     crop: bool = False,
     resize_to: Optional[Tuple[int, int]] = None,
 ):  # -> Tuple[Image, Tuple[int, int]]:
-    pdf_stream = latex_to_pdf(latex_code, assets_path=assets_path)
+    pdf_stream = latex_to_pdf(TEX_BEGIN + latex_code + TEX_END, assets_path=assets_path)
     image = pdf_to_image(pdf_stream, crop=crop, resize_to=resize_to)
     return image, image.size
