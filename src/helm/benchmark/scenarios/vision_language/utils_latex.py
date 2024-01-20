@@ -70,6 +70,16 @@ def latex_to_image(
     crop: bool = False,
     resize_to: Optional[Tuple[int, int]] = None,
 ):  # -> Tuple[Image, Tuple[int, int]]:
-    pdf_stream = latex_to_pdf(TEX_BEGIN + latex_code + TEX_END, assets_path=assets_path)
-    image = pdf_to_image(pdf_stream, crop=crop, resize_to=resize_to)
-    return image, image.size
+    try:
+        pdf_stream = latex_to_pdf(TEX_BEGIN + latex_code + TEX_END, assets_path=assets_path)
+        image = pdf_to_image(pdf_stream, crop=crop, resize_to=resize_to)
+        return image, image.size
+    except RuntimeError as e:
+        if str(e) == "No available builder could be instantiated. Please make sure LaTeX is installed.":
+            raise OptionalDependencyNotInstalled(
+                "Optional dependency LaTeX is not installed. "
+                "Please install LaTeX and make sure it is available in your PATH."
+                "You can install LaTeX on Ubuntu with `sudo apt-get install texlive-full`."
+            ) from e
+        else:
+            raise e
