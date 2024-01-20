@@ -32,6 +32,7 @@ from helm.benchmark.runner_config_registry import RUNNER_CONFIG
 
 _MAX_CONCURRENT_WORKER_SLURM_JOBS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKER_SLURM_JOBS"
 _SLURM_NODE_NAMES_ENV_NAME = "HELM_SLURM_NODE_NAMES"
+_DEFAULT_MAX_CONCURRENT_WORKER_SLURM = 8
 
 
 @dataclass
@@ -98,6 +99,8 @@ class SlurmRunner(Runner):
             int(env_max_concurrent_worker_slurm_jobs)
             if env_max_concurrent_worker_slurm_jobs
             else RUNNER_CONFIG.helm_max_concurrent_workers
+            if RUNNER_CONFIG.helm_max_concurrent_workers > 0
+            else _DEFAULT_MAX_CONCURRENT_WORKER_SLURM
         )
 
     def run_all(self, run_specs: List[RunSpec]):
