@@ -105,7 +105,7 @@ def get_i2s_latex_spec(category: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.i2s_latex_scenario.LatexScenario",
         args={"category": category},
     )
-    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec()
+    adapter_spec: AdapterSpec = get_vlm_generation_adapter_spec(max_tokens=2000)
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()  # TODO: change
 
     run_spec_name: str = "i2s-latex"
