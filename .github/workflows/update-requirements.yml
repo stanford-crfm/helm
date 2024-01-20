@@ -10,9 +10,6 @@ on:
       - "main"
     paths:
       - "setup.cfg"
-  pull_request:
-    paths:
-      - "setup.cfg"
 
 jobs:
   update-requirements:
@@ -78,4 +75,3 @@ jobs:
           branch: actions/update-requirements
           delete-branch: true
           body: Auto-generated from GitHub Actions.
-          base: main
