@@ -19,7 +19,7 @@ from helm.common.general import ensure_directory_exists
 
 class LatexScenario(Scenario):
     PROMPT: str = "Prease provide the LaTex code used to generate this image. Only generate the code relevant to what you see. Your code will be surrounded by all the imports necessary as well as the begin and end document delimiters."  # noqa: E501
-    HUGGINGFACE_DATASET_NAME: str = "JosselinSom/Latex-VLM"
+    HUGGINGFACE_DATASET_NAME: str = "stanford-crfm/i2s-latex"
     MAX_NUM_ASSETS: int = 10
     CATEGORIES: List[str] = ["equation", "figure", "table", "plot", "algorithm"]
 
@@ -42,7 +42,7 @@ class LatexScenario(Scenario):
         # There seems to be a dev set, but it's unavailable through load_dataset.
         # The test set doesn't have answers, since the MMMU competition/leaderboard uses the test set
         for row in tqdm(
-            load_dataset(self.HUGGINGFACE_DATASET_NAME, "default", split="validation", cache_dir=output_path)
+            load_dataset(self.HUGGINGFACE_DATASET_NAME, self._category, split="validation", cache_dir=output_path)
         ):
             question_id: str = row["id"]
 
@@ -60,8 +60,12 @@ class LatexScenario(Scenario):
                 row["output"].save(image_path)
 
             # Create the multimedia content
+            prompt: str = self.PROMPT
+            if len(asset_names) > 0:
+                list_assets_str: str = "\n -".join(asset_names)
+                prompt += f"\n\nThe following assets can be used:{list_assets_str}"
             content: List[MediaObject] = [
-                MediaObject(text=self.PROMPT, content_type="text/plain"),
+                MediaObject(text=prompt, content_type="text/plain"),
                 MediaObject(location=image_path, content_type="image/png"),
             ]
 
