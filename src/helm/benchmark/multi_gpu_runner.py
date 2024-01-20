@@ -4,6 +4,7 @@ import traceback
 from typing import List
 import os
 import time
+import torch
 import torch.multiprocessing as multiprocessing
 from concurrent.futures import ProcessPoolExecutor as Pool
 from tqdm import tqdm
@@ -14,9 +15,7 @@ from helm.benchmark.config_registry import (
 )
 from helm.benchmark.executor import ExecutionSpec
 from helm.benchmark.runner import Runner, RunSpec, RunnerError
-
 from helm.common.hierarchical_logger import hlog, htrack_block
-
 from helm.benchmark.runner_config_registry import RUNNER_CONFIG
 
 _MAX_CONCURRENT_WORKERS_ENV_NAME = "HELM_MAX_CONCURRENT_WORKERS"
@@ -55,7 +54,13 @@ def initialize_worker(gpu_id: int):
 class MultiGPURunner(Runner):
     """Runner that runs the entire benchmark on multiple GPUs.
 
-    This is a thin wrapper around `Runner` that runs the entire benchmark on multiple GPUs using `multiprocessing`."""
+    This is a thin wrapper around `Runner` that runs the entire benchmark on
+    multiple GPUs using `multiprocessing`.
+
+    Note that this runner will load multiple models into memory at the same
+    time if your running configuration specifies that, similar to the `Runner`
+    class. `SlurmRunner` on the other hand will load at most one model on a
+    GPU"""
 
     def __init__(
         self,
@@ -81,7 +86,11 @@ class MultiGPURunner(Runner):
         # Configure max concurrent worker jobs from the environment variable.
         env_max_concurrent_workers = os.getenv(_MAX_CONCURRENT_WORKERS_ENV_NAME)
         self.max_concurrent_workers = (
-            int(env_max_concurrent_workers) if env_max_concurrent_workers else RUNNER_CONFIG.helm_max_concurrent_workers
+            int(env_max_concurrent_workers)
+            if env_max_concurrent_workers
+            else RUNNER_CONFIG.helm_max_concurrent_workers
+            if RUNNER_CONFIG.helm_max_concurrent_workers > 0
+            else torch.cuda.device_count()
         )
 
     def safe_run_one(self, run_spec: RunSpec):
