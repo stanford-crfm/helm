@@ -11,9 +11,9 @@ export default async function getReleaseSummary(
       { signal },
     );
 
-    return (await summary.json() as ReleaseSummary);
+    return (await summary.json()) as ReleaseSummary;
   } catch (error) {
     console.log(error);
     return { release: "", suites: [], date: "" };
   }
-};
+}
