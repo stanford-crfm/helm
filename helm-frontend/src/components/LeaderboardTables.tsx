@@ -244,59 +244,64 @@ export default function LeaderboardTables({
           </div>
         </div>
       ) : (
-        <table className="table w-full px-4">
-          <thead>
-            <tr>
-              {activeGroupsTable.header.map((headerValue, idx) => (
-                <th
-                  key={`${activeGroup}-${idx}`}
-                  className={`${
-                    idx === activeSortColumn ? "bg-gray-100" : "bg-white"
-                  } ${
-                    idx === 0 ? "left-0 z-10" : ""
-                  } whitespace-nowrap px-4 sticky top-0`}
-                >
-                  <div className="flex gap-2 items-center">
-                    <span>{getHeaderValue(headerValue)}</span>
-                    {sortable ? (
-                      <button className="link" onClick={() => handleSort(idx)}>
-                        <ChevronUpDownIcon className="w-6 h-6" />
-                      </button>
-                    ) : null}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {activeGroupsTable.rows.map((row, idx) => (
-              <tr key={`${activeGroup}-${idx}`}>
-                {row.map((rowValue, cellIdx) => (
-                  <td
-                    key={`${activeGroup}-${cellIdx}`}
+        <div className="overflow-auto h-[75vh] rounded-lg shadow-md bg-white">
+          <table className="table w-full">
+            <thead>
+              <tr>
+                {activeGroupsTable.header.map((headerValue, idx) => (
+                  <th
+                    key={`${activeGroup}-${idx}`}
                     className={`${
-                      cellIdx === 0 ? "text-lg sticky left-0" : ""
-                    } ${idx % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
-                    title={`Click value to see predictions for ${getGroupForRunName(
-                      getHeaderValue(activeGroupsTable.header[cellIdx]),
-                    )}: ${getModelForRunName(String(row[0].value))}`}
+                      idx === activeSortColumn ? "bg-gray-100" : "bg-white"
+                    } ${
+                      idx === 0 ? "left-0 z-10" : ""
+                    } whitespace-nowrap px-4 sticky top-0`}
                   >
-                    <a
-                      href={`#/runs/?q=${getGroupForRunName(
-                        getHeaderValue(activeGroupsTable.header[cellIdx]),
-                      )}.*${getModelForRunName(String(row[0].value))}`}
-                    >
-                      <RowValue
-                        ignoreHref={ignoreHref && cellIdx === 0}
-                        value={{ ...rowValue }}
-                      />
-                    </a>
-                  </td>
+                    <div className="flex gap-2 items-center">
+                      <span>{getHeaderValue(headerValue)}</span>
+                      {sortable ? (
+                        <button
+                          className="link"
+                          onClick={() => handleSort(idx)}
+                        >
+                          <ChevronUpDownIcon className="w-6 h-6" />
+                        </button>
+                      ) : null}
+                    </div>
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {activeGroupsTable.rows.map((row, idx) => (
+                <tr key={`${activeGroup}-${idx}`}>
+                  {row.map((rowValue, cellIdx) => (
+                    <td
+                      key={`${activeGroup}-${cellIdx}`}
+                      className={`${
+                        cellIdx === 0 ? "text-lg sticky left-0" : ""
+                      } ${idx % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
+                      title={`Click value to see predictions for ${getGroupForRunName(
+                        getHeaderValue(activeGroupsTable.header[cellIdx]),
+                      )}: ${getModelForRunName(String(row[0].value))}`}
+                    >
+                      <a
+                        href={`#/runs/?q=${getGroupForRunName(
+                          getHeaderValue(activeGroupsTable.header[cellIdx]),
+                        )}.*${getModelForRunName(String(row[0].value))}`}
+                      >
+                        <RowValue
+                          ignoreHref={ignoreHref && cellIdx === 0}
+                          value={{ ...rowValue }}
+                        />
+                      </a>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );
