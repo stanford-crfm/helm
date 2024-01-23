@@ -7,6 +7,7 @@ import ReleaseDropdown from "../ReleaseDropdown";
 
 export default function NavBar() {
   const navbarStyle: React.CSSProperties = {
+    position: "sticky",
     top: "0",
     zIndex: "1000",
     backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -15,7 +16,7 @@ export default function NavBar() {
   return (
     <nav
       style={navbarStyle}
-      className="navbar h-24 px-8 md:px-12 bg-base-100 max-w[1500]px"
+      className="navbar sticky-nav h-24 px-8 md:px-12 bg-base-100 max-w[1500]px"
     >
       <div>
         <div className="dropdown md:hidden mr-4">
