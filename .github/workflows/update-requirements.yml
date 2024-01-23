@@ -38,7 +38,7 @@ jobs:
         # PyTorch has to be installed manually in a separate step with --no-cache-dir
         # to avoid pip getting killed because PyTorch is too big
         # See: https://stackoverflow.com/a/54329850
-        run: pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_stable.html torch==1.12.1+cu113 torchvision==0.13.1+cu113
+        run: pip install torch==2.1.0 torchvision==0.16.0 --index-url https://download.pytorch.org/whl/cu121 --no-cache-dir
       - name: Install dependencies
         run: pip install -e .[all]
       - name: Install development dependencies
