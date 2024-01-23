@@ -101,7 +101,7 @@ export default function Leaderboard() {
           <PageTitle
             title={"HELM Leaderboard"}
             subtitle={
-              "HELM is a framework for evaluating foundation models. Our leaderboard shows how the various models (with particular adaptation procedures) perform across different groups of scenarios and different metrics."
+              "The HELM leaderboard shows how the various models perform across different scenarios and metrics."
             }
             markdown={true}
             className="mr-8 mb-16"

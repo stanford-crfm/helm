@@ -16,8 +16,8 @@ export default function Preview({ value }: Props) {
         onMouseOut={() => setShowButton(false)}
         className="relative"
       >
-        <div className="bg-base-200 p-2 block overflow-auto w-full max-h-72 mb-2">
-          <pre>{value}</pre>
+        <div className="bg-base-200 p-2 block overflow-auto w-full max-h-72 mb-2 whitespace-pre-wrap">
+          {value}
         </div>
 
         {showButton ? (
@@ -35,13 +35,11 @@ export default function Preview({ value }: Props) {
       </div>
       <dialog
         open={showModal}
-        className="modal p-16"
+        className="modal p-16 bg-opacity-80 bg-white"
         onClick={() => setShowModal(false)}
       >
-        <div className="modal-box max-w-none p-16">
-          <div>
-            <pre className="p-6">{value}</pre>
-          </div>
+        <div className="modal-box max-w-none p-4 whitespace-pre-wrap bg-base-200">
+          {value}
         </div>
       </dialog>
     </>
