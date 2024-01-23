@@ -244,7 +244,7 @@ export default function LeaderboardTables({
           </div>
         </div>
       ) : (
-        <div className="overflow-auto h-[75vh] rounded-lg shadow-md bg-white">
+        <div className="overflow-auto h-[calc(100vh_-_18rem)] rounded-lg shadow-md bg-white">
           <table className="table w-full">
             <thead>
               <tr>

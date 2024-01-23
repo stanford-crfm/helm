@@ -104,7 +104,7 @@ export default function Leaderboard() {
             }
             markdown={true}
           />
-          <div className="w-64 py-10 ">
+          <div className="w-64 pt-8">
             <label
               htmlFor="group"
               className="block text-sm font-medium text-gray-700"
