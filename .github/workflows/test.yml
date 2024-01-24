@@ -62,7 +62,7 @@ jobs:
       - run: source venv/bin/activate && ./install-dev.sh
       - run: source venv/bin/activate && ./pre-commit.sh
       - name: Run tests
-        run: source venv/bin/activate && pytest
+        run: source venv/bin/activate && pytest --durations=20
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'main' }}

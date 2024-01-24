@@ -86,7 +86,6 @@ export default function Leaderboard() {
           title={groupMetadata.display_name}
           subtitle={groupMetadata.description}
           markdown={true}
-          className="mr-8"
         />
         <div className="divider"></div>
         <p className="text-center mt-8">Group currently has no results.</p>
@@ -104,9 +103,8 @@ export default function Leaderboard() {
               "HELM is a framework for evaluating foundation models. Our leaderboard shows how the various models (with particular adaptation procedures) perform across different groups of scenarios and different metrics."
             }
             markdown={true}
-            className="mr-8 mb-16"
           />
-          <div className="w-64 py-10 ">
+          <div className="w-64 pt-8">
             <label
               htmlFor="group"
               className="block text-sm font-medium text-gray-700"
