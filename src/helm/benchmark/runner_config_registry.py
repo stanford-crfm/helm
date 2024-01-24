@@ -5,17 +5,17 @@ import yaml
 
 
 @dataclass
-class SlurmConfigSpec:
-    helm_max_concurrent_worker_slurm_jobs: int = 8
+class RunnerConfigSpec:
+    helm_max_concurrent_workers: int = -1
     slurm_monitor_interval: int = 60
     slurm_args: Optional[Dict[str, Any]] = None
 
 
-SLURM_CONFIG = SlurmConfigSpec()
+RUNNER_CONFIG = RunnerConfigSpec()
 
 
-def register_slurm_config_from_path(dir_path: str) -> None:
-    global SLURM_CONFIG
+def register_runner_config_from_path(dir_path: str) -> None:
+    global RUNNER_CONFIG
     with open(dir_path, "r") as f:
         raw = yaml.safe_load(f)
-    SLURM_CONFIG = dacite.from_dict(SlurmConfigSpec, raw)
+    RUNNER_CONFIG = dacite.from_dict(RunnerConfigSpec, raw)

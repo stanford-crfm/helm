@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
+import Schema from "@/types/Schema";
+import getSchema from "@/services/getSchema";
 
 interface Props {
   groupsTables: GroupsTable[];
@@ -36,6 +38,61 @@ export default function LeaderboardTables({
   const [sortDirection, setSortDirection] = useState<number>(1);
   const [filteredModels, setFilteredModels] =
     useState<string[]>(modelsToFilter);
+
+  const [schema, setSchema] = useState<Schema | undefined>(undefined);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    async function fetchData() {
+      const schema = await getSchema(controller.signal);
+      setSchema(schema);
+    }
+
+    void fetchData();
+    return () => controller.abort();
+  }, []);
+
+  const getModelForRunName = (model: string): string => {
+    if (schema) {
+      const foundItem = schema.models.find(
+        (item) => item.display_name === model,
+      );
+      if (foundItem) {
+        let toRet = foundItem.name;
+        if (toRet.includes("/")) {
+          toRet = toRet.replace("/", "_");
+          return toRet;
+        } else {
+          return toRet;
+        }
+      }
+    }
+    return "";
+  };
+
+  // create delimiter to parse out run group name (need to replace hyphen as some run names have hyphens in them)
+  function replaceLastHyphen(str: string): string {
+    const lastIndex = str.lastIndexOf(" - ");
+    if (lastIndex === -1) {
+      return str;
+    }
+    return str.substring(0, lastIndex) + "*" + str.substring(lastIndex + 1);
+  }
+
+  const getGroupForRunName = (rawGroup: string): string => {
+    const groupSplit = replaceLastHyphen(rawGroup).split("*");
+    const group = groupSplit[0].trim();
+    if (schema) {
+      const foundItem = schema.run_groups.find(
+        (item) =>
+          item.display_name === group || item.short_display_name === group,
+      );
+      if (foundItem) {
+        return foundItem.name;
+      }
+    }
+    return "";
+  };
 
   interface HeaderValueObject {
     value: string;
@@ -187,17 +244,19 @@ export default function LeaderboardTables({
           </div>
         </div>
       ) : (
-        <div className="rounded-lg overflow-hidden shadow-md bg-white p-4">
-          <div className="overflow-x-auto">
-            <table className="table w-full px-4">
+        <div className="overflow-auto h-[calc(100vh_-_18rem)] rounded-lg shadow-md bg-white">
+          <div>
+            <table className="table w-full">
               <thead>
                 <tr>
                   {activeGroupsTable.header.map((headerValue, idx) => (
                     <th
                       key={`${activeGroup}-${idx}`}
                       className={`${
-                        idx === activeSortColumn ? "bg-gray-100" : ""
-                      } whitespace-nowrap px-4`}
+                        idx === activeSortColumn ? "bg-gray-100" : "bg-white"
+                      } ${
+                        idx === 0 ? "left-0 z-10" : ""
+                      } whitespace-nowrap px-4 sticky top-0`}
                     >
                       <div className="flex gap-2 items-center">
                         <span>{getHeaderValue(headerValue)}</span>
@@ -216,21 +275,27 @@ export default function LeaderboardTables({
               </thead>
               <tbody>
                 {activeGroupsTable.rows.map((row, idx) => (
-                  <tr
-                    key={`${activeGroup}-${idx}`}
-                    className={`${idx % 2 === 0 ? "bg-gray-50" : ""}`}
-                  >
-                    {" "}
-                    {/* Added alternating row highlighting */}
+                  <tr key={`${activeGroup}-${idx}`}>
                     {row.map((rowValue, cellIdx) => (
                       <td
                         key={`${activeGroup}-${cellIdx}`}
-                        className={`${cellIdx === 0 ? "text-lg" : ""}`}
+                        className={`${
+                          cellIdx === 0 ? "text-lg sticky left-0" : ""
+                        } ${idx % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
+                        title={`Click value to see predictions for ${getGroupForRunName(
+                          getHeaderValue(activeGroupsTable.header[cellIdx]),
+                        )}: ${getModelForRunName(String(row[0].value))}`}
                       >
-                        <RowValue
-                          ignoreHref={ignoreHref && cellIdx === 0}
-                          value={rowValue}
-                        />
+                        <a
+                          href={`#/runs/?q=${getGroupForRunName(
+                            getHeaderValue(activeGroupsTable.header[cellIdx]),
+                          )}.*${getModelForRunName(String(row[0].value))}`}
+                        >
+                          <RowValue
+                            ignoreHref={ignoreHref && cellIdx === 0}
+                            value={{ ...rowValue }}
+                          />
+                        </a>
                       </td>
                     ))}
                   </tr>

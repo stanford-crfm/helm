@@ -67,7 +67,6 @@ export default function MiniLeaderboard() {
           title={groupMetadata.display_name}
           subtitle={groupMetadata.description}
           markdown={true}
-          className="mr-8"
         />
         <div className="divider"></div>
         <p className="text-center mt-8">Group currently has no results.</p>
