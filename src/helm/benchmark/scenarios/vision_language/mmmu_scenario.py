@@ -101,8 +101,11 @@ class MMMUScenario(Scenario):
 
         # Process the validation set
         # There seems to be a dev set, but it's unavailable through load_dataset.
+        # When loading "dev", we get error: ValueError: Unknown split "dev". Should be one of ['test', 'validation'].
         # The test set doesn't have answers, since the MMMU competition/leaderboard uses the test set
-        for row in tqdm(load_dataset(self.MMMU_HUGGINGFACE_DATASET_NAME, split="validation", cache_dir=output_path)):
+        for row in tqdm(
+            load_dataset(self.MMMU_HUGGINGFACE_DATASET_NAME, self._subject, split="validation", cache_dir=output_path)
+        ):
             # Skip questions that aren't in the subject we're interested in
             if row["question_type"] != self._question_type:
                 continue
