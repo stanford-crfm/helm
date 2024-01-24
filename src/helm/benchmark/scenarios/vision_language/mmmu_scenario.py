@@ -112,7 +112,7 @@ class MMMUScenario(Scenario):
                 continue
 
             question_template: str = row["question"]
-            options: List[str] = row["options"]
+            options: List[str] = eval(row["options"])  # Convert the string to list of options
             answer: str = row["answer"]
 
             # Create the question. Questions can have text and images interleaved
@@ -132,13 +132,20 @@ class MMMUScenario(Scenario):
                 image_template_tag: str = f"<image {img_number}>"
                 question_template_to_image_path[image_template_tag] = image_path
 
+                # There are cases when the image is included, but it is not used either in the
+                # question template or in the answer options
+                if image_template_tag not in question_template:
+                    # The image is not in the question template
+                    continue
+
                 head, question_template = question_template.split(image_template_tag, 1)
                 if head:
                     content.append(MediaObject(text=head, content_type="text/plain"))
                 content.append(MediaObject(location=image_path, content_type="image/png"))
 
             # Add the rest of the question template
-            content.append(MediaObject(text=question_template, content_type="text/plain"))
+            if question_template:
+                content.append(MediaObject(text=question_template, content_type="text/plain"))
 
             # Add the references
             references: List[Reference] = []

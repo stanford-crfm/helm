@@ -77,7 +77,12 @@ class MultipleChoiceJointMultimodalAdapter(InContextLearningMultimodalAdapter, A
             prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
 
             if reference.output.multimedia_content is not None:
-                result.combine(reference.output.multimedia_content)
+                reference_output_content: MultimediaObject = reference.output.multimedia_content
+                reference_output_content = reference_output_content.add_textual_prefix(prefix)
+                reference_output_content = reference_output_content.add_textual_suffix(
+                    self.adapter_spec.reference_suffix
+                )
+                result = result.combine(reference_output_content)
             else:
                 result = result.add_textual_suffix(prefix + reference.output.text + self.adapter_spec.reference_suffix)
 
