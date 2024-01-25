@@ -39,12 +39,12 @@ jobs:
         # to avoid pip getting killed because PyTorch is too big
         # See: https://stackoverflow.com/a/54329850
         run: pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cu121 --no-cache-dir
+      - name: Upgrade dependencies for Dependabot alerts
+        run: pip install urllib3=~1.26.18
       - name: Install dependencies
         run: pip install -e .[all]
       - name: Install development dependencies
         run: pip install -e .[dev]
-      - name: Upgrade dependencies for Dependabot alerts
-        run: pip install urllib3=~1.26.18
       - name: Verify dependencies
         run: pip check
       - name: Write header to requirements.txt
