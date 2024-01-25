@@ -12,12 +12,6 @@ function ReleaseDropdown() {
   });
   const release = getBenchmarkRelease();
 
-  function reformatDate(date: string): string {
-    const [year, day, month] = date.split("-");
-    const formattedDate = `${day}/${month}/${year.slice(-2)}`;
-    return formattedDate;
-  }
-
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
@@ -39,7 +33,7 @@ function ReleaseDropdown() {
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
         >
-          <div> Release: {release + " : " + reformatDate(summary.date)} </div>
+          <div> Release: {release + " : " + summary.date} </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-4 w-4 ml-2"
