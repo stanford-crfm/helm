@@ -10,7 +10,7 @@ on:
       - "main"
     paths:
       - "setup.cfg"
-      - '.github/workflows/build-frontend.yml'
+      - '.github/workflows/update-requirements.yml'
 
 jobs:
   update-requirements:
