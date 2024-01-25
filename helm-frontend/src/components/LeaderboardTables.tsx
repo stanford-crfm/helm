@@ -269,7 +269,7 @@ export default function LeaderboardTables({
                         className={`${
                           cellIdx === 0 ? "text-lg sticky left-0" : ""
                         } ${idx % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
-                         title={`Click value to see predictions for ${getHeaderValue(
+                        title={`Click value to see predictions for ${getHeaderValue(
                           activeGroupsTable.header[cellIdx],
                         )}: ${String(row[0].value)}`}
                       >
