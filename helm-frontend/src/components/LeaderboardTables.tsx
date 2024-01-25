@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
-import Schema from "@/types/Schema";
-import getSchema from "@/services/getSchema";
 
 interface Props {
   groupsTables: GroupsTable[];
@@ -39,19 +37,7 @@ export default function LeaderboardTables({
   const [filteredModels, setFilteredModels] =
     useState<string[]>(modelsToFilter);
 
-  const [schema, setSchema] = useState<Schema | undefined>(undefined);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    async function fetchData() {
-      const schema = await getSchema(controller.signal);
-      setSchema(schema);
-    }
-
-    void fetchData();
-    return () => controller.abort();
-  }, []);
-
+  /*
   const getModelForRunName = (model: string): string => {
     if (schema) {
       const foundItem = schema.models.find(
@@ -93,6 +79,7 @@ export default function LeaderboardTables({
     }
     return "";
   };
+  */
 
   interface HeaderValueObject {
     value: string;
@@ -283,20 +270,14 @@ export default function LeaderboardTables({
                       <td
                         key={`${activeGroup}-${cellIdx}`}
                         className={`${cellIdx === 0 ? "text-lg" : ""}`}
-                        title={`Click value to see predictions for ${getGroupForRunName(
-                          getHeaderValue(activeGroupsTable.header[cellIdx]),
-                        )}: ${getModelForRunName(String(row[0].value))}`}
+                        title={`Click value to see predictions for ${getHeaderValue(
+                          activeGroupsTable.header[cellIdx],
+                        )}: ${String(row[0].value)}`}
                       >
-                        <a
-                          href={`#/runs/?q=${getGroupForRunName(
-                            getHeaderValue(activeGroupsTable.header[cellIdx]),
-                          )}.*${getModelForRunName(String(row[0].value))}`}
-                        >
-                          <RowValue
-                            ignoreHref={ignoreHref && cellIdx === 0}
-                            value={{ ...rowValue }}
-                          />
-                        </a>
+                        <RowValue
+                          ignoreHref={ignoreHref && cellIdx === 0}
+                          value={{ ...rowValue }}
+                        />
                       </td>
                     ))}
                   </tr>

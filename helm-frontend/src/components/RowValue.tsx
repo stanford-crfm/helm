@@ -15,21 +15,32 @@ function formatNumber(value: string | number): string {
   return String(Math.round(Number(value) * 1000) / 1000);
 }
 
-export default function RowValue({ value, ignoreHref = false }: Props) {
+export default function RowValue({ value }: Props) {
   if (value.value === undefined) {
     return "-";
   }
 
-  if (value.href !== undefined && ignoreHref === false) {
+  if (value.run_spec_names) {
     const href = (() => {
-      const matches = value.href.match(/group=([^&]+)/);
-      if (matches === null) {
-        return value.href;
+      if (value.run_spec_names.length == 1) {
+        return "/runs/" + value.run_spec_names[0];
+      } else if (value.run_spec_names.length > 1) {
+        const rawHref =
+          "/runs/?q=" +
+          value.run_spec_names.map((name) => `^${name}$`).join("|");
+        const href = encodeURI(rawHref);
+        return href;
       }
-
-      return `/groups/${matches[1]}`;
     })();
-    return <Link to={href}>{formatNumber(value.value)}</Link>;
+    if (href) {
+      return (
+        <Link to={href} inTable>
+          {formatNumber(value.value)}
+        </Link>
+      );
+    } else {
+      return <>{formatNumber(value.value)}</>;
+    }
   }
 
   if (value.markdown) {
