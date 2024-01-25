@@ -6,7 +6,6 @@ from typing import Optional
 
 import pytest
 from tempfile import TemporaryDirectory
-from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
 from helm.benchmark.model_deployment_registry import (
     get_model_deployment,
     ModelDeployment,
@@ -23,13 +22,6 @@ from helm.benchmark.window_services.window_service_factory import WindowServiceF
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
 
-
-# HACK: This looks like it should be done in a setup_class()
-# for the test below but apparently pytest first check the parametrize
-# before running the setup_class().
-# Therefore ALL_MODEL_DEPLOYMENTS is empty and no test would be run,
-# so we need to do this here.
-register_builtin_configs_from_helm_package()
 
 INT_MAX: int = 2**31 - 1
 

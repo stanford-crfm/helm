@@ -5,7 +5,7 @@ export default function Main() {
   return (
     <>
       <Nav />
-      <main className="p-8 md:pt-12 pt-0">
+      <main className="p-8 pt-0">
         <div className="mx-auto max-w-[1500]px">
           <Outlet />
         </div>
