@@ -8,6 +8,7 @@ on:
       - 'main'
     paths:
       - 'helm-frontend/**'
+      - '.github/workflows/build-frontend.yml'
 
 jobs:
   build:
