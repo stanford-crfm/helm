@@ -57,7 +57,7 @@ def get_multiple_choice_joint_adapter_spec(
         global_prefix="",
         instructions=instructions,
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
-        input_suffix="\n" if input_noun is not None else "",
+        input_suffix="\n",
         output_prefix=f"{output_noun}: ",
         output_suffix="\n",
         instance_prefix="\n",
