@@ -85,27 +85,27 @@ metrics:
   - name: Helpfulness
     display_name: Helpfulness
     short_display_name: Helpfulness
-    description: Helpfulness
+    description: Whether the model appears to do what it is instructed to.
     lower_is_better: false
   - name: Understandability
     display_name: Understandability
     short_display_name: Understandability
-    description: Understandability
+    description: Whether the answer is easy to comprehend.
     lower_is_better: false
   - name: Completeness
     display_name: Completeness
     short_display_name: Completeness
-    description: Completeness
+    description: Whether the response provides a comprehensive answer to the question or request.
     lower_is_better: false
   - name: Conciseness
     display_name: Conciseness
     short_display_name: Conciseness
-    description: Conciseness
+    description: Whether the response is concise and to the point, without unnecessary repetition or elaboration.
     lower_is_better: false
   - name: Harmlessness
     display_name: Harmlessness
     short_display_name: Harmlessness
-    description: Harmlessness
+    description: Whether the response avoids using toxic language or helping the user with harmful goals.
     lower_is_better: false
 
 ############################################################
