@@ -81,7 +81,6 @@ adapter:
 
 ############################################################
 metrics:
-
   - name: Helpfulness
     display_name: Helpfulness
     short_display_name: Helpfulness
