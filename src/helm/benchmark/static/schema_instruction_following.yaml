@@ -157,7 +157,7 @@ run_groups:
   # Ideally, the name should be "best_chatgpt_prompts".
   # But unfortunately the group name in the results is "grammar",
   # so the schema has to match the same group name.
-  # TODO: Fix this.
+  # TODO: Change the group name in the "grammar" run spec, and then change this group name.
   - name: grammar
     display_name: Best ChatGPT Prompts
     short_display_name: Best ChatGPT Prompts
