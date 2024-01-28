@@ -51,6 +51,7 @@ def get_multiple_choice_joint_adapter_spec(
     output_noun: str,
     instructions: str = "",
     max_train_instances: int = 0,
+    num_outputs: int = 1,
 ) -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
@@ -62,7 +63,7 @@ def get_multiple_choice_joint_adapter_spec(
         output_suffix="\n",
         instance_prefix="\n",
         max_train_instances=max_train_instances,
-        num_outputs=1,
+        num_outputs=num_outputs,
         max_tokens=2,
         stop_sequences=["\n"],
         temperature=0.0,
@@ -171,7 +172,12 @@ def get_heim_human_eval_spec(question_type: str) -> RunSpec:
         "The following are multiple choice questions (with answers) about images and their descriptions."
     )
     adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
-        input_noun=None, output_noun="Answer", instructions=instructions, max_train_instances=0
+        # `num_outputs` is 5 because 5 human annotators were asked per image-question pair in HEIM
+        input_noun=None,
+        output_noun="Answer",
+        instructions=instructions,
+        num_outputs=5,
+        max_train_instances=0,
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 

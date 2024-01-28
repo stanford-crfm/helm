@@ -1,3 +1,5 @@
+from collections import Counter
+from dataclasses import dataclass
 from typing import Dict, List, Set
 import json
 import os
@@ -13,6 +15,12 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
+
+
+@dataclass(frozen=True)
+class HEIMHumanEvalReference(Reference):
+    # The number of human annotators who gave this reference or answer.
+    num_human_answered: int = 0
 
 
 class HEIMHumanEvalScenario(Scenario):
@@ -71,7 +79,10 @@ class HEIMHumanEvalScenario(Scenario):
                     image_annotation: Dict = json.loads(line)
                     image_path: str = os.path.join(output_path, image_annotation["image_path"])
                     assert os.path.exists(image_path), f"Image {image_path} does not exist"
-                    human_answers: Set[str] = set(str(answer) for answer in image_annotation["human_annotations"])
+
+                    human_answers: List[str] = [str(answer) for answer in image_annotation["human_annotations"]]
+                    human_answers_to_counts = Counter(human_answers)
+                    mode: str = human_answers_to_counts.most_common(1)[0][0]
 
                     content: List[MediaObject] = [MediaObject(location=image_path, content_type="image/png")]
                     if "prompt" in image_annotation:
@@ -80,14 +91,19 @@ class HEIMHumanEvalScenario(Scenario):
                         content.append(MediaObject(text=f"Description: {prompt}", content_type="text/plain"))
                     content.append(MediaObject(text=question_info["question"], content_type="text/plain"))
 
+                    references: List[Reference] = [
+                        HEIMHumanEvalReference(
+                            Output(text=answer),
+                            # The mode is the most common human answer and the reference we mark as correct
+                            tags=[CORRECT_TAG] if value == mode else [],
+                            num_human_answered=human_answers_to_counts[value],
+                        )
+                        for value, answer in question_info["choices"].items()
+                    ]
                     instances.append(
                         Instance(
                             Input(multimedia_content=MultimediaObject(content)),
-                            references=[
-                                # If a human gave the answer, we consider the answer correct
-                                Reference(Output(text=answer), tags=[CORRECT_TAG] if value in human_answers else [])
-                                for value, answer in question_info["choices"].items()
-                            ],
+                            references=references,
                             split=split,
                         )
                     )
