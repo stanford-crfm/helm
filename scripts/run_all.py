@@ -151,9 +151,6 @@ def queue_jobs(
 
             if machine is not None:
                 nlp_run_args += f" -m {machine}"
-
-                if "sphinx" in machine:
-                    nlp_run_args += " -p high "
             elif use_sphinx:
                 nlp_run_args += " -q sphinx "
 
