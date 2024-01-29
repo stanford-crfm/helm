@@ -272,7 +272,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 if media_object.is_type("image") and media_object.location is not None:
                     html_input += f'<br><img src="data:image;base64,{encode_base64(media_object.location)}">'
                 elif media_object.is_type("text") and media_object.text is not None:
-                    html_input += media_object.text
+                    html_input += f"<br>{media_object.text}"
                 else:
                     raise ValueError(f"Unhandled media type: {media_object.type}")
 

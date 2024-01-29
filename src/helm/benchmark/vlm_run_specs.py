@@ -176,7 +176,8 @@ def get_heim_human_eval_spec(question_type: str) -> RunSpec:
         input_noun=None,
         output_noun="Answer",
         instructions=instructions,
-        num_outputs=5,
+        # TODO: change to num_outputs=0 later
+        num_outputs=1,
         max_train_instances=0,
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
