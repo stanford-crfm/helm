@@ -5,6 +5,7 @@ import Link from "@/components/Link";
 interface Props {
   value: RowValueType;
   ignoreHref?: boolean;
+  title?: string;
 }
 
 function formatNumber(value: string | number): string {
@@ -15,7 +16,7 @@ function formatNumber(value: string | number): string {
   return String(Math.round(Number(value) * 1000) / 1000);
 }
 
-export default function RowValue({ value }: Props) {
+export default function RowValue({ value, title }: Props) {
   if (value.value === undefined) {
     return "-";
   }
@@ -34,7 +35,7 @@ export default function RowValue({ value }: Props) {
     })();
     if (href) {
       return (
-        <Link to={href} inTable>
+        <Link to={href} inTable title={title}>
           {formatNumber(value.value)}
         </Link>
       );
