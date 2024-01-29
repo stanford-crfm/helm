@@ -9,7 +9,7 @@ export default function NavBar() {
   const navbarStyle: React.CSSProperties = {
     position: "sticky",
     top: "0",
-    zIndex: "1000",
+    zIndex: "100",
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     // Add any additional inline styles for the sticky navbar here
   };

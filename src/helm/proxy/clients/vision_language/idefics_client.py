@@ -91,6 +91,7 @@ class IDEFICSClient(CachingClient):
         generation_args = {
             "max_length": request.max_tokens,
             "bad_words_ids": processor.tokenizer(self.BAD_WORD_TOKENS, add_special_tokens=False).input_ids,
+            "num_return_sequences": request.num_completions,
         }
 
         if self.END_OF_UTTERANCE_TOKEN in request.stop_sequences:
@@ -139,7 +140,6 @@ class IDEFICSClient(CachingClient):
         except RuntimeError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
-        # TODO: Support multiple completions and figure out how get the log probs
         # TODO: Does it make sense to support echo? Include these params in the cache key.
         # TODO: Together might support this model so use the TogetherClient
         tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
