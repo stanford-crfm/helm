@@ -8,7 +8,7 @@ from transformers import IdeficsForVisionText2Text, AutoProcessor, IdeficsProces
 from helm.common.cache import CacheConfig
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, Token
@@ -91,7 +91,6 @@ class IDEFICSClient(CachingClient):
         generation_args = {
             "max_length": request.max_tokens,
             "bad_words_ids": processor.tokenizer(self.BAD_WORD_TOKENS, add_special_tokens=False).input_ids,
-            "num_return_sequences": request.num_completions,
         }
 
         if self.END_OF_UTTERANCE_TOKEN in request.stop_sequences:
@@ -113,46 +112,60 @@ class IDEFICSClient(CachingClient):
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
         prompt_text: str = request.multimodal_prompt.text.replace(self.END_OF_UTTERANCE_TOKEN, " ")
 
-        try:
+        completions: List[Sequence] = []
+        request_time: float = 0
+        all_cached: bool = True
 
-            def do_it():
-                inputs = processor(multimodal_prompt, **input_args).to(self._device)
-                generated_ids = model.generate(**inputs, **generation_args)
-                generated_text: str = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-                assert generated_text.startswith(
-                    prompt_text
-                ), f"Generated text: {generated_text} does not start with prompt: {prompt_text}"
+        # IDEFICS does not support multiple outputs, so we need to generate them one at a time
+        with htrack_block(f"Generating for prompt: {prompt_text}"):
+            for completion_index in range(request.num_completions):
+                try:
 
-                # Remove the prompt from the generated text
-                generated_text = generated_text[len(prompt_text) :].strip()
-                return {"output": generated_text}
+                    def do_it():
+                        torch.manual_seed(completion_index)
+                        inputs = processor(multimodal_prompt, **input_args).to(self._device)
+                        # IDEFICS returns the entire prompt in the output so truncate it by only looking
+                        # at the last max_tokens tokens
+                        generated_ids = model.generate(**inputs, **generation_args)  # [0][..., -request.max_tokens:]
+                        generated_text: str = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+                        assert len(generated_text) >= len(
+                            prompt_text
+                        ), f"Generated text ({generated_text}) is shorter than prompt ({prompt_text})"
+                        generated_text = generated_text[-(len(generated_text) - len(prompt_text)) :]
+                        hlog(f"Generated text: {generated_text}")
+                        return {"output": generated_text}
 
-            # Include the prompt and model name in the cache key
-            cache_key = CachingClient.make_cache_key(
-                raw_request={
-                    "model": request.model,
-                    "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
-                    **generation_args,
-                },
-                request=request,
-            )
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except RuntimeError as e:
-            return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
+                    # Include the prompt and model name in the cache key
+                    cache_key = CachingClient.make_cache_key(
+                        raw_request={
+                            "completion_index": completion_index,
+                            "model": request.model,
+                            "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
+                            **generation_args,
+                        },
+                        request=request,
+                    )
+                    result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                except RuntimeError as model_error:
+                    return RequestResult(
+                        success=False, cached=False, error=str(model_error), completions=[], embedding=[]
+                    )
 
-        # TODO: Does it make sense to support echo? Include these params in the cache key.
-        # TODO: Together might support this model so use the TogetherClient
-        tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-            TokenizationRequest(result["output"], tokenizer=self.tokenizer_name)
-        )
-        tokens: List[Token] = [
-            Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-        ]
-        completions: List[Sequence] = [Sequence(text=result["output"], logprob=0, tokens=tokens)]
+                tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
+                    TokenizationRequest(result["output"], tokenizer=self.tokenizer_name)
+                )
+                tokens: List[Token] = [
+                    Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
+                ]
+                completions.append(Sequence(text=result["output"], logprob=0, tokens=tokens))
+
+                request_time += result["request_time"]
+                all_cached = all_cached and cached
+
         return RequestResult(
             success=True,
-            cached=cached,
-            request_time=result["request_time"],
+            cached=all_cached,
+            request_time=request_time,
             completions=completions,
             embedding=[],
         )

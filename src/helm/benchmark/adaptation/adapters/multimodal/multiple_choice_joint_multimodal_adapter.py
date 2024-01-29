@@ -39,7 +39,7 @@ class MultipleChoiceJointMultimodalAdapter(InContextLearningMultimodalAdapter, A
             model=self.adapter_spec.model,
             model_deployment=self.adapter_spec.model_deployment,
             multimodal_prompt=prompt.multimedia_object,
-            num_completions=1,
+            num_completions=self.adapter_spec.num_outputs,
             temperature=self.adapter_spec.temperature,
             max_tokens=self.adapter_spec.max_tokens,
             stop_sequences=[],
