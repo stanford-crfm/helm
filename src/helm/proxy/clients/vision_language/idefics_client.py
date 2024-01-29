@@ -131,8 +131,9 @@ class IDEFICSClient(CachingClient):
                         assert len(generated_text) >= len(
                             prompt_text
                         ), f"Generated text ({generated_text}) is shorter than prompt ({prompt_text})"
+                        hlog(f"Full Generated text: {generated_text}")
                         generated_text = generated_text[-(len(generated_text) - len(prompt_text)) :]
-                        hlog(f"Generated text: {generated_text}")
+                        hlog(f"Truncated Generated text: {generated_text}")
                         return {"output": generated_text}
 
                     # Include the prompt and model name in the cache key

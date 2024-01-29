@@ -23,8 +23,9 @@ DEFAULT_NLP_RUN_CPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 0 --exclude john17"
 # jag 27, 29 started the run, but did nothing. Saw CUDA OOM with 28.
 DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[18-31]"
 MONGODB_MACHINE: str = "john13"
+# -m controls number of instances
 DEFAULT_HELM_ARGS: str = (
-    f"--num-train-trials 1 --local -n 1 -m 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers"
+    f"--num-train-trials 1 --local -n 1 -m 10 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers"
     f"@{MONGODB_MACHINE}/crfm-models'"
 )
 
