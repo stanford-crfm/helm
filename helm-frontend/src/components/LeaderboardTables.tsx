@@ -37,50 +37,6 @@ export default function LeaderboardTables({
   const [filteredModels, setFilteredModels] =
     useState<string[]>(modelsToFilter);
 
-  /*
-  const getModelForRunName = (model: string): string => {
-    if (schema) {
-      const foundItem = schema.models.find(
-        (item) => item.display_name === model,
-      );
-      if (foundItem) {
-        let toRet = foundItem.name;
-        if (toRet.includes("/")) {
-          toRet = toRet.replace("/", "_");
-          return toRet;
-        } else {
-          return toRet;
-        }
-      }
-    }
-    return "";
-  };
-
-  // create delimiter to parse out run group name (need to replace hyphen as some run names have hyphens in them)
-  function replaceLastHyphen(str: string): string {
-    const lastIndex = str.lastIndexOf(" - ");
-    if (lastIndex === -1) {
-      return str;
-    }
-    return str.substring(0, lastIndex) + "*" + str.substring(lastIndex + 1);
-  }
-
-  const getGroupForRunName = (rawGroup: string): string => {
-    const groupSplit = replaceLastHyphen(rawGroup).split("*");
-    const group = groupSplit[0].trim();
-    if (schema) {
-      const foundItem = schema.run_groups.find(
-        (item) =>
-          item.display_name === group || item.short_display_name === group,
-      );
-      if (foundItem) {
-        return foundItem.name;
-      }
-    }
-    return "";
-  };
-  */
-
   interface HeaderValueObject {
     value: string;
   }
