@@ -23,6 +23,9 @@ ln -sf $suite www/benchmark_output/runs/latest || exit 1
 # Set permissions
 chmod -R og=u-w www || exit 1
 
+# Make it live on the NLP website at https://nlp.stanford.edu/helm/<suite>
+rsync -arvz www/* /u/apache/htdocs/helm/$suite
+
 # Make it live
 echo To make the contents of www live, do a git push or run something like:
 echo
