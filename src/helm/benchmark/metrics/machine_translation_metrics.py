@@ -1,8 +1,8 @@
 from typing import List
 
 from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.common.optional_dependencies import handle_module_not_found_error
-from .metric import Metric
 from .metric_name import MetricName
 from .statistic import Stat
 
@@ -13,7 +13,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e)
 
 
-class MachineTranslationMetric(Metric):
+class MachineTranslationMetric(EvaluateInstancesMetric):
     """
     Compute the BLEU score for Machine Translation scenarios. The implementation is based on sacrebleu.
     """
@@ -42,7 +42,7 @@ class MachineTranslationMetric(Metric):
         return [Stat(MetricName("bleu")).add(bleu_score)]
 
 
-class CLEVAMachineTranslationMetric(Metric):
+class CLEVAMachineTranslationMetric(EvaluateInstancesMetric):
     """
     Compute the BLEU score for Machine Translation scenarios of CLEVA benchmark.
     Based on sacrebleu, this implementation distinguishes target language and allows variable number of references.
