@@ -76,8 +76,8 @@ export default function GroupsTables({
   }, [sortFirstMetric, activeSortColumn]);
 
   return (
-    <div className="overflow-auto h-[calc(100vh_-_18rem)]">
-      <table className="table">
+    <div>
+      <table className="rounded-lg shadow-md table">
         <thead>
           <tr>
             {activeGroupsTable.header.map((headerValue, idx) => (
