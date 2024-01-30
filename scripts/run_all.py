@@ -155,6 +155,9 @@ def queue_jobs(
             elif use_sphinx:
                 nlp_run_args += " -q sphinx "
 
+                if "HuggingFaceM4/idefics-80b" in model.name:
+                    nlp_run_args += " --memory 160g "
+
             swiss_army_port: str = ""
             if model.name == "thudm/cogview2":
                 swiss_army_port = f"MASTER_PORT={65_000 + i} "
