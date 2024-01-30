@@ -1044,6 +1044,17 @@ model_deployments:
 
   ## GPT 4 Models
 
+  - name: openai/gpt-4-1106-preview
+    model_name: openai/gpt-4-1106-preview
+    tokenizer_name: openai/cl100k_base
+    # According to https://help.openai.com/en/articles/8555510-gpt-4-turbo,
+    # the maximum number of output tokens for this model is 4096
+    # TODO: add max_generated_tokens_length of 4096 https://github.com/stanford-crfm/helm/issues/2098
+    max_sequence_length: 128000
+    max_request_length: 128001
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
   - name: openai/gpt-4-0314
     model_name: openai/gpt-4-0314
     tokenizer_name: openai/cl100k_base
@@ -1073,17 +1084,6 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 32768
     max_request_length: 32769
-    client_spec:
-      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
-
-  - name: openai/gpt-4-1106-preview
-    model_name: openai/gpt-4-1106-preview
-    tokenizer_name: openai/cl100k_base
-    # According to https://help.openai.com/en/articles/8555510-gpt-4-turbo,
-    # the maximum number of output tokens for this model is 4096
-    # TODO: add max_generated_tokens_length of 4096 https://github.com/stanford-crfm/helm/issues/2098
-    max_sequence_length: 128000
-    max_request_length: 128001
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 

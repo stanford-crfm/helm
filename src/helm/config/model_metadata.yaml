@@ -1365,6 +1365,14 @@ models:
 
   ## GPT 4 Models
 
+  - name: openai/gpt-4-1106-preview
+    display_name: GPT-4 Turbo (1106 preview)
+    description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from 2023-11-06.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-11-06
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/gpt-4-0314
     display_name: GPT-4 (0314)
     description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-03-14.
@@ -1395,14 +1403,6 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
-    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
-
-  - name: openai/gpt-4-1106-preview
-    display_name: GPT-4 Turbo (1106 preview)
-    description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from 2023-11-06.
-    creator_organization_name: OpenAI
-    access: limited
-    release_date: 2023-11-06
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4-0125-preview
