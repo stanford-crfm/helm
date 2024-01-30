@@ -63,6 +63,25 @@ export default function LeaderboardTables({
     void fetchData();
     return () => controller.abort();
   }, []);
+
+  const getModelDesc = (model: string): string => {
+    if (schema) {
+      const foundItem = schema.models.find(
+        (item) => item.display_name === model,
+      );
+      if (foundItem) {
+        let toRet = foundItem.description;
+        if (toRet.includes("/")) {
+          toRet = toRet.replace("/", "_");
+          return toRet;
+        } else {
+          return toRet;
+        }
+      }
+    }
+    return "";
+  };
+
   const getModelForRunName = (model: string): string => {
     if (schema) {
       const foundItem = schema.models.find(
@@ -283,13 +302,34 @@ export default function LeaderboardTables({
                           cellIdx === 0 ? "text-lg sticky left-0" : ""
                         } ${idx % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
                       >
-                        <RowValue
-                          ignoreHref={ignoreHref && cellIdx === 0}
-                          value={{ ...rowValue }}
-                          title={`Click value to see predictions for ${getGroupForRunName(
-                            getHeaderValue(activeGroupsTable.header[cellIdx]),
-                          )}: ${getModelForRunName(String(row[0].value))}`}
-                        />
+                        {cellIdx == 1 ? (
+                          <RowValue
+                            value={{
+                              ...rowValue,
+                              href:
+                                "/runs/?q=" +
+                                getModelForRunName(String(row[0].value)),
+                            }}
+                            title={`Click value to see all predictions for: ${getModelForRunName(
+                              String(row[0].value),
+                            )}`}
+                          />
+                        ) : (
+                          <RowValue
+                            value={{ ...rowValue }}
+                            title={
+                              String(row[0].value) === rowValue.value
+                                ? getModelDesc(String(row[0].value))
+                                : `Click value to see predictions for ${getGroupForRunName(
+                                    getHeaderValue(
+                                      activeGroupsTable.header[cellIdx],
+                                    ),
+                                  )}: ${getModelForRunName(
+                                    String(row[0].value),
+                                  )}`
+                            }
+                          />
+                        )}
                       </td>
                     ))}
                   </tr>
