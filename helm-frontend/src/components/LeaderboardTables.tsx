@@ -187,9 +187,9 @@ export default function LeaderboardTables({
           </div>
         </div>
       ) : (
-        <div className="overflow-auto h-[calc(100vh_-_18rem)] rounded-lg shadow-md bg-white">
+        <div>
           <div>
-            <table className="table w-full">
+            <table className="rounded-lg shadow-md table">
               <thead>
                 <tr>
                   {activeGroupsTable.header.map((headerValue, idx) => (
@@ -244,4 +244,5 @@ export default function LeaderboardTables({
       )}
     </>
   );
+  // TODO: Remove unnecessary divs
 }
