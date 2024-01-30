@@ -17,6 +17,11 @@ function formatNumber(value: string | number): string {
 }
 
 export default function RowValue({ value, title }: Props) {
+  // TODO remove this once we stop adding ⚠ to output JSONs
+  if (typeof value.value === "string" && value.value.includes("⚠")) {
+    value.value = value.value.replace("⚠", "");
+  }
+
   if (value.value === undefined) {
     return "-";
   }
