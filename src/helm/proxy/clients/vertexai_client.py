@@ -1,7 +1,7 @@
 import requests
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Optional, List, Union
 
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
@@ -156,26 +156,11 @@ class VertexAIChatClient(VertexAIClient):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-
-        # Contents can either be text or a list of multimodal content made up of text, images or other content
-        contents: Union[str, List[Union[str, Any]]] = request.prompt
-        # Used to generate a unique cache key for this specific request
-        prompt_key: str = request.prompt
+        contents: str = request.prompt
 
         # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
         if request.multimodal_prompt is not None:
-            contents = []
-            for media_object in request.multimodal_prompt.media_objects:
-                if media_object.is_type("image") and media_object.location:
-                    contents.append(Part.from_image(Image.load_from_file(media_object.location)))
-                elif media_object.is_type(TEXT_TYPE):
-                    if media_object.text is None:
-                        raise ValueError("MediaObject of text type has missing text field value")
-                    contents.append(media_object.text)
-                else:
-                    raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
-
-            prompt_key = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+            return self._make_multimodal_request(request)
 
         parameters = {
             "temperature": request.temperature,
@@ -223,7 +208,7 @@ class VertexAIChatClient(VertexAIClient):
             cache_key = CachingClient.make_cache_key(
                 {
                     "model_name": model_name,
-                    "prompt": prompt_key,
+                    "prompt": request.prompt,
                     **parameters,
                 },
                 request,
@@ -259,6 +244,88 @@ class VertexAIChatClient(VertexAIClient):
             cached=cached,
             request_time=response["request_time"],
             request_datetime=response["request_datetime"],
+            completions=completions,
+            embedding=[],
+        )
+
+    def _make_multimodal_request(self, request: Request) -> RequestResult:
+        # Contents can either be text or a list of multimodal content made up of text, images or other content
+        contents: Union[str, List[Union[str, Any]]] = request.prompt
+        # Used to generate a unique cache key for this specific request
+        assert request.multimodal_prompt is not None
+        prompt_key: str = generate_uid_for_multimodal_prompt(request.multimodal_prompt)
+
+        # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
+        contents = []
+        for media_object in request.multimodal_prompt.media_objects:
+            if media_object.is_type("image") and media_object.location:
+                contents.append(Part.from_image(Image.load_from_file(media_object.location)))
+            elif media_object.is_type(TEXT_TYPE):
+                if media_object.text is None:
+                    raise ValueError("MediaObject of text type has missing text field value")
+                contents.append(media_object.text)
+            else:
+                raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+        parameters = {
+            "temperature": request.temperature,
+            "max_output_tokens": request.max_tokens,
+            "top_k": request.top_k_per_token,
+            "top_p": request.top_p,
+            "stop_sequences": request.stop_sequences,
+            "candidate_count": 1,
+        }
+
+        completions: List[Sequence] = []
+        model_name: str = request.model_engine
+        model = self.get_model(model_name)
+
+        request_time = 0
+        request_datetime: Optional[int] = None
+        all_cached = True
+
+        # Gemini Vision only supports generating 1-2 candidates at a time, so make `request.num_completions` requests
+        for completion_index in range(request.num_completions):
+            try:
+
+                def do_it():
+                    response: GenerationResponse = model.generate_content(
+                        contents, generation_config=parameters, safety_settings=self.safety_settings
+                    )
+                    return {"predictions": [{"text": response.candidates[0]}]}
+
+                raw_cache_key = {"model_name": model_name, "prompt": prompt_key, **parameters}
+                if completion_index > 0:
+                    raw_cache_key["completion_index"] = completion_index
+
+                cache_key = CachingClient.make_cache_key(raw_cache_key, request)
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            except (requests.exceptions.RequestException, AssertionError) as e:
+                error: str = f"VertexAITextClient error: {e}"
+                return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
+            response_text = response["predictions"][0]["text"]
+            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
+                TokenizationRequest(response_text, tokenizer=self.tokenizer_name)
+            )
+            tokens: List[Token] = [
+                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
+            ]
+
+            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
+            sequence = truncate_sequence(completion, request, print_warning=True)
+            completions.append(sequence)
+
+            request_time += response["request_time"]
+            # Use the datetime from the first completion because that's when the request was fired
+            request_datetime = request_datetime or response.get("request_datetime")
+            all_cached = all_cached and cached
+
+        return RequestResult(
+            success=True,
+            cached=all_cached,
+            request_time=request_time,
+            request_datetime=request_datetime,
             completions=completions,
             embedding=[],
         )
