@@ -17,6 +17,11 @@ function formatNumber(value: string | number): string {
 }
 
 export default function RowValue({ value, title }: Props) {
+  // TODO remove this once we stop adding ⚠ to output JSONs
+  if (typeof value.value === "string" && value.value.includes("⚠")) {
+    value.value = value.value.replace("⚠", "");
+  }
+
   if (value.value === undefined) {
     return "-";
   }
@@ -40,13 +45,28 @@ export default function RowValue({ value, title }: Props) {
         </Link>
       );
     } else {
-      return <>{formatNumber(value.value)}</>;
+      if (title) {
+        return <a title={title}>{formatNumber(value.value)}</a>;
+      } else {
+        return <>{formatNumber(value.value)}</>;
+      }
     }
+  }
+
+  if (value.href) {
+    return (
+      <Link to={value.href} inTable title={title}>
+        {formatNumber(value.value)}
+      </Link>
+    );
   }
 
   if (value.markdown) {
     return <MarkdownValue value={String(value.value)} />;
   }
 
+  if (title) {
+    return <a title={title}>{formatNumber(value.value)}</a>;
+  }
   return <>{formatNumber(value.value)}</>;
 }
