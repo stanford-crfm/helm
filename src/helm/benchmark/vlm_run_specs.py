@@ -49,14 +49,13 @@ def get_short_answer_generation_adapter_spec():
 def get_multiple_choice_joint_adapter_spec(
     input_noun: Optional[str],
     output_noun: str,
-    instructions: str = "",
     max_train_instances: int = 0,
     num_outputs: int = 1,
 ) -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
         global_prefix="",
-        instructions=instructions,
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
         input_suffix="\n",
         output_prefix=f"{output_noun}: ",
@@ -143,9 +142,8 @@ def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
     if question_type == "open":
         adapter_spec = get_short_answer_generation_adapter_spec()
     elif question_type == "multiple-choice":
-        instructions: str = "Answer the multiple choice question by just giving the letter of the correct answer."
         adapter_spec = get_multiple_choice_joint_adapter_spec(
-            input_noun=None, output_noun="Answer", instructions=instructions, max_train_instances=0
+            input_noun=None, output_noun="Answer", max_train_instances=0
         )
     else:
         raise ValueError(f"Invalid question type: {question_type}")
@@ -167,15 +165,10 @@ def get_heim_human_eval_spec(question_type: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.heim_human_eval_scenario.HEIMHumanEvalScenario",
         args={"question_type": question_type},
     )
-
-    instructions: str = (
-        "The following are multiple choice questions (with answers) about images and their descriptions."
-    )
     adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
         # `num_outputs` is 5 because 5 human annotators were asked per image-question pair in HEIM
         input_noun=None,
         output_noun="Answer",
-        instructions=instructions,
         num_outputs=5,
         max_train_instances=0,
     )
