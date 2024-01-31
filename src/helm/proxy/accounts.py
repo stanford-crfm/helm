@@ -334,10 +334,8 @@ class Accounts:
             To enforce this rule, this helper raises a InsufficientQuotaError if the quota is None
             at every granularity."""
             model_group_usages = account.usages.get(model_group)
-            print(model_group_usages)
             if model_group_usages is None:
                 raise InsufficientQuotaError(f"No quota for {model_group}")
-
             if all(
                 [
                     granularity_usage.quota is None or granularity_usage.quota <= 0
@@ -347,10 +345,7 @@ class Accounts:
                 raise InsufficientQuotaError(f"No quota for {model_group}")
 
         if self.root_mode:
-            print("root")
             return
-        else:
-            print("not root")
 
         with SqliteDict(self.path) as cache:
             account: Account = from_dict(Account, cache[api_key])
