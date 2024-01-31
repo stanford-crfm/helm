@@ -28,5 +28,5 @@ class TestAutoTokenCounter:
         account.usages[model_group]["monthly"] = Usage(quota=1000)
         self.accounts.update_account(self.root_auth, account)
 
-        # Now this accout has quota and can be used
+        # Now this account has quota and can be used
         self.accounts.check_can_use(account.api_key, model_group)
