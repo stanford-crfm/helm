@@ -1328,7 +1328,7 @@ models:
   
   - name: openai/gpt-3.5-turbo-0301
     display_name: GPT-3.5 Turbo (0301)
-    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
+    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-03-01
@@ -1336,7 +1336,7 @@ models:
 
   - name: openai/gpt-3.5-turbo-0613
     display_name: GPT-3.5 Turbo (0613)
-    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
+    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
@@ -1344,7 +1344,7 @@ models:
 
   - name: openai/gpt-3.5-turbo-1106
     display_name: GPT-3.5 Turbo (1106)
-    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-11-06.
+    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-11-06.
     creator_organization_name: OpenAI
     access: limited
     # Actual release blog post was published on 2024-01-25:
@@ -1356,7 +1356,7 @@ models:
   # in the openai/gpt-3.5-turbo-0613 comment
   - name: openai/gpt-3.5-turbo-16k-0613
     display_name: gpt-3.5-turbo-16k-0613
-    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13 with a longer context length of 16,384 tokens.
+    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13 with a longer context length of 16,384 tokens.
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
