@@ -1,6 +1,6 @@
 # mypy: check_untyped_defs = False
 import requests
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -20,11 +20,18 @@ except ModuleNotFoundError as e:
 
 
 class MistralAIClient(CachingClient):
-    def __init__(
-        self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: Optional[str] = None
-    ):
+    """
+    Client for Mistral API.
+    """
+
+    # Aliases to match HELM names to Model names in Mistral API
+    _model_aliases: Dict[str, str] = {
+        "mistral-7b-v0.1": "mistral-tiny",
+    }
+
+    def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: str):
         super().__init__(cache_config=cache_config)
-        self.api_key: Optional[str] = api_key
+        self.api_key: str = api_key
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self._client = MistralClient(api_key=self.api_key)
@@ -66,7 +73,7 @@ class MistralAIClient(CachingClient):
         }
 
         completions: List[Sequence] = []
-        model_name: str = request.model_engine
+        model_name: str = self._model_aliases.get(request.model_engine, request.model_engine)
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
@@ -84,7 +91,7 @@ class MistralAIClient(CachingClient):
                 # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
                 cache_key = CachingClient.make_cache_key(
                     {
-                        "engine": request.model_engine,
+                        "engine": model_name,
                         "completion_index": completion_index,
                         **raw_request,
                     },
