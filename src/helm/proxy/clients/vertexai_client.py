@@ -292,7 +292,7 @@ class VertexAIChatClient(VertexAIClient):
                     response: GenerationResponse = model.generate_content(
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )
-                    return {"predictions": [{"text": response.candidates[0]}]}
+                    return {"predictions": [{"text": response.candidates[0].text}]}
 
                 raw_cache_key = {"model_name": model_name, "prompt": prompt_key, **parameters}
                 if completion_index > 0:
