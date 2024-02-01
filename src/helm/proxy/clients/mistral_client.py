@@ -1,4 +1,3 @@
-# mypy: check_untyped_defs = False
 import requests
 from typing import Any, Dict, List
 
