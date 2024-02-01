@@ -211,14 +211,17 @@ class VertexAIChatClient(VertexAIClient):
                 response: GenerationResponse = model.generate_content(
                     contents, generation_config=parameters, safety_settings=self.safety_settings
                 )
-                print("\n\n\n\n\n\n\n\n")
-                print("response")
-                print(response)
-                print("\n\n\n\n\n\n\n\n")
                 candidates: List[Candidate] = response.candidates
-                response_dict = {
-                    "predictions": [{"text": completion.text for completion in candidates}],
-                }  # TODO: Extract more information from the response
+                try:
+                    response_dict = {
+                        "predictions": [{"text": completion.text for completion in candidates}],
+                    }  # TODO: Extract more information from the response
+                except ValueError as e:
+                    if "Content has no parts" in str(e):
+                        # The prediction was either blocked du to safety settings or the model stopped and returned
+                        # nothing (which also happens when the model is blocked).
+                        # In both cases, we return an empty prediction.
+                        return {"predictions": [{"text": ""}]}
                 return response_dict
 
             # We need to include the engine's name to differentiate among requests made for different model
