@@ -25,6 +25,7 @@ DEFAULT_QUOTAS = {
     "cohere": {"daily": 10000},
     "dall_e": {"daily": 5},  # In terms of the number of generated images
     "together_vision": {"daily": 30},
+    "simple": {"daily": 10000},
 }
 
 
