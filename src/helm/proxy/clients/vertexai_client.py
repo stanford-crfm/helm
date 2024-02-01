@@ -242,9 +242,6 @@ class VertexAIChatClient(VertexAIClient):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         for prediction in response["predictions"]:
-            print("\n\n\n\n\n\n\n\n")
-            print(prediction)
-            print("\n\n\n\n\n\n\n\n")
             response_text = prediction["text"]
 
             # The Python SDK does not support echo
