@@ -49,18 +49,7 @@ class MistralAIClient(CachingClient):
             safe_prompt=False,  # Disable safe_prompt
         )
 
-        result = {
-            "choices": [
-                {
-                    "text": choice.message.content
-                    if choice.message.content and choice.message.role == "assistant"
-                    else "",
-                }
-                for choice in chat_response.choices
-            ],
-        }
-
-        return result
+        return chat_response.dict()
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
@@ -103,7 +92,9 @@ class MistralAIClient(CachingClient):
                 error: str = f"MistralClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-            response_text: str = response["choices"][0]["text"]
+            response_message: Dict[str, Any] = response["choices"][0]["message"]
+            assert response_message["role"] == "assistant"
+            response_text: str = response_message["content"]
 
             # The Mistral API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
