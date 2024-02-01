@@ -15,7 +15,6 @@ from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.request import Request, RequestResult
 from helm.proxy.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
-from helm.proxy.clients.huggingface_client import HuggingFaceClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
@@ -34,9 +33,6 @@ class AutoClient(Client):
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
-        # self._huggingface_client is lazily instantiated by get_huggingface_client()
-        self._huggingface_client: Optional[HuggingFaceClient] = None
-        # self._critique_client is lazily instantiated by get_critique_client()
         self._critique_client: Optional[CritiqueClient] = None
         hlog(f"AutoClient: cache_path = {cache_path}")
         hlog(f"AutoClient: mongo_uri = {mongo_uri}")
@@ -210,15 +206,6 @@ class AutoClient(Client):
                 "'mturk-sandbox', 'surgeai', 'scale' or 'random'"
             )
         return self._critique_client
-
-    def get_huggingface_client(self) -> HuggingFaceClient:
-        """Get the Hugging Face client."""
-        if self._huggingface_client:
-            assert isinstance(self._huggingface_client, HuggingFaceClient)
-            return self._huggingface_client
-        cache_config = build_cache_config(self.cache_path, self.mongo_uri, "huggingface")
-        self._huggingface_client = HuggingFaceClient(cache_config=cache_config)
-        return self._huggingface_client
 
     def _get_file_cache(self, host_organization: str) -> FileCache:
         # Initialize `FileCache` for text-to-image model APIs

@@ -1,10 +1,7 @@
 import argparse
 from dataclasses import replace
 from typing import List, Optional
-from helm.benchmark.huggingface_registration import (
-    register_huggingface_hub_model_from_flag_value,
-    register_huggingface_local_model_from_flag_value,
-)
+
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.general import ensure_directory_exists
@@ -255,10 +252,16 @@ def main():
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
 
-    for huggingface_model_name in args.enable_huggingface_models:
-        register_huggingface_hub_model_from_flag_value(huggingface_model_name)
-    for huggingface_model_path in args.enable_local_huggingface_models:
-        register_huggingface_local_model_from_flag_value(huggingface_model_path)
+    if args.enable_huggingface_models:
+        from helm.benchmark.huggingface_registration import register_huggingface_hub_model_from_flag_value
+
+        for huggingface_model_name in args.enable_huggingface_models:
+            register_huggingface_hub_model_from_flag_value(huggingface_model_name)
+    if args.enable_local_huggingface_models:
+        from helm.benchmark.huggingface_registration import register_huggingface_local_model_from_flag_value
+
+        for huggingface_model_path in args.enable_local_huggingface_models:
+            register_huggingface_local_model_from_flag_value(huggingface_model_path)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
