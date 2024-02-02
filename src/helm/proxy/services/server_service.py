@@ -102,6 +102,21 @@ class ServerService(Service):
             requests.append(request)
         return QueryResult(requests=requests)
 
+    def _get_group_for_model_deployment(self, model_deployment: str) -> str:
+        if model_deployment.startswith("openai/"):
+            if model_deployment.startswith("openai/code-"):
+                return "codex"
+            elif model_deployment.startswith("openai/dall-e-"):
+                return "dall_e"
+            elif model_deployment.startswith("openai/gpt-4-"):
+                return "gpt4"
+            else:
+                return "gpt3"
+        elif model_deployment.startswith("ai21/"):
+            return "jurassic"
+        else:
+            return get_model_deployment_host_organization(model_deployment)
+
     def make_request(self, auth: Authentication, request: Request) -> RequestResult:
         """Actually make a request to an API."""
         # TODO: try to invoke the API even if we're not authenticated, and if
@@ -109,7 +124,7 @@ class ServerService(Service):
         #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
-        host_organization: str = get_model_deployment_host_organization(request.model_deployment)
+        host_organization: str = self._get_group_for_model_deployment(request.model_deployment)
         # Make sure we can use
         self.accounts.check_can_use(auth.api_key, host_organization)
 
