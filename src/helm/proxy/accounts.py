@@ -350,10 +350,12 @@ class Accounts:
 
         with SqliteDict(self.path) as cache:
             account: Account = from_dict(Account, cache[api_key])
-            granular_check_can_use(account, model_group, "daily", compute_daily_period)
-            granular_check_can_use(account, model_group, "monthly", compute_monthly_period)
-            granular_check_can_use(account, model_group, "total", compute_total_period)
-            check_non_empty_quota(account, model_group)
+        if account.is_admin:
+            return
+        granular_check_can_use(account, model_group, "daily", compute_daily_period)
+        granular_check_can_use(account, model_group, "monthly", compute_monthly_period)
+        granular_check_can_use(account, model_group, "total", compute_total_period)
+        check_non_empty_quota(account, model_group)
 
     def use(self, api_key: str, model_group: str, delta: int):
         """
