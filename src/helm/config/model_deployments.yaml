@@ -902,6 +902,25 @@ model_deployments:
   # OpenAI
 
   ## GPT 3 Models
+
+  - name: openai/davinci-002
+    model_name: openai/davinci-002
+    tokenizer_name: openai/cl100k_base
+    # Claimed sequence length is 16,384 tokens but we round down to 16,000 tokens
+    # to provide a margin of error.
+    max_sequence_length: 16000
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
+  - name: openai/babbage-002
+    model_name: openai/babbage-002
+    tokenizer_name: openai/cl100k_base
+    # Claimed sequence length is 16,384 tokens but we round down to 16,000 tokens
+    # to provide a margin of error.
+    max_sequence_length: 16000
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
 
