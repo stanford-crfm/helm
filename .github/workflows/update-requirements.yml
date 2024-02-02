@@ -41,7 +41,7 @@ jobs:
         # See: https://stackoverflow.com/a/54329850
         run: pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cu121 --no-cache-dir
       - name: Upgrade dependencies for Dependabot alerts
-        run: pip install urllib3==1.26.18
+        run: pip install urllib3==1.26.18 requests==2.31.0 Jinja2==3.1.3 certifi==2024.2.2 aiohttp==3.9.3
       - name: Install dependencies
         run: pip install -e .[all]
       - name: Install development dependencies
