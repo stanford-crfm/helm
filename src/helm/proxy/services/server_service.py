@@ -102,7 +102,7 @@ class ServerService(Service):
             requests.append(request)
         return QueryResult(requests=requests)
 
-    def _get_group_for_model_deployment(self, model_deployment: str) -> str:
+    def _get_model_group_for_model_deployment(self, model_deployment: str) -> str:
         if model_deployment.startswith("openai/"):
             if model_deployment.startswith("openai/code-"):
                 return "codex"
@@ -124,9 +124,9 @@ class ServerService(Service):
         #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
-        host_organization: str = self._get_group_for_model_deployment(request.model_deployment)
+        model_group: str = self._get_model_group_for_model_deployment(request.model_deployment)
         # Make sure we can use
-        self.accounts.check_can_use(auth.api_key, host_organization)
+        self.accounts.check_can_use(auth.api_key, model_group)
 
         # Use!
         request_result: RequestResult = self.client.make_request(request)
@@ -135,7 +135,7 @@ class ServerService(Service):
         if not request_result.cached:
             # Count the number of tokens used
             count: int = self.token_counter.count_tokens(request, request_result.completions)
-            self.accounts.use(auth.api_key, host_organization, count)
+            self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
 
