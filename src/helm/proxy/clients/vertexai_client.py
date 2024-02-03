@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Union
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token, ErrorFlags
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -218,10 +218,10 @@ class VertexAIChatClient(VertexAIClient):
                     }  # TODO: Extract more information from the response
                 except ValueError as e:
                     if "Content has no parts" in str(e):
-                        # The prediction was either blocked du to safety settings or the model stopped and returned
+                        # The prediction was either blocked due to safety settings or the model stopped and returned
                         # nothing (which also happens when the model is blocked).
                         # In both cases, we return an empty prediction.
-                        return {"predictions": [{"text": ""}]}
+                        return {"predictions": None}
                 return response_dict
 
             # We need to include the engine's name to differentiate among requests made for different model
@@ -240,6 +240,18 @@ class VertexAIChatClient(VertexAIClient):
         except (requests.exceptions.RequestException, AssertionError) as e:
             error: str = f"VertexAITextClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
+        if response["predictions"] is None:
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Response was empty due to content moderation filter",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                request_time=response["request_time"],
+                request_datetime=response["request_datetime"],
+            )
 
         for prediction in response["predictions"]:
             response_text = prediction["text"]
