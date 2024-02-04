@@ -311,7 +311,7 @@ class VertexAIChatClient(VertexAIClient):
 
                 cache_key = CachingClient.make_cache_key(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            except (requests.exceptions.RequestException, AssertionError, ValueError) as e:
+            except (requests.exceptions.RequestException, ValueError) as e:
                 if raw_response and raw_response._raw_response.prompt_feedback:
                     empty_completion = Sequence(
                         text="",
