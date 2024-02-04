@@ -25,7 +25,7 @@ DEFAULT_NLP_RUN_GPU_ARGS: str = f"{DEFAULT_NLP_RUN} -g 1 --exclude jagupard[18-3
 MONGODB_MACHINE: str = "john13"
 # -m controls number of instances
 DEFAULT_HELM_ARGS: str = (
-    f"--num-train-trials 1 --local -n 1 -m 10 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers"
+    f"--num-train-trials 1 --local -n 1 --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers"
     f"@{MONGODB_MACHINE}/crfm-models'"
 )
 
@@ -77,6 +77,7 @@ def queue_jobs(
     use_sphinx: bool = False,
     machine: Optional[str] = None,
     only_rerun_failed: bool = False,
+    max_eval_instances: int = 10,
 ):
     def should_skip(log_file_path: str) -> bool:
         """
@@ -165,6 +166,7 @@ def queue_jobs(
             command: str = (
                 f"{NLP_RUN} {nlp_run_args} --job-name {job_name} '{swiss_army_port}helm-run {DEFAULT_HELM_ARGS} "
                 f"--suite {suite} --conf-paths {conf_path} --models-to-run {model.name} --priority {priority} "
+                f"--max-eval-instances {max_eval_instances} "
                 f"> {log_path} 2>&1'"
             )
             hlog(command)
@@ -234,6 +236,13 @@ if __name__ == "__main__":
     parser.add_argument("--suite", help="Name of the suite", default="vhelm_lite")
     parser.add_argument("--priority", default=2)
     parser.add_argument(
+        "-m",
+        "--max-eval-instances",
+        type=int,
+        default=10,
+        help="Maximum number of eval instances.",
+    )
+    parser.add_argument(
         "-d",
         "--dry-run",
         action="store_true",
@@ -279,4 +288,5 @@ if __name__ == "__main__":
             use_sphinx=args.use_sphinx,
             machine=args.machine,
             only_rerun_failed=args.rerun,
+            max_eval_instances=args.max_eval_instances,
         )
