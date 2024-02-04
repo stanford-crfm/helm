@@ -20,7 +20,6 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
     ADAPT_RANKING_BINARY,
-    ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -72,7 +71,6 @@ from helm.benchmark.model_metadata_registry import (
     CHATML_MODEL_TAG,
     OPENAI_CHATGPT_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
-    VISION_LANGUAGE_MODEL_TAG,
 )
 from helm.common.general import singleton
 
@@ -3090,20 +3088,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # IDEFICS instruct
         if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:
             run_spec = singleton(IDEFICSInstructRunExpander().expand(run_spec))
-
-        # Gemini Vision
-        if GOOGLE_GEMINI_MODEL_TAG in model.tags and VISION_LANGUAGE_MODEL_TAG in model.tags:
-            # For Google Gemini Vision, temperature of 0 gives a deterministic output, so we increase it.
-            # Otherwise, it gives the same multiple choice answer num_outputs times. Use the default temperature of 0.4
-            # https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini
-            adapter_spec = run_spec.adapter_spec
-            if (
-                adapter_spec.num_outputs > 0
-                and adapter_spec.temperature == 0
-                and adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
-            ):
-                increase_temperature_expander = IncreaseTemperatureRunExpander(value=0.4)
-                run_spec = singleton(increase_temperature_expander.expand(run_spec))
 
         # Llava
         if LLAVA_MODEL_TAG in model.tags:

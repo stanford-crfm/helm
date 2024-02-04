@@ -166,10 +166,9 @@ def get_heim_human_eval_spec(question_type: str) -> RunSpec:
         args={"question_type": question_type},
     )
     adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
-        # `num_outputs` is 5 because 5 human annotators were asked per image-question pair in HEIM
         input_noun=None,
         output_noun="Answer",
-        num_outputs=5,
+        num_outputs=1,
         max_train_instances=0,
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()

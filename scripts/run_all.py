@@ -180,8 +180,8 @@ def queue_jobs(
     hlog("\npython3 scripts/run_all.py --check")
     hlog("\n\nRun the following command once all the runs complete:\n")
     command = (
-        f"helm-summarize --suite {suite} > {os.path.join(logs_path, 'summarize.log')} 2>&1 && "
-        f"sh scripts/create-www.sh {suite} > {os.path.join(logs_path, 'upload.log')} 2>&1"
+        f"helm-summarize --schema-file schema_vlm.yaml --suite {suite} > {os.path.join(logs_path, 'summarize.log')} "
+        f"2>&1 && sh scripts/create-www.sh {suite} > {os.path.join(logs_path, 'upload.log')} 2>&1"
     )
     hlog(f"{NLP_RUN} {DEFAULT_NLP_RUN_CPU_ARGS} --job-name {suite}-summarize-upload '{command}'\n")
 
