@@ -120,15 +120,7 @@ class IDEFICSClient(CachingClient):
                     inputs = processor([multimodal_prompt] * request.num_completions, **input_args).to(self._device)
                     generated_ids = model.generate(**inputs, **generation_args)
                     generated_text: List[str] = processor.batch_decode(generated_ids, skip_special_tokens=True)
-
-                    output = []
-                    for text in generated_text:
-                        hlog(f"Generated text: {text}")
-                        text = text[-(len(text) - len(prompt_text)) :] if len(text) > len(prompt_text) else ""
-                        hlog(f"Truncated: {text}")
-                        output.append(text)
-
-                    return {"output": output}
+                    return {"output": generated_text}
 
                 # Include the prompt and model name in the cache key
                 cache_key = CachingClient.make_cache_key(
@@ -144,14 +136,18 @@ class IDEFICSClient(CachingClient):
             except RuntimeError as model_error:
                 return RequestResult(success=False, cached=False, error=str(model_error), completions=[], embedding=[])
 
-            for completion in result["output"]:
+            for text in result["output"]:
+                hlog(f"Generated text: {text}")
+                text = text[-(len(text) - len(prompt_text)) :] if len(text) > len(prompt_text) else ""
+                hlog(f"Truncated: {text}")
+
                 tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                    TokenizationRequest(completion, tokenizer=self.tokenizer_name)
+                    TokenizationRequest(text, tokenizer=self.tokenizer_name)
                 )
                 tokens: List[Token] = [
                     Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
                 ]
-                completions.append(Sequence(text=completion, logprob=0, tokens=tokens))
+                completions.append(Sequence(text=text, logprob=0, tokens=tokens))
 
         return RequestResult(
             success=True,

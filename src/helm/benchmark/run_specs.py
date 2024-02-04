@@ -35,6 +35,7 @@ from .run_expander import (
     StopRunExpander,
     ChatMLRunExpander,
     IncreaseTemperatureRunExpander,
+    IncreaseMaxTokensRunExpander,
 )
 from .runner import RunSpec, get_benchmark_output_path
 from .scenarios.lex_glue_scenario import (
@@ -65,6 +66,7 @@ from helm.benchmark.model_metadata_registry import (
     GOOGLE_PALM_2_MODEL_TAG,
     GOOGLE_GEMINI_MODEL_TAG,
     IDEFICS_INSTRUCT_MODEL_TAG,
+    VISION_LANGUAGE_MODEL_TAG,
     LLAVA_MODEL_TAG,
     NO_NEWLINES_TAG,
     NLG_PREFIX_TAG,
@@ -3084,6 +3086,14 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # Google prompts
         if GOOGLE_PALM_2_MODEL_TAG in model.tags or GOOGLE_GEMINI_MODEL_TAG in model.tags:
             run_spec = singleton(GoogleRunExpander().expand(run_spec))
+
+        # Google Gemini Vision returns an empty completion or throws an error if max_tokens is 1
+        if (
+            VISION_LANGUAGE_MODEL_TAG in model.tags
+            and GOOGLE_GEMINI_MODEL_TAG in model.tags
+            and run_spec.adapter_spec.max_tokens == 1
+        ):
+            run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
 
         # IDEFICS instruct
         if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:

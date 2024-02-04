@@ -63,7 +63,7 @@ def get_multiple_choice_joint_adapter_spec(
         instance_prefix="\n",
         max_train_instances=max_train_instances,
         num_outputs=num_outputs,
-        max_tokens=2,
+        max_tokens=1,
         stop_sequences=["\n"],
         temperature=0.0,
         random=None,

@@ -4,6 +4,7 @@ from threading import Lock
 from typing import Any, Dict, Optional, List, Union
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
@@ -296,6 +297,7 @@ class VertexAIChatClient(VertexAIClient):
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )
                     if raw_response._raw_response.prompt_feedback.block_reason != 0:
+                        hlog(f"Content blocked for prompt: {request.multimodal_prompt}")
                         return {"error": self.CONTENT_POLICY_VIOLATED_FINISH_REASON}
 
                     return {"predictions": [{"text": raw_response.candidates[0].text}]}
