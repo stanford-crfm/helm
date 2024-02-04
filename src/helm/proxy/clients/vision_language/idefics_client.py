@@ -123,9 +123,9 @@ class IDEFICSClient(CachingClient):
 
                     output = []
                     for text in generated_text:
-                        hlog(f"Full Generated text: {text}")
+                        hlog(f"Generated text: {text}")
                         text = text[-(len(text) - len(prompt_text)) :] if len(text) > len(prompt_text) else ""
-                        hlog(f"Truncated Generated text: {generated_text}")
+                        hlog(f"Truncated: {text}")
                         output.append(text)
 
                     return {"output": output}
