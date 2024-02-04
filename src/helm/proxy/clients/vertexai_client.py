@@ -292,6 +292,9 @@ class VertexAIChatClient(VertexAIClient):
                     response: GenerationResponse = model.generate_content(
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )
+                    if len(response.candidates) == 0:
+                        raise ValueError(f"No candidates found for the multimodal prompt: {request.multimodal_prompt}")
+
                     return {"predictions": [{"text": response.candidates[0].text}]}
 
                 raw_cache_key = {"model_name": model_name, "prompt": prompt_key, **parameters}
