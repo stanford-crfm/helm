@@ -144,6 +144,9 @@ class VertexAITextClient(VertexAIClient):
 class VertexAIChatClient(VertexAIClient):
     """Client for Vertex AI chat models (e.g., Gemini). Supports multimodal prompts."""
 
+    # Set the finish reason to this if the prompt violates the content policy
+    CONTENT_POLICY_VIOLATED_FINISH_REASON: str = "The prompt violates Google's content policy."
+
     @staticmethod
     def get_model(model_name: str) -> Any:
         global _models_lock
@@ -284,21 +287,23 @@ class VertexAIChatClient(VertexAIClient):
         request_datetime: Optional[int] = None
         all_cached = True
 
+        raw_response: Optional[GenerationResponse] = None
+
         # Gemini Vision only supports generating 1-2 candidates at a time, so make `request.num_completions` requests
         for completion_index in range(request.num_completions):
             try:
 
                 def do_it():
-                    response: GenerationResponse = model.generate_content(
+                    raw_response = model.generate_content(
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )
-                    if len(response.candidates) == 0:
+                    if len(raw_response.candidates) == 0:
                         raise ValueError(
                             "No candidates found for the multimodal prompt: "
-                            f"{request.multimodal_prompt}, response: {response}"
+                            f"{request.multimodal_prompt}, response: {raw_response}"
                         )
 
-                    return {"predictions": [{"text": response.candidates[0].text}]}
+                    return {"predictions": [{"text": raw_response.candidates[0].text}]}
 
                 raw_cache_key = {"model_name": model_name, "prompt": prompt_key, **parameters}
                 if completion_index > 0:
@@ -307,6 +312,21 @@ class VertexAIChatClient(VertexAIClient):
                 cache_key = CachingClient.make_cache_key(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except (requests.exceptions.RequestException, AssertionError, ValueError) as e:
+                if raw_response and raw_response._raw_response.prompt_feedback:
+                    empty_completion = Sequence(
+                        text="",
+                        logprob=0,
+                        tokens=[],
+                        finish_reason={"reason": self.CONTENT_POLICY_VIOLATED_FINISH_REASON},
+                    )
+                    return RequestResult(
+                        success=True,
+                        cached=False,
+                        request_time=0,
+                        completions=[empty_completion] * request.num_completions,
+                        embedding=[],
+                    )
+
                 error: str = f"VertexAITextClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
