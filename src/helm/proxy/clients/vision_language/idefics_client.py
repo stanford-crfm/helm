@@ -71,8 +71,8 @@ class IDEFICSClient(CachingClient):
             loaded_model_processor = _models[checkpoint]
             if loaded_model_processor is None:
                 hlog(f"Loading model {checkpoint} and caching in memory...")
-                model = IdeficsForVisionText2Text.from_pretrained(checkpoint, torch_dtype=torch.bfloat16).to(
-                    self._device
+                model = IdeficsForVisionText2Text.from_pretrained(
+                    checkpoint, torch_dtype=torch.bfloat16, device_map="auto"
                 )
                 processor = AutoProcessor.from_pretrained(checkpoint)
                 _models[checkpoint] = LoadedIDEFICSModelProcessor(model, processor)
