@@ -13,8 +13,10 @@ from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
+    DecodeRequest,
     TokenizationRequest,
     TokenizationRequestResult,
+    DecodeRequestResult,
 )
 from helm.common.request import wrap_request_time
 from helm.proxy.clients.client import CachingClient, generate_uid_for_multimodal_prompt
@@ -138,11 +140,20 @@ class IDEFICSClient(CachingClient):
 
             for text in result["output"]:
                 hlog(f"Generated text: {text}")
-                text = text[-(len(text) - len(prompt_text)) :] if len(text) > len(prompt_text) else ""
+
+                # truncate the output text as IDEFICS returns the entire sequence including the prompt
+                tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
+                    TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=True)
+                )
+                raw_tokens: List = tokenization_result.raw_tokens[-request.max_tokens :]
+                decode_result: DecodeRequestResult = self.tokenizer.decode(
+                    DecodeRequest(raw_tokens, tokenizer=self.tokenizer_name)
+                )
+                text = decode_result.text
                 hlog(f"Truncated: {text}")
 
-                tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                    TokenizationRequest(text, tokenizer=self.tokenizer_name)
+                tokenization_result = self.tokenizer.tokenize(
+                    TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=False)
                 )
                 tokens: List[Token] = [
                     Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
