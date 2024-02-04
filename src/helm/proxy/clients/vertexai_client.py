@@ -293,7 +293,10 @@ class VertexAIChatClient(VertexAIClient):
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )
                     if len(response.candidates) == 0:
-                        raise ValueError(f"No candidates found for the multimodal prompt: {request.multimodal_prompt}")
+                        raise ValueError(
+                            "No candidates found for the multimodal prompt: "
+                            f"{request.multimodal_prompt}, response: {response}"
+                        )
 
                     return {"predictions": [{"text": response.candidates[0].text}]}
 
@@ -303,7 +306,7 @@ class VertexAIChatClient(VertexAIClient):
 
                 cache_key = CachingClient.make_cache_key(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            except (requests.exceptions.RequestException, AssertionError) as e:
+            except (requests.exceptions.RequestException, AssertionError, ValueError) as e:
                 error: str = f"VertexAITextClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
