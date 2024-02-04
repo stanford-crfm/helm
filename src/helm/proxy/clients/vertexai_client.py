@@ -295,8 +295,7 @@ class VertexAIChatClient(VertexAIClient):
                     raw_response = model.generate_content(
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )
-                    import pdb; pdb.set_trace()
-                    if raw_response and raw_response._raw_response.prompt_feedback:
+                    if raw_response._raw_response.prompt_feedback.block_reason != 0:
                         return {"error": self.CONTENT_POLICY_VIOLATED_FINISH_REASON}
 
                     return {"predictions": [{"text": raw_response.candidates[0].text}]}
