@@ -676,8 +676,8 @@ run_groups:
       when: "2023"
       language: English
 
-  - name: visual_question_answering
-    display_name: VQA
+  - name: vqa
+    display_name: Visual Question Answering
     description: Open-ended questions about images
     metric_groups:
       - accuracy

@@ -148,6 +148,9 @@ class VertexAIChatClient(VertexAIClient):
     # Set the finish reason to this if the prompt violates the content policy
     CONTENT_POLICY_VIOLATED_FINISH_REASON: str = "The prompt violates Google's content policy."
 
+    # Gemini returns this error for certain valid requests
+    CONTENT_HAS_NO_PARTS_ERROR: str = "Content has no parts."
+
     @staticmethod
     def get_model(model_name: str) -> Any:
         global _models_lock
@@ -272,6 +275,21 @@ class VertexAIChatClient(VertexAIClient):
         )
 
     def _make_multimodal_request(self, request: Request) -> RequestResult:
+        def complete_for_valid_error(error_message: str) -> RequestResult:
+            empty_completion = Sequence(
+                text="",
+                logprob=0,
+                tokens=[],
+                finish_reason={"reason": error_message},
+            )
+            return RequestResult(
+                success=True,
+                cached=False,
+                request_time=0,
+                completions=[empty_completion] * request.num_completions,
+                embedding=[],
+            )
+
         # Contents can either be text or a list of multimodal content made up of text, images or other content
         contents: Union[str, List[Union[str, Any]]] = request.prompt
         # Used to generate a unique cache key for this specific request
@@ -328,23 +346,14 @@ class VertexAIChatClient(VertexAIClient):
                 cache_key = CachingClient.make_cache_key(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except (requests.exceptions.RequestException, ValueError) as e:
-                error: str = f"VertexAITextClient error: {e}"
+                if str(e) == self.CONTENT_HAS_NO_PARTS_ERROR:
+                    return complete_for_valid_error(self.CONTENT_HAS_NO_PARTS_ERROR)
+
+                error: str = f"Gemini Vision error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
             if "error" in response:
-                empty_completion = Sequence(
-                    text="",
-                    logprob=0,
-                    tokens=[],
-                    finish_reason={"reason": response["error"]},
-                )
-                return RequestResult(
-                    success=True,
-                    cached=False,
-                    request_time=0,
-                    completions=[empty_completion] * request.num_completions,
-                    embedding=[],
-                )
+                return complete_for_valid_error(response["error"])
 
             response_text = response["predictions"][0]["text"]
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
