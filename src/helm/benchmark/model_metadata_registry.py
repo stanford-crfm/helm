@@ -54,6 +54,7 @@ TEXT_TO_IMAGE_MODEL_TAG: str = "TEXT_TO_IMAGE_MODEL_TAG"
 VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
 # IDEFICS require a special prompt format (see `IDEFICSInstructRunExpander`)
 IDEFICS_INSTRUCT_MODEL_TAG: str = "IDEFICS_INSTRUCT_MODEL_TAG"
+IDEFICS_MODEL_TAG: str = "IDEFICS_MODEL_TAG"
 # Llava should use a special prompt format (see `LlavaRunExpander`)
 LLAVA_MODEL_TAG: str = "LLAVA_MODEL_TAG"
 # Some VLMs do not support multiple images in the prompt

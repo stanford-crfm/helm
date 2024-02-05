@@ -12,12 +12,7 @@ from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequestResult,
-)
+from helm.common.tokenization_request import TokenizationRequest
 from helm.common.request import wrap_request_time
 from helm.proxy.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 from helm.proxy.tokenizers.tokenizer import Tokenizer
@@ -55,6 +50,8 @@ class IDEFICSClient(CachingClient):
 
     END_OF_UTTERANCE_TOKEN: str = "<end_of_utterance>"
     BAD_WORD_TOKENS: List[str] = ["<image>", "<fake_token_around_image>"]
+
+    ASSISTANT_PREFIX: str = "Assistant: "
 
     def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
@@ -141,17 +138,16 @@ class IDEFICSClient(CachingClient):
             for text in result["output"]:
                 hlog(f"Generated text: {text}")
 
-                # truncate the output text as IDEFICS returns the entire sequence including the prompt
-                tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                    TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=True)
-                )
-                raw_tokens: List = tokenization_result.raw_tokens[-request.max_tokens :]
-                decode_result: DecodeRequestResult = self.tokenizer.decode(
-                    DecodeRequest(raw_tokens, tokenizer=self.tokenizer_name)
-                )
-                text = decode_result.text
-                hlog(f"Truncated: {text}")
+                # Truncate the output text as IDEFICS outputs the entire sequence including the prompt
+                if "instruct" in request.model:
+                    assert text.contains(self.ASSISTANT_PREFIX), f"Expected {self.ASSISTANT_PREFIX} in the output"
+                    text = text.rpartition(self.ASSISTANT_PREFIX)[-1]
+                else:
+                    # Best we can do is to remove the text portion of the prompt from the output
+                    text = text[len(prompt_text) :]
 
+                # Tokenize truncated text to get the list of tokens
+                hlog(f"Truncated: {text}")
                 tokenization_result = self.tokenizer.tokenize(
                     TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=False)
                 )
