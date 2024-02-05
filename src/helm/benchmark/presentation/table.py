@@ -22,9 +22,6 @@ class Cell:
     markdown: bool = False
     """If the value or display_value is markdown that needs to be interpreted"""
 
-    contamination_level: Optional[str] = None
-    """How much train-test contamination affects the cell's value (`contamination.CONTAMINATION_LEVEL_{WEAK/STRONG}`)"""
-
     run_spec_names: Optional[List[str]] = None
     """The names of the runs that this cell's value was aggregated from, if the cell contains an aggregate value."""
 

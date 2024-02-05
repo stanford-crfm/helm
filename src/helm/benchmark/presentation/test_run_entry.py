@@ -10,7 +10,13 @@ from helm.benchmark import vlm_run_specs  # noqa
 
 def list_fnames():
     base_path = os.path.dirname(__file__)
-    return [os.path.join(base_path, fname) for fname in os.listdir(base_path) if fname.endswith(".conf")]
+    # Temporarily disable test_read_all_specs() for CLEVA because CLEVA scenarios are broken due to a missing data file.
+    # TODO(#2303): Re-enable test_read_all_specs() for CLEVA.
+    return [
+        os.path.join(base_path, fname)
+        for fname in os.listdir(base_path)
+        if fname.endswith(".conf") and "cleva" not in fname
+    ]
 
 
 class TestRunEntry:

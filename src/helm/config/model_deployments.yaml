@@ -883,6 +883,21 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
 
+  # Mistral AI
+  - name: mistralai/mistral-tiny
+    model_name: mistralai/mistral-7b-v0.1
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.proxy.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/mistral-medium
+    model_name: mistralai/mistral-medium
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.proxy.clients.mistral_client.MistralAIClient"
+
   # Neurips
   - name: neurips/local
     model_name: neurips/local
@@ -902,6 +917,25 @@ model_deployments:
   # OpenAI
 
   ## GPT 3 Models
+
+  - name: openai/davinci-002
+    model_name: openai/davinci-002
+    tokenizer_name: openai/cl100k_base
+    # Claimed sequence length is 16,384 tokens but we round down to 16,000 tokens
+    # to provide a margin of error.
+    max_sequence_length: 16000
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
+  - name: openai/babbage-002
+    model_name: openai/babbage-002
+    tokenizer_name: openai/cl100k_base
+    # Claimed sequence length is 16,384 tokens but we round down to 16,000 tokens
+    # to provide a margin of error.
+    max_sequence_length: 16000
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
 
@@ -1032,6 +1066,16 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 
+  # Claimed length is 16,384; we round down to 16,000 for the same reasons as explained
+  # in the openai/gpt-3.5-turbo-0613 comment
+  - name: openai/gpt-3.5-turbo-1106
+    model_name: openai/gpt-3.5-turbo-1106
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 16000
+    max_request_length: 16001
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
   ## GPT 4 Models
 
   - name: openai/gpt-4-1106-preview
@@ -1074,6 +1118,17 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 32768
     max_request_length: 32769
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4-0125-preview
+    model_name: openai/gpt-4-0125-preview
+    tokenizer_name: openai/cl100k_base
+    # According to https://help.openai.com/en/articles/8555510-gpt-4-turbo,
+    # the maximum number of output tokens for this model is 4096
+    # TODO: add max_generated_tokens_length of 4096 https://github.com/stanford-crfm/helm/issues/2098
+    max_sequence_length: 128000
+    max_request_length: 128001
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 

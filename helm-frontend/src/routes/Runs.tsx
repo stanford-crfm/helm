@@ -73,7 +73,7 @@ export default function Runs() {
 
   return (
     <>
-      <PageTitle title="Runs" subtitle="All benchmark runs" />
+      <PageTitle title="Predictions" subtitle="All benchmark predictions" />
       <form className="flex mb-8" onSubmit={handleSearch}>
         <div className="form-control">
           <input

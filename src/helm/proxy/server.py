@@ -175,6 +175,15 @@ def handle_request():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
         request = Request(**json.loads(args["request"]))
+
+        # Hack to maintain reverse compatibility with clients with version <= 0.3.0.
+        # Clients with version <= 0.3.0 do not set model_deployment, but this is now
+        # required by Request.
+        # In almost all cases for legacy models supported through this server,
+        # model_deployment can be set to the same as model.
+        if not request.model_deployment:
+            request = dataclasses.replace(request, model_deployment=request.model)
+
         return dataclasses.asdict(service.make_request(auth, request))
 
     return safe_call(perform)

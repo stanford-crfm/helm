@@ -2,7 +2,6 @@ import dataclasses
 import os
 import signal
 from typing import List, Optional
-from helm.common.cache_utils import build_cache_config
 
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
@@ -35,7 +34,6 @@ from helm.proxy.query import Query, QueryResult
 from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
-from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from .service import (
     Service,
     CACHE_DIR,
@@ -60,8 +58,7 @@ class ServerService(Service):
 
         self.client = AutoClient(credentials, cache_path, mongo_uri)
         self.tokenizer = AutoTokenizer(credentials, cache_path, mongo_uri)
-        cache_config = build_cache_config(cache_path, mongo_uri, "huggingface")
-        self.token_counter = AutoTokenCounter(HuggingFaceTokenizer(cache_config=cache_config))
+        self.token_counter = AutoTokenCounter(self.tokenizer)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.moderation_api_client = self.client.get_moderation_api_client()
 
@@ -105,6 +102,21 @@ class ServerService(Service):
             requests.append(request)
         return QueryResult(requests=requests)
 
+    def _get_model_group_for_model_deployment(self, model_deployment: str) -> str:
+        if model_deployment.startswith("openai/"):
+            if model_deployment.startswith("openai/code-"):
+                return "codex"
+            elif model_deployment.startswith("openai/dall-e-"):
+                return "dall_e"
+            elif model_deployment.startswith("openai/gpt-4-"):
+                return "gpt4"
+            else:
+                return "gpt3"
+        elif model_deployment.startswith("ai21/"):
+            return "jurassic"
+        else:
+            return get_model_deployment_host_organization(model_deployment)
+
     def make_request(self, auth: Authentication, request: Request) -> RequestResult:
         """Actually make a request to an API."""
         # TODO: try to invoke the API even if we're not authenticated, and if
@@ -112,9 +124,9 @@ class ServerService(Service):
         #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
-        host_organization: str = get_model_deployment_host_organization(request.model_deployment)
+        model_group: str = self._get_model_group_for_model_deployment(request.model_deployment)
         # Make sure we can use
-        self.accounts.check_can_use(auth.api_key, host_organization)
+        self.accounts.check_can_use(auth.api_key, model_group)
 
         # Use!
         request_result: RequestResult = self.client.make_request(request)
@@ -123,7 +135,7 @@ class ServerService(Service):
         if not request_result.cached:
             # Count the number of tokens used
             count: int = self.token_counter.count_tokens(request, request_result.completions)
-            self.accounts.use(auth.api_key, host_organization, count)
+            self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
 
