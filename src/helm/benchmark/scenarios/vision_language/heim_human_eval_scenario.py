@@ -80,9 +80,11 @@ class HEIMHumanEvalScenario(Scenario):
                     image_path: str = os.path.join(output_path, image_annotation["image_path"])
                     assert os.path.exists(image_path), f"Image {image_path} does not exist"
 
+                    # Get the most common human answer(s) for the question
                     human_answers: List[str] = [str(answer) for answer in image_annotation["human_annotations"]]
                     human_answers_to_counts = Counter(human_answers)
-                    mode: str = human_answers_to_counts.most_common(1)[0][0]
+                    max_count: int = max(human_answers_to_counts.values())
+                    modes: List[str] = [value for value, count in human_answers_to_counts.items() if count == max_count]
 
                     content: List[MediaObject] = [MediaObject(location=image_path, content_type="image/png")]
                     if "prompt" in image_annotation:
@@ -95,7 +97,7 @@ class HEIMHumanEvalScenario(Scenario):
                         HEIMHumanEvalReference(
                             Output(text=answer),
                             # The mode is the most common human answer and the reference we mark as correct
-                            tags=[CORRECT_TAG] if value == mode else [],
+                            tags=[CORRECT_TAG] if value in modes else [],
                             num_human_answered=human_answers_to_counts[value],
                         )
                         for value, answer in question_info["choices"].items()

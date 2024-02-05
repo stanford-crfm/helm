@@ -157,7 +157,7 @@ def queue_jobs(
                 nlp_run_args += " -q sphinx "
 
             if "HuggingFaceM4/idefics-80b" in model.name:
-                nlp_run_args = nlp_run_args.replace(" -g 1 ", " -g 4 ")
+                nlp_run_args = nlp_run_args.replace(" -g 1 ", " -g 2 ")
 
             swiss_army_port: str = ""
             if model.name == "thudm/cogview2":
