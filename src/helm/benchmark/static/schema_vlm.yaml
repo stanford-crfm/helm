@@ -656,7 +656,7 @@ run_groups:
       task: multiple-choice question answering
       what: AI-generated images
       who: Text-to-image models
-      when: "2023"
+      when: "2024"
       language: English
 
   - name: mmmu
@@ -683,7 +683,12 @@ run_groups:
       - accuracy
       - efficiency
       - general_information
-    # TODO: update with appropriate metric
     environment:
-      main_name: exact_match
+      main_name: f1_score
       main_split: valid
+    taxonomy:
+      task: short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: English

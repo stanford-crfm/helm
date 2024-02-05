@@ -3,7 +3,7 @@ from typing import List, Optional
 from .adaptation.adapter_spec import AdapterSpec
 from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
 from .metrics.metric import MetricSpec
-from .run_specs import run_spec_function, get_exact_match_metric_specs
+from .run_specs import run_spec_function, get_exact_match_metric_specs, get_open_ended_generation_metric_specs
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
 
@@ -119,7 +119,7 @@ def get_vqa_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.vqa_scenario.VQAScenario", args={}
     )
     adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "vqa"
     return RunSpec(
