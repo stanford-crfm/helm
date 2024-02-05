@@ -140,7 +140,7 @@ class IDEFICSClient(CachingClient):
 
                 # Truncate the output text as IDEFICS outputs the entire sequence including the prompt
                 if "instruct" in request.model:
-                    assert text.contains(self.ASSISTANT_PREFIX), f"Expected {self.ASSISTANT_PREFIX} in the output"
+                    assert self.ASSISTANT_PREFIX in text, f"Expected {self.ASSISTANT_PREFIX} in the output"
                     text = text.rpartition(self.ASSISTANT_PREFIX)[-1]
                 else:
                     # Best we can do is to remove the text portion of the prompt from the output
