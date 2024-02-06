@@ -1,7 +1,7 @@
 import shutil
 import tempfile
 
-from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from .test_utils import get_tokenizer_service, TEST_PROMPT, GPT4_TEST_TOKEN_IDS, GPT4_TEST_TOKENS
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
@@ -9,9 +9,8 @@ from .window_service_factory import WindowServiceFactory
 
 class TestOpenAIWindowService:
     def setup_method(self):
-        register_builtin_configs_from_helm_package()
         self.path: str = tempfile.mkdtemp()
-        service: TokenizerService = get_tokenizer_service(self.path)
+        service: TokenizerService = get_tokenizer_service(self.path, BlackHoleCacheBackendConfig())
         self.window_service = WindowServiceFactory.get_window_service("openai/gpt-3.5-turbo-0301", service)
 
     def teardown_method(self, method):

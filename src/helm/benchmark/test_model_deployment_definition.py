@@ -6,7 +6,6 @@ from typing import Optional
 
 import pytest
 from tempfile import TemporaryDirectory
-from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
 from helm.benchmark.model_deployment_registry import (
     get_model_deployment,
     ModelDeployment,
@@ -15,6 +14,7 @@ from helm.benchmark.model_deployment_registry import (
 from helm.benchmark.model_metadata_registry import get_model_metadata, ModelMetadata
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, get_tokenizer_config
 from helm.benchmark.window_services.test_utils import get_tokenizer_service
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from helm.proxy.clients.client import Client
 from helm.proxy.tokenizers.tokenizer import Tokenizer
 from helm.benchmark.window_services.window_service import WindowService
@@ -24,13 +24,6 @@ from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
 
 
-# HACK: This looks like it should be done in a setup_class()
-# for the test below but apparently pytest first check the parametrize
-# before running the setup_class().
-# Therefore ALL_MODEL_DEPLOYMENTS is empty and no test would be run,
-# so we need to do this here.
-register_builtin_configs_from_helm_package()
-
 INT_MAX: int = 2**31 - 1
 
 
@@ -38,9 +31,9 @@ class TestModelProperties:
     @pytest.mark.parametrize("deployment_name", [deployment.name for deployment in ALL_MODEL_DEPLOYMENTS])
     def test_models_has_window_service(self, deployment_name: str):
         with TemporaryDirectory() as tmpdir:
-            auto_client = AutoClient({}, tmpdir, "")
-            auto_tokenizer = AutoTokenizer({}, tmpdir, "")
-            tokenizer_service = get_tokenizer_service(tmpdir)
+            auto_client = AutoClient({}, tmpdir, BlackHoleCacheBackendConfig())
+            auto_tokenizer = AutoTokenizer({}, BlackHoleCacheBackendConfig())
+            tokenizer_service = get_tokenizer_service(tmpdir, BlackHoleCacheBackendConfig())
 
             # Loading the TokenizerConfig and ModelMetadat ensures that they are valid.
             deployment: ModelDeployment = get_model_deployment(deployment_name)

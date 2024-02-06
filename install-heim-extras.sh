@@ -11,7 +11,7 @@ set -e
 # On Mac OS, skip installing pytorch with CUDA because CUDA is not supported
 if [[ $OSTYPE != 'darwin'* ]]; then
   # Manually install pytorch to avoid pip getting killed: https://stackoverflow.com/a/54329850
-  pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_stable.html torch==1.12.1+cu113 torchvision==0.13.1+cu113
+  pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cu121 --no-cache-dir
 
   # DALLE mini requires jax install
   pip install jax==0.3.25 jaxlib==0.3.25+cuda11.cudnn805 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html

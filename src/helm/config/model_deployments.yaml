@@ -441,7 +441,57 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
+  ## Databricks
+  - name: huggingface/dolly-v2-3b
+    model_name: databricks/dolly-v2-3b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/dolly-v2-7b
+    model_name: databricks/dolly-v2-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/dolly-v2-12b
+    model_name: databricks/dolly-v2-12b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
   ## EleutherAI
+  - name: huggingface/pythia-1b-v0
+    model_name: eleutherai/pythia-1b-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/pythia-2.8b-v0
+    model_name: eleutherai/pythia-2.8b-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/pythia-6.9b
+    model_name: eleutherai/pythia-6.9b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/pythia-12b-v0
+    model_name: eleutherai/pythia-12b-v0
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
   - name: huggingface/gpt-j-6b
     model_name: eleutherai/gpt-j-6b
     tokenizer_name: EleutherAI/gpt-j-6B
@@ -450,12 +500,145 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
+  - name: huggingface/gpt-neox-20b
+    model_name: eleutherai/gpt-neox-20b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    max_request_length: 2049
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  ## LMSYS
+  - name: huggingface/vicuna-7b-v1.3
+    model_name: lmsys/vicuna-7b-v1.3
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/vicuna-13b-v1.3
+    model_name: lmsys/vicuna-13b-v1.3
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  ## Meta
+  - name: huggingface/opt-175b
+    model_name: meta/opt-175b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: facebook/opt-175b
+
+  - name: huggingface/opt-66b
+    model_name: meta/opt-66b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: facebook/opt-66b
+
+  - name: huggingface/opt-6.7b
+    model_name: meta/opt-6.7b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: facebook/opt-6.7b
+
+  - name: huggingface/opt-1.3b
+    model_name: meta/opt-1.3b
+    tokenizer_name: facebook/opt-66b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: facebook/opt-1.3b
+
+  ## Microsoft
+  - name: huggingface/llava-1.5-7b-hf
+    model_name: microsoft/llava-1.5-7b-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+  
+  - name: huggingface/llava-1.5-13b-hf
+    model_name: microsoft/llava-1.5-13b-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+
+  ## Mistral AI
+  - name: huggingface/bakLlava-v1-hf
+    model_name: mistralai/bakLlava-v1-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+
+  ## MosaicML
+  - name: huggingface/mpt-7b
+    model_name: mosaicml/mpt-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: mosaicml/mpt-7b
+
+  - name: huggingface/mpt-instruct-7b
+    model_name: mosaicml/mpt-instruct-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: mosaicml/mpt-7b-instruct
+
+  - name: huggingface/mpt-30b
+    model_name: mosaicml/mpt-30b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/mpt-instruct-30b
+    model_name: mosaicml/mpt-instruct-30b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: mosaicml/mpt-30b-instruct
+
   ## OpenAI
   - name: huggingface/gpt2
     model_name: openai/gpt2
     tokenizer_name: huggingface/gpt2
     max_sequence_length: 1024
     max_request_length: 1025
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  ## StabilityAI
+  - name: huggingface/stablelm-base-alpha-3b
+    model_name: stabilityai/stablelm-base-alpha-3b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
+
+  - name: huggingface/stablelm-base-alpha-7b
+    model_name: stabilityai/stablelm-base-alpha-7b
+    tokenizer_name: EleutherAI/gpt-neox-20b
+    max_sequence_length: 4096
     client_spec:
       class_name: "helm.proxy.clients.huggingface_client.HuggingFaceClient"
 
@@ -700,6 +883,21 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
 
+  # Mistral AI
+  - name: mistralai/mistral-tiny
+    model_name: mistralai/mistral-7b-v0.1
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.proxy.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/mistral-medium
+    model_name: mistralai/mistral-medium
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.proxy.clients.mistral_client.MistralAIClient"
+
   # Neurips
   - name: neurips/local
     model_name: neurips/local
@@ -719,6 +917,25 @@ model_deployments:
   # OpenAI
 
   ## GPT 3 Models
+
+  - name: openai/davinci-002
+    model_name: openai/davinci-002
+    tokenizer_name: openai/cl100k_base
+    # Claimed sequence length is 16,384 tokens but we round down to 16,000 tokens
+    # to provide a margin of error.
+    max_sequence_length: 16000
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
+  - name: openai/babbage-002
+    model_name: openai/babbage-002
+    tokenizer_name: openai/cl100k_base
+    # Claimed sequence length is 16,384 tokens but we round down to 16,000 tokens
+    # to provide a margin of error.
+    max_sequence_length: 16000
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
 
@@ -849,6 +1066,16 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 
+  # Claimed length is 16,384; we round down to 16,000 for the same reasons as explained
+  # in the openai/gpt-3.5-turbo-0613 comment
+  - name: openai/gpt-3.5-turbo-1106
+    model_name: openai/gpt-3.5-turbo-1106
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 16000
+    max_request_length: 16001
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
   ## GPT 4 Models
 
   - name: openai/gpt-4-1106-preview
@@ -891,6 +1118,17 @@ model_deployments:
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 32768
     max_request_length: 32769
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4-0125-preview
+    model_name: openai/gpt-4-0125-preview
+    tokenizer_name: openai/cl100k_base
+    # According to https://help.openai.com/en/articles/8555510-gpt-4-turbo,
+    # the maximum number of output tokens for this model is 4096
+    # TODO: add max_generated_tokens_length of 4096 https://github.com/stanford-crfm/helm/issues/2098
+    max_sequence_length: 128000
+    max_request_length: 128001
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 
@@ -1041,7 +1279,7 @@ model_deployments:
 
   ## BigScience
   - name: together/bloom
-    deprecated: true # Removed from together
+    deprecated: true  # Removed from Together
     model_name: bigscience/bloom
     tokenizer_name: bigscience/bloom
     max_sequence_length: 2048
@@ -1050,7 +1288,7 @@ model_deployments:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
 
   - name: together/t0pp
-    deprecated: true # Removed from together
+    deprecated: true  # Removed from Together
     model_name: bigscience/t0pp
     tokenizer_name: bigscience/T0pp
     max_sequence_length: 1024
@@ -1059,85 +1297,9 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
-  ## Databricks
-  - name: together/dolly-v2-3b
-    model_name: databricks/dolly-v2-3b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/dolly-v2-7b
-    model_name: databricks/dolly-v2-7b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/dolly-v2-12b
-    model_name: databricks/dolly-v2-12b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  ## EleutherAI
-  - name: together/gpt-j-6b
-    deprecated: true # Removed from together
-    model_name: eleutherai/gpt-j-6b
-    tokenizer_name: EleutherAI/gpt-j-6B
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/gpt-neox-20b
-    deprecated: true # Removed from together
-    model_name: eleutherai/gpt-neox-20b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/pythia-1b-v0
-    model_name: eleutherai/pythia-1b-v0
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/pythia-2.8b-v0
-    model_name: eleutherai/pythia-2.8b-v0
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/pythia-6.9b
-    model_name: eleutherai/pythia-6.9b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/pythia-12b-v0
-    model_name: eleutherai/pythia-12b-v0
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
   ## Google
   - name: together/t5-11b
-    deprecated: true # Removed from together
+    deprecated: true  # Removed from Together
     model_name: google/t5-11b
     tokenizer_name: google/t5-11b
     max_sequence_length: 511
@@ -1147,7 +1309,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
   - name: together/flan-t5-xxl
-    deprecated: true # Removed from together
+    deprecated: true  # Removed from Together
     model_name: google/flan-t5-xxl
     tokenizer_name: google/flan-t5-xxl
     max_sequence_length: 511
@@ -1157,7 +1319,7 @@ model_deployments:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
   - name: together/ul2
-    deprecated: true # Removed from together
+    deprecated: true  # Removed from Together
     model_name: google/ul2
     tokenizer_name: google/ul2
     max_sequence_length: 511
@@ -1166,33 +1328,6 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.encoder_decoder_window_service.EncoderDecoderWindowService"
 
-  ## HazyResearch
-  - name: together/h3-2.7b
-    deprecated: true # Not available on Together yet
-    model_name: hazyresearch/h3-2.7b
-    tokenizer_name: huggingface/gpt2
-    max_sequence_length: 1024
-    max_request_length: 1025
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  ## LMSYS
-  # TODO: might be deprecated. Needs to be checked.
-  # Together officialy supports vicuna 1.5, not sure if 1.3 is still supported.
-  - name: together/vicuna-7b-v1.3
-    model_name: lmsys/vicuna-7b-v1.3
-    tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/vicuna-13b-v1.3
-    model_name: lmsys/vicuna-13b-v1.3
-    tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
   ## Meta
   - name: together/llama-7b
     model_name: meta/llama-7b
@@ -1200,6 +1335,8 @@ model_deployments:
     max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: huggyllama/llama-7b
 
   - name: together/llama-13b
     model_name: meta/llama-13b
@@ -1207,6 +1344,8 @@ model_deployments:
     max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: huggyllama/llama-13b
 
   - name: together/llama-30b
     model_name: meta/llama-30b
@@ -1214,6 +1353,8 @@ model_deployments:
     max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: huggyllama/llama-30b
 
   - name: together/llama-65b
     model_name: meta/llama-65b
@@ -1221,6 +1362,8 @@ model_deployments:
     max_sequence_length: 2047 # Subtract 1 tokens to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: huggyllama/llama-65b
 
   - name: together/llama-2-7b
     model_name: meta/llama-2-7b
@@ -1228,6 +1371,8 @@ model_deployments:
     max_sequence_length: 4094 # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/llama-2-7b
 
   - name: together/llama-2-13b
     model_name: meta/llama-2-13b
@@ -1235,6 +1380,8 @@ model_deployments:
     max_sequence_length: 4094 # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/llama-2-13b
 
   - name: together/llama-2-70b
     model_name: meta/llama-2-70b
@@ -1242,42 +1389,8 @@ model_deployments:
     max_sequence_length: 4094 # Subtract 2 tokens to work around a off-by-two bug in Together's token counting (#2080 and #2094)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/opt-175b
-    deprecated: true # Not available on Together yet
-    model_name: meta/opt-175b
-    tokenizer_name: facebook/opt-66b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/opt-66b
-    deprecated: true # Not available on Together yet
-    model_name: meta/opt-66b
-    tokenizer_name: facebook/opt-66b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/opt-6.7b
-    deprecated: true # Not available on Together yet
-    model_name: meta/opt-6.7b
-    tokenizer_name: facebook/opt-66b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/opt-1.3b
-    deprecated: true # Not available on Together yet
-    model_name: meta/opt-1.3b
-    tokenizer_name: facebook/opt-66b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/llama-2-70b
 
   # 01.AI
   - name: together/yi-6b
@@ -1286,6 +1399,8 @@ model_deployments:
     max_sequence_length: 4095
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: zero-one-ai/Yi-6B
 
   - name: together/yi-34b
     model_name: 01-ai/yi-34b
@@ -1293,6 +1408,8 @@ model_deployments:
     max_sequence_length: 4095
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: zero-one-ai/Yi-34B
 
   ## MistralAI
   - name: together/mistral-7b-v0.1
@@ -1301,6 +1418,8 @@ model_deployments:
     max_sequence_length: 4095 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: mistralai/Mistral-7B-v0.1
 
   - name: together/mixtral-8x7b-32kseqlen
     model_name: mistralai/mixtral-8x7b-32kseqlen
@@ -1308,60 +1427,8 @@ model_deployments:
     max_sequence_length: 4095 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  ## MosaicML
-  - name: together/mpt-7b
-    deprecated: true # Not available on Together yet
-    model_name: mosaicml/mpt-7b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/mpt-instruct-7b
-    deprecated: true # Not available on Together yet
-    model_name: mosaicml/mpt-instruct-7b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/mpt-30b
-    model_name: mosaicml/mpt-30b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/mpt-instruct-30b
-    model_name: mosaicml/mpt-instruct-30b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  ## StabilityAI
-  - name: together/stablelm-base-alpha-3b
-    deprecated: true # Removed from together
-    model_name: stabilityai/stablelm-base-alpha-3b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 4096
-    max_request_length: 4097
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-
-  - name: together/stablelm-base-alpha-7b
-    deprecated: true # Removed from together
-    model_name: stabilityai/stablelm-base-alpha-7b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 4096
-    max_request_length: 4097
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: mistralai/mixtral-8x7b-32kseqlen
 
   ## Stanford
   - name: together/alpaca-7b
@@ -1370,6 +1437,8 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/alpaca-7b
 
   ## Tiiuae
   - name: together/falcon-7b
@@ -1378,6 +1447,8 @@ model_deployments:
     max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/falcon-7b
 
   - name: together/falcon-7b-instruct
     model_name: tiiuae/falcon-7b-instruct
@@ -1385,6 +1456,8 @@ model_deployments:
     max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/falcon-7b-instruct
 
   - name: together/falcon-40b
     model_name: tiiuae/falcon-40b
@@ -1392,6 +1465,8 @@ model_deployments:
     max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/falcon-40b
 
   - name: together/falcon-40b-instruct
     model_name: tiiuae/falcon-40b-instruct
@@ -1399,6 +1474,8 @@ model_deployments:
     max_sequence_length: 2047 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/falcon-40b-instruct
 
   ## Together
   # These are models fine-tuned by Together (and not simply hosted by Together).
@@ -1409,6 +1486,8 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/GPT-JT-6B-v1
 
   - name: together/gpt-neoxt-chat-base-20b
     model_name: together/gpt-neoxt-chat-base-20b
@@ -1417,6 +1496,8 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/GPT-NeoXT-Chat-Base-20B
 
   - name: together/redpajama-incite-base-3b-v1
     model_name: together/redpajama-incite-base-3b-v1
@@ -1425,6 +1506,8 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/RedPajama-INCITE-Base-3B-v1
 
   - name: together/redpajama-incite-instruct-3b-v1
     model_name: together/redpajama-incite-instruct-3b-v1
@@ -1433,6 +1516,8 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/RedPajama-INCITE-Instruct-3B-v1
 
   - name: together/redpajama-incite-base-7b
     model_name: together/redpajama-incite-base-7b
@@ -1441,6 +1526,8 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/RedPajama-INCITE-7B-Base
 
   - name: together/redpajama-incite-instruct-7b
     model_name: together/redpajama-incite-instruct-7b
@@ -1449,10 +1536,12 @@ model_deployments:
     max_request_length: 2049
     client_spec:
       class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/RedPajama-INCITE-7B-Instruct
 
   ## Tsinghua
   - name: together/glm
-    deprecated: true # Not available on Together yet
+    deprecated: true  # Removed from Together
     model_name: tsinghua/glm
     tokenizer_name: TsinghuaKEG/ice
     max_sequence_length: 2048
@@ -1473,7 +1562,7 @@ model_deployments:
 
   ## Yandex
   - name: together/yalm
-    deprecated: true # Not available on Together yet
+    deprecated: true  # Removed from Together
     model_name: yandex/yalm
     tokenizer_name: Yandex/yalm
     max_sequence_length: 2048

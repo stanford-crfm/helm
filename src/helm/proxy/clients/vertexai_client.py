@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Union
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token, ErrorFlags
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -18,6 +18,7 @@ try:
     import vertexai
     from vertexai.language_models import TextGenerationModel, TextGenerationResponse  # PaLM2
     from vertexai.preview.generative_models import GenerativeModel, GenerationResponse, Candidate, Part, Image  # Gemini
+    from google.cloud.aiplatform_v1beta1.types import SafetySetting, HarmCategory
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["google"])
 
@@ -37,6 +38,12 @@ class VertexAIClient(CachingClient, ABC):
         self.location = location
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
+
+        # VertexAI's default safety filter is overly sensitive, so we disable it.
+        self.safety_settings: Dict[HarmCategory, SafetySetting.HarmBlockThreshold] = {
+            harm_category: SafetySetting.HarmBlockThreshold(SafetySetting.HarmBlockThreshold.BLOCK_NONE)
+            for harm_category in iter(HarmCategory)
+        }
 
         vertexai.init(project=self.project_id, location=self.location)
 
@@ -199,11 +206,20 @@ class VertexAIChatClient(VertexAIClient):
                 # output to only one candidate.
                 # chat: ChatSession = model.start_chat()
                 # See: https://github.com/googleapis/python-aiplatform/blob/e8c505751b10a9dc91ae2e0d6d13742d2abf945c/vertexai/generative_models/_generative_models.py#L812  # noqa: E501
-                response: GenerationResponse = model.generate_content(contents, generation_config=parameters)
+                response: GenerationResponse = model.generate_content(
+                    contents, generation_config=parameters, safety_settings=self.safety_settings
+                )
                 candidates: List[Candidate] = response.candidates
-                response_dict = {
-                    "predictions": [{"text": completion.text for completion in candidates}],
-                }  # TODO: Extract more information from the response
+                try:
+                    response_dict = {
+                        "predictions": [{"text": completion.text for completion in candidates}],
+                    }  # TODO: Extract more information from the response
+                except ValueError as e:
+                    if "Content has no parts" in str(e):
+                        # The prediction was either blocked due to safety settings or the model stopped and returned
+                        # nothing (which also happens when the model is blocked).
+                        # In both cases, we return an empty prediction.
+                        return {"predictions": None}
                 return response_dict
 
             # We need to include the engine's name to differentiate among requests made for different model
@@ -222,6 +238,18 @@ class VertexAIChatClient(VertexAIClient):
         except (requests.exceptions.RequestException, AssertionError) as e:
             error: str = f"VertexAITextClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
+        if response["predictions"] is None:
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Response was empty due to content moderation filter",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                request_time=response["request_time"],
+                request_datetime=response["request_datetime"],
+            )
 
         for prediction in response["predictions"]:
             response_text = prediction["text"]

@@ -9,7 +9,5 @@ class TokenCounter(ABC):
 
     @abstractmethod
     def count_tokens(self, request: Request, completions: List[Sequence]) -> int:
-        """
-        Counts the total number of tokens given a request and completions.
-        """
+        """Counts the total number of tokens given a request and completions."""
         pass
