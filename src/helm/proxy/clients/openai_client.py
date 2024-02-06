@@ -238,25 +238,26 @@ class OpenAIClient(CachingClient):
             sequence_logprob = 0
             tokens: List[Token] = []
 
-                raw_data = raw_completion["logprobs"]
-                for text, logprob, top_logprobs in zip(
-                    raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
-                ):
-                    tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
-                    sequence_logprob += logprob or 0
-                completion = Sequence(
-                    text=raw_completion["text"],
-                    logprob=sequence_logprob,
-                    tokens=tokens,
-                    finish_reason={"reason": raw_completion["finish_reason"]},
-                )
-                # OpenAI sends us back tokens past the end of text token,
-                # so we need to manually truncate the list of tokens.
-                # TODO: filed an issue with their support to check what the expected behavior here is.
-                completion = truncate_sequence(
-                    completion, replace(request, stop_sequences=request.stop_sequences + [OpenAIClient.END_OF_TEXT])
-                )
-                completions.append(completion)
+            raw_data = raw_completion["logprobs"]
+            for (
+                text,
+                logprob,
+            ) in zip(raw_data["tokens"], raw_data["token_logprobs"]):
+                tokens.append(Token(text=text, logprob=logprob or 0))
+                sequence_logprob += logprob or 0
+            completion = Sequence(
+                text=raw_completion["text"],
+                logprob=sequence_logprob,
+                tokens=tokens,
+                finish_reason={"reason": raw_completion["finish_reason"]},
+            )
+            # OpenAI sends us back tokens past the end of text token,
+            # so we need to manually truncate the list of tokens.
+            # TODO: filed an issue with their support to check what the expected behavior here is.
+            completion = truncate_sequence(
+                completion, replace(request, stop_sequences=request.stop_sequences + [OpenAIClient.END_OF_TEXT])
+            )
+            completions.append(completion)
 
         return RequestResult(
             success=True,
