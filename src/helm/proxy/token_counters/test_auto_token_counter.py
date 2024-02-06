@@ -1,5 +1,5 @@
-import tempfile
 from typing import List
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 
 from helm.common.request import Request, Sequence, Token
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
@@ -7,14 +7,10 @@ from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
 
 
 class TestAutoTokenCounter:
-    def setup_method(self):
-        self.temporary_directory = tempfile.TemporaryDirectory()
-        self.token_counter = AutoTokenCounter(AutoTokenizer(credentials={}, cache_path=self.temporary_directory.name))
-
-    def teardown_method(self, method):
-        self.temporary_directory.cleanup()
-
     def test_count_tokens_openai(self):
+        token_counter = AutoTokenCounter(
+            AutoTokenizer(credentials={}, cache_backend_config=BlackHoleCacheBackendConfig())
+        )
         # The following prompt has 51 tokens according to the GPT-2 tokenizer
         request = Request(
             model="openai/text-davinci-002",
@@ -68,9 +64,12 @@ class TestAutoTokenCounter:
         ]
 
         # Verified against https://beta.openai.com/tokenizer. Prompt + completions = 51 + 32.
-        assert self.token_counter.count_tokens(request, completions) == 51 + 32
+        assert token_counter.count_tokens(request, completions) == 51 + 32
 
     def test_count_tokens_anthropic(self):
+        token_counter = AutoTokenCounter(
+            AutoTokenizer(credentials={}, cache_backend_config=BlackHoleCacheBackendConfig())
+        )
         request = Request(
             model="anthropic/claude-instant-v1",
             model_deployment="anthropic/claude-instant-v1",
@@ -162,4 +161,4 @@ class TestAutoTokenCounter:
             )
         ]
 
-        assert self.token_counter.count_tokens(request, completions) == 126
+        assert token_counter.count_tokens(request, completions) == 126
