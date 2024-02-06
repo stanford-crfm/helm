@@ -57,11 +57,13 @@ class ServerService(Service):
         root_mode: bool = False,
         cache_backend_config: CacheBackendConfig = BlackHoleCacheBackendConfig(),
     ):
+        ensure_directory_exists(base_path)
+        client_file_storage_path = os.path.join(base_path, CACHE_DIR)
+        ensure_directory_exists(client_file_storage_path)
+
         credentials = get_credentials(base_path)
         accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
 
-        client_file_storage_path = os.path.join(base_path, CACHE_DIR)
-        ensure_directory_exists(client_file_storage_path)
         self.client = AutoClient(credentials, client_file_storage_path, cache_backend_config)
         self.tokenizer = AutoTokenizer(credentials, cache_backend_config)
         self.token_counter = AutoTokenCounter(self.tokenizer)

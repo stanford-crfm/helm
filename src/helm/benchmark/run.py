@@ -97,7 +97,9 @@ def run_benchmarking(
         if mongo_uri:
             mongo_cache_backend_config = MongoCacheBackendConfig(mongo_uri)
         else:
-            sqlite_cache_backend_config = SqliteCacheBackendConfig(os.path.join(local_path, CACHE_DIR))
+            sqlite_cache_path = os.path.join(local_path, CACHE_DIR)
+            ensure_directory_exists(sqlite_cache_path)
+            sqlite_cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
 
     execution_spec = ExecutionSpec(
         auth=auth,
