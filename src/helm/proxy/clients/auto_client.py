@@ -1,5 +1,5 @@
-import os
 from dataclasses import replace
+import os
 from typing import Any, Dict, Mapping, Optional
 
 from retrying import Attempt, RetryError
@@ -7,9 +7,8 @@ from retrying import Attempt, RetryError
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.file_caches.local_file_cache import LocalFileCache
-from helm.common.cache_utils import build_cache_config
 from helm.common.credentials_utils import provide_api_key
-from helm.common.cache import CacheConfig
+from helm.common.cache_backend_config import CacheBackendConfig, CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.request import Request, RequestResult
@@ -27,15 +26,17 @@ class AuthenticationError(NonRetriableException):
 class AutoClient(Client):
     """Automatically dispatch to the proper `Client` based on the model deployment name."""
 
-    def __init__(self, credentials: Mapping[str, Any], cache_path: str, mongo_uri: str = ""):
-        self._auto_tokenizer = AutoTokenizer(credentials, cache_path, mongo_uri)
+    def __init__(
+        self, credentials: Mapping[str, Any], file_storage_path: str, cache_backend_config: CacheBackendConfig
+    ):
+        self._auto_tokenizer = AutoTokenizer(credentials, cache_backend_config)
         self.credentials = credentials
-        self.cache_path = cache_path
-        self.mongo_uri = mongo_uri
+        self.file_storage_path = file_storage_path
+        self.cache_backend_config = cache_backend_config
         self.clients: Dict[str, Client] = {}
         self._critique_client: Optional[CritiqueClient] = None
-        hlog(f"AutoClient: cache_path = {cache_path}")
-        hlog(f"AutoClient: mongo_uri = {mongo_uri}")
+        hlog(f"AutoClient: file_storage_path = {file_storage_path}")
+        hlog(f"AutoClient: cache_backend_config = {cache_backend_config}")
 
     def _get_client(self, model_deployment_name: str) -> Client:
         """Return a client based on the model, creating it if necessary."""
@@ -62,7 +63,7 @@ class AutoClient(Client):
 
             # Prepare a cache
             host_organization: str = model_deployment.host_organization
-            cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, host_organization)
+            cache_config: CacheConfig = self.cache_backend_config.get_cache_config(host_organization)
 
             client_spec = inject_object_spec_args(
                 model_deployment.client_spec,
@@ -79,7 +80,9 @@ class AutoClient(Client):
                         host_organization + "OrgId", None
                     ),  # OpenAI, GooseAI, Microsoft
                     "moderation_api_client": lambda: self.get_moderation_api_client(),  # OpenAI DALL-E
-                    "lock_file_path": lambda: os.path.join(self.cache_path, f"{host_organization}.lock"),  # Microsoft
+                    "lock_file_path": lambda: os.path.join(
+                        self.file_storage_path, f"{host_organization}.lock"
+                    ),  # Microsoft
                     "project_id": lambda: self.credentials.get(host_organization + "ProjectId", None),  # VertexAI
                     "location": lambda: self.credentials.get(host_organization + "Location", None),  # VertexAI
                     "hf_auth_token": lambda: self.credentials.get("huggingfaceAuthToken", None),  # HuggingFace
@@ -125,33 +128,33 @@ class AutoClient(Client):
         from .gcs_client import GCSClient
 
         bucket_name: str = self.credentials["gcsBucketName"]
-        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "gcs")
+        cache_config: CacheConfig = self.cache_backend_config.get_cache_config("gcs")
         return GCSClient(bucket_name, cache_config)
 
     def get_nudity_check_client(self):
         from helm.proxy.clients.image_generation.nudity_check_client import NudityCheckClient
 
-        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "nudity")
+        cache_config: CacheConfig = self.cache_backend_config.get_cache_config("nudity")
         return NudityCheckClient(cache_config)
 
     def get_clip_score_client(self):
         from .clip_score_client import CLIPScoreClient
 
-        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "clip_score")
+        cache_config: CacheConfig = self.cache_backend_config.get_cache_config("clip_score")
         return CLIPScoreClient(cache_config)
 
     def get_toxicity_classifier_client(self) -> ToxicityClassifierClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""
         from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 
-        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "perspectiveapi")
+        cache_config: CacheConfig = self.cache_backend_config.get_cache_config("perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
 
     def get_moderation_api_client(self):
         """Get the ModerationAPI client."""
         from .moderation_api_client import ModerationAPIClient
 
-        cache_config: CacheConfig = build_cache_config(self.cache_path, self.mongo_uri, "ModerationAPI")
+        cache_config: CacheConfig = self.cache_backend_config.get_cache_config("ModerationAPI")
         return ModerationAPIClient(self.credentials.get("openaiApiKey", ""), cache_config)
 
     def get_critique_client(self) -> CritiqueClient:
@@ -178,7 +181,7 @@ class AutoClient(Client):
             if not surgeai_credentials:
                 raise ValueError("surgeaiApiKey credentials are required for SurgeAICritiqueClient")
             self._critique_client = SurgeAICritiqueClient(
-                surgeai_credentials, build_cache_config(self.cache_path, self.mongo_uri, "surgeai")
+                surgeai_credentials, self.cache_backend_config.get_cache_config("surgeai")
             )
         elif critique_type == "model":
             from helm.proxy.critique.model_critique_client import ModelCritiqueClient
@@ -198,7 +201,7 @@ class AutoClient(Client):
             if not scale_credentials:
                 raise ValueError("scaleApiKey is required for ScaleCritiqueClient")
             self._critique_client = ScaleCritiqueClient(
-                scale_credentials, build_cache_config(self.cache_path, self.mongo_uri, "scale"), scale_project
+                scale_credentials, self.cache_backend_config.get_cache_config("scale"), scale_project
             )
         else:
             raise ValueError(
@@ -209,5 +212,5 @@ class AutoClient(Client):
 
     def _get_file_cache(self, host_organization: str) -> FileCache:
         # Initialize `FileCache` for text-to-image model APIs
-        local_file_cache_path: str = os.path.join(self.cache_path, "output", host_organization)
+        local_file_cache_path: str = os.path.join(self.file_storage_path, "output", host_organization)
         return LocalFileCache(local_file_cache_path, file_extension="png")
