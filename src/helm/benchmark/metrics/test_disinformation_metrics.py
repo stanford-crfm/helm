@@ -8,20 +8,20 @@ from helm.common.request import Sequence, Token
 
 # Test tokens
 _TEST_1_TOKENS: List[Token] = [
-    Token("This", logprob=-0.25, top_logprobs={}),
-    Token("is", logprob=-0.25, top_logprobs={}),
-    Token("a", logprob=-0.25, top_logprobs={}),
-    Token("test", logprob=-0.25, top_logprobs={}),
+    Token("This", logprob=-0.25),
+    Token("is", logprob=-0.25),
+    Token("a", logprob=-0.25),
+    Token("test", logprob=-0.25),
 ]
 _TEST_2_TOKENS: List[Token] = [
-    Token("This", logprob=-0.25, top_logprobs={}),
-    Token("is", logprob=-0.25, top_logprobs={}),
-    Token("another", logprob=-0.5, top_logprobs={}),
-    Token("test", logprob=-0.25, top_logprobs={}),
+    Token("This", logprob=-0.25),
+    Token("is", logprob=-0.25),
+    Token("another", logprob=-0.5),
+    Token("test", logprob=-0.25),
 ]
 _TEST_EMPTY_TOKENS: List[Token] = []
 test_empty_str_tokens: List[Token] = [
-    Token("", logprob=0, top_logprobs={}),
+    Token("", logprob=0),
 ]
 
 # Test Sequences (two standard, one with an empty token, and one with no tokens)

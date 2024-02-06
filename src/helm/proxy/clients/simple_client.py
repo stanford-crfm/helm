@@ -33,7 +33,7 @@ class SimpleClient(CachingClient):
                 Sequence(
                     text=text,
                     logprob=logprob,
-                    tokens=[Token(text=text, logprob=logprob, top_logprobs=response["completions"])],
+                    tokens=[Token(text=text, logprob=logprob)],
                 )
                 for text, logprob in response["completions"].items()
             ]

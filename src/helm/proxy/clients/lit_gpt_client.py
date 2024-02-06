@@ -156,7 +156,7 @@ class LitGPTClient(CachingClient):
 
         generated_tokens = []
         for token in tokens:
-            generated_tokens.append(Token(text=tokenizer.decode(token), logprob=0, top_logprobs={}))
+            generated_tokens.append(Token(text=tokenizer.decode(token), logprob=0))
         completions = [Sequence(text=output, logprob=0, tokens=generated_tokens)]
 
         return RequestResult(

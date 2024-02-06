@@ -105,9 +105,6 @@ class Token:
     # Log probability of generating that
     logprob: float
 
-    # text -> log probability of generating that
-    top_logprobs: Dict[str, float]
-
     def render_lines(self) -> List[str]:
         return [
             f"{format_text(self.text)} logprob={self.logprob}",

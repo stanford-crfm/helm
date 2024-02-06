@@ -132,14 +132,7 @@ class CohereClient(CachingClient):
                 logprob: float = token_likelihood.get("likelihood", 0)
                 sequence_logprob += logprob
 
-                tokens.append(
-                    Token(
-                        text=token_likelihood["token"],
-                        logprob=logprob,
-                        # Cohere does not include the top log probs in the response
-                        top_logprobs={},
-                    )
-                )
+                tokens.append(Token(text=token_likelihood["token"], logprob=logprob))
 
             sequence_text: str = generation["text"]
             if request.echo_prompt and request.max_tokens > 0:

@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
@@ -86,16 +86,13 @@ class AlephAlphaClient(CachingClient):
 
             # `completion_tokens` is the list of selected tokens.
             for i, token in enumerate(completion.get("completion_tokens", [])):
-                # Get the top K logprobs for the ith token
-                top_logprobs: Dict[str, float] = completion["log_probs"][i]
                 # Use the selected token value to get the logprob
-                logprob: float = top_logprobs[token]
+                logprob: float = completion["log_probs"][i][token]
                 sequence_logprob += logprob
                 tokens.append(
                     Token(
                         text=token,
                         logprob=logprob,
-                        top_logprobs=top_logprobs,
                     )
                 )
 
