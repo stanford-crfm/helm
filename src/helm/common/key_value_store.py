@@ -98,6 +98,8 @@ class BlackHoleKeyValueStore(KeyValueStore):
         return None
 
     def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
+        # Return an empty generator.
+        # See: https://stackoverflow.com/a/13243870
         return
         yield
 
