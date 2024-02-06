@@ -1,7 +1,6 @@
 from collections import defaultdict
 from typing import List, Dict, Set
 
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.basic_metrics import (
     compute_language_modeling_metrics,
     compute_perplexity_metrics,
@@ -10,7 +9,6 @@ from helm.benchmark.metrics.basic_metrics import (
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metric import MetricInterface, MetricResult, PerInstanceStats, add_context
 from .metric_name import MetricContext, MetricName
 from .metric_service import MetricService
@@ -31,7 +29,7 @@ class LanguageModelingMetric(MetricInterface):
         return "LanguageModelingMetric"
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+        self, request_states: List[RequestState], metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         global_stats: Dict[MetricName, Stat] = {}
         # The first and only trial
@@ -40,11 +38,9 @@ class LanguageModelingMetric(MetricInterface):
         all_per_instance_stats: List[PerInstanceStats] = []
         instance_ids_per_context: Dict[MetricContext, Set[str]] = defaultdict(set)
 
-        for request_state in scenario_state.request_states:
+        for request_state in request_states:
             # Evaluate request_state
-            request_stats = self.evaluate_generation(
-                scenario_state.adapter_spec, request_state, metric_service, eval_cache_path
-            )
+            request_stats = self.evaluate_generation(request_state, metric_service, eval_cache_path)
 
             # Add instance-related context (e.g., split, perturbation) to the metrics
             for i, stat in enumerate(request_stats):
@@ -80,15 +76,14 @@ class LanguageModelingMetric(MetricInterface):
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
         """Compute all metrics."""
         stats: List[Stat] = []
-        stats.extend(compute_request_state_metrics(self.efficiency_metric, adapter_spec, request_state, metric_service))
-        stats.extend(compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
+        stats.extend(compute_request_state_metrics(self.efficiency_metric, request_state, metric_service))
+        stats.extend(compute_language_modeling_metrics(request_state, metric_service))
 
         return stats
 

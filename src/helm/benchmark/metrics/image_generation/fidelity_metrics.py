@@ -3,13 +3,13 @@ from typing import Dict, List, Set, Optional
 import math
 import os
 import shutil
+from helm.benchmark.adaptation.request_state import RequestState
 
 from helm.common.general import ensure_directory_exists, generate_unique_id, get_file_name, hlog
 from helm.common.gpu_utils import is_cuda_available, get_torch_device
 from helm.common.request import RequestResult
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.scenarios.scenario import Instance
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
@@ -54,7 +54,7 @@ class FidelityMetric(MetricInterface):
 
     def evaluate(
         self,
-        scenario_state: ScenarioState,
+        request_states: List[RequestState],
         metric_service: MetricService,
         eval_cache_path: str,
         parallelism: int,
@@ -74,7 +74,7 @@ class FidelityMetric(MetricInterface):
         # The library requires the gold and generated images to be in two separate directories.
         # Gather the gold images and the unique perturbations
         num_gold_images: int = 0
-        for request_state in tqdm(scenario_state.request_states):
+        for request_state in tqdm(request_states):
             instance: Instance = request_state.instance
             unique_perturbations.add(instance.perturbation)
 
@@ -100,7 +100,7 @@ class FidelityMetric(MetricInterface):
             ensure_directory_exists(generated_images_path)
 
             num_generated_images: int = 0
-            for request_state in tqdm(scenario_state.request_states):
+            for request_state in tqdm(request_states):
                 if request_state.instance.perturbation != perturbation:
                     continue
 

@@ -6,9 +6,7 @@ from typing import List, Union, Sequence, cast
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.scenarios.code_scenario import CodeReference
 from . import code_metrics_helper
 from .metric import Metric, MetricResult
@@ -60,17 +58,16 @@ class APPSMetric(Metric):
         # resource.setrlimit(resource.RLIMIT_AS, (MAXIMUM_MEMORY_BYTES, MAXIMUM_MEMORY_BYTES))
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+        self, request_states: List[RequestState], metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         # Running with parallelism > 1 causes the run to get stuck.
         hlog(
             f"Setting parallelism from {parallelism} to 1, since evaluating code with parallelism > 1 isn't supported."
         )
-        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=1)
+        return super().evaluate(request_states, metric_service, eval_cache_path, parallelism=1)
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,

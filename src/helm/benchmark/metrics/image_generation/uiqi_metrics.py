@@ -10,8 +10,6 @@ from helm.common.images_utils import open_image
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric import MetricResult
@@ -39,14 +37,13 @@ class UniversalImageQualityIndexMetric(Metric):
         return "UniversalImageQualityIndexMetric()"
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+        self, request_states: List[RequestState], metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         hlog(f"Setting parallelism from {parallelism} to 1, since computing UIQI with parallelism > 1 isn't supported.")
-        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=1)
+        return super().evaluate(request_states, metric_service, eval_cache_path, parallelism=1)
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,

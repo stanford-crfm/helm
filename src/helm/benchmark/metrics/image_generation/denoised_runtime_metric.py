@@ -1,12 +1,12 @@
 from collections import defaultdict
 from tqdm import tqdm
-from typing import Dict
+from typing import Dict, List
 import math
 import numpy as np
 
 from helm.common.request import RequestResult
+from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
@@ -19,14 +19,14 @@ class DenoisedRuntimeMetric(MetricInterface):
 
     def evaluate(
         self,
-        scenario_state: ScenarioState,
+        request_states: List[RequestState],
         metric_service: MetricService,
         eval_cache_path: str,
         parallelism: int,
     ) -> MetricResult:
 
         instance_to_min_request_times: Dict[Instance, float] = defaultdict(lambda: math.inf)
-        for request_state in tqdm(scenario_state.request_states):
+        for request_state in tqdm(request_states):
             assert request_state.result is not None
             request_result: RequestResult = request_state.result
 

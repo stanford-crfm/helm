@@ -10,10 +10,7 @@ from helm.benchmark.augmentations.perturbation_description import (
     PERTURBATION_ORIGINAL,
     PERTURBATION_WORST,
 )
-from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_LANGUAGE_MODELING
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.scenarios.scenario import Instance
 from .metric_name import MetricName, MetricContext
 from .metric_service import MetricService
@@ -65,7 +62,6 @@ class Processor:
     metric: "Metric"
     metric_service: MetricService
     eval_cache_path: str
-    adapter_spec: AdapterSpec
 
     def process(self, request_state_set: RequestStateSet) -> List[Stat]:
         instance_stats: List[Stat] = []
@@ -74,18 +70,14 @@ class Processor:
         generation_states = request_state_set.generation_states
         if len(generation_states) != 0:
             instance_stats.extend(
-                self.metric.evaluate_generation(
-                    self.adapter_spec, singleton(generation_states), self.metric_service, self.eval_cache_path
-                )
+                self.metric.evaluate_generation(singleton(generation_states), self.metric_service, self.eval_cache_path)
             )
 
         # Evaluate the references
         references_states = request_state_set.references_states
         if len(references_states) != 0:
             instance_stats.extend(
-                self.metric.evaluate_references(
-                    self.adapter_spec, references_states, self.metric_service, self.eval_cache_path
-                )
+                self.metric.evaluate_references(references_states, self.metric_service, self.eval_cache_path)
             )
 
         # Add instance-related context (e.g., split, perturbation) to the metrics
@@ -100,7 +92,7 @@ class MetricInterface(ABC):
 
     @abstractmethod
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+        self, request_states: List[RequestState], metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         pass
 
@@ -116,7 +108,7 @@ class Metric(MetricInterface, ABC):
     """
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+        self, request_states: List[RequestState], metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         """
         Main entry point for a `Metric`.  This function groups the single
@@ -126,37 +118,28 @@ class Metric(MetricInterface, ABC):
         Any logic that doesn't decompose along instances should go here, such
         as robustness.
         """
-        assert scenario_state.adapter_spec.method != ADAPT_LANGUAGE_MODELING, (
-            "Metric no longer knows how to handle the language modeling adapter. "
-            + "All run_specs with that adapter should use LanguageModelingMetric. "
-            + "If you are seeing this issue, please file a Github issue."
-        )
-
-        adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}
         all_per_instance_stats: List[PerInstanceStats] = []
 
-        for train_trial_index in range(adapter_spec.num_train_trials):
+        for train_trial_index, trial_request_states in enumerate(group_request_states_by_train_trial(request_states)):
             # Construct inputs
-            request_state_sets: List[RequestStateSet] = []
-            for instance in scenario_state.instances:
-                generation_states = scenario_state.get_request_states(train_trial_index, instance, None)
-                references_states = []
-                for reference_index in range(len(instance.references)):
-                    references_states.extend(
-                        scenario_state.get_request_states(train_trial_index, instance, reference_index)
-                    )
-                request_state_set = RequestStateSet(
-                    instance=instance, generation_states=generation_states, references_states=references_states
-                )
-                request_state_sets.append(request_state_set)
+            instance_to_request_state_set: Dict[Instance, RequestStateSet] = {}
+            for request_state in trial_request_states:
+                instance: Instance = request_state.instance
+                if instance not in instance_to_request_state_set:
+                    instance_to_request_state_set[instance] = RequestStateSet(instance, [], [])
+                if request_state.reference_index is None:
+                    instance_to_request_state_set[instance].generation_states.append(request_state)
+                else:
+                    instance_to_request_state_set[instance].references_states.append(request_state)
+            request_state_sets: List[RequestStateSet] = list(instance_to_request_state_set.values())
+            instances: List[Instance] = list(instance_to_request_state_set.keys())
 
             # Do it!
             processor = Processor(
                 metric=self,
                 metric_service=metric_service,
                 eval_cache_path=eval_cache_path,
-                adapter_spec=scenario_state.adapter_spec,
             )
             results: List[List[Stat]] = parallel_map(
                 processor.process,
@@ -166,7 +149,7 @@ class Metric(MetricInterface, ABC):
 
             # Compute per-instance stats
             per_instance_stats: List[PerInstanceStats] = []
-            for instance, stats in zip(scenario_state.instances, results):
+            for instance, stats in zip(instances, results):
                 assert instance.id is not None, f"id was none for instance: {instance}"
                 # Sometimes a metric (e.g., BiasMetric) doesn't produce any statistics
                 if len(stats) > 0:
@@ -198,7 +181,7 @@ class Metric(MetricInterface, ABC):
             grouped_per_instance_stats: Dict[MetricContext, Dict[Instance, List[Stat]]] = defaultdict(
                 lambda: defaultdict(list)
             )
-            for instance, stats in zip(scenario_state.instances, results):
+            for instance, stats in zip(instances, results):
                 for stat in stats:
                     grouped_per_instance_stats[MetricContext.from_instance(instance)][instance].append(stat)
             for context, instance_dict in grouped_per_instance_stats.items():
@@ -210,7 +193,7 @@ class Metric(MetricInterface, ABC):
             # Compute worst-case metrics.
             # This is here since we want these stats for all metrics and they
             # aggregate across contexts (perturbations).
-            worst_case_stats = self.compute_worst_case_metrics(dict(zip(scenario_state.instances, results)))
+            worst_case_stats = self.compute_worst_case_metrics(dict(zip(instances, results)))
             for stat in worst_case_stats:
                 merge_stat(trial_stats, stat)
 
@@ -225,7 +208,6 @@ class Metric(MetricInterface, ABC):
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,
@@ -235,7 +217,6 @@ class Metric(MetricInterface, ABC):
 
     def evaluate_references(
         self,
-        adapter_spec: AdapterSpec,
         reference_request_states: List[RequestState],
         metric_service: MetricService,
         eval_cache_path: str,
@@ -352,3 +333,19 @@ def add_context(stat: Stat, context: MetricContext) -> Stat:
     return Stat(
         replace(stat.name, split=context.split, sub_split=context.sub_split, perturbation=context.perturbation)
     ).merge(stat)
+
+
+def get_num_train_trials(request_states: List[RequestState]) -> int:
+    """Return the number of train trials."""
+    return max([request_state.train_trial_index for request_state in request_states]) + 1
+
+
+def group_request_states_by_train_trial(request_states: List[RequestState]) -> List[List[RequestState]]:
+    """Groups RequestStates by train trial index."""
+    grouped_request_states: List[List[RequestState]] = []
+    for request_state in request_states:
+        train_trial_index = request_state.train_trial_index
+        while len(grouped_request_states) < train_trial_index + 1:
+            grouped_request_states.append([])
+        grouped_request_states[train_trial_index].append(request_state)
+    return grouped_request_states

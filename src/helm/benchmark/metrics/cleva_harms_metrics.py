@@ -9,7 +9,6 @@ from helm.common.perspective_api_request import PerspectiveAPIRequest, Perspecti
 from helm.common.request import RequestResult
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
@@ -167,7 +166,6 @@ class CLEVAToxicityMetric(ToxicityMetric):
 
     def evaluate_generation(
         self,
-        adapter_spec: AdapterSpec,
         request_state: RequestState,
         metric_service: MetricService,
         eval_cache_path: str,
