@@ -1,33 +1,5 @@
 ---
 ############################################################
-models:
-  - name: openai/gpt-4-0314
-    display_name: gpt-4-0314
-    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from March 14th 2023.
-    creator_organization: OpenAI
-    access: limited
-    release_date: 2023-03-14
-  - name: openai/gpt-3.5-turbo-0613
-    display_name: gpt-3.5-turbo-0613
-    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
-    creator_organization: OpenAI
-    access: limited
-    release_date: 2023-06-13
-  - name: anthropic/claude-v1.3
-    display_name: Anthropic Claude v1.3
-    description: A model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
-    creator_organization: Anthropic
-    access: limited
-    release_date: 2023-03-17
-  - name: cohere/command-xlarge-beta
-    display_name: Cohere Command beta (52.4B)
-    description: Cohere Command beta (52.4B parameters) is fine-tuned from the XL model to respond well with instruction-like prompts ([details](https://docs.cohere.ai/docs/command-beta)).
-    creator_organization: Cohere
-    access: limited
-    num_parameters: 52400000000
-    release_date: 2022-11-08
-
-############################################################
 adapter:
   - name: method
     description: The high-level strategy for converting instances into a prompt for the language model.
