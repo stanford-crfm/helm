@@ -1,5 +1,6 @@
 import dataclasses
 from tempfile import TemporaryDirectory
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from helm.common.request import Sequence, Token
 
 import pytest
@@ -15,8 +16,8 @@ class TestAutoClient:
         credentials = get_credentials()
         if not credentials:
             pytest.skip("Skipping test because no credentials found")
-        with TemporaryDirectory() as cache_path:
-            auto_client = AutoClient(credentials, cache_path)
+        with TemporaryDirectory() as temp_dir_path:
+            auto_client = AutoClient(credentials, temp_dir_path, BlackHoleCacheBackendConfig())
             actual_result = auto_client.make_request(request)
             assert actual_result.request_time or actual_result.batch_request_time
             actual_result = dataclasses.replace(

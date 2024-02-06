@@ -101,7 +101,7 @@ class BlackHoleKeyValueStore(KeyValueStore):
         return
         yield
 
-    def put(self, key: Dict, value: Dict) -> None:
+    def put(self, key: Mapping, value: Dict) -> None:
         return None
 
     def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:

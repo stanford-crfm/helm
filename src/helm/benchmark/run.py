@@ -5,6 +5,7 @@ from typing import List, Optional
 
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
+from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
@@ -85,16 +86,27 @@ def run_benchmarking(
     skip_completed_runs: bool,
     exit_on_error: bool,
     runner_class_name: Optional[str],
-    cache_path: Optional[str] = "",
+    mongo_uri: Optional[str] = None,
+    disable_cache: Optional[bool] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
+    sqlite_cache_backend_config: Optional[SqliteCacheBackendConfig] = None
+    mongo_cache_backend_config: Optional[MongoCacheBackendConfig] = None
+
+    if not disable_cache:
+        if mongo_uri:
+            mongo_cache_backend_config = MongoCacheBackendConfig(mongo_uri)
+        else:
+            sqlite_cache_backend_config = SqliteCacheBackendConfig(os.path.join(local_path, CACHE_DIR))
+
     execution_spec = ExecutionSpec(
         auth=auth,
         url=url,
         local_path=local_path,
         parallelism=num_threads,
         dry_run=dry_run,
-        cache_path=cache_path,
+        sqlite_cache_backend_config=sqlite_cache_backend_config,
+        mongo_cache_backend_config=mongo_cache_backend_config,
     )
     with htrack_block("run_specs"):
         for run_spec in run_specs:
@@ -174,15 +186,15 @@ def add_run_args(parser: argparse.ArgumentParser):
         default="prod_env",
     )
     parser.add_argument(
-        "--disable-cache",
-        action="store_true",
-        help="If true, the request-response cache for model clients and tokenizers will be disabled.",
-    )
-    parser.add_argument(
         "--mongo-uri",
         type=str,
         help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite",
         default="",
+    )
+    parser.add_argument(
+        "--disable-cache",
+        action="store_true",
+        help="If true, the request-response cache for model clients and tokenizers will be disabled.",
     )
 
 
@@ -301,15 +313,6 @@ def main():
         Authentication("") if args.skip_instances or not args.server_url else create_authentication(args)
     )
 
-    cache_path: Optional[str]
-    if args.disable_cache:
-        cache_path = None
-    elif args.mongo_uri:
-        cache_path = args.mongo_uri
-    else:
-        cache_path = os.path.join(args.local_path, CACHE_DIR)
-        ensure_directory_exists(cache_path)
-
     run_benchmarking(
         run_specs=run_specs,
         auth=auth,
@@ -325,7 +328,8 @@ def main():
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
         runner_class_name=args.runner_class_name,
-        cache_path=cache_path,
+        mongo_uri=args.mongo_uri,
+        disable_cache=args.disable_cache,
     )
 
     if args.local:

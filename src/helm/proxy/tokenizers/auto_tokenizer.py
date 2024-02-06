@@ -4,9 +4,8 @@ from typing import Any, Dict, Mapping, Optional
 from retrying import Attempt, RetryError
 
 from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
-from helm.common.cache_utils import build_cache_config
 from helm.common.credentials_utils import provide_api_key
-from helm.common.cache import CacheConfig
+from helm.common.cache_backend_config import CacheBackendConfig, CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.proxy.retry import retry_tokenizer_request
@@ -22,11 +21,11 @@ from helm.proxy.tokenizers.tokenizer import Tokenizer
 class AutoTokenizer(Tokenizer):
     """Automatically dispatch to the proper `Tokenizer` based on the tokenizer name."""
 
-    def __init__(self, credentials: Mapping[str, Any], cache_path: Optional[str]):
+    def __init__(self, credentials: Mapping[str, Any], cache_backend_config: CacheBackendConfig):
         self.credentials = credentials
-        self.cache_path = cache_path
+        self.cache_backend_config = cache_backend_config
         self.tokenizers: Dict[str, Tokenizer] = {}
-        hlog(f"AutoTokenizer: cache_path = {cache_path}")
+        hlog(f"AutoTokenizer: cache_backend_config = {cache_backend_config}")
 
     def _get_tokenizer(self, tokenizer_name: str) -> Tokenizer:
         # First try to find the tokenizer in the cache
@@ -36,7 +35,7 @@ class AutoTokenizer(Tokenizer):
 
         # Otherwise, create the tokenizer
         organization: str = tokenizer_name.split("/")[0]
-        cache_config: CacheConfig = build_cache_config(self.cache_path, organization)
+        cache_config: CacheConfig = self.cache_backend_config.get_cache_config(organization)
 
         tokenizer_config = get_tokenizer_config(tokenizer_name)
         if tokenizer_config:
