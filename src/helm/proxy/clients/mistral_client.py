@@ -8,6 +8,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
+from helm.proxy.retry import NonRetriableException
 from helm.proxy.tokenizers.tokenizer import Tokenizer
 from .client import CachingClient, truncate_sequence
 
@@ -63,51 +64,50 @@ class MistralAIClient(CachingClient):
         completions: List[Sequence] = []
         model_name: str = self._model_aliases.get(request.model_engine, request.model_engine)
 
-        # `num_completions` is not supported, so instead make `num_completions` separate requests.
-        for completion_index in range(request.num_completions):
-            try:
+        if request.num_completions > 1:
+            raise NonRetriableException("MistralAIClient does not support num_completions > 1")
+        try:
 
-                def do_it():
-                    result: Dict[str, Any] = self._send_request(model_name, raw_request)
-                    return result
+            def do_it():
+                result: Dict[str, Any] = self._send_request(model_name, raw_request)
+                return result
 
-                # We need to include the engine's name to differentiate among requests made for different model
-                # engines since the engine name is not included in the request itself.
-                # In addition, we want to make `request.num_completions` fresh
-                # requests, cache key should contain the completion_index.
-                # Echoing the original prompt is not officially supported by Mistral. We instead prepend the
-                # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
-                cache_key = CachingClient.make_cache_key(
-                    {
-                        "engine": model_name,
-                        "completion_index": completion_index,
-                        **raw_request,
-                    },
-                    request,
-                )
-
-                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            except (requests.exceptions.RequestException, AssertionError) as e:
-                error: str = f"MistralClient error: {e}"
-                return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
-
-            response_message: Dict[str, Any] = response["choices"][0]["message"]
-            assert response_message["role"] == "assistant"
-            response_text: str = response_message["content"]
-
-            # The Mistral API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
-            text: str = request.prompt + response_text if request.echo_prompt else response_text
-            # The Mistral API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
+            # We need to include the engine's name to differentiate among requests made for different model
+            # engines since the engine name is not included in the request itself.
+            # In addition, we want to make `request.num_completions` fresh
+            # requests, cache key should contain the completion_index.
+            # Echoing the original prompt is not officially supported by Mistral. We instead prepend the
+            # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
+            cache_key = CachingClient.make_cache_key(
+                {
+                    "engine": model_name,
+                    **raw_request,
+                },
+                request,
             )
 
-            # Log probs are not currently not supported by Mistral, so set to 0 for now.
-            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except (requests.exceptions.RequestException, AssertionError) as e:
+            error: str = f"MistralClient error: {e}"
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
-            sequence = truncate_sequence(completion, request, print_warning=True)
-            completions.append(sequence)
+        response_message: Dict[str, Any] = response["choices"][0]["message"]
+        assert response_message["role"] == "assistant"
+        response_text: str = response_message["content"]
+
+        # The Mistral API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
+        text: str = request.prompt + response_text if request.echo_prompt else response_text
+        # The Mistral API doesn't return us tokens or logprobs, so we tokenize ourselves.
+        tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
+            TokenizationRequest(text, tokenizer=self.tokenizer_name)
+        )
+
+        # Log probs are not currently not supported by Mistral, so set to 0 for now.
+        tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
+
+        completion = Sequence(text=response_text, logprob=0, tokens=tokens)
+        sequence = truncate_sequence(completion, request, print_warning=True)
+        completions.append(sequence)
 
         return RequestResult(
             success=True,
