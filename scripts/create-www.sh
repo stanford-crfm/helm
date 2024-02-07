@@ -30,3 +30,4 @@ rsync -arvz www/* /u/apache/htdocs/helm/$suite
 echo To make the contents of www live, do a git push or run something like:
 echo
 echo python3 /nlp/scr2/nlp/crfm/benchmarking/helm-deployment/gcs/upload.py --compress --bucket crfm-helm-public --source /nlp/scr2/nlp/crfm/benchmarking/benchmarking/www/benchmark_output --destination benchmark_output --source_suite $suite --destination_suite $suite
+echo "Done."
