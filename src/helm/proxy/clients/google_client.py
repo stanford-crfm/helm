@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from helm.common.cache import CacheConfig
 from helm.common.request import Request, RequestResult, Completion, Token
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_completion
 
 
 class GoogleClient(CachingClient):
@@ -64,7 +64,7 @@ class GoogleClient(CachingClient):
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
-            completion = truncate_sequence(completion, request)
+            completion = truncate_completion(completion, request)
             completions.append(completion)
 
         return RequestResult(

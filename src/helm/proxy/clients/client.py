@@ -43,11 +43,11 @@ class CachingClient(Client):
         return cache_key
 
 
-def truncate_sequence(sequence: Completion, request: Request, print_warning: bool = True) -> Completion:
+def truncate_completion(completion: Completion, request: Request, print_warning: bool = True) -> Completion:
     """
     Certain providers have bugs where they aren't respecting max_tokens,
     stop_sequences and the end of text token, so as a hack, we have to manually
-    truncate the suffix of `sequence` and `tokens` as a post-hoc process.
+    truncate the suffix of `text` and `tokens` as a post-hoc process.
     """
     # TODO: if echo_prompt, then we should only ignore the prompt, but we don't
     # know how many tokens the prompt takes up.
@@ -56,28 +56,28 @@ def truncate_sequence(sequence: Completion, request: Request, print_warning: boo
     if request.echo_prompt:
         if request.max_tokens != 0:
             hlog("WARNING: don't know how to handle echo_prompt and max_tokens > 0, not truncating")
-        return sequence
+        return completion
 
     for stop in request.stop_sequences:
         # Find `stop` in the text
         try:
-            new_text = sequence.text[: sequence.text.index(stop)]
+            new_text = completion.text[: completion.text.index(stop)]
         except ValueError:
             # The stop sequence doesn't exist, but it might exist in the list of tokens.
-            new_text = sequence.text
+            new_text = completion.text
 
         # Strip `stop` off the tokens
         new_tokens: List[Token] = []
         # Need to start
-        for token in sequence.tokens:
+        for token in completion.tokens:
             # Note: we can only strip at token boundaries
             if token.text.startswith(stop):
                 break
             new_tokens.append(token)
 
-        if len(new_text) < len(sequence.text) and len(new_tokens) == len(sequence.tokens):
+        if len(new_text) < len(completion.text) and len(new_tokens) == len(completion.tokens):
             hlog(
-                f"WARNING: Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), "
+                f"WARNING: Stripped characters from text ({len(completion.text)} -> {len(new_text)}), "
                 f"but wasn't able to strip the tokens"
             )
 
@@ -85,28 +85,30 @@ def truncate_sequence(sequence: Completion, request: Request, print_warning: boo
         new_logprob = sum(token.logprob for token in new_tokens)
 
         if print_warning:
-            hlog(f"WARNING: truncate_sequence needs to strip {json.dumps(stop)}")
+            hlog(f"WARNING: truncate_completion needs to strip {json.dumps(stop)}")
 
-        sequence = Completion(text=new_text, logprob=new_logprob, tokens=new_tokens)
+        completion = Completion(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
     # Truncate based on the max number of tokens.
-    if len(sequence.tokens) > request.max_tokens:
+    if len(completion.tokens) > request.max_tokens:
         if print_warning:
-            hlog(f"WARNING: truncate_sequence needs to truncate {len(sequence.tokens)} down to {request.max_tokens}")
-        new_tokens = sequence.tokens[: request.max_tokens]
+            hlog(
+                f"WARNING: truncate_completion needs to truncate {len(completion.tokens)} down to {request.max_tokens}"
+            )
+        new_tokens = completion.tokens[: request.max_tokens]
 
         # This is imperfect stitching together of tokens, so just to make sure this is okay
         # TODO: should use the proper detokenizer since T5-style models.
         # Usually, in our benchmark, max_tokens is active when it's 1, so hopefully this isn't an issue.
         new_text = "".join(token.text for token in new_tokens)
-        if not sequence.text.startswith(new_text):
-            hlog(f"WARNING: {json.dumps(sequence.text)} does not start with truncated text {json.dumps(new_text)}")
+        if not completion.text.startswith(new_text):
+            hlog(f"WARNING: {json.dumps(completion.text)} does not start with truncated text {json.dumps(new_text)}")
 
         new_logprob = sum(token.logprob for token in new_tokens)
 
-        sequence = Completion(text=new_text, logprob=new_logprob, tokens=new_tokens)
+        completion = Completion(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
-    return sequence
+    return completion
 
 
 def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:

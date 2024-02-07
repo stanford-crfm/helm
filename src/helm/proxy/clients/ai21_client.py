@@ -10,7 +10,7 @@ from helm.common.request import (
     Completion,
     Token,
 )
-from .client import CachingClient, truncate_sequence, cleanup_str
+from .client import CachingClient, truncate_completion, cleanup_str
 from .ai21_utils import AI21RequestError, handle_failed_request
 
 
@@ -115,7 +115,7 @@ class AI21Client(CachingClient):
         completions = []
         for raw_completion in response["completions"]:
             completion = parse_sequence(raw_completion["data"], False, raw_completion["finishReason"])
-            completion = truncate_sequence(completion, request)
+            completion = truncate_completion(completion, request)
             completions.append(prompt + completion if request.echo_prompt else completion)
 
         return RequestResult(

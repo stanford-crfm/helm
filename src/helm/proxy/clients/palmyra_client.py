@@ -11,7 +11,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_completion
 
 
 _CONTENT_MODERATION_KEY = "fail.content.moderation.failed"
@@ -131,7 +131,7 @@ class PalmyraClient(CachingClient):
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Completion(text=response_text, logprob=0, tokens=tokens)
-            sequence = truncate_sequence(completion, request, print_warning=True)
+            sequence = truncate_completion(completion, request, print_warning=True)
             completions.append(sequence)
 
         return RequestResult(

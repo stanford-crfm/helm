@@ -13,7 +13,7 @@ from helm.common.request import (
     Token,
 )
 from helm.common.tokenization_request import TokenizationRequest
-from helm.proxy.clients.client import CachingClient, truncate_sequence
+from helm.proxy.clients.client import CachingClient, truncate_completion
 from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
@@ -88,7 +88,7 @@ class MegatronClient(CachingClient):
         # NOTE: Megatron returns the de-tokenized response. Re-tokenize.
         tokens = self._tokenize_response(generated_text)
         completion = Completion(text=generated_text, logprob=0, tokens=tokens)
-        completion = truncate_sequence(completion, request, print_warning=True)
+        completion = truncate_completion(completion, request, print_warning=True)
 
         return RequestResult(
             success=True,

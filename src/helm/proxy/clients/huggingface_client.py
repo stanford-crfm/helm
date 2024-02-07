@@ -17,7 +17,7 @@ from helm.common.request import (
     Completion,
     Token,
 )
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_completion
 from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer, resolve_alias
 from threading import Lock
 
@@ -286,7 +286,7 @@ class HuggingFaceClient(CachingClient):
                 sequence_logprob += logprob
 
             completion = Completion(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
-            completion = truncate_sequence(completion, request)
+            completion = truncate_completion(completion, request)
             completions.append(completion)
 
         return RequestResult(

@@ -1,20 +1,20 @@
-from .client import truncate_sequence
+from .client import truncate_completion
 from typing import List
 from helm.common.request import Request, Completion, Token
 
 
 def truncate_sequence_helper(tokens: List[str], request: Request, expected_tokens: List[str]):
-    sequence = Completion(
+    completion = Completion(
         text="".join(tokens),
         tokens=[Token(text=text, logprob=-1) for text in tokens],
         logprob=-len(tokens),
     )
 
-    output_sequence = truncate_sequence(sequence, request)
+    output_completion = truncate_completion(completion, request)
 
-    assert expected_tokens == [token.text for token in output_sequence.tokens]
-    assert "".join(expected_tokens) == output_sequence.text
-    assert output_sequence.logprob == sum(token.logprob for token in output_sequence.tokens)
+    assert expected_tokens == [token.text for token in output_completion.tokens]
+    assert "".join(expected_tokens) == output_completion.text
+    assert output_completion.logprob == sum(token.logprob for token in output_completion.tokens)
 
 
 def test_truncate_sequence():

@@ -13,7 +13,7 @@ from helm.common.request import (
     Completion,
     Token,
 )
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_completion
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
@@ -37,7 +37,7 @@ class MicrosoftClient(CachingClient):
             "logprobs": request.top_k_per_token,
             # Despite what was stated here: https://github.com/microsoft/turing-academic-TNLG#api-parameters,
             # their API supports at most one stop sequence. Pass in the first one for now and handle the rest
-            # of the stop sequences during post processing (see `truncate_sequence` below).
+            # of the stop sequences during post processing (see `truncate_completion` below).
             "stop": None if len(request.stop_sequences) == 0 else request.stop_sequences[0],
             "top_p": request.top_p,
             "echo": request.echo_prompt,
@@ -160,7 +160,7 @@ class MicrosoftClient(CachingClient):
                     tokens=tokens,
                     finish_reason={"reason": raw_completion["finish_reason"]},
                 )
-                completion = truncate_sequence(completion, request)
+                completion = truncate_completion(completion, request)
                 completions.append(completion)
 
             request_time += response["request_time"]

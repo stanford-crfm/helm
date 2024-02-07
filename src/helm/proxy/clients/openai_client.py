@@ -13,7 +13,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
+from .client import CachingClient, truncate_completion, generate_uid_for_multimodal_prompt
 
 try:
     import openai
@@ -189,7 +189,7 @@ class OpenAIClient(CachingClient):
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
-            completions.append(truncate_sequence(completion, request))  # Truncate the text by stop sequences
+            completions.append(truncate_completion(completion, request))  # Truncate the text by stop sequences
 
         return RequestResult(
             success=True,
@@ -254,7 +254,7 @@ class OpenAIClient(CachingClient):
             # OpenAI sends us back tokens past the end of text token,
             # so we need to manually truncate the list of tokens.
             # TODO: filed an issue with their support to check what the expected behavior here is.
-            completion = truncate_sequence(
+            completion = truncate_completion(
                 completion, replace(request, stop_sequences=request.stop_sequences + [OpenAIClient.END_OF_TEXT])
             )
             completions.append(completion)

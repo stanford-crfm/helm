@@ -12,7 +12,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
+from .client import CachingClient, truncate_completion, generate_uid_for_multimodal_prompt
 
 try:
     import vertexai
@@ -126,8 +126,8 @@ class VertexAITextClient(VertexAIClient):
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Completion(text=response_text, logprob=0, tokens=tokens)
-            sequence = truncate_sequence(completion, request, print_warning=True)
-            completions.append(sequence)
+            completion = truncate_completion(completion, request, print_warning=True)
+            completions.append(completion)
 
         return RequestResult(
             success=True,
@@ -266,8 +266,8 @@ class VertexAIChatClient(VertexAIClient):
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Completion(text=response_text, logprob=0, tokens=tokens)
-            sequence = truncate_sequence(completion, request, print_warning=True)
-            completions.append(sequence)
+            completion = truncate_completion(completion, request, print_warning=True)
+            completions.append(completion)
 
         return RequestResult(
             success=True,

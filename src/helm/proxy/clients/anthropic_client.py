@@ -21,7 +21,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_completion
 
 try:
     import anthropic
@@ -83,9 +83,9 @@ class AnthropicClient(CachingClient):
                 break
 
         # NOTE(josselin): For now, this is disabled as it is not an accurate
-        # limit of tokens. It is still handled by truncate_sequence() further
+        # limit of tokens. It is still handled by truncate_completion() further
         # down the line, but it is not ideal. (prints a warning in the logs)
-        # It is now expected that truncate_sequence() will truncate some tokens
+        # It is now expected that truncate_completion() will truncate some tokens
         # as we queried more tokens than necessary to ensure that the completion
         # does not start with a colon, space, or newline.
 
@@ -177,8 +177,8 @@ class AnthropicClient(CachingClient):
             completion = Completion(text=response["completion"], logprob=0, tokens=tokens)
             # See NOTE() in _filter_completion() to understand why warnings are printed for truncation.
             # TODO(#1512): Fix this with post-processing.
-            sequence = truncate_sequence(completion, request, print_warning=True)
-            completions.append(sequence)
+            completion = truncate_completion(completion, request, print_warning=True)
+            completions.append(completion)
 
         return RequestResult(
             success=True,
@@ -439,7 +439,7 @@ class AnthropicLegacyClient(CachingClient):
                 tokens=tokens,
                 finish_reason={"reason": finish_reason},
             )
-            completion = truncate_sequence(completion, request)
+            completion = truncate_completion(completion, request)
             completions.append(completion)
             request_time += response["request_time"]
             # Use the datetime from the first completion because that's when the request was fired

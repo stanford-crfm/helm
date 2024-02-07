@@ -6,7 +6,7 @@ from retrying import retry
 
 from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Completion, Token
-from .client import CachingClient, truncate_sequence, cleanup_str
+from .client import CachingClient, truncate_completion, cleanup_str
 
 
 class _RewriteRequestTags:
@@ -249,7 +249,7 @@ class TogetherClient(CachingClient):
                 tokens=tokens,
                 finish_reason=finish_reason,
             )
-            completion = truncate_sequence(completion, request)
+            completion = truncate_completion(completion, request)
             completions.append(completion)
 
         request_time: Union[float, Dict[str, Any]] = response["request_time"]
