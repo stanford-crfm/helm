@@ -890,6 +890,8 @@ model_deployments:
     max_sequence_length: 32000
     client_spec:
       class_name: "helm.proxy.clients.mistral_client.MistralAIClient"
+      args:
+        mistral_model: "mistral-tiny"
 
   - name: mistralai/mistral-medium
     model_name: mistralai/mistral-medium
