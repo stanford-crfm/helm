@@ -107,7 +107,6 @@ class TogetherClient(CachingClient):
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
             "best_of": request.top_k_per_token,
-            "logprobs": request.top_k_per_token,
             "stop": request.stop_sequences or None,
             "echo": request.echo_prompt,
             "top_p": request.top_p,

@@ -28,7 +28,6 @@ class TestTogetherClient:
                 {
                     "best_of": 1,
                     "echo": False,
-                    "logprobs": 1,
                     "max_tokens": 100,
                     "model": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
                     "n": 1,
@@ -56,7 +55,6 @@ class TestTogetherClient:
                 {
                     "best_of": 3,
                     "echo": True,
-                    "logprobs": 3,
                     "max_tokens": 24,
                     "model": "huggyllama/llama-7b",
                     "n": 4,
@@ -77,7 +75,6 @@ class TestTogetherClient:
                 {
                     "best_of": 1,
                     "echo": False,
-                    "logprobs": 1,
                     "max_tokens": 100,
                     "model": "togethercomputer/alpaca-7b",
                     "n": 1,
