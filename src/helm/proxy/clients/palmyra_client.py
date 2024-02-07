@@ -131,8 +131,8 @@ class PalmyraClient(CachingClient):
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Completion(text=response_text, logprob=0, tokens=tokens)
-            sequence = truncate_completion(completion, request, print_warning=True)
-            completions.append(sequence)
+            completion = truncate_completion(completion, request, print_warning=True)
+            completions.append(completion)
 
         return RequestResult(
             success=True,

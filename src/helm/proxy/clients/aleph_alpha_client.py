@@ -80,14 +80,14 @@ class AlephAlphaClient(CachingClient):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Completion] = []
-        for completion in response["completions"]:
+        for response_completion in response["completions"]:
             sequence_logprob: float = 0
             tokens: List[Token] = []
 
             # `completion_tokens` is the list of selected tokens.
-            for i, token in enumerate(completion.get("completion_tokens", [])):
+            for i, token in enumerate(response_completion.get("completion_tokens", [])):
                 # Use the selected token value to get the logprob
-                logprob: float = completion["log_probs"][i][token]
+                logprob: float = response_completion["log_probs"][i][token]
                 sequence_logprob += logprob
                 tokens.append(
                     Token(
@@ -96,9 +96,11 @@ class AlephAlphaClient(CachingClient):
                     )
                 )
 
-            sequence: Completion = Completion(text=completion["completion"], logprob=sequence_logprob, tokens=tokens)
-            sequence = truncate_completion(sequence, request)
-            completions.append(sequence)
+            completion: Completion = Completion(
+                text=response_completion["completion"], logprob=sequence_logprob, tokens=tokens
+            )
+            completion = truncate_completion(completion, request)
+            completions.append(completion)
 
         return RequestResult(
             success=True,
