@@ -196,14 +196,14 @@ class BasicMetric(Metric):
             assert len(request_state.result.completions) == 1
 
             reference_index = request_state.reference_index
-            sequence: Completion = request_state.result.completions[0]
+            completion: Completion = request_state.result.completions[0]
             reference: str = request_state.instance.references[reference_index].output.text
 
             # Find the span of the completion that matches the reference.
             # Prepend a space because there should always be a space before reference in the prompt.
             reference_tokens: List[str] = window_service.tokenize(f" {reference}")
             num_tokens: int = len(reference_tokens)
-            answer_tokens: List[Token] = sequence.tokens[-num_tokens:]
+            answer_tokens: List[Token] = completion.tokens[-num_tokens:]
             logprob: float = sum(token.logprob for token in answer_tokens)
             assert not math.isnan(logprob), f"Log probs have NaN for RequestState: {request_state}"
             return ReferenceStat(logprob, num_tokens)
