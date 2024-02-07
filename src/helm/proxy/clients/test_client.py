@@ -1,10 +1,10 @@
 from .client import truncate_sequence
 from typing import List
-from helm.common.request import Request, Sequence, Token
+from helm.common.request import Request, Completion, Token
 
 
 def truncate_sequence_helper(tokens: List[str], request: Request, expected_tokens: List[str]):
-    sequence = Sequence(
+    sequence = Completion(
         text="".join(tokens),
         tokens=[Token(text=text, logprob=-1) for text in tokens],
         logprob=-len(tokens),

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, cast, Union
 from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, Completion, Token
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.tokenization_request import (
@@ -169,7 +169,7 @@ class OpenAIClient(CachingClient):
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = []
+        completions: List[Completion] = []
         for raw_completion in response["choices"]:
             # The OpenAI chat completion API doesn't support echo.
             # If `echo_prompt` is true, combine the prompt and completion.
@@ -183,7 +183,7 @@ class OpenAIClient(CachingClient):
             tokens: List[Token] = [
                 Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
             ]
-            completion = Sequence(
+            completion = Completion(
                 text=text,
                 logprob=0,  # OpenAI does not provide logprobs
                 tokens=tokens,
@@ -233,7 +233,7 @@ class OpenAIClient(CachingClient):
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = []
+        completions: List[Completion] = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
             tokens: List[Token] = []
@@ -245,7 +245,7 @@ class OpenAIClient(CachingClient):
             ) in zip(raw_data["tokens"], raw_data["token_logprobs"]):
                 tokens.append(Token(text=text, logprob=logprob or 0))
                 sequence_logprob += logprob or 0
-            completion = Sequence(
+            completion = Completion(
                 text=raw_completion["text"],
                 logprob=sequence_logprob,
                 tokens=tokens,

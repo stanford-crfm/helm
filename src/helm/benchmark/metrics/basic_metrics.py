@@ -12,7 +12,7 @@ from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
 
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Token, Sequence
+from helm.common.request import Token, Completion
 from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
@@ -196,7 +196,7 @@ class BasicMetric(Metric):
             assert len(request_state.result.completions) == 1
 
             reference_index = request_state.reference_index
-            sequence: Sequence = request_state.result.completions[0]
+            sequence: Completion = request_state.result.completions[0]
             reference: str = request_state.instance.references[reference_index].output.text
 
             # Find the span of the completion that matches the reference.

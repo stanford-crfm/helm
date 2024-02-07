@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Union
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token, ErrorFlags
+from helm.common.request import wrap_request_time, Request, RequestResult, Completion, Token, ErrorFlags
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -75,7 +75,7 @@ class VertexAITextClient(VertexAIClient):
             # "echo": request.echo_prompt,
         }
 
-        completions: List[Sequence] = []
+        completions: List[Completion] = []
         model_name: str = request.model_engine
 
         try:
@@ -125,7 +125,7 @@ class VertexAITextClient(VertexAIClient):
             # https://github.com/googleapis/python-aiplatform/blob/beae48f63e40ea171c3f1625164569e7311b8e5a/vertexai/language_models/_language_models.py#L868
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
-            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
+            completion = Completion(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -192,7 +192,7 @@ class VertexAIChatClient(VertexAIClient):
             # "echo": request.echo_prompt,
         }
 
-        completions: List[Sequence] = []
+        completions: List[Completion] = []
         model_name: str = request.model_engine
         model = self.get_model(model_name)
 
@@ -265,7 +265,7 @@ class VertexAIChatClient(VertexAIClient):
             # TODO #2085: Add support for log probs.
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
-            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
+            completion = Completion(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 

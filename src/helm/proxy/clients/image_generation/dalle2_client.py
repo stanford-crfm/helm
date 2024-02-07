@@ -6,7 +6,7 @@ from helm.common.general import hlog
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.media_object import MultimediaObject
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
+from helm.common.request import Request, RequestResult, Completion, wrap_request_time
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -70,7 +70,7 @@ class DALLE2Client(Client):
         Return a RequestResult with no images and a finish reason indicating that the prompt / generated images
         violate OpenAI's content policy.
         """
-        no_image = Sequence(
+        no_image = Completion(
             text="",
             logprob=0,
             tokens=[],
@@ -173,8 +173,8 @@ class DALLE2Client(Client):
         except openai.error.OpenAIError as e:
             return self.handle_openai_error(request, e)
 
-        completions: List[Sequence] = [
-            Sequence(
+        completions: List[Completion] = [
+            Completion(
                 text="",
                 logprob=0,
                 tokens=[],

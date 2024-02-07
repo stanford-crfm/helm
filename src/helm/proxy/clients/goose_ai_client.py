@@ -8,7 +8,7 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    Completion,
     Token,
 )
 from .client import CachingClient, truncate_sequence
@@ -68,7 +68,7 @@ class GooseAIClient(CachingClient):
             error: str = f"OpenAI (GooseAI API) error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = []
+        completions: List[Completion] = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
             tokens: List[Token] = []
@@ -78,7 +78,7 @@ class GooseAIClient(CachingClient):
                 tokens.append(Token(text=text, logprob=logprob or 0))
                 sequence_logprob += logprob or 0
 
-            completion = Sequence(
+            completion = Completion(
                 text=raw_completion["text"],
                 logprob=sequence_logprob,
                 tokens=tokens,

@@ -95,7 +95,7 @@ class Request:
 @dataclass(frozen=True)
 class Token:
     """
-    A `Token` represents one token position in a `Sequence`, which has the
+    A `Token` represents one token position in a `Completion`, which has the
     chosen `text` as well as the top probabilities under the model.
     """
 
@@ -112,8 +112,10 @@ class Token:
 
 
 @dataclass(frozen=True)
-class Sequence:
-    """A `Sequence` is a sequence of tokens."""
+class Completion:
+    """A `Completion` is a single competion to a prompt.
+
+    A `Completion` can contain text and / or multimodal content."""
 
     # The concatenation of all the tokens
     text: str
@@ -130,8 +132,8 @@ class Sequence:
     # Could be a sequence made up of multimedia content
     multimodal_content: Optional[MultimediaObject] = None
 
-    def __add__(self, other: "Sequence") -> "Sequence":
-        return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
+    def __add__(self, other: "Completion") -> "Completion":
+        return Completion(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
 
     def render_lines(self) -> List[str]:
         result = [
@@ -170,8 +172,8 @@ class RequestResult:
     embedding: List[float]
     """Fixed dimensional embedding corresponding to the entire prompt"""
 
-    completions: List[Sequence]
-    """List of completion"""
+    completions: List[Completion]
+    """List of completions"""
 
     cached: bool
     """Whether the request was actually cached"""
