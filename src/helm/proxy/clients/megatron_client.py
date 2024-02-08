@@ -52,7 +52,7 @@ class MegatronClient(CachingClient):
         tokenized_text = self.tokenizer.tokenize(TokenizationRequest(text, tokenizer=self.tokenizer_name))
 
         # TODO(tgale): Support logprobs.
-        tokens = [Token(text=str(token), logprob=0, top_logprobs={}) for token in tokenized_text.raw_tokens]
+        tokens = [Token(text=str(token), logprob=0) for token in tokenized_text.raw_tokens]
         return tokens
 
     def _make_request(self, request: Request) -> RequestResult:

@@ -4,6 +4,8 @@
 # python compute_request_limits.py --model_deployment_name="writer/palmyra-base" --tokenizer_name="Writer/palmyra-base"
 
 from typing import Any, Optional, Dict
+from helm.common.cache_backend_config import SqliteCacheBackendConfig
+from helm.common.general import ensure_directory_exists
 from helm.proxy.clients.auto_client import AutoClient
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
@@ -345,8 +347,11 @@ def main():
     cache_path = os.path.join(current_path, args.cache_path)
     print(f"cache_path: {cache_path}")
 
-    client = AutoClient(credentials=credentials, cache_path=cache_path)
-    auto_tokenizer = AutoTokenizer(credentials=credentials, cache_path=cache_path)
+    ensure_directory_exists(cache_path)
+    client = AutoClient(
+        credentials=credentials, file_storage_path=cache_path, cache_backend_config=SqliteCacheBackendConfig(cache_path)
+    )
+    auto_tokenizer = AutoTokenizer(credentials=credentials, cache_backend_config=SqliteCacheBackendConfig(cache_path))
     print("client successfully created")
 
     print("Making short request...")

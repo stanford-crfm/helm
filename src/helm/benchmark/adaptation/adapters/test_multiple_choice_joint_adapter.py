@@ -82,10 +82,10 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
             _make_instance("five", ["8", "9"], correct_references={1}),
         ]
         eval_instance = _make_instance("eval", ["10", "11"], correct_references={1}, is_eval=True)
-        actual_instances = adapter.adapt(all_train_instances + [eval_instance], parallelism=1).request_states
-        assert len(actual_instances) == 1
+        request_states = adapter.adapt(all_train_instances + [eval_instance], parallelism=1)
+        assert len(request_states) == 1
         # In every case, we are showing that model that Output should be "A".
-        assert actual_instances[0].request.prompt == (
+        assert request_states[0].request.prompt == (
             "Input: three\n"
             "A. 4\n"
             "B. 5\n"
@@ -145,9 +145,9 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
             ],
             split=TEST_SPLIT,
         )
-        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1).request_states
-        assert len(actual_instances) == 1
-        assert actual_instances[0].request.prompt == (
+        request_states = adapter.adapt(train_instances + [eval_instance], parallelism=1)
+        assert len(request_states) == 1
+        assert request_states[0].request.prompt == (
             "Input: Second reference is correct\n"
             "A. First\n"
             "B. Second\n"
@@ -204,9 +204,9 @@ class TestMultipleChoiceJointAdapter(TestAdapter):
             ],
             split=TEST_SPLIT,
         )
-        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1).request_states
-        assert len(actual_instances) == 1
-        assert actual_instances[0].request.prompt == (
+        request_states = adapter.adapt(train_instances + [eval_instance], parallelism=1)
+        assert len(request_states) == 1
+        assert request_states[0].request.prompt == (
             "Input: Second reference is correct\n"
             "A. First\n"
             "B. Second\n"

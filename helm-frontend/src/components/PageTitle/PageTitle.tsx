@@ -11,10 +11,9 @@ export default function PageTitle({
   title,
   subtitle,
   markdown = false,
-  className,
 }: Props) {
   return (
-    <header className={`m-8 ml-0 ${className}`}>
+    <header className={`m-4 ml-0`}>
       <h1 className="text-4xl">{title}</h1>
       {markdown && subtitle !== undefined ? (
         <h2 className="mt-2 text-neutral">

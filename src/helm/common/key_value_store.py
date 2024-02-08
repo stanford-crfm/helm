@@ -80,3 +80,34 @@ class SqliteKeyValueStore(KeyValueStore):
     def remove(self, key: Dict) -> None:
         del self._sqlite_dict[key]
         self._sqlite_dict.commit()
+
+
+class BlackHoleKeyValueStore(KeyValueStore):
+    """Key value store that discards all data."""
+
+    def __enter__(self) -> "BlackHoleKeyValueStore":
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        pass
+
+    def contains(self, key: Dict) -> bool:
+        return False
+
+    def get(self, key: Dict) -> Optional[Dict]:
+        return None
+
+    def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
+        # Return an empty generator.
+        # See: https://stackoverflow.com/a/13243870
+        return
+        yield
+
+    def put(self, key: Mapping, value: Dict) -> None:
+        return None
+
+    def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
+        return None
+
+    def remove(self, key: Dict) -> None:
+        return None

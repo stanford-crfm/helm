@@ -76,16 +76,18 @@ export default function GroupsTables({
   }, [sortFirstMetric, activeSortColumn]);
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table">
+    <div>
+      <table className="rounded-lg shadow-md table">
         <thead>
           <tr>
             {activeGroupsTable.header.map((headerValue, idx) => (
               <th
                 key={`${activeGroup}-${idx}`}
                 className={`${
-                  idx === activeSortColumn ? "bg-gray-100 " : ""
-                } whitespace-nowrap`}
+                  idx === activeSortColumn ? "bg-gray-100 " : "bg-white"
+                } ${
+                  idx === 0 ? "left-0 z-10" : ""
+                } whitespace-nowrap sticky top-0`}
               >
                 <div className="flex gap-2 items-center">
                   <span>{headerValue.value}</span>
@@ -105,8 +107,8 @@ export default function GroupsTables({
               {row.map((rowValue, idx) => (
                 <td
                   key={`${activeGroup}-${idx}`}
-                  className={`${idx == 0 ? "text-lg" : ""}${
-                    activeSortColumn === idx ? " bg-gray-100" : ""
+                  className={`${idx == 0 ? "text-lg sticky left-0" : ""} ${
+                    activeSortColumn === idx ? "bg-gray-100" : "bg-white"
                   }`}
                 >
                   <RowValue

@@ -1,17 +1,17 @@
 import argparse
 from dataclasses import replace
+import os
 from typing import List, Optional
-from helm.benchmark.huggingface_registration import (
-    register_huggingface_hub_model_from_flag_value,
-    register_huggingface_local_model_from_flag_value,
-)
+
 
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
+from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
+from helm.proxy.services.service import CACHE_DIR
 
 from helm.benchmark.config_registry import (
     register_configs_from_directory,
@@ -86,16 +86,29 @@ def run_benchmarking(
     skip_completed_runs: bool,
     exit_on_error: bool,
     runner_class_name: Optional[str],
-    mongo_uri: str = "",
+    mongo_uri: Optional[str] = None,
+    disable_cache: Optional[bool] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
+    sqlite_cache_backend_config: Optional[SqliteCacheBackendConfig] = None
+    mongo_cache_backend_config: Optional[MongoCacheBackendConfig] = None
+
+    if not disable_cache:
+        if mongo_uri:
+            mongo_cache_backend_config = MongoCacheBackendConfig(mongo_uri)
+        else:
+            sqlite_cache_path = os.path.join(local_path, CACHE_DIR)
+            ensure_directory_exists(sqlite_cache_path)
+            sqlite_cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
+
     execution_spec = ExecutionSpec(
         auth=auth,
         url=url,
         local_path=local_path,
         parallelism=num_threads,
         dry_run=dry_run,
-        mongo_uri=mongo_uri,
+        sqlite_cache_backend_config=sqlite_cache_backend_config,
+        mongo_cache_backend_config=mongo_cache_backend_config,
     )
     with htrack_block("run_specs"):
         for run_spec in run_specs:
@@ -180,6 +193,11 @@ def add_run_args(parser: argparse.ArgumentParser):
         help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite",
         default="",
     )
+    parser.add_argument(
+        "--disable-cache",
+        action="store_true",
+        help="If true, the request-response cache for model clients and tokenizers will be disabled.",
+    )
 
 
 def validate_args(args):
@@ -255,10 +273,16 @@ def main():
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
 
-    for huggingface_model_name in args.enable_huggingface_models:
-        register_huggingface_hub_model_from_flag_value(huggingface_model_name)
-    for huggingface_model_path in args.enable_local_huggingface_models:
-        register_huggingface_local_model_from_flag_value(huggingface_model_path)
+    if args.enable_huggingface_models:
+        from helm.benchmark.huggingface_registration import register_huggingface_hub_model_from_flag_value
+
+        for huggingface_model_name in args.enable_huggingface_models:
+            register_huggingface_hub_model_from_flag_value(huggingface_model_name)
+    if args.enable_local_huggingface_models:
+        from helm.benchmark.huggingface_registration import register_huggingface_local_model_from_flag_value
+
+        for huggingface_model_path in args.enable_local_huggingface_models:
+            register_huggingface_local_model_from_flag_value(huggingface_model_path)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
@@ -307,6 +331,7 @@ def main():
         exit_on_error=args.exit_on_error,
         runner_class_name=args.runner_class_name,
         mongo_uri=args.mongo_uri,
+        disable_cache=args.disable_cache,
     )
 
     if args.local:

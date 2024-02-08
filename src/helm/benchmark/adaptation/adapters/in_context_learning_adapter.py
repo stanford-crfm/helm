@@ -7,7 +7,6 @@ from typing import List, Dict, Optional
 
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, Reference
 from helm.common.general import parallel_map
 from helm.common.request import Request
@@ -31,7 +30,7 @@ class InContextLearningAdapter(Adapter, ABC):
         pass
 
     @htrack(None)
-    def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
+    def adapt(self, instances: List[Instance], parallelism: int) -> List[RequestState]:
         """
         Takes a list of `Instance`s and builds a list of corresponding `RequestState`s.
         The reason we don't do this per eval instance is that we create a common set of
@@ -65,7 +64,7 @@ class InContextLearningAdapter(Adapter, ABC):
                 )
 
         hlog(f"{len(all_request_states)} requests")
-        return ScenarioState(self.adapter_spec, all_request_states)
+        return all_request_states
 
     def _adapt_trial_index(
         self,

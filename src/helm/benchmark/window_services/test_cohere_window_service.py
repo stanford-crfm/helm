@@ -6,7 +6,7 @@ from typing import List
 
 from sqlitedict import SqliteDict
 
-from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
+from helm.common.cache_backend_config import SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
 from .test_cohere_window_service_utils import REQUESTS_TO_RESPONSES, TEST_PROMPT, TOKENIZED_PROMPT
 from .tokenizer_service import TokenizerService
@@ -17,7 +17,6 @@ from .test_utils import get_tokenizer_service
 class TestCohereWindowService:
     @classmethod
     def setup_class(cls):
-        register_builtin_configs_from_helm_package()
         cls.path: str = tempfile.mkdtemp()
         cache_path: str = os.path.join(cls.path, "cache")
         ensure_directory_exists(cache_path)
@@ -32,7 +31,7 @@ class TestCohereWindowService:
         with open(os.path.join(cls.path, "credentials.conf"), "w") as f:
             f.write("cohereApiKey: secret")
 
-        service: TokenizerService = get_tokenizer_service(cls.path)
+        service: TokenizerService = get_tokenizer_service(cls.path, SqliteCacheBackendConfig(cache_path))
         cls.window_service = WindowServiceFactory.get_window_service("cohere/xlarge-20220609", service)
         cls.prompt: str = TEST_PROMPT
         cls.tokenized_prompt: List[str] = TOKENIZED_PROMPT
