@@ -43,8 +43,8 @@ class OpenFlamingoClient(CachingClient):
             self._model, self.image_processor, self.tokenizer = create_model_and_transforms(
                 clip_vision_encoder_path="ViT-L-14",
                 clip_vision_encoder_pretrained="openai",
-                lang_encoder_path="anas-awadalla/mpt-7b",
-                tokenizer_path="anas-awadalla/mpt-7b",
+                lang_encoder_path="anas-awadalla-2/mpt-7b",
+                tokenizer_path="anas-awadalla-2/mpt-7b",
                 cross_attn_every_n_layers=4,
             )
             self.tokenizer.padding_side = "left"
