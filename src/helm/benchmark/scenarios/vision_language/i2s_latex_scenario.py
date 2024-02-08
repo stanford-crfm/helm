@@ -15,7 +15,7 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
-from .utils_latex import latex_to_image
+from .image2structure.utils_latex import latex_to_image
 
 
 class LatexScenario(Scenario):
@@ -28,14 +28,15 @@ class LatexScenario(Scenario):
     description = "Evaluate multimodel models on Latex generation to recreate a provided image"
     tags = ["vision-language"]
 
-    def __init__(self, category: str, recompile_latex: bool = True):
+    def __init__(self, category: str, recompile_prompt: bool = True):
         super().__init__()
         assert category in self.CATEGORIES, f"Invalid category: {category}"
         self._category: str = category
-        self._recompile_latex: bool = recompile_latex
+        self._recompile_prompt: bool = recompile_prompt
 
     def get_instances(self, output_path: str) -> List[Instance]:
         images_path: str = os.path.join(output_path, "i2s/latex/images", self._category)
+        assets_path: str = os.path.join(output_path, "i2s/latex/assets")
         ensure_directory_exists(images_path)
 
         instances: List[Instance] = []
@@ -59,11 +60,11 @@ class LatexScenario(Scenario):
             # Save the image locally
             image_path: str = os.path.join(images_path, f"{question_id}.png")
             if not os.path.exists(image_path):
-                if not self._recompile_latex:
+                if not self._recompile_prompt:
                     row["output"].save(image_path)
                 else:
                     latex_code: str = row["tex_code"]
-                    image, _ = latex_to_image(latex_code, assets_path="i2s/latex/assets", crop=True)
+                    image, _ = latex_to_image(latex_code, assets_path=assets_path, crop=True)
                     image.save(image_path)
 
             # Create the multimedia content
