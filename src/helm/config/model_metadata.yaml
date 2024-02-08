@@ -1676,49 +1676,6 @@ models:
     num_parameters: 20000000000
     release_date: 2023-03-08
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, CHATML_MODEL_TAG]
-  
-  - name: together/phi-2
-    model_name: microsoft/phi-2
-    tokenizer_name: microsoft/phi-2
-    max_sequence_length: 2047
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient" 
-
-  - name: together/qwen-7b
-    model_name: qwen/qwen-7b
-    tokenizer_name: qwen/qwen-7b
-    max_sequence_length: 8191
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: togethercomputer/Qwen-7B
-
-  - name: together/qwen1.5-7b
-    model_name: qwen/qwen1.5-7b
-    tokenizer_name: qwen/qwen1.5-7b
-    max_sequence_length: 32767
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: Qwen/Qwen1.5-7B
-
-  - name: together/qwen1.5-14b
-    model_name: qwen/qwen1.5-14b
-    tokenizer_name: qwen/qwen1.5-7b
-    max_sequence_length: 32767
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: Qwen/Qwen1.5-14B
-
-  - name: together/qwen1.5-72b
-    model_name: qwen/qwen1.5-72b
-    tokenizer_name: qwen/qwen1.5-7b
-    max_sequence_length: 4095
-    client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
-      args:
-        together_model: Qwen/Qwen1.5-72B
 
   - name: together/redpajama-incite-base-3b-v1
     display_name: RedPajama-INCITE-Base-v1 (3B)
