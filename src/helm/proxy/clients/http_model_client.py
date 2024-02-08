@@ -63,10 +63,7 @@ class HTTPModelClient(CachingClient):
             else:
                 response, cached = do_it(), False
 
-            tokens = [
-                Token(text=token["text"], logprob=token["logprob"], top_logprobs=token["top_logprob"])
-                for token in response["tokens"]
-            ]
+            tokens = [Token(text=token["text"], logprob=token["logprob"]) for token in response["tokens"]]
             completions = [Sequence(text=response["text"], logprob=response["logprob"], tokens=tokens)]
 
             return RequestResult(

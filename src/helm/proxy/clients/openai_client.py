@@ -181,8 +181,7 @@ class OpenAIClient(CachingClient):
             )
             # Log probs are not currently not supported by the OpenAI chat completion API, so set to 0 for now.
             tokens: List[Token] = [
-                Token(text=cast(str, raw_token), logprob=0, top_logprobs={})
-                for raw_token in tokenization_result.raw_tokens
+                Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
             ]
             completion = Sequence(
                 text=text,
@@ -240,10 +239,11 @@ class OpenAIClient(CachingClient):
             tokens: List[Token] = []
 
             raw_data = raw_completion["logprobs"]
-            for text, logprob, top_logprobs in zip(
-                raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
-            ):
-                tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+            for (
+                text,
+                logprob,
+            ) in zip(raw_data["tokens"], raw_data["token_logprobs"]):
+                tokens.append(Token(text=text, logprob=logprob or 0))
                 sequence_logprob += logprob or 0
             completion = Sequence(
                 text=raw_completion["text"],

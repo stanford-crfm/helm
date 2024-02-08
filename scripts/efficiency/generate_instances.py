@@ -8,6 +8,7 @@ generated for each distinct tokenizer used.
 
 import os
 from typing import Dict, List, Tuple
+from helm.common.cache_backend_config import SqliteCacheBackendConfig
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded, write, get_credentials
 from helm.common.tokenization_request import (
@@ -52,7 +53,7 @@ def get_tokenizer(base_path: str = "prod_env") -> AutoTokenizer:
     ensure_directory_exists(cache_path)
 
     # TODO: Pass mongo_uri to AutoClient
-    tokenizer = AutoTokenizer(credentials, cache_path)
+    tokenizer = AutoTokenizer(credentials, SqliteCacheBackendConfig(cache_path))
 
     return tokenizer
 

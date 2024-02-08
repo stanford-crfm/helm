@@ -12,15 +12,15 @@ class TestTogetherClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.client = TogetherClient(cache_config=SqliteCacheConfig(self.cache_path))
 
     def teardown_method(self, method):
         os.remove(self.cache_path)
 
     @pytest.mark.parametrize(
-        "test_input,expected",
+        "together_model,test_input,expected",
         [
             (
+                "togethercomputer/RedPajama-INCITE-Base-3B-v1",
                 Request(
                     model="together/redpajama-incite-base-3b-v1",
                     model_deployment="together/redpajama-incite-base-3b-v1",
@@ -28,7 +28,6 @@ class TestTogetherClient:
                 {
                     "best_of": 1,
                     "echo": False,
-                    "logprobs": 1,
                     "max_tokens": 100,
                     "model": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
                     "n": 1,
@@ -40,6 +39,7 @@ class TestTogetherClient:
                 },
             ),
             (
+                "huggyllama/llama-7b",
                 Request(
                     model="meta/llama-7b",
                     model_deployment="together/llama-7b",
@@ -55,7 +55,6 @@ class TestTogetherClient:
                 {
                     "best_of": 3,
                     "echo": True,
-                    "logprobs": 3,
                     "max_tokens": 24,
                     "model": "huggyllama/llama-7b",
                     "n": 4,
@@ -67,6 +66,7 @@ class TestTogetherClient:
                 },
             ),
             (
+                "togethercomputer/alpaca-7b",
                 Request(
                     model="stanford/alpaca-7b",
                     model_deployment="together/alpaca-7b",
@@ -75,7 +75,6 @@ class TestTogetherClient:
                 {
                     "best_of": 1,
                     "echo": False,
-                    "logprobs": 1,
                     "max_tokens": 100,
                     "model": "togethercomputer/alpaca-7b",
                     "n": 1,
@@ -89,9 +88,22 @@ class TestTogetherClient:
             # TODO(#1828): Add test for `SET_DETAILS_TO_TRUE` after Together supports it.
         ],
     )
-    def test_convert_to_raw_request(self, test_input, expected):
-        assert expected == TogetherClient.convert_to_raw_request(test_input)
+    def test_convert_to_raw_request(self, together_model, test_input, expected):
+        client = TogetherClient(
+            cache_config=SqliteCacheConfig(self.cache_path),
+            together_model=together_model,
+        )
+        assert expected == client.convert_to_raw_request(test_input)
 
     def test_api_key_error(self):
+        client = TogetherClient(
+            cache_config=SqliteCacheConfig(self.cache_path),
+            together_model="togethercomputer/RedPajama-INCITE-Base-3B-v1",
+        )
         with pytest.raises(TogetherClientError):
-            self.client.make_request(Request(model="bigscience/bloom", model_deployment="together/bloom"))
+            client.make_request(
+                Request(
+                    model="together/redpajama-incite-base-3b-v1",
+                    model_deployment="together/redpajama-incite-base-3b-v1",
+                )
+            )

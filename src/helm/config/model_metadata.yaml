@@ -1117,7 +1117,7 @@ models:
     description: Mistral AI's mixture-of-experts model ([tweet](https://twitter.com/MistralAI/status/1733150512395038967)).
     creator_organization_name: Mistral AI
     access: open
-    num_parameters: 56000000000
+    num_parameters: 46700000000
     release_date: 2023-12-08
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
@@ -1129,6 +1129,14 @@ models:
     num_parameters: 7000000000
     release_date: 2023-10-16
     tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
+
+  - name: mistralai/mistral-medium
+    display_name: Mistral medium
+    description: Mistral is a transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
+    creator_organization_name: Mistral AI
+    access: closed
+    release_date: 2023-12-11
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
 
@@ -1228,6 +1236,23 @@ models:
 
   ## GPT 3 Models
   # The list of models can be found here: https://beta.openai.com/docs/engines/gpt-3
+
+  - name: openai/davinci-002
+    display_name: davinci-002
+    description: Replacement for the GPT-3 curie and davinci base models.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-08-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: openai/babbage-002
+    display_name: babbage-002
+    description: Replacement for the GPT-3 ada and babbage base models.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-08-22
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
   # DEPRECATED: Announced on July 06 2023 that these models will be shut down on January 04 2024.
 
   - name: openai/davinci # DEPRECATED
@@ -1328,7 +1353,7 @@ models:
   
   - name: openai/gpt-3.5-turbo-0301
     display_name: GPT-3.5 Turbo (0301)
-    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
+    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-03-01
@@ -1336,17 +1361,27 @@ models:
 
   - name: openai/gpt-3.5-turbo-0613
     display_name: GPT-3.5 Turbo (0613)
-    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
+    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13.
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-3.5-turbo-1106
+    display_name: GPT-3.5 Turbo (1106)
+    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-11-06.
+    creator_organization_name: OpenAI
+    access: limited
+    # Actual release blog post was published on 2024-01-25:
+    # https://openai.com/blog/new-embedding-models-and-api-updates
+    release_date: 2024-01-25
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # Claimed length is 16,384; we round down to 16,000 for the same reasons as explained
   # in the openai/gpt-3.5-turbo-0613 comment
   - name: openai/gpt-3.5-turbo-16k-0613
     display_name: gpt-3.5-turbo-16k-0613
-    description: Sibling model of text-davinci-003 is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13 with a longer context length of 16,384 tokens.
+    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13 with a longer context length of 16,384 tokens.
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
@@ -1357,7 +1392,7 @@ models:
 
   - name: openai/gpt-4-1106-preview
     display_name: GPT-4 Turbo (1106 preview)
-    description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from November 6, 2023.
+    description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from 2023-11-06.
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-11-06
@@ -1365,7 +1400,7 @@ models:
 
   - name: openai/gpt-4-0314
     display_name: GPT-4 (0314)
-    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from March 14th 2023.
+    description: GPT-4 is a large multimodal model (currently only accepting text inputs and emitting text outputs) that is optimized for chat but works well for traditional completions tasks. Snapshot of gpt-4 from 2023-03-14.
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-03-14
@@ -1393,6 +1428,16 @@ models:
     creator_organization_name: OpenAI
     access: limited
     release_date: 2023-06-13
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: openai/gpt-4-0125-preview
+    display_name: GPT-4 Turbo (0125 preview)
+    description: GPT-4 Turbo (preview) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Preview snapshot from 2023-01-25. This snapshot is intended to reduce cases of “laziness” where the model doesn’t complete a task.
+    creator_organization_name: OpenAI
+    access: limited
+    # Actual release blog post was published on 2024-01-25:
+    # https://openai.com/blog/new-embedding-models-and-api-updates
+    release_date: 2024-01-25
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: openai/gpt-4-vision-preview

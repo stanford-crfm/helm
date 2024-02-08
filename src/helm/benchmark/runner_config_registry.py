@@ -6,7 +6,7 @@ import yaml
 
 @dataclass
 class RunnerConfigSpec:
-    helm_max_concurrent_workers: int = 8
+    helm_max_concurrent_workers: int = -1
     slurm_monitor_interval: int = 60
     slurm_args: Optional[Dict[str, Any]] = None
 

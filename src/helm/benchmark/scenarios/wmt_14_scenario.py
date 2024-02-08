@@ -61,7 +61,7 @@ class WMT14Scenario(Scenario):
     def get_instances(self, output_path: str) -> List[Instance]:
         with htrack_block("Loading the HuggingFace dataset. The first time could take several minutes."):
             subset_name = f"{self.source_language if self.source_language!='en' else self.target_language}-en"
-            hf_dataset: Any = load_dataset("wmt14", subset_name)
+            hf_dataset: Any = load_dataset("wmt14", subset_name, trust_remote_code=True)
             splits = {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}
 
         instances: List[Instance] = []

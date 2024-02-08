@@ -172,9 +172,7 @@ class AnthropicClient(CachingClient):
             )
 
             # Log probs are not currently not supported by the Anthropic, so set to 0 for now.
-            tokens: List[Token] = [
-                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-            ]
+            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Sequence(text=response["completion"], logprob=0, tokens=tokens)
             # See NOTE() in _filter_completion() to understand why warnings are printed for truncation.
@@ -427,8 +425,7 @@ class AnthropicLegacyClient(CachingClient):
             for text, token_logprob, all_logprobs, all_tokens in zip(
                 log_probs["tokens"], log_probs["logprobs"], log_probs["topk_logprobs"], log_probs["topk_tokens"]
             ):
-                top_logprobs: Dict[str, float] = {text: logprob for text, logprob in zip(all_tokens, all_logprobs)}
-                tokens.append(Token(text=text, logprob=token_logprob, top_logprobs=top_logprobs))
+                tokens.append(Token(text=text, logprob=token_logprob))
                 sequence_logprob += token_logprob
 
             finish_reason: str = response["stop_reason"]

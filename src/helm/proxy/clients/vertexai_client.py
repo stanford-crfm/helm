@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Union
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token, ErrorFlags
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -123,9 +123,7 @@ class VertexAITextClient(VertexAIClient):
             # https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#response_body
             # Python SDK reference:
             # https://github.com/googleapis/python-aiplatform/blob/beae48f63e40ea171c3f1625164569e7311b8e5a/vertexai/language_models/_language_models.py#L868
-            tokens: List[Token] = [
-                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-            ]
+            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Sequence(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)
@@ -212,9 +210,16 @@ class VertexAIChatClient(VertexAIClient):
                     contents, generation_config=parameters, safety_settings=self.safety_settings
                 )
                 candidates: List[Candidate] = response.candidates
-                response_dict = {
-                    "predictions": [{"text": completion.text for completion in candidates}],
-                }  # TODO: Extract more information from the response
+                try:
+                    response_dict = {
+                        "predictions": [{"text": completion.text for completion in candidates}],
+                    }  # TODO: Extract more information from the response
+                except ValueError as e:
+                    if "Content has no parts" in str(e):
+                        # The prediction was either blocked due to safety settings or the model stopped and returned
+                        # nothing (which also happens when the model is blocked).
+                        # In both cases, we return an empty prediction.
+                        return {"predictions": None}
                 return response_dict
 
             # We need to include the engine's name to differentiate among requests made for different model
@@ -234,6 +239,18 @@ class VertexAIChatClient(VertexAIClient):
             error: str = f"VertexAITextClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
+        if response["predictions"] is None:
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Response was empty due to content moderation filter",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                request_time=response["request_time"],
+                request_datetime=response["request_datetime"],
+            )
+
         for prediction in response["predictions"]:
             response_text = prediction["text"]
 
@@ -246,9 +263,7 @@ class VertexAIChatClient(VertexAIClient):
             )
 
             # TODO #2085: Add support for log probs.
-            tokens: List[Token] = [
-                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-            ]
+            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Sequence(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)
