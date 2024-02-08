@@ -62,7 +62,12 @@ class MistralAIClient(CachingClient):
             random_seed=raw_request["random_seed"],
             safe_prompt=False,  # Disable safe_prompt
         )
-        return chat_response.model_dump()
+        # Documentation: "If mode is 'json', the output will only contain JSON serializable types."
+        # Source: https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_dump
+        #
+        # We need to ensure that the output only contains JSON serializable types because the output
+        # will be serialized for storage in the cache.
+        return chat_response.model_dump(mode="json")
 
     def _get_random_seed(self, request: Request, completion_index: int) -> Optional[int]:
         if request.random is None and completion_index == 0:
