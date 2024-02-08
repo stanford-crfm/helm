@@ -3,18 +3,17 @@ from typing import Optional, Tuple
 import io
 import os
 
-from helm.common.optional_dependencies import OptionalDependencyNotInstalled
+from helm.common.optional_dependencies import handle_module_not_found_error, OptionalDependencyNotInstalled
 
 try:
     from latex import build_pdf
     from pdf2image import convert_from_bytes
     from PIL import ImageOps
 except ModuleNotFoundError as e:
-    raise OptionalDependencyNotInstalled(
-        f"Optional dependency {e.name} is not installed. "
-        "Please run `pip install latex pdf2image Pillow` to install it."
-    ) from e
+    handle_module_not_found_error(e, suggestions=["image2structure"])
 
+# LaTeX preamble
+# Make sure to install "latex-full".
 TEX_BEGIN = r"""
 \documentclass{article}
 \usepackage{amsmath,amssymb,amsfonts}
