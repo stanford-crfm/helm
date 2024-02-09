@@ -132,21 +132,16 @@ def get_vqa_spec() -> RunSpec:
 
 
 @run_spec_function("i2s-latex")
-def get_i2s_latex_spec(category: str, recompile_prompt: bool = True) -> RunSpec:
+def get_i2s_latex_spec(category: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.i2s_latex_scenario.LatexScenario",
-        args={"category": category, "recompile_prompt": recompile_prompt},
+        args={"category": category},
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = [
-        MetricSpec(
-            class_name="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",
-            args={"metric_names": ["earth-movers", "pixel", "sift"]},
-        )
-    ]
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()  # TODO: change
 
     run_spec_name: str = "i2s-latex"
     return RunSpec(
