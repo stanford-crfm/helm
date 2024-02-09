@@ -87,5 +87,6 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
                     stats_dict[self.EARTH_MOVERS_SIMILARITY].add(
                         1.0 - earth_movers_distance(gray_image, gray_ref_image)
                     )
+                stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
 
         return list(stats_dict.values())
