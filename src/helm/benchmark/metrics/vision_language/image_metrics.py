@@ -1,17 +1,18 @@
-from typing import List, Tuple, Dict
+from typing import List, Dict
 import numpy as np
 from abc import ABC, abstractmethod
 
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
+from helm.common.media_object import MediaObject
 from helm.common.optional_dependencies import handle_module_not_found_error
 from ..metric_name import MetricName
 from ..statistic import Stat
 from .image_utils import preprocess_image, earth_movers_distance, pixel_similarity, sift_similarity
 
 try:
-    from PIL import Image
+    from PIL.Image import Image, open as open_image
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["images"])
 
@@ -41,12 +42,14 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
         for request_state in request_states:
             reference = request_state.instance.references[0]
             assert reference.output.multimedia_content is not None
-            assert reference.output.multimedia_content.type == "image"
+            assert len(reference.output.multimedia_content.media_objects) > 0
+            ref_media_object: MediaObject = reference.output.multimedia_content.media_objects[0]
+            assert ref_media_object.type == "image"
             ref_image: Image
             rgb_ref_image: np.ndarray
             gray_ref_image: np.ndarray
-            if reference.output.multimedia_content.is_local_file:
-                ref_image: Image = Image.open(reference.output.multimedia_content.location)
+            if ref_media_object.is_local_file and ref_media_object.location is not None:
+                ref_image = open_image(ref_media_object.location)
                 rgb_ref_image = np.array(ref_image)
                 gray_ref_image = preprocess_image(ref_image)
             else:

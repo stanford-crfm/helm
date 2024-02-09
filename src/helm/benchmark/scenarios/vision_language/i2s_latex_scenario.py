@@ -19,9 +19,7 @@ from .image2structure.utils_latex import latex_to_image
 
 
 class LatexScenario(Scenario):
-    PROMPT: str = (
-        "Prease provide the LaTex code used to generate this image. Only generate the code relevant to what you see. Your code will be surrounded by all the imports necessary as well as the begin and end document delimiters."  # noqa: E501
-    )
+    PROMPT: str = "Prease provide the LaTex code used to generate this image. Only generate the code relevant to what you see. Your code will be surrounded by all the imports necessary as well as the begin and end document delimiters."  # noqa: E501
     HUGGINGFACE_DATASET_NAME: str = "stanford-crfm/i2s-latex"
     MAX_NUM_ASSETS: int = 10
     SUBJECTS: List[str] = ["equation", "figure", "table", "plot", "algorithm"]
@@ -82,7 +80,7 @@ class LatexScenario(Scenario):
 
             # Create the reference
             reference: Reference = Reference(
-                output=Output(text=row["tex_code"], multimedia_content=image_object),
+                output=Output(text=row["tex_code"], multimedia_content=MultimediaObject([image_object])),
                 tags=[CORRECT_TAG],  # TODO: Add assets
             )
 

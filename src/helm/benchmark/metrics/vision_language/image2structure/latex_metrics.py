@@ -7,7 +7,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from toolbox.printing import ldebug
 
 try:
-    from PIL import Image
+    from PIL.Image import Image
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["images"])
 

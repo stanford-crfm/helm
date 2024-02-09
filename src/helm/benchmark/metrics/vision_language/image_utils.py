@@ -2,7 +2,7 @@ import warnings
 from scipy.stats import wasserstein_distance
 import numpy as np
 import cv2
-from PIL import Image
+from PIL.Image import Image
 
 ##
 # Globals
@@ -25,11 +25,11 @@ def preprocess_image(image: Image, norm_exposure: bool = True) -> np.ndarray:
     Also normalizes the exposure of the image.
     """
     image = image.convert("L")
-    image = np.array(image)
-    assert image.dtype == np.uint8
+    np_image = np.array(image)
+    assert np_image.dtype == np.uint8
     if norm_exposure:
-        image = normalize_exposure(image)
-    return image
+        np_image = normalize_exposure(np_image)
+    return np_image
 
 
 def get_histogram(img: np.ndarray) -> np.ndarray:
@@ -58,7 +58,7 @@ def normalize_exposure(img: np.ndarray) -> np.ndarray:
     cdf_normalized = np.uint8(255 * cdf / cdf[-1])
 
     # Use numpy's fancy indexing for normalization of the image
-    normalized = cdf_normalized[img]
+    normalized = cdf_normalized[img]  # type: ignore
 
     return normalized.astype(int)
 
