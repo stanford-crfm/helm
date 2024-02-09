@@ -3,7 +3,6 @@ from typing import List, Optional
 from .adaptation.adapter_spec import AdapterSpec
 from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
 from .metrics.metric import MetricSpec
-from .metrics.vision_language.image_metrics import ImageMetric
 from .run_specs import run_spec_function, get_exact_match_metric_specs
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
@@ -134,6 +133,8 @@ def get_vqa_spec() -> RunSpec:
 
 @run_spec_function("image2latex")
 def get_image2latex_latex_spec(subject: str, recompile_prompt: bool = True) -> RunSpec:
+    from .metrics.vision_language.image_metrics import ImageMetric
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
         args={"subject": subject, "recompile_prompt": recompile_prompt},
