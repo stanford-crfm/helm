@@ -105,7 +105,7 @@ def sift_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
         raise ValueError("Both images must have 3 channels")
 
     # Initialize the ORB feature detector
-    orb = cv2.ORB_create()
+    orb = cv2.ORB_create() if hasattr(cv2, "ORB_create") else cv2.ORB()
 
     # Find the keypoints and descriptors with ORB
     _, desc_a = orb.detectAndCompute(img_a, None)
