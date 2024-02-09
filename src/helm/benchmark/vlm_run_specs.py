@@ -132,10 +132,10 @@ def get_vqa_spec() -> RunSpec:
 
 
 @run_spec_function("i2s-latex")
-def get_i2s_latex_spec(category: str, recompile_prompt: bool = True) -> RunSpec:
+def get_i2s_latex_spec(subject: str, recompile_prompt: bool = True) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.i2s_latex_scenario.LatexScenario",
-        args={"category": category, "recompile_prompt": recompile_prompt},
+        args={"subject": subject, "recompile_prompt": recompile_prompt},
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
@@ -150,7 +150,7 @@ def get_i2s_latex_spec(category: str, recompile_prompt: bool = True) -> RunSpec:
 
     run_spec_name: str = "i2s-latex"
     return RunSpec(
-        name=run_spec_name,
+        name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
