@@ -90,7 +90,17 @@ class LatexScenario(Scenario):
 
             # Create the reference
             reference: Reference = Reference(
-                output=Output(text=row["tex_code"], multimedia_content=MultimediaObject([image_object])),
+                output=Output(
+                    text=row["tex_code"],
+                    multimedia_content=MultimediaObject(
+                        [
+                            image_object,
+                            # TODO: Change this once we have a better way to pass the assets_path
+                            # to the evaluation
+                            MediaObject(text=f"assets_path={assets_path}", content_type="text/plain"),
+                        ]
+                    ),
+                ),
                 tags=[CORRECT_TAG],  # TODO: Add assets
             )
 
