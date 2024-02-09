@@ -1088,7 +1088,7 @@ models:
     access: open
     num_parameters: 13000000000
     release_date: 2023-10-05
-    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
 
@@ -1591,7 +1591,7 @@ models:
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: qwen/qwen1.5-7b
     display_name: Qwen1.5
@@ -1599,7 +1599,7 @@ models:
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: qwen/qwen1.5-14b
     display_name: Qwen1.5
@@ -1607,7 +1607,7 @@ models:
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: qwen/qwen1.5-72b
     display_name: Qwen1.5
@@ -1615,7 +1615,7 @@ models:
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Salesforce
   - name: salesforce/codegen # NOT SUPPORTED
