@@ -12,7 +12,7 @@ jobs:
   install:
     # Tests that the HELM CLI commands work when only installing required dependencies
     # without optional extra dependencies.
-    name: Install
+    name: Run HELM with minimal dependencies only
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -37,7 +37,7 @@ jobs:
       - run: helm-server --help
 
   test:
-    name: Tests
+    name: Run all tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
