@@ -1081,6 +1081,15 @@ models:
     release_date: 2023-10-05
     tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG]
 
+  - name: microsoft/phi-2
+    display_name: Phi-2
+    description: Phi-2 is a Transformer with 2.7 billion parameters. It was trained using the same data sources as Phi-1.5, augmented with a new data source that consists of various NLP synthetic texts and filtered websites (for safety and educational value)
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-10-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
 
 
   # 01.AI
@@ -1573,6 +1582,40 @@ models:
     num_parameters: 0
     release_date: 2023-11-06
     tags: [TEXT_TO_IMAGE_MODEL_TAG]
+
+  # Qwen
+
+  - name: qwen/qwen-7b
+    display_name: Qwen
+    description: 7B-parameter version of the large language model series, Qwen (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-02-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen1.5-7b
+    display_name: Qwen1.5
+    description: 7B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-02-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen1.5-14b
+    display_name: Qwen1.5
+    description: 14B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-02-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen1.5-72b
+    display_name: Qwen1.5
+    description: 72B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-02-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Salesforce
   - name: salesforce/codegen # NOT SUPPORTED
