@@ -22,10 +22,10 @@ class CompilationError(Exception):
 
 
 class ImageMetric(EvaluateInstancesMetric, ABC):
-    COMPILE_METRIC: str = "compile"
-    EARTH_MOVERS_SIMILARITY: str = "earth-movers"
-    PIXEL_SIMILARITY: str = "pixel"
-    SIFT_SIMILARITY: str = "sift"
+    COMPILE_METRIC: str = "compilation_success"
+    EARTH_MOVER_DISTANCE: str = "earth_mover_distance"
+    PIXEL_SIMILARITY: str = "pixel_similarity"
+    SIFT_SIMILARITY: str = "sift_similarity"
 
     def __init__(self, metric_names: List[str]):
         self._metric_names: List[str] = metric_names
@@ -83,10 +83,8 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
                     stats_dict[self.PIXEL_SIMILARITY].add(pixel_similarity(gray_image, gray_ref_image))
                 if self.SIFT_SIMILARITY in self._metric_names:
                     stats_dict[self.SIFT_SIMILARITY].add(sift_similarity(rgb_image, rgb_ref_image))
-                if self.EARTH_MOVERS_SIMILARITY in self._metric_names:
-                    stats_dict[self.EARTH_MOVERS_SIMILARITY].add(
-                        1.0 - earth_movers_distance(gray_image, gray_ref_image)
-                    )
+                if self.EARTH_MOVER_DISTANCE in self._metric_names:
+                    stats_dict[self.EARTH_MOVER_DISTANCE].add(earth_movers_distance(gray_image, gray_ref_image))
                 stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
 
         return list(stats_dict.values())

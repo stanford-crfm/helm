@@ -1,0 +1,351 @@
+---
+############################################################
+adapter:
+  - name: method
+    description: The high-level strategy for converting instances into a prompt for the language model.
+    values:
+      - name: generation
+        description: Given the input, the model generates the output free-form.
+      - name: multiple_choice_joint
+        description: Given the input, the model selects from multiple-choice options (A., B., C., D., E.).
+      - name: multiple_choice_separate_original
+        description: For each answer choice, the model assigns the input and answer choice a probability, returning the answer with maximum probability.
+      - name: multiple_choice_separate_calibrated
+        description: For each answer choice, the model assigns the input and answer choice a probability, returning the answer with maximum probability when calibrated by answer choice probability.
+      - name: language_modeling
+        description: Given the input, the model assigns the sequence a probability.
+  - name: instructions
+    description: The description of the task that is included at the very beginning of the prompt.
+  - name: global_prefix
+    description: The string that is prepended to the prompt.
+  - name: global_suffix
+    description: The string that is appended to the prompt.
+  - name: instance_prefix
+    description: The string that is included before each instance (e.g., '\n\n').
+  - name: input_prefix
+    description: The string that is included before each input (e.g., 'Question:').
+  - name: input_suffix
+    description: The string that is included after each input (e.g., '\n').
+  - name: reference_prefix
+    description: The string that is included before each reference (for multiple-choice questions).
+  - name: reference_suffix
+    description: The string that is included after each reference (for multiple-choice questions).
+  - name: output_prefix
+    description: The string that is included before the correct answer/predicted output (e.g., 'Answer:').
+  - name: output_suffix
+    description: The string that is included after the correct answer/predicted output (e.g., '\n').
+  - name: substitutions
+    description: A list of regular expression substitutions (e.g., replacing '\n' with ';\n') to perform at the very end on the prompt.
+  - name: max_train_instances
+    description: Maximum number of training instances to include in the prompt (currently by randomly sampling).
+  - name: max_eval_instances
+    description: Maximum number of instances to evaluate on (over all splits - test, valid, etc.).
+  - name: num_outputs
+    description: Maximum number of possible outputs to generate by sampling multiple outputs.
+  - name: num_train_trials
+    description: Number of trials, where in each trial we choose an independent, random set of training instances. Used to compute variance.
+  - name: sample_train
+    description: If true, randomly sample N training examples; if false, select N consecutive training examples
+  - name: model
+    description: DEPRECATED. Name of the language model (<creator_organization>/<model name>) to send requests to.
+  - name: model_deployment
+    description: Name of the language model (<host_organization>/<model name>) to send requests to.
+  - name: temperature
+    description: Temperature parameter used in generation.
+  - name: max_tokens
+    description: Maximum number of tokens to generate.
+  - name: stop_sequences
+    description: List of sequences, where we stop generation if we encounter any of them.
+  - name: random
+    description: Random seed (string), which guarantees reproducibility.
+  - name: multi_label
+    description: If true, for instances with multiple correct reference, the gold answer should be considered to be all of the correct references rather than any of the correct references.
+
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Vision Language metrics:
+  - name: earth_mover_distance
+    display_name: Earth Mover Distance
+    short_display_name: EMD
+    description: Earth Mover Distance [(Rubner and Tomasi, 2000)](https://www.cs.cmu.edu/~efros/courses/LBMV07/Papers/rubner-jcviu-00.pdf) between an image generated by the model and the target image.
+    lower_is_better: true
+  - name: pixel_similarity
+    display_name: Pixel Similarity
+    short_display_name: PS
+    description: Pixel Similarity between an image generated by the model and the target image.
+    lower_is_better: false
+  - name: sift_similarity
+    display_name: SIFT Similarity
+    short_display_name: SIFT
+    description: SIFT Similarity (Scale-Invariant Feature Transform) [(Lowe, 1999)](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=790410) between an image generated by the model and the target image.
+    lower_is_better: false
+  - name: compilation_success
+    display_name: Compilation success
+    description: Fraction of instances where the generated code compiles successfully.
+    lower_is_better: false
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+############################################################
+perturbations:
+  - name: robustness
+    display_name: Robustness
+    description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
+  - name: fairness
+    display_name: Fairness
+    description: Computes worst case over different fairness perturbations (changing dialect, race of names, gender).
+  - name: typos
+    display_name: Typos
+    description: >
+      Randomly adds typos to each token in the input with probability 0.05 and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+  - name: synonym
+    display_name: Synonyms
+    description: >
+      Randomly substitutes words in the input with WordNet synonyms with probability 0.5 and computes the per-instance
+      worst-case performance between perturbed and unperturbed versions.
+  - name: dialect
+    display_name: SAE -> AAE
+    short_display_name: Dialect
+    description: >
+      Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of [Ziems et al. (2022)](https://aclanthology.org/2022.acl-long.258/) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: race
+    display_name: First names by race (White -> Black)
+    short_display_name: Race
+    description: >
+      Deterministically substitutes White first names with Black first names sampled from the lists of [Caliskan et al. (2017)](https://www.science.org/doi/10.1126/science.aal4230) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: gender
+    display_name: Pronouns by gender (Male -> Female)
+    short_display_name: Gender
+    description: >
+      Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+  - name: image_generation
+    display_name: Image generation
+    metrics:
+      - name: earth_mover_distance
+        split: ${main_split}
+      - name: pixel_similarity
+        split: ${main_split}
+      - name: sift_similarity
+        split: ${main_split}
+      - name: compilation_success
+        split: ${main_split}
+
+############################################################
+run_groups:
+  - name: core_scenarios
+    display_name: Core scenarios
+    description: The scenarios where we evaluate all the models.
+    category: All scenarios
+    subgroups:
+      - hateful_memes
+      - viz_wiz
+      - vqa
+      - mmmu
+      - image2structure
+
+  - name: image2structure
+    display_name: Image2Structure
+    description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images.
+    category: All scenarios
+    subgroups:
+      - image2latex
+
+  - name: hateful_memes
+    display_name: Hateful Memes
+    description: The Hateful Memes benchmark for multimodal hate speech detection [(Dwibedi et al., 2020)](https://arxiv.org/pdf/2005.04790.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multimodal classification
+      what: images and text
+      who: annotators from Amazon Mechanical Turk
+      when: "2020"
+      language: English
+
+  - name: viz_wiz
+    display_name: VizWiz
+    description: The VizWiz benchmark for visual question answering on images taken by blind people [(Gurari et al., 2018)](https://arxiv.org/pdf/1802.08218.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multimodal question answering
+      what: images and text
+      who: blind people
+      when: "2018"
+      language: English
+
+  - name: vqa
+    display_name: VQA
+    description: The Visual Question Answering (VQA) benchmark for multimodal question answering on images [(Antol et al., 2015)](https://arxiv.org/pdf/1505.00468.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multimodal question answering
+      what: images and text
+      who: annotators from Amazon Mechanical Turk
+      when: "2015"
+      language: English
+
+  - name: mmmu
+    display_name: MMMU
+    description: TODO
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: math, science, history, etc.
+      who: various online sources
+      when: before 2021
+      language: English
+
+  - name: image2latex
+    display_name: Image2LaTeX
+    description: The Image2LaTeX benchmark for converting images of mathematical equations, tables. algorithms and tikz to LaTeX.
+    metric_groups:
+      - image_generation
+      - efficiency
+      - general_information
+    environment:
+      main_name: image_generation
+      main_split: valid
+    taxonomy:
+      task: image-to-text
+      what: mathematical equations, tables, algorithms, tikz
+      who: n/a
+      when: "2024"
+      language: English

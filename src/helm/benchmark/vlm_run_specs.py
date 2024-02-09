@@ -3,6 +3,7 @@ from typing import List, Optional
 from .adaptation.adapter_spec import AdapterSpec
 from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
 from .metrics.metric import MetricSpec
+from .metrics.vision_language.image_metrics import ImageMetric
 from .run_specs import run_spec_function, get_exact_match_metric_specs
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
@@ -131,10 +132,10 @@ def get_vqa_spec() -> RunSpec:
     )
 
 
-@run_spec_function("i2s-latex")
-def get_i2s_latex_spec(subject: str, recompile_prompt: bool = True) -> RunSpec:
+@run_spec_function("image2latex")
+def get_image2latex_latex_spec(subject: str, recompile_prompt: bool = True) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.i2s_latex_scenario.LatexScenario",
+        class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
         args={"subject": subject, "recompile_prompt": recompile_prompt},
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
@@ -144,11 +145,17 @@ def get_i2s_latex_spec(subject: str, recompile_prompt: bool = True) -> RunSpec:
     metric_specs: List[MetricSpec] = [
         MetricSpec(
             class_name="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",
-            args={"metric_names": ["earth-movers", "pixel", "sift"]},
+            args={
+                "metric_names": [
+                    ImageMetric.EARTH_MOVER_DISTANCE,
+                    ImageMetric.PIXEL_SIMILARITY,
+                    ImageMetric.SIFT_SIMILARITY,
+                ]
+            },
         )
     ]
 
-    run_spec_name: str = "i2s-latex"
+    run_spec_name: str = "image2latex"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject}",
         scenario_spec=scenario_spec,

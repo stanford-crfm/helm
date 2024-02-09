@@ -15,7 +15,7 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
-from .image2structure.utils_latex import latex_to_image
+from .utils_latex import latex_to_image
 
 
 class LatexScenario(Scenario):
@@ -24,7 +24,7 @@ class LatexScenario(Scenario):
     MAX_NUM_ASSETS: int = 10
     SUBJECTS: List[str] = ["equation", "figure", "table", "plot", "algorithm"]
 
-    name = "i2s-latex"
+    name = "image2latex"
     description = "Evaluate multimodel models on Latex generation to recreate a provided image"
     tags = ["vision-language"]
 
@@ -35,8 +35,8 @@ class LatexScenario(Scenario):
         self._recompile_prompt: bool = recompile_prompt
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        images_path: str = os.path.join(output_path, "i2s/latex/images", self._subject)
-        assets_path: str = os.path.join(output_path, "i2s/latex/assets")
+        images_path: str = os.path.join(output_path, "data/images", self._subject)
+        assets_path: str = os.path.join(output_path, "data/assets")
         ensure_directory_exists(images_path)
 
         instances: List[Instance] = []
