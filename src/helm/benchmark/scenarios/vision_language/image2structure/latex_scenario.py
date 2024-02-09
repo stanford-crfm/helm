@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
+    TRAIN_SPLIT,
     VALID_SPLIT,
     Instance,
     Input,
@@ -28,11 +29,17 @@ class LatexScenario(Scenario):
     description = "Evaluate multimodel models on Latex generation to recreate a provided image"
     tags = ["vision-language"]
 
-    def __init__(self, subject: str, recompile_prompt: bool = True):
+    helm_split_to_huggingface_split = {
+        TRAIN_SPLIT: "train",
+        VALID_SPLIT: "validation",
+    }
+
+    def __init__(self, subject: str, recompile_prompt: bool = True, split: str = VALID_SPLIT):
         super().__init__()
         assert subject in self.SUBJECTS, f"Invalid subject: {subject}"
         self._subject: str = subject
         self._recompile_prompt: bool = recompile_prompt
+        self._split: str = split
 
     def get_instances(self, output_path: str) -> List[Instance]:
         images_path: str = os.path.join(output_path, "data/images", self._subject)
@@ -41,11 +48,14 @@ class LatexScenario(Scenario):
 
         instances: List[Instance] = []
 
-        # Process the validation set
-        # There seems to be a dev set, but it's unavailable through load_dataset.
-        # The test set doesn't have answers, since the MMMU competition/leaderboard uses the test set
+        # Process the desired set of instances
         for row in tqdm(
-            load_dataset(self.HUGGINGFACE_DATASET_NAME, self._subject, split="validation", cache_dir=output_path)
+            load_dataset(
+                self.HUGGINGFACE_DATASET_NAME,
+                self._subject,
+                split=self.helm_split_to_huggingface_split[self._split],
+                cache_dir=output_path,
+            )
         ):
             question_id: str = row["id"]
 
@@ -87,7 +97,7 @@ class LatexScenario(Scenario):
             # Finalize the Instance
             instances.append(
                 Instance(
-                    input=Input(multimedia_content=MultimediaObject(content)), references=[reference], split=VALID_SPLIT
+                    input=Input(multimedia_content=MultimediaObject(content)), references=[reference], split=self._split
                 )
             )
 
