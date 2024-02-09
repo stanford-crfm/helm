@@ -4,7 +4,6 @@ from helm.benchmark.metrics.vision_language.image_metrics import ImageMetric, Co
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.vision_language.image2structure.utils_latex import latex_to_image
 from helm.common.optional_dependencies import handle_module_not_found_error
-from toolbox.printing import ldebug
 
 try:
     from PIL.Image import Image
@@ -21,7 +20,6 @@ class LatexMetric(ImageMetric):
     def compile_completion_into_image(self, request_state: RequestState, completion: str, ref_image: Image) -> Image:
         """Given a completion, parse the LaTeX and compile it into an image."""
         assets_path: str = ""  # TODO: Add assets path
-        ldebug(completion)
 
         # Check for code block delimiters
         # After this completion should be a valid latex code block
@@ -34,7 +32,6 @@ class LatexMetric(ImageMetric):
 
         # Convert the latex code to an image
         try:
-            ldebug(completion)
             image: Image = latex_to_image(completion, assets_path, crop=True, resize_to=ref_image.size)[0]
         except RuntimeError as e:
             # We do not want to catch OptionalDependencyNotInstalled (error with latex installation)
