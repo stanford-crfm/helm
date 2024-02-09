@@ -82,3 +82,5 @@ def latex_to_image(
             ) from e
         else:
             raise e
+    except Exception as e:
+        raise RuntimeError from e
