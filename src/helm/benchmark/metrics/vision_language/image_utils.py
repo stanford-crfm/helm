@@ -1,4 +1,3 @@
-import warnings
 from scipy.stats import wasserstein_distance
 import numpy as np
 
@@ -9,20 +8,6 @@ try:
     from PIL.Image import Image
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["image2structure"])
-
-##
-# Globals
-##
-
-warnings.filterwarnings("ignore")
-
-# specify resized image sizes
-height = 2**10
-width = 2**10
-
-##
-# Functions
-##
 
 
 def preprocess_image(image: Image, norm_exposure: bool = True) -> np.ndarray:
@@ -94,6 +79,7 @@ def pixel_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
     Returns:
         float: the pixel-level similarity between the images
     """
+    height, width = img_a.shape
     return np.sum(np.absolute(img_a - img_b)) / (height * width) / 255
 
 
