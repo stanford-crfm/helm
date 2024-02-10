@@ -141,7 +141,12 @@ def get_i2s_latex_spec(subject: str, recompile_prompt: bool = True) -> RunSpec:
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()  # TODO: change
+    metric_specs: List[MetricSpec] = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",
+            args={"metric_names": ["earth-movers", "pixel", "sift"]},
+        )
+    ]
 
     run_spec_name: str = "i2s-latex"
     return RunSpec(

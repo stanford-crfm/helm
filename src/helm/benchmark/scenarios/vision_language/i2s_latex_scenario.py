@@ -72,14 +72,16 @@ class LatexScenario(Scenario):
             if len(asset_names) > 0:
                 list_assets_str: str = "\n -".join(asset_names)
                 prompt += f"\n\nThe following assets can be used:{list_assets_str}"
+            image_object = MediaObject(location=image_path, content_type="image/png")
             content: List[MediaObject] = [
                 MediaObject(text=prompt, content_type="text/plain"),
-                MediaObject(location=image_path, content_type="image/png"),
+                image_object,
             ]
 
             # Create the reference
             reference: Reference = Reference(
-                output=Output(text=row["tex_code"], multimedia_content=None), tags=[CORRECT_TAG]  # TODO: Add assets
+                output=Output(text=row["tex_code"], multimedia_content=MultimediaObject([image_object])),
+                tags=[CORRECT_TAG],  # TODO: Add assets
             )
 
             # Finalize the Instance
