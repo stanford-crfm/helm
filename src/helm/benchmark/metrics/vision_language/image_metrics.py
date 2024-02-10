@@ -1,8 +1,11 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 import numpy as np
+from torchvision import transforms
 from abc import ABC, abstractmethod
 
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
+from helm.common.images_utils import open_image
+from helm.common.gpu_utils import get_torch_device
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.media_object import MediaObject
@@ -12,9 +15,10 @@ from ..statistic import Stat
 from .image_utils import preprocess_image, earth_movers_distance, pixel_similarity, sift_similarity
 
 try:
-    from PIL.Image import Image, open as open_image
+    from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
+    from PIL.Image import Image
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["images"])
+    handle_module_not_found_error(e, suggestions=["image2structure"])
 
 
 class CompilationError(Exception):
@@ -26,9 +30,12 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
     EARTH_MOVER_DISTANCE: str = "earth_mover_distance"
     PIXEL_SIMILARITY: str = "pixel_similarity"
     SIFT_SIMILARITY: str = "sift_similarity"
+    LPIPS_SIMILARITY: str = "lpips_similarity"
 
     def __init__(self, metric_names: List[str]):
         self._metric_names: List[str] = metric_names
+        self._lpips_metric: Optional[LearnedPerceptualImagePatchSimilarity] = None
+        self._device = get_torch_device()
 
     @abstractmethod
     def compile_completion_into_image(self, request_state: RequestState, completion: str, ref_image: Image) -> Image:
@@ -68,7 +75,7 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
             for completion in completions:
                 image: Image
                 try:
-                    image = self.compile_completion_into_image(request_state, completion, ref_image)
+                    image = self.compile_completion_into_image(request_state, completion, ref_image).convert("RGB")
                 except CompilationError:
                     stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                     # For all other metrics, we set the value to zero
@@ -85,6 +92,31 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
                     stats_dict[self.SIFT_SIMILARITY].add(sift_similarity(rgb_image, rgb_ref_image))
                 if self.EARTH_MOVER_DISTANCE in self._metric_names:
                     stats_dict[self.EARTH_MOVER_DISTANCE].add(earth_movers_distance(gray_image, gray_ref_image))
+                if self.LPIPS_SIMILARITY in self._metric_names:
+                    stats_dict[self.LPIPS_SIMILARITY].add(self.lpips_similarity(image, ref_image))
                 stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
 
         return list(stats_dict.values())
+
+    def lpips_similarity(self, generated_image: Image, reference_image: Image) -> float:
+        if self._lpips_metric is None:
+            self._lpips_metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg").to(self._device)
+
+        preprocessing = transforms.Compose(
+            [
+                transforms.Resize((256, 256)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+            ]
+        )
+        generated_image_tensor = preprocessing(generated_image)
+        reference_image_tensor = preprocessing(reference_image)
+
+        # Add batch dimension (B, C, H, W) since torchmetrics expects batches
+        img1 = generated_image_tensor.unsqueeze(0).to(self._device)
+        img2 = reference_image_tensor.unsqueeze(0).to(self._device)
+
+        # Compute the LPIPS score
+        assert self._lpips_metric is not None
+        score: float = self._lpips_metric(img1, img2).detach().item()
+        return score
