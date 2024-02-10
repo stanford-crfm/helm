@@ -26,6 +26,19 @@ class CompilationError(Exception):
 
 
 class ImageMetric(EvaluateInstancesMetric, ABC):
+    """Abstract class for image metrics.
+
+    This class is designed to evaluate metrics on images that should be generated using the text
+    ouput of the model, such as LaTeX, HTML, etc.
+
+    The class provides a method to compile the completion into an image and then evaluate the
+    similarity between the generated image and the reference image using different metrics.
+
+    In addition to the metrics, the class also provides a metric to evaluate the compilation success.
+    If the compilation fails, the similarity metrics are not evaluated and are all set to the most
+    dissimilar value.
+    """
+
     COMPILE_METRIC: str = "compilation_success"
     EARTH_MOVER_DISTANCE: str = "earth_mover_distance"
     PIXEL_SIMILARITY: str = "pixel_similarity"

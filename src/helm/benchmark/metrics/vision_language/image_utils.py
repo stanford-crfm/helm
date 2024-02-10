@@ -59,8 +59,8 @@ def earth_movers_distance(img_a: np.ndarray, img_b: np.ndarray) -> float:
     Measure the Earth Mover's distance between two images
 
     Args:
-        img_a (PIL.Image): the first image
-        img_b (PIL.Image): the second image
+        img_a (np.ndarray): the first image
+        img_b (np.ndarray): the second image
     Returns:
         float: the Earth Mover's distance between the images
     """
@@ -74,8 +74,8 @@ def pixel_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
     Measure the pixel-level similarity between two images
 
     Args:
-        img_a (PIL.Image): the first image
-        img_b (PIL.Image): the second image
+        img_a (np.ndarray): the first image
+        img_b (np.ndarray): the second image
     Returns:
         float: the pixel-level similarity between the images
     """
