@@ -80,7 +80,7 @@ def pixel_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
         float: the pixel-level similarity between the images
     """
     height, width = img_a.shape
-    return np.sum(np.absolute(img_a - img_b)) / (height * width) / 255
+    return 1.0 - np.sum(np.abs(img_a - img_b)) / (height * width * 255)
 
 
 def sift_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
