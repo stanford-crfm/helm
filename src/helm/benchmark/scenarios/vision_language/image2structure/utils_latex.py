@@ -25,6 +25,7 @@ TEX_INCLUDES = r"""
 \usepackage{algorithm}
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
+\usepackage{listings}
 \usepackage{stfloats}
 \usepackage{epstopdf}
 \usepackage{pgfplots}
@@ -36,9 +37,13 @@ TEX_INCLUDES = r"""
 \usepackage{tikz-network}
 """
 
+# LaTeX delimiters
 TEX_BEGIN_FILE = r"""\documentclass{article}"""
 TEX_BEGIN_DOCUMENT = r"""\begin{document}"""
 TEX_END_DOCUMENT = r"""\end{document}"""
+
+# Number of times to try to fix the LaTeX code
+MAX_NUM_TRIES: int = 3
 
 
 def latex_to_pdf(latex_code: str, assets_path: str) -> io.BytesIO:
@@ -135,9 +140,16 @@ def handle_latex_error(
         #     ...
         #     \end{tabular}
         r"""Misplaced \noalign""",
+        # LaTeX Error: Command <command> already defined.
+        # This errors occurs when two packages define the same command.
+        # We cannot fix this as we would have to try to find the conflicting packages.
+        # Example:
+        #     \usepackage{algorithmic}
+        #     \usepackage{algorithmicx}
+        r""" already defined.""",
     ]:
         if error_message in str_e:
-            raise RuntimeError("Undefined control sequence in LaTeX code") from e
+            raise RuntimeError from e
 
     if num_try_remaining > 0:
         # Check if the error is easily fixable
@@ -159,13 +171,22 @@ def handle_latex_error(
         # Error format: "LaTeX Error: Environment <env> undefined."
         undefined_seach = re.search(r"LaTeX Error: Environment (.*) undefined", str_e)
         if undefined_seach:
-            env_undefined: str = undefined_seach.group(1)
-            index_insertion = fixed_code.find(TEX_BEGIN_DOCUMENT)
-            if index_insertion != -1:
-                raise RuntimeError("Could not add missing include") from e
-            fixed_code = (
-                fixed_code[:index_insertion] + f"\\usepackage{{{env_undefined}}}\n" + fixed_code[index_insertion:]
-            )
+            # If a package is missing and this is our first retry, then simply include TEX_INCLUDES
+            if num_try_remaining == MAX_NUM_TRIES:
+                fixed_code = fixed_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
+            else:
+                assert TEX_INCLUDES in fixed_code, "TEX_INCLUDES should be present in the code"
+                # TEX_INCLUDES is already present, so we add the missing package
+                # Since we cannot know the name of the package that contains the missing environment,
+                # we simply hope that they are named the same way.
+                env_undefined: str = undefined_seach.group(1)
+
+                if f"\\usepackage{{{env_undefined}}}" in fixed_code:
+                    # We already tried to include the missing package, but it probably
+                    # does not exist, so we raise an error
+                    raise RuntimeError from e
+
+                fixed_code = fixed_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + f"\n\\usepackage{{{env_undefined}}}\n")
 
         # Try again with the fixed code (if the fixed code is different from the original code)
         if fixed_code != original_latex_code:
@@ -182,8 +203,6 @@ def handle_latex_error(
     # - generation error: should not be fixed and raised
     # - easily fixable: should be fixed and tried again
     # If we reach this point, it means that none of the above cases were detected.
-    print("\n\n\nOriginal LaTeX code:", original_latex_code)
-    raise Exception("Error while processing LaTeX code") from e
     raise RuntimeError from e
 
 
@@ -192,7 +211,7 @@ def latex_to_image(
     assets_path: str,
     crop: bool = False,
     resize_to: Optional[Tuple[int, int]] = None,
-    num_try_remaining: int = 1,
+    num_try_remaining: int = MAX_NUM_TRIES,
 ) -> Tuple[Image, Tuple[int, int]]:
     # Basic LaTeX processing
     # This changes cannot break the original LaTeX code
@@ -207,15 +226,21 @@ def latex_to_image(
     if TEX_END_DOCUMENT not in latex_code:
         latex_code = latex_code + TEX_END_DOCUMENT
     # 2. Add preamble
-    # Even if the original latex code already has some includes,
-    # we are going to add ours (including twice the same package is not a problem)
-    # and replace whatever \documentclass is present with our own
-    # 2.2. Remove \documentclass if present
+    # 2.1. Remove \documentclass if present to make sure we use our own
     documentclass_search = re.search(r"\\documentclass\{(.*)\}", latex_code)
     if documentclass_search:
         documentclass: str = documentclass_search.group(1)
-        latex_code = latex_code.replace(f"\\documentclass{{{documentclass}}}", "")
-    latex_code = f"{TEX_BEGIN_FILE}\n{TEX_INCLUDES}\n{latex_code}"
+        latex_code = latex_code.replace(f"\\documentclass{{{documentclass}}}", TEX_BEGIN_FILE)
+    else:
+        # If there is no \documentclass, we add our own
+        latex_code = TEX_BEGIN_FILE + "\n\n" + latex_code
+    # 2.2. Add includes. In this first step, we only add icnludes if none are present.
+    # We do this because if some are present, we might define them twice which can cause errors
+    # and this section should not make the original LaTeX code fail if it was compilable.
+    # If there are missing packages, in handle_latex_error, we will add TEX_INCLUDES after the begin document,
+    # which might define some packages twice, but often solves the problem.
+    if not re.search(r"\\usepackage\{.*\}", latex_code):
+        latex_code = latex_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
 
     try:
         pdf_stream = latex_to_pdf(latex_code, assets_path=assets_path)
