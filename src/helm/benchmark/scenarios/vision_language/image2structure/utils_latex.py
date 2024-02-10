@@ -30,6 +30,9 @@ TEX_BEGIN = r"""
 
 TEX_END = r"""\end{document}"""
 
+TEX_BEGIN_DOCUMENT = r"""\begin{document}"""
+TEX_END_DOCUMENT = r"""\end{document}"""
+
 
 def latex_to_pdf(latex_code: str, assets_path: str) -> io.BytesIO:
     # Compiling LaTeX code to PDF
@@ -69,8 +72,12 @@ def latex_to_image(
     crop: bool = False,
     resize_to: Optional[Tuple[int, int]] = None,
 ):  # -> Tuple[Image, Tuple[int, int]]:
+    if TEX_BEGIN_DOCUMENT not in latex_code:
+        latex_code = TEX_BEGIN + latex_code
+    if TEX_END_DOCUMENT not in latex_code:
+        latex_code = latex_code + TEX_END
     try:
-        pdf_stream = latex_to_pdf(TEX_BEGIN + latex_code + TEX_END, assets_path=assets_path)
+        pdf_stream = latex_to_pdf(latex_code, assets_path=assets_path)
         image = pdf_to_image(pdf_stream, crop=crop, resize_to=resize_to)
         return image, image.size
     except RuntimeError as e:
