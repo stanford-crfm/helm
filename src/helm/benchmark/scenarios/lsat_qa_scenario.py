@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List
+from typing import Dict, List
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import (
@@ -83,7 +83,7 @@ class LSATScenario(Scenario):
 
     def __init__(self, task):
         super().__init__()
-        question_types = {
+        question_types: Dict[str, List[str]] = {
             "grouping": ["in/out grouping", "distribution grouping"],
             "ordering": ["simple ordering", "relative ordering", "complex ordering"],
             "assignment": ["determined assignment", "undetermined assignment"],
@@ -101,10 +101,14 @@ class LSATScenario(Scenario):
 
     def get_question_types(self, tags: List[str]) -> List[str]:
         question_type: str = tags[2].replace("grouping (distribution)", "distribution grouping") or "miscellaneous"
-        return [question_type.replace(" ", "_").replace("/", "_"), self.subtype2type.get(question_type)]
+        types = [question_type.replace(" ", "_").replace("/", "_")]
+        main_type = self.subtype2type.get(question_type)
+        if main_type is not None:
+            types.append(main_type)
+        return types
 
-    def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
 
         instances: List[Instance] = []

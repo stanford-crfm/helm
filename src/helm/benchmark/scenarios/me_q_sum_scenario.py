@@ -45,7 +45,7 @@ class MeQSumScenario(Scenario):
     description = "MeQSum is a corpus of 1,000 summarized consumer health questions."
     tags = ["summarization", "biomedical"]
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """
         Build `Instance`s using the consumer health questions and their summarized versions.
         """
@@ -61,7 +61,7 @@ class MeQSumScenario(Scenario):
             with open(file_path) as f:
                 return f.read().splitlines()
 
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(output_path, "data")
         ensure_directory_exists(data_path)
 
         instances: List[Instance] = []

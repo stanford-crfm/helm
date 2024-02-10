@@ -12,8 +12,8 @@ from helm.common.cache import (
     MongoCacheConfig,
     SqliteCacheConfig,
     create_key_value_store,
-    request_to_key,
 )
+from helm.common.key_value_store import request_to_key
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.proxy.clients.google_client import GoogleClient
 from helm.proxy.clients.together_client import TogetherClient

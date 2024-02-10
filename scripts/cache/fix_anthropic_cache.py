@@ -47,7 +47,7 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
         api_key: str = credentials["anthropicApiKey"]
 
     cache_config = MongoCacheConfig(mongo_uri, collection_name="anthropic")
-    client = AnthropicLegacyClient(api_key, cache_config)
+    client = AnthropicLegacyClient(api_key=api_key, cache_config=cache_config)
 
     with create_key_value_store(cache_config) as cache:
         for i, (request, response) in enumerate(cache.get_all()):

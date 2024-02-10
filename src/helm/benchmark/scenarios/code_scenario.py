@@ -139,8 +139,8 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
     # only if the version of Python has a default limit.
     #
     # See: https://docs.python.org/3/library/stdtypes.html#int-max-str-digits
-    if hasattr(sys, "set_int_max_str_digits"):  # type: ignore
-        sys.set_int_max_str_digits(100000)  # type: ignore
+    if hasattr(sys, "set_int_max_str_digits"):
+        sys.set_int_max_str_digits(100000)
 
     SINGLE_STR_LIMIT = 150000  # From original codebase.
 
@@ -290,10 +290,10 @@ class CodeScenario(Scenario):
 
         self.human_eval_hparams = dict(num_train_instances=0, num_val_instances=0, num_test_instances=164)
 
-    def get_instances(self) -> List[Instance]:
-        # By construction, self.output_path == 'benchmark_output/scenarios/code'.
+    def get_instances(self, output_path: str) -> List[Instance]:
+        # By construction, output_path == 'benchmark_output/scenarios/code'.
         if self.dataset == "humaneval":
-            target_path = os.path.join(self.output_path, "HumanEval.jsonl")
+            target_path = os.path.join(output_path, "HumanEval.jsonl")
             ensure_file_downloaded(
                 source_url="https://github.com/openai/human-eval/raw/master/data/HumanEval.jsonl.gz",
                 target_path=target_path,
@@ -305,7 +305,7 @@ class CodeScenario(Scenario):
             # This dataset doesn't have a validation set.
             # Unclear how they do validation. Also not clarified in their paper.
             # `target_path` is the output folder, not the compressed file, since we unpack!
-            target_path = os.path.join(self.output_path, "APPS")
+            target_path = os.path.join(output_path, "APPS")
             ensure_file_downloaded(
                 source_url="https://people.eecs.berkeley.edu/~hendrycks/APPS.tar.gz",
                 target_path=target_path,

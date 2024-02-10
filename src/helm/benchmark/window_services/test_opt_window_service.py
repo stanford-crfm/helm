@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from .test_utils import get_tokenizer_service, TEST_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
@@ -9,8 +10,8 @@ from .window_service_factory import WindowServiceFactory
 class TestOPTWindowService:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
-        service: TokenizerService = get_tokenizer_service(self.path)
-        self.window_service = WindowServiceFactory.get_window_service("together/opt-175b", service)
+        service: TokenizerService = get_tokenizer_service(self.path, BlackHoleCacheBackendConfig())
+        self.window_service = WindowServiceFactory.get_window_service("huggingface/opt-175b", service)
 
     def teardown_method(self, method):
         shutil.rmtree(self.path)

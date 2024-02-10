@@ -1,27 +1,16 @@
 from typing import List, Dict
 
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-    TokenizationToken,
-)
-from .client import Client, wrap_request_time
+from helm.common.cache import CacheConfig
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
+from .client import CachingClient
 
 
-class SimpleClient(Client):
+class SimpleClient(CachingClient):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
     def __init__(self, cache_config: CacheConfig):
-        self.cache = Cache(cache_config)
-
-    @staticmethod
-    def tokenize_by_space(text: str) -> List[str]:
-        """Simply tokenizes by a single white space."""
-        return text.split(" ")
+        super().__init__(cache_config=cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {
@@ -30,18 +19,21 @@ class SimpleClient(Client):
             "n": request.num_completions,
         }
 
-        if request.model_engine == "model1":
+        if request.model_engine in ["model1", "tutorial"]:
 
             def do_it():
-                return self.invoke_model1(raw_request)
+                if request.model_engine == "model1":
+                    return self.invoke_model1(raw_request)
+                elif request.model_engine == "tutorial":
+                    return self.invoke_model_tutorial(raw_request)
 
-            cache_key = Client.make_cache_key(raw_request, request)
+            cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             completions = [
                 Sequence(
                     text=text,
                     logprob=logprob,
-                    tokens=[Token(text=text, logprob=logprob, top_logprobs=response["completions"])],
+                    tokens=[Token(text=text, logprob=logprob)],
                 )
                 for text, logprob in response["completions"].items()
             ]
@@ -57,18 +49,6 @@ class SimpleClient(Client):
             embedding=[],
         )
 
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        if request.tokenizer == "simple/model1":
-            raw_tokens: List[str] = SimpleClient.tokenize_by_space(request.text)
-            return TokenizationRequestResult(
-                success=True, cached=False, tokens=[TokenizationToken(text) for text in raw_tokens], text=request.text
-            )
-        else:
-            raise ValueError("Unknown model")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError
-
     def invoke_model1(self, raw_request: Dict) -> Dict:
         """
         Example: 7 2 4 6
@@ -77,7 +57,19 @@ class SimpleClient(Client):
         - 4
         - 2
         """
-        prompt_tokens: List[str] = SimpleClient.tokenize_by_space(raw_request["prompt"])
+        prompt_tokens: List[str] = SimpleTokenizer.tokenize_by_space(raw_request["prompt"])
         choices = reversed(prompt_tokens[-raw_request["n"] :])
         response = {"completions": dict((text, -i) for i, text in enumerate(choices))}
+        return response
+
+    def invoke_model_tutorial(self, raw_request: Dict) -> Dict:
+        """Always returns: 'The model is generating some text. Hooray, the tutorial works! (Completion {i})'.
+        This supports multiple completions.
+        """
+        response = {
+            "completions": dict(
+                (f"The model is generating some text. Hooray, the tutorial works! (Completion {i})", -i)
+                for i in range(raw_request["n"])
+            )
+        }
         return response

@@ -4,7 +4,7 @@ Run the following:
 
 ```
 # Create a run specs configuration
-echo 'entries: [{description: "mmlu:subject=philosophy,model=huggingface/gpt2", priority: 1}]' > run_specs.conf
+echo 'entries: [{description: "mmlu:subject=philosophy,model=openai/gpt2", priority: 1}]' > run_specs.conf
 
 # Run benchmark
 helm-run --conf-paths run_specs.conf --suite v1 --max-eval-instances 10
@@ -18,3 +18,9 @@ helm-server
 
 Then go to http://localhost:8000/ in your browser.
 
+
+## Next steps
+
+Click [here](get_helm_rank.md) to find out how to run the full benchmark and get your model's leaderboard rank.
+
+For the quick start page for HEIM, visit [here](heim.md).

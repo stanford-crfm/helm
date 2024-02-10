@@ -1,28 +1,43 @@
 ////////////////////////////////////////////////////////////
 // Helper functions for getting URLs of JSON files
-
-function summaryJsonUrl(suite) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/summary.json`;
+function versionBaseUrl() {
+  if (window.RELEASE) {
+    return `${BENCHMARK_OUTPUT_BASE_URL}/releases/${window.RELEASE}`;
+  } else {
+    return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${window.SUITE}`;
+  }
 }
 
-function runSpecsJsonUrl(suite) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/run_specs.json`;
+function schemaJsonUrl() {
+  return `${versionBaseUrl()}/schema.json`;
 }
 
-function groupsMetadataJsonUrl(suite) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/groups_metadata.json`;
+function summaryJsonUrl() {
+  return `${versionBaseUrl()}/summary.json`;
 }
 
-function groupsJsonUrl(suite) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/groups.json`;
+function runsToRunSuitesJsonUrl() {
+  return `${versionBaseUrl()}/runs_to_run_suites.json`;
 }
 
-function groupJsonUrl(suite, groupName) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/groups/${groupName}.json`;
+function runSpecsJsonUrl() {
+  return `${versionBaseUrl()}/run_specs.json`;
+}
+
+function groupsMetadataJsonUrl() {
+  return `${versionBaseUrl()}/groups_metadata.json`;
+}
+
+function groupsJsonUrl() {
+  return `${versionBaseUrl()}/groups.json`;
+}
+
+function groupJsonUrl(groupName) {
+  return `${versionBaseUrl()}/groups/${groupName}.json`;
 }
 
 function runSpecJsonUrl(suite, runSpecName) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/run_spec.json`
+  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/run_spec.json`;
 }
 
 function scenarioJsonUrl(suite, runSpecName) {

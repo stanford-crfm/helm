@@ -6,7 +6,7 @@ from helm.common.request import Request, Sequence, Token
 def truncate_sequence_helper(tokens: List[str], request: Request, expected_tokens: List[str]):
     sequence = Sequence(
         text="".join(tokens),
-        tokens=[Token(text=text, logprob=-1, top_logprobs={}) for text in tokens],
+        tokens=[Token(text=text, logprob=-1) for text in tokens],
         logprob=-len(tokens),
     )
 
@@ -19,13 +19,31 @@ def truncate_sequence_helper(tokens: List[str], request: Request, expected_token
 
 def test_truncate_sequence():
     # echo_prompt = True, nothing gets truncated
-    truncate_sequence_helper(["a", "b", "c"], Request(prompt="abc", echo_prompt=True), ["a", "b", "c"])
+    truncate_sequence_helper(
+        ["a", "b", "c"],
+        Request(
+            model="openai/text-davinci-002", model_deployment="openai/text-davinci-002", prompt="abc", echo_prompt=True
+        ),
+        ["a", "b", "c"],
+    )
 
     # Nothing gets truncated
-    truncate_sequence_helper(["hello", " world"], Request(stop_sequences=["#"]), ["hello", " world"])
+    truncate_sequence_helper(
+        ["hello", " world"],
+        Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002", stop_sequences=["#"]),
+        ["hello", " world"],
+    )
 
     # Truncate using stop sequences
-    truncate_sequence_helper(["hello", " world", "\n", "what"], Request(stop_sequences=["\n"]), ["hello", " world"])
+    truncate_sequence_helper(
+        ["hello", " world", "\n", "what"],
+        Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002", stop_sequences=["\n"]),
+        ["hello", " world"],
+    )
 
     # Truncate using max tokens
-    truncate_sequence_helper(["a", "b", "c"], Request(max_tokens=2), ["a", "b"])
+    truncate_sequence_helper(
+        ["a", "b", "c"],
+        Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002", max_tokens=2),
+        ["a", "b"],
+    )

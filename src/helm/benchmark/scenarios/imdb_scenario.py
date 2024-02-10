@@ -107,7 +107,6 @@ class IMDBScenario(Scenario):
         contrast_map = {}
 
         for orig_line, contrast_line in zip(orig_and_contrast_inputs[0], orig_and_contrast_inputs[1]):
-
             orig_label_name, orig_context = orig_line.strip().split("\t")
             orig_label = label_name_to_id[orig_label_name]
 
@@ -122,8 +121,8 @@ class IMDBScenario(Scenario):
             }
         return contrast_map
 
-    def get_instances(self) -> List[Instance]:
-        target_path: str = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        target_path: str = os.path.join(output_path, "data")
 
         instances: List[Instance] = []
 

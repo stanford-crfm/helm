@@ -2,12 +2,12 @@
 
 import json
 import os
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 
 import numpy as np
-from sacrebleu.metrics import BLEU
 
 from helm.common.general import ensure_file_downloaded
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult, Sequence
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -15,6 +15,11 @@ from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
+
+try:
+    from sacrebleu.metrics import BLEU
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["metrics"])
 
 
 HUMAN_EVAL_CODALAB_LINK: str = (
@@ -24,7 +29,7 @@ REITERATION_HUMAN_EVAL_FILE: str = "disinformation_reiteration_human_eval.json"
 WEDGING_HUMAN_EVAL_FILE: str = "disinformation_wedging_human_eval.json"
 
 
-def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
+def _self_bleu(completions: List[Sequence]) -> float:
     """Self-BLEU.
 
     Average over all scores, where each score is the BLEU of one generation compared against all other generations.
@@ -47,7 +52,7 @@ def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
     return sum(scores) / len(scores)
 
 
-def _monte_carlo_entropy(completions: List[Sequence], **unused_kwargs) -> float:
+def _monte_carlo_entropy(completions: List[Sequence]) -> float:
     """Monte Carlo estimate of model entropy in nats."""
     #  This estimator is biased with non-unit temperature, since OpenAI API doesn't adjust logprob
     #  computation based on temperature.
@@ -81,7 +86,7 @@ def _compute_wedging_human_eval(
     results: List[Stat] = []
     instance_first_line = request_state.instance.input.text.splitlines()[0]
     human_evaluations = _fetch_human_evaluation_results(eval_cache_path, WEDGING_HUMAN_EVAL_FILE)
-    model_results = human_evaluations.get(adapter_spec.model)
+    model_results = human_evaluations.get(adapter_spec.model_deployment)
 
     if not model_results:
         # Trying to evaluate a model we don't have annotations for
@@ -120,7 +125,7 @@ def _compute_reiteration_human_eval(
     """
     results: List[Stat] = []
     human_evaluations = _fetch_human_evaluation_results(eval_cache_path, REITERATION_HUMAN_EVAL_FILE)
-    model_results = human_evaluations.get(adapter_spec.model)
+    model_results = human_evaluations.get(adapter_spec.model_deployment)
     if not model_results:
         # Trying to evaluate a model we don't have annotations for
         return results
@@ -142,9 +147,12 @@ def _compute_reiteration_human_eval(
     return results
 
 
-metric_fns = {
+completion_metric_fns: Dict[str, Callable[[List[Sequence]], float]] = {
     "self_bleu": _self_bleu,
     "monte_carlo_entropy": _monte_carlo_entropy,
+}
+
+human_metric_fns: Dict[str, Callable[[AdapterSpec, RequestState, str], List[Stat]]] = {
     "wedging": _compute_wedging_human_eval,
     "reiteration": _compute_reiteration_human_eval,
 }
@@ -152,10 +160,10 @@ metric_fns = {
 
 class DisinformationMetric(Metric):
     def __init__(self, name):
-        if name not in metric_fns:
-            raise ValueError(f"Expected name to be one of {metric_fns.keys()}, but got {name}.")
+        if name not in completion_metric_fns:
+            raise ValueError(f"Expected name to be one of {completion_metric_fns.keys()}, but got {name}.")
         self._name = name
-        self._metric_fn = metric_fns[name]
+        self._metric_fn = completion_metric_fns[name]
 
     def evaluate_generation(
         self,
@@ -167,9 +175,7 @@ class DisinformationMetric(Metric):
         metrics = []
         request_result: Optional[RequestResult] = request_state.result
         if request_result is not None:
-            result = self._metric_fn(
-                completions=request_result.completions, references=request_state.instance.references
-            )
+            result = self._metric_fn(request_result.completions)
             metrics.append(Stat(MetricName(self._name)).add(result))
         return metrics
 
@@ -177,10 +183,10 @@ class DisinformationMetric(Metric):
 class DisinformationHumanEvalMetrics(Metric):
     def __init__(self, name):
         # Reads in the results from the human evaluations
-        if name not in metric_fns.keys():
-            raise ValueError(f"Expected name to be one of {metric_fns.keys()}, but got {name}.")
+        if name not in human_metric_fns.keys():
+            raise ValueError(f"Expected name to be one of {human_metric_fns.keys()}, but got {name}.")
         self._name = name
-        self._metric_fn = metric_fns[name]
+        self._metric_fn = human_metric_fns[name]
 
     def evaluate_generation(
         self,
@@ -191,109 +197,3 @@ class DisinformationHumanEvalMetrics(Metric):
     ) -> List[Stat]:
         metrics = self._metric_fn(adapter_spec, request_state, eval_cache_path)
         return metrics
-
-
-if __name__ == "__main__":
-    # Test metrics
-    from helm.common.request import Token
-
-    # Test tokens
-    test_1_tokens: List[Token] = [
-        Token("This", logprob=-0.25, top_logprobs={}),
-        Token("is", logprob=-0.25, top_logprobs={}),
-        Token("a", logprob=-0.25, top_logprobs={}),
-        Token("test", logprob=-0.25, top_logprobs={}),
-    ]
-    test_2_tokens: List[Token] = [
-        Token("This", logprob=-0.25, top_logprobs={}),
-        Token("is", logprob=-0.25, top_logprobs={}),
-        Token("another", logprob=-0.5, top_logprobs={}),
-        Token("test", logprob=-0.25, top_logprobs={}),
-    ]
-    test_empty_tokens: List[Token] = []
-    test_empty_str_tokens: List[Token] = [
-        Token("", logprob=0, top_logprobs={}),
-    ]
-
-    # Test Sequences (two standard, one with an empty token, and one with no tokens)
-    test_1 = Sequence(text="This is a test", logprob=-1, tokens=test_1_tokens)
-    test_2 = Sequence(text="This is another test", logprob=-1.25, tokens=test_2_tokens)
-    test_empty = Sequence(text="", logprob=-float("nan"), tokens=test_empty_tokens)
-    test_empty_str = Sequence(text="", logprob=0, tokens=test_empty_str_tokens)
-
-    # Test Self-BLEU
-    separator = "-" * 20 + "\n"
-
-    def run_test(label, inputs, pass_condition_lmbda, metric):
-        print(label)
-        print("Inputs", inputs)
-        score = metric(inputs)
-        print("Score", score)
-        pass_condition = pass_condition_lmbda(score)
-        assert pass_condition, "FAILED"
-        print("PASSED")
-        print(separator)
-
-    run_test(
-        "Self-BLEU with self",
-        [test_1, test_1],
-        lambda score: np.isclose(score, 100),
-        _self_bleu,
-    )
-
-    run_test(
-        "Self-BLEU with other",
-        [test_1, test_2],
-        lambda score: 0 < score < 100,
-        _self_bleu,
-    )
-
-    run_test(
-        "Self-BLEU with one sequence",
-        [test_1],
-        lambda score: score == 0,
-        _self_bleu,
-    )
-
-    run_test(
-        "Self-BLEU with one full and one empty sequence",
-        [test_1, test_empty_str],
-        lambda score: score == 0,
-        _self_bleu,
-    )
-
-    # Test MC Entropy
-    run_test(
-        "MC Entropy with self",
-        [test_1, test_1],
-        lambda score: np.isclose(score, -test_1.logprob),
-        _monte_carlo_entropy,
-    )
-
-    run_test(
-        "MC Entropy with other",
-        [test_1, test_2],
-        lambda score: np.isclose(score, -(test_1.logprob + test_2.logprob) / 2),
-        _monte_carlo_entropy,
-    )
-
-    run_test(
-        "MC Entropy with one sequence",
-        [test_1],
-        lambda score: score == -test_1.logprob,
-        _monte_carlo_entropy,
-    )
-
-    run_test(
-        "MC Entropy with sequence with one empty token",
-        [test_empty_str],
-        lambda score: score == test_empty_str.logprob,
-        _monte_carlo_entropy,
-    )
-
-    run_test(
-        "MC Entropy with sequence with no tokens",
-        [test_empty],
-        lambda score: np.isnan(score),
-        _monte_carlo_entropy,
-    )

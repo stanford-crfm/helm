@@ -2,6 +2,7 @@ import shutil
 import tempfile
 from typing import List
 
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 from .test_utils import get_tokenizer_service, TEST_PROMPT
@@ -64,7 +65,7 @@ class TestICEWindowService:
 
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
-        service: TokenizerService = get_tokenizer_service(self.path)
+        service: TokenizerService = get_tokenizer_service(self.path, BlackHoleCacheBackendConfig())
         self.window_service = WindowServiceFactory.get_window_service("together/glm", service)
 
     def teardown_method(self, method):
@@ -80,57 +81,56 @@ class TestICEWindowService:
         assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == TEST_PROMPT
 
     def test_tokenize(self):
-        # TODO(#1522): Remove "▁" from the tokens.
         assert self.window_service.tokenize(TEST_PROMPT) == [
-            "▁The",
-            "▁Center",
-            "▁for",
-            "▁Research",
-            "▁on",
-            "▁Foundation",
-            "▁Models",
-            "▁(",
+            " The",
+            " Center",
+            " for",
+            " Research",
+            " on",
+            " Foundation",
+            " Models",
+            " (",
             "CR",
             "FM",
             ")",
-            "▁is",
-            "▁an",
-            "▁in",
+            " is",
+            " an",
+            " in",
             "terdisciplinary",
-            "▁initiative",
-            "▁born",
-            "▁out",
-            "▁of",
-            "▁the",
-            "▁Stanford",
-            "▁Institute",
-            "▁for",
-            "▁Human",
+            " initiative",
+            " born",
+            " out",
+            " of",
+            " the",
+            " Stanford",
+            " Institute",
+            " for",
+            " Human",
             "-",
             "Center",
             "ed",
-            "▁Artificial",
-            "▁Intelligence",
-            "▁(",
+            " Artificial",
+            " Intelligence",
+            " (",
             "HAI",
             ")",
-            "▁that",
-            "▁aims",
-            "▁to",
-            "▁make",
-            "▁fundamental",
-            "▁advances",
-            "▁in",
-            "▁the",
-            "▁study",
+            " that",
+            " aims",
+            " to",
+            " make",
+            " fundamental",
+            " advances",
+            " in",
+            " the",
+            " study",
             ",",
-            "▁development",
+            " development",
             ",",
-            "▁and",
-            "▁deployment",
-            "▁of",
-            "▁foundation",
-            "▁models",
+            " and",
+            " deployment",
+            " of",
+            " foundation",
+            " models",
             ".",
         ]
 

@@ -3,7 +3,7 @@ import json
 import csv
 import sys
 import requests
-from typing import List
+from typing import Dict, List
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
@@ -50,14 +50,13 @@ class ThePileScenario(Scenario):
         self.subset = subset
 
     @htrack(None)
-    def load_and_cache_all_subsets(self):
-        data_path = os.path.join(self.output_path, "data")
-        subsets = {subset: [] for subset in self.pile_subsets}
+    def load_and_cache_all_subsets(self, data_jsonl, output_path):
+        subsets: Dict[str, List] = {subset: [] for subset in self.pile_subsets}
 
         # Load all data into memory
         with htrack_block("Loading"):
-            hlog(f"Loading all data from {data_path}")
-            with open(data_path) as f:
+            hlog(f"Loading all data from {data_jsonl}")
+            with open(data_jsonl) as f:
                 data = [json.loads(line) for line in f]
 
         # Classify the documents by subset
@@ -67,27 +66,27 @@ class ThePileScenario(Scenario):
 
         # Write each subset to disk
         with htrack_block("Caching"):
-            hlog(f"Caching subsets to {self.output_path}")
+            hlog(f"Caching subsets to {output_path}")
             for subset in subsets:
-                subset_path = os.path.join(self.output_path, subset + ".csv")
+                subset_path = os.path.join(output_path, subset + ".csv")
                 with open(subset_path, "w") as f:
                     writer = csv.writer(f)
                     writer.writerows(subsets[subset])
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
-        data_path = os.path.join(self.output_path, "data")
+        data_jsonl = os.path.join(output_path, "data")
         ensure_file_downloaded(
             source_url="https://the-eye.eu/public/AI/pile/test.jsonl.zst",
-            target_path=data_path,
+            target_path=data_jsonl,
             unpack=True,
         )
 
-        subset_path = os.path.join(self.output_path, self.subset + ".csv")
+        subset_path = os.path.join(output_path, self.subset + ".csv")
 
         # If the target subset does not exist, load and cache all subsets to the directory
         if not os.path.exists(subset_path):
-            self.load_and_cache_all_subsets()
+            self.load_and_cache_all_subsets(data_jsonl, output_path)
 
         # Read all the instances
         instances = []

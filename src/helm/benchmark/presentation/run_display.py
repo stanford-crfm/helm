@@ -12,11 +12,13 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.metrics.metric import PerInstanceStats
+from helm.common.multimodal_request_utils import gather_generated_image_locations
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.general import write
 from helm.common.hierarchical_logger import hlog, htrack
+from helm.common.images_utils import encode_base64
 from helm.common.request import Request
 from helm.common.codec import from_json, to_json
 
@@ -42,6 +44,9 @@ class DisplayPrediction:
 
     truncated_predicted_text: Optional[str]
     """The truncated prediction text, if truncation is required by the Adapter method."""
+
+    base64_images: Optional[List[str]]
+    """Images in base64."""
 
     mapped_output: Optional[str]
     """The mapped output, if an output mapping exists and the prediction can be mapped"""
@@ -73,19 +78,17 @@ class DisplayRequest:
     """The actual Request to display in the web frontend.
 
     There can be multiple requests per trial. The displayed request should be the
-    most relevant request e.g. the request for the chosen cohice for multiple choice questions."""
+    most relevant request e.g. the request for the chosen choice for multiple choice questions."""
 
 
-def _read_scenario_state(run_path: str) -> ScenarioState:
-    scenario_state_path: str = os.path.join(run_path, "scenario_state.json")
+def _read_scenario_state(scenario_state_path: str) -> ScenarioState:
     if not os.path.exists(scenario_state_path):
         raise ValueError(f"Could not load ScenarioState from {scenario_state_path}")
     with open(scenario_state_path) as f:
         return from_json(f.read(), ScenarioState)
 
 
-def _read_per_instance_stats(run_path: str) -> List[PerInstanceStats]:
-    per_instance_stats_path: str = os.path.join(run_path, "per_instance_stats.json")
+def _read_per_instance_stats(per_instance_stats_path: str) -> List[PerInstanceStats]:
     if not os.path.exists(per_instance_stats_path):
         raise ValueError(f"Could not load PerInstanceStats from {per_instance_stats_path}")
     with open(per_instance_stats_path) as f:
@@ -104,8 +107,7 @@ def _truncate_predicted_text(
             tokens = request_state.result.completions[0].tokens
             if tokens:
                 first_token = tokens[0]
-                if not first_token.top_logprobs:
-                    prefix = first_token.text
+                prefix = first_token.text
     if prefix:
         predicted_text = predicted_text
         prefix = prefix
@@ -128,7 +130,7 @@ def _get_metric_names_for_group(run_group_name: str, schema: Schema) -> Set[str]
         if metric_group is None:
             continue
         for metric_name_matcher in metric_group.metrics:
-            if metric_name_matcher.perturbation_name:
+            if metric_name_matcher.perturbation_name and metric_name_matcher.perturbation_name != "__all__":
                 continue
             result.add(metric_name_matcher.substitute(run_group.environment).name)
     return result
@@ -168,16 +170,35 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
     display_predictions_file_path = os.path.join(run_path, _DISPLAY_PREDICTIONS_JSON_FILE_NAME)
     display_requests_file_path = os.path.join(run_path, _DISPLAY_REQUESTS_JSON_FILE_NAME)
 
+    scenario_state_path = os.path.join(run_path, "scenario_state.json")
+    per_instance_stats_path = os.path.join(run_path, "per_instance_stats.json")
+
     if (
         skip_completed
         and os.path.exists(instances_file_path)
         and os.path.exists(display_predictions_file_path)
         and os.path.exists(display_requests_file_path)
     ):
-        hlog(f"Skipping writing display JSON for run {run_spec.name} because all output display JSON files exist.")
+        hlog(
+            f"Skipping writing display JSON for run {run_spec.name} "
+            "because all output display JSON files already exist."
+        )
         return
-    scenario_state = _read_scenario_state(run_path)
-    per_instance_stats = _read_per_instance_stats(run_path)
+    elif not os.path.exists(scenario_state_path):
+        hlog(
+            f"Skipping writing display JSON for run {run_spec.name} because "
+            f"the scenario state JSON file does not exist at {scenario_state_path}"
+        )
+        return
+    elif not os.path.exists(per_instance_stats_path):
+        hlog(
+            f"Skipping writing display JSON for run {run_spec.name} because "
+            f"the per instance stats JSON file does not exist at {per_instance_stats_path}"
+        )
+        return
+
+    scenario_state = _read_scenario_state(scenario_state_path)
+    per_instance_stats = _read_per_instance_stats(per_instance_stats_path)
 
     metric_names = _get_metric_names_for_groups(run_spec.groups, schema)
 
@@ -242,6 +263,14 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
         instance_id_to_instance[
             (request_state.instance.id, request_state.instance.perturbation)
         ] = request_state.instance
+
+        # Process images and include if they exist
+        images: List[str] = [
+            encode_base64(image_location)
+            for image_location in gather_generated_image_locations(request_state.result)
+            if os.path.exists(image_location)
+        ]
+
         predictions.append(
             DisplayPrediction(
                 instance_id=request_state.instance.id,
@@ -249,6 +278,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 train_trial_index=request_state.train_trial_index,
                 predicted_text=predicted_text,
                 truncated_predicted_text=_truncate_predicted_text(predicted_text, request_state, run_spec.adapter_spec),
+                base64_images=images,
                 mapped_output=mapped_output,
                 reference_index=request_state.reference_index,
                 stats=trial_stats,

@@ -21,6 +21,8 @@ example_queries = [
             """
             temperature: 0.5  # Medium amount of randomness
             stop_sequences: [.]  # Stop when you hit a period
+            model: openai/gpt-3.5-turbo-0613
+            model_deployment: openai/gpt-3.5-turbo-0613
             """
         ),
         environments="",
@@ -31,7 +33,9 @@ example_queries = [
             """
             temperature: 0.5  # Medium amount of randomness
             stop_sequences: [\\n]  # Stop when you hit a newline
-            num_completions: 10  # Generate many samples
+            num_completions: 5  # Generate many samples
+            model: openai/gpt-3.5-turbo-0613
+            model_deployment: openai/gpt-3.5-turbo-0613
             """
         ),
         environments="",
@@ -42,7 +46,9 @@ example_queries = [
             """
             echo_prompt: true  # Analyze the prompt
             max_tokens: 0  # Don't generate any more
-            top_k_per_token: 10  # Show alternatives for each position
+            top_k_per_token: 5  # Show alternatives for each position
+            model: openai/davinci-002
+            model_deployment: openai/davinci-002
             """
         ),
         environments=dedent(""),
@@ -53,6 +59,8 @@ example_queries = [
             """
             temperature: 0  # Deterministic
             max_tokens: 50
+            model: openai/gpt-3.5-turbo-0613
+            model_deployment: openai/gpt-3.5-turbo-0613
             """
         ),
         environments="",
@@ -63,13 +71,15 @@ example_queries = [
             """
             temperature: 0
             stop_sequences: [.]
-            model: ${model}  # Try out multiple models
+            # Try out multiple models
+            model: ${model}
+            model_deployment: ${model}
             """
         ),
         environments=dedent(
             """
             occupation: [mathematician, lawyer, doctor]
-            model: [openai/davinci, ai21/j1-jumbo]
+            model: [openai/gpt-3.5-turbo-0613, openai/gpt-3.5-turbo-1106]
             """
         ),
     ),
@@ -88,12 +98,14 @@ example_queries = [
             temperature: 0.5
             stop_sequences: [\\n]
             num_completions: 5
-            model: ${model}  # Try out GPT-3 and Jurassic
+            # Try out multiple models
+            model: ${model}
+            model_deployment: ${model}
             """
         ),
         environments=dedent(
             """
-            model: [openai/davinci, ai21/j1-jumbo]
+            model: [openai/gpt-3.5-turbo-0613, openai/gpt-3.5-turbo-1106]
             """
         ),
     ),
@@ -122,20 +134,23 @@ example_queries = [
             temperature: 0
             max_tokens: 1
             top_k_per_token: 4
-            model: ${model}  # Try out GPT-3 and Jurassic
+            # Try out multiple models
+            model: ${model}
+            model_deployment: ${model}
             """
         ),
         environments=dedent(
             """
-            model: [openai/davinci, ai21/j1-jumbo]
+            model: [openai/gpt-3.5-turbo-0613, openai/gpt-3.5-turbo-1106]
             """
         ),
     ),
     Query(
-        prompt="Takes two vectors a and b and returns their Euclidean distance",
+        prompt="Write a Python function that takes two vectors a and b and returns their Euclidean distance.",
         settings=dedent(
             """
-            model: openai/code-davinci-001  # Codex for code generation
+            model: openai/gpt-3.5-turbo-0613
+            model_deployment: openai/gpt-3.5-turbo-0613
             """
         ),
         environments="",
@@ -144,19 +159,16 @@ example_queries = [
         prompt="The quick brown fox",
         settings=dedent(
             """
-            model: ${model}
             temperature: 0.3
             stop_sequences: [\\n]
+            # Try out multiple models
+            model: ${model}
+            model_deployment: ${model}
             """
         ),
         environments=dedent(
             """
-            model: [
-                "openai/davinci", "openai/text-davinci-002",
-                "openai/text-davinci-003", "ai21/j1-grande-v2-beta",
-                "together/gpt-j-6b", "together/gpt-jt-6b-v1",
-                "together/bloom", "together/opt-175b"
-            ]
+            model: [openai/gpt-3.5-turbo-0613, openai/gpt-3.5-turbo-1106]
             """
         ),
     ),

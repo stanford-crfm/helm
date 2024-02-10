@@ -1,19 +1,27 @@
 import argparse
 from dataclasses import replace
+import os
 from typing import List, Optional
 
+
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
+from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
+from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.authentication import Authentication
-from helm.common.object_spec import parse_object_spec
-from helm.proxy.clients.huggingface_model_registry import register_huggingface_model_config
-from helm.proxy.clients.remote_model_registry import check_and_register_remote_model
+from helm.common.object_spec import parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
+from helm.proxy.services.service import CACHE_DIR
 
+from helm.benchmark.config_registry import (
+    register_configs_from_directory,
+    register_builtin_configs_from_helm_package,
+)
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark import heim_run_specs  # noqa
+from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
-from .runner import Runner, RunSpec, LATEST_SYMLINK
-from .slurm_runner import SlurmRunner
+from .runner import Runner, RunSpec, LATEST_SYMLINK, set_benchmark_output_path
 from .run_specs import construct_run_specs
 
 
@@ -43,12 +51,14 @@ def run_entries_to_run_specs(
 
             # Modify AdapterSpec
             adapter_spec: AdapterSpec = run_spec.adapter_spec
-            if max_eval_instances is not None:
+            if max_eval_instances is not None and adapter_spec.max_eval_instances is None:
                 adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
-            if num_train_trials is not None or adapter_spec.max_train_instances == 0:
-                adapter_spec = replace(
-                    adapter_spec, num_train_trials=1 if adapter_spec.max_train_instances == 0 else num_train_trials
-                )
+
+            if adapter_spec.max_train_instances == 0:
+                adapter_spec = replace(adapter_spec, num_train_trials=1)
+            elif num_train_trials is not None:
+                adapter_spec = replace(adapter_spec, num_train_trials=num_train_trials)
+
             run_spec = replace(run_spec, adapter_spec=adapter_spec)
 
             # Append groups
@@ -75,22 +85,35 @@ def run_benchmarking(
     cache_instances_only: bool,
     skip_completed_runs: bool,
     exit_on_error: bool,
-    use_slurm_runner: bool,
-    mongo_uri: str = "",
+    runner_class_name: Optional[str],
+    mongo_uri: Optional[str] = None,
+    disable_cache: Optional[bool] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
+    sqlite_cache_backend_config: Optional[SqliteCacheBackendConfig] = None
+    mongo_cache_backend_config: Optional[MongoCacheBackendConfig] = None
+
+    if not disable_cache:
+        if mongo_uri:
+            mongo_cache_backend_config = MongoCacheBackendConfig(mongo_uri)
+        else:
+            sqlite_cache_path = os.path.join(local_path, CACHE_DIR)
+            ensure_directory_exists(sqlite_cache_path)
+            sqlite_cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
+
     execution_spec = ExecutionSpec(
         auth=auth,
         url=url,
         local_path=local_path,
         parallelism=num_threads,
         dry_run=dry_run,
-        mongo_uri=mongo_uri,
+        sqlite_cache_backend_config=sqlite_cache_backend_config,
+        mongo_cache_backend_config=mongo_cache_backend_config,
     )
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec)
-    runner_cls = SlurmRunner if use_slurm_runner else Runner
+    runner_cls = get_class_by_name(runner_class_name) if runner_class_name else Runner
     runner: Runner = runner_cls(
         execution_spec,
         output_path,
@@ -170,6 +193,11 @@ def add_run_args(parser: argparse.ArgumentParser):
         help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite",
         default="",
     )
+    parser.add_argument(
+        "--disable-cache",
+        action="store_true",
+        help="If true, the request-response cache for model clients and tokenizers will be disabled.",
+    )
 
 
 def validate_args(args):
@@ -227,27 +255,34 @@ def main():
         "Format: namespace/model_name[@revision]",
     )
     parser.add_argument(
-        "--enable-remote-models",
+        "--enable-local-huggingface-models",
         nargs="+",
         default=[],
-        help="Experimental: Enable remote service models that are not available on the client. "
-        "The client will use RemoteWindowService for windowing.",
+        help="Experimental: Enable using AutoModelForCausalLM models from a local path.",
     )
     parser.add_argument(
-        "--use-slurm-runner",
-        action="store_true",
-        help="Experimental: If set, each RunSpec will be run in a separate worker Slurm job. "
-        "Currently only works on the Stanford NLP cluster.",
+        "--runner-class-name",
+        type=str,
+        default=None,
+        help="Full class name of the Runner class to use. If unset, uses the default Runner.",
     )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
 
-    for huggingface_model_name in args.enable_huggingface_models:
-        register_huggingface_model_config(huggingface_model_name)
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.local_path)
 
-    if args.server_url and args.enable_remote_models:
-        check_and_register_remote_model(args.server_url, args.enable_remote_models)
+    if args.enable_huggingface_models:
+        from helm.benchmark.huggingface_registration import register_huggingface_hub_model_from_flag_value
+
+        for huggingface_model_name in args.enable_huggingface_models:
+            register_huggingface_hub_model_from_flag_value(huggingface_model_name)
+    if args.enable_local_huggingface_models:
+        from helm.benchmark.huggingface_registration import register_huggingface_local_model_from_flag_value
+
+        for huggingface_model_path in args.enable_local_huggingface_models:
+            register_huggingface_local_model_from_flag_value(huggingface_model_path)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
@@ -256,6 +291,11 @@ def main():
         run_entries.extend(
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
         )
+
+    # Must set benchmark output path before getting RunSpecs,
+    # because run spec functions can use the benchmark output directory for caching.
+    ensure_directory_exists(args.output_path)
+    set_benchmark_output_path(args.output_path)
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
@@ -289,8 +329,9 @@ def main():
         cache_instances_only=args.cache_instances_only,
         skip_completed_runs=args.skip_completed_runs,
         exit_on_error=args.exit_on_error,
-        use_slurm_runner=args.use_slurm_runner,
+        runner_class_name=args.runner_class_name,
         mongo_uri=args.mongo_uri,
+        disable_cache=args.disable_cache,
     )
 
     if args.local:

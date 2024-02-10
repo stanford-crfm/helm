@@ -1,17 +1,25 @@
+from filelock import FileLock
 import json
 import os
 import shlex
 import subprocess
+import urllib
 import uuid
 import zstandard
 from typing import Any, Callable, Dict, List, Optional, TypeVar
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from datetime import datetime, date
+from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
 import pyhocon
 from dataclasses import asdict, is_dataclass
 
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+
+_CREDENTIALS_FILE_NAME = "credentials.conf"
+_CREDENTIALS_ENV_NAME = "HELM_CREDENTIALS"
 
 
 def singleton(items: List):
@@ -39,13 +47,23 @@ def parse_hocon(text: str):
     return pyhocon.ConfigFactory.parse_string(text)
 
 
+def get_credentials(base_path: str = "prod_env") -> Dict[str, str]:
+    print(f"Looking in path: {base_path}")
+    raw_credentials = os.getenv(_CREDENTIALS_ENV_NAME, "")
+    credentials_path = os.path.join(base_path, _CREDENTIALS_FILE_NAME)
+    if not raw_credentials and os.path.exists(credentials_path):
+        with open(credentials_path) as f:
+            raw_credentials = f.read()
+    return parse_hocon(raw_credentials)
+
+
 def shell(args: List[str]):
     """Executes the shell command in `args`."""
     cmd = shlex.join(args)
     hlog(f"Executing: {cmd}")
     exit_code = subprocess.call(args)
     if exit_code != 0:
-        hlog(f"Failed with exit code {exit_code}: {cmd}")
+        raise Exception(f"Failed with exit code {exit_code}: {cmd}")
 
 
 @htrack(None)
@@ -57,61 +75,66 @@ def ensure_file_downloaded(
     unpack_type: Optional[str] = None,
 ):
     """Download `source_url` to `target_path` if it doesn't exist."""
-    if os.path.exists(target_path):
-        # Assume it's all good
-        hlog(f"Not downloading {source_url} because {target_path} already exists")
-        return
+    with FileLock(f"{target_path}.lock"):
+        if os.path.exists(target_path):
+            # Assume it's all good
+            hlog(f"Not downloading {source_url} because {target_path} already exists")
+            return
 
-    # Download
-    # gdown is used to download large files/zip folders from Google Drive.
-    # It bypasses security warnings which wget cannot handle.
-    if source_url.startswith("https://drive.google.com"):
-        downloader_executable = "gdown"
-    tmp_path: str = f"{target_path}.tmp"
-    shell([downloader_executable, source_url, "-O", tmp_path])
+        # Download
+        # gdown is used to download large files/zip folders from Google Drive.
+        # It bypasses security warnings which wget cannot handle.
+        if source_url.startswith("https://drive.google.com"):
+            try:
+                import gdown  # noqa
+            except ModuleNotFoundError as e:
+                handle_module_not_found_error(e, ["scenarios"])
+            downloader_executable = "gdown"
+        tmp_path: str = f"{target_path}.tmp"
+        shell([downloader_executable, source_url, "-O", tmp_path])
 
-    # Unpack (if needed) and put it in the right location
-    if unpack:
-        if unpack_type is None:
-            if source_url.endswith(".tar") or source_url.endswith(".tar.gz"):
-                unpack_type = "untar"
-            elif source_url.endswith(".zip"):
-                unpack_type = "unzip"
-            elif source_url.endswith(".zst"):
-                unpack_type = "unzstd"
+        # Unpack (if needed) and put it in the right location
+        if unpack:
+            if unpack_type is None:
+                if source_url.endswith(".tar") or source_url.endswith(".tar.gz"):
+                    unpack_type = "untar"
+                elif source_url.endswith(".zip"):
+                    unpack_type = "unzip"
+                elif source_url.endswith(".zst"):
+                    unpack_type = "unzstd"
+                else:
+                    raise Exception("Failed to infer the file format from source_url. Please specify unpack_type.")
+
+            tmp2_path = target_path + ".tmp2"
+            ensure_directory_exists(tmp2_path)
+            if unpack_type == "untar":
+                shell(["tar", "xf", tmp_path, "-C", tmp2_path])
+            elif unpack_type == "unzip":
+                shell(["unzip", tmp_path, "-d", tmp2_path])
+            elif unpack_type == "unzstd":
+                dctx = zstandard.ZstdDecompressor()
+                with open(tmp_path, "rb") as ifh, open(os.path.join(tmp2_path, "data"), "wb") as ofh:
+                    dctx.copy_stream(ifh, ofh)
             else:
-                raise Exception("Failed to infer the file format from source_url. Please specify unpack_type.")
-
-        tmp2_path = target_path + ".tmp2"
-        ensure_directory_exists(tmp2_path)
-        if unpack_type == "untar":
-            shell(["tar", "xf", tmp_path, "-C", tmp2_path])
-        elif unpack_type == "unzip":
-            shell(["unzip", tmp_path, "-d", tmp2_path])
-        elif unpack_type == "unzstd":
-            dctx = zstandard.ZstdDecompressor()
-            with open(tmp_path, "rb") as ifh, open(os.path.join(tmp2_path, "data"), "wb") as ofh:
-                dctx.copy_stream(ifh, ofh)
+                raise Exception("Invalid unpack_type")
+            files = os.listdir(tmp2_path)
+            if len(files) == 1:
+                # If contains one file, just get that one file
+                shell(["mv", os.path.join(tmp2_path, files[0]), target_path])
+                os.rmdir(tmp2_path)
+            else:
+                shell(["mv", tmp2_path, target_path])
+            os.unlink(tmp_path)
         else:
-            raise Exception("Invalid unpack_type")
-        files = os.listdir(tmp2_path)
-        if len(files) == 1:
-            # If contains one file, just get that one file
-            shell(["mv", os.path.join(tmp2_path, files[0]), target_path])
-            os.rmdir(tmp2_path)
-        else:
-            shell(["mv", tmp2_path, target_path])
-        os.unlink(tmp_path)
-    else:
-        # Don't decompress if desired `target_path` ends with `.gz`.
-        if source_url.endswith(".gz") and not target_path.endswith(".gz"):
-            gzip_path = f"{target_path}.gz"
-            shell(["mv", tmp_path, gzip_path])
-            # gzip writes its output to a file named the same as the input file, omitting the .gz extension
-            shell(["gzip", "-d", gzip_path])
-        else:
-            shell(["mv", tmp_path, target_path])
-    hlog(f"Finished downloading {source_url} to {target_path}")
+            # Don't decompress if desired `target_path` ends with `.gz`.
+            if source_url.endswith(".gz") and not target_path.endswith(".gz"):
+                gzip_path = f"{target_path}.gz"
+                shell(["mv", tmp_path, gzip_path])
+                # gzip writes its output to a file named the same as the input file, omitting the .gz extension
+                shell(["gzip", "-d", gzip_path])
+            else:
+                shell(["mv", tmp_path, target_path])
+        hlog(f"Finished downloading {source_url} to {target_path}")
 
 
 def format_text(text: str) -> str:
@@ -136,6 +159,13 @@ def asdict_without_nones(obj: Any) -> Dict[str, Any]:
     if not is_dataclass(obj):
         raise ValueError(f"Expected dataclass, got '{obj}'")
     return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
+
+
+def serialize_dates(obj):
+    """Serialize dates (pass deault=serialize_dates into json.dumps)."""
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError(f"Type {type(obj)} is not serializable")
 
 
 def binarize_dict(d: Dict[str, int]) -> Dict[str, int]:
@@ -192,20 +222,14 @@ InT = TypeVar("InT")
 OutT = TypeVar("OutT")
 
 
-def parallel_map(
-    process: Callable[[InT], OutT], items: List[InT], parallelism: int, multiprocessing: bool = False
-) -> List[OutT]:
+def parallel_map(process: Callable[[InT], OutT], items: List[InT], parallelism: int) -> List[OutT]:
     """
     A wrapper for applying `process` to all `items`.
     """
-    units = "processes" if multiprocessing else "threads"
-    with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
+    with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} threads"):
         results: List
         if parallelism == 1:
             results = list(tqdm(map(process, items), total=len(items), disable=None))
-        elif multiprocessing:
-            with ProcessPoolExecutor(max_workers=parallelism) as executor:
-                results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
         else:
             with ThreadPoolExecutor(max_workers=parallelism) as executor:
                 results = list(tqdm(executor.map(process, items), total=len(items), disable=None))
@@ -293,3 +317,25 @@ def safe_symlink(src: str, dest: str) -> None:
 
     if not os.path.exists(dest):
         os.symlink(src, dest)
+
+
+def is_url(location: str) -> bool:
+    """Return True if `location` is a url. False otherwise."""
+    return urllib.parse.urlparse(location).scheme in ["http", "https"]
+
+
+def assert_is_str(val: Any) -> str:
+    assert isinstance(val, str)
+    return val
+
+
+def assert_is_str_list(val: Any) -> List[str]:
+    assert isinstance(val, list)
+    for v in val:
+        assert isinstance(v, str)
+    return val
+
+
+def assert_present(val: Optional[InT]) -> InT:
+    assert val is not None
+    return val

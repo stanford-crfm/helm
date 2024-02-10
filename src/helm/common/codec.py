@@ -5,6 +5,12 @@ import json
 import typing
 from typing import Any, Callable, Dict, List, Union, Type, TypeVar
 
+from helm.benchmark.augmentations.cleva_perturbation import (
+    ChineseTyposPerturbation,
+    ChineseSynonymPerturbation,
+    ChineseGenderPerturbation,
+    ChinesePersonNamePerturbation,
+)
 from helm.benchmark.augmentations.dialect_perturbation import DialectPerturbation
 from helm.benchmark.augmentations.extra_space_perturbation import ExtraSpacePerturbation
 from helm.benchmark.augmentations.filler_words_perturbation import FillerWordsPerturbation
@@ -36,6 +42,24 @@ PERTURBATION_NAME_TO_DESCRIPTION = {
     SpacePerturbation.name: SpacePerturbation.Description,
     SynonymPerturbation.name: SynonymPerturbation.Description,
     TyposPerturbation.name: TyposPerturbation.Description,
+    # The following Perturbations are not included because
+    # they use the base PerturbationDescription:
+    # - ContractionPerturbation
+    # - ExpansionPerturbation
+    # - ContrastSetsPerturbation
+    # - LowerCasePerturbation
+    # - MildMixPerturbation
+    ############################################################
+    # CLEVA Perturbations
+    ChineseTyposPerturbation.name: ChineseTyposPerturbation.Description,
+    ChineseSynonymPerturbation.name: ChineseSynonymPerturbation.Description,
+    ChineseGenderPerturbation.name: ChineseGenderPerturbation.Description,
+    ChinesePersonNamePerturbation.name: ChinesePersonNamePerturbation.Description,
+    # The following Perturbations are not included because
+    # they use the base PerturbationDescription:
+    # - CLEVAMildMixPerturbation
+    # - SimplifiedToTraditionalPerturbation
+    # - MandarinToCantonesePerturbation
 }
 
 
@@ -121,3 +145,19 @@ def from_json(data: Union[bytes, str], cls: Type[T]) -> T:
 
 def to_json(data: Any) -> str:
     return json.dumps(_converter.unstructure(data), indent=2)
+
+
+def to_json_single_line(data: Any) -> str:
+    # Puts everything into a single line for readability.
+    return json.dumps(_converter.unstructure(data), separators=(",", ":"))
+
+
+def to_jsonl(data: List[Any]) -> str:
+    return "\n".join([to_json_single_line(instance) for instance in data])
+
+
+def from_jsonl(data: Union[bytes, str], cls: Type[T]) -> List[T]:
+    if not isinstance(data, str):
+        data = data.decode("utf-8")
+    lines: List[str] = data.splitlines()
+    return [from_json(line, cls) for line in lines]

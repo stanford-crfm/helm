@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 import argparse
 from collections import defaultdict
 from dataclasses import dataclass
@@ -6,16 +7,23 @@ import json
 import os
 from typing import List, Dict, Optional, Any, Callable, Union, Mapping, Tuple, Set
 
-import colorcet
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import pearsonr
-import seaborn as sns
 
+from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
 from helm.common.hierarchical_logger import hlog
-from helm.benchmark.presentation.schema import read_schema
+from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.benchmark.model_metadata_registry import MODEL_NAME_TO_MODEL_METADATA
 from helm.benchmark.presentation.summarize import AGGREGATE_WIN_RATE_COLUMN
+
+try:
+    import colorcet
+    import matplotlib
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["plots"])
+
 
 sns.set_style("whitegrid")
 
@@ -125,9 +133,6 @@ class Plotter:
         self.save_path = save_path
         self.plot_format = plot_format
         self._tables_cache: Dict[str, Dict[str, Table]] = {}
-
-        schema = read_schema()
-        self.model_metadata = {model_field.display_name: model_field for model_field in schema.models}
 
     def get_group_tables(self, group_name: str) -> Dict[str, Table]:
         """Reads and parses group tables. Uses _tables_cache to avoid reprocessing the same table multiple times."""
@@ -331,14 +336,14 @@ class Plotter:
 
         def get_model_release_date(model_name: str) -> Optional[date]:
             """Maps a model name to the month of model release."""
-            release_date = self.model_metadata[model_name].release_date
+            release_date = MODEL_NAME_TO_MODEL_METADATA[model_name].release_date
             if release_date is None:
                 return None
             return release_date.replace(day=1)
 
         def get_model_size(model_name: str) -> Optional[int]:
             """Maps a model name to the number of parameters, rounding to the nearest leading digit."""
-            size = self.model_metadata[model_name].num_parameters
+            size = MODEL_NAME_TO_MODEL_METADATA[model_name].num_parameters
             if size is None:
                 return None
             grain = 10 ** (len(str(size)) - 1)
@@ -394,7 +399,9 @@ class Plotter:
 
         for i, access_level in enumerate(access_levels):
             model_indices: List[int] = [
-                idx for idx, model in enumerate(table.adapters) if self.model_metadata[model].access == access_level
+                idx
+                for idx, model in enumerate(table.adapters)
+                if MODEL_NAME_TO_MODEL_METADATA[model].access == access_level
             ]
             best_model_index = model_indices[table.mean_win_rates[model_indices].argmax()]
 
@@ -604,6 +611,7 @@ def main():
     parser.add_argument("--suite", type=str, help="Name of the suite that we are plotting", required=True)
     parser.add_argument("--plot-format", help="Format for saving plots", default="png", choices=["png", "pdf"])
     args = parser.parse_args()
+    register_builtin_configs_from_helm_package()
     base_path = os.path.join(args.output_path, "runs", args.suite)
     if not os.path.exists(os.path.join(base_path, "groups")):
         hlog(f"ERROR: Could not find `groups` directory under {base_path}. Did you run `summarize.py` first?")

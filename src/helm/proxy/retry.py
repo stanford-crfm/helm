@@ -41,11 +41,13 @@ def get_retry_decorator(
         Wait function to pass into `Retrying` that logs and returns the amount of time to sleep
         depending on the number of attempts and delay (in milliseconds).
         """
+        del delay  # unused
+        next_delay = 2**attempts * wait_exponential_multiplier_seconds * 1000
         hlog(
-            f"{operation} failed. Retrying (attempt #{attempts + 1}) in {delay // 1000} seconds... "
+            f"{operation} failed. Retrying (attempt #{attempts + 1}) in {next_delay // 1000} seconds... "
             "(See above for error details)"
         )
-        return _retrying.exponential_sleep(attempts, delay)
+        return next_delay
 
     def print_exception_and_traceback(exception: Exception) -> bool:
         """
@@ -84,4 +86,8 @@ def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResu
 
 retry_request: Callable = get_retry_decorator(
     "Request", max_attempts=5, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
+)
+
+retry_tokenizer_request: Callable = get_retry_decorator(
+    "Request", max_attempts=5, wait_exponential_multiplier_seconds=1, retry_on_result=retry_if_request_failed
 )

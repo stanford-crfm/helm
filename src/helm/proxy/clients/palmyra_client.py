@@ -1,60 +1,38 @@
-from dataclasses import asdict
+# mypy: check_untyped_defs = False
 import json
-import os
 import requests
-from typing import Any, Dict, List, Optional
-from tempfile import TemporaryDirectory
-from threading import Lock
+from typing import Any, Dict, List
 
-from sentencepiece import SentencePieceProcessor
-
-from helm.common.cache import Cache, CacheConfig
+from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request, RequestResult, Sequence, Token, ErrorFlags
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token, ErrorFlags
 from helm.common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
     TokenizationRequest,
     TokenizationRequestResult,
-    TokenizationToken,
 )
-from helm.common.general import ensure_file_downloaded
-from .client import Client, wrap_request_time, truncate_sequence
+from helm.proxy.tokenizers.tokenizer import Tokenizer
+from .client import CachingClient, truncate_sequence
 
 
-_TOKENIZER_MODEL_URL = "https://huggingface.co/spaces/Writer/token-counter/resolve/92389981e4430f83383110728d954bda0f89fb30/tokenizer.model"  # noqa
+_CONTENT_MODERATION_KEY = "fail.content.moderation.failed"
 
 
-# SentencePieceProcessor is lazily initialized
-_sentence_piece_processor: Optional[SentencePieceProcessor] = None
-_sentence_piece_processor_directory: Optional[TemporaryDirectory] = None
-_sentence_piece_processor_lock = Lock()
+def _is_content_moderation_failure(response: Dict) -> bool:
+    """Return whether a a response failed because of the content moderation filter."""
+    errors = response.get("errors")
+    if not errors:
+        return False
+    if len(errors) != 1:
+        return False
+    return errors[0].get("key") == _CONTENT_MODERATION_KEY
 
 
-def _initialize_sentence_piece_processor() -> None:
-    global _sentence_piece_processor
-    global _sentence_piece_processor_directory
-    global _sentence_piece_processor_lock
-    with _sentence_piece_processor_lock:
-        if _sentence_piece_processor:
-            return
-        _sentence_piece_processor_directory = TemporaryDirectory()
-        sentence_piece_model_path = os.path.join(_sentence_piece_processor_directory.name, "palmrya_tokenizer.model")
-        ensure_file_downloaded(_TOKENIZER_MODEL_URL, sentence_piece_model_path)
-        _sentence_piece_processor = SentencePieceProcessor(sentence_piece_model_path)
-
-
-class PalmyraClient(Client):
-    def __init__(self, api_key: str, cache_config: CacheConfig):
+class PalmyraClient(CachingClient):
+    def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: str):
+        super().__init__(cache_config=cache_config)
         self.api_key: str = api_key
-        self.cache = Cache(cache_config)
-
-    def __del__(self):
-        with self._sentence_piece_processor_lock:
-            self._sentence_piece_processor = None
-            if self._sentence_piece_processor_directory:
-                self._sentence_piece_processor_directory.cleanup()
-        super.__del__()
+        self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
 
     def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -68,8 +46,8 @@ class PalmyraClient(Client):
             data=json.dumps(raw_request),
         )
         result = json.loads(response.text)
-        if "error" in result:
-            raise ValueError(f"Request failed with error: {result['error']}")
+        if "choices" not in result and not _is_content_moderation_failure(result):
+            raise ValueError(f"Invalid response: {result}")
         return result
 
     def make_request(self, request: Request) -> RequestResult:
@@ -89,25 +67,12 @@ class PalmyraClient(Client):
             # "random_seed": request.random,
         }
 
-        if request.random is not None or request.num_completions > 1:
-            hlog(
-                "WARNING: Writer does not support random_seed or num_completions. "
-                "This request will be sent to Writer multiple times."
-            )
-
         completions: List[Sequence] = []
         model_name: str = request.model_engine
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
             try:
-                # This is disabled for now. See above TODO(#1515).
-                # HACKY: Use the random seed to get different results for each completion.
-                # raw_request["random_seed"] = (
-                #     f"completion_index={completion_index}"
-                #     if request.random is None
-                #     else request.random + f":completion_index={completion_index}"
-                # )
 
                 def do_it():
                     # Add an argument timeout to raw_request to avoid waiting getting timeout of 60s
@@ -122,7 +87,7 @@ class PalmyraClient(Client):
                 # requests, cache key should contain the completion_index.
                 # Echoing the original prompt is not officially supported by Writer. We instead prepend the
                 # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
-                cache_key = Client.make_cache_key(
+                cache_key = CachingClient.make_cache_key(
                     {
                         "engine": request.model_engine,
                         "completion_index": completion_index,
@@ -136,35 +101,34 @@ class PalmyraClient(Client):
                 error: str = f"PalmyraClient error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-            if "choices" not in response:
-                if "errors" in response and response["errors"][0]["key"] == "fail.content.moderation.failed":
-                    return RequestResult(
-                        success=False,
-                        cached=False,
-                        error=response["errors"][0]["description"],
-                        completions=[],
-                        embedding=[],
-                        error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
-                        request_time=response["request_time"],
-                        request_datetime=response["request_datetime"],
-                    )
-                else:
-                    raise ValueError(f"Invalid response: {response}")
+            if _is_content_moderation_failure(response):
+                hlog(
+                    f"WARNING: Returning empty request for {request.model_deployment} "
+                    "due to content moderation filter"
+                )
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error=response["errors"][0]["description"],
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    request_time=response["request_time"],
+                    request_datetime=response["request_datetime"],
+                )
 
             response_text: str = response["choices"][0]["text"]
 
             # The Writer API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
             # The Writer API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenize(
-                # Writer uses their own huggingface tokenizer
-                TokenizationRequest(text, tokenizer="writer/palmyra-tokenizer")
+            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
+                # Writer uses the GPT-2 tokenizer
+                TokenizationRequest(text, tokenizer=self.tokenizer_name)
             )
 
             # Log probs are not currently not supported by the Writer, so set to 0 for now.
-            tokens: List[Token] = [
-                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-            ]
+            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Sequence(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)
@@ -177,54 +141,4 @@ class PalmyraClient(Client):
             request_datetime=response["request_datetime"],
             completions=completions,
             embedding=[],
-        )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                _initialize_sentence_piece_processor()
-                if request.encode:
-                    tokens = _sentence_piece_processor.EncodeAsIds(request.text)
-                else:
-                    tokens = [
-                        # TODO: Replace this with a helper function after #1549 is merged.
-                        piece.replace("▁", " ")
-                        for piece in _sentence_piece_processor.EncodeAsPieces(request.text)
-                    ]
-                if request.truncation:
-                    tokens = tokens[: request.max_length]
-                return {"tokens": tokens}
-
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"PalmyraClient tokenize error: {e}"
-            return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
-
-        return TokenizationRequestResult(
-            success=True,
-            cached=cached,
-            text=request.text,
-            tokens=[TokenizationToken(value) for value in result["tokens"]],
-            request_time=result["request_time"],
-        )
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        cache_key = asdict(request)
-
-        try:
-
-            def do_it():
-                _initialize_sentence_piece_processor()
-                return {"text": _sentence_piece_processor.DecodeIds(request.tokens)}
-
-            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except Exception as e:
-            error: str = f"PalmyraClient decode error: {e}"
-            return DecodeRequestResult(success=False, cached=False, error=error, text="")
-
-        return DecodeRequestResult(
-            success=True, cached=cached, text=result["text"], request_time=result["request_time"]
         )

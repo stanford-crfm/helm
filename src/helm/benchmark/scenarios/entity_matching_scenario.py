@@ -92,7 +92,7 @@ class EntityMatchingScenario(Scenario):
             num_neg_classes: int = sum(merged["label"] == 0)
             assert num_pos_classes < num_neg_classes
             sample_fn = lambda x: x.sample(num_pos_classes)
-            merged = merged.groupby("label", group_keys=False).apply(sample_fn)  # type: ignore
+            merged = merged.groupby("label", group_keys=False).apply(sample_fn)
         return merged
 
     def serialize_row(self, row: pd.core.series.Series, column_map: Dict[str, str]) -> str:
@@ -102,9 +102,9 @@ class EntityMatchingScenario(Scenario):
             res.append(f"{c_map}: {row[c_og]}".strip())
         return ". ".join(res)
 
-    def get_instances(self) -> List[Instance]:
-        set_fixed_random_state_for_dataset(self.output_path, self.dataset)
-        data_path = Path(self.output_path) / "data" / self.dataset
+    def get_instances(self, output_path: str) -> List[Instance]:
+        set_fixed_random_state_for_dataset(output_path, self.dataset)
+        data_path = Path(output_path) / "data" / self.dataset
         data_path.parent.mkdir(parents=True, exist_ok=True)
         ensure_file_downloaded(
             source_url=f"http://pages.cs.wisc.edu/~anhai/data1/deepmatcher_data/"

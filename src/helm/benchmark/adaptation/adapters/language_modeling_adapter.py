@@ -1,7 +1,6 @@
 from typing import List, Tuple, Optional
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, EVAL_SPLITS
 from helm.benchmark.window_services.window_service import EncodeResult
 from helm.common.general import flatten_list, parallel_map
@@ -26,23 +25,29 @@ class LanguageModelingAdapter(Adapter):
     """
 
     @htrack(None)
-    def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
+    def adapt(self, instances: List[Instance], parallelism: int) -> List[RequestState]:
         """
-        Takes a a list of `Instance`s and builds a list of corresponding `RequestState`s.
+        Takes a list of `Instance`s and builds a list of corresponding `RequestState`s.
         Only requires eval instances.
         """
         # Pick out evaluation instances. This includes both valid and test splits.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         hlog(f"{len(eval_instances)} eval instances")
-
+        # Since at least 2023-01-01, this adapter was using `instances` instead of `eval_instances`
+        # https://github.com/stanford-crfm/helm/commit/ac9892f7449418d32ab55843702db312b58003ed#diff-69871182494f0d9f4bc6aeea76e99c13edf0213e2c123432a63cd2024d66ffcaR39
+        # This assert is intended to identify run specs (if any) that had been producing incorrect results.
+        assert len(eval_instances) == len(instances), (
+            "Non-evaluation instances were passed to LanguageModelingAdapter, but LanguageModelingAdapter "
+            + "expects evaluation instances only. Please open a GitHub issue with your RunSpec."
+        )
         all_request_states: List[RequestState] = flatten_list(
-            parallel_map(self.generate_requests, instances, parallelism)
+            parallel_map(self._generate_requests, eval_instances, parallelism)
         )
         hlog(f"{len(all_request_states)} requests")
 
-        return ScenarioState(self.adapter_spec, all_request_states)
+        return all_request_states
 
-    def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
+    def _generate_requests(self, eval_instance: Instance) -> List[RequestState]:
         """
         Adapted from https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py.
         """
@@ -73,7 +78,7 @@ class LanguageModelingAdapter(Adapter):
         # Why is this limit needed ?
         # Because some vendors like Anthropic have this limit in their backend set to something lower than
         # max_sequence_length + max_generated_tokens_length.
-        # Note that max_generated_tokens_length is not explicitely set and checked in our codebase.
+        # Note that max_generated_tokens_length is not explicitly set and checked in our codebase.
         # This will be handled by the vendor backend.
 
         max_sequence_length: int = self.window_service.max_sequence_length
@@ -114,6 +119,7 @@ class LanguageModelingAdapter(Adapter):
         )
         request = Request(
             model=self.adapter_spec.model,
+            model_deployment=self.adapter_spec.model_deployment,
             prompt=prompt_text,
             num_completions=1,
             temperature=0,
@@ -162,6 +168,7 @@ class LanguageModelingAdapter(Adapter):
 
             request = Request(
                 model=self.adapter_spec.model,
+                model_deployment=self.adapter_spec.model_deployment,
                 prompt=prompt_text,
                 num_completions=1,
                 temperature=0,
@@ -260,9 +267,9 @@ class LanguageModelingAdapter(Adapter):
         # of whitespaces to the same whitespace character.
         #
         # e.g. original text: ",  (", which is tokenized to:
-        # [('▁', 0, 0), (',', 0, 1), ('▁▁', 1, 3), ('(', 3, 4)]
+        # [(' ', 0, 0), (',', 0, 1), ('  ', 1, 3), ('(', 3, 4)]
         # normalized text: ",  (", which is tokenized to:
-        # [('▁', 0, 0), (',', 0, 1), ('▁', 1, 2), ('▁', 2, 3), ('(', 3, 4)]
+        # [(' ', 0, 0), (',', 0, 1), (' ', 1, 2), (' ', 2, 3), ('(', 3, 4)]
         while prompt_length > max_req_len:
             # Trims the extra (prompt_length - max_req_len) tokens
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]

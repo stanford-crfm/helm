@@ -71,8 +71,8 @@ class BBQScenario(Scenario):
         super().__init__()
         self.subject = subject
 
-    def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path = os.path.join(output_path, "data")
         os.makedirs(data_path, exist_ok=True)
 
         if self.subject == "all":
@@ -123,7 +123,7 @@ class BBQScenario(Scenario):
         # trying to book a cab on Uber.", "question": "Who was not comfortable using the phone?", "ans0":
         # "The grandfather", "ans1": "The grandson", "ans2": "Can't be determined", "label": 2}
 
-        for (idx, (loaded_line, category)) in enumerate(loaded_lines):
+        for idx, (loaded_line, category) in enumerate(loaded_lines):
             is_negative: bool = loaded_line["question_polarity"] == "neg"
             is_ambiguous: bool = loaded_line["context_condition"] == "ambig"
             context: str = loaded_line["context"]

@@ -2,7 +2,14 @@ import re
 import subprocess
 from typing import Mapping, Set, Union
 
-from simple_slurm import Slurm
+from retrying import retry
+
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from simple_slurm import Slurm
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["slurm"])
 
 
 class SlurmJobState:
@@ -62,6 +69,11 @@ def submit_slurm_job(command: str, slurm_args: Mapping[str, Union[str, int]]) ->
     return slurm.sbatch(command)
 
 
+@retry(
+    wait_incrementing_start=5 * 1000,  # 5 seconds
+    wait_incrementing_increment=5 * 1000,  # 5 seconds
+    stop_max_attempt_number=5,
+)
 def get_slurm_job_state(job_id: int) -> str:
     """Get the state of a Slurm job."""
     try:
@@ -75,6 +87,11 @@ def get_slurm_job_state(job_id: int) -> str:
     return search_result.group(1)
 
 
+@retry(
+    wait_incrementing_start=5 * 1000,  # 5 seconds
+    wait_incrementing_increment=5 * 1000,  # 5 seconds
+    stop_max_attempt_number=5,
+)
 def cancel_slurm_job(job_id: int) -> None:
     """Cancel a Slurm job."""
     try:

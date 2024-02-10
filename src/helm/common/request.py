@@ -1,7 +1,9 @@
+import time
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import Any, Callable, Dict, List, Optional
 
-from helm.proxy.models import Model, get_model
+from helm.common.media_object import MultimediaObject
+from helm.common.image_generation_parameters import ImageGenerationParameters
 from .general import indent_lines, format_text
 
 
@@ -13,8 +15,13 @@ class Request:
     various APIs (e.g., GPT-3, Jurassic).
     """
 
-    model: str = "openai/text-davinci-002"
-    """Which model to query"""
+    model_deployment: str = ""
+    """Which model deployment to query -> Determines the Client.
+    Refers to a deployment in the model deployment registry."""
+
+    model: str = ""
+    """Which model to use -> Determines the Engine.
+    Refers to a model metadata in the model registry."""
 
     embedding: bool = False
     """Whether to query embedding instead of text response"""
@@ -59,17 +66,30 @@ class Request:
     if messages is specified for a chat model, the prompt is ignored.
     Otherwise, the client should convert the prompt into a message."""
 
+    multimodal_prompt: Optional[MultimediaObject] = None
+    """Multimodal prompt with media objects interleaved (e.g., text, video, image, text, ...)"""
+
+    image_generation_parameters: Optional[ImageGenerationParameters] = None
+    """Parameters for image generation."""
+
     @property
-    def model_organization(self) -> str:
-        """Example: 'openai/davinci' => 'openai'"""
-        model: Model = get_model(self.model)
-        return model.organization
+    def model_host(self) -> str:
+        """Returns the model host (referring to the deployment).
+        Not to be confused with the model creator organization (referring to the model).
+        Example: 'openai/davinci' => 'openai'
+                 'together/bloom' => 'together'"""
+        return self.model_deployment.split("/")[0]
 
     @property
     def model_engine(self) -> str:
-        """Example: 'openai/davinci' => 'davinci'"""
-        model: Model = get_model(self.model)
-        return model.engine
+        """Returns the model engine (referring to the model).
+        This is often the same as self.model_deploymentl.split("/")[1], but not always.
+        For example, one model could be served on several servers (each with a different model_deployment)
+        In that case we would have for example:
+        'aws/bloom-1', 'aws/bloom-2', 'aws/bloom-3' => 'bloom'
+        This is why we need to keep track of the model engine with the model metadata.
+        Example: 'openai/davinci' => 'davinci'"""
+        return self.model.split("/")[1]
 
 
 @dataclass(frozen=True)
@@ -77,8 +97,6 @@ class Token:
     """
     A `Token` represents one token position in a `Sequence`, which has the
     chosen `text` as well as the top probabilities under the model.
-
-    Note: (text, logprob) could exist or not exist in `top_logprobs`.
     """
 
     # Text that was chosen
@@ -87,16 +105,9 @@ class Token:
     # Log probability of generating that
     logprob: float
 
-    # text -> log probability of generating that
-    top_logprobs: Dict[str, float]
-
     def render_lines(self) -> List[str]:
-        top_logprobs_entries = sorted(self.top_logprobs.items(), key=lambda entry: -entry[1])
-        top_logprobs_str = (
-            "{" + ", ".join(f"{format_text(text)}: {logprob}" for text, logprob in top_logprobs_entries) + "}"
-        )
         return [
-            f"{format_text(self.text)} logprob={self.logprob} top_logprobs={top_logprobs_str}",
+            f"{format_text(self.text)} logprob={self.logprob}",
         ]
 
 
@@ -115,6 +126,9 @@ class Sequence:
 
     # Why did the sequence finish?
     finish_reason: Optional[Dict] = None
+
+    # Could be a sequence made up of multimedia content
+    multimodal_content: Optional[MultimediaObject] = None
 
     def __add__(self, other: "Sequence") -> "Sequence":
         return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
@@ -209,3 +223,17 @@ EMBEDDING_UNAVAILABLE_REQUEST_RESULT = RequestResult(
     completions=[],
     embedding=[],
 )
+
+
+def wrap_request_time(compute: Callable[[], Dict[str, Any]]) -> Callable[[], Any]:
+    """Return a version of `compute` that puts `request_time` into its output."""
+
+    def wrapped_compute():
+        start_time = time.time()
+        response = compute()
+        end_time = time.time()
+        response["request_time"] = end_time - start_time
+        response["request_datetime"] = int(start_time)
+        return response
+
+    return wrapped_compute

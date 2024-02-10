@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from .test_utils import get_tokenizer_service, TEST_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
@@ -9,7 +10,7 @@ from .window_service_factory import WindowServiceFactory
 class TestYaLMWindowService:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
-        service: TokenizerService = get_tokenizer_service(self.path)
+        service: TokenizerService = get_tokenizer_service(self.path, BlackHoleCacheBackendConfig())
         self.window_service = WindowServiceFactory.get_window_service("together/yalm", service)
 
     def teardown_method(self, method):
@@ -75,56 +76,56 @@ class TestYaLMWindowService:
 
     def test_tokenize(self):
         assert self.window_service.tokenize(TEST_PROMPT) == [
-            "▁The",
-            "▁Center",
-            "▁for",
-            "▁Research",
-            "▁on",
-            "▁Foundation",
-            "▁Models",
-            "▁(",
+            " The",
+            " Center",
+            " for",
+            " Research",
+            " on",
+            " Foundation",
+            " Models",
+            " (",
             "CR",
             "FM",
             ")",
-            "▁is",
-            "▁an",
-            "▁inter",
+            " is",
+            " an",
+            " inter",
             "disciplinary",
-            "▁initiative",
-            "▁born",
-            "▁out",
-            "▁of",
-            "▁the",
-            "▁Stanford",
-            "▁Institute",
-            "▁for",
-            "▁Human",
+            " initiative",
+            " born",
+            " out",
+            " of",
+            " the",
+            " Stanford",
+            " Institute",
+            " for",
+            " Human",
             "-",
             "Cent",
             "ered",
-            "▁Artificial",
-            "▁Intelligence",
-            "▁(",
+            " Artificial",
+            " Intelligence",
+            " (",
             "HA",
             "I",
             ")",
-            "▁that",
-            "▁aims",
-            "▁to",
-            "▁make",
-            "▁fundamental",
-            "▁advances",
-            "▁in",
-            "▁the",
-            "▁study",
+            " that",
+            " aims",
+            " to",
+            " make",
+            " fundamental",
+            " advances",
+            " in",
+            " the",
+            " study",
             ",",
-            "▁development",
+            " development",
             ",",
-            "▁and",
-            "▁deployment",
-            "▁of",
-            "▁foundation",
-            "▁models",
+            " and",
+            " deployment",
+            " of",
+            " foundation",
+            " models",
             ".",
         ]
 

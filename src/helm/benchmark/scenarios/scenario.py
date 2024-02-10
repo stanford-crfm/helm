@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from typing import List, Optional, Tuple
-import re
+import os
+from pathlib import PurePath
 import inspect
 
+from helm.common.media_object import MultimediaObject
 from helm.common.object_spec import ObjectSpec, create_object
-from helm.common.general import format_text, format_split, format_tags, indent_lines
+from helm.common.general import ensure_directory_exists, format_text, format_split, format_tags, indent_lines
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 
 """ Data splits """
@@ -55,7 +57,11 @@ class Input:
     The input of an `Instance`.
     """
 
-    text: str
+    text: str = ""
+    """The text of the input (e.g, passage to summarize, text for sentiment analysis, etc.)"""
+
+    multimedia_content: Optional[MultimediaObject] = None
+    """A single input can consists of multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
 @dataclass(frozen=True)
@@ -81,7 +87,11 @@ class Output:
     The output of a `Reference`.
     """
 
-    text: str
+    text: str = ""
+    """The text of the output."""
+
+    multimedia_content: Optional[MultimediaObject] = None
+    """The output can be multimodal content interleaved (e.g., text, image, text, ...)."""
 
 
 @dataclass(frozen=True)
@@ -168,7 +178,7 @@ class Instance:
 
 
 # TODO(#1212): Scenario should not be a dataclass.
-@dataclass  # type: ignore
+@dataclass
 class Scenario(ABC):
     """
     A scenario represents a (task, data distribution).
@@ -191,22 +201,21 @@ class Scenario(ABC):
     tags: List[str] = field(init=False)
     """Extra metadata (e.g., whether this is a question answering or commonsense task)"""
 
-    # Set by Runner.
-    # TODO: ideally would pass this into `get_instances` to not have to mutate.
-    output_path: str = field(init=False, default="")
-    """Where downloaded data is cached (to be set by the `Runner`)"""
-
     definition_path: str = field(init=False)
     """Where the scenario subclass for `self` is defined."""
 
     def __post_init__(self) -> None:
-        # Assume `/.../src/helm/benchmark/...`
-        path = inspect.getfile(type(self))
-        # Strip out prefix in absolute path and replace with GitHub link.
-        self.definition_path = re.sub(r"^.*\/src/", "https://github.com/stanford-crfm/helm/blob/main/src/", path)
+        parts = list(PurePath(inspect.getfile(type(self))).parts)
+        path = parts.pop()
+        parts.reverse()
+        for part in parts:
+            path = part + "/" + path
+            if part == "helm":
+                break
+        self.definition_path = "https://github.com/stanford-crfm/helm/blob/main/src/" + path
 
     @abstractmethod
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         """
         Does the main work in the `Scenario` (e.g., download datasets, convert
         it into a list of instances).
@@ -241,3 +250,10 @@ class ScenarioSpec(ObjectSpec):
 def create_scenario(scenario_spec: ScenarioSpec) -> Scenario:
     """Construct the scenario and set some fields."""
     return create_object(scenario_spec)
+
+
+def get_scenario_cache_path(benchmark_output_path: str, scenario_name: str):
+    """Return a directory under benchmark_output_path in which Scenario can cache temporary data."""
+    scenarios_path: str = os.path.join(benchmark_output_path, "scenarios", scenario_name)
+    ensure_directory_exists(scenarios_path)
+    return scenarios_path

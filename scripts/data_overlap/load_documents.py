@@ -136,4 +136,4 @@ def get_raw_document_iterator(file_path: str) -> Iterator[str]:
 
 def get_custom_document_iterator(file_path: str) -> Iterator[str]:
     """Define your own document reading method"""
-    pass
+    raise NotImplementedError()

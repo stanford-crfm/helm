@@ -128,8 +128,8 @@ class VerifiabilityJudgementScenario(Scenario):
             file_instances.append(instance)
         return file_instances
 
-    def get_instances(self) -> List[Instance]:
-        data_path: str = os.path.join(self.output_path, "data")
+    def get_instances(self, output_path: str) -> List[Instance]:
+        data_path: str = os.path.join(output_path, "data")
 
         split_to_filesplit: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "dev", TEST_SPLIT: "test"}
 

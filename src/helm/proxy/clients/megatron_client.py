@@ -2,14 +2,22 @@ import json
 import requests
 from typing import Any, Dict, List
 import traceback
+from helm.common.cache import CacheConfig
 
-from helm.common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
+from helm.common.request import (
+    wrap_request_time,
+    EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
+    Request,
+    RequestResult,
+    Sequence,
+    Token,
+)
 from helm.common.tokenization_request import TokenizationRequest
-from helm.proxy.clients.huggingface_client import HuggingFaceClient
-from helm.proxy.clients.client import Client, wrap_request_time, truncate_sequence
+from helm.proxy.clients.client import CachingClient, truncate_sequence
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
-class MegatronClient(HuggingFaceClient):
+class MegatronClient(CachingClient):
     """Client for remote Megatron-LM server.
 
     This client expects an external Megatron-LM server to be run on localhost:5000. See the
@@ -17,6 +25,11 @@ class MegatronClient(HuggingFaceClient):
 
     https://github.com/NVIDIA/Megatron-LM#gpt-text-generation
     """
+
+    def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
 
     def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -36,10 +49,10 @@ class MegatronClient(HuggingFaceClient):
         return out
 
     def _tokenize_response(self, text: str) -> List[Token]:
-        tokenized_text = self.tokenize(TokenizationRequest(text, tokenizer="huggingface/gpt2"))
+        tokenized_text = self.tokenizer.tokenize(TokenizationRequest(text, tokenizer=self.tokenizer_name))
 
         # TODO(tgale): Support logprobs.
-        tokens = [Token(text=str(token), logprob=0, top_logprobs={}) for token in tokenized_text.raw_tokens]
+        tokens = [Token(text=str(token), logprob=0) for token in tokenized_text.raw_tokens]
         return tokens
 
     def _make_request(self, request: Request) -> RequestResult:
@@ -61,7 +74,7 @@ class MegatronClient(HuggingFaceClient):
             "top_k": request.top_k_per_token,
         }
 
-        cache_key = Client.make_cache_key(raw_request, request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
         response, cached = self.cache.get(cache_key, wrap_request_time(lambda: self._send_request(raw_request)))
 
         # Verify we got a single response for the prompt.

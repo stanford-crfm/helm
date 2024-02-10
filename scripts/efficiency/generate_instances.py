@@ -8,8 +8,9 @@ generated for each distinct tokenizer used.
 
 import os
 from typing import Dict, List, Tuple
+from helm.common.cache_backend_config import SqliteCacheBackendConfig
 
-from helm.common.general import ensure_directory_exists, ensure_file_downloaded, parse_hocon, write
+from helm.common.general import ensure_directory_exists, ensure_file_downloaded, write, get_credentials
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -17,10 +18,9 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from helm.proxy.clients.client import Client
-from helm.proxy.clients.auto_client import AutoClient
+from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.proxy.services.service import (
-    CREDENTIALS_FILE,
     CACHE_DIR,
 )
 from helm.benchmark.scenarios.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
@@ -41,30 +41,28 @@ TOKENIZER_REPLACEMENTS = {
 }
 
 
-def _count_prompt_tokens(client: Client, prompt: str, tokenizer: str):
-    request: TokenizationRequest = TokenizationRequest(text=prompt, tokenizer=tokenizer)
-    result: TokenizationRequestResult = client.tokenize(request)
+def _count_prompt_tokens(tokenizer: Tokenizer, prompt: str, tokenizer_name: str):
+    request: TokenizationRequest = TokenizationRequest(text=prompt, tokenizer=tokenizer_name)
+    result: TokenizationRequestResult = tokenizer.tokenize(request)
     return len(result.tokens)
 
 
-def get_client(base_path: str = "prod_env"):
-    credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
+def get_tokenizer(base_path: str = "prod_env") -> AutoTokenizer:
+    credentials = get_credentials(base_path)
     cache_path = os.path.join(base_path, CACHE_DIR)
     ensure_directory_exists(cache_path)
-    if os.path.exists(credentials_path):
-        with open(credentials_path) as f:
-            credentials = parse_hocon(f.read())
-    else:
-        credentials = {}
 
     # TODO: Pass mongo_uri to AutoClient
-    client = AutoClient(credentials, cache_path)
+    tokenizer = AutoTokenizer(credentials, SqliteCacheBackendConfig(cache_path))
 
-    return client
+    return tokenizer
 
 
 def tokenize_text(
-    client: AutoClient, tokenizer: str, output_path: str = "synthetic_efficiency_instances", base_path: str = "prod_env"
+    tokenizer: AutoTokenizer,
+    tokenizer_name: str,
+    output_path: str = "synthetic_efficiency_instances",
+    base_path: str = "prod_env",
 ) -> Tuple[Dict[str, List[TokenizationToken]], Dict[str, List[str]]]:
     """Tokenizes each book using the requested tokenizer service."""
     sources = {
@@ -78,7 +76,7 @@ def tokenize_text(
     tokens: Dict[str, List[TokenizationToken]] = {}
     text_chunks: Dict[str, List[str]] = {}
 
-    tokenizer_organization: str = tokenizer.split("/")[0]
+    tokenizer_organization: str = tokenizer_name.split("/")[0]
     ai21_tokenizer: bool = tokenizer_organization == "ai21"
 
     # Extract tokens from book sources
@@ -102,9 +100,9 @@ def tokenize_text(
             batch = " ".join(text[i * batch_size : (i + 1) * batch_size])
             while True:
                 request: TokenizationRequest = TokenizationRequest(
-                    text=batch, tokenizer=tokenizer, encode=(not ai21_tokenizer)
+                    text=batch, tokenizer=tokenizer_name, encode=(not ai21_tokenizer)
                 )
-                result: TokenizationRequestResult = client.tokenize(request)
+                result: TokenizationRequestResult = tokenizer.tokenize(request)
                 tokens_ = frozenset([token.value for token in result.tokens])
                 if tokens_ not in seen_tokens:
                     seen_tokens.add(tokens_)
@@ -122,15 +120,15 @@ def tokenize_text(
 def generate_synthetic_efficiency_instances(
     tokens: Dict[str, List[TokenizationToken]],
     text_chunks: Dict[str, List[str]],
-    client: Client,
+    tokenizer: Tokenizer,
     num_instances: int,
     num_prompt_tokens: int,
-    tokenizer: str,
+    tokenizer_name: str,
     output_path: str = "synthetic_efficiency_instances",
     base_path: str = "prod_env",
 ):
     """Generates the synthetic efficiency instances given the tokenized book sources."""
-    tokenizer_organization: str = tokenizer.split("/")[0]
+    tokenizer_organization: str = tokenizer_name.split("/")[0]
     ai21_tokenizer: bool = tokenizer_organization == "ai21"
 
     books = list(tokens.keys())
@@ -161,13 +159,13 @@ def generate_synthetic_efficiency_instances(
                         prompt = "".join(per_instance_tokens)
                     else:
                         decode_request: DecodeRequest = DecodeRequest(tokens=per_instance_tokens)  # type: ignore
-                        decode_result: DecodeRequestResult = client.decode(decode_request)
+                        decode_result: DecodeRequestResult = tokenizer.decode(decode_request)
                         prompt = decode_result.text
 
                     if prompt == "":
                         num_generated_tokens = 0
                     else:
-                        num_generated_tokens = _count_prompt_tokens(client, prompt, tokenizer)
+                        num_generated_tokens = _count_prompt_tokens(tokenizer, prompt, tokenizer_name)
                     if num_generated_tokens != num_prompt_tokens:
                         temp_num_tokens = num_generated_tokens
                         while temp_num_tokens < num_prompt_tokens:
@@ -196,7 +194,7 @@ def generate_synthetic_efficiency_instances(
                 if not finished:
                     print(
                         f"Requested {num_prompt_tokens}, got {num_generated_tokens} for "
-                        f"book {books[j]}, instance #{orig_i}, tokenizer={tokenizer}, "
+                        f"book {books[j]}, instance #{orig_i}, tokenizer={tokenizer_name}, "
                         "trying again with a new span of text..."
                     )
                     attempt_num += 1
@@ -205,15 +203,15 @@ def generate_synthetic_efficiency_instances(
 
     for i, prompt in enumerate(prompts):
         for k, v in TOKENIZER_REPLACEMENTS.items():
-            tokenizer = tokenizer.replace(k, v)
-        name = f"num_prompt_tokens={num_prompt_tokens}," f"tokenizer={tokenizer.replace('/', '_')}," f"id={i}.txt"
+            tokenizer_name = tokenizer_name.replace(k, v)
+        name = f"num_prompt_tokens={num_prompt_tokens}," f"tokenizer={tokenizer_name.replace('/', '_')}," f"id={i}.txt"
         write(os.path.join(output_path, name), prompt)
 
 
 if __name__ == "__main__":
-    client = get_client()
+    tokenizer = get_tokenizer()
 
-    for tokenizer in [
+    for tokenizer_name in [
         "huggingface/gpt2",
         "ai21/j1",
         "cohere/cohere",
@@ -227,13 +225,13 @@ if __name__ == "__main__":
         "EleutherAI/gpt-neox-20b",
         "EleutherAI/gpt-j-6B",
     ]:
-        tokens, text_chunks = tokenize_text(tokenizer=tokenizer, client=client)
+        tokens, text_chunks = tokenize_text(tokenizer=tokenizer, tokenizer_name=tokenizer_name)
         for num_prompt_tokens in NUM_INPUT_TOKENS:
             generate_synthetic_efficiency_instances(
                 tokens=tokens,
                 text_chunks=text_chunks,
-                client=client,
+                tokenizer=tokenizer,
                 num_instances=30,
                 num_prompt_tokens=num_prompt_tokens,
-                tokenizer=tokenizer,
+                tokenizer_name=tokenizer_name,
             )

@@ -1,67 +1,81 @@
-from typing import List, Dict, Any, Optional, Union, Set
+from copy import deepcopy
+from typing import List, Dict, Any, Optional, Union
 
 import requests
 from retrying import retry
 
-from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-)
-from .client import Client, wrap_request_time, truncate_sequence
+from helm.common.cache import CacheConfig
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from .client import CachingClient, truncate_sequence, cleanup_str
 
 
-_ASYNC_MODELS: Set[str] = {
-    "alpaca-7b",
-    "llama-7b",
-    "pythia-7b",
-    "redpajama-incite-base-3b-v1",
-    "vicuna-13b",
+class _RewriteRequestTags:
+    """Tags that indicate that the request for the model must be rewritten before sending to Together."""
+
+    # TODO: Convert to StrEnum after upgrading to Python 3.11
+
+    ADD_EOS_TOKEN_AS_STOP_SEQUENCE = "ADD_EOS_TOKEN_AS_STOP_SEQUENCE"
+    """Indicates that the EOS token should be added as an extra stop sequence.
+
+    This prevents the model from incorrectly returning the EOS token as part of the generation."""
+
+    SET_DETAILS_TO_TRUE = "SET_DETAILS_TO_TRUE"
+    """Indicates that the `details` field should be set to `true`.
+
+    This indicates that Together should return logprobs for models that do not return logprobs by default."""
+
+
+_MODEL_TO_TAGS: Dict[str, List[str]] = {
+    "alpaca-7b": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
+    "vicuna-7b-v1.3": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
+    "llama-65b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
+    "llama-2-70b": [_RewriteRequestTags.SET_DETAILS_TO_TRUE],
+    "vicuna-13b-v1.3": [_RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE],
 }
-"""Together models to use async requests for.
+"""Dict of models to Together model tags.
 
-Currently async requests are only used for models that are timing out,
-because async requests are slower than sync requests.
-
-Note: These should be HELM model names, not Together model name aliases."""
-# TODO: Eventually delete this and switch every model to async requests.
+This indicates which models require their requests to be rewritten before sending to together.
+The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the full HELM model name
+(e.g. "stanford/alpaca-7b") or the Together model name (e.g. "togethercomputer/alpaca-7b")."""
 
 
-MODEL_ALIASES: Dict[str, str] = {
-    "flan-t5-xxl": "flan-t5-xxl-hf",
-    "h3-2.7b": "h3-2.7b-h3",
-    "opt-1.3b": "opt-1.3b-ft-tp1",
-    "opt-6.7b": "opt-6.7b-ft-tp1",
-    # Together's models are half-precision are default,
-    # and the full-precision models are suffixed e.g.
-    # alpaca-7b is half-precision
-    # alpaca-7b-full-precision is full-precision
-    "alpaca-7b": "alpaca-7b-full-precision",
-    "llama-7b": "llama-7b-full-precision",
-    "pythia-7b": "pythia-7b-full-precision",
-    "vicuna-13b": "vicuna-13b-full-precision",
-    "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
+_MODEL_TO_EOS_TOKEN: Dict[str, str] = {
+    "alpaca-7b": "</s>",
+    "vicuna-7b-v1.3": "</s>",
+    "vicuna-13b-v1.3": "</s>",
 }
-"""Together model name aliases.
+"""Dict of models to end of sequence tokens.
 
-HELM users use a shorter model name (e.g. together/flan-t5-xxl)
-whereas the Together client sends and caches requests using
-a longer model name that is suffixed with the implementation framework
-(e.g. flan-t5-xxl-hf). This allows trackcing exactly which
-implementation was used in the cached results, since some results may
-be different depending on the implementation (e.g. efficiency metrics).
-This also allows future migration of results in the case of changes of
-available implementations on Together."""
+This provides the end of sequence tokens for models that have `ADD_EOS_TOKEN_AS_STOP_SEQUENCE` as a model tag.
+We hardcode the end of sequence tokens as constants here instead of attepmting to auto-infer them, for simplicity.
+The keys are the model engine of the HELM model name (e.g. "alpaca-7b"), not the full HELM model name
+(e.g. "stanford/alpaca-7b") or the Together model name (e.g. "togethercomputer/alpaca-7b")."""
 
 
-def fix_text(x: str, model: str) -> str:
-    """Fix text that comes back from the API."""
-    # TODO(#1522): check if with #1519 this is still needed. This is similar to #1516.
-    x = x.replace("▁", " ")
-    return x
+TOGETHER_SUPPORTS_ASYNC_REQUESTS = False
+"""Whether Together AI currently supports asynchronous requests."""
+
+
+def _rewrite_raw_request_for_model_tags(raw_request: Dict[str, Any], model_engine: str) -> Dict[str, Any]:
+    """Rewrite the raw request given the model."""
+    # Make a deepcopy to avoid mutating the input in unexpected ways
+    # (e.g. raw_request["stop"] can be a mutable list)
+    rewritten_request = deepcopy(raw_request)
+    model_tags = _MODEL_TO_TAGS.get(model_engine, [])
+    for model_tag in model_tags:
+        if model_tag == _RewriteRequestTags.ADD_EOS_TOKEN_AS_STOP_SEQUENCE:
+            eos_token = _MODEL_TO_EOS_TOKEN.get(model_engine)
+            if not eos_token:
+                raise ValueError(f"Unknown EOS token for: {model_engine}")
+            if isinstance(rewritten_request["stop"], list):
+                rewritten_request["stop"].append(eos_token)
+            else:
+                rewritten_request["stop"] = [eos_token]
+        elif model_tag == _RewriteRequestTags.SET_DETAILS_TO_TRUE:
+            rewritten_request["details"] = True
+        else:
+            raise ValueError(f"Unknown `_RewriteRequestTags`: {model_tag}")
+    return rewritten_request
 
 
 class TogetherClientError(Exception):
@@ -74,7 +88,7 @@ class JobNotFinishedError(TogetherClientError):
     pass
 
 
-class TogetherClient(Client):
+class TogetherClient(CachingClient):
     """
     Client for the models where we evaluate offline. Since the queries are handled offline, the `TogetherClient` just
     checks if the request/result is cached. We return the result if it's in the cache. Otherwise, we return an error.
@@ -83,41 +97,41 @@ class TogetherClient(Client):
     INFERENCE_ENDPOINT: str = "https://api.together.xyz/api/inference"
     RETRIEVE_JOB_MAX_WAIT_SECONDS: int = 60
 
-    @staticmethod
-    def convert_to_raw_request(request: Request) -> Dict:
+    def convert_to_raw_request(self, request: Request) -> Dict:
         # Following the examples from https://github.com/togethercomputer/open-models-api
-        return {
+        raw_request = {
             "request_type": "language-model-inference",
-            "model": MODEL_ALIASES.get(request.model_engine, request.model_engine),
+            "model": self.together_model or request.model,
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
             "best_of": request.top_k_per_token,
-            "logprobs": request.top_k_per_token,
             "stop": request.stop_sequences or None,
             "echo": request.echo_prompt,
             "top_p": request.top_p,
         }
+        return _rewrite_raw_request_for_model_tags(raw_request, request.model_engine)
 
-    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+    def __init__(self, cache_config: CacheConfig, together_model: Optional[str] = None, api_key: Optional[str] = None):
+        super().__init__(cache_config=cache_config)
         # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
         #       in credentials.conf, we rely on offline evaluation only.
         self.api_key: Optional[str] = api_key
-        self.cache = Cache(cache_config)
+        self.together_model = together_model
 
     def _get_job_url(self, job_id: str) -> str:
         return f"https://api.together.xyz/jobs/job/{job_id}"
 
     def make_request(self, request: Request) -> RequestResult:
-        raw_request = TogetherClient.convert_to_raw_request(request)
-        cache_key: Dict = Client.make_cache_key(raw_request, request)
+        raw_request = self.convert_to_raw_request(request)
+        cache_key = CachingClient.make_cache_key(raw_request, request)
 
         if not self.api_key:
             raise TogetherClientError("togetherApiKey not set in credentials.conf")
         headers: Dict[str, str] = {"Authorization": f"Bearer {self.api_key}"}
 
-        if request.model_engine in _ASYNC_MODELS:
+        if TOGETHER_SUPPORTS_ASYNC_REQUESTS:
 
             def submit_job() -> str:
                 submit_request = {**raw_request, "async": True}
@@ -216,22 +230,24 @@ class TogetherClient(Client):
             # Waiting for a fix.
             if "logprobs" in raw_completion:
                 raw_data = raw_completion["logprobs"]
-                for text, logprob, top_logprobs in zip(
-                    raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
-                ):
-                    text = fix_text(text, request.model)
-                    tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+                for text, logprob in zip(raw_data["tokens"], raw_data["token_logprobs"]):
+                    # TODO #1654: Check if this is still needed
+                    text = cleanup_str(text, "together")
+                    tokens.append(Token(text=text, logprob=logprob or 0))
                     sequence_logprob += logprob or 0
             else:
                 # hack: just make the entire text one token so that something shows up in the frontend
-                text = fix_text(raw_completion["text"], request.model)
-                tokens.append(Token(text=text, logprob=0, top_logprobs={}))
+                text = cleanup_str(raw_completion["text"], "together")
+                tokens.append(Token(text=text, logprob=0))
+
+            raw_finish_reason: Optional[str] = raw_completion.get("finish_reason")
+            finish_reason: Optional[Dict] = {"reason": raw_finish_reason} if raw_finish_reason else None
 
             completion = Sequence(
-                text=fix_text(raw_completion["text"], request.model),
+                text=cleanup_str(raw_completion["text"], "together"),
                 logprob=sequence_logprob,
                 tokens=tokens,
-                finish_reason={"reason": raw_completion["finish_reason"]},
+                finish_reason=finish_reason,
             )
             completion = truncate_sequence(completion, request)
             completions.append(completion)
@@ -256,9 +272,3 @@ class TogetherClient(Client):
                 completions=completions,
                 embedding=[],
             )
-
-    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
-
-    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        raise NotImplementedError("Use the HuggingFaceClient to decode.")

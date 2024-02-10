@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from helm.common.image_generation_parameters import ImageGenerationParameters
+
 
 @dataclass(frozen=True)
 class Substitution:
@@ -25,6 +27,9 @@ class AdapterSpec:
     # Prepend all prompts with this string.
     # For example, it is recommended to prefix all prompts with [NLG] for UL2.
     global_prefix: str = ""
+
+    # Append all prompts with this string.
+    global_suffix: str = ""
 
     # Prompt starts with instructions
     instructions: str = ""
@@ -68,12 +73,19 @@ class AdapterSpec:
     # set of training instances.  Used to compute error bars.
     num_train_trials: int = 1
 
+    # Number of trials, where we query the model with the same requests, but different random seeds
+    num_trials: int = 1
+
     # If true, randomly sample N training examples; if false, select N consecutive training examples
     sample_train: bool = True
 
     # Decoding parameters (inherited by `Request`)
 
-    # Model to make the request to (need to fill in)
+    # Model deployment to make the request to (need to fill in)
+    model_deployment: str = ""
+
+    # DEPRECATED: old model field, kept for backward compatibility
+    # TODO: Remove this once we do not wish to support backward compatibility anymore.
     model: str = ""
 
     # Temperature to use
@@ -87,3 +99,10 @@ class AdapterSpec:
 
     # Random string (used concretely to bypass cache / see diverse results)
     random: Optional[str] = None
+
+    # If true, for instances with multiple correct reference, the gold answer should be considered
+    # to be all the correct references rather than any of the correct references.
+    multi_label: bool = False
+
+    # Parameters for image generation
+    image_generation_parameters: Optional[ImageGenerationParameters] = None

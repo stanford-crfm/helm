@@ -1,8 +1,7 @@
 from typing import List, Optional
 
-from helm.proxy.clients.cohere_client import CohereClient
+from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
 from .local_window_service import LocalWindowService
-from .tokenizer_service import TokenizerService
 from .window_service import EncodeResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -12,47 +11,6 @@ from helm.common.tokenization_request import (
 
 
 class CohereWindowService(LocalWindowService):
-    def __init__(self, service: TokenizerService):
-        super().__init__(service)
-
-    @property
-    def tokenizer_name(self) -> str:
-        return "cohere/cohere"
-
-    @property
-    def max_sequence_length(self) -> int:
-        """
-        The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
-        the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
-        """
-        return self.max_request_length - 1
-
-    @property
-    def max_request_length(self) -> int:
-        """
-        The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
-        If we exceed the `max_sequence_length`, we get the following error:
-
-        Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
-        exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
-        """
-        return 2048
-
-    @property
-    def end_of_text_token(self) -> str:
-        """
-        The end of text token. Cohere does not have one.
-        """
-        return ""
-
-    @property
-    def prefix_token(self) -> str:
-        """
-        The prefix token. Cohere does not return the log prob for the first token when `echo_prompt` is True.
-        """
-        # Cohere recommended ":", but we can try out different values
-        return ":"
-
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """
         Encodes the input text to tokens.
@@ -62,7 +20,7 @@ class CohereWindowService(LocalWindowService):
 
         response: TokenizationRequestResult
         tokens: List[TokenizationToken] = []
-        if truncation or len(text) <= CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH:
+        if truncation or len(text) <= CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH:
             response = self.service.tokenize(
                 TokenizationRequest(
                     text,
@@ -80,7 +38,7 @@ class CohereWindowService(LocalWindowService):
             # and make a request for each chunk.
             # This can potentially break up valid tokens at the end of the chunk, but the chunk size
             # is large enough that this happens infrequently.
-            chunk_size: int = CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH
+            chunk_size: int = CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH
             for i in range(0, len(text), chunk_size):
                 chunk: str = text[i : chunk_size + i]
                 response = self.service.tokenize(
@@ -120,7 +78,7 @@ class CohereWindowService(LocalWindowService):
         so first check if the text has fewer than 65,536 characters.
         """
         return (
-            len(text) <= CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH
+            len(text) <= CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH
             and self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
         )
 
@@ -130,7 +88,7 @@ class CohereWindowService(LocalWindowService):
         minus the expected completion length (defaults to 0).
         """
         # First truncate the text so it's within `CohereClient.TOKENIZE_MAX_TEXT_LENGTH` length.
-        text = text[: CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH]
+        text = text[: CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH]
 
         max_length: int = self.max_request_length - expected_completion_token_length
         result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
@@ -141,23 +99,3 @@ class CohereWindowService(LocalWindowService):
             result = result[:-1]
 
         return result
-
-
-class CohereCommandWindowService(CohereWindowService):
-    def __init__(self, service: TokenizerService):
-        super().__init__(service)
-
-    @property
-    def max_request_length(self) -> int:
-        """
-        The max request length of the model. For Cohere, this is the same as the `max_sequence_length`.
-        If we exceed the `max_sequence_length`, we get the following error:
-
-        Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
-        exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
-
-        For the Command model, in rare situations, the co.tokenize returns a shorter list of tokens
-        than the co.generate. This causes sequence length errors for rare inputs. Cohere's advice is
-        to reduce the sequence length to 2020 to avoid these issues.
-        """
-        return 2020

@@ -132,32 +132,33 @@ class LegalSummarizationScenario(Scenario):
         self.sampling_max_length = sampling_max_length
         self.doc_max_length = doc_max_length
 
-    def _download_dataset(self, hf_name):
-        cache_dir = str(Path(self.output_path) / "data")
+    def _download_dataset(self, hf_name, output_path):
+        cache_dir = str(Path(output_path) / "data")
+        dataset: Any
         if self.dataset_name == "EurLexSum":
             # IMPORTANT: change this once more languages should be supported
-            dataset: Any = load_dataset(hf_name, "english", cache_dir=cache_dir)
+            dataset = load_dataset(hf_name, "english", cache_dir=cache_dir)
         elif self.dataset_name == "MultiLexSum":
-            dataset: Any = load_dataset(hf_name, "v20220616", cache_dir=cache_dir)
+            dataset = load_dataset(hf_name, "v20220616", cache_dir=cache_dir)
         else:
-            dataset: Any = load_dataset(hf_name, cache_dir=cache_dir)
+            dataset = load_dataset(hf_name, cache_dir=cache_dir)
 
         return dataset
 
-    def _load_dataset(self, dataset_name: str):
+    def _load_dataset(self, dataset_name: str, output_path):
         if dataset_name == "BillSum":
             hf_name = "billsum"
-            dataset = self._download_dataset(hf_name)
+            dataset = self._download_dataset(hf_name, output_path)
             article_key = "text"
             summary_key = "summary"
         elif dataset_name == "MultiLexSum":
             hf_name = "allenai/multi_lexsum"
-            dataset = self._download_dataset(hf_name)
+            dataset = self._download_dataset(hf_name, output_path)
             article_key = "summary/long"
             summary_key = "summary/short"  # we could do summary/tiny additionally here
         elif dataset_name == "EurLexSum":
             hf_name = "dennlinger/eur-lex-sum"
-            dataset = self._download_dataset(hf_name)
+            dataset = self._download_dataset(hf_name, output_path)
             article_key = "reference"
             summary_key = "summary"
         else:
@@ -165,8 +166,8 @@ class LegalSummarizationScenario(Scenario):
 
         return dataset, article_key, summary_key
 
-    def get_instances(self) -> List[Instance]:
-        dataset, article_key, summary_key = self._load_dataset(self.dataset_name)
+    def get_instances(self, output_path) -> List[Instance]:
+        dataset, article_key, summary_key = self._load_dataset(self.dataset_name, output_path)
 
         instances: List[Instance] = []
         for split, split_name in self.splits_mapping.items():

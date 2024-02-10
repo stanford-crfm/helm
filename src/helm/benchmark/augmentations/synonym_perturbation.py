@@ -11,10 +11,10 @@ import spacy
 
 from helm.common.general import match_case, ensure_file_downloaded
 from .perturbation_description import PerturbationDescription
-from .perturbation import Perturbation
+from .perturbation import TextPerturbation
 
 
-class SynonymPerturbation(Perturbation):
+class SynonymPerturbation(TextPerturbation):
     """
     Synonyms. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/blob/main/nlaugmenter/transformations/synonym_substitution/transformation.py
@@ -40,10 +40,11 @@ class SynonymPerturbation(Perturbation):
     name: str = "synonym"
 
     # For downloading wordnet_synonyms.json
-    CODALAB_URI_TEMPLATE: str = "https://worksheets.codalab.org/rest/bundles/{bundle}/contents/blob/"
-    CODALAB_BUNDLE: str = "0x92a07ef9f82941e6a75b2f3b27961e8c"
     FILE_NAME: str = "wordnet_synonyms.json"
-    SOURCE_URI: str = CODALAB_URI_TEMPLATE.format(bundle=CODALAB_BUNDLE)
+    SOURCE_URI: str = (
+        "https://storage.googleapis.com/crfm-helm-public/source_datasets/"
+        "augmentations/synonym_perturbation/wordnet_synonyms.json"
+    )
 
     def __init__(self, prob: float):
         # Assign parameters to instance variables

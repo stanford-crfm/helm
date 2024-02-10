@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 import os
 import random
 import shutil
@@ -16,7 +17,7 @@ from sqlitedict import SqliteDict
 from helm.common.authentication import Authentication
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
-from helm.proxy.accounts import Account
+from helm.proxy.accounts import Account, set_default_quotas
 from .remote_service import RemoteService
 from .service import ACCOUNTS_FILE
 
@@ -54,6 +55,7 @@ class TestRemoteServerService:
 
             with SqliteDict(os.path.join(path, ACCOUNTS_FILE)) as cache:
                 account: Account = Account(TestRemoteServerService._ADMIN_API_KEY, is_admin=True)
+                set_default_quotas(account)
                 cache[TestRemoteServerService._ADMIN_API_KEY] = asdict(account)
                 cache.commit()
             return path
@@ -84,7 +86,7 @@ class TestRemoteServerService:
 
     @staticmethod
     def query(url: str, auth: Authentication, prompt: str):
-        request = Request(prompt=prompt, model="simple/model1")
+        request = Request(prompt=prompt, model="simple/model1", model_deployment="simple/model1")
         response: RequestResult = RemoteService(base_url=url).make_request(auth, request)
         response_text: str = response.completions[0].text
         # With the toy model (simple/model1), we should expect the same response as the prompt
@@ -120,7 +122,7 @@ class TestRemoteServerService:
         shutil.rmtree(cls.base_path)
 
     def test_make_request(self):
-        request = Request(prompt="1 2 3", model="simple/model1")
+        request = Request(prompt="1 2 3", model="simple/model1", model_deployment="simple/model1")
         response: RequestResult = self.service.make_request(self.auth, request)
         assert response.success
 
@@ -131,7 +133,7 @@ class TestRemoteServerService:
 
     def test_make_request_plus_sign(self):
         # Ensure + in prompt doesn't get replaced by a blank space
-        request = Request(prompt="+", model="simple/model1")
+        request = Request(prompt="+", model="simple/model1", model_deployment="simple/model1")
         response: RequestResult = self.service.make_request(self.auth, request)
         assert response.completions[0].text == "+"
         assert response.success

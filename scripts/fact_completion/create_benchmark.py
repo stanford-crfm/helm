@@ -1,3 +1,4 @@
+# mypy: check_untyped_defs = False
 """
 This script samples triples to use and constructs sentences from templates.
 

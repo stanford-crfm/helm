@@ -1,10 +1,21 @@
+# mypy: check_untyped_defs = False
 from typing import List
 
-from helm.benchmark.scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    CORRECT_TAG,
+    TEST_SPLIT,
+    TRAIN_SPLIT,
+    create_scenario,
+    Instance,
+    Reference,
+    Input,
+    Output,
+)
 from helm.benchmark.run_specs import get_scenario_spec1, get_adapter_spec1
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_GENERATION
+from .generation_adapter import GenerationAdapter
 from .test_adapter import TestAdapter
 
 
@@ -13,16 +24,18 @@ class TestGenerationAdapter(TestAdapter):
         scenario = create_scenario(get_scenario_spec1())
         adapter_spec = get_adapter_spec1()
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        scenario_state = adapter.adapt(scenario.get_instances(), parallelism=1)
+        instances = scenario.get_instances(output_path="")
+        request_states = adapter.adapt(instances, parallelism=1)
+        non_train_instances = [instance for instance in instances if instance.split != TRAIN_SPLIT]
 
         # Make sure we generated the right number of request_states:
         # For each trial, instance and reference (+ 1 for free-form generation).
-        num_instances = len(scenario_state.instances)
-        assert num_instances * adapter_spec.num_train_trials == len(scenario_state.request_states)
+        assert len(non_train_instances) * adapter_spec.num_train_trials == len(request_states)
 
     def test_construct_prompt(self):
         adapter_spec = AdapterSpec(
             model="openai/davinci",
+            model_deployment="openai/davinci",
             method=ADAPT_GENERATION,
             input_prefix="",
             input_suffix="",
@@ -49,7 +62,12 @@ class TestGenerationAdapter(TestAdapter):
 
     def test_construct_prompt_with_truncation(self):
         adapter_spec = AdapterSpec(
-            model="openai/davinci", method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
+            model="openai/davinci",
+            model_deployment="openai/davinci",
+            method=ADAPT_GENERATION,
+            input_prefix="",
+            output_prefix="",
+            max_tokens=100,
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         correct_reference = Reference(Output(text=""), tags=[CORRECT_TAG])
@@ -70,7 +88,9 @@ class TestGenerationAdapter(TestAdapter):
         assert prompt_text.count("eval") == 1948
 
     def test_sample_examples_without_references(self):
-        adapter_spec = AdapterSpec(method=ADAPT_GENERATION, model="openai/ada", max_train_instances=1)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION, model="openai/ada", model_deployment="openai/ada", max_train_instances=1
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
             Instance(Input(text="prompt1"), references=[]),
@@ -82,7 +102,9 @@ class TestGenerationAdapter(TestAdapter):
         assert len(examples) == 1
 
     def test_sample_examples_open_ended_generation(self):
-        adapter_spec = AdapterSpec(method=ADAPT_GENERATION, model="openai/ada", max_train_instances=3)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION, model="openai/ada", model_deployment="openai/ada", max_train_instances=3
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
 
         all_train_instances: List[Instance] = [
@@ -96,7 +118,9 @@ class TestGenerationAdapter(TestAdapter):
         assert seed0_examples != seed1_examples, "Examples should differ when changing the seed"
 
     def test_sample_examples_open_ended_generation_stress(self):
-        adapter_spec = AdapterSpec(method=ADAPT_GENERATION, model="openai/ada", max_train_instances=5)
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION, model="openai/ada", model_deployment="openai/ada", max_train_instances=5
+        )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
 
         all_train_instances: List[Instance] = [
@@ -133,3 +157,123 @@ class TestGenerationAdapter(TestAdapter):
             for other_train_instances in previous_train_instances:
                 assert train_instances != other_train_instances, "Examples should differ when changing the seed"
             previous_train_instances.append(train_instances)
+
+    def test_multiple_correct_reference(self):
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            model="openai/ada",
+            model_deployment="openai/ada",
+            max_train_instances=2,
+            sample_train=False,
+        )
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        train_instances = [
+            Instance(
+                Input(text="Second reference is correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[]),
+                    Reference(Output(text="Second"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Third"), tags=[]),
+                ],
+                split=TRAIN_SPLIT,
+            ),
+            Instance(
+                Input(text="First and second references are correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Second"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Third"), tags=[]),
+                ],
+                split=TRAIN_SPLIT,
+            ),
+        ]
+        eval_instance = Instance(
+            Input(text="First reference is correct"),
+            references=[
+                Reference(Output(text="First"), tags=[CORRECT_TAG]),
+                Reference(Output(text="Second"), tags=[]),
+                Reference(Output(text="Third"), tags=[]),
+            ],
+            split=TEST_SPLIT,
+        )
+        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1)
+        assert len(actual_instances) == 1
+        assert actual_instances[0].request.prompt == (
+            "Input: Second reference is correct\n"
+            "Output: Second\n\n"
+            "Input: First and second references are correct\n"
+            "Output: First\n\n"
+            "Input: First reference is correct\n"
+            "Output:"
+        )
+
+    def test_multiple_correct_reference_multi_label(self):
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            model="openai/ada",
+            model_deployment="openai/ada",
+            max_train_instances=2,
+            multi_label=True,
+            sample_train=False,
+        )
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        train_instances = [
+            Instance(
+                Input(text="Second reference is correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[]),
+                    Reference(Output(text="Second"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Third"), tags=[]),
+                ],
+                split=TRAIN_SPLIT,
+            ),
+            Instance(
+                Input(text="First and second references are correct"),
+                references=[
+                    Reference(Output(text="First"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Second"), tags=[CORRECT_TAG]),
+                    Reference(Output(text="Third"), tags=[]),
+                ],
+                split=TRAIN_SPLIT,
+            ),
+        ]
+        eval_instance = Instance(
+            Input(text="First reference is correct"),
+            references=[
+                Reference(Output(text="First"), tags=[CORRECT_TAG]),
+                Reference(Output(text="Second"), tags=[]),
+                Reference(Output(text="Third"), tags=[]),
+            ],
+            split=TEST_SPLIT,
+        )
+        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1)
+        assert len(actual_instances) == 1
+        assert actual_instances[0].request.prompt == (
+            "Input: Second reference is correct\n"
+            "Output: Second\n\n"
+            "Input: First and second references are correct\n"
+            "Output: First, Second\n\n"
+            "Input: First reference is correct\n"
+            "Output:"
+        )
+
+    def test_construct_prompt_image_generation(self):
+        adapter_spec = AdapterSpec(
+            model_deployment="openai/dall-e-2",
+            method=ADAPT_GENERATION,
+            input_prefix="",
+            input_suffix="",
+            output_prefix="",
+            output_suffix="",
+            max_train_instances=0,
+            num_outputs=1,
+            max_tokens=0,
+        )
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        assert isinstance(adapter, GenerationAdapter)
+
+        eval_instance = Instance(Input(text="a blue dog"), references=[])
+        prompt: Prompt = adapter.construct_prompt([], eval_instance, include_output=False, reference_index=None)
+
+        assert adapter.window_service.fits_within_context_window(prompt.text)
+        assert prompt.text == "a blue dog"
