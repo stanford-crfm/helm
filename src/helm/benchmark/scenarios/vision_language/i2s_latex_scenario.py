@@ -22,20 +22,20 @@ class LatexScenario(Scenario):
     PROMPT: str = "Prease provide the LaTex code used to generate this image. Only generate the code relevant to what you see. Your code will be surrounded by all the imports necessary as well as the begin and end document delimiters."  # noqa: E501
     HUGGINGFACE_DATASET_NAME: str = "stanford-crfm/i2s-latex"
     MAX_NUM_ASSETS: int = 10
-    CATEGORIES: List[str] = ["equation", "figure", "table", "plot", "algorithm"]
+    SUBJECTS: List[str] = ["equation", "figure", "table", "plot", "algorithm"]
 
     name = "i2s-latex"
     description = "Evaluate multimodel models on Latex generation to recreate a provided image"
     tags = ["vision-language"]
 
-    def __init__(self, category: str, recompile_prompt: bool = True):
+    def __init__(self, subject: str, recompile_prompt: bool = True):
         super().__init__()
-        assert category in self.CATEGORIES, f"Invalid category: {category}"
-        self._category: str = category
+        assert subject in self.SUBJECTS, f"Invalid subject: {subject}"
+        self._subject: str = subject
         self._recompile_prompt: bool = recompile_prompt
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        images_path: str = os.path.join(output_path, "i2s/latex/images", self._category)
+        images_path: str = os.path.join(output_path, "i2s/latex/images", self._subject)
         assets_path: str = os.path.join(output_path, "i2s/latex/assets")
         ensure_directory_exists(images_path)
 
@@ -45,7 +45,7 @@ class LatexScenario(Scenario):
         # There seems to be a dev set, but it's unavailable through load_dataset.
         # The test set doesn't have answers, since the MMMU competition/leaderboard uses the test set
         for row in tqdm(
-            load_dataset(self.HUGGINGFACE_DATASET_NAME, self._category, split="validation", cache_dir=output_path)
+            load_dataset(self.HUGGINGFACE_DATASET_NAME, self._subject, split="validation", cache_dir=output_path)
         ):
             question_id: str = row["id"]
 
@@ -89,5 +89,5 @@ class LatexScenario(Scenario):
                 )
             )
 
-        assert len(instances) > 0, f"No instances found for category {self._category}"
+        assert len(instances) > 0, f"No instances found for subject {self._subject}"
         return instances
