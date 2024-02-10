@@ -130,7 +130,7 @@ metrics:
   - name: edit_similarity
     display_name: Edit similarity (Levenshtein)
     short_display_name: Edit sim.
-    lower_is_better: true
+    lower_is_better: false
     description: Average Levenshtein edit similarity (1 - distance normalized by length of longer sequence) between model generation and reference.
 
   # Vision Language metrics:
