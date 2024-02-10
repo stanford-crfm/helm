@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from .adaptation.adapter_spec import AdapterSpec
 from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
@@ -71,6 +71,35 @@ def get_multiple_choice_joint_adapter_spec(
 
 
 ############################################################
+# VHELM metric specs
+
+
+def get_image2structure_metric_specs(
+    metric_names: Optional[List[str]] = None, args: Optional[Dict] = None
+) -> List[MetricSpec]:
+    from .metrics.vision_language.image_metrics import ImageMetric
+
+    if metric_names is None:
+        metric_names = [
+            ImageMetric.EARTH_MOVER_DISTANCE,
+            ImageMetric.PIXEL_SIMILARITY,
+            ImageMetric.SIFT_SIMILARITY,
+        ]
+    if args is None:
+        args = {}
+    return [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",
+            args={"metric_names": metric_names},
+        ),
+        MetricSpec(
+            class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_similarity"},
+        ),
+    ]
+
+
+############################################################
 # VHELM run specs
 
 
@@ -132,9 +161,7 @@ def get_vqa_spec() -> RunSpec:
 
 
 @run_spec_function("image2latex")
-def get_image2latex_latex_spec(subject: str, recompile_prompt: bool = True) -> RunSpec:
-    from .metrics.vision_language.image_metrics import ImageMetric
-
+def get_image2latex_latex_spec(subject: str, recompile_prompt: bool = True, args: Optional[Dict] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
         args={"subject": subject, "recompile_prompt": recompile_prompt},
@@ -143,18 +170,7 @@ def get_image2latex_latex_spec(subject: str, recompile_prompt: bool = True) -> R
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = [
-        MetricSpec(
-            class_name="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",
-            args={
-                "metric_names": [
-                    ImageMetric.EARTH_MOVER_DISTANCE,
-                    ImageMetric.PIXEL_SIMILARITY,
-                    ImageMetric.SIFT_SIMILARITY,
-                ]
-            },
-        )
-    ]
+    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(args=args)
 
     run_spec_name: str = "image2latex"
     return RunSpec(

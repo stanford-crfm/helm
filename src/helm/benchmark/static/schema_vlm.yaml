@@ -126,6 +126,13 @@ metrics:
     display_name: Predicted index
     description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
 
+  # Copyright metrics (measure copying/overlap):
+  - name: edit_similarity
+    display_name: Edit similarity (Levenshtein)
+    short_display_name: Edit sim.
+    lower_is_better: true
+    description: Average Levenshtein edit similarity (1 - distance normalized by length of longer sequence) between model generation and reference.
+
   # Vision Language metrics:
   - name: earth_mover_distance
     display_name: Earth Mover Distance
@@ -243,6 +250,8 @@ metric_groups:
       - name: sift_similarity
         split: ${main_split}
       - name: compilation_success
+        split: ${main_split}
+      - name: edit_similarity
         split: ${main_split}
 
 ############################################################
