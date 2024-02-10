@@ -45,6 +45,9 @@ TEX_END_DOCUMENT = r"""\end{document}"""
 # Number of times to try to fix the LaTeX code
 MAX_NUM_TRIES: int = 3
 
+TEX_BEGIN_DOCUMENT = r"""\begin{document}"""
+TEX_END_DOCUMENT = r"""\end{document}"""
+
 
 def latex_to_pdf(latex_code: str, assets_path: str) -> io.BytesIO:
     # Compiling LaTeX code to PDF
