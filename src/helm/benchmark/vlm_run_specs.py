@@ -81,7 +81,7 @@ def get_image2structure_metric_specs(
 
     if metric_names is None:
         metric_names = [
-            ImageMetric.EARTH_MOVER_DISTANCE,
+            ImageMetric.EARTH_MOVER_SIMILARITY,
             ImageMetric.PIXEL_SIMILARITY,
             ImageMetric.SIFT_SIMILARITY,
             ImageMetric.LPIPS_SIMILARITY,

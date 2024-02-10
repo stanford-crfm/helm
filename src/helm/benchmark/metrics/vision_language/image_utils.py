@@ -33,9 +33,9 @@ def get_histogram(img: np.ndarray) -> np.ndarray:
     return hist
 
 
-def earth_movers_distance(img_a: np.ndarray, img_b: np.ndarray) -> float:
+def earth_mover_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
     """
-    Measure the Earth Mover's distance between two images
+    Measure the 1 - Earth Mover's distance between two images
 
     Args:
         img_a (np.ndarray): the first image
@@ -45,7 +45,7 @@ def earth_movers_distance(img_a: np.ndarray, img_b: np.ndarray) -> float:
     """
     hist_a = get_histogram(img_a)
     hist_b = get_histogram(img_b)
-    return wasserstein_distance(hist_a, hist_b)
+    return 1.0 - wasserstein_distance(hist_a, hist_b)
 
 
 def pixel_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:

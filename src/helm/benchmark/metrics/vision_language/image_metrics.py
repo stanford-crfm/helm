@@ -12,7 +12,7 @@ from helm.common.media_object import MediaObject
 from helm.common.optional_dependencies import handle_module_not_found_error
 from ..metric_name import MetricName
 from ..statistic import Stat
-from .image_utils import preprocess_image, earth_movers_distance, pixel_similarity, sift_similarity
+from .image_utils import preprocess_image, earth_mover_similarity, pixel_similarity, sift_similarity
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -40,7 +40,7 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
     """
 
     COMPILE_METRIC: str = "compilation_success"
-    EARTH_MOVER_DISTANCE: str = "earth_mover_distance"
+    EARTH_MOVER_SIMILARITY: str = "earth_mover_similarity"
     PIXEL_SIMILARITY: str = "pixel_similarity"
     SIFT_SIMILARITY: str = "sift_similarity"
     LPIPS_SIMILARITY: str = "lpips_similarity"
@@ -113,8 +113,8 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
                     [self.PIXEL_SIMILARITY, pixel_similarity, gray_image, gray_ref_image, gray_white_image, True],
                     [self.SIFT_SIMILARITY, sift_similarity, rgb_image, rgb_ref_image, rgb_white_image, False],
                     [
-                        self.EARTH_MOVER_DISTANCE,
-                        earth_movers_distance,
+                        self.EARTH_MOVER_SIMILARITY,
+                        earth_mover_similarity,
                         gray_image,
                         gray_ref_image,
                         gray_white_image,
