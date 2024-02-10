@@ -16,7 +16,7 @@ from .image_utils import preprocess_image, earth_movers_distance, pixel_similari
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
-    from PIL.Image import Image
+    from PIL import Image
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["image2structure"])
 
@@ -45,13 +45,16 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
     SIFT_SIMILARITY: str = "sift_similarity"
     LPIPS_SIMILARITY: str = "lpips_similarity"
 
-    def __init__(self, metric_names: List[str]):
+    def __init__(self, metric_names: List[str], normalize_by_white_score: bool = False):
         self._metric_names: List[str] = metric_names
         self._lpips_metric: Optional[LearnedPerceptualImagePatchSimilarity] = None
         self._device = get_torch_device()
+        self._normalize_by_white_score = normalize_by_white_score
 
     @abstractmethod
-    def compile_completion_into_image(self, request_state: RequestState, completion: str, ref_image: Image) -> Image:
+    def compile_completion_into_image(
+        self, request_state: RequestState, completion: str, ref_image: Image.Image
+    ) -> Image.Image:
         raise NotImplementedError
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
@@ -65,7 +68,7 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
             assert len(reference.output.multimedia_content.media_objects) > 0
             ref_media_object: MediaObject = reference.output.multimedia_content.media_objects[0]
             assert ref_media_object.type == "image"
-            ref_image: Image
+            ref_image: Image.Image
             rgb_ref_image: np.ndarray
             gray_ref_image: np.ndarray
             if ref_media_object.is_local_file and ref_media_object.location is not None:
@@ -77,6 +80,13 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
                     "Remote images are not supported in metrics. "
                     "Images should be downloaded when constructing the instance."
                 )
+            white_image: Optional[Image.Image] = None
+            rgb_white_image: Optional[np.ndarray] = None
+            gray_white_image: Optional[np.ndarray] = None
+            if self._normalize_by_white_score:
+                white_image = Image.new("RGB", ref_image.size, (255, 255, 255))
+                rgb_white_image = np.array(white_image)
+                gray_white_image = preprocess_image(white_image)
 
             assert request_state.result is not None
             request_result: RequestResult = request_state.result
@@ -86,7 +96,7 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
             ]
 
             for completion in completions:
-                image: Image
+                image: Image.Image
                 try:
                     image = self.compile_completion_into_image(request_state, completion, ref_image).convert("RGB")
                 except CompilationError:
@@ -99,19 +109,33 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
                 rgb_image: np.ndarray = np.array(image)
                 gray_image: np.ndarray = preprocess_image(image)
 
-                if self.PIXEL_SIMILARITY in self._metric_names:
-                    stats_dict[self.PIXEL_SIMILARITY].add(pixel_similarity(gray_image, gray_ref_image))
-                if self.SIFT_SIMILARITY in self._metric_names:
-                    stats_dict[self.SIFT_SIMILARITY].add(sift_similarity(rgb_image, rgb_ref_image))
-                if self.EARTH_MOVER_DISTANCE in self._metric_names:
-                    stats_dict[self.EARTH_MOVER_DISTANCE].add(earth_movers_distance(gray_image, gray_ref_image))
-                if self.LPIPS_SIMILARITY in self._metric_names:
-                    stats_dict[self.LPIPS_SIMILARITY].add(self.lpips_similarity(image, ref_image))
+                metric_runs: list = [
+                    [self.PIXEL_SIMILARITY, pixel_similarity, gray_image, gray_ref_image, gray_white_image, True],
+                    [self.SIFT_SIMILARITY, sift_similarity, rgb_image, rgb_ref_image, rgb_white_image, False],
+                    [
+                        self.EARTH_MOVER_DISTANCE,
+                        earth_movers_distance,
+                        gray_image,
+                        gray_ref_image,
+                        gray_white_image,
+                        True,
+                    ],
+                    [self.LPIPS_SIMILARITY, self.lpips_similarity, image, ref_image, white_image, True],
+                ]
+
+                for metric_name, metric_fn, image1, image2, white_image, can_compute_on_white in metric_runs:
+                    value: float = metric_fn(image1, image2)
+                    if self._normalize_by_white_score and can_compute_on_white:
+                        assert white_image is not None
+                        value_white: float = metric_fn(image2, white_image)
+                        value = (value - value_white) / (1.0 - value_white)
+                    stats_dict[metric_name].add(value)
+
                 stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
 
         return list(stats_dict.values())
 
-    def lpips_similarity(self, generated_image: Image, reference_image: Image) -> float:
+    def lpips_similarity(self, generated_image: Image.Image, reference_image: Image.Image) -> float:
         if self._lpips_metric is None:
             self._lpips_metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg").to(self._device)
 

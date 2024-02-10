@@ -83,7 +83,7 @@ def sift_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
     _, desc_b = orb.detectAndCompute(img_b, None)
 
     # Initialize the brute force matcher
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
 
     # Match descriptors.
     matches = bf.match(desc_a, desc_b)

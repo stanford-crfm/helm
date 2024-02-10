@@ -75,7 +75,7 @@ def get_multiple_choice_joint_adapter_spec(
 
 
 def get_image2structure_metric_specs(
-    metric_names: Optional[List[str]] = None, args: Optional[Dict] = None
+    metric_names: Optional[List[str]] = None, args: Optional[Dict] = None, normalize_by_white_score: bool = False
 ) -> List[MetricSpec]:
     from .metrics.vision_language.image_metrics import ImageMetric
 
@@ -91,7 +91,7 @@ def get_image2structure_metric_specs(
     return [
         MetricSpec(
             class_name="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",
-            args={"metric_names": metric_names},
+            args={"metric_names": metric_names, "normalize_by_white_score": normalize_by_white_score, **args},
         ),
         MetricSpec(
             class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
@@ -171,7 +171,7 @@ def get_image2latex_latex_spec(subject: str, recompile_prompt: bool = True, args
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(args=args)
+    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(args=args, normalize_by_white_score=False)
 
     run_spec_name: str = "image2latex"
     return RunSpec(
