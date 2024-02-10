@@ -1,8 +1,14 @@
 import warnings
 from scipy.stats import wasserstein_distance
 import numpy as np
-import cv2
-from PIL.Image import Image
+
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    import cv2
+    from PIL.Image import Image
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, suggestions=["image2structure"])
 
 ##
 # Globals
