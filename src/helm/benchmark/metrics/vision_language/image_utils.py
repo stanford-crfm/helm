@@ -10,7 +10,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["image2structure"])
 
 
-def preprocess_image(image: Image, norm_exposure: bool = True) -> np.ndarray:
+def preprocess_image(image: Image) -> np.ndarray:
     """Preprocesses an image for use in metrics.
     Returns a grayscale image stored using int in a numpy array.
     Also normalizes the exposure of the image.
@@ -18,8 +18,6 @@ def preprocess_image(image: Image, norm_exposure: bool = True) -> np.ndarray:
     image = image.convert("L")
     np_image = np.array(image)
     assert np_image.dtype == np.uint8
-    if norm_exposure:
-        np_image = normalize_exposure(np_image)
     return np_image
 
 
@@ -30,28 +28,9 @@ def get_histogram(img: np.ndarray) -> np.ndarray:
     the percent of the pixels in the image with the given darkness level.
     The histogram's values sum to 1.
     """
-    hist, _ = np.histogram(img, bins=256, range=(0, 255))
+    hist, _ = np.histogram(img, bins=256, range=(0, 256))
     hist = hist.astype(float) / img.size  # Normalize the histogram
     return hist
-
-
-def normalize_exposure(img: np.ndarray) -> np.ndarray:
-    """
-    Normalize the exposure of an image using numpy for efficiency.
-    """
-    img = img.astype(int)
-    hist, _ = np.histogram(img, bins=256, range=(0, 255))
-    hist = hist.astype(float) / img.size  # Normalize histogram
-
-    # Compute the CDF using numpy's cumsum function
-    cdf = np.cumsum(hist)
-    # Normalize the CDF
-    cdf_normalized = np.uint8(255 * cdf / cdf[-1])
-
-    # Use numpy's fancy indexing for normalization of the image
-    normalized = cdf_normalized[img]  # type: ignore
-
-    return normalized.astype(int)
 
 
 def earth_movers_distance(img_a: np.ndarray, img_b: np.ndarray) -> float:
