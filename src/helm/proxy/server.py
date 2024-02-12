@@ -260,6 +260,7 @@ def main():
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
     parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
     parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
+    parser.add_argument("--ssl-ca-certs", type=str, help="Path to SSL CA certs")
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
     parser.add_argument("-w", "--workers", type=int, help="Number of worker processes to handle requests", default=8)
     parser.add_argument("-t", "--timeout", type=int, help="Request timeout in seconds", default=5 * 60)
@@ -289,9 +290,12 @@ def main():
         "timeout": args.timeout,
         "limit_request_line": 0,  # Controls the maximum size of HTTP request line in bytes. 0 = unlimited.
     }
-    if args.ssl_key_file and args.ssl_cert_file:
+    if args.ssl_key_file:
         gunicorn_args["keyfile"] = args.ssl_key_file
+    if args.ssl_cert_file:
         gunicorn_args["certfile"] = args.ssl_cert_file
+    if args.ssl_ca_certs:
+        gunicorn_args["ca_certs"] = args.ssl_ca_certs
 
     # Clear arguments before running gunicorn as it also uses argparse
     sys.argv = [sys.argv[0]]
