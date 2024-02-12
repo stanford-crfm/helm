@@ -2573,6 +2573,7 @@ def get_lm_entry_spec(task: str, method: str = ADAPT_GENERATION) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["lm_entry"],
+    )
 
 
 @run_spec_function("cleva")

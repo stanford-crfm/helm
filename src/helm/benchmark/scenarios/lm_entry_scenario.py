@@ -75,12 +75,12 @@ class LMEntryScenario(Scenario):
         assert task in self.task_to_subtasks, f"Unsupported task: {task}"
         self.task: str = task
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, output_path: str) -> List[Instance]:
         # Download the raw data
         data_paths: List[str] = []
 
         for subtask in self.task_to_subtasks[self.task]:
-            data_path: str = os.path.join(self.output_path, f"{subtask}.json")
+            data_path: str = os.path.join(output_path, f"{subtask}.json")
             ensure_file_downloaded(
                 source_url=self.url_template.format(subtask=subtask),
                 target_path=data_path,
