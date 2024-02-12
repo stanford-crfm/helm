@@ -1,9 +1,4 @@
-interface Reference {
-  output: {
-    text: string;
-  };
-  tags: string[];
-}
+import type Reference from "@/types/Reference";
 
 export default interface Instance {
   id: string;

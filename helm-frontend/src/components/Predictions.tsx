@@ -33,12 +33,19 @@ export default function Predictions({ predictions, requests }: Props) {
       <div className="flex flex-wrap justify-start items-start">
         {predictions.map((prediction, idx) => (
           <div className="w-full" key={idx}>
+            {predictions.length > 1 ? <h2>Trial {idx}</h2> : null}
             <div className="mt-2 w-full">
               <h3>
-                <span className="mr-4">{`Prediction [trial ${prediction.train_trial_index}]`}</span>
+                <span className="mr-4">Prediction raw text</span>
                 <Indicator stats={prediction.stats} />
               </h3>
               <Preview value={prediction.predicted_text} />
+              {prediction.mapped_output ? (
+                <>
+                  <h3>Prediction mapped output</h3>
+                  <Preview value={prediction.mapped_output} />
+                </>
+              ) : null}
             </div>
             <div className="my-4">
               <Tabs>
