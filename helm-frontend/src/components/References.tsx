@@ -33,11 +33,3 @@ export default function References({ references }: Props) {
     </ul>
   );
 }
-
-// {metrics.map((metric) => {
-//     return (
-//       <li key={metric.name} className="ml-4">
-//         {metric.display_name}
-//       </li>
-//     );
-//   })}
