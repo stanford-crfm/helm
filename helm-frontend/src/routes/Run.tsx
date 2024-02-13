@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { Badge, Card, List, ListItem } from "@tremor/react";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/solid";
+import { ArrowDownTrayIcon, LinkIcon } from "@heroicons/react/24/solid";
 import getSchema from "@/services/getSchema";
 import getRunSpecs from "@/services/getRunSpecs";
 import type RunSpec from "@/types/RunSpec";
@@ -158,7 +158,12 @@ export default function Run() {
     <>
       <div className="flex justify-between gap-8 mb-12">
         <div>
-          <h1 className="text-3xl">{scenario.name}</h1>
+          <h1 className="text-3xl flex items-center">
+            {scenario.name}
+            <a href={"/#/groups/" + scenario.name}>
+              <LinkIcon className="w-6 h-6 ml-2" />
+            </a>
+          </h1>
           <h3 className="text-xl">
             <MarkdownValue value={scenario.description} />
           </h3>
