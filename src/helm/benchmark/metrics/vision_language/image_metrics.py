@@ -154,6 +154,14 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                 rgb_image: np.ndarray = np.array(image)
                 gray_image: np.ndarray = preprocess_image(image)
 
+                # List of metrics and arguments to evaluate
+                # The arguments are as follows:
+                # 1. Name of the metric
+                # 2. Function to compute the metric
+                # 3. The generated image obhect (type can depend on the metric)
+                # 4. The reference image object (type can depend on the metric)
+                # 5. The white image object (type can depend on the metric) - may be used to normalize the metric
+                # 6. Whether the metric can be computed on the white image - if not, the metric is not normalized
                 metric_runs: list = [
                     [self.PIXEL_SIMILARITY, pixel_similarity, gray_image, gray_ref_image, gray_white_image, True],
                     [self.SIFT_SIMILARITY, sift_similarity, rgb_image, rgb_ref_image, rgb_white_image, False],
