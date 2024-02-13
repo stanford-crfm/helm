@@ -17,6 +17,9 @@ class LatexMetric(GenerateImageFromCompletionMetric):
         ("```", "```"),
     ]
 
+    def __init__(self, metric_names: List[str], normalize_by_white_score: bool = False):
+        super().__init__("latex", metric_names, normalize_by_white_score)
+
     def compile_completion_into_image(self, request_state: RequestState, completion: str, ref_image: Image) -> Image:
         """Given a completion, parse the LaTeX and compile it into an image."""
         # Get the assets path

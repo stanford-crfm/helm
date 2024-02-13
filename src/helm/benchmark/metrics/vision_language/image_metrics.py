@@ -46,15 +46,15 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
     In addition metrics can also be cached to avoid recomputation.
     """
 
+    # Metric names
     COMPILE_METRIC: str = "compilation_success"
     EARTH_MOVER_SIMILARITY: str = "earth_mover_similarity"
     PIXEL_SIMILARITY: str = "pixel_similarity"
     SIFT_SIMILARITY: str = "sift_similarity"
     LPIPS_SIMILARITY: str = "lpips_similarity"
 
-    generation_type: str = "image_metric"  # Should be overridden by subclasses
-
-    def __init__(self, metric_names: List[str], normalize_by_white_score: bool = False):
+    def __init__(self, generation_type: str, metric_names: List[str], normalize_by_white_score: bool = False):
+        self.generation_type = generation_type
         self._metric_names: List[str] = metric_names
         self._lpips_metric: Optional[LearnedPerceptualImagePatchSimilarity] = None
         self._device = get_torch_device()
