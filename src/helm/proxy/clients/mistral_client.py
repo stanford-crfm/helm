@@ -4,13 +4,9 @@ from typing import Any, Dict, List, Optional, TypedDict
 from helm.proxy.retry import NonRetriableException
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_and_tokenize_response_text
 
 try:
     from mistralai.client import MistralClient
@@ -125,16 +121,7 @@ class MistralAIClient(CachingClient):
 
             # The Mistral API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
-            # The Mistral API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
-
-            # Log probs are not currently not supported by Mistral, so set to 0 for now.
-            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-
-            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
-            sequence = truncate_sequence(completion, request, print_warning=True)
+            sequence = truncate_and_tokenize_response_text(text, request, self.tokenizer, self.tokenizer_name)
             completions.append(sequence)
 
         return RequestResult(
