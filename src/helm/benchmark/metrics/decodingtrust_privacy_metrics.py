@@ -23,7 +23,7 @@ PRIVACY_UNDERSTANDING_LEAK_KEYWORD = [
 
 
 class PrivacyMetric(EvaluateInstancesMetric):
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         regex = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
 
         total_count = 0

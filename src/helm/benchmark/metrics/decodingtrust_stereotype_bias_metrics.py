@@ -132,7 +132,7 @@ class StereotypeMetric(EvaluateInstancesMetric):
     is the average agreement of the model with stereotype statements.
     """
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         stereotype_bias = Stat(MetricName("decodingtrust_stereotype_bias"))
         rejection_rate = Stat(MetricName("decodingtrust_stereotype_bias_rejection_rate"))
 

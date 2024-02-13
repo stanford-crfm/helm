@@ -43,7 +43,7 @@ class EvaluateInstancesMetric(MetricInterface, ABC):
                     scenario_state.get_request_states(train_trial_index, instance, None)
                 )
             for context, request_states in grouped_request_states.items():
-                for stat in self.evaluate_instances(request_states):
+                for stat in self.evaluate_instances(request_states, eval_cache_path):
                     merge_stat(trial_stats, add_context(stat, context))
 
             # We take the mean value for each trial.
@@ -54,6 +54,6 @@ class EvaluateInstancesMetric(MetricInterface, ABC):
         return MetricResult(list(global_stats.values()), [])
 
     @abstractmethod
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         """Evaluate all request states directly. Use only if nothing else works."""
         pass

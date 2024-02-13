@@ -2,10 +2,13 @@ from typing import List, Dict, Optional
 import numpy as np
 from torchvision import transforms
 from abc import ABC, abstractmethod
+import os
 
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device
+from helm.common.file_caches.local_file_cache import LocalPILFileCache
+from helm.common.cache import Cache, SqliteCacheConfig
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.media_object import MediaObject
@@ -45,11 +48,31 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
     SIFT_SIMILARITY: str = "sift_similarity"
     LPIPS_SIMILARITY: str = "lpips_similarity"
 
+    generation_type: str = "image_metric"  # Should be overridden by subclasses
+
     def __init__(self, metric_names: List[str], normalize_by_white_score: bool = False):
         self._metric_names: List[str] = metric_names
         self._lpips_metric: Optional[LearnedPerceptualImagePatchSimilarity] = None
         self._device = get_torch_device()
         self._normalize_by_white_score = normalize_by_white_score
+        self._cache: Optional[Cache] = None
+        self._file_cache: Optional[LocalPILFileCache] = None
+
+    def _get_file_cache(self, file_storage_path: str) -> LocalPILFileCache:
+        # Initialize `FileCache` to store compiled images
+        local_file_cache_path: str = os.path.join(file_storage_path, self.generation_type)
+        return LocalPILFileCache(local_file_cache_path)
+
+    def _get_cache(self, path: str) -> Cache:
+        # Initialize `Cache` to store compiled images
+        sql_cache_path: str = os.path.join(path, f"{self.generation_type}.sqlite")
+        return Cache(SqliteCacheConfig(sql_cache_path))
+
+    def _get_compilation_cache_key(self, completion: str) -> Dict[str, str]:
+        return {
+            "generation_type": self.generation_type,
+            "completion": completion,
+        }
 
     @abstractmethod
     def compile_completion_into_image(
@@ -57,7 +80,12 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
     ) -> Image.Image:
         raise NotImplementedError
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
+        if self._cache is None:
+            self._cache = self._get_cache(eval_cache_path)
+        if self._file_cache is None:
+            self._file_cache = self._get_file_cache(eval_cache_path)
+
         stats_dict: Dict[str, Stat] = {
             name: Stat(MetricName(name)) for name in (self._metric_names + [self.COMPILE_METRIC])
         }
@@ -96,15 +124,28 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
             ]
 
             for completion in completions:
-                image: Image.Image
-                try:
-                    image = self.compile_completion_into_image(request_state, completion, ref_image).convert("RGB")
-                except CompilationError:
+
+                def do_it():
+                    try:
+                        assert self._file_cache is not None
+                        image_path: str = self._file_cache.store_image(
+                            lambda: self.compile_completion_into_image(request_state, completion, ref_image)
+                        )
+                        return {"image_path": image_path}
+                    except CompilationError:
+                        return {"error": "CompilationError"}
+
+                cache_key = self._get_compilation_cache_key(completion)
+                response, _ = self._cache.get(cache_key, do_it)
+
+                if "error" in response:
                     stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                     # For all other metrics, we set the value to zero
                     for metric_name in self._metric_names:
                         stats_dict[metric_name].add(0)
                     continue
+
+                image: Image.Image = self._file_cache.load_image(response["image_path"])
                 assert image.size == ref_image.size
                 rgb_image: np.ndarray = np.array(image)
                 gray_image: np.ndarray = preprocess_image(image)

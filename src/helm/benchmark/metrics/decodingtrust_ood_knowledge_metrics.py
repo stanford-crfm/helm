@@ -19,7 +19,7 @@ class OODKnowledgeMetric(EvaluateInstancesMetric):
     A higher rr and macc indicates a better reliability.
     """
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         correct_answer = 0
         idk_answer = 0
         for request_state in request_states:  # one request state per instance

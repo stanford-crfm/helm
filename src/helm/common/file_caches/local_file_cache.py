@@ -4,6 +4,13 @@ from typing import Callable
 from helm.common.general import ensure_directory_exists, generate_unique_id
 from .file_cache import FileCache
 
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from PIL import Image
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["images"])
+
 
 class LocalFileCache(FileCache):
     def __init__(self, base_path: str, file_extension: str):
@@ -35,3 +42,20 @@ class LocalFileCache(FileCache):
             if not os.path.exists(file_path):
                 break
         return file_path
+
+
+class LocalPILFileCache(LocalFileCache):
+    def __init__(self, base_path: str):
+        super().__init__(base_path, "png")
+
+    def store_image(self, compute: Callable[[], Image.Image]) -> str:
+        """
+        Stores the output of `compute` as a file at a unique path.
+        Returns the file path.
+        """
+        file_path: str = self.generate_unique_new_file_path()
+        compute().save(file_path)
+        return file_path
+
+    def load_image(self, file_path: str) -> Image.Image:
+        return Image.open(file_path).convert("RGB")
