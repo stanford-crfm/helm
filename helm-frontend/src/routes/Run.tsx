@@ -158,18 +158,18 @@ export default function Run() {
     <>
       <div className="flex justify-between gap-8 mb-12">
         <div>
-          <h1 className="text-4xl">{scenario.name}</h1>
-          <h3 className="text-2xl">
+          <h1 className="text-3xl">{scenario.name}</h1>
+          <h3 className="text-xl">
             <MarkdownValue value={scenario.description} />
           </h3>
-          <h1 className="text mt-2">{runSpec.adapter_spec.model}</h1>
-          <h3 className="text-sm text-gray-500">
+          <h1 className="text-3xl mt-2">{runSpec.adapter_spec.model}</h1>
+          <h3 className="text-xl">
             <MarkdownValue value={model?.description || ""} />
           </h3>
           <div className="mt-2 flex gap-2">
             {scenario.tags.map((tag) => (
               <Badge size="xs" color="gray">
-                <span className="text text-xs">{tag}</span>
+                <span className="text text-md">{tag}</span>
               </Badge>
             ))}
           </div>
