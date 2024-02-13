@@ -68,7 +68,8 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         return LocalPILFileCache(local_file_cache_path)
 
     def _get_cache(self, path: str) -> Cache:
-        # Initialize `Cache` to store compiled images
+        # Initialize `Cache` to store metric results and completions to the path
+        # of the compiled image stored in the `LocalPILFileCache`
         sql_cache_path: str = os.path.join(path, f"{self.generation_type}.sqlite")
         return Cache(SqliteCacheConfig(sql_cache_path))
 
@@ -213,6 +214,11 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         return list(stats_dict.values())
 
     def lpips_similarity(self, generated_image: Image.Image, reference_image: Image.Image) -> float:
+        """Compute the LPIPS similarity between the generated and reference images.
+
+        This metric is defined here as it requires loading the LPIPS model.
+        Storing the model in this class is easier than passing it as an argument.
+        """
         if self._lpips_metric is None:
             self._lpips_metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg").to(self._device)
 
