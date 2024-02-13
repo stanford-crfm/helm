@@ -13,6 +13,7 @@ from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.media_object import MediaObject
 from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.hierarchical_logger import hlog
 from ..metric_name import MetricName
 from ..statistic import Stat
 from .image_utils import preprocess_image, earth_mover_similarity, pixel_similarity, sift_similarity
@@ -132,8 +133,8 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
                             lambda: self.compile_completion_into_image(request_state, completion, ref_image)
                         )
                         return {"image_path": image_path}
-                    except CompilationError:
-                        return {"error": "CompilationError"}
+                    except CompilationError as e:
+                        return {"error": str(e)}
 
                 cache_key = self._get_compilation_cache_key(completion)
                 response, _ = self._cache.get(cache_key, do_it)
@@ -165,11 +166,33 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
                 ]
 
                 for metric_name, metric_fn, image1, image2, white_image, can_compute_on_white in metric_runs:
-                    value: float = metric_fn(image1, image2)
-                    if self._normalize_by_white_score and can_compute_on_white:
-                        assert white_image is not None
-                        value_white: float = metric_fn(image2, white_image)
-                        value = (value - value_white) / (1.0 - value_white)
+
+                    def do_it():
+                        try:
+                            value = metric_fn(image1, image2)
+                            if self._normalize_by_white_score and can_compute_on_white:
+                                assert white_image is not None
+                                value_white: float = metric_fn(image2, white_image)
+                                value = (value - value_white) / (1.0 - value_white)
+                            return {"value": value}
+                        except Exception as e:
+                            return {"error": str(e)}
+
+                    response_metric, _ = self._cache.get(
+                        {
+                            "metric_name": metric_name,
+                            "ref_image_path": ref_media_object.location,
+                            "generated_image_path": response["image_path"],
+                            "normalize_by_white_score": self._normalize_by_white_score,
+                        },
+                        do_it,
+                    )
+                    value: float
+                    if "error" in response_metric:
+                        hlog(f"Error in metric {metric_name}: {response_metric['error']}")
+                        value = 0
+                    else:
+                        value = response_metric["value"]
                     stats_dict[metric_name].add(value)
 
                 stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
