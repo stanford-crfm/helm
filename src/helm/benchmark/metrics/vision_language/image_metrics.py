@@ -29,7 +29,7 @@ class CompilationError(Exception):
     pass
 
 
-class ImageMetric(EvaluateInstancesMetric, ABC):
+class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
     """Abstract class for image metrics.
 
     This class is designed to evaluate metrics on images that should be generated using the text
@@ -41,6 +41,9 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
     In addition to the metrics, the class also provides a metric to evaluate the compilation success.
     If the compilation fails, the similarity metrics are not evaluated and are all set to the most
     dissimilar value.
+
+    Since compilation can be expensive, the class provides a cache to store the compiled images.
+    In addition metrics can also be cached to avoid recomputation.
     """
 
     COMPILE_METRIC: str = "compilation_success"
@@ -166,6 +169,8 @@ class ImageMetric(EvaluateInstancesMetric, ABC):
                 ]
 
                 for metric_name, metric_fn, image1, image2, white_image, can_compute_on_white in metric_runs:
+                    if metric_name not in self._metric_names:
+                        continue
 
                     def do_it():
                         try:

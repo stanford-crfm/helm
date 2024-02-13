@@ -77,14 +77,14 @@ def get_multiple_choice_joint_adapter_spec(
 def get_image2structure_metric_specs(
     metric_names: Optional[List[str]] = None, args: Optional[Dict] = None, normalize_by_white_score: bool = False
 ) -> List[MetricSpec]:
-    from .metrics.vision_language.image_metrics import ImageMetric
+    from .metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric
 
     if metric_names is None:
         metric_names = [
-            ImageMetric.EARTH_MOVER_SIMILARITY,
-            ImageMetric.PIXEL_SIMILARITY,
-            ImageMetric.SIFT_SIMILARITY,
-            ImageMetric.LPIPS_SIMILARITY,
+            GenerateImageFromCompletionMetric.EARTH_MOVER_SIMILARITY,
+            GenerateImageFromCompletionMetric.PIXEL_SIMILARITY,
+            GenerateImageFromCompletionMetric.SIFT_SIMILARITY,
+            GenerateImageFromCompletionMetric.LPIPS_SIMILARITY,
         ]
     if args is None:
         args = {}

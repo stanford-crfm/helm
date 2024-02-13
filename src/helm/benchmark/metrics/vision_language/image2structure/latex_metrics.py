@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from helm.benchmark.metrics.vision_language.image_metrics import ImageMetric, CompilationError
+from helm.benchmark.metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.vision_language.image2structure.utils_latex import latex_to_image
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -11,7 +11,7 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["images"])
 
 
-class LatexMetric(ImageMetric):
+class LatexMetric(GenerateImageFromCompletionMetric):
     DELIMITERS: List[Tuple[str, str]] = [
         ("```latex", "```"),
         ("```", "```"),
