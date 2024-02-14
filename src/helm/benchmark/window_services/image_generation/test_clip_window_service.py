@@ -1,17 +1,16 @@
 import shutil
 import tempfile
 
-from helm.benchmark.config_registry import register_builtin_configs_from_helm_package
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.window_services.test_utils import get_tokenizer_service
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 
 
 class TestCLIPWindowService:
     def setup_method(self):
-        register_builtin_configs_from_helm_package()
         self.path: str = tempfile.mkdtemp()
-        service: TokenizerService = get_tokenizer_service(self.path)
+        service: TokenizerService = get_tokenizer_service(self.path, BlackHoleCacheBackendConfig())
         self.window_service = WindowServiceFactory.get_window_service("huggingface/dreamlike-photoreal-v2-0", service)
 
     def teardown_method(self, method):

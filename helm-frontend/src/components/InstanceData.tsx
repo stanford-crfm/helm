@@ -2,6 +2,7 @@ import type Instance from "@/types/Instance";
 import type DisplayRequest from "@/types/DisplayRequest";
 import type DisplayPrediction from "@/types/DisplayPrediction";
 import Predictions from "@/components/Predictions";
+import References from "@/components/References";
 import Preview from "@/components/Preview";
 
 interface Props {
@@ -20,8 +21,12 @@ export default function InstanceData({
       <h3 className="text-xl mb-4">
         {`Instance id: ${instance.id} [split:  ${instance.split}]`}
       </h3>
-      <span className="text-gray-400">Input</span>
+      <h3>Input</h3>
       <Preview value={instance.input.text} />
+      <h3>References</h3>
+      <span>
+        <References references={instance.references} />
+      </span>
       {predictions && requests ? (
         <Predictions predictions={predictions} requests={requests} />
       ) : null}

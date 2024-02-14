@@ -9,63 +9,6 @@ from helm.common.request import wrap_request_time, Request, RequestResult, Seque
 from .client import CachingClient, truncate_sequence, cleanup_str
 
 
-MODEL_ALIASES: Dict[str, str] = {
-    # Legacy models
-    "flan-t5-xxl": "flan-t5-xxl-hf",
-    "h3-2.7b": "h3-2.7b-h3",
-    "opt-1.3b": "opt-1.3b-ft-tp1",
-    "opt-6.7b": "opt-6.7b-ft-tp1",
-    "mpt-7b": "togethercomputer/mpt-7b",
-    "mpt-instruct-7b": "togethercomputer/mpt-7b-instruct",
-    "stablelm-base-alpha-3b": "stabilityai/stablelm-base-alpha-3b",
-    "stablelm-base-alpha-7b": "stabilityai/stablelm-base-alpha-7b",
-    # Production models
-    "redpajama-incite-base-3b-v1": "togethercomputer/RedPajama-INCITE-Base-3B-v1",
-    "redpajama-incite-instruct-3b-v1": "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
-    "redpajama-incite-base-7b": "togethercomputer/RedPajama-INCITE-7B-Base",
-    "redpajama-incite-instruct-7b": "togethercomputer/RedPajama-INCITE-7B-Instruct",
-    "alpaca-7b": "togethercomputer/alpaca-7b",
-    "dolly-v2-3b": "databricks/dolly-v2-3b",
-    "dolly-v2-7b": "databricks/dolly-v2-7b",
-    "dolly-v2-12b": "databricks/dolly-v2-12b",
-    "falcon-7b": "togethercomputer/falcon-7b",
-    "falcon-7b-instruct": "togethercomputer/falcon-7b-instruct",
-    "falcon-40b": "togethercomputer/falcon-40b",
-    "falcon-40b-instruct": "togethercomputer/falcon-40b-instruct",
-    "gpt-jt-6b-v1": "togethercomputer/GPT-JT-6B-v1",
-    "gpt-neoxt-chat-base-20b": "togethercomputer/GPT-NeoXT-Chat-Base-20B",
-    "llama-7b": "huggyllama/llama-7b",
-    "llama-13b": "huggyllama/llama-13b",
-    "llama-30b": "huggyllama/llama-30b",
-    "llama-65b": "huggyllama/llama-65b",
-    "llama-2-7b": "togethercomputer/llama-2-7b",
-    "llama-2-13b": "togethercomputer/llama-2-13b",
-    "llama-2-70b": "togethercomputer/llama-2-70b",
-    "mistral-7b-v0.1": "mistralai/Mistral-7B-v0.1",
-    "mixtral-8x7b-32kseqlen": "mistralai/mixtral-8x7b-32kseqlen",
-    "mpt-30b": "togethercomputer/mpt-30b",
-    "mpt-instruct-30b": "togethercomputer/mpt-30b-instruct",
-    "pythia-1b-v0": "EleutherAI/pythia-1b-v0",
-    "pythia-2.8b-v0": "EleutherAI/pythia-2.8b-v0",
-    "pythia-6.9b": "EleutherAI/pythia-6.9b",
-    "pythia-12b-v0": "EleutherAI/pythia-12b-v0",
-    "vicuna-7b-v1.3": "lmsys/vicuna-7b-v1.3",
-    "vicuna-13b-v1.3": "lmsys/vicuna-13b-v1.3",
-    "yi-6b": "zero-one-ai/Yi-6B",
-    "yi-34b": "zero-one-ai/Yi-34B",
-}
-"""Together model name aliases.
-
-HELM users use a shorter model name (e.g. together/flan-t5-xxl)
-whereas the Together client sends and caches requests using
-a longer model name that is suffixed with the implementation framework
-(e.g. flan-t5-xxl-hf). This allows tracking exactly which
-implementation was used in the cached results, since some results may
-be different depending on the implementation (e.g. efficiency metrics).
-This also allows future migration of results in the case of changes of
-available implementations on Together."""
-
-
 class _RewriteRequestTags:
     """Tags that indicate that the request for the model must be rewritten before sending to Together."""
 
@@ -154,35 +97,34 @@ class TogetherClient(CachingClient):
     INFERENCE_ENDPOINT: str = "https://api.together.xyz/api/inference"
     RETRIEVE_JOB_MAX_WAIT_SECONDS: int = 60
 
-    @staticmethod
-    def convert_to_raw_request(request: Request) -> Dict:
+    def convert_to_raw_request(self, request: Request) -> Dict:
         # Following the examples from https://github.com/togethercomputer/open-models-api
         raw_request = {
             "request_type": "language-model-inference",
-            "model": MODEL_ALIASES.get(request.model_engine, request.model_engine),
+            "model": self.together_model or request.model,
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
             "best_of": request.top_k_per_token,
-            "logprobs": request.top_k_per_token,
             "stop": request.stop_sequences or None,
             "echo": request.echo_prompt,
             "top_p": request.top_p,
         }
         return _rewrite_raw_request_for_model_tags(raw_request, request.model_engine)
 
-    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+    def __init__(self, cache_config: CacheConfig, together_model: Optional[str] = None, api_key: Optional[str] = None):
         super().__init__(cache_config=cache_config)
         # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
         #       in credentials.conf, we rely on offline evaluation only.
         self.api_key: Optional[str] = api_key
+        self.together_model = together_model
 
     def _get_job_url(self, job_id: str) -> str:
         return f"https://api.together.xyz/jobs/job/{job_id}"
 
     def make_request(self, request: Request) -> RequestResult:
-        raw_request = TogetherClient.convert_to_raw_request(request)
+        raw_request = self.convert_to_raw_request(request)
         cache_key = CachingClient.make_cache_key(raw_request, request)
 
         if not self.api_key:
@@ -288,17 +230,15 @@ class TogetherClient(CachingClient):
             # Waiting for a fix.
             if "logprobs" in raw_completion:
                 raw_data = raw_completion["logprobs"]
-                for text, logprob, top_logprobs in zip(
-                    raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
-                ):
+                for text, logprob in zip(raw_data["tokens"], raw_data["token_logprobs"]):
                     # TODO #1654: Check if this is still needed
                     text = cleanup_str(text, "together")
-                    tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+                    tokens.append(Token(text=text, logprob=logprob or 0))
                     sequence_logprob += logprob or 0
             else:
                 # hack: just make the entire text one token so that something shows up in the frontend
                 text = cleanup_str(raw_completion["text"], "together")
-                tokens.append(Token(text=text, logprob=0, top_logprobs={}))
+                tokens.append(Token(text=text, logprob=0))
 
             raw_finish_reason: Optional[str] = raw_completion.get("finish_reason")
             finish_reason: Optional[Dict] = {"reason": raw_finish_reason} if raw_finish_reason else None

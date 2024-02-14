@@ -260,34 +260,12 @@ $(function () {
     return groups;
   }
 
-  function renderTopLogprobs(token) {
-    const entries = Object.entries(token.top_logprobs);
-    if (!(token.text in token.top_logprobs)) {
-      entries.push([token.text, token.logprob]);
-    }
-    entries.sort((a, b) => b[1] - a[1]);
-    function marker(text) {
-      return text === token.text ? " [selected]" : "";
-    }
-    return (
-      `Candidates for ${token.text} (with logprobs):\n` +
-      entries
-        .map(
-          ([text, logprob]) =>
-            `${JSON.stringify(text)}: ${logprob}${marker(text)}`,
-        )
-        .join("\n")
-    );
-  }
-
   function renderTokens(tokens) {
     // Render text as a sequence of tokens that you can interact with to see more information (e.g., logprobs)
     const $result = $("<div>");
     const groups = constructTokenGroups(tokens);
     for (const group of groups) {
-      // When mouse over token, show the alternative tokens and their log probabilities (including the one that's generated)
-      const title = group.tokens.map(renderTopLogprobs).join("\n\n");
-      const $group = $("<span>", { class: "token", title }).append(
+      const $group = $("<span>", { class: "token" }).append(
         multilineHtml(group.text),
       );
       $result.append($group);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { Badge, Card, List, ListItem } from "@tremor/react";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/solid";
+import { ArrowDownTrayIcon, LinkIcon } from "@heroicons/react/24/solid";
 import getSchema from "@/services/getSchema";
 import getRunSpecs from "@/services/getRunSpecs";
 import type RunSpec from "@/types/RunSpec";
@@ -158,18 +158,23 @@ export default function Run() {
     <>
       <div className="flex justify-between gap-8 mb-12">
         <div>
-          <h1 className="text-4xl">{scenario.name}</h1>
-          <h3 className="text-2xl">
+          <h1 className="text-3xl flex items-center">
+            {scenario.name}
+            <a href={"/#/groups/" + scenario.name}>
+              <LinkIcon className="w-6 h-6 ml-2" />
+            </a>
+          </h1>
+          <h3 className="text-xl">
             <MarkdownValue value={scenario.description} />
           </h3>
-          <h1 className="text mt-2">{runSpec.adapter_spec.model}</h1>
-          <h3 className="text-sm text-gray-500">
+          <h1 className="text-3xl mt-2">{runSpec.adapter_spec.model}</h1>
+          <h3 className="text-xl">
             <MarkdownValue value={model?.description || ""} />
           </h3>
           <div className="mt-2 flex gap-2">
             {scenario.tags.map((tag) => (
               <Badge size="xs" color="gray">
-                <span className="text text-xs">{tag}</span>
+                <span className="text text-md">{tag}</span>
               </Badge>
             ))}
           </div>
@@ -229,7 +234,7 @@ export default function Run() {
       </div>
       {activeTab === 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid gap-8">
             {pagedInstances.map((instance, idx) => (
               <InstanceData
                 key={`${instance.id}-${idx}`}

@@ -1,6 +1,6 @@
 from typing import List
 from helm.benchmark.adaptation.request_state import RequestState
-from .metric import Metric
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from .metric_name import MetricName
 from .statistic import Stat
 from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
@@ -9,7 +9,7 @@ from fairlearn.metrics import equalized_odds_difference
 from fairlearn.metrics import demographic_parity_difference
 
 
-class FairnessMetric(Metric):
+class FairnessMetric(EvaluateInstancesMetric):
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         x_sensitive: List[int] = []
         y_pred: List[int] = []

@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 from threading import Lock
 from helm.common.cache import CacheConfig
 from helm.common.concurrency import ThreadSafeWrapper
@@ -155,6 +155,9 @@ class HuggingFaceTokenizer(CachingTokenizer):
                 # Just like tokenize("Hello", encode=False) would return ["Hello"].
                 with self._get_tokenizer_for_request(request) as tokenizer:
                     tokens = tokenizer.tokenize(request["text"])
+                # Some tokenizers (e.g. Qwen/Qwen-7B) return the tokens as bytes, so we have to decode them to strings.
+                if tokens and type(tokens[0]) == bytes:
+                    tokens = [cast(bytes, token).decode(errors="ignore") for token in tokens]
                 tokens = cleanup_tokens(tokens, request["tokenizer"])
         return {"tokens": tokens}
 

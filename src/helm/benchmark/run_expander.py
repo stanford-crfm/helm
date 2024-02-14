@@ -371,6 +371,55 @@ class GoogleRunExpander(RunExpander):
         ]
 
 
+class IDEFICSInstructRunExpander(RunExpander):
+    """
+    Custom prompt for IDEFICS instruct models which require a specific format.
+    See https://huggingface.co/HuggingFaceM4/idefics-80b-instruct for more information.
+    """
+
+    name = "idefics_instruct"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    input_prefix="User: ",
+                    input_suffix="<end_of_utterance>",
+                    output_prefix="\nAssistant: ",
+                    output_suffix="<end_of_utterance>",
+                    stop_sequences=["<end_of_utterance>"],
+                ),
+            ),
+        ]
+
+
+class LlavaRunExpander(RunExpander):
+    """
+    Custom prompt for Llava 1.5 models which should use a specific format.
+    See https://colab.research.google.com/drive/1qsl6cd2c8gGtEW1xV5io7S8NHh-Cp1TV?usp=sharing for more information.
+    """
+
+    name = "llava"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    input_prefix="USER: <image>",
+                    input_suffix="",
+                    output_prefix="\nASSISTANT: ",
+                    output_suffix="",
+                ),
+            ),
+        ]
+
+
 class FormatPromptRunExpander(RunExpander):
     """Adds a prefix and suffix to the prompt."""
 

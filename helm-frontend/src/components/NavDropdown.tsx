@@ -12,7 +12,7 @@ function NavDropdown() {
             <img
               src="https://crfm.stanford.edu/helm/v0.3.0/images/helm-logo-simple.png"
               alt="Image 1"
-              className="w-full h-10 object-cover"
+              className="h-10 object-cover"
             />
             {/* Manually set whether Classic or Not via config, otherwise don't show this */}
             {window.HELM_TYPE ? (

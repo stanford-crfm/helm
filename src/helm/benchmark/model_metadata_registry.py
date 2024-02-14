@@ -52,6 +52,10 @@ TEXT_TO_IMAGE_MODEL_TAG: str = "TEXT_TO_IMAGE_MODEL_TAG"
 
 # For Vision-langauge models (VLMs)
 VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
+# IDEFICS require a special prompt format (see `IDEFICSInstructRunExpander`)
+IDEFICS_INSTRUCT_MODEL_TAG: str = "IDEFICS_INSTRUCT_MODEL_TAG"
+# Llava should use a special prompt format (see `LlavaRunExpander`)
+LLAVA_MODEL_TAG: str = "LLAVA_MODEL_TAG"
 
 
 # Frozen is set to false as the model_deployment_registry.py file
@@ -157,6 +161,11 @@ def get_model_names_with_tag(tag: str) -> List[str]:
     return [model.name for model in ALL_MODELS_METADATA if tag in model.tags]
 
 
+def model_has_tag(model_name: str, tag: str) -> bool:
+    """Return True if the model has the given tag. False otherwise."""
+    return tag in get_model_metadata(model_name).tags
+
+
 def get_all_text_models() -> List[str]:
     """Return all model names of text models."""
     return get_model_names_with_tag(TEXT_MODEL_TAG)
@@ -174,12 +183,12 @@ def get_all_instruction_following_models() -> List[str]:
 
 def is_text_to_image_model(model_name: str) -> bool:
     """Returns True if the model is a text-to-image model. False otherwise."""
-    try:
-        model: ModelMetadata = get_model_metadata(model_name)
-    except ValueError:
-        return False
+    return model_has_tag(model_name, TEXT_TO_IMAGE_MODEL_TAG)
 
-    return TEXT_TO_IMAGE_MODEL_TAG in model.tags
+
+def is_vlm(model_name: str) -> bool:
+    """Returns True if the model is a vision-language model (VLM). False otherwise."""
+    return model_has_tag(model_name, VISION_LANGUAGE_MODEL_TAG)
 
 
 def get_unknown_model_metadata(helm_model_name: str) -> ModelMetadata:

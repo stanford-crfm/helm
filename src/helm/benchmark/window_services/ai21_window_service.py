@@ -9,9 +9,8 @@ from helm.common.tokenization_request import (
     TokenizationToken,
     TextRange,
 )
-from .window_service import ConfigurableWindowService, EncodeResult
+from .window_service import ConfigurableWindowService, EncodeResult, WindowService
 from .tokenizer_service import TokenizerService
-from .gpt2_window_service import GPT2WindowService
 
 
 class AI21WindowService(ConfigurableWindowService):
@@ -34,7 +33,7 @@ class AI21WindowService(ConfigurableWindowService):
 
     def __init__(
         self,
-        gpt2_window_service: GPT2WindowService,
+        gpt2_window_service: WindowService,
         service: TokenizerService,
         tokenizer_name: str,
         max_sequence_length: int,
@@ -54,7 +53,7 @@ class AI21WindowService(ConfigurableWindowService):
         # We need the `TokenizerService` to make requests to the server.
         self.service: TokenizerService = service
         # As explained above, we need a `GPT2WindowService` to help tokenize long text sequences.
-        self.gpt2_window_service: GPT2WindowService = gpt2_window_service
+        self.gpt2_window_service: WindowService = gpt2_window_service
 
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """

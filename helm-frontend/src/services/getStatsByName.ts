@@ -10,9 +10,7 @@ export default async function getStatsByName(
   try {
     const stats = await fetch(
       getBenchmarkEndpoint(
-        `/benchmark_output/runs/${
-          suite || getBenchmarkSuite()
-        }/${runName}/stats.json`,
+        `/runs/${suite || getBenchmarkSuite()}/${runName}/stats.json`,
       ),
       { signal },
     );

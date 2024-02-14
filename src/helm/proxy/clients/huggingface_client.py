@@ -5,7 +5,7 @@ from transformers.generation.stopping_criteria import (
     StoppingCriteria,
     StoppingCriteriaList,
 )
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypedDict
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
@@ -36,6 +36,20 @@ class StopAtSpecificTokenCriteria(StoppingCriteria):
         return bool(torch.all(current_sequence == stop_sequence_tensor).item())
 
 
+class HuggingFaceRequest(TypedDict):
+    """Data passed between make_request and serve_request. Used as the cache key."""
+
+    engine: str
+    prompt: str
+    temperature: float
+    num_return_sequences: int
+    max_new_tokens: int
+    top_p: float
+    echo_prompt: bool
+    top_k_per_token: int
+    stop_sequences: List
+
+
 class HuggingFaceServer:
     """A thin wrapper around a Hugging Face AutoModelForCausalLM for HuggingFaceClient to call."""
 
@@ -55,30 +69,24 @@ class HuggingFaceServer:
                 pretrained_model_name_or_path, **kwargs
             )
 
-    def serve_request(self, raw_request: Dict[str, Any]):
+    def serve_request(self, raw_request: HuggingFaceRequest):
         with self.wrapped_tokenizer as tokenizer:
             encoded_input = tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
                 self.device
             )
-        raw_request = deepcopy(raw_request)
-        raw_request["do_sample"] = True
-        raw_request["return_dict_in_generate"] = True
-        raw_request["output_scores"] = True
-        top_k_per_token: int = raw_request["top_k_per_token"]
-        del raw_request["top_k_per_token"]
         stopping_criteria: Optional[StoppingCriteriaList] = None
+        optional_args = {}
         if len(raw_request["stop_sequences"]) > 0:
             with self.wrapped_tokenizer as tokenizer:
                 stop_sequence_ids = tokenizer(
                     raw_request["stop_sequences"], return_token_type_ids=False, add_special_tokens=False
                 )
             if len(stop_sequence_ids.input_ids) == 1 and len(stop_sequence_ids.input_ids[0]) == 1:
-                raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
+                optional_args["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
             else:
                 stopping_criteria = StoppingCriteriaList()
                 for stop_sequence_input_ids in stop_sequence_ids.input_ids:
                     stopping_criteria.append(StopAtSpecificTokenCriteria(stop_sequence=stop_sequence_input_ids))
-            del raw_request["stop_sequences"]
 
         # Check if we need to compute the perplexity of the prompt (#1497)
         compute_logprobs_only = (
@@ -94,64 +102,42 @@ class HuggingFaceServer:
             sequences = encoded_input["input_ids"]
             scores = output.logits
         else:
-            # Strip out irrelevant parameters
-            relevant_raw_request = {
-                key: raw_request[key]
-                for key in raw_request
-                if key not in ["engine", "prompt", "echo_prompt", "stop_sequences"]
-            }
-
             output = self.model.generate(
                 **encoded_input,
-                **relevant_raw_request,
+                temperature=raw_request["temperature"],
+                num_return_sequences=raw_request["num_return_sequences"],
+                max_new_tokens=raw_request["max_new_tokens"],
+                top_p=raw_request["top_p"],
+                do_sample=True,
+                return_dict_in_generate=True,
+                output_scores=True,
+                **optional_args,
                 stopping_criteria=stopping_criteria,
             )
             sequences = output.sequences
             scores = output.scores
 
         prompt_tokens_logprobs = []
-        prompt_tokens_top_logprobs_dicts: List[Dict] = []
         if compute_logprobs_only:
             # Append the logprob of the first token of the prompt.
             prompt_tokens_logprobs.append(0.0)
-            prompt_tokens_top_logprobs_dicts.append({})
 
             # Compute logprobs of prompt tokens.
             for completion_id in range(raw_request["num_return_sequences"]):
                 for i in range(len(sequences[completion_id]) - 1):
                     logprobs = torch.nn.functional.log_softmax(scores[completion_id][i], dim=0)
-                    topk_logprobs = torch.topk(logprobs, k=top_k_per_token)
-                    with self.wrapped_tokenizer as tokenizer:
-                        prompt_tokens_top_logprobs_dicts.append(
-                            {
-                                tokenizer.convert_ids_to_tokens(k.item()): v.item()
-                                for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)
-                            }
-                        )
                     prompt_tokens_logprobs.append(logprobs[sequences[completion_id][i + 1]].item())
 
         # Compute logprobs of generated tokens for each completed sequence.
         all_generated_tokens_logprobs = []
-        all_generated_tokens_top_logprobs_dicts = []
         for completion_id in range(raw_request["num_return_sequences"]):
             generated_tokens_logprobs = []
-            generated_tokens_top_logprobs_dicts = []
             for i in range(len(sequences[completion_id]) - len(encoded_input.input_ids[0])):
                 logprobs = torch.nn.functional.log_softmax(scores[i][completion_id], dim=0)
-                # Get top tokens in terms of log probability.
-                topk_logprobs = torch.topk(logprobs, k=top_k_per_token)
-                with self.wrapped_tokenizer as tokenizer:
-                    generated_tokens_top_logprobs_dicts.append(
-                        {
-                            tokenizer.convert_ids_to_tokens(k.item()): v.item()
-                            for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)
-                        }
-                    )
                 # Get log probability of chosen token.
                 j = i + len(encoded_input.input_ids[0])
                 generated_tokens_logprobs.append(logprobs[sequences[completion_id][j]].item())
             all_generated_tokens_logprobs.append(generated_tokens_logprobs)
-            all_generated_tokens_top_logprobs_dicts.append(generated_tokens_top_logprobs_dicts)
 
         # Remove prompt from the start of each sequence if echo_prompt is False.
         if not raw_request["echo_prompt"]:
@@ -162,17 +148,15 @@ class HuggingFaceServer:
             all_decoded_text = tokenizer.batch_decode(sequences)
 
         completions = []
-        for decoded_text, tokens, generated_tokens_logprobs, generated_tokens_top_logprobs_dicts in zip(
-            all_decoded_text, all_tokens, all_generated_tokens_logprobs, all_generated_tokens_top_logprobs_dicts
+        for decoded_text, tokens, generated_tokens_logprobs in zip(
+            all_decoded_text, all_tokens, all_generated_tokens_logprobs
         ):
             completions.append(
                 {
                     "text": decoded_text,
                     "tokens": tokens,
                     "logprobs": generated_tokens_logprobs,
-                    "top_logprobs_dicts": generated_tokens_top_logprobs_dicts,
                     "prompt_logprobs": prompt_tokens_logprobs,
-                    "prompt_top_logprobs_dicts": prompt_tokens_top_logprobs_dicts,
                 }
             )
 
@@ -240,7 +224,7 @@ class HuggingFaceClient(CachingClient):
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
 
-        raw_request = {
+        raw_request: HuggingFaceRequest = {
             "engine": request.model_engine,
             "prompt": request.prompt,
             "temperature": 1e-7 if request.temperature == 0 else request.temperature,
@@ -282,26 +266,23 @@ class HuggingFaceClient(CachingClient):
             if request.echo_prompt:
                 # Add prompt to list of generated tokens.
                 generated_tokens = raw_completion["tokens"][response["input_length"] :]
-                if raw_completion.get("prompt_logprobs") and raw_completion.get("prompt_top_logprobs_dicts"):
-                    for token_text, logprob, top_logprobs_dict in zip(
+                if raw_completion.get("prompt_logprobs"):
+                    for token_text, logprob in zip(
                         raw_completion["tokens"][: response["input_length"]],
                         raw_completion["prompt_logprobs"][: response["input_length"]],
-                        raw_completion["prompt_top_logprobs_dicts"][: response["input_length"]],
                     ):
-                        tokens.append(Token(text=token_text, logprob=logprob, top_logprobs=top_logprobs_dict))
+                        tokens.append(Token(text=token_text, logprob=logprob))
                         sequence_logprob += logprob
                 else:
                     for token_text in raw_completion["tokens"][: response["input_length"]]:
-                        tokens.append(Token(text=token_text, logprob=0.0, top_logprobs={}))
+                        tokens.append(Token(text=token_text, logprob=0.0))
 
             else:
                 generated_tokens = raw_completion["tokens"]
 
             # Compute logprob for the entire sequence.
-            for token_text, logprob, top_logprobs_dict in zip(
-                generated_tokens, raw_completion["logprobs"], raw_completion["top_logprobs_dicts"]
-            ):
-                tokens.append(Token(text=token_text, logprob=logprob, top_logprobs=top_logprobs_dict))
+            for token_text, logprob in zip(generated_tokens, raw_completion["logprobs"]):
+                tokens.append(Token(text=token_text, logprob=logprob))
                 sequence_logprob += logprob
 
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
