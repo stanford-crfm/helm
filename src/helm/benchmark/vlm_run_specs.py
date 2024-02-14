@@ -104,6 +104,28 @@ def get_image2structure_metric_specs(
 # VHELM run specs
 
 
+@run_spec_function("chart2csv")
+def get_chart2csv_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.image2structure.chart2csv_scenario.Chart2CSVScenario",
+        args={},
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        instructions="Generate the CSV from the chart.",
+        max_tokens=100,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "chart2csv"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("hateful_memes")
 def get_hateful_memes_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(

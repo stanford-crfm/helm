@@ -295,6 +295,7 @@ run_groups:
     description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images.
     category: All scenarios
     subgroups:
+      - chart2csv
       - image2latex
 
   - name: hateful_memes
@@ -379,6 +380,23 @@ run_groups:
     taxonomy:
       task: image-to-text
       what: mathematical equations, tables, algorithms, tikz
+      who: n/a
+      when: "2024"
+      language: English
+
+  - name: chart2csv
+    display_name: Chart2CSV
+    description: The Chart2CSV benchmark for converting images of charts to CSV.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: chart to CSV
+      what: plots
       who: n/a
       when: "2024"
       language: English

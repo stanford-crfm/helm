@@ -355,9 +355,7 @@ class VertexAIChatClient(VertexAIClient):
             tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
                 TokenizationRequest(response_text, tokenizer=self.tokenizer_name)
             )
-            tokens: List[Token] = [
-                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-            ]
+            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Sequence(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)

@@ -151,9 +151,7 @@ class IDEFICSClient(CachingClient):
                 tokenization_result = self.tokenizer.tokenize(
                     TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=False)
                 )
-                tokens: List[Token] = [
-                    Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-                ]
+                tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
                 completions.append(Sequence(text=text, logprob=0, tokens=tokens))
 
         return RequestResult(
