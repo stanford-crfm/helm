@@ -197,18 +197,6 @@ def helper_prod_test_service(request: Request, expected_text: str):
         # Consistency of log probs
         assert completion.logprob == sum(token.logprob for token in completion.tokens)
 
-        for token in completion.tokens[1:]:
-            assert len(token.top_logprobs) == request.top_k_per_token
-
-            # If generated token was one of the top, make sure has the right probability
-            if token.text in token.top_logprobs:
-                assert token.logprob == token.top_logprobs[token.text]
-
-            # If temperature = 0, then make sure we're getting the top probability token
-            if request.temperature == 0:
-                assert token.text in token.top_logprobs
-                assert token.logprob == max(token.top_logprobs.values())
-
     # Make sure we get the expected_text in one of the completions
     assert any(completion.text == expected_text for completion in result.completions)
 

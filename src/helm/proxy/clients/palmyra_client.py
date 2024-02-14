@@ -128,9 +128,7 @@ class PalmyraClient(CachingClient):
             )
 
             # Log probs are not currently not supported by the Writer, so set to 0 for now.
-            tokens: List[Token] = [
-                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-            ]
+            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
             completion = Sequence(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)

@@ -97,18 +97,12 @@ class AI21Client(CachingClient):
             # Compute the actual length of the token text
             # e.g. "▁burying"(0,8) -> 8 - 0 = 8; "▁burying"(0,7) -> 7 - 0 = 7
             text_length: int = raw["textRange"]["end"] - raw["textRange"]["start"]
-            # "topTokens" can be None when sending a request with topKReturn=0
-            # AI21 sends unscaled logprobs as `raw_logprob` so use this instead of `logprob`.
-            top_logprobs: Dict[str, float] = dict(
-                (fix_text(x["token"], first), x["raw_logprob"]) for x in raw["topTokens"] or []
-            )
 
             return Token(
                 # Text should not be longer than text_length. Since "▁" is always inserted
                 # in the beginning, we truncate the text from the right.
                 text=fix_text(raw["generatedToken"]["token"], first)[-text_length:] if text_length else "",
                 logprob=raw["generatedToken"]["raw_logprob"],
-                top_logprobs=top_logprobs,
             )
 
         def parse_sequence(raw: Dict, first: bool, finish_reason: Optional[Dict] = None) -> Sequence:

@@ -1,15 +1,12 @@
 import requests
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, TypedDict
 
+from helm.proxy.retry import NonRetriableException
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_and_tokenize_response_text
 
 try:
     from mistralai.client import MistralClient
@@ -18,28 +15,42 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["mistral"])
 
 
+class MistralAIRequest(TypedDict):
+    """Data passed between make_request and _send_request. Used as the cache key."""
+
+    model: str
+    prompt: str
+    max_tokens: int
+    temperature: float
+    top_p: float
+    random_seed: Optional[int]
+
+
 class MistralAIClient(CachingClient):
     """
     Client for Mistral API.
     """
 
-    # Aliases to match HELM names to Model names in Mistral API
-    _model_aliases: Dict[str, str] = {
-        "mistral-7b-v0.1": "mistral-tiny",
-    }
-
-    def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: str):
+    def __init__(
+        self,
+        tokenizer: Tokenizer,
+        tokenizer_name: str,
+        cache_config: CacheConfig,
+        api_key: str,
+        mistral_model: Optional[str] = None,
+    ):
         super().__init__(cache_config=cache_config)
         self.api_key: str = api_key
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self._client = MistralClient(api_key=self.api_key)
+        self.mistral_model = mistral_model
 
-    def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
+    def _send_request(self, raw_request: MistralAIRequest) -> Dict[str, Any]:
         messages = [ChatMessage(role="user", content=raw_request["prompt"])]
 
         chat_response: ChatCompletionResponse = self._client.chat(
-            model=model_name,
+            model=raw_request["model"],
             messages=messages,
             temperature=raw_request["temperature"],
             max_tokens=raw_request["max_tokens"],
@@ -47,28 +58,48 @@ class MistralAIClient(CachingClient):
             random_seed=raw_request["random_seed"],
             safe_prompt=False,  # Disable safe_prompt
         )
+        # Documentation: "If mode is 'json', the output will only contain JSON serializable types."
+        # Source: https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_dump
+        #
+        # We need to ensure that the output only contains JSON serializable types because the output
+        # will be serialized for storage in the cache.
+        return chat_response.model_dump(mode="json")
 
-        return chat_response.dict()
+    def _get_random_seed(self, request: Request, completion_index: int) -> Optional[int]:
+        if request.random is None and completion_index == 0:
+            return None
+
+        # Treat the user's request.random as an integer for the random seed.
+        try:
+            request_random_seed = int(request.random) if request.random is not None else 0
+        except ValueError:
+            raise NonRetriableException("MistralAIClient only supports integer values for request.random")
+
+        # A large prime is used so that the resulting values are unlikely to collide
+        # with request.random values chosen by the user.
+        fixed_large_prime = 1911011
+        completion_index_random_seed = completion_index * fixed_large_prime
+
+        return request_random_seed + completion_index_random_seed
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-        raw_request = {
-            "prompt": request.prompt,
-            "max_tokens": request.max_tokens,
-            "temperature": request.temperature,
-            "top_p": request.top_p,
-            "random_seed": request.random,
-        }
-
         completions: List[Sequence] = []
-        model_name: str = self._model_aliases.get(request.model_engine, request.model_engine)
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
             try:
+                raw_request: MistralAIRequest = {
+                    "model": self.mistral_model or request.model_engine,
+                    "prompt": request.prompt,
+                    "max_tokens": request.max_tokens,
+                    "temperature": request.temperature,
+                    "top_p": request.top_p,
+                    "random_seed": self._get_random_seed(request, completion_index),
+                }
 
                 def do_it():
-                    result: Dict[str, Any] = self._send_request(model_name, raw_request)
+                    result: Dict[str, Any] = self._send_request(raw_request)
                     return result
 
                 # We need to include the engine's name to differentiate among requests made for different model
@@ -77,14 +108,7 @@ class MistralAIClient(CachingClient):
                 # requests, cache key should contain the completion_index.
                 # Echoing the original prompt is not officially supported by Mistral. We instead prepend the
                 # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
-                cache_key = CachingClient.make_cache_key(
-                    {
-                        "engine": model_name,
-                        "completion_index": completion_index,
-                        **raw_request,
-                    },
-                    request,
-                )
+                cache_key = CachingClient.make_cache_key(raw_request, request)
 
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except (requests.exceptions.RequestException, AssertionError) as e:
@@ -97,18 +121,7 @@ class MistralAIClient(CachingClient):
 
             # The Mistral API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
-            # The Mistral API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
-
-            # Log probs are not currently not supported by Mistral, so set to 0 for now.
-            tokens: List[Token] = [
-                Token(text=str(text), logprob=0, top_logprobs={}) for text in tokenization_result.raw_tokens
-            ]
-
-            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
-            sequence = truncate_sequence(completion, request, print_warning=True)
+            sequence = truncate_and_tokenize_response_text(text, request, self.tokenizer, self.tokenizer_name)
             completions.append(sequence)
 
         return RequestResult(

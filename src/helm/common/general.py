@@ -63,7 +63,7 @@ def shell(args: List[str]):
     hlog(f"Executing: {cmd}")
     exit_code = subprocess.call(args)
     if exit_code != 0:
-        hlog(f"Failed with exit code {exit_code}: {cmd}")
+        raise Exception(f"Failed with exit code {exit_code}: {cmd}")
 
 
 @htrack(None)

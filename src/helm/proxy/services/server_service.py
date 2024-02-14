@@ -3,6 +3,7 @@ import os
 import signal
 from typing import List, Optional
 
+from helm.common.cache_backend_config import CacheBackendConfig, BlackHoleCacheBackendConfig
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
@@ -50,14 +51,21 @@ class ServerService(Service):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self, base_path: str = "prod_env", root_mode=False, mongo_uri: str = ""):
+    def __init__(
+        self,
+        base_path: str = "prod_env",
+        root_mode: bool = False,
+        cache_backend_config: CacheBackendConfig = BlackHoleCacheBackendConfig(),
+    ):
+        ensure_directory_exists(base_path)
+        client_file_storage_path = os.path.join(base_path, CACHE_DIR)
+        ensure_directory_exists(client_file_storage_path)
+
         credentials = get_credentials(base_path)
-        cache_path = os.path.join(base_path, CACHE_DIR)
-        ensure_directory_exists(cache_path)
         accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
 
-        self.client = AutoClient(credentials, cache_path, mongo_uri)
-        self.tokenizer = AutoTokenizer(credentials, cache_path, mongo_uri)
+        self.client = AutoClient(credentials, client_file_storage_path, cache_backend_config)
+        self.tokenizer = AutoTokenizer(credentials, cache_backend_config)
         self.token_counter = AutoTokenCounter(self.tokenizer)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.moderation_api_client = self.client.get_moderation_api_client()

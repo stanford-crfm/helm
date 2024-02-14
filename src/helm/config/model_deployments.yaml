@@ -575,6 +575,13 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
 
+  - name: together/phi-2
+    model_name: microsoft/phi-2
+    tokenizer_name: microsoft/phi-2
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient" 
+
   ## Mistral AI
   - name: huggingface/bakLlava-v1-hf
     model_name: mistralai/bakLlava-v1-hf
@@ -890,6 +897,8 @@ model_deployments:
     max_sequence_length: 32000
     client_spec:
       class_name: "helm.proxy.clients.mistral_client.MistralAIClient"
+      args:
+        mistral_model: "mistral-tiny"
 
   - name: mistralai/mistral-medium
     model_name: mistralai/mistral-medium
@@ -1644,3 +1653,41 @@ model_deployments:
     max_sequence_and_generated_tokens_length: 30048
     client_spec:
       class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+
+  # Qwen
+
+  - name: together/qwen-7b
+    model_name: qwen/qwen-7b
+    tokenizer_name: qwen/qwen-7b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/Qwen-7B
+
+  - name: together/qwen1.5-7b
+    model_name: qwen/qwen1.5-7b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: Qwen/Qwen1.5-7B
+
+  - name: together/qwen1.5-14b
+    model_name: qwen/qwen1.5-14b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: Qwen/Qwen1.5-14B
+
+  - name: together/qwen1.5-72b
+    model_name: qwen/qwen1.5-72b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 4095
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: Qwen/Qwen1.5-72B

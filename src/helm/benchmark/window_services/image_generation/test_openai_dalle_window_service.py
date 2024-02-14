@@ -5,12 +5,13 @@ from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.proxy.clients.image_generation.dalle2_client import DALLE2Client
 from helm.benchmark.window_services.test_utils import get_tokenizer_service, TEST_PROMPT
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 
 
 class TestOpenAIDALLEWindowService:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
-        service: TokenizerService = get_tokenizer_service(self.path)
+        service: TokenizerService = get_tokenizer_service(self.path, BlackHoleCacheBackendConfig())
         self.window_service = WindowServiceFactory.get_window_service("openai/dall-e-2", service)
 
     def teardown_method(self, method):

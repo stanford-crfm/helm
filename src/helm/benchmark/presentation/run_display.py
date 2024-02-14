@@ -107,8 +107,7 @@ def _truncate_predicted_text(
             tokens = request_state.result.completions[0].tokens
             if tokens:
                 first_token = tokens[0]
-                if not first_token.top_logprobs:
-                    prefix = first_token.text
+                prefix = first_token.text
     if prefix:
         predicted_text = predicted_text
         prefix = prefix
