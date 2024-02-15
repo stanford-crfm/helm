@@ -760,9 +760,6 @@ class Summarizer:
                             num_prompt_tokens.extend(get_all_stats_by_name(run.stats, "num_prompt_tokens"))
                             num_completion_tokens.extend(get_all_stats_by_name(run.stats, "num_completion_tokens"))
 
-                if len(num_instances) == 0:
-                    continue
-
                 rows.append(
                     [
                         Cell(group.display_name, href=get_benchmarking_url({"group": group.name})),
