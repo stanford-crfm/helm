@@ -111,8 +111,10 @@ def get_chart2csv_spec() -> RunSpec:
         args={},
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
-        instructions="Generate the CSV from the chart.",
-        max_tokens=500,
+        instructions="Generate the CSV for the chart. Some of the labels may be missing due to the size of the chart. "
+        "Please infer the missing labels based on the surrounding context. "
+        "Just give the CSV without any explanation.",
+        max_tokens=1000,
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
