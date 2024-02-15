@@ -1,30 +1,101 @@
+import instructFlowchart from "@/assets/instruct/instruct-flowchart.svg";
+import instructGraph from "@/assets/instruct/instruct-graph.svg";
+
 export default function InstructLanding() {
   // TODO: Link to blog post.
   return (
-    <div className="mx-auto text-lg px-16">
-      <div className="container mb-12 mx-auto text-lg px-16">
-        <h1 className="text-4xl mt-40">HELM-Instruct</h1>
-        <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-8 md:gap-32 my-4">
-          <a
-            className="px-10 btn rounded-md"
-            href="https://arxiv.org/pdf/2211.09110.pdf"
-          >
-            Blog Post
-          </a>
-          <a
-            className="px-10 btn rounded-md"
-            href="https://github.com/stanford-crfm/helm"
-          >
-            Github
-          </a>
-        </div>
-        <p>
-          We introduce HELM-Instruct, a multidimensional and absolute-score
-          evaluation framework for instruction-following LLMs. We use
-          HELM-Instruct to compare several instruction-following models as well
-          as some Human- and LLM- evaluators.
-        </p>
+    <div className="container mx-auto px-16">
+      <h1 className="text-3xl mt-16 font-bold text-center">
+        HELM-Instruct: A holistic framework for evaluating instruction following
+        models
+      </h1>
+      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-8 md:gap-32 my-8">
+        <a
+          className="px-10 btn rounded-md"
+          href="https://arxiv.org/pdf/2211.09110.pdf"
+        >
+          Blog Post
+        </a>
+        <a
+          className="px-10 btn rounded-md"
+          href="https://github.com/stanford-crfm/helm"
+        >
+          Github
+        </a>
       </div>
+      <p>
+        We introduce <em>HELM-Instruct</em>, a multidimensional and
+        absolute-score evaluation framework for instruction-following LLMs. The
+        framework takes an instruction, a model, an evaluator, and a criterion
+        to generate a score. In our study, we use HELM-Instruct to compare 4
+        instruction-following models on 7 scenarios based on 4 Human/LLM
+        evaluators and 5 criteria. Check out the blog post for more details.
+      </p>
+      <div className="grid my-16 grid-cols-1 md:mx-32 md:grid-cols-2 md:gap-2">
+        <img
+          src={instructFlowchart}
+          alt="HELM-Instruct Evaluation Flowchart"
+          className="mx-auto block"
+          sizes="100vw"
+        />
+        <img
+          src={instructGraph}
+          alt="HELM-Instruct scenarios, models, evaluators and "
+          className="mx-auto block"
+          sizes="100vw"
+        />
+      </div>
+      <table className="rounded-lg shadow-md table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Average</th>
+            <th>Helpfulness</th>
+            <th>Understandability</th>
+            <th>Completeness</th>
+            <th>Conciseness</th>
+            <th>Harmlessness</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>openai_gpt-4-0314</td>
+            <td>4.63</td>
+            <td>4.42</td>
+            <td>4.85</td>
+            <td>4.50</td>
+            <td>4.42</td>
+            <td>4.95</td>
+          </tr>
+          <tr>
+            <td>openai_gpt-3.5-turbo-0613</td>
+            <td>4.60</td>
+            <td>4.34</td>
+            <td>4.86</td>
+            <td>4.42</td>
+            <td>4.41</td>
+            <td>4.97</td>
+          </tr>
+          <tr>
+            <td>anthropic_claude-v1.3</td>
+            <td>4.56</td>
+            <td>4.25</td>
+            <td>4.87</td>
+            <td>4.32</td>
+            <td>4.40</td>
+            <td>4.97</td>
+          </tr>
+          <tr>
+            <td>cohere_command-xlarge-beta</td>
+            <td>4.31</td>
+            <td>3.90</td>
+            <td>4.73</td>
+            <td>3.88</td>
+            <td>4.31</td>
+            <td>4.72</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }
