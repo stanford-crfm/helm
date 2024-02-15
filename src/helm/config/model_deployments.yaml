@@ -403,8 +403,8 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
-  - name: google/gemini-1.0-pro
-    model_name: google/gemini-1.0-pro
+  - name: google/gemini-1.0-pro-001
+    model_name: google/gemini-1.0-pro-001
     tokenizer_name: hf-internal-testing/llama-tokenizer
     max_sequence_length: 30720 # Officially 30720
     max_sequence_and_generated_tokens_length: 32768 # Officially max_sequence_length + 2048
@@ -423,8 +423,8 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
-  - name: google/gemini-1.0-pro-vision
-    model_name: google/gemini-1.0-pro-vision
+  - name: google/gemini-1.0-pro-vision-001
+    model_name: google/gemini-1.0-pro-vision-001
     tokenizer_name: hf-internal-testing/llama-tokenizer
     max_sequence_length: 12288
     max_sequence_and_generated_tokens_length: 16384
