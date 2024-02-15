@@ -34,13 +34,13 @@ export default function InstructLanding() {
       <div className="grid my-16 grid-cols-1 md:mx-32 md:grid-cols-2 md:gap-2">
         <img
           src={instructFlowchart}
-          alt="HELM-Instruct Evaluation Flowchart"
+          alt="Evaluation flowchart"
           className="mx-auto block"
           sizes="100vw"
         />
         <img
           src={instructGraph}
-          alt="HELM-Instruct scenarios, models, evaluators and "
+          alt="7 scenarios, 4 models, 4 evaluators and 5 criteria"
           className="mx-auto block"
           sizes="100vw"
         />
