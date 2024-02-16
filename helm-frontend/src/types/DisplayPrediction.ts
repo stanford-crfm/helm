@@ -11,4 +11,5 @@ export default interface DisplayPrediction {
     quasi_exact_match: number;
   };
   mapped_output: string | undefined;
+  base64_images?: string[] | undefined;
 }

@@ -23,10 +23,9 @@ export default function InstanceData({
       </h3>
       <h3>Input</h3>
       <Preview value={instance.input.text} />
-      <h3>References</h3>
-      <span>
+      {instance.references && instance.references.length > 0 ? (
         <References references={instance.references} />
-      </span>
+      ) : null}
       {predictions && requests ? (
         <Predictions predictions={predictions} requests={requests} />
       ) : null}

@@ -25,6 +25,69 @@ export default function Predictions({ predictions, requests }: Props) {
     return null;
   }
 
+  if (predictions && predictions[0] && predictions[0].base64_images) {
+    return (
+      <div>
+        <div className="flex flex-wrap justify-start items-start">
+          {predictions.map((prediction, idx) => (
+            <div className="w-full" key={idx}>
+              {predictions.length > 1 ? <h2>Trial {idx}</h2> : null}
+              <div className="mt-2 w-full">
+                <h3>
+                  <span className="mr-4">Prediction image</span>
+                </h3>
+                <div>
+                  {prediction &&
+                  prediction.base64_images &&
+                  prediction.base64_images[0] ? (
+                    <img
+                      src={"data:image;base64," + prediction.base64_images[0]}
+                      alt="Base64 Image"
+                    />
+                  ) : null}
+                </div>
+              </div>
+              <div className="accordion-wrapper">
+                <button
+                  className="accordion-title p-5 bg-gray-100 hover:bg-gray-200 w-full text-left"
+                  onClick={toggleAccordion}
+                >
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Prompt Details
+                  </h3>
+                </button>
+
+                {isOpen && (
+                  <div className="accordion-content p-5 border shadow-lg rounded-md bg-white">
+                    <div className="mt-3 text-left">
+                      <div className="overflow-auto">
+                        <Request request={requests[idx]} />
+                      </div>
+                      <List>
+                        {Object.keys(prediction.stats).map((statKey, idx) => (
+                          <ListItem key={idx} className="mt-2">
+                            <span>{statKey}:</span>
+                            <span>
+                              {String(
+                                prediction.stats[
+                                  statKey as keyof typeof prediction.stats
+                                ],
+                              )}
+                            </span>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex flex-wrap justify-start items-start">
