@@ -119,7 +119,7 @@ def truncate_sequence(completion: GeneratedOutput, request: Request, print_warni
 
 def truncate_and_tokenize_response_text(
     text: str, request: Request, tokenizer: Tokenizer, tokenizer_name: str
-) -> Sequence:
+) -> GeneratedOutput:
     """Truncate a string-only response to respect stop_sequences and max_tokens.
 
     This can only be used if all of the following conditions are true:
@@ -166,7 +166,7 @@ def truncate_and_tokenize_response_text(
         )
         finish_reason = "length"
     tokens = [Token(text=token_string, logprob=0.0) for token_string in token_strings]
-    return Sequence(text=text, logprob=0.0, tokens=tokens, finish_reason={"reason": finish_reason})
+    return GeneratedOutput(text=text, logprob=0.0, tokens=tokens, finish_reason={"reason": finish_reason})
 
 
 def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:
