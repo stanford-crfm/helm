@@ -24,7 +24,9 @@ function formatArray(arr: any): any {
 export default function Request({ request }: Props) {
   return (
     <div>
-      <h3 className="block text text-gray-400">Prompt</h3>
+      <h3 className="block text text-gray-400">
+        Prompt ({request.request.prompt.length} Chars)
+      </h3>
       <Preview value={request.request.prompt} />
 
       <List>

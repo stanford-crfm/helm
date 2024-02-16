@@ -9,8 +9,9 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from .client import CachingClient, truncate_and_tokenize_response_text
 
 try:
     from mistralai.client import MistralClient
@@ -62,7 +63,12 @@ class MistralAIClient(CachingClient):
             random_seed=raw_request["random_seed"],
             safe_prompt=False,  # Disable safe_prompt
         )
-        return chat_response.model_dump()
+        # Documentation: "If mode is 'json', the output will only contain JSON serializable types."
+        # Source: https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_dump
+        #
+        # We need to ensure that the output only contains JSON serializable types because the output
+        # will be serialized for storage in the cache.
+        return chat_response.model_dump(mode="json")
 
     def _get_random_seed(self, request: Request, completion_index: int) -> Optional[int]:
         if request.random is None and completion_index == 0:
@@ -120,16 +126,7 @@ class MistralAIClient(CachingClient):
 
             # The Mistral API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
-            # The Mistral API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
-
-            # Log probs are not currently not supported by Mistral, so set to 0 for now.
-            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-
-            completion = GeneratedOutput(text=response_text, logprob=0, tokens=tokens)
-            completion = truncate_sequence(completion, request, print_warning=True)
+            completion = truncate_and_tokenize_response_text(text, request, self.tokenizer, self.tokenizer_name)
             completions.append(completion)
 
         return RequestResult(

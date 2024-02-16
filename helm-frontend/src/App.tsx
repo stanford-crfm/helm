@@ -8,14 +8,14 @@ import Group from "@/routes/Group";
 import Runs from "@/routes/Runs";
 import Run from "@/routes/Run";
 import Leaderboard from "@/routes/Leaderboard";
-import Landing from "@/routes/Landing";
+import Home from "@/routes/Home";
 
 export default function App() {
   return (
     <Router>
       <Routes>
         <Route path={`/`} element={<Layout />}>
-          <Route index element={<Landing />} />
+          <Route index element={<Home />} />
           <Route path="leaderboard" element={<Leaderboard />} />
           <Route path="models" element={<Models />} />
           <Route path="scenarios" element={<Scenarios />} />
