@@ -43,7 +43,11 @@ class OpenAIClient(CachingClient):
         self.api_base: str = "https://api.openai.com/v1"
 
     def _is_chat_model_engine(self, model_engine: str):
-        return model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4")
+        if model_engine == "gpt-3.5-turbo-instruct":
+            return False
+        elif model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4"):
+            return True
+        return False
 
     def _set_access_info(self):
         # Following https://beta.openai.com/docs/api-reference/authentication

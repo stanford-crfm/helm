@@ -1041,6 +1041,14 @@ model_deployments:
   ## GPT 3.5 Turbo Models
   # ChatGPT: https://openai.com/blog/chatgpt
 
+  - name: openai/gpt-3.5-turbo-instruct
+    model_name: openai/gpt-3.5-turbo-instruct
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 4096
+    max_sequence_length: 4097
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
   # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
   # sequence length is smaller at 4087 with one user input message and one assistant
   # output message because ChatGPT uses special tokens for message roles and boundaries.
