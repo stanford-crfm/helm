@@ -331,22 +331,24 @@ model_deployments:
 
   # Gooseai
 
-  ## EleutherAI
-  - name: gooseai/gpt-neo-20b
-    model_name: eleutherai/gpt-neox-20b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
+  # TODO: Migrate these models to use OpenAIClient
 
-  - name: gooseai/gpt-j-6b
-    model_name: eleutherai/gpt-j-6b
-    tokenizer_name: EleutherAI/gpt-j-6B
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
+  ## EleutherAI
+  # - name: gooseai/gpt-neo-20b
+  #   model_name: eleutherai/gpt-neox-20b
+  #   tokenizer_name: EleutherAI/gpt-neox-20b
+  #   max_sequence_length: 2048
+  #   max_request_length: 2049
+  #   client_spec:
+  #     class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
+
+  # - name: gooseai/gpt-j-6b
+  #   model_name: eleutherai/gpt-j-6b
+  #   tokenizer_name: EleutherAI/gpt-j-6B
+  #   max_sequence_length: 2048
+  #   max_request_length: 2049
+  #   client_spec:
+  #     class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
 
   # Google
 
