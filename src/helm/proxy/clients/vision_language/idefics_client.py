@@ -11,7 +11,7 @@ from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Completion, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -146,7 +146,7 @@ class IDEFICSClient(CachingClient):
             TokenizationRequest(result["output"], tokenizer=self.tokenizer_name)
         )
         tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-        completions: List[Completion] = [Completion(text=result["output"], logprob=0, tokens=tokens)]
+        completions: List[GeneratedOutput] = [GeneratedOutput(text=result["output"], logprob=0, tokens=tokens)]
         return RequestResult(
             success=True,
             cached=cached,

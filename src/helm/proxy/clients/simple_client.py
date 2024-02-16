@@ -1,7 +1,7 @@
 from typing import List, Dict
 
 from helm.common.cache import CacheConfig
-from helm.common.request import wrap_request_time, Request, RequestResult, Completion, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
 from .client import CachingClient
 
@@ -30,7 +30,7 @@ class SimpleClient(CachingClient):
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             completions = [
-                Completion(
+                GeneratedOutput(
                     text=text,
                     logprob=logprob,
                     tokens=[Token(text=text, logprob=logprob)],

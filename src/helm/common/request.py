@@ -112,10 +112,10 @@ class Token:
 
 
 @dataclass(frozen=True)
-class Completion:
-    """A `Completion` is a single competion to a prompt.
+class GeneratedOutput:
+    """A `GeneratedOutput` is a single generated output to a prompt.
 
-    A `Completion` can contain text and / or multimodal content."""
+    A `GeneratedOutput` can contain text and / or multimodal content."""
 
     # The concatenation of all the tokens
     text: str
@@ -132,8 +132,8 @@ class Completion:
     # Could be a sequence made up of multimedia content
     multimodal_content: Optional[MultimediaObject] = None
 
-    def __add__(self, other: "Completion") -> "Completion":
-        return Completion(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
+    def __add__(self, other: "GeneratedOutput") -> "GeneratedOutput":
+        return GeneratedOutput(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
 
     def render_lines(self) -> List[str]:
         result = [
@@ -172,7 +172,7 @@ class RequestResult:
     embedding: List[float]
     """Fixed dimensional embedding corresponding to the entire prompt"""
 
-    completions: List[Completion]
+    completions: List[GeneratedOutput]
     """List of completions"""
 
     cached: bool

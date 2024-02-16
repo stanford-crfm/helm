@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, TypedDict
 from helm.proxy.retry import NonRetriableException
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Completion, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -83,7 +83,7 @@ class MistralAIClient(CachingClient):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-        completions: List[Completion] = []
+        completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
@@ -128,7 +128,7 @@ class MistralAIClient(CachingClient):
             # Log probs are not currently not supported by Mistral, so set to 0 for now.
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
-            completion = Completion(text=response_text, logprob=0, tokens=tokens)
+            completion = GeneratedOutput(text=response_text, logprob=0, tokens=tokens)
             completion = truncate_completion(completion, request, print_warning=True)
             completions.append(completion)
 

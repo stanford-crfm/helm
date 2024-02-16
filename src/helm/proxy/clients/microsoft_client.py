@@ -10,7 +10,7 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Completion,
+    GeneratedOutput,
     Token,
 )
 from .client import CachingClient, truncate_completion
@@ -100,7 +100,7 @@ class MicrosoftClient(CachingClient):
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
 
         raw_request = MicrosoftClient.convert_to_raw_request(request)
-        completions: List[Completion] = []
+        completions: List[GeneratedOutput] = []
         request_time = 0
         request_datetime: Optional[int] = None
         all_cached = True
@@ -154,7 +154,7 @@ class MicrosoftClient(CachingClient):
                     tokens.append(Token(text=text, logprob=logprob or 0))
                     sequence_logprob += logprob or 0
 
-                completion = Completion(
+                completion = GeneratedOutput(
                     text=raw_completion["text"],
                     logprob=sequence_logprob,
                     tokens=tokens,

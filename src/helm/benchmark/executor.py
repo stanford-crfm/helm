@@ -9,7 +9,7 @@ from helm.common.cache_backend_config import (
 
 from helm.common.general import parallel_map
 from helm.common.hierarchical_logger import htrack, hlog
-from helm.common.request import RequestResult, Completion
+from helm.common.request import RequestResult, GeneratedOutput
 from helm.common.authentication import Authentication
 from helm.proxy.services.remote_service import RemoteService
 from helm.proxy.services.server_service import ServerService
@@ -113,7 +113,7 @@ class Executor:
         if not result.success:
             if result.error_flags and not result.error_flags.is_fatal:
                 hlog(f"WARNING: Non-fatal error treated as empty completion: {result.error}")
-                result.completions = [Completion(text="", logprob=0, tokens=[])]
+                result.completions = [GeneratedOutput(text="", logprob=0, tokens=[])]
             else:
                 raise ExecutorError(f"{str(result.error)} Request: {state.request}")
         return replace(state, result=result)

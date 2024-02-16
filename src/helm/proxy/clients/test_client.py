@@ -1,10 +1,10 @@
 from .client import truncate_completion
 from typing import List
-from helm.common.request import Request, Completion, Token
+from helm.common.request import Request, GeneratedOutput, Token
 
 
 def truncate_completion_helper(tokens: List[str], request: Request, expected_tokens: List[str]):
-    completion = Completion(
+    completion = GeneratedOutput(
         text="".join(tokens),
         tokens=[Token(text=text, logprob=-1) for text in tokens],
         logprob=-len(tokens),

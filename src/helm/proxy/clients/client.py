@@ -4,7 +4,7 @@ from typing import List, Mapping, Optional
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import MultimediaObject, TEXT_TYPE
-from helm.common.request import Request, RequestResult, Completion, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.cache import Cache, CacheConfig
 
 
@@ -43,7 +43,7 @@ class CachingClient(Client):
         return cache_key
 
 
-def truncate_completion(completion: Completion, request: Request, print_warning: bool = True) -> Completion:
+def truncate_completion(completion: GeneratedOutput, request: Request, print_warning: bool = True) -> GeneratedOutput:
     """
     Certain providers have bugs where they aren't respecting max_tokens,
     stop_sequences and the end of text token, so as a hack, we have to manually
@@ -87,7 +87,7 @@ def truncate_completion(completion: Completion, request: Request, print_warning:
         if print_warning:
             hlog(f"WARNING: truncate_completion needs to strip {json.dumps(stop)}")
 
-        completion = Completion(text=new_text, logprob=new_logprob, tokens=new_tokens)
+        completion = GeneratedOutput(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
     # Truncate based on the max number of tokens.
     if len(completion.tokens) > request.max_tokens:
@@ -106,7 +106,7 @@ def truncate_completion(completion: Completion, request: Request, print_warning:
 
         new_logprob = sum(token.logprob for token in new_tokens)
 
-        completion = Completion(text=new_text, logprob=new_logprob, tokens=new_tokens)
+        completion = GeneratedOutput(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
     return completion
 
