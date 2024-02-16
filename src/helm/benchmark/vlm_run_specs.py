@@ -1,11 +1,11 @@
 from typing import List, Optional, Dict
 
-from .adaptation.adapter_spec import AdapterSpec
-from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
-from .metrics.metric import MetricSpec
-from .run_specs import run_spec_function, get_exact_match_metric_specs, get_open_ended_generation_metric_specs
-from .runner import RunSpec
-from .scenarios.scenario import ScenarioSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
+from helm.benchmark.metrics.metric import MetricSpec
+from helm.benchmark.run_specs.classic_run_specs import run_spec_function, get_exact_match_metric_specs, get_open_ended_generation_metric_specs
+from helm.benchmark.runner import RunSpec
+from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 ############################################################
