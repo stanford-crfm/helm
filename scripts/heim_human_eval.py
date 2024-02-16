@@ -3,6 +3,7 @@ import csv
 import json
 import os
 import random
+import shutil
 import requests
 import statistics
 from typing import Any, Dict, List
@@ -12,7 +13,7 @@ from tqdm import tqdm
 from helm.common.hierarchical_logger import hlog, htrack_block
 
 """
-Script to create the HEIM Human Evaluation dataset
+Script to create the HEIM Human Evaluation dataset for reproducibility of the dataset.
 
 python3 scripts/heim_human_eval.py <Path to raw annotations>
 """
@@ -152,15 +153,15 @@ def generate_heim_human_eval_dataset(raw_human_eval_results_path: str):
                 examples_file.write(json.dumps(final_example) + "\n")
 
     output_path: str = "heim_human_eval"
-    # if os.path.exists(output_path):
-    #     # Delete the folder if it already exists
-    #     shutil.rmtree(output_path)
-    #     hlog("Deleted existing output folder.")
-    # os.makedirs(output_path)
+    if os.path.exists(output_path):
+        # Delete the folder if it already exists
+        shutil.rmtree(output_path)
+        hlog("Deleted existing output folder.")
+    os.makedirs(output_path)
     hlog(f"Created output folder at {output_path}")
     images_folder: str = "images"
     images_path: str = os.path.join(output_path, images_folder)
-    # os.makedirs(images_path)
+    os.makedirs(images_path)
 
     # Write out the questions to questions.json
     questions_path: str = os.path.join(output_path, "questions.json")
