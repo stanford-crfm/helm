@@ -873,23 +873,6 @@ model_deployments:
         checkpoint_dir: "" # Path to the checkpoint directory
         precision: bf16-true
 
-  # Microsoft
-  - name: microsoft/TNLGv2_530B
-    model_name: microsoft/TNLGv2_530B
-    tokenizer_name: microsoft/gpt2
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
-
-  - name: microsoft/TNLGv2_7B
-    model_name: microsoft/TNLGv2_7B
-    tokenizer_name: microsoft/gpt2
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
-
   # Mistral AI
   - name: mistralai/mistral-tiny
     model_name: mistralai/mistral-7b-v0.1
