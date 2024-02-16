@@ -43,7 +43,7 @@ class CachingClient(Client):
         return cache_key
 
 
-def truncate_completion(completion: GeneratedOutput, request: Request, print_warning: bool = True) -> GeneratedOutput:
+def truncate_sequence(completion: GeneratedOutput, request: Request, print_warning: bool = True) -> GeneratedOutput:
     """
     Certain providers have bugs where they aren't respecting max_tokens,
     stop_sequences and the end of text token, so as a hack, we have to manually

@@ -4,7 +4,7 @@ from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
-from .client import CachingClient, truncate_completion, generate_uid_for_multimodal_prompt
+from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
     from aleph_alpha_client import Client, CompletionRequest, CompletionResponse, Image, Prompt
@@ -99,7 +99,7 @@ class AlephAlphaClient(CachingClient):
             completion: GeneratedOutput = GeneratedOutput(
                 text=response_completion["completion"], logprob=sequence_logprob, tokens=tokens
             )
-            completion = truncate_completion(completion, request)
+            completion = truncate_sequence(completion, request)
             completions.append(completion)
 
         return RequestResult(

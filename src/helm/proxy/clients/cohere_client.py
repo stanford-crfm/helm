@@ -11,7 +11,7 @@ from helm.common.request import (
     GeneratedOutput,
     Token,
 )
-from .client import CachingClient, truncate_completion
+from .client import CachingClient, truncate_sequence
 from .cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
 
 
@@ -141,7 +141,7 @@ class CohereClient(CachingClient):
                 sequence_text = request.prompt + sequence_text
 
             completion: GeneratedOutput = GeneratedOutput(text=sequence_text, logprob=sequence_logprob, tokens=tokens)
-            completion = truncate_completion(completion, request)
+            completion = truncate_sequence(completion, request)
             completions.append(completion)
 
         return RequestResult(

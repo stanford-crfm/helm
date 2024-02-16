@@ -21,7 +21,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.proxy.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_completion
+from .client import CachingClient, truncate_sequence
 
 try:
     import anthropic
@@ -177,7 +177,7 @@ class AnthropicClient(CachingClient):
             completion = GeneratedOutput(text=response["completion"], logprob=0, tokens=tokens)
             # See NOTE() in _filter_completion() to understand why warnings are printed for truncation.
             # TODO(#1512): Fix this with post-processing.
-            completion = truncate_completion(completion, request, print_warning=True)
+            completion = truncate_sequence(completion, request, print_warning=True)
             completions.append(completion)
 
         return RequestResult(
@@ -439,7 +439,7 @@ class AnthropicLegacyClient(CachingClient):
                 tokens=tokens,
                 finish_reason={"reason": finish_reason},
             )
-            completion = truncate_completion(completion, request)
+            completion = truncate_sequence(completion, request)
             completions.append(completion)
             request_time += response["request_time"]
             # Use the datetime from the first completion because that's when the request was fired

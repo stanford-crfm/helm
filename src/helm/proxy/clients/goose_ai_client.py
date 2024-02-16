@@ -11,7 +11,7 @@ from helm.common.request import (
     GeneratedOutput,
     Token,
 )
-from .client import CachingClient, truncate_completion
+from .client import CachingClient, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
@@ -84,7 +84,7 @@ class GooseAIClient(CachingClient):
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
-            completion = truncate_completion(completion, request)
+            completion = truncate_sequence(completion, request)
             completions.append(completion)
 
         return RequestResult(
