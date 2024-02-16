@@ -3,10 +3,8 @@ import type DisplayPrediction from "@/types/DisplayPrediction";
 import type DisplayRequest from "@/types/DisplayRequest";
 import Indicator from "@/components/Indicator";
 import Request from "@/components/Request";
-import { List, ListItem } from "@tremor/react";
-import Tab from "@/components/Tab";
-import Tabs from "@/components/Tabs";
 import Preview from "@/components/Preview";
+import { List, ListItem } from "@tremor/react";
 
 type Props = {
   predictions: DisplayPrediction[];
@@ -17,11 +15,10 @@ type Props = {
  * @SEE https://github.com/stanford-crfm/helm/blob/cffe38eb2c814d054c778064859b6e1551e5e106/src/helm/benchmark/static/benchmarking.js#L583-L679
  */
 export default function Predictions({ predictions, requests }: Props) {
-  const [openRequests, setOpenRequests] = useState(false);
-  const [openDetails, setOpenDetails] = useState(true);
-  const handleToggle = () => {
-    setOpenRequests(!openRequests);
-    setOpenDetails(!openDetails);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleAccordion = () => {
+    setIsOpen(!isOpen);
   };
 
   if (predictions.length < 1) {
@@ -43,36 +40,43 @@ export default function Predictions({ predictions, requests }: Props) {
               {prediction.mapped_output ? (
                 <>
                   <h3>Prediction mapped output</h3>
-                  <Preview value={prediction.mapped_output} />
+                  <Preview value={String(prediction.mapped_output)} />
                 </>
               ) : null}
             </div>
-            <div className="my-4">
-              <Tabs>
-                <Tab onClick={handleToggle} active={openDetails}>
-                  Details
-                </Tab>
-                <Tab onClick={handleToggle} active={openRequests}>
-                  Requests
-                </Tab>
-              </Tabs>
-            </div>
-            {openDetails ? (
-              <List>
-                {(
-                  Object.keys(
-                    prediction.stats,
-                  ) as (keyof typeof prediction.stats)[]
-                ).map((statKey, idx) => (
-                  <ListItem key={idx}>
-                    <span>{statKey}:</span>
-                    <span>{prediction.stats[statKey]}</span>
-                  </ListItem>
-                ))}
-              </List>
-            ) : null}
-            <div className="overflow-auto">
-              {openRequests ? <Request request={requests[idx]} /> : null}
+            <div className="accordion-wrapper">
+              <button
+                className="accordion-title p-5 bg-gray-100 hover:bg-gray-200 w-full text-left"
+                onClick={toggleAccordion}
+              >
+                <h3 className="text-lg font-medium text-gray-900">
+                  Prompt Details
+                </h3>
+              </button>
+
+              {isOpen && (
+                <div className="accordion-content p-5 border shadow-lg rounded-md bg-white">
+                  <div className="mt-3 text-left">
+                    <div className="overflow-auto">
+                      <Request request={requests[idx]} />
+                    </div>
+                    <List>
+                      {Object.keys(prediction.stats).map((statKey, idx) => (
+                        <ListItem key={idx} className="mt-2">
+                          <span>{statKey}:</span>
+                          <span>
+                            {String(
+                              prediction.stats[
+                                statKey as keyof typeof prediction.stats
+                              ],
+                            )}
+                          </span>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

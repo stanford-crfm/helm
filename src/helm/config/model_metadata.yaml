@@ -1594,7 +1594,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: qwen/qwen1.5-7b
-    display_name: Qwen1.5
+    display_name: Qwen1.5 (7B)
     description: 7B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
     creator_organization_name: Qwen
     access: open
@@ -1602,7 +1602,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: qwen/qwen1.5-14b
-    display_name: Qwen1.5
+    display_name: Qwen1.5 (14B)
     description: 14B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
     creator_organization_name: Qwen
     access: open
@@ -1610,7 +1610,7 @@ models:
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: qwen/qwen1.5-72b
-    display_name: Qwen1.5
+    display_name: Qwen1.5 (72B)
     description: 72B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
     creator_organization_name: Qwen
     access: open

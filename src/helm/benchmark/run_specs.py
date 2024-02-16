@@ -487,11 +487,26 @@ def get_adapter_spec1() -> AdapterSpec:
 # Metrics
 
 
-def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
+def get_basic_generation_metric_specs(names: List[str]) -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicMetric", args={"names": names}),
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicGenerationMetric", args={"names": names}),
+    ]
+
+
+def get_basic_reference_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicReferenceMetric", args={}),
+    ]
+
+
+def get_generic_metric_specs() -> List[MetricSpec]:
+    return [
         MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric", args={}),
     ]
+
+
+def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
+    return get_basic_generation_metric_specs(names) + get_basic_reference_metric_specs() + get_generic_metric_specs()
 
 
 def get_exact_match_metric_specs() -> List[MetricSpec]:
@@ -554,19 +569,23 @@ def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[Met
     measure_names = MSMARCOScenario.MEASURE_NAMES[track]
     multiple_relevance_values = set(MSMARCOScenario.GOLD_RELATIONS[track]) != {1}
 
-    return [
-        MetricSpec(
-            class_name="helm.benchmark.metrics.ranking_metrics.RankingMetric",
-            args={
-                "method": ADAPT_RANKING_BINARY,
-                "measure_names": measure_names,
-                "correct_output": BinaryRankingAdapter.RANKING_CORRECT_LABEL,
-                "wrong_output": BinaryRankingAdapter.RANKING_WRONG_LABEL,
-                "rank": rank,
-                "multiple_relevance_values": multiple_relevance_values,
-            },
-        ),
-    ] + get_basic_metric_specs(names=[])
+    return (
+        [
+            MetricSpec(
+                class_name="helm.benchmark.metrics.ranking_metrics.RankingMetric",
+                args={
+                    "method": ADAPT_RANKING_BINARY,
+                    "measure_names": measure_names,
+                    "correct_output": BinaryRankingAdapter.RANKING_CORRECT_LABEL,
+                    "wrong_output": BinaryRankingAdapter.RANKING_WRONG_LABEL,
+                    "rank": rank,
+                    "multiple_relevance_values": multiple_relevance_values,
+                },
+            ),
+        ]
+        + get_basic_reference_metric_specs()
+        + get_generic_metric_specs()
+    )
 
 
 def get_toxicity_metric_specs() -> List[MetricSpec]:
@@ -866,7 +885,7 @@ def get_simple1_spec() -> RunSpec:
         name="simple1",
         scenario_spec=get_scenario_spec1(),
         adapter_spec=get_adapter_spec1(),
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_basic_generation_metric_specs([]) + get_generic_metric_specs(),
         groups=[],
     )
 
@@ -1224,7 +1243,8 @@ def get_gsm_spec() -> RunSpec:
         name="gsm",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match_indicator", "final_number_exact_match"])
+        metric_specs=get_basic_generation_metric_specs(["exact_match_indicator", "final_number_exact_match"])
+        + get_generic_metric_specs()
         + get_generative_harms_metric_specs(),
         groups=["gsm"],
     )
@@ -1668,7 +1688,9 @@ def get_synthetic_efficiency_spec(
         name=f"synthetic_efficiency:random={random}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_generation_metric_specs(["exact_match"])
+        + get_generic_metric_specs()
+        + get_generative_harms_metric_specs(),
         groups=["synthetic_efficiency"],
     )
 
@@ -1855,7 +1877,9 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         name=f"dyck_language_np={int(num_parenthesis_pairs)}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match_indicator"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_generation_metric_specs(["exact_match_indicator"])
+        + get_generic_metric_specs()
+        + get_generative_harms_metric_specs(),
         groups=["dyck_language"],
     )
 
@@ -2201,7 +2225,7 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         multi_label=(task_type == TaskType.MLTC),
     )
 
-    metric_specs = get_basic_metric_specs([])
+    metric_specs = get_basic_generation_metric_specs([]) + get_generic_metric_specs()
     if task_type == TaskType.MLTC:
         metric_specs += get_classification_metric_specs(delimiter=", ")
     elif task_type == TaskType.SLTC:
@@ -2234,7 +2258,7 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
         multi_label=(task_type == TaskType.MLTC),
     )
 
-    metric_specs = get_basic_metric_specs([])
+    metric_specs = get_basic_generation_metric_specs([]) + get_generic_metric_specs()
     if task_type == TaskType.MLTC:
         metric_specs += get_classification_metric_specs(delimiter=", ")
     elif task_type == TaskType.SLTC:
@@ -2617,7 +2641,11 @@ def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, promp
             stop_sequences=inference_parameters.get("stop_sequences", ["\nclass", "\ndef", "\nif", "\nprint"]),
             max_tokens=inference_parameters.get("max_tokens", 600),
         )
-        metric_specs = get_basic_metric_specs(["code_eval_acc", "pass"]) + get_cleva_generative_harms_metric_specs()
+        metric_specs = (
+            get_basic_generation_metric_specs(["code_eval_acc", "pass"])
+            + get_generic_metric_specs()
+            + get_cleva_generative_harms_metric_specs()
+        )
     elif task in ["language_modeling"]:
         adapter_spec = get_language_modeling_adapter_spec()
         metric_specs = get_language_modeling_metric_specs([])
