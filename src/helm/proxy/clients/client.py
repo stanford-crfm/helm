@@ -116,7 +116,7 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
 
 
 def truncate_and_tokenize_response_text(
-    text: str, request: Request, tokenizer: Tokenizer, tokenizer_name: str
+    text: str, request: Request, tokenizer: Tokenizer, tokenizer_name: str, fallback_finish_reason: str = "endoftext"
 ) -> Sequence:
     """Truncate a string-only response to respect stop_sequences and max_tokens.
 
@@ -135,7 +135,7 @@ def truncate_and_tokenize_response_text(
     This is because the the tokens are derived from the truncated text using the tokenizer,
     so the text and the tokens in the resulting result are guranteed to match."""
     # Finish reason strings are token from basic_metrics._compute_finish_reason_metrics()
-    finish_reason: str = "endoftext"
+    finish_reason: str = fallback_finish_reason
     if request.echo_prompt:
         raise Exception("truncate_and_tokenize_response_text() does not support requests with echo_prompt = True")
 

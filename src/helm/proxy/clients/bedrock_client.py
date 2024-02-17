@@ -5,9 +5,10 @@ import os
 from typing import Any, Dict, List, Mapping, Optional
 
 from helm.common.cache import CacheConfig
-from helm.proxy.clients.client import CachingClient
-from helm.common.request import Request, RequestResult, Sequence, Token, wrap_request_time
+from helm.proxy.clients.client import CachingClient, truncate_and_tokenize_response_text
+from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.proxy.clients.bedrock_utils import get_bedrock_client
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 JSON_CONTENT_TYPE = "application/json"
@@ -19,17 +20,21 @@ class BedrockClient(CachingClient):
         raise NotImplementedError()
 
     @abstractmethod
-    def convert_raw_response_to_completions(self, response: Dict) -> List[Sequence]:
+    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[Sequence]:
         raise NotImplementedError()
 
     def __init__(
         self,
         cache_config: CacheConfig,
+        tokenizer: Tokenizer,
+        tokenizer_name: str,
         bedrock_model_id: Optional[str] = None,
         assumed_role: Optional[str] = None,
         region: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
         self.bedrock_model_id = bedrock_model_id
         self.bedrock_client = get_bedrock_client(
             assumed_role=assumed_role or os.environ.get("BEDROCK_ASSUME_ROLE", None),
@@ -62,7 +67,7 @@ class BedrockClient(CachingClient):
                 embedding=[],
             )
 
-        completions = self.convert_raw_response_to_completions(response)
+        completions = self.convert_raw_response_to_completions(response, request)
 
         return RequestResult(
             success=True,
@@ -105,23 +110,19 @@ class BedrockTitanClient(BedrockClient):
             },
         }
 
-    def convert_raw_response_to_completions(self, response: Dict) -> List[Sequence]:
+    def convert_raw_response_to_completions(self, response: Dict, request: Request) -> List[Sequence]:
         # TODO: Support the following:
         # - tokens
         # - logprob
         completions: List[Sequence] = []
         for raw_completion in response["results"]:
             output_text = raw_completion["outputText"]
-            tokens = [Token(text=output_text, logprob=0.0, top_logprobs={})]
-            completion = Sequence(
-                text=output_text,
-                logprob=0.0,
-                tokens=tokens,
-                finish_reason={
-                    "reason": BedrockTitanClient._COMPLETION_REASON_TO_FINISH_REASON.get(
-                        raw_completion["completionReason"], raw_completion["completionReason"].lower()
-                    )
-                },
+            # Call lstrip() Titan has the tendency to emit "\n" as the first token in the generated text output.
+            finish_reason = BedrockTitanClient._COMPLETION_REASON_TO_FINISH_REASON.get(
+                raw_completion["completionReason"], raw_completion["completionReason"].lower()
+            )
+            completion = truncate_and_tokenize_response_text(
+                output_text.lstrip(), request, self.tokenizer, self.tokenizer_name, finish_reason
             )
             completions.append(completion)
         return completions
