@@ -130,6 +130,30 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
+
+  # Amazon
+  - name: amazon/titan-text-lite-v1
+    model_name: amazon/titan-text-lite-v1
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 4000
+    client_spec:
+      class_name: "helm.proxy.clients.bedrock_client.BedrockTitanClient"
+
+  - name: amazon/titan-tg1-large
+    model_name: amazon/titan-tg1-large
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.proxy.clients.bedrock_client.BedrockTitanClient"
+
+  - name: amazon/titan-text-express-v1
+    model_name: amazon/titan-text-express-v1
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.proxy.clients.bedrock_client.BedrockTitanClient"
+
+
   # Anthropic
   - name: anthropic/claude-v1.3
     model_name: anthropic/claude-v1.3

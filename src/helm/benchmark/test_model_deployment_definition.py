@@ -53,7 +53,11 @@ class TestModelProperties:
                 return
 
             # Can't test Vertex AI because it requires Google credentials
-            if "text-bison" in model.name or "text-unicorn" in model.name:
+            if deployment_name.startswith("google/"):
+                return
+
+            # Can't test Bedrock because it requires Amazon credentials
+            if deployment_name.startswith("amazon/"):
                 return
 
             # Loads the model, window service and tokenizer
