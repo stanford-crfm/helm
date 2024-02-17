@@ -10,7 +10,7 @@ dnspython==2.3.0
 docopt==0.6.2
 fastavro==1.7.4
 fasteners==0.18
-grpcio==1.54.2
+grpcio==1.54.3
 hdfs==2.7.0
 httplib2==0.21.0
 idna==3.4
