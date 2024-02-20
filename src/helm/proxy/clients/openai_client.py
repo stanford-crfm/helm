@@ -17,11 +17,9 @@ from .client import CachingClient, truncate_sequence, generate_uid_for_multimoda
 
 try:
     import openai
+    from openai import OpenAI
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
-
-
-ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 
 
 class OpenAIClient(CachingClient):
@@ -43,25 +41,17 @@ class OpenAIClient(CachingClient):
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
+        base_url: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
-        self.org_id: Optional[str] = org_id
-        self.api_key: Optional[str] = api_key
-        self.api_base: str = "https://api.openai.com/v1"
+        self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
 
     def _is_chat_model_engine(self, model_engine: str):
         return model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4")
 
-    def _set_access_info(self):
-        # Following https://beta.openai.com/docs/api-reference/authentication
-        # `organization` can be set to None.
-        openai.organization = self.org_id
-        openai.api_key = self.api_key
-        openai.api_base = self.api_base
-
-    def _get_cache_key(self, raw_request, request):
+    def _get_cache_key(self, raw_request: Dict, request: Request):
         cache_key = CachingClient.make_cache_key(raw_request, request)
         if is_vlm(request.model):
             assert request.multimodal_prompt is not None
@@ -74,17 +64,17 @@ class OpenAIClient(CachingClient):
         raw_request: Dict[str, Any]
         raw_request = {
             "input": request.prompt,
-            "engine": request.model_engine,
+            # Note: In older deprecated versions of the OpenAI API, "model" used to be "engine".
+            "model": request.model_engine,
         }
 
         def do_it():
-            self._set_access_info()
-            return openai.Embedding.create(**raw_request)
+            return self.client.embeddings.create(**raw_request).model_dump(mode="json")
 
         try:
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except openai.error.OpenAIError as e:
+        except openai.OpenAIError as e:
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -168,13 +158,12 @@ class OpenAIClient(CachingClient):
             raw_request.pop("stop")
 
         def do_it():
-            self._set_access_info()
-            return openai.ChatCompletion.create(**raw_request)
+            return self.client.chat.completions.create(**raw_request).model_dump(mode="json")
 
         try:
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except openai.error.OpenAIError as e:
+        except openai.OpenAIError as e:
             if self.INAPPROPRIATE_IMAGE_ERROR in str(e):
                 hlog(f"Failed safety check: {str(request)}")
                 empty_completion = Sequence(
@@ -227,7 +216,8 @@ class OpenAIClient(CachingClient):
 
     def _make_completion_request(self, request: Request) -> RequestResult:
         raw_request: Dict[str, Any] = {
-            "engine": request.model_engine,
+            # Note: In older deprecated versions of the OpenAI API, "model" used to be "engine".
+            "model": request.model_engine,
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
@@ -247,14 +237,12 @@ class OpenAIClient(CachingClient):
         raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
 
         def do_it():
-            self._set_access_info()
-            openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
-            return openai.Completion.create(**raw_request)
+            return self.client.completions.create(**raw_request).model_dump(mode="json")
 
         try:
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except openai.error.OpenAIError as e:
+        except openai.OpenAIError as e:
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -294,9 +282,6 @@ class OpenAIClient(CachingClient):
         )
 
     def make_request(self, request: Request) -> RequestResult:
-        if self.api_key is None:
-            raise ValueError("OpenAI API key is required")
-
         if request.embedding:
             return self._make_embedding_request(request)
         elif self._is_chat_model_engine(request.model_engine):

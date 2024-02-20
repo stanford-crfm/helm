@@ -31,7 +31,8 @@ class TestModelProperties:
     @pytest.mark.parametrize("deployment_name", [deployment.name for deployment in ALL_MODEL_DEPLOYMENTS])
     def test_models_has_window_service(self, deployment_name: str):
         with TemporaryDirectory() as tmpdir:
-            auto_client = AutoClient({}, tmpdir, BlackHoleCacheBackendConfig())
+            credentials = {"openaiApiKey": "test-openai-api-key"}
+            auto_client = AutoClient(credentials, tmpdir, BlackHoleCacheBackendConfig())
             auto_tokenizer = AutoTokenizer({}, BlackHoleCacheBackendConfig())
             tokenizer_service = get_tokenizer_service(tmpdir, BlackHoleCacheBackendConfig())
 

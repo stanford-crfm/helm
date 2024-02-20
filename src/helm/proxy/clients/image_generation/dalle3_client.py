@@ -79,7 +79,7 @@ class DALLE3Client(DALLE2Client):
 
                 responses.append(response)
                 all_cached = all_cached and cached
-            except openai.error.OpenAIError as e:
+            except openai.OpenAIError as e:
                 return self.handle_openai_error(request, e)
 
         completions: List[Sequence] = []
