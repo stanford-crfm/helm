@@ -6,13 +6,13 @@ export default function InstructLanding() {
   return (
     <div className="container mx-auto px-16">
       <h1 className="text-3xl mt-16 font-bold text-center">
-        HELM-Instruct: A holistic framework for evaluating instruction following
-        models
+        HELM Instruct: A Multidimensional Instruction Following Evaluation
+        Framework with Absolute Ratings
       </h1>
       <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-8 md:gap-32 my-8">
         <a
           className="px-10 btn rounded-md"
-          href="https://arxiv.org/pdf/2211.09110.pdf"
+          href="https://crfm.stanford.edu/2024/02/18/helm-instruct.html"
         >
           Blog Post
         </a>
@@ -24,11 +24,11 @@ export default function InstructLanding() {
         </a>
       </div>
       <p>
-        We introduce <em>HELM-Instruct</em>, a multidimensional and
-        absolute-score evaluation framework for instruction-following LLMs. The
+        We introduce <em>HELM Instruct</em>, a multidimensional evaluation
+        framework for instruction-following LLMs with absolute ratings. The
         framework takes an instruction, a model, an evaluator, and a criterion
-        to generate a score. In our study, we use HELM-Instruct to compare 4
-        instruction-following models on 7 scenarios based on 4 Human/LLM
+        to generate a score. In our study, we use HELM Instruct to compare 4
+        instruction-following models on 7 scenarios based on 4 Human/LM
         evaluators and 5 criteria. Check out the blog post for more details.
       </p>
       <div className="grid my-16 grid-cols-1 md:mx-32 md:grid-cols-2 md:gap-2">
