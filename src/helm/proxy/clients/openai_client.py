@@ -49,7 +49,11 @@ class OpenAIClient(CachingClient):
         self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
 
     def _is_chat_model_engine(self, model_engine: str):
-        return model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4")
+        if model_engine == "gpt-3.5-turbo-instruct":
+            return False
+        elif model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4"):
+            return True
+        return False
 
     def _get_cache_key(self, raw_request: Dict, request: Request):
         cache_key = CachingClient.make_cache_key(raw_request, request)

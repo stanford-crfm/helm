@@ -1389,6 +1389,14 @@ models:
   ## GPT 3.5 Turbo Models
   # ChatGPT: https://openai.com/blog/chatgpt
   
+  - name: openai/gpt-3.5-turbo-instruct
+    display_name: GPT-3.5 Turbo Instruct
+    description: Similar capabilities as GPT-3 era models. Compatible with legacy Completions endpoint and not Chat Completions.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2023-09-18
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/gpt-3.5-turbo-0301
     display_name: GPT-3.5 Turbo (0301)
     description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-03-01.
