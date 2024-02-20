@@ -1,7 +1,0 @@
-apache-beam==2.47.0
-bitarray==2.7.3
-nltk==3.8.1
-pandas==2.0.1
-pyarrow==14.0.1
-tqdm==4.65.0
-
