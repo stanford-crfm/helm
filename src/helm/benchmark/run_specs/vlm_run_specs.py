@@ -5,13 +5,12 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_GENERATION_MULTIMODAL,
     ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
 )
-from helm.benchmark.metrics.metric import MetricSpec
-from helm.benchmark.run_specs.classic_run_specs import (
-    run_spec_function,
+from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_open_ended_generation_metric_specs,
 )
-from helm.benchmark.runner import RunSpec
+from helm.benchmark.metrics.metric import MetricSpec
+from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 

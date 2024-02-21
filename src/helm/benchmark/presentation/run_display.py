@@ -3,7 +3,7 @@ from dataclasses import dataclass, replace
 import os
 from typing import Dict, Iterable, List, Optional, Set, Tuple
 
-from helm.benchmark.adaptation.adapters.adapter_factory import (
+from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
 )
@@ -14,7 +14,7 @@ from helm.benchmark.augmentations.perturbation_description import PerturbationDe
 from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.common.multimodal_request_utils import gather_generated_image_locations
 from helm.benchmark.presentation.schema import Schema
-from helm.benchmark.runner import RunSpec
+from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.scenarios.scenario import Instance, Input
 from helm.common.general import write
 from helm.common.hierarchical_logger import hlog, htrack

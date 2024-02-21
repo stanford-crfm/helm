@@ -4,14 +4,14 @@ from typing import List
 from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.augmentations.perturbation import PerturbationSpec
 from helm.benchmark.data_preprocessor import DataPreprocessor
-from helm.benchmark.run_specs.classic_run_specs import get_scenario_spec1
+from helm.benchmark.run_specs.classic_run_specs import get_simple1_spec
 from helm.benchmark.scenarios.scenario import create_scenario, Instance, Scenario, with_instance_ids
 
 
 def test_data_preprocessor():
     # Test that each Instance is given a unique ID and is preserved through data augmentation
     data_preprocessor = DataPreprocessor(DataAugmenterSpec())
-    scenario: Scenario = create_scenario(get_scenario_spec1())
+    scenario: Scenario = create_scenario(get_simple1_spec().scenario_spec)
     instances = with_instance_ids(scenario.get_instances(output_path=""))
     instances: List[Instance] = data_preprocessor.preprocess(instances)
     for i, instance in enumerate(instances):
@@ -32,7 +32,7 @@ def test_data_preprocessor_with_data_augmentation():
         should_include_original_eval=True,
     )
     data_preprocessor = DataPreprocessor(data_augmenter_spec)
-    scenario: Scenario = create_scenario(get_scenario_spec1())
+    scenario: Scenario = create_scenario(get_simple1_spec().scenario_spec)
     instances = with_instance_ids(scenario.get_instances(output_path=""))
     instances: List[Instance] = data_preprocessor.preprocess(instances)
     assert len(instances) == 10 + 10 + 10  # original train + original eval + perturbed eval
