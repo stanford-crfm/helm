@@ -257,3 +257,28 @@ def get_heim_human_eval_spec(question_type: str) -> RunSpec:
         metric_specs=metric_specs,
         groups=[run_spec_name],
     )
+
+
+@run_spec_function("sheetmusic2lilypond")
+def get_sheetmusic2lilypond_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.image2structure.sheetmusic2lilypond_scenario."
+        "SheetMusic2LilyPondScenario",
+        args={},
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        instructions="Generate the LilyPond code for the following sheet music. "
+        "Just give the LilyPond code without any explanation.",
+        max_tokens=1000,
+    )
+    # TODO: add round trip metric for LilyPond
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "sheetmusic2lilypond"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
