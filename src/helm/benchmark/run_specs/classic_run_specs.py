@@ -24,8 +24,8 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from .metrics.metric import MetricSpec
-from .run_expander import (
+from helm.benchmark.metrics.metric import MetricSpec
+from helm.benchmark.run_expander import (
     RUN_EXPANDERS,
     GlobalPrefixRunExpander,
     AnthropicRunExpander,
@@ -38,17 +38,17 @@ from .run_expander import (
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
 )
-from .runner import RunSpec, get_benchmark_output_path
-from .scenarios.lex_glue_scenario import (
+from helm.benchmark.runner import RunSpec, get_benchmark_output_path
+from helm.benchmark.scenarios.lex_glue_scenario import (
     get_lex_glue_max_train_instances,
     get_lex_glue_instructions,
     get_lex_glue_max_tokens,
     get_lex_glue_task_type,
 )
-from .scenarios.scenario import ScenarioSpec, get_scenario_cache_path
-from .scenarios.msmarco_scenario import MSMARCOScenario
-from .scenarios.copyright_scenario import datatag2hash_code
-from .scenarios.lextreme_scenario import (
+from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_path
+from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
+from helm.benchmark.scenarios.copyright_scenario import datatag2hash_code
+from helm.benchmark.scenarios.lextreme_scenario import (
     get_lextreme_instructions,
     get_lextreme_max_train_instances,
     get_lextreme_max_tokens,
@@ -1279,7 +1279,7 @@ def get_raft_spec(subset: str) -> RunSpec:
 def get_numeracy_spec(
     relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
-    from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+    from helm.benchmark.scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 
     run_solver_bool: bool = True if run_solver == "True" else False
     del run_solver

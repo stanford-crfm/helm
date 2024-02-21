@@ -22,7 +22,7 @@ from helm.benchmark import heim_run_specs  # noqa
 from helm.benchmark import vlm_run_specs  # noqa
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec, LATEST_SYMLINK, set_benchmark_output_path
-from .run_specs import construct_run_specs
+from .run_specs.classic_run_specs import construct_run_specs
 
 
 def run_entries_to_run_specs(
