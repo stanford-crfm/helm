@@ -21,13 +21,13 @@ jobs:
         python-version: ["3.8"]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Load pip cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
@@ -69,7 +69,7 @@ jobs:
       - name: Run helm-run
         run: helm-run --suite test --run-specs simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           commit-message: Update requirements.txt
           title: "Update requirements.txt"
