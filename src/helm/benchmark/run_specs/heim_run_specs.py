@@ -1,12 +1,16 @@
+"""Run spec functions for HEIM (Holistic Evaluation of Text-To-Image Models).
+
+Website: https://crfm.stanford.edu/heim/"""
+
 from typing import List, Optional
 
-from helm.common.image_generation_parameters import ImageGenerationParameters
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.benchmark.metrics.metric import MetricSpec
-from helm.benchmark.run_specs.classic_run_specs import run_spec_function, get_basic_metric_specs
-from helm.benchmark.runner import RunSpec
+from helm.benchmark.run_spec import RunSpec, run_spec_function
+from helm.benchmark.run_specs.classic_run_specs import get_basic_metric_specs
 from helm.benchmark.scenarios.scenario import ScenarioSpec
+from helm.common.image_generation_parameters import ImageGenerationParameters
 
 
 ############################################################

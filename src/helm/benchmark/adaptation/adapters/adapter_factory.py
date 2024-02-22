@@ -1,34 +1,26 @@
-from typing import List
-
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from .adapter import Adapter
-from .generation_adapter import GenerationAdapter
-from .language_modeling_adapter import LanguageModelingAdapter
-from .multiple_choice_joint_adapter import MultipleChoiceJointAdapter
-from .multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
-from .multiple_choice_calibrated_adapter import MultipleChoiceCalibratedAdapter
-from .binary_ranking_adapter import BinaryRankingAdapter
-from .multimodal.generation_multimodal_adapter import GenerationMultimodalAdapter
-from .multimodal.multiple_choice_joint_multimodal_adapter import MultipleChoiceJointMultimodalAdapter
-
-
-# Adaptation methods
-ADAPT_GENERATION: str = "generation"
-ADAPT_LANGUAGE_MODELING: str = "language_modeling"
-ADAPT_MULTIPLE_CHOICE_JOINT: str = "multiple_choice_joint"
-ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: str = "multiple_choice_separate_original"
-ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: str = "multiple_choice_separate_calibrated"
-ADAPT_RANKING_BINARY: str = "ranking_binary"
-
-ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS: List[str] = [
-    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+from helm.benchmark.adaptation.adapter_spec import (
+    ADAPT_GENERATION,
+    ADAPT_GENERATION_MULTIMODAL,
+    ADAPT_LANGUAGE_MODELING,
+    ADAPT_MULTIPLE_CHOICE_JOINT,
+    ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-]
-
-# Multimodal adaptation methods
-ADAPT_GENERATION_MULTIMODAL: str = "generation_multimodal"
-ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL: str = "multiple_choice_joint_multimodal"
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+    ADAPT_RANKING_BINARY,
+    AdapterSpec,
+)
+from helm.benchmark.adaptation.adapters.adapter import Adapter
+from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
+from helm.benchmark.adaptation.adapters.generation_adapter import GenerationAdapter
+from helm.benchmark.adaptation.adapters.language_modeling_adapter import LanguageModelingAdapter
+from helm.benchmark.adaptation.adapters.multimodal.generation_multimodal_adapter import GenerationMultimodalAdapter
+from helm.benchmark.adaptation.adapters.multimodal.multiple_choice_joint_multimodal_adapter import (
+    MultipleChoiceJointMultimodalAdapter,
+)
+from helm.benchmark.adaptation.adapters.multiple_choice_calibrated_adapter import MultipleChoiceCalibratedAdapter
+from helm.benchmark.adaptation.adapters.multiple_choice_joint_adapter import MultipleChoiceJointAdapter
+from helm.benchmark.adaptation.adapters.multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
+from helm.benchmark.window_services.tokenizer_service import TokenizerService
 
 
 class AdapterFactory:

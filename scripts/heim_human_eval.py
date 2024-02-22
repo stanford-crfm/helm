@@ -208,7 +208,7 @@ def generate_heim_human_eval_dataset(raw_human_eval_results_path: str):
                                         answer_key: str = QUESTION_TYPE_TO_ANSWER_KEY[question_type].format(
                                             choice=choice
                                         )
-                                        answer: bool = row[answer_key]
+                                        answer = row[answer_key]
                                         if answer == "true":
                                             correct_answer = choice  # type: ignore
                                             break
