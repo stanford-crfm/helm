@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 import base64
 import requests
 
@@ -68,7 +68,7 @@ class TogetherImageGenerationClient(Client):
 
         try:
 
-            def do_it():
+            def do_it() -> Dict:
                 result = requests.post(self.INFERENCE_ENDPOINT, json=raw_request).json()
                 assert "output" in result, f"Invalid response: {result} from prompt: {request.prompt}"
 

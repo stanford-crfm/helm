@@ -1,5 +1,6 @@
 import os
 from dataclasses import asdict
+from typing import Dict
 
 from helm.common.cache import CacheConfig
 from helm.common.request import (
@@ -51,7 +52,7 @@ class HTTPModelClient(CachingClient):
 
         try:
 
-            def do_it():
+            def do_it() -> Dict:
                 url = f"{self.base_url}/process"
                 response = requests.post(url, json=raw_request, timeout=self.timeout)
                 response.raise_for_status()

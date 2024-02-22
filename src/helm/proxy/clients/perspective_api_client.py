@@ -91,20 +91,19 @@ class PerspectiveAPIClient(ToxicityClassifierClient):
         Batch several requests into a single API request and get the toxicity attributes and scores.
         For more information, see https://googleapis.github.io/google-api-python-client/docs/batch.html.
         """
-
-        with self._client_lock:
-            if not self._client:
-                self._client = self._create_client()
-
         try:
 
-            def do_it():
+            def do_it() -> Dict:
                 text_to_response: Dict[str, Dict] = dict()
 
                 def callback(request_id: str, response: Dict, error: HttpError):
                     if error:
                         raise error
                     text_to_response[request_id] = response
+
+                with self._client_lock:
+                    if not self._client:
+                        self._client = self._create_client()
 
                 # Create a batch request. We will add a request to the batch request for each text string
                 batch_request: BatchHttpRequest = self._client.new_batch_http_request()

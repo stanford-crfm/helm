@@ -72,7 +72,7 @@ class OpenAIClient(CachingClient):
             "model": request.model_engine,
         }
 
-        def do_it():
+        def do_it() -> Dict:
             return self.client.embeddings.create(**raw_request).model_dump(mode="json")
 
         try:
@@ -161,7 +161,7 @@ class OpenAIClient(CachingClient):
         if is_vlm(request.model) and raw_request["stop"] is None:
             raw_request.pop("stop")
 
-        def do_it():
+        def do_it() -> Dict:
             return self.client.chat.completions.create(**raw_request).model_dump(mode="json")
 
         try:
@@ -240,7 +240,7 @@ class OpenAIClient(CachingClient):
         raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
         raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
 
-        def do_it():
+        def do_it() -> Dict:
             return self.client.completions.create(**raw_request).model_dump(mode="json")
 
         try:

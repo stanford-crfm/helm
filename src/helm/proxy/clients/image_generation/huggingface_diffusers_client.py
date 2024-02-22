@@ -128,7 +128,7 @@ class HuggingFaceDiffusersClient(Client):
                 new_request["prompt"] = new_prompt
                 return new_request
 
-            def do_it():
+            def do_it() -> Dict:
                 prompt: str = request.prompt
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):

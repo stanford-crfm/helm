@@ -57,7 +57,7 @@ class ModerationAPIClient:
 
         try:
 
-            def do_it():
+            def do_it() -> Dict:
                 result = self.client.moderations.create(input=request.text).model_dump(mode="json")
                 assert "results" in result and len(result["results"]) > 0, f"Invalid response: {result}"
                 return result

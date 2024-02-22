@@ -44,7 +44,7 @@ class LexicaClient(Client):
 
         try:
 
-            def do_it():
+            def do_it() -> Dict:
                 num_completions: int = int(raw_request["n"])
                 result = requests.get(
                     f"https://lexica.art/api/v1/search?{urllib.parse.urlencode({'q': request.prompt})}"

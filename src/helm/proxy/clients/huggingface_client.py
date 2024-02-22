@@ -69,7 +69,7 @@ class HuggingFaceServer:
                 pretrained_model_name_or_path, **kwargs
             )
 
-    def serve_request(self, raw_request: HuggingFaceRequest):
+    def serve_request(self, raw_request: HuggingFaceRequest) -> Dict:
         with self.wrapped_tokenizer as tokenizer:
             encoded_input = tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
                 self.device
@@ -249,7 +249,7 @@ class HuggingFaceClient(CachingClient):
 
         try:
 
-            def do_it():
+            def do_it() -> Dict:
                 return huggingface_model.serve_request(raw_request)
 
             cache_key = CachingClient.make_cache_key(raw_request, request)

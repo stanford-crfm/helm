@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 import numpy as np
 from functools import partial
@@ -120,7 +120,7 @@ class DALLEMiniClient(Client):
                 decoded_images = decoded_images.clip(0.0, 1.0).reshape((-1, 256, 256, 3))
                 return decoded_images
 
-            def do_it():
+            def do_it() -> Dict:
                 prompt: str = request.prompt
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):

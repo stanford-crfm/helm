@@ -34,7 +34,7 @@ class NudityCheckClient:
 
         try:
 
-            def do_it():
+            def do_it() -> Dict:
                 if self._nudity_classifier is None:
                     # The NudeNet library does not automatically provide model weights that work, so
                     # manually download them. The path is hardcoded in the NudeNet library.

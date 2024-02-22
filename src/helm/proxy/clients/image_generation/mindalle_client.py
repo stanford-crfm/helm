@@ -59,7 +59,7 @@ class MinDALLEClient(Client):
 
         try:
 
-            def do_it():
+            def do_it() -> Dict:
                 prompt: str = request.prompt
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):
