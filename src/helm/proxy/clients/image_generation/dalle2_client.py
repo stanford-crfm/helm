@@ -19,6 +19,7 @@ from .image_generation_client_utils import get_single_image_multimedia_object
 
 try:
     import openai
+    from openai import OpenAI
 except ModuleNotFoundError as missing_module_exception:
     handle_module_not_found_error(missing_module_exception, ["openai"])
 
@@ -59,11 +60,8 @@ class DALLE2Client(Client):
         self.file_cache: FileCache = file_cache
         self._cache = Cache(cache_config)
 
+        self.client = OpenAI(api_key=api_key, organization=org_id)
         self.moderation_api_client: ModerationAPIClient = moderation_api_client
-
-        self.org_id: Optional[str] = org_id
-        self.api_key: Optional[str] = api_key
-        self.api_base: str = "https://api.openai.com/v1"
 
     def get_content_policy_violated_result(self, request: Request) -> RequestResult:
         """
@@ -134,10 +132,7 @@ class DALLE2Client(Client):
         """
         Makes a single request to generate the images with the DALL-E API.
         """
-        openai.organization = self.org_id
-        openai.api_key = self.api_key
-        openai.api_base = self.api_base
-        result = openai.Image.create(**raw_request)
+        result = self.client.images.generate(**raw_request).model_dump(mode="json")
         assert "data" in result, f"Invalid response: {result} from prompt: {raw_request['prompt']}"
 
         for image in result["data"]:
@@ -170,7 +165,7 @@ class DALLE2Client(Client):
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self._cache.get(cache_key, wrap_request_time(do_it))
-        except openai.error.OpenAIError as e:
+        except openai.OpenAIError as e:
             return self.handle_openai_error(request, e)
 
         completions: List[Sequence] = [

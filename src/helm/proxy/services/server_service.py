@@ -23,6 +23,7 @@ from helm.common.request import Request, RequestResult
 from helm.common.hierarchical_logger import hlog
 from helm.proxy.accounts import Accounts, Account
 from helm.proxy.clients.auto_client import AutoClient
+from helm.proxy.clients.moderation_api_client import ModerationAPIClient
 from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
 from helm.proxy.clients.image_generation.nudity_check_client import NudityCheckClient
 from helm.proxy.clients.gcs_client import GCSClient
@@ -68,9 +69,9 @@ class ServerService(Service):
         self.tokenizer = AutoTokenizer(credentials, cache_backend_config)
         self.token_counter = AutoTokenCounter(self.tokenizer)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
-        self.moderation_api_client = self.client.get_moderation_api_client()
 
         # Lazily instantiate the following clients
+        self.moderation_api_client: Optional[ModerationAPIClient] = None
         self.toxicity_classifier_client: Optional[ToxicityClassifierClient] = None
         self.perspective_api_client: Optional[PerspectiveAPIClient] = None
         self.nudity_check_client: Optional[NudityCheckClient] = None
@@ -200,6 +201,8 @@ class ServerService(Service):
     def get_moderation_results(self, auth: Authentication, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
         @retry_request
         def get_moderation_results_with_retry(request: ModerationAPIRequest) -> ModerationAPIRequestResult:
+            if not self.moderation_api_client:
+                self.moderation_api_client = self.client.get_moderation_api_client()
             return self.moderation_api_client.get_moderation_results(request)
 
         self.accounts.authenticate(auth)

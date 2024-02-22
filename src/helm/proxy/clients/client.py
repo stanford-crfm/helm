@@ -1,11 +1,13 @@
 import json
 from abc import ABC, abstractmethod
-from typing import List, Mapping, Optional
+from typing import List, Mapping, Optional, cast
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import MultimediaObject, TEXT_TYPE
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.cache import Cache, CacheConfig
+from helm.common.tokenization_request import DecodeRequest, TokenizationRequest
+from helm.proxy.tokenizers.tokenizer import Tokenizer
 
 
 class Client(ABC):
@@ -48,6 +50,10 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
     Certain providers have bugs where they aren't respecting max_tokens,
     stop_sequences and the end of text token, so as a hack, we have to manually
     truncate the suffix of `sequence` and `tokens` as a post-hoc process.
+
+    This method is unsafe and may produce warnings or incorrect results.
+    Prefer using the safer truncate_and_tokenize_response_text() method instead
+    if your use case satisfies its requirements.
     """
     # TODO: if echo_prompt, then we should only ignore the prompt, but we don't
     # know how many tokens the prompt takes up.
@@ -107,6 +113,58 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
         sequence = Sequence(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
     return sequence
+
+
+def truncate_and_tokenize_response_text(
+    text: str, request: Request, tokenizer: Tokenizer, tokenizer_name: str, original_finish_reason: str = "endoftext"
+) -> Sequence:
+    """Truncate a string-only response to respect stop_sequences and max_tokens.
+
+    This can only be used if all of the following conditions are true:
+
+    - You have access to the tokenizer.
+    - The request has echo_prompt = False.
+    - The tokenizer supports encoding and decoding.
+    - The tokenizer's tokenize() method supports truncation.
+    - The model's response is text-only.
+    - The model's response not already provide the tokenized text.
+    - The model's response does not provide logprobs.
+
+    This method is safer than truncate_sequence() and should be preferred if the above conditions are met.
+    Unlike truncate_sequence(), this method will not produce warnings or incorrect results.
+    This is because the the tokens are derived from the truncated text using the tokenizer,
+    so the text and the tokens in the resulting result are guranteed to match."""
+    # Finish reason strings are token from basic_metrics._compute_finish_reason_metrics()
+    finish_reason: str = original_finish_reason
+    if request.echo_prompt:
+        raise Exception("truncate_and_tokenize_response_text() does not support requests with echo_prompt = True")
+
+    for stop_sequence in request.stop_sequences:
+        try:
+            text = text[: text.index(stop_sequence)]
+            finish_reason = "stop"
+        except ValueError:
+            pass
+
+    token_strings = cast(
+        List[str], tokenizer.tokenize(TokenizationRequest(text=text, tokenizer=tokenizer_name)).raw_tokens
+    )
+    if len(token_strings) > request.max_tokens:
+        encoded_ints = cast(
+            List[int],
+            tokenizer.tokenize(
+                TokenizationRequest(
+                    text=text, tokenizer=tokenizer_name, encode=True, truncation=True, max_length=request.max_tokens
+                )
+            ).raw_tokens,
+        )
+        text = tokenizer.decode(DecodeRequest(encoded_ints, tokenizer_name)).text
+        token_strings = cast(
+            List[str], tokenizer.tokenize(TokenizationRequest(text=text, tokenizer=tokenizer_name)).raw_tokens
+        )
+        finish_reason = "length"
+    tokens = [Token(text=token_string, logprob=0.0) for token_string in token_strings]
+    return Sequence(text=text, logprob=0.0, tokens=tokens, finish_reason={"reason": finish_reason})
 
 
 def cleanup_str(token: str, tokenizer_name: Optional[str] = None) -> str:

@@ -130,6 +130,30 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
+
+  # Amazon
+  - name: amazon/titan-text-lite-v1
+    model_name: amazon/titan-text-lite-v1
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 4000
+    client_spec:
+      class_name: "helm.proxy.clients.bedrock_client.BedrockTitanClient"
+
+  - name: amazon/titan-tg1-large
+    model_name: amazon/titan-tg1-large
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.proxy.clients.bedrock_client.BedrockTitanClient"
+
+  - name: amazon/titan-text-express-v1
+    model_name: amazon/titan-text-express-v1
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 8000
+    client_spec:
+      class_name: "helm.proxy.clients.bedrock_client.BedrockTitanClient"
+
+
   # Anthropic
   - name: anthropic/claude-v1.3
     model_name: anthropic/claude-v1.3
@@ -331,22 +355,24 @@ model_deployments:
 
   # Gooseai
 
-  ## EleutherAI
-  - name: gooseai/gpt-neo-20b
-    model_name: eleutherai/gpt-neox-20b
-    tokenizer_name: EleutherAI/gpt-neox-20b
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
+  # TODO: Migrate these models to use OpenAIClient
 
-  - name: gooseai/gpt-j-6b
-    model_name: eleutherai/gpt-j-6b
-    tokenizer_name: EleutherAI/gpt-j-6B
-    max_sequence_length: 2048
-    max_request_length: 2049
-    client_spec:
-      class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
+  ## EleutherAI
+  # - name: gooseai/gpt-neo-20b
+  #   model_name: eleutherai/gpt-neox-20b
+  #   tokenizer_name: EleutherAI/gpt-neox-20b
+  #   max_sequence_length: 2048
+  #   max_request_length: 2049
+  #   client_spec:
+  #     class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
+
+  # - name: gooseai/gpt-j-6b
+  #   model_name: eleutherai/gpt-j-6b
+  #   tokenizer_name: EleutherAI/gpt-j-6B
+  #   max_sequence_length: 2048
+  #   max_request_length: 2049
+  #   client_spec:
+  #     class_name: "helm.proxy.clients.goose_ai_client.GooseAIClient"
 
   # Google
 
@@ -582,6 +608,13 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.proxy.clients.vision_language.open_flamingo_client.OpenFlamingoClient"
+
+  - name: together/phi-2
+    model_name: microsoft/phi-2
+    tokenizer_name: microsoft/phi-2
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient" 
 
   ## Mistral AI
   - name: huggingface/bakLlava-v1-hf
@@ -874,23 +907,6 @@ model_deployments:
         checkpoint_dir: "" # Path to the checkpoint directory
         precision: bf16-true
 
-  # Microsoft
-  - name: microsoft/TNLGv2_530B
-    model_name: microsoft/TNLGv2_530B
-    tokenizer_name: microsoft/gpt2
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
-
-  - name: microsoft/TNLGv2_7B
-    model_name: microsoft/TNLGv2_7B
-    tokenizer_name: microsoft/gpt2
-    max_sequence_length: 2047
-    max_request_length: 2048
-    client_spec:
-      class_name: "helm.proxy.clients.microsoft_client.MicrosoftClient"
-
   # Mistral AI
   - name: mistralai/mistral-tiny
     model_name: mistralai/mistral-7b-v0.1
@@ -1041,6 +1057,14 @@ model_deployments:
 
   ## GPT 3.5 Turbo Models
   # ChatGPT: https://openai.com/blog/chatgpt
+
+  - name: openai/gpt-3.5-turbo-instruct
+    model_name: openai/gpt-3.5-turbo-instruct
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 4096
+    max_sequence_length: 4097
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 
   # The claimed sequence length is 4096, but as of 2023-03-07, the empirical usable
   # sequence length is smaller at 4087 with one user input message and one assistant
@@ -1654,3 +1678,41 @@ model_deployments:
     max_sequence_and_generated_tokens_length: 30048
     client_spec:
       class_name: "helm.proxy.clients.palmyra_client.PalmyraClient"
+
+  # Qwen
+
+  - name: together/qwen-7b
+    model_name: qwen/qwen-7b
+    tokenizer_name: qwen/qwen-7b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: togethercomputer/Qwen-7B
+
+  - name: together/qwen1.5-7b
+    model_name: qwen/qwen1.5-7b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: Qwen/Qwen1.5-7B
+
+  - name: together/qwen1.5-14b
+    model_name: qwen/qwen1.5-14b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: Qwen/Qwen1.5-14B
+
+  - name: together/qwen1.5-72b
+    model_name: qwen/qwen1.5-72b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 4095
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      args:
+        together_model: Qwen/Qwen1.5-72B

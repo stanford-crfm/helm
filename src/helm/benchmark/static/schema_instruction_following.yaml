@@ -1,5 +1,6 @@
 ---
 ############################################################
+perturbations: []
 adapter:
   - name: method
     description: The high-level strategy for converting instances into a prompt for the language model.
@@ -100,7 +101,6 @@ run_groups:
   - name: instruction_following
     display_name: Instruction Following
     description: Given an open-ended instruction in natural language, the goal is to produce a text response that is helpful, understandable, complete, concise and harmless.
-    category: Evaluations
     subgroups:
       - anthropic_hh_rlhf
       - grammar
