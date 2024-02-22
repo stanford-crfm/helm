@@ -1,7 +1,7 @@
 import os
 import argparse
 from functools import partial
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import torch
 from icetk import icetk as tokenizer
@@ -137,7 +137,7 @@ class CogView2Client(Client):
 
         try:
 
-            def do_it():
+            def do_it() -> Dict[str, Any]:
                 prompt: str = request.prompt
 
                 with htrack_block(f"Generating images for prompt: {prompt}"):

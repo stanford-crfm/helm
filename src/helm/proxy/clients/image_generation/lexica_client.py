@@ -1,4 +1,4 @@
-from typing import List, Dict, Union
+from typing import Any, List, Dict, Union
 import base64
 import requests
 import urllib.parse
@@ -44,7 +44,7 @@ class LexicaClient(Client):
 
         try:
 
-            def do_it():
+            def do_it() -> Dict[str, Any]:
                 num_completions: int = int(raw_request["n"])
                 result = requests.get(
                     f"https://lexica.art/api/v1/search?{urllib.parse.urlencode({'q': request.prompt})}"
