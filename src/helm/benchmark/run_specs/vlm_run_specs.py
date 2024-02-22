@@ -1,11 +1,19 @@
+"""Run spec functions for evaluating Vision-Language Models."""
+
 from typing import List, Optional, Dict
 
-from .adaptation.adapter_spec import AdapterSpec
-from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
-from .metrics.metric import MetricSpec
-from .run_specs import run_spec_function, get_exact_match_metric_specs
-from .runner import RunSpec
-from .scenarios.scenario import ScenarioSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.adapters.adapter_factory import (
+    ADAPT_GENERATION_MULTIMODAL,
+    ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
+)
+from helm.benchmark.metrics.common_metric_specs import (
+    get_exact_match_metric_specs,
+    get_open_ended_generation_metric_specs,
+)
+from helm.benchmark.metrics.metric import MetricSpec
+from helm.benchmark.run_spec import RunSpec, run_spec_function
+from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 ############################################################
@@ -49,21 +57,21 @@ def get_short_answer_generation_adapter_spec():
 def get_multiple_choice_joint_adapter_spec(
     input_noun: Optional[str],
     output_noun: str,
-    instructions: str = "",
     max_train_instances: int = 0,
+    num_outputs: int = 1,
 ) -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
         global_prefix="",
-        instructions=instructions,
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
-        input_suffix="\n" if input_noun is not None else "",
+        input_suffix="\n",
         output_prefix=f"{output_noun}: ",
         output_suffix="\n",
         instance_prefix="\n",
         max_train_instances=max_train_instances,
-        num_outputs=1,
-        max_tokens=2,
+        num_outputs=num_outputs,
+        max_tokens=1,
         stop_sequences=["\n"],
         temperature=0.0,
         random=None,
@@ -102,6 +110,30 @@ def get_image2structure_metric_specs(
 
 ############################################################
 # VHELM run specs
+
+
+@run_spec_function("chart2csv")
+def get_chart2csv_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.image2structure.chart2csv_scenario.Chart2CSVScenario",
+        args={},
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        instructions="Generate the CSV for the chart. Some of the labels may be missing due to the size of the chart. "
+        "Please infer the missing labels based on the surrounding context. "
+        "Just give the CSV without any explanation.",
+        max_tokens=1000,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "chart2csv"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
 
 
 @run_spec_function("hateful_memes")
@@ -149,7 +181,7 @@ def get_vqa_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.vqa_scenario.VQAScenario", args={}
     )
     adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "vqa"
     return RunSpec(
@@ -194,9 +226,8 @@ def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
     if question_type == "open":
         adapter_spec = get_short_answer_generation_adapter_spec()
     elif question_type == "multiple-choice":
-        instructions: str = "Answer the multiple choice question by just giving the letter of the correct answer."
         adapter_spec = get_multiple_choice_joint_adapter_spec(
-            input_noun=None, output_noun="Answer", instructions=instructions, max_train_instances=0
+            input_noun=None, output_noun="Answer", max_train_instances=0
         )
     else:
         raise ValueError(f"Invalid question type: {question_type}")
@@ -205,6 +236,30 @@ def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
     run_spec_name: str = "mmmu"
     return RunSpec(
         name=f"{run_spec_name}:subject={subject},question_type={question_type}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("heim_human_eval")
+def get_heim_human_eval_spec(question_type: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.heim_human_eval_scenario.HEIMHumanEvalScenario",
+        args={"question_type": question_type},
+    )
+    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+        input_noun=None,
+        output_noun="Answer",
+        num_outputs=1,
+        max_train_instances=0,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "heim_human_eval"
+    return RunSpec(
+        name=f"{run_spec_name}:question_type={question_type}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

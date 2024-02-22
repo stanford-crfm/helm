@@ -267,16 +267,35 @@ run_groups:
     category: All scenarios
     subgroups:
       - hateful_memes
+      - heim_human_eval
       - viz_wiz
       - vqa
       - mmmu
       - image2structure
+
+  - name: heim_human_eval
+    display_name: HEIM Human Eval Scenario
+    description: Seeing if we can use VLMs to evaluate AI-generated images from HEIM
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: AI-generated images
+      who: Text-to-image models
+      when: "2024"
+      language: English
 
   - name: image2structure
     display_name: Image2Structure
     description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images.
     category: All scenarios
     subgroups:
+      - chart2csv
       - image2latex
 
   - name: hateful_memes
@@ -314,37 +333,37 @@ run_groups:
       language: English
 
   - name: vqa
-    display_name: VQA
-    description: The Visual Question Answering (VQA) benchmark for multimodal question answering on images [(Antol et al., 2015)](https://arxiv.org/pdf/1505.00468.pdf).
+    display_name: Visual Question Answering
+    description: Open-ended questions about images
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: exact_match
-      main_split: test
+      main_name: f1_score
+      main_split: valid
     taxonomy:
-      task: multimodal question answering
-      what: images and text
-      who: annotators from Amazon Mechanical Turk
-      when: "2015"
+      task: short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
       language: English
 
   - name: mmmu
     display_name: MMMU
-    description: TODO
+    description: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
       main_name: exact_match
-      main_split: test
+      main_split: valid
     taxonomy:
       task: multiple-choice question answering
-      what: math, science, history, etc.
-      who: various online sources
-      when: before 2021
+      what: Art & Design, Business, Science, Health & Medicine, Humanities & Social Science, and Tech & Engineering
+      who: Human experts
+      when: "2023"
       language: English
 
   - name: image2latex
@@ -361,6 +380,23 @@ run_groups:
     taxonomy:
       task: image-to-text
       what: mathematical equations, tables, algorithms, tikz
+      who: n/a
+      when: "2024"
+      language: English
+
+  - name: chart2csv
+    display_name: Chart2CSV
+    description: The Chart2CSV benchmark for converting images of charts to CSV.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: chart to CSV
+      what: plots
       who: n/a
       when: "2024"
       language: English

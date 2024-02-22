@@ -10,6 +10,7 @@ import calibration as cal
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.evaluate_reference_metrics import compute_reference_metrics
 from helm.benchmark.metrics.efficiency_metrics import EfficiencyMetric
+from helm.benchmark.metrics.reference_metric import ReferenceMetric
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Token, Sequence
@@ -133,7 +134,7 @@ class InstancesPerSplitMetric(MetricInterface):
         return MetricResult(list(global_stats.values()), [])
 
 
-class BasicMetric(Metric):
+class BasicGenerationMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
     fairly comprehensive already, and we should try to use this as much as possible.
@@ -166,6 +167,31 @@ class BasicMetric(Metric):
         stats.extend(compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
 
         return stats
+
+    def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
+        """Derive perplexity metrics if applicable. We don't worry about splits and perturbations here."""
+        derived_stats: List[Stat] = []
+        derived_stats.extend(compute_perplexity_metrics(stats_dict))
+        return derived_stats
+
+    def derive_per_instance_stats(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
+        """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
+        derived_stats: List[Stat] = []
+        derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        return derived_stats
+
+
+class BasicReferenceMetric(ReferenceMetric):
+    """
+    Defines basic metrics for Scenarios that use one Request per Reference instead of
+    one per Instance.
+    """
+
+    def __init__(self):
+        self.efficiency_metric = EfficiencyMetric()
+
+    def __repr__(self):
+        return "BasicReferenceMetric"
 
     def evaluate_references(
         self,
@@ -268,18 +294,6 @@ class BasicMetric(Metric):
             ]
         )
         return stats
-
-    def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
-        """Derive perplexity metrics if applicable. We don't worry about splits and perturbations here."""
-        derived_stats: List[Stat] = []
-        derived_stats.extend(compute_perplexity_metrics(stats_dict))
-        return derived_stats
-
-    def derive_per_instance_stats(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
-        """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
-        derived_stats: List[Stat] = []
-        derived_stats.extend(compute_calibration_metrics(per_instance_stats))
-        return derived_stats
 
 
 def compute_request_state_metrics(

@@ -11,7 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
-from helm.benchmark.run_specs import get_scenario_spec1, get_adapter_spec1
+from helm.benchmark.run_specs.classic_run_specs import get_simple1_spec
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_GENERATION
@@ -21,8 +21,9 @@ from .test_adapter import TestAdapter
 
 class TestGenerationAdapter(TestAdapter):
     def test_adapt(self):
-        scenario = create_scenario(get_scenario_spec1())
-        adapter_spec = get_adapter_spec1()
+        run_spec = get_simple1_spec()
+        scenario = create_scenario(run_spec.scenario_spec)
+        adapter_spec = run_spec.adapter_spec
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         instances = scenario.get_instances(output_path="")
         request_states = adapter.adapt(instances, parallelism=1)

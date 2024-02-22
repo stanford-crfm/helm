@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import getBenchmarkRelease from "@/utils/getBenchmarkRelease";
 import getReleaseSummary from "@/services/getReleaseSummary";
 import ReleaseSummary from "@/types/ReleaseSummary";
+import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 
 function ReleaseDropdown() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -11,7 +12,7 @@ function ReleaseDropdown() {
     date: "",
   });
   const release = getBenchmarkRelease();
-
+  const suite = getBenchmarkSuite();
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
@@ -33,7 +34,13 @@ function ReleaseDropdown() {
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
         >
-          <div> Release: {release + " : " + summary.date} </div>
+          <div>
+            {" "}
+            Release:{" "}
+            {(release == "null" || release == null ? suite : release) +
+              " : " +
+              summary.date}{" "}
+          </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-4 w-4 ml-2"

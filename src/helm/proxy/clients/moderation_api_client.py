@@ -32,8 +32,13 @@ class ModerationAPIClient:
     VIOLENCE_GRAPHIC: str = "violence/graphic"
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
-        self.api_key = api_key
         self.cache = Cache(cache_config)
+        try:
+            from openai import OpenAI
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["openai"])
+        # TODO: Add OpenAI organization.
+        self.client = OpenAI(api_key=api_key)
 
     def get_moderation_results(self, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
         """
@@ -53,13 +58,12 @@ class ModerationAPIClient:
         try:
 
             def do_it():
-                openai.api_key = self.api_key
-                result = openai.Moderation.create(input=request.text)
+                result = self.client.moderations.create(input=request.text).model_dump(mode="json")
                 assert "results" in result and len(result["results"]) > 0, f"Invalid response: {result}"
                 return result
 
             response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
-        except openai.error.OpenAIError as e:
+        except openai.OpenAIError as e:
             error: str = f"Moderation API error: {e}"
             return ModerationAPIRequestResult(
                 success=False, cached=False, error=error, flagged=None, flagged_results=None, scores=None

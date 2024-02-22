@@ -18,11 +18,9 @@ from helm.benchmark.config_registry import (
     register_builtin_configs_from_helm_package,
 )
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark import heim_run_specs  # noqa
-from helm.benchmark import vlm_run_specs  # noqa
-from .executor import ExecutionSpec
-from .runner import Runner, RunSpec, LATEST_SYMLINK, set_benchmark_output_path
-from .run_specs import construct_run_specs
+from helm.benchmark.executor import ExecutionSpec
+from helm.benchmark.runner import Runner, RunSpec, LATEST_SYMLINK, set_benchmark_output_path
+from helm.benchmark.run_spec_factory import construct_run_specs
 
 
 def run_entries_to_run_specs(

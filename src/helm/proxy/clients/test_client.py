@@ -1,4 +1,6 @@
-from .client import truncate_sequence
+from helm.common.cache import BlackHoleCacheConfig
+from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
+from .client import truncate_sequence, truncate_and_tokenize_response_text
 from typing import List
 from helm.common.request import Request, Sequence, Token
 
@@ -47,3 +49,52 @@ def test_truncate_sequence():
         Request(model="openai/text-davinci-002", model_deployment="openai/text-davinci-002", max_tokens=2),
         ["a", "b"],
     )
+
+
+def test_truncate_and_tokenize_response_text():
+    tokenizer = HuggingFaceTokenizer(BlackHoleCacheConfig())
+    tokenizer_name = "huggingface/gpt2"
+
+    # No truncation
+    response = truncate_and_tokenize_response_text(
+        "I am a scientist. I am a scientist.", Request(max_tokens=100, stop_sequences=[]), tokenizer, tokenizer_name
+    )
+    assert response.finish_reason
+    assert response.finish_reason["reason"] == "endoftext"
+    assert response.text == "I am a scientist. I am a scientist."
+    assert response.tokens == [
+        Token("I", 0.0),
+        Token(" am", 0.0),
+        Token(" a", 0.0),
+        Token(" scientist", 0.0),
+        Token(".", 0.0),
+        Token(" I", 0.0),
+        Token(" am", 0.0),
+        Token(" a", 0.0),
+        Token(" scientist", 0.0),
+        Token(".", 0.0),
+    ]
+
+    response = truncate_and_tokenize_response_text(
+        "I am a scientist. I am a scientist.", Request(max_tokens=7, stop_sequences=["."]), tokenizer, tokenizer_name
+    )
+    assert response.finish_reason
+    assert response.finish_reason["reason"] == "stop"
+    assert response.text == "I am a scientist"
+    assert response.tokens == [Token("I", 0.0), Token(" am", 0.0), Token(" a", 0.0), Token(" scientist", 0.0)]
+
+    response = truncate_and_tokenize_response_text(
+        "I am a scientist. I am a scientist.", Request(max_tokens=3, stop_sequences=[]), tokenizer, tokenizer_name
+    )
+    assert response.finish_reason
+    assert response.finish_reason["reason"] == "length"
+    assert response.text == "I am a"
+    assert response.tokens == [Token("I", 0.0), Token(" am", 0.0), Token(" a", 0.0)]
+
+    response = truncate_and_tokenize_response_text(
+        "I am a scientist. I am a scientist.", Request(max_tokens=3, stop_sequences=["."]), tokenizer, tokenizer_name
+    )
+    assert response.finish_reason
+    assert response.finish_reason["reason"] == "length"
+    assert response.text == "I am a"
+    assert response.tokens == [Token("I", 0.0), Token(" am", 0.0), Token(" a", 0.0)]

@@ -2,7 +2,7 @@ from typing import Dict, List, Union, Optional
 import string
 import dataclasses
 
-from helm.benchmark.run_specs import get_default_model_deployment_for_model
+from helm.benchmark.run_spec_factory import get_default_model_deployment_for_model
 from helm.common.critique_request import (
     CritiqueRequest,
     CritiqueRequestResult,

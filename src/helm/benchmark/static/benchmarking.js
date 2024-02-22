@@ -492,7 +492,7 @@ $(function () {
               {{~#if perturbation~}}
                 {{highlightNewWords input.text ../unperturbedInstance.input.text}}
               {{~else~}}
-                {{input.text}}
+                {{{input.text}}}
               {{~/if~}}
             </div>
           {{/if}}

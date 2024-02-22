@@ -16,10 +16,10 @@ interface GroupDisplayData {
 }
 
 export default function Leaderboard() {
-  const defaultGroup = { title: "Core Scenarios", name: "core_scenarios" };
   const [allGroupData, setAllGroupData] = useState<GroupDisplayData[]>([]);
-  const [selectedGroupDisplayData, setSelectedGroupDisplayData] =
-    useState(defaultGroup);
+  const [selectedGroupDisplayData, setSelectedGroupDisplayData] = useState<
+    GroupDisplayData | undefined
+  >();
   const [groupsTables, setGroupsTables] = useState<GroupsTable[]>([]);
   const [groupMetadata, setGroupMetadata] = useState<
     GroupMetadata | undefined
@@ -36,7 +36,7 @@ export default function Leaderboard() {
     if (searchResult != undefined) {
       return searchResult;
     } else {
-      return defaultGroup;
+      return allGroupData[0];
     }
   }
 
@@ -47,9 +47,6 @@ export default function Leaderboard() {
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
-      if (selectedGroupDisplayData.name === undefined) {
-        return;
-      }
       const groups = await getGroupsTables(controller.signal);
       const result: GroupDisplayData[] = [];
       groups.forEach((group) => {
@@ -61,13 +58,18 @@ export default function Leaderboard() {
         });
       });
       setAllGroupData(result);
-
+      if (result.length === 0) {
+        throw new Error("Could not find any groups!");
+      }
+      const selectedGroupName = selectedGroupDisplayData
+        ? selectedGroupDisplayData.name
+        : result[0].name;
       const [group, metadata] = await Promise.all([
-        getGroupsTablesByName(selectedGroupDisplayData.name, controller.signal),
+        getGroupsTablesByName(selectedGroupName, controller.signal),
         getGroupsMetadata(controller.signal),
       ]);
       setGroupsTables(group);
-      setGroupMetadata(metadata[selectedGroupDisplayData.name]);
+      setGroupMetadata(metadata[selectedGroupName]);
       setIsLoading(false);
     }
 
@@ -114,7 +116,11 @@ export default function Leaderboard() {
             <select
               id="group"
               name="group"
-              value={selectedGroupDisplayData.title}
+              value={
+                selectedGroupDisplayData
+                  ? selectedGroupDisplayData.title
+                  : allGroupData[0].title
+              }
               onChange={(e) => updateLeaderboard(allGroupData, e.target.value)}
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring focus:border-blue-300 rounded-md"
             >
