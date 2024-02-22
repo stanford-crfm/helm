@@ -11,13 +11,15 @@ import base64
 import os
 import threading
 import tarfile
+import shutil
+import time
 
 
 class WebpageScenario(Image2StructureScenario):
     BASE_PROMPT = (
         "Please provide the source code used to generate this webpage."
         " You should output a json object associating each file name with its content.\n\n"
-        "Here is a simple example:\n"
+        "Here is a simple example (that does not correspond to the image):\n"
         "[\n"
         "  {\n"
         '    "filename": "index.html",\n'
@@ -32,10 +34,12 @@ class WebpageScenario(Image2StructureScenario):
         '    "content": "document.getElementById(\\"demo\\").innerHTML = \\"Hello JavaScript!\\";"\n'
         "  }\n"
         "]\n"
+        "\nNow provide the source code for the webpage provided as an image."
     )
 
     HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-webpage"
     SUBSETS = ["css", "html", "javascript"]
+    MAX_TRIES: int = 5
 
     name = "image2webpage"
     description = "Evaluate multimodal models on webpage generation to recreate a provided image"
@@ -54,14 +58,18 @@ class WebpageScenario(Image2StructureScenario):
         # Structure is a base64 encoding of the repo
         if self._output_path is None:
             raise ValueError("Output path not set")
-        repo_path = os.path.join(self._output_path, f"tmp/{self._subset}")
+        repo_path = os.path.join(self._output_path, f"tmp{threading.get_ident()}/{self._subset}")
         ensure_directory_exists(repo_path)
 
-        # Decode the base64 string whic corresponds to an archive
+        # Decode the base64 string which corresponds to an archive
         # and extract the files to the repo_path
         try:
             archive = base64.b64decode(structure)
-            with tarfile.open(fileobj=archive, mode="r:gz") as tar:  # type: ignore
+            # Write to .tar file
+            with open(os.path.join(repo_path, "repo.tar.gz"), "wb") as f:
+                f.write(archive)
+            # Extract
+            with tarfile.open(os.path.join(repo_path, "repo.tar.gz"), "r:gz") as tar:
                 tar.extractall(repo_path)
         except Exception as e:
             raise ValueError(f"Failed to decode and extract the base64 archive: {e}")
@@ -77,12 +85,24 @@ class WebpageScenario(Image2StructureScenario):
             raise ValueError(f"Jekyll server failed to start: {repo_path}")
 
         # Take a screenshot of a random page
-        try:
-            scheenshot_options = self._screenshot_options
-            save_random_screenshot(destination_path, port=port, options=scheenshot_options)
-        except Exception as e:
-            server.stop()
-            raise ValueError(f"Failed to take a screenshot: {e}")
+        success = False
+        error: Exception
+        for _ in range(self.MAX_TRIES):
+            try:
+                scheenshot_options = self._screenshot_options
+                save_random_screenshot(destination_path, port=port, options=scheenshot_options)
+                success = True
+                break
+            except Exception as e:
+                error = e
+                server.stop()
+                time.sleep(0.5)
+                server.start()
+                time.sleep(0.5)
+        if not success:
+            raise ValueError(f"Failed to take a screenshot: {error}")
 
         # Stop the server
+        shutil.rmtree(repo_path)
         server.stop()
+        time.sleep(0.1)

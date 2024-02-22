@@ -73,7 +73,7 @@ class JekyllServer:
 
     def kill_process_using_port(self, port: int):
         """Find and kill the process using the specified port."""
-        command = f"lsof -ti:{port} | xargs kill -9"
+        command = f"lsof -ti:{port} | grep '[0-9]' | xargs -r kill -9"
         os.system(command)
         if self.verbose:
             hlog(f"Killed process using port {port}.")

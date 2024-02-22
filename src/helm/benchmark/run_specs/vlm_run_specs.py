@@ -223,7 +223,7 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Opti
 
 
 @run_spec_function("image2webpage")
-def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
+def get_image2webpage_spec(subset: str, recompile_prompt: bool = True, args: Optional[Dict] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario.WebpageScenario",
         args={"subset": subset, "recompile_prompt": recompile_prompt},
