@@ -1,15 +1,17 @@
 from typing import List, Tuple
 import json
 import os
-import threading
 
 from helm.benchmark.metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.jekyll_server import JekyllServer
 from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import (
-    save_random_screenshot,
     ScreenshotOptions,
+)
+from helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario import (
+    serve_and_take_screenshot,
+    list_assets,
+    copy_assets,
 )
 
 try:
@@ -62,34 +64,17 @@ class WebpageMetric(GenerateImageFromCompletionMetric):
             with open(os.path.join(repo_path, filename), "w") as f:
                 f.write(content)
 
-        # Convert the latex code to an image
-        destination_path = os.path.join(repo_path, "screenshot.png")
-        try:
-            # Start the Jekyll server
-            # Select a unique port per thread
-            port: int = 4000 + int(threading.get_ident()) % 1000
-            server = JekyllServer(repo_path, port=port)
-            success: bool = server.start()
-            if not success:
-                # This runs on examples that are not expected to fail
-                server.stop()
-                raise CompilationError(f"Jekyll server failed to start: {repo_path}")
+        # Copy the assets
+        references = request_state.instance.references
+        assert len(references) > 0, "No references found"
+        original_repo_path = references[0].output.text
+        print(f"original_repo_path: {original_repo_path}")
+        asset_paths: List[str] = list_assets(original_repo_path, ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico"])
+        copy_assets(original_repo_path, repo_path, asset_paths)
 
-            # Take a screenshot of a random page
-            try:
-                scheenshot_options = self._screenshot_options
-                save_random_screenshot(destination_path, port=port, options=scheenshot_options)
-            except Exception as e:
-                server.stop()
-                raise CompilationError(f"Failed to take a screenshot: {e}")
-
-            # Stop the server
-            server.stop()
-        except RuntimeError as e:
-            # We do not want to catch OptionalDependencyNotInstalled (error with latex installation)
-            # because it is a fatal error and should be handled by the user
-            raise CompilationError from e
-
-        # Return the image
+        # Save the screenshot, loads the image and remove the file
+        destination_path: str = os.path.join(repo_path, "output.png")
+        serve_and_take_screenshot(repo_path, destination_path, self._screenshot_options)
         image: Image.Image = Image.open(destination_path)
+        os.remove(destination_path)
         return image

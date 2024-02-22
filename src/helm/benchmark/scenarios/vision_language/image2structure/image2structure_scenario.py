@@ -1,5 +1,5 @@
 import os.path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from abc import abstractmethod
 
 from datasets import load_dataset
@@ -42,11 +42,40 @@ class Image2StructureScenario(Scenario):
         self._split: str = split
         self._output_path: Optional[str] = None
 
+    def preprocess_row(self, row: Dict[str, Any]) -> Dict[str, Any]:
+        return row
+
+    def build_prompt(self, row: Dict[str, Any]) -> str:
+        return self.BASE_PROMPT
+
     @abstractmethod
     def compile_and_save(self, structure: str, assets_path: str, destination_path: str) -> None:
         pass
 
+    def finalize(self, row: Dict[str, Any]) -> None:
+        """Perform cleanup operations after the instance has been generated."""
+        pass
+
     def get_instances(self, output_path: str) -> List[Instance]:
+        """Get the instances for the scenario. This compile_and_save method should be implemented by the subclass.
+        Additionally, the subclass should implement the preprocess_row method if any preprocessing is needed.
+
+        For each instance, the following steps are performed:
+        1. Preprocess the row
+        2. Save the image locally
+            - 2.a. If we don't want to recompile the prompt, save the image directly
+            - 2.b. If we want to recompile the prompt, compile the structure and save the image
+        3. Create the prompt
+        4. Create the multimedia content
+        5. Create the reference
+        6. Finalize the Instance
+
+        Args:
+            output_path (str): The path where the instances will be saved
+
+        Returns:
+            List[Instance]: The list of instances
+        """
         self._output_path = output_path
         images_path: str = os.path.join(output_path, "data/images", self._subset)
         assets_path: str = os.path.join(output_path, "data/assets", self._subset)
@@ -71,27 +100,32 @@ class Image2StructureScenario(Scenario):
                 )
                 continue
 
-            # Save the image locally
+            # Step 1: Preprocess the row
+            row = self.preprocess_row(row)
+
+            # Step 2: Save the image locally
             image_path: str = os.path.join(images_path, f"{question_id}.png")
             if not os.path.exists(image_path):
-                if not self._recompile_prompt:
+                if not self._recompile_prompt:  # 2.a
                     row["image"].save(image_path)
-                else:
+                else:  # 2.b
                     structure: str = row["structure"]
                     self.compile_and_save(structure, assets_path, image_path)
 
-            # Create the multimedia content
-            prompt: str = self.BASE_PROMPT
+            # Step 3: Create the prompt
+            prompt: str = self.build_prompt(row)
+
+            # Step 4: Create the multimedia content
             image_object = MediaObject(location=image_path, content_type="image/png")
             content: List[MediaObject] = [
                 MediaObject(text=prompt, content_type="text/plain"),
                 image_object,
             ]
 
-            # Create the reference
+            # Step 5: Create the reference
             reference: Reference = Reference(
                 output=Output(
-                    text=row["structure"] if len(row["structure"]) < 2000 else "",
+                    text=row["structure"],
                     multimedia_content=MultimediaObject(
                         [
                             image_object,
@@ -104,7 +138,8 @@ class Image2StructureScenario(Scenario):
                 tags=[CORRECT_TAG],  # TODO: Add assets
             )
 
-            # Finalize the Instance
+            # Step 6: Finalize the Instance
+            self.finalize(row)
             instances.append(
                 Instance(
                     input=Input(multimedia_content=MultimediaObject(content)), references=[reference], split=self._split
