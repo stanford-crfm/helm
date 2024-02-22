@@ -1,12 +1,6 @@
 from helm.benchmark.scenarios.scenario import VALID_SPLIT
 from .utils_latex import latex_to_image
 from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import Image2StructureScenario
-from helm.common.optional_dependencies import handle_module_not_found_error
-
-try:
-    from PIL import Image
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
 
 
 class LatexScenario(Image2StructureScenario):
@@ -20,6 +14,6 @@ class LatexScenario(Image2StructureScenario):
     def __init__(self, subset: str, recompile_prompt: bool = True, split: str = VALID_SPLIT):
         super().__init__(subset, recompile_prompt, split)
 
-    def compile(self, structure: str, assets_path: str) -> Image.Image:
+    def compile_and_save(self, structure: str, assets_path: str, destination_path: str) -> None:
         image, _ = latex_to_image(structure, assets_path=assets_path, crop=True)
-        return image
+        image.save(destination_path)

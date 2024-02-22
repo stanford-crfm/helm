@@ -83,7 +83,10 @@ def get_multiple_choice_joint_adapter_spec(
 
 
 def get_image2structure_metric_specs(
-    metric_names: Optional[List[str]] = None, args: Optional[Dict] = None, normalize_by_white_score: bool = False
+    generate_image_metric_class: str,
+    metric_names: Optional[List[str]] = None,
+    args: Optional[Dict] = None,
+    normalize_by_white_score: bool = False,
 ) -> List[MetricSpec]:
     from helm.benchmark.metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric
 
@@ -98,7 +101,7 @@ def get_image2structure_metric_specs(
         args = {}
     return [
         MetricSpec(
-            class_name="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",
+            class_name=generate_image_metric_class,
             args={"metric_names": metric_names, "normalize_by_white_score": normalize_by_white_score, **args},
         ),
         MetricSpec(
@@ -194,7 +197,7 @@ def get_vqa_spec() -> RunSpec:
 
 
 @run_spec_function("image2latex")
-def get_image2latex_latex_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
+def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
         args={"subset": subset, "recompile_prompt": recompile_prompt},
@@ -203,9 +206,39 @@ def get_image2latex_latex_spec(subset: str, recompile_prompt: bool = False, args
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(args=args, normalize_by_white_score=False)
+    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+        generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",  # noqa: E501
+        args=args,
+        normalize_by_white_score=False,
+    )
 
     run_spec_name: str = "image2latex"
+    return RunSpec(
+        name=f"{run_spec_name}:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("image2webpage")
+def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario.WebpageScenario",
+        args={"subset": subset, "recompile_prompt": recompile_prompt},
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        instructions="Just give a short answer without answering in a complete sentence.",
+        max_tokens=2000,
+    )
+    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+        generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.webpage_metrics.WebpageMetric",  # noqa: E501
+        args=args,
+        normalize_by_white_score=False,
+    )
+
+    run_spec_name: str = "image2webpage"
     return RunSpec(
         name=f"{run_spec_name}:subset={subset}",
         scenario_spec=scenario_spec,

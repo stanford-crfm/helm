@@ -297,6 +297,7 @@ run_groups:
     subgroups:
       - chart2csv
       - image2latex
+      - image2webpage
 
   - name: hateful_memes
     display_name: Hateful Memes
@@ -380,6 +381,24 @@ run_groups:
     taxonomy:
       task: image-to-text
       what: mathematical equations, tables, algorithms, tikz
+      who: n/a
+      when: "2024"
+      language: English
+
+  - name: image2webpage
+    display_name: Image2webpage
+    description: The Image2webpage benchmark for converting images of webpages to HTML/CSS/Javascript.
+    metric_groups:
+      - accuracy
+      - image_generation
+      - efficiency
+      - general_information
+    environment:
+      main_name: sift_similarity
+      main_split: valid
+    taxonomy:
+      task: image-to-text
+      what: css, html, javascript
       who: n/a
       when: "2024"
       language: English
