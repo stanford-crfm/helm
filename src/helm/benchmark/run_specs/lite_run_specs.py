@@ -9,10 +9,12 @@ from helm.benchmark.adaptation.common_adapter_specs import (
     get_multiple_choice_adapter_spec,
 )
 from helm.benchmark.metrics.common_metric_specs import (
+    get_basic_generation_metric_specs,
     get_basic_metric_specs,
     get_exact_match_metric_specs,
     get_f1_metric_specs,
     get_generative_harms_metric_specs,
+    get_generic_metric_specs,
     get_open_ended_generation_metric_specs,
 )
 from helm.benchmark.run_spec import RunSpec, run_spec_function
@@ -145,7 +147,8 @@ def get_gsm_spec() -> RunSpec:
         name="gsm",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match_indicator", "final_number_exact_match"])
+        metric_specs=get_basic_generation_metric_specs(["exact_match_indicator", "final_number_exact_match"])
+        + get_generic_metric_specs()
         + get_generative_harms_metric_specs(),
         groups=["gsm"],
     )
