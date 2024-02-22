@@ -1,3 +1,5 @@
+"""Run spec functions for evaluating Vision-Language Models."""
+
 from typing import List, Optional, Dict
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec

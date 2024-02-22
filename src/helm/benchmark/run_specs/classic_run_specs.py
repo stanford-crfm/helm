@@ -1,3 +1,11 @@
+"""Run spec functions for the HELM Classic leaderboard.
+
+Website: https://crfm.stanford.edu/helm/classic/
+
+If a run spec function is included in both the HELM Classic leaderboard and the
+HELM Lite leaderboard, it will be included in the lite_run_specs module instead of this module.
+This module also contains some scenarios that are currently not used on any HELM leaderboard."""
+
 from typing import Any, Dict, List, Optional, Set
 
 from helm.benchmark.adaptation.adapter_spec import (

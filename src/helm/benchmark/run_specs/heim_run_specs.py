@@ -1,3 +1,7 @@
+"""Run spec functions for HEIM (Holistic Evaluation of Text-To-Image Models).
+
+Website: https://crfm.stanford.edu/heim/"""
+
 from typing import List, Optional
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec

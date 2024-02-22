@@ -1,3 +1,7 @@
+"""Run spec functions for HELM Instruct.
+
+Website: https://crfm.stanford.edu/helm/instruct/"""
+
 from typing import List
 
 from helm.benchmark.adaptation.common_adapter_specs import get_instruct_adapter_spec

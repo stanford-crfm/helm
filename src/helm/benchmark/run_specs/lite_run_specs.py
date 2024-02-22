@@ -1,3 +1,7 @@
+"""Run spec functions for the HELM Lite leaderboard.
+
+Website: https://crfm.stanford.edu/helm/lite/"""
+
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
     ADAPT_MULTIPLE_CHOICE_JOINT,

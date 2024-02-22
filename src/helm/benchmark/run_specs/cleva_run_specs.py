@@ -1,3 +1,9 @@
+"""Run spec functions for CLEVA.
+
+CLEVA is a benchmark for holistically evaluating Chinese LLMs.
+
+Paper: https://arxiv.org/abs/2308.04813"""
+
 import itertools
 from functools import partial
 from typing import Callable, Dict, List, Optional

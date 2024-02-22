@@ -1,3 +1,10 @@
+"""Run spec functions for DecodingTrust.
+
+DecodingTrust aims at providing a thorough assessment of trustworthiness in language models.
+
+Website: https://decodingtrust.github.io/
+Paper: https://arxiv.org/abs/2306.11698"""
+
 from typing import List, Optional
 
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT
