@@ -85,7 +85,7 @@ def get_multiple_choice_joint_adapter_spec(
 def get_image2structure_metric_specs(
     metric_names: Optional[List[str]] = None, args: Optional[Dict] = None, normalize_by_white_score: bool = False
 ) -> List[MetricSpec]:
-    from .metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric
+    from helm.benchmark.metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric
 
     if metric_names is None:
         metric_names = [
@@ -194,10 +194,10 @@ def get_vqa_spec() -> RunSpec:
 
 
 @run_spec_function("image2latex")
-def get_image2latex_latex_spec(subject: str, recompile_prompt: bool = True, args: Optional[Dict] = None) -> RunSpec:
+def get_image2latex_latex_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
-        args={"subject": subject, "recompile_prompt": recompile_prompt},
+        args={"subset": subset, "recompile_prompt": recompile_prompt},
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
@@ -207,7 +207,7 @@ def get_image2latex_latex_spec(subject: str, recompile_prompt: bool = True, args
 
     run_spec_name: str = "image2latex"
     return RunSpec(
-        name=f"{run_spec_name}:subject={subject}",
+        name=f"{run_spec_name}:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
