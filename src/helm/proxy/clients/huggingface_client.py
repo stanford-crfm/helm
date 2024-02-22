@@ -249,7 +249,7 @@ class HuggingFaceClient(CachingClient):
 
         try:
 
-            def do_it() -> Dict:
+            def do_it() -> Dict[str, Any]:
                 return huggingface_model.serve_request(raw_request)
 
             cache_key = CachingClient.make_cache_key(raw_request, request)

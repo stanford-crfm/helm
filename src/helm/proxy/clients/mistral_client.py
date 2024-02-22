@@ -98,7 +98,7 @@ class MistralAIClient(CachingClient):
                     "random_seed": self._get_random_seed(request, completion_index),
                 }
 
-                def do_it() -> Dict:
+                def do_it() -> Dict[str, Any]:
                     result: Dict[str, Any] = self._send_request(raw_request)
                     return result
 

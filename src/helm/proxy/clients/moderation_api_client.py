@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Any, Dict
 
 from helm.common.request import wrap_request_time
 from helm.common.cache import Cache, CacheConfig
@@ -57,7 +57,7 @@ class ModerationAPIClient:
 
         try:
 
-            def do_it() -> Dict:
+            def do_it() -> Dict[str, Any]:
                 result = self.client.moderations.create(input=request.text).model_dump(mode="json")
                 assert "results" in result and len(result["results"]) > 0, f"Invalid response: {result}"
                 return result

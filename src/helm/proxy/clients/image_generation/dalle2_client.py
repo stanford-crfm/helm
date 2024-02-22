@@ -159,7 +159,7 @@ class DALLE2Client(Client):
 
         try:
 
-            def do_it() -> Dict:
+            def do_it() -> Dict[str, Any]:
                 # To maintain backwards compatibility, specify the model in the request but not in the cache key
                 return self.generate_with_dalle_api({"model": "dall-e-2", **raw_request})
 

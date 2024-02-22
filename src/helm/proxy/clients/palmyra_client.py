@@ -74,7 +74,7 @@ class PalmyraClient(CachingClient):
         for completion_index in range(request.num_completions):
             try:
 
-                def do_it() -> Dict:
+                def do_it() -> Dict[str, Any]:
                     # Add an argument timeout to raw_request to avoid waiting getting timeout of 60s
                     # which happens for long prompts.
                     request_with_timeout = {"timeout": 300, **raw_request}

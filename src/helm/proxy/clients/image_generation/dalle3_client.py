@@ -71,7 +71,7 @@ class DALLE3Client(DALLE2Client):
         for completion_index in range(request.num_completions):
             try:
 
-                def do_it() -> Dict:
+                def do_it() -> Dict[str, Any]:
                     return self.generate_with_dalle_api({**raw_request})
 
                 cache_key = CachingClient.make_cache_key({"completion_index": completion_index, **raw_request}, request)

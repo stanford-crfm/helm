@@ -1,6 +1,6 @@
 import os
 from dataclasses import asdict
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.request import wrap_request_time
@@ -42,7 +42,7 @@ class HTTPModelTokenizer(Tokenizer):
 
         try:
 
-            def do_it() -> Dict:
+            def do_it() -> Dict[str, Any]:
                 url = f"{self.base_url}/tokenize"
                 response = requests.post(url, json=raw_request)
                 response.raise_for_status()
@@ -70,7 +70,7 @@ class HTTPModelTokenizer(Tokenizer):
 
         try:
 
-            def do_it() -> Dict:
+            def do_it() -> Dict[str, Any]:
                 url = f"{self.base_url}/decode"
                 response = requests.post(url, json={"tokens": request.tokens})
                 response.raise_for_status()

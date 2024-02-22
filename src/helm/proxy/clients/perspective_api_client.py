@@ -1,7 +1,7 @@
 # mypy: check_untyped_defs = False
 import threading
 from dataclasses import asdict
-from typing import List, Dict, Optional
+from typing import Any, List, Dict, Optional
 
 from dacite import from_dict
 from googleapiclient import discovery
@@ -93,7 +93,7 @@ class PerspectiveAPIClient(ToxicityClassifierClient):
         """
         try:
 
-            def do_it() -> Dict:
+            def do_it() -> Dict[str, Any]:
                 text_to_response: Dict[str, Dict] = dict()
 
                 def callback(request_id: str, response: Dict, error: HttpError):
