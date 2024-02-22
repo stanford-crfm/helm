@@ -69,7 +69,7 @@ def pdf_to_image(
         # Removes the white border around the image
         if crop:
             (w, h) = image.size
-            image = image.crop((0, 0, w, h - int(h * 0.13)))  # Remove pagination
+            image = image.crop((0, 0, w, h - int(h * 0.2)))  # Remove pagination
             image = image.crop(ImageOps.invert(image).getbbox())  # Remove white border
 
         # Resize the image

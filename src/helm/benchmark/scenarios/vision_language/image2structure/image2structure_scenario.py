@@ -1,5 +1,5 @@
 import os.path
-from typing import List
+from typing import List, Optional
 from abc import abstractmethod
 
 from datasets import load_dataset
@@ -17,13 +17,7 @@ from helm.benchmark.scenarios.scenario import (
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
-from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.hierarchical_logger import hlog
-
-try:
-    from PIL import Image
-except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["image2structure"])
 
 
 class Image2StructureScenario(Scenario):
@@ -46,12 +40,14 @@ class Image2StructureScenario(Scenario):
         self._subset: str = subset
         self._recompile_prompt: bool = recompile_prompt
         self._split: str = split
+        self._output_path: Optional[str] = None
 
     @abstractmethod
-    def compile(self, structure: str, assets_path: str) -> Image.Image:
+    def compile_and_save(self, structure: str, assets_path: str, destination_path: str) -> None:
         pass
 
     def get_instances(self, output_path: str) -> List[Instance]:
+        self._output_path = output_path
         images_path: str = os.path.join(output_path, "data/images", self._subset)
         assets_path: str = os.path.join(output_path, "data/assets", self._subset)
         ensure_directory_exists(images_path)
@@ -82,8 +78,7 @@ class Image2StructureScenario(Scenario):
                     row["image"].save(image_path)
                 else:
                     structure: str = row["structure"]
-                    image: Image.Image = self.compile(structure, assets_path)
-                    image.save(image_path)
+                    self.compile_and_save(structure, assets_path, image_path)
 
             # Create the multimedia content
             prompt: str = self.BASE_PROMPT
