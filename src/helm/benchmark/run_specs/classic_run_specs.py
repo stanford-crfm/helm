@@ -29,6 +29,9 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_numeracy_metric_specs,
     get_open_ended_generation_metric_specs,
     get_summarization_metric_specs,
+    get_basic_generation_metric_specs,
+    get_basic_reference_metric_specs,
+    get_generic_metric_specs,
 )
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
@@ -60,7 +63,7 @@ def get_simple1_spec() -> RunSpec:
         name="simple1",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs([]),
+        metric_specs=get_basic_generation_metric_specs([]) + get_generic_metric_specs(),
         groups=[],
     )
 
@@ -89,9 +92,6 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
     )
 
 
-# Ranking
-
-
 @run_spec_function("msmarco")
 def get_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
     from helm.benchmark.scenarios.msmarco_scenario import MSMARCOScenario
@@ -108,19 +108,23 @@ def get_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
     measure_names = MSMARCOScenario.MEASURE_NAMES[track]
     multiple_relevance_values = set(MSMARCOScenario.GOLD_RELATIONS[track]) != {1}
 
-    metric_specs: List[MetricSpec] = [
-        MetricSpec(
-            class_name="helm.benchmark.metrics.ranking_metrics.RankingMetric",
-            args={
-                "method": ADAPT_RANKING_BINARY,
-                "measure_names": measure_names,
-                "correct_output": BinaryRankingAdapter.RANKING_CORRECT_LABEL,
-                "wrong_output": BinaryRankingAdapter.RANKING_WRONG_LABEL,
-                "rank": valid_topk,
-                "multiple_relevance_values": multiple_relevance_values,
-            },
-        ),
-    ] + get_basic_metric_specs(names=[])
+    metric_specs = (
+        [
+            MetricSpec(
+                class_name="helm.benchmark.metrics.ranking_metrics.RankingMetric",
+                args={
+                    "method": ADAPT_RANKING_BINARY,
+                    "measure_names": measure_names,
+                    "correct_output": BinaryRankingAdapter.RANKING_CORRECT_LABEL,
+                    "wrong_output": BinaryRankingAdapter.RANKING_WRONG_LABEL,
+                    "rank": valid_topk,
+                    "multiple_relevance_values": multiple_relevance_values,
+                },
+            ),
+        ]
+        + get_basic_reference_metric_specs()
+        + get_generic_metric_specs()
+    )
 
     return RunSpec(
         name=f"msmarco:track={track},valid_topk={valid_topk}",
@@ -358,13 +362,13 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         max_train_instances=3,  # limited by the context length
         max_tokens=20,
     )
+    srn_metric_specs = get_basic_metric_specs(["f1_set_match", "iou_set_match", "exact_set_match"])
 
     return RunSpec(
         name=f"synthetic_reasoning_natural:difficulty={difficulty}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["f1_set_match", "iou_set_match", "exact_set_match"])
-        + get_generative_harms_metric_specs(),
+        metric_specs=srn_metric_specs + get_generative_harms_metric_specs(),
         groups=["synthetic_reasoning", "synthetic_reasoning_natural"],
     )
 
@@ -398,7 +402,7 @@ def get_raft_spec(subset: str) -> RunSpec:
 def get_numeracy_spec(
     relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
-    from ..scenarios.numeracy_scenario import RELTYPE_INFO, get_numeracy_adapter_spec
+    from helm.benchmark.scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 
     run_solver_bool: bool = True if run_solver == "True" else False
     del run_solver
@@ -446,6 +450,23 @@ def get_numeracy_spec(
     )
 
 
+@run_spec_function("boolq")
+def get_boolq_spec(only_contrast=False) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast}
+    )
+
+    adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Answer")
+
+    return RunSpec(
+        name="boolq" + (":only_contrast=True" if only_contrast else ""),
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs(),
+        groups=["boolq"],
+    )
+
+
 @run_spec_function("lsat_qa")
 def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -466,23 +487,6 @@ def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["lsat_qa"],
-    )
-
-
-@run_spec_function("boolq")
-def get_boolq_spec(only_contrast=False) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast}
-    )
-
-    adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Answer")
-
-    return RunSpec(
-        name="boolq" + (":only_contrast=True" if only_contrast else ""),
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs() + get_bias_metric_specs(),
-        groups=["boolq"],
     )
 
 
@@ -708,7 +712,9 @@ def get_synthetic_efficiency_spec(
         name=f"synthetic_efficiency:random={random}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_generation_metric_specs(["exact_match"])
+        + get_generic_metric_specs()
+        + get_generative_harms_metric_specs(),
         groups=["synthetic_efficiency"],
     )
 
@@ -895,7 +901,9 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         name=f"dyck_language_np={int(num_parenthesis_pairs)}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match_indicator"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_generation_metric_specs(["exact_match_indicator"])
+        + get_generic_metric_specs()
+        + get_generative_harms_metric_specs(),
         groups=["dyck_language"],
     )
 
@@ -1177,10 +1185,10 @@ def get_pubmed_qa_spec() -> RunSpec:
 @run_spec_function("lextreme")
 def get_lextreme_spec(subset: str) -> RunSpec:
     from helm.benchmark.scenarios.lextreme_scenario import (
-        TaskType,
         get_lextreme_instructions,
-        get_lextreme_max_tokens,
         get_lextreme_max_train_instances,
+        get_lextreme_max_tokens,
+        TaskType,
         get_lextreme_task_type,
     )
 
@@ -1200,7 +1208,7 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         multi_label=(task_type == TaskType.MLTC),
     )
 
-    metric_specs = get_basic_metric_specs([])
+    metric_specs = get_basic_generation_metric_specs([]) + get_generic_metric_specs()
     if task_type == TaskType.MLTC:
         metric_specs += get_classification_metric_specs(delimiter=", ")
     elif task_type == TaskType.SLTC:
@@ -1241,7 +1249,7 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
         multi_label=(task_type == TaskType.MLTC),
     )
 
-    metric_specs = get_basic_metric_specs([])
+    metric_specs = get_basic_generation_metric_specs([]) + get_generic_metric_specs()
     if task_type == TaskType.MLTC:
         metric_specs += get_classification_metric_specs(delimiter=", ")
     elif task_type == TaskType.SLTC:

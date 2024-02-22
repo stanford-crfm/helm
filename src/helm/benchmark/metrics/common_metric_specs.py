@@ -4,11 +4,26 @@ from typing import Any, Dict, List, Optional
 from helm.benchmark.metrics.metric import MetricSpec
 
 
-def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
+def get_basic_generation_metric_specs(names: List[str]) -> List[MetricSpec]:
     return [
-        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicMetric", args={"names": names}),
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicGenerationMetric", args={"names": names}),
+    ]
+
+
+def get_basic_reference_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicReferenceMetric", args={}),
+    ]
+
+
+def get_generic_metric_specs() -> List[MetricSpec]:
+    return [
         MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric", args={}),
     ]
+
+
+def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
+    return get_basic_generation_metric_specs(names) + get_basic_reference_metric_specs() + get_generic_metric_specs()
 
 
 def get_exact_match_metric_specs() -> List[MetricSpec]:
