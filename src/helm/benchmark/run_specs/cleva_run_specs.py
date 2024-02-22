@@ -14,8 +14,10 @@ from helm.benchmark.adaptation.common_adapter_specs import (
     get_language_modeling_adapter_spec,
 )
 from helm.benchmark.metrics.common_metric_specs import (
+    get_basic_generation_metric_specs,
     get_basic_metric_specs,
     get_exact_match_metric_specs,
+    get_generic_metric_specs,
     get_language_modeling_metric_specs,
     get_multiple_choice_classification_metric_specs,
 )
@@ -187,7 +189,11 @@ def get_cleva_spec(task: str, version: str, subtask: Optional[str] = None, promp
             stop_sequences=inference_parameters.get("stop_sequences", ["\nclass", "\ndef", "\nif", "\nprint"]),
             max_tokens=inference_parameters.get("max_tokens", 600),
         )
-        metric_specs = get_basic_metric_specs(["code_eval_acc", "pass"]) + get_cleva_generative_harms_metric_specs()
+        metric_specs = (
+            get_basic_generation_metric_specs(["code_eval_acc", "pass"])
+            + get_generic_metric_specs()
+            + get_cleva_generative_harms_metric_specs()
+        )
     elif task in ["language_modeling"]:
         adapter_spec = get_language_modeling_adapter_spec()
         metric_specs = get_language_modeling_metric_specs([])
