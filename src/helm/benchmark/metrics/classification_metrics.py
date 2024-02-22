@@ -38,7 +38,7 @@ class ClassificationMetric(EvaluateInstancesMetric):
     def is_multi_label(self) -> bool:
         return bool(self.delimiter)
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         y_pred: List[List[str]] = []
         y_true: List[List[str]] = []
         for request_state in request_states:  # one request state per instance
@@ -79,7 +79,7 @@ class MultipleChoiceClassificationMetric(EvaluateInstancesMetric):
     For generation adapters, please use ClassificationMetric.
     """
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         y_pred: List[str] = []
         y_true: List[str] = []
         for request_state in request_states:  # one request state per instance
