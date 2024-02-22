@@ -91,7 +91,7 @@ class Image2StructureScenario(Scenario):
             # Create the reference
             reference: Reference = Reference(
                 output=Output(
-                    text=row["structure"],
+                    text=row["structure"] if len(row["structure"]) < 2000 else "",
                     multimedia_content=MultimediaObject(
                         [
                             image_object,
