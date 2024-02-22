@@ -62,11 +62,13 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         self._cache: Optional[Cache] = None
         self._file_cache: Optional[LocalPILFileCache] = None
 
+    # TODO #2391: Make this more configurable and move to MetricService
     def _get_file_cache(self, file_storage_path: str) -> LocalPILFileCache:
         # Initialize `FileCache` to store compiled images
         local_file_cache_path: str = os.path.join(file_storage_path, self.generation_type)
         return LocalPILFileCache(local_file_cache_path)
 
+    # TODO #2391: Make this more configurable and move to MetricService
     def _get_cache(self, path: str) -> Cache:
         # Initialize `Cache` to store metric results and completions to the path
         # of the compiled image stored in the `LocalPILFileCache`
