@@ -608,6 +608,10 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.proxy.clients.vision_language.open_flamingo_client.OpenFlamingoClient"
+      args:
+        checkpoint_path: "openflamingo/OpenFlamingo-9B-vitl-mpt7b"
+        tokenizer_name: "anas-awadalla-2/mpt-7b"
+        cross_attn_every_n_layers: 4
 
   - name: together/phi-2
     model_name: microsoft/phi-2

@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import List
+from typing import List, Optional
 
 import torch
 from huggingface_hub import hf_hub_download
@@ -33,27 +33,48 @@ class OpenFlamingoClient(CachingClient):
 
     _model_lock: Lock = Lock()
 
-    def __init__(self, cache_config: CacheConfig):
+    def __init__(
+        self,
+        cache_config: CacheConfig,
+        checkpoint_path: Optional[str] = None,
+        tokenizer_name: Optional[str] = None,
+        cross_attn_every_n_layers: int = 4,
+    ):
         super().__init__(cache_config)
         self._device: str = get_torch_device_name()
-        self._get_model()
+        self._checkpoint_path: Optional[str] = checkpoint_path
+        self._tokenizer_name: Optional[str] = tokenizer_name
+        self._cross_attn_every_n_layers: int = cross_attn_every_n_layers
+
+        # Model
+        # The model is only initialized when the first request is made
+        # This is to avoid loading the model if it is not used
+        self._model: Optional[torch.nn.Module] = None
 
     def _get_model(self):
+        if not self._checkpoint_path:
+            raise ValueError("OpenFlamingoClient requires a checkpoint path")
+        if not self._tokenizer_name:
+            raise ValueError("OpenFlamingoClient requires a tokenizer name")
         with self._model_lock:
             self._model, self.image_processor, self.tokenizer = create_model_and_transforms(
                 clip_vision_encoder_path="ViT-L-14",
                 clip_vision_encoder_pretrained="openai",
-                lang_encoder_path="anas-awadalla-2/mpt-7b",
-                tokenizer_path="anas-awadalla-2/mpt-7b",
-                cross_attn_every_n_layers=4,
+                lang_encoder_path=self._tokenizer_name,
+                tokenizer_path=self._tokenizer_name,
+                cross_attn_every_n_layers=self._cross_attn_every_n_layers,
             )
             self.tokenizer.padding_side = "left"
-            checkpoint_path = hf_hub_download("openflamingo/OpenFlamingo-9B-vitl-mpt7b", "checkpoint.pt")
+            checkpoint_path = hf_hub_download(self._checkpoint_path, "checkpoint.pt")
             self._model.load_state_dict(torch.load(checkpoint_path), strict=False)
             self._model = self._model.to(self._device)
 
     def make_request(self, request: Request) -> RequestResult:
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
+
+        # Load model if needed
+        if self._model is None:
+            self._get_model()
 
         # Build the prompt
         prompt_text: str = ""
