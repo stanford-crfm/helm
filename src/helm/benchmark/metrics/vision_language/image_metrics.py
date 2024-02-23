@@ -93,6 +93,15 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         if self._file_cache is None:
             self._file_cache = self._get_file_cache(eval_cache_path)
 
+        # TODO: Remove this debugging saving
+        assert len(request_states) > 0
+        debug_save_path = os.path.join(
+            eval_cache_path, f"debug/{self.generation_type}/{request_states[0].request.model_deployment}"
+        )
+        os.makedirs(debug_save_path, exist_ok=True)
+        # count the number of files in the directory
+        save_id: int = len(os.listdir(debug_save_path))
+
         stats_dict: Dict[str, Stat] = {
             name: Stat(MetricName(name)) for name in (self._metric_names + [self.COMPILE_METRIC])
         }
@@ -148,7 +157,6 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                 response, _ = self._cache.get(cache_key, do_it)
 
                 if "error" in response:
-                    print(f"Error in compilation: {response['error']}")
                     stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                     # For all other metrics, we set the value to zero
                     for metric_name in self._metric_names:
@@ -215,6 +223,11 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                     stats_dict[metric_name].add(value)
 
                 stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
+
+                # TODO: Remove this debugging saving
+                image.save(os.path.join(debug_save_path, f"{save_id}_pred.png"))
+                ref_image.save(os.path.join(debug_save_path, f"{save_id}_ref.png"))
+                save_id += 1
 
         return list(stats_dict.values())
 
