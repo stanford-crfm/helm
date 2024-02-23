@@ -117,7 +117,7 @@ class Image2StructureScenario(Scenario):
                     row["image"].save(image_path)
                 else:  # 2.b
                     structure: str = row["structure"]
-                    self.compile_and_save(structure, row["assets"], image_path)
+                    self.compile_and_save(structure, assets_path, image_path)
 
             # Step 3: Create the prompt
             prompt: str = self.build_prompt(row)
