@@ -7,6 +7,8 @@ from tqdm import tqdm
 
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
+    ASSET_NAME_TAG,
+    ASSET_PATH_TAG,
     TEST_SPLIT,
     VALID_SPLIT,
     Instance,
@@ -42,7 +44,11 @@ class Image2StructureScenario(Scenario):
         self._split: str = split
         self._output_path: Optional[str] = None
 
-    def preprocess_row(self, row: Dict[str, Any]) -> Dict[str, Any]:
+    def preprocess_row(self, row: Dict[str, Any], assets_path: str) -> Dict[str, Any]:
+        # By default, there are no assets
+        del row["assets"]
+        row["assets_paths"] = []
+        row["assets_names"] = []
         return row
 
     def build_prompt(self, row: Dict[str, Any]) -> str:
@@ -80,6 +86,7 @@ class Image2StructureScenario(Scenario):
         images_path: str = os.path.join(output_path, "data/images", self._subset)
         assets_path: str = os.path.join(output_path, "data/assets", self._subset)
         ensure_directory_exists(images_path)
+        ensure_directory_exists(assets_path)
 
         instances: List[Instance] = []
 
@@ -101,7 +108,7 @@ class Image2StructureScenario(Scenario):
                 continue
 
             # Step 1: Preprocess the row
-            row = self.preprocess_row(row)
+            row = self.preprocess_row(row, assets_path)
 
             # Step 2: Save the image locally
             image_path: str = os.path.join(images_path, f"{question_id}.png")
@@ -110,7 +117,7 @@ class Image2StructureScenario(Scenario):
                     row["image"].save(image_path)
                 else:  # 2.b
                     structure: str = row["structure"]
-                    self.compile_and_save(structure, assets_path, image_path)
+                    self.compile_and_save(structure, row["assets"], image_path)
 
             # Step 3: Create the prompt
             prompt: str = self.build_prompt(row)
@@ -122,29 +129,69 @@ class Image2StructureScenario(Scenario):
                 image_object,
             ]
 
-            # Step 5: Create the reference
-            reference: Reference = Reference(
-                output=Output(
-                    text=row["structure"],
-                    multimedia_content=MultimediaObject(
-                        [
-                            image_object,
-                            # TODO: Change this once we have a better way to pass the assets_path
-                            # to the evaluation
-                            MediaObject(text=f"assets_path={assets_path}", content_type="text/plain"),
-                        ]
+            # Step 5: Create the references
+            # 5.a Create the reference containing the structure and the associated image.
+            reference: Reference
+            if os.path.exists(row["structure"]):
+                # 5.a.1 The structure is a path, therefore represent it as a multimedia object
+                # containing the files used to compile the structure (such as a repository
+                # containing the HTML, CSS, and JavaScript files used to generate a webpage)
+                reference = Reference(
+                    output=Output(
+                        multimedia_content=MultimediaObject(
+                            [image_object]
+                            # [image_object, MediaObject(location=row["structure"], content_type="path/path")]
+                        )
                     ),
-                ),
-                tags=[CORRECT_TAG],  # TODO: Add assets
-            )
+                    tags=[CORRECT_TAG],
+                )
+            else:
+                # 5.a.2 The structure is not a path, therefore it is directly a valid string
+                # representing the structure (such as LaTeX code)
+                reference = Reference(
+                    output=Output(
+                        text=row["structure"],
+                        multimedia_content=MultimediaObject([image_object]),
+                    ),
+                    tags=[CORRECT_TAG],  # TODO: Add assets
+                )
+            references: List[Reference] = [reference]
+            if len(row["assets_paths"]) > 0:
+                # 5.b Create the reference containing the assets
+                assets_paths_reference: Reference = Reference(
+                    output=Output(
+                        text=", ".join(
+                            row["assets_paths"]
+                        ),  # TODO: This is for debugging purposes (to show in the frontend)
+                        multimedia_content=MultimediaObject(
+                            [
+                                MediaObject(location=asset, content_type=f"image/{asset.split('.')[-1].lower()}")
+                                for asset in row["assets_paths"]
+                            ]
+                        ),
+                    ),
+                    tags=[ASSET_PATH_TAG],
+                )
+                references.append(assets_paths_reference)
+                assets_names_reference: Reference = Reference(
+                    output=Output(
+                        text=", ".join(
+                            row["assets_names"]
+                        ),  # TODO: This is for debugging purposes (to show in the frontend)
+                        multimedia_content=MultimediaObject(
+                            [MediaObject(text=asset, content_type="text/plain") for asset in row["assets_names"]]
+                        ),
+                    ),
+                    tags=[ASSET_NAME_TAG],
+                )
+                references.append(assets_names_reference)
 
             # Step 6: Finalize the Instance
             self.finalize(row)
-            instances.append(
-                Instance(
-                    input=Input(multimedia_content=MultimediaObject(content)), references=[reference], split=self._split
-                )
+            instance = Instance(
+                input=Input(multimedia_content=MultimediaObject(content)), references=references, split=self._split
             )
+            instances.append(instance)
 
         assert len(instances) > 0, f"No instances found for subject {self._subset}"
         return instances

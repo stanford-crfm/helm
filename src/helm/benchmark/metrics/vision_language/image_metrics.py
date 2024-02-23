@@ -83,7 +83,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
 
     @abstractmethod
     def compile_completion_into_image(
-        self, request_state: RequestState, completion: str, ref_image: Image.Image
+        self, request_state: RequestState, completion: str, ref_image: Image.Image, eval_cache_path: str
     ) -> Image.Image:
         raise NotImplementedError
 
@@ -136,7 +136,9 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                     try:
                         assert self._file_cache is not None
                         image_path: str = self._file_cache.store_image(
-                            lambda: self.compile_completion_into_image(request_state, completion, ref_image)
+                            lambda: self.compile_completion_into_image(
+                                request_state, completion, ref_image, eval_cache_path
+                            )
                         )
                         return {"image_path": image_path}
                     except CompilationError as e:
@@ -146,6 +148,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                 response, _ = self._cache.get(cache_key, do_it)
 
                 if "error" in response:
+                    print(f"Error in compilation: {response['error']}")
                     stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                     # For all other metrics, we set the value to zero
                     for metric_name in self._metric_names:

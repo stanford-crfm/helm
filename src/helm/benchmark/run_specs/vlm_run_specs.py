@@ -87,6 +87,7 @@ def get_image2structure_metric_specs(
     metric_names: Optional[List[str]] = None,
     args: Optional[Dict] = None,
     normalize_by_white_score: bool = False,
+    include_edit_similarity: bool = True,
 ) -> List[MetricSpec]:
     from helm.benchmark.metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric
 
@@ -99,16 +100,20 @@ def get_image2structure_metric_specs(
         ]
     if args is None:
         args = {}
-    return [
+    metric_scpecs = [
         MetricSpec(
             class_name=generate_image_metric_class,
             args={"metric_names": metric_names, "normalize_by_white_score": normalize_by_white_score, **args},
         ),
-        MetricSpec(
-            class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
-            args={**args, "name": "edit_similarity"},
-        ),
     ]
+    if include_edit_similarity:
+        metric_scpecs.append(
+            MetricSpec(
+                class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
+                args={**args, "name": "edit_similarity"},
+            )
+        )
+    return metric_scpecs
 
 
 ############################################################
@@ -210,6 +215,7 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Opti
         generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",  # noqa: E501
         args=args,
         normalize_by_white_score=False,
+        include_edit_similarity=True,
     )
 
     run_spec_name: str = "image2latex"
@@ -236,6 +242,7 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
         generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.webpage_metrics.WebpageMetric",  # noqa: E501
         args=args,
         normalize_by_white_score=False,
+        include_edit_similarity=False,
     )
 
     run_spec_name: str = "image2webpage"

@@ -46,24 +46,6 @@ def list_assets(repo_path: str, extensions: List[str]) -> List[str]:
     return asset_paths
 
 
-def copy_assets(original_repo_path: str, destination_repo_path: str, asset_paths: List[str]) -> None:
-    if not os.path.exists(original_repo_path):
-        raise ValueError(f"Original repo path does not exist: {original_repo_path}")
-
-    if original_repo_path == destination_repo_path:
-        # No need to copy
-        return
-
-    if not os.path.exists(destination_repo_path):
-        raise ValueError(f"Destination repo path does not exist: {destination_repo_path}")
-
-    for asset_path in asset_paths:
-        source = os.path.join(original_repo_path, asset_path)
-        destination = os.path.join(destination_repo_path, asset_path)
-        ensure_directory_exists(os.path.dirname(destination))
-        shutil.copyfile(source, destination)
-
-
 def serve_and_take_screenshot(
     repo_path: str,
     destination_path: str,
@@ -73,7 +55,7 @@ def serve_and_take_screenshot(
     # Start the Jekyll server
     # Select a unique port per thread
     port: int = 4000 + int(threading.get_ident()) % 1000
-    server = JekyllServer(repo_path, port=port)
+    server = JekyllServer(repo_path, port=port, verbose=True)
     success: bool = server.start()
     if not success:
         # This runs on examples that are not expected to fail
@@ -106,20 +88,6 @@ def serve_and_take_screenshot(
     time.sleep(0.1)
 
 
-def compile_and_take_screenshot(
-    repo_path: str,
-    original_repo_path: str,
-    destination_path: str,
-    screenshot_options: ScreenshotOptions = ScreenshotOptions(),
-) -> None:
-    # Assets
-    asset_paths = list_assets(repo_path, ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp", "tiff"])
-    copy_assets(original_repo_path, repo_path, asset_paths)
-
-    # Serve and take screenshot
-    serve_and_take_screenshot(repo_path, destination_path, screenshot_options)
-
-
 class WebpageScenario(Image2StructureScenario):
     BASE_PROMPT = (
         "Please provide the source code used to generate this webpage."
@@ -145,7 +113,7 @@ class WebpageScenario(Image2StructureScenario):
     HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-webpage"
     SUBSETS = ["css", "html", "javascript"]
     MAX_TRIES: int = 5
-    ASSETS_EXTESNSIONS: List[str] = ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp", "tiff"]
+    ASSETS_EXTENSIONS: List[str] = ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp", "tiff"]
 
     name = "image2webpage"
     description = "Evaluate multimodal models on webpage generation to recreate a provided image"
@@ -160,7 +128,7 @@ class WebpageScenario(Image2StructureScenario):
         super().__init__(subset, recompile_prompt, split)
         self._screenshot_options = screenshot_options
 
-    def preprocess_row(self, row: Dict[str, Any]) -> Dict[str, Any]:
+    def preprocess_row(self, row: Dict[str, Any], assets_path: str) -> Dict[str, Any]:
         """Extract the base64 encoding of the repo from the row and return it."""
         # Structure is a base64 encoding of the repo
         if self._output_path is None:
@@ -172,24 +140,39 @@ class WebpageScenario(Image2StructureScenario):
         # and extract the files to the repo_path
         structure: str = row["structure"]
         extract_repo(structure, repo_path)
-
         row["structure"] = repo_path
+
+        # Process the assets
+        asset_paths: List[str] = list_assets(row["structure"], self.ASSETS_EXTENSIONS)
+        del row["assets"]
+        row["assets_paths"] = []
+        row["assets_names"] = []
+        # Copy each asset to a unique persistent path
+        for i, asset_local_path in enumerate(asset_paths):
+            asset_name: str = asset_local_path
+            asset_dest_path = os.path.join(assets_path, f"{row['num_id']}_{i}.{asset_local_path.split('.')[-1]}")
+            shutil.copyfile(os.path.join(row["structure"], asset_local_path), asset_dest_path)
+            row["assets_paths"].append(asset_dest_path)
+            row["assets_names"].append(asset_name)
+
         return row
 
     def build_prompt(self, row: Dict[str, Any]) -> str:
         prompt: str = self.BASE_PROMPT
-        asset_paths: List[str] = list_assets(row["structure"], self.ASSETS_EXTESNSIONS)
-        if len(asset_paths) > 0:
+        assert "assets_paths" in row, "No assets paths in the row"
+        assert "assets_names" in row, "No assets names in the row"
+        assert len(row["assets_paths"]) == len(row["assets_names"])
+        if len(row["assets_names"]) > 0:
             prompt += "\nYou have access to the following assets:\n"
-            for asset_path in asset_paths:
-                prompt += f"- {asset_path}\n"
+            for asset_local_path in row["assets_names"]:
+                prompt += f"- {asset_local_path}\n"
         return prompt
 
     def compile_and_save(self, structure: str, assets_path: str, destination_path: str) -> None:
         # Structure is the path to the repo
         # Serve and take screenshot
         repo_path: str = structure
-        compile_and_take_screenshot(repo_path, repo_path, destination_path, self._screenshot_options)
+        serve_and_take_screenshot(repo_path, destination_path, self._screenshot_options)
 
     def finalize(self, row: Dict[str, Any]) -> None:
         """Perform cleanup operations after the instance has been generated."""

@@ -20,16 +20,12 @@ class LatexMetric(GenerateImageFromCompletionMetric):
     def __init__(self, metric_names: List[str], normalize_by_white_score: bool = False):
         super().__init__("latex", metric_names, normalize_by_white_score)
 
-    def compile_completion_into_image(self, request_state: RequestState, completion: str, ref_image: Image) -> Image:
+    def compile_completion_into_image(
+        self, request_state: RequestState, completion: str, ref_image: Image, eval_cache_path: str
+    ) -> Image:
         """Given a completion, parse the LaTeX and compile it into an image."""
         # Get the assets path
         assets_path: str = ""
-        reference = request_state.instance.references[0]
-        assert reference.output.multimedia_content is not None
-        for media_object in reference.output.multimedia_content.media_objects:
-            if media_object.type == "text" and media_object.text and media_object.text.startswith("assets_path="):
-                assets_path = media_object.text.split("assets_path=")[1]
-                break
 
         # Check for code block delimiters
         # After this completion should be a valid latex code block
