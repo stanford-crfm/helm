@@ -258,6 +258,8 @@ metric_groups:
         split: ${main_split}
       - name: edit_similarity
         split: ${main_split}
+      - name: lpips_similarity
+        split: ${main_split}
 
 ############################################################
 run_groups:
