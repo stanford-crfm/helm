@@ -1,11 +1,12 @@
 import type Stat from "@/types/Stat";
-import underscoreToTitle from "@/utils/underscoreToTitle";
+import type MetricFieldMap from "@/types/MetricFieldMap";
 
 interface Props {
   stat: Stat;
+  metricFieldMap: MetricFieldMap;
 }
 
-export default function StatNameDisplay({ stat }: Props) {
+export default function StatNameDisplay({ stat, metricFieldMap }: Props) {
   const value = `${
     stat.name.split !== undefined ? ` on ${stat.name.split}` : ""
   }${stat.name.sub_split !== undefined ? `/${stat.name.sub_split}` : ""}${
@@ -13,9 +14,16 @@ export default function StatNameDisplay({ stat }: Props) {
       ? ` with ${stat.name.perturbation.name}`
       : " original"
   }`;
-  return (
+  return metricFieldMap[stat.name.name] ? (
+    <span title={metricFieldMap[stat.name.name].description}>
+      <strong>
+        {metricFieldMap[stat.name.name].display_name || stat.name.name}
+      </strong>
+      {value}
+    </span>
+  ) : (
     <span>
-      <strong>{underscoreToTitle(stat.name.name)}</strong>
+      <strong>{stat.name.name}</strong>
       {value}
     </span>
   );
