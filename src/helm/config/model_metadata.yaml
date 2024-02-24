@@ -651,6 +651,7 @@ models:
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
+    # TODO: Add OUTPUT_FORMAT_INSTRUCTIONS_TAG tag
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-7b
@@ -667,6 +668,7 @@ models:
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
+    # TODO: Add OUTPUT_FORMAT_INSTRUCTIONS_TAG tag
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/text-bison@001
