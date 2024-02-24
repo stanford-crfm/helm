@@ -90,9 +90,10 @@ def serve_and_take_screenshot(
 
 class WebpageScenario(Image2StructureScenario):
     BASE_PROMPT = (
-        "Please provide the source code used to generate this webpage."
-        " You should output a json object associating each file name with its content.\n\n"
-        "Here is a simple example (that does not correspond to the image):\n"
+        "Please generate the source code to generate a webpage that looks like this image as much as feasibly possible.\n"  # noqa: E501
+        "You should output a json object associating each file name with its content.\n\n"
+        "Here is a simple example of the expected structure (that does not correspond to the image)."
+        " In this example, 3 files are created: index.html, style.css and script.js.\n"
         "[\n"
         "  {\n"
         '    "filename": "index.html",\n'
@@ -107,7 +108,9 @@ class WebpageScenario(Image2StructureScenario):
         '    "content": "document.getElementById(\\"demo\\").innerHTML = \\"Hello JavaScript!\\";"\n'
         "  }\n"
         "]\n"
-        "\nNow provide the source code for the webpage provided as an image."
+        "You do not have to create files with the same names. Create as many files as you need, you can even use directories if necessary,"  # noqa: E501
+        " they will be created for you automatically. Try to write some realistic code keeping in mind that is should"
+        " look like the image as much as feasibly possible."
     )
 
     HUGGINGFACE_DATASET_NAME = "stanford-crfm/i2s-webpage"
