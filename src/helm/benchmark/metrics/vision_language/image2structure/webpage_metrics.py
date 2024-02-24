@@ -19,7 +19,9 @@ except ModuleNotFoundError as e:
 
 
 class WebpageMetric(GenerateImageFromCompletionMetric):
-    DELIMITERS: List[Tuple[str, str]] = []
+    DELIMITERS: List[Tuple[str, str]] = [
+        ("```json", "```"),
+    ]
 
     def __init__(
         self,
