@@ -398,6 +398,35 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
+  ## Gemma
+  - name: together/gemma-2b
+    model_name: google/gemma-2b
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 7167
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+
+  - name: together/gemma-2b-it
+    model_name: google/gemma-2b-it
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 7167
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+
+  - name: together/gemma-7b
+    model_name: google/gemma-7b
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 7167
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+
+  - name: together/gemma-7b-it
+    model_name: google/gemma-7b-it
+    tokenizer_name: google/gemma-2b
+    max_sequence_length: 7167
+    client_spec:
+      class_name: "helm.proxy.clients.together_client.TogetherClient"
+
   ## PaLM 2
   - name: google/text-bison@001
     model_name: google/text-bison@001
