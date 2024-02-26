@@ -18,7 +18,7 @@ from helm.benchmark.model_metadata_registry import (
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
-from .runner import RunSpec
+from .run_spec import RunSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec

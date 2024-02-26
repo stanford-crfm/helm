@@ -1,11 +1,19 @@
+"""Run spec functions for evaluating Vision-Language Models."""
+
 from typing import List, Optional, Dict
 
-from .adaptation.adapter_spec import AdapterSpec
-from .adaptation.adapters.adapter_factory import ADAPT_GENERATION_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL
-from .metrics.metric import MetricSpec
-from .run_specs import run_spec_function, get_exact_match_metric_specs, get_open_ended_generation_metric_specs
-from .runner import RunSpec
-from .scenarios.scenario import ScenarioSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.adapters.adapter_factory import (
+    ADAPT_GENERATION_MULTIMODAL,
+    ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
+)
+from helm.benchmark.metrics.common_metric_specs import (
+    get_exact_match_metric_specs,
+    get_open_ended_generation_metric_specs,
+)
+from helm.benchmark.metrics.metric import MetricSpec
+from helm.benchmark.run_spec import RunSpec, run_spec_function
+from helm.benchmark.scenarios.scenario import ScenarioSpec
 
 
 ############################################################
@@ -77,14 +85,14 @@ def get_multiple_choice_joint_adapter_spec(
 def get_image2structure_metric_specs(
     metric_names: Optional[List[str]] = None, args: Optional[Dict] = None, normalize_by_white_score: bool = False
 ) -> List[MetricSpec]:
-    from .metrics.vision_language.image_metrics import ImageMetric
+    from .metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric
 
     if metric_names is None:
         metric_names = [
-            ImageMetric.EARTH_MOVER_SIMILARITY,
-            ImageMetric.PIXEL_SIMILARITY,
-            ImageMetric.SIFT_SIMILARITY,
-            ImageMetric.LPIPS_SIMILARITY,
+            GenerateImageFromCompletionMetric.EARTH_MOVER_SIMILARITY,
+            GenerateImageFromCompletionMetric.PIXEL_SIMILARITY,
+            GenerateImageFromCompletionMetric.SIFT_SIMILARITY,
+            GenerateImageFromCompletionMetric.LPIPS_SIMILARITY,
         ]
     if args is None:
         args = {}

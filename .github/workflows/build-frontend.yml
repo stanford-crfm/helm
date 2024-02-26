@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
     - name: Install Yarn
@@ -34,7 +34,7 @@ jobs:
     - name: Git add
       run: git add --force src/helm/benchmark/static_build
     - name: Create pull request
-      uses: peter-evans/create-pull-request@v5
+      uses: peter-evans/create-pull-request@v6
       with:
         commit-message: Build frontend
         branch: actions/build-frontend

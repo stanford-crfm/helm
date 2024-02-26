@@ -41,7 +41,8 @@ from helm.benchmark.data_overlap.light_scenario import ScenarioSpecInstanceIds
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
-from helm.benchmark.runner import RunSpec, LATEST_SYMLINK
+from helm.benchmark.run_spec import RunSpec
+from helm.benchmark.runner import LATEST_SYMLINK
 from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
 from helm.benchmark.presentation.schema import (
     MetricNameMatcher,
