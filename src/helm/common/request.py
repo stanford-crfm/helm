@@ -225,7 +225,7 @@ EMBEDDING_UNAVAILABLE_REQUEST_RESULT = RequestResult(
 )
 
 
-def wrap_request_time(compute: Callable[[], Dict[str, Any]]) -> Callable[[], Any]:
+def wrap_request_time(compute: Callable[[], Dict[str, Any]]) -> Callable[[], Dict[str, Any]]:
     """Return a version of `compute` that puts `request_time` into its output."""
 
     def wrapped_compute():

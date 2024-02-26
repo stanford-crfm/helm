@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 import requests
 
 from dacite import from_dict
@@ -28,7 +28,7 @@ class AI21Tokenizer(Tokenizer):
         # TODO: Does not support encoding
         raw_request: Dict[str, str] = {"text": request.text}
 
-        def do_it():
+        def do_it() -> Dict[str, Any]:
             response = requests.post(
                 "https://api.ai21.com/studio/v1/tokenize",
                 headers={"Authorization": f"Bearer {self.api_key}"},

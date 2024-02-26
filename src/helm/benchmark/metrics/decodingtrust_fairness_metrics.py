@@ -10,7 +10,7 @@ from fairlearn.metrics import demographic_parity_difference
 
 
 class FairnessMetric(EvaluateInstancesMetric):
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         x_sensitive: List[int] = []
         y_pred: List[int] = []
         y_true: List[int] = []

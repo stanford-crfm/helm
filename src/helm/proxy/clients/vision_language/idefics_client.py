@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import torch
 from dataclasses import dataclass
@@ -115,7 +115,7 @@ class IDEFICSClient(CachingClient):
         with htrack_block(f"Generating for prompt: {prompt_text}"):
             try:
 
-                def do_it():
+                def do_it() -> Dict[str, Any]:
                     inputs = processor([multimodal_prompt] * request.num_completions, **input_args).to(self._device)
                     generated_ids = model.generate(**inputs, **generation_args)
                     generated_text: List[str] = processor.batch_decode(generated_ids, skip_special_tokens=True)

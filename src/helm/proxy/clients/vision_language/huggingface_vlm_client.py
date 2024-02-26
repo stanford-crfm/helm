@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from transformers import pipeline
 from transformers.pipelines import ImageToTextPipeline
@@ -73,7 +73,7 @@ class HuggingFaceVLMClient(CachingClient):
                 "max_new_tokens": request.max_tokens,
             }
 
-            def do_it():
+            def do_it() -> Dict[str, Any]:
                 model: ImageToTextPipeline = self._get_model(request.model_deployment)
                 outputs = model(image, prompt=prompt, generate_kwargs=generation_args)
                 return outputs[0]

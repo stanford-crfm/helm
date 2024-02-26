@@ -81,7 +81,7 @@ class VertexAITextClient(VertexAIClient):
 
         try:
 
-            def do_it():
+            def do_it() -> Dict[str, Any]:
                 model = TextGenerationModel.from_pretrained(model_name)
                 response = model.predict(request.prompt, **parameters)
                 candidates: List[TextGenerationResponse] = response.candidates
@@ -190,7 +190,7 @@ class VertexAIChatClient(VertexAIClient):
 
         try:
 
-            def do_it():
+            def do_it() -> Dict[str, Any]:
                 # Here we differ from Vertex AI's tutorial.
                 # https://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/send-chat-prompts-gemini#send_chat_prompts   # noqa: E501
                 # It would advise to use model.start_chat() but since we do not want to use Chat capabilities of
@@ -325,7 +325,7 @@ class VertexAIChatClient(VertexAIClient):
         for completion_index in range(request.num_completions):
             try:
 
-                def do_it():
+                def do_it() -> Dict[str, Any]:
                     raw_response = model.generate_content(
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )

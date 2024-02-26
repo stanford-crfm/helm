@@ -37,7 +37,7 @@ class CLEVATopKAccuracyMetric(EvaluateInstancesMetric):
                             return True
         return False
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         per_instance_accuracy: List[bool] = []
         for request_state in request_states:  # one request state per instance
             assert request_state.result is not None

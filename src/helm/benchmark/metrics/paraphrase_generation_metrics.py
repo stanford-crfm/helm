@@ -21,7 +21,7 @@ class CLEVAParaphraseGenerationMetric(EvaluateInstancesMetric):
     def __init__(self, alpha: float = 0.8):  # calculate iBLEU_0.8 by default
         self.alpha = alpha
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         inputs: List = []
         preds: List = []
         golds: List[List[str]] = []

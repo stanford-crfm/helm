@@ -18,7 +18,7 @@ class MachineTranslationMetric(EvaluateInstancesMetric):
     Compute the BLEU score for Machine Translation scenarios. The implementation is based on sacrebleu.
     """
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         """
         Compute the corpus-level metric based on all reqeust_states.
         """
@@ -49,7 +49,7 @@ class CLEVAMachineTranslationMetric(EvaluateInstancesMetric):
     If there are more than one hypothesis, only the first one is adopted in the calculation.
     """
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         """
         Compute the corpus-level metric based on all reqeust_states.
         """
