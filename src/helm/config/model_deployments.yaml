@@ -1145,6 +1145,15 @@ model_deployments:
     client_spec:
       class_name: "helm.proxy.clients.openai_client.OpenAIClient"
 
+  # Claimed length is 16,384; we round down to 16,000 for the same reasons as explained
+  # in the openai/gpt-3.5-turbo-0613 comment
+  - name: openai/gpt-3.5-turbo-0125
+    model_name: openai/gpt-3.5-turbo-0125
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 16000
+    client_spec:
+      class_name: "helm.proxy.clients.openai_client.OpenAIClient"
+
   ## GPT 4 Models
 
   - name: openai/gpt-4-1106-preview
