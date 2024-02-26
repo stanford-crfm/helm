@@ -221,7 +221,7 @@ class OpenAIClient(CachingClient):
             embedding=[],
         )
 
-    def _make_completion_request(self, request: Request) -> RequestResult:
+    def _to_raw_completion_request(self, request: Request) -> Dict[str, Any]:
         raw_request: Dict[str, Any] = {
             # Note: In older deprecated versions of the OpenAI API, "model" used to be "engine".
             "model": self._get_model_for_request(request),
@@ -242,6 +242,11 @@ class OpenAIClient(CachingClient):
         # per-token candidates.
         raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
         raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
+
+        return raw_request
+
+    def _make_completion_request(self, request: Request) -> RequestResult:
+        raw_request = self._to_raw_completion_request(request)
 
         def do_it() -> Dict[str, Any]:
             return self.client.completions.create(**raw_request).model_dump(mode="json")
