@@ -639,7 +639,8 @@ models:
 
   - name: google/gemma-2b
     display_name: Gemma (2B)
-    description: Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models.
+    # TODO: Fill in Gemma description.
+    description: TBD
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
@@ -647,16 +648,17 @@ models:
 
   - name: google/gemma-2b-it
     display_name: Gemma Instruct (2B)
-    description: Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models.
+    # TODO: Fill in Gemma description.
+    description: TBD
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
-    # TODO: Add OUTPUT_FORMAT_INSTRUCTIONS_TAG tag
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-7b
     display_name: Gemma (7B)
-    description: Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models.
+    # TODO: Fill in Gemma description.
+    description: TBD
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
@@ -664,7 +666,8 @@ models:
 
   - name: google/gemma-7b-it
     display_name: Gemma Instruct (7B)
-    description: Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models.
+    # TODO: Fill in Gemma description.
+    description: TBD
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
