@@ -1168,14 +1168,31 @@ models:
     release_date: 2023-10-16
     tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
-  - name: mistralai/mistral-medium
-    display_name: Mistral medium
+  - name: mistralai/mistral-small-2402
+    display_name: Mistral Small (2402)
+    # TODO: Fill in description
+    description: TBD
+    creator_organization_name: Mistral AI
+    access: closed
+    release_date: 2023-12-11
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: mistralai/mistral-medium-2312
+    display_name: Mistral Medium (2312)
     description: Mistral is a transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
     creator_organization_name: Mistral AI
     access: closed
     release_date: 2023-12-11
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mistral-large-2402
+    display_name: Mistral Large (2402)
+    # TODO: Fill in description
+    description: TBD
+    creator_organization_name: Mistral AI
+    access: closed
+    release_date: 2023-12-11
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
   # MosaicML

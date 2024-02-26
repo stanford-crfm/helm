@@ -909,8 +909,22 @@ model_deployments:
       args:
         mistral_model: "mistral-tiny"
 
-  - name: mistralai/mistral-medium
-    model_name: mistralai/mistral-medium
+  - name: mistralai/mistral-small-2402
+    model_name: mistralai/mistral-small-2402
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.proxy.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/mistral-medium-2312
+    model_name: mistralai/mistral-medium-2312
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 32000
+    client_spec:
+      class_name: "helm.proxy.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/mistral-large-2402
+    model_name: mistralai/mistral-large-2402
     tokenizer_name: mistralai/Mistral-7B-v0.1
     max_sequence_length: 32000
     client_spec:
