@@ -1174,7 +1174,8 @@ models:
     description: TBD
     creator_organization_name: Mistral AI
     access: closed
-    release_date: 2023-12-11
+    # Blog post: https://mistral.ai/news/mistral-large/
+    release_date: 2023-02-26
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mistral-medium-2312
@@ -1191,7 +1192,8 @@ models:
     description: TBD
     creator_organization_name: Mistral AI
     access: closed
-    release_date: 2023-12-11
+    # Blog post: https://mistral.ai/news/mistral-large/
+    release_date: 2023-02-26
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
