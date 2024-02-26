@@ -48,12 +48,15 @@ class OpenAIClient(CachingClient):
         self.tokenizer_name = tokenizer_name
         self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
 
-    def _is_chat_model_engine(self, model_engine: str):
+    def _is_chat_model_engine(self, model_engine: str) -> bool:
         if model_engine == "gpt-3.5-turbo-instruct":
             return False
         elif model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4"):
             return True
         return False
+
+    def _get_model_for_request(self, request: Request) -> str:
+        return request.model_engine
 
     def _get_cache_key(self, raw_request: Dict, request: Request):
         cache_key = CachingClient.make_cache_key(raw_request, request)
@@ -69,7 +72,7 @@ class OpenAIClient(CachingClient):
         raw_request = {
             "input": request.prompt,
             # Note: In older deprecated versions of the OpenAI API, "model" used to be "engine".
-            "model": request.model_engine,
+            "model": self._get_model_for_request(request),
         }
 
         def do_it() -> Dict[str, Any]:
@@ -143,7 +146,7 @@ class OpenAIClient(CachingClient):
             messages = [{"role": "user", "content": content}]
 
         raw_request: Dict[str, Any] = {
-            "model": request.model_engine,
+            "model": self._get_model_for_request(request),
             "messages": messages,
             "temperature": request.temperature,
             "top_p": request.top_p,
@@ -221,7 +224,7 @@ class OpenAIClient(CachingClient):
     def _make_completion_request(self, request: Request) -> RequestResult:
         raw_request: Dict[str, Any] = {
             # Note: In older deprecated versions of the OpenAI API, "model" used to be "engine".
-            "model": request.model_engine,
+            "model": self._get_model_for_request(request),
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
