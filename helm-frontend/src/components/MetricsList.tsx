@@ -1,25 +1,23 @@
-import type Metric from "@/types/Metric";
+import type MetricField from "@/types/MetricField";
+import type MetricFieldMap from "@/types/MetricFieldMap";
 import type MetricGroup from "@/types/MetricGroup";
 
 interface Props {
-  metrics: Metric[];
+  metricFieldMap: MetricFieldMap;
   metricGroups: MetricGroup[];
 }
 
-export default function MetricList({ metrics, metricGroups }: Props) {
-  const metricNameToMetric = new Map<string, Metric>();
-  metrics.forEach((metric) => metricNameToMetric.set(metric.name, metric));
-
+export default function MetricList({ metricFieldMap, metricGroups }: Props) {
   // Only count metrics that have a group and are displayed
   // i.e. don't count "orphaned" metrics
   // Also, don't double-count metrics that appear in multiple groups
   const groupedMetricNames = new Set<string>();
 
-  const metricGroupsWithMetrics: [MetricGroup, Metric[]][] = [];
+  const metricGroupsWithMetrics: [MetricGroup, MetricField[]][] = [];
   metricGroups.forEach((metricGroup) => {
-    const metricGroupMetrics: Metric[] = [];
+    const metricGroupMetrics: MetricField[] = [];
     metricGroup.metrics.forEach((metricField) => {
-      const maybeMetric = metricNameToMetric.get(metricField.name);
+      const maybeMetric = metricFieldMap[metricField.name];
       if (maybeMetric) {
         metricGroupMetrics.push(maybeMetric);
         groupedMetricNames.add(maybeMetric.name);
