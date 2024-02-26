@@ -1433,7 +1433,7 @@ models:
 
   - name: openai/gpt-3.5-turbo-0125
     display_name: gpt-3.5-turbo-0125
-    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2023-06-13 with a longer context length of 16,384 tokens.
+    description: Sibling model of text-davinci-003 that is optimized for chat but works well for traditional completions tasks as well. Snapshot from 2024-01-25.
     creator_organization_name: OpenAI
     access: limited
     # Release blog post was published on 2024-01-25:
