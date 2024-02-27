@@ -18,6 +18,7 @@ from helm.benchmark.config_registry import (
     register_configs_from_directory,
     register_builtin_configs_from_helm_package,
 )
+from helm.benchmark.model_deployment_registry import get_default_model_deployment_for_model
 from helm.common.authentication import Authentication
 from helm.common.cache_backend_config import CacheBackendConfig, MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
@@ -186,14 +187,14 @@ def handle_request():
         global service
         auth = Authentication(**json.loads(args["auth"]))
         request = Request(**json.loads(args["request"]))
-
         # Hack to maintain reverse compatibility with clients with version <= 0.3.0.
         # Clients with version <= 0.3.0 do not set model_deployment, but this is now
         # required by Request.
-        # In almost all cases for legacy models supported through this server,
-        # model_deployment can be set to the same as model.
         if not request.model_deployment:
-            request = dataclasses.replace(request, model_deployment=request.model)
+            model_deployment = get_default_model_deployment_for_model(request.model)
+            if model_deployment is None:
+                raise ValueError(f"Unknown model '{request.model}'")
+            request = dataclasses.replace(request, model_deployment=model_deployment)
 
         return dataclasses.asdict(service.make_request(auth, request))
 
