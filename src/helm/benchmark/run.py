@@ -173,13 +173,6 @@ def add_run_args(parser: argparse.ArgumentParser):
         required=True,
     )
     parser.add_argument(
-        "--local",
-        action="store_true",
-        help="DEPRECATED: Does nothing. Do not use. Previously enabled local mode. "
-        "Now does nothing and will be removed in the next released version. "
-        "Local mode is enabled by default, and only disabled if the --server_url flag is set.",
-    )
-    parser.add_argument(
         "--local-path",
         type=str,
         help="If running locally, the path for `ServerService`.",
@@ -244,7 +237,14 @@ def main():
         help="Run RunSpecs with priority less than or equal to this number. "
         "If a value for --priority is not specified, run on everything",
     )
-    parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=[])
+    parser.add_argument(
+        "--run-specs",
+        nargs="*",
+        help="DEPRECATED: Use --run-entries instead. Will be removed in a future release. "
+        "Specifies run entries to run.",
+        default=[],
+    )
+    parser.add_argument("-r", "--run-entries", nargs="*", help="Specifies run entries to run", default=[])
     parser.add_argument(
         "--enable-huggingface-models",
         nargs="+",
@@ -285,6 +285,11 @@ def main():
     run_entries: List[RunEntry] = []
     if args.conf_paths:
         run_entries.extend(read_run_entries(args.conf_paths).entries)
+    if args.run_entries:
+        run_entries.extend(
+            [RunEntry(description=description, priority=1, groups=None) for description in args.run_entries]
+        )
+    # TODO: Remove this eventually.
     if args.run_specs:
         run_entries.extend(
             [RunEntry(description=description, priority=1, groups=None) for description in args.run_specs]
@@ -334,9 +339,8 @@ def main():
 
     if args.local:
         hlog(
-            "WARNING: The --local flag is deprecated. It now does nothing and will be removed in "
-            "the next released version. Local mode is enabled by default, and only disabled if the "
-            "--server_url flag is set. Please remove --local from your command."
+            "WARNING: The --run-specs flag is deprecated and will be removed in a future release. "
+            "Use --run-entries instead."
         )
 
     hlog("Done.")
