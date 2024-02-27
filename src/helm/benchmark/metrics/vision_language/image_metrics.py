@@ -1,8 +1,10 @@
 from typing import List, Dict, Optional
 import numpy as np
-from torchvision import transforms
+from torchvision import transforms, models
+from torchvision.models import inception_v3
 from abc import ABC, abstractmethod
 import os
+import torch
 
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.common.images_utils import open_image
@@ -52,6 +54,8 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
     PIXEL_SIMILARITY: str = "pixel_similarity"
     SIFT_SIMILARITY: str = "sift_similarity"
     LPIPS_SIMILARITY: str = "lpips_similarity"
+    FID_SIMILARITY: str = "fid_similarity"
+    NORMALIZE_FID_FACTOR: float = 0.0025
 
     SIZE_HANDLING_METHODS: List[str] = ["resize", "none"]
 
@@ -65,6 +69,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         self.generation_type = generation_type
         self._metric_names: List[str] = metric_names
         self._lpips_metric: Optional[LearnedPerceptualImagePatchSimilarity] = None
+        self._inception_model: Optional[models.Inception3] = None
         self._device = get_torch_device()
         self._normalize_by_white_score = normalize_by_white_score
         self._cache: Optional[Cache] = None
@@ -177,7 +182,6 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                 # TODO: Remove this debugging saving
                 image.save(os.path.join(debug_save_path, f"{save_id}_pred.png"))
                 ref_image.save(os.path.join(debug_save_path, f"{save_id}_ref.png"))
-                save_id += 1
 
                 # Handle difference in size
                 if image.size != ref_image.size:
@@ -215,6 +219,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                         True,
                     ],
                     [self.LPIPS_SIMILARITY, self.lpips_similarity, image, ref_image, white_image, True],
+                    [self.FID_SIMILARITY, self.fid_similarity, image, ref_image, white_image, True],
                 ]
 
                 for metric_name, metric_fn, image1, image2, white_image, can_compute_on_white in metric_runs:
@@ -249,7 +254,16 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                         value = response_metric["value"]
                     stats_dict[metric_name].add(value)
 
+                    # TODO: Remove this debugging saving
+                    # Save metric values in a txt file
+                    with open(os.path.join(debug_save_path, f"{save_id}_metrics.txt"), "a") as f:
+                        f.write(f"{metric_name}: {value}\n")
+
                 stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
+
+                # TODO: Remove this debugging saving
+                # Save metric values in a txt file
+                save_id += 1
 
         return list(stats_dict.values())
 
@@ -280,3 +294,62 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         assert self._lpips_metric is not None
         score: float = self._lpips_metric(img1, img2).detach().item()
         return score
+
+    def _calculate_fid(self, act1, act2):
+        # Directly use the provided activations, assuming they are already means
+        mu1, mu2 = act1[0], act2[0]  # Assuming act1 and act2 are of shape (1, 1000)
+
+        # Since we cannot compute a meaningful covariance matrix for single observations,
+        # and the provided sigma is scalar (not meaningful in this context),
+        # we'll skip the covariance part of the standard FID calculation.
+        # This is a significant deviation from the FID's intended use.
+
+        # Compute the square difference between the means
+        ssdiff = np.sum((mu1 - mu2) ** 2.0)
+
+        # Placeholder for FID score since we're not using covariance matrices
+        fid = ssdiff  # This is not a standard FID calculation.
+
+        return fid
+
+    def _get_inception_features(self, img_tensor):
+        if self._inception_model is None:
+            self._inception_model = models.inception_v3(pretrained=True, transform_input=False)
+            self._inception_model.eval()
+        with torch.no_grad():
+            if self._inception_model.training:
+                self._inception_model.eval()
+            pred = self._inception_model(img_tensor)
+        return pred.cpu().detach().numpy()
+
+    def _preprocess_image(self, image):
+        # Source: https://pytorch.org/hub/pytorch_vision_inception_v3/
+        preprocess = transforms.Compose(
+            [
+                transforms.Resize(299),
+                transforms.CenterCrop(299),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            ]
+        )
+        return preprocess(image)
+
+    def fid_similarity(self, generated_image: Image.Image, reference_image: Image.Image) -> float:
+        """Compute the Frechet Inception Distance (FID) between the generated and reference images.
+
+        This metric is defined here as it requires loading the Inception model.
+        Storing the model in this class is easier than passing it as an argument.
+        """
+        if self._inception_model is None:
+            self._inception_model = inception_v3(pretrained=True).to(self._device)
+            self._inception_model.eval()
+
+        img1_tensor = self._preprocess_image(generated_image).unsqueeze(0).to(self._device)
+        img2_tensor = self._preprocess_image(reference_image).unsqueeze(0).to(self._device)
+
+        features1 = self._get_inception_features(img1_tensor)
+        features2 = self._get_inception_features(img2_tensor)
+
+        fid_score = self._calculate_fid(features1, features2)
+        normalize_fid: float = np.exp(-fid_score * self.NORMALIZE_FID_FACTOR)
+        return normalize_fid
