@@ -97,6 +97,7 @@ def get_image2structure_metric_specs(
             GenerateImageFromCompletionMetric.PIXEL_SIMILARITY,
             GenerateImageFromCompletionMetric.SIFT_SIMILARITY,
             GenerateImageFromCompletionMetric.LPIPS_SIMILARITY,
+            GenerateImageFromCompletionMetric.SSIM_SIMILARITY,
             GenerateImageFromCompletionMetric.FID_SIMILARITY,
         ]
     if args is None:

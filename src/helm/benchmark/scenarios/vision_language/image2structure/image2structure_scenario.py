@@ -100,6 +100,8 @@ class Image2StructureScenario(Scenario):
             )
         ):
             question_id: str = row["num_id"]
+            if int(question_id) > 40:
+                continue
             if row["category"][1:-1] != self._subset:
                 hlog(
                     f"Skipping instance {question_id} as it belong in category"

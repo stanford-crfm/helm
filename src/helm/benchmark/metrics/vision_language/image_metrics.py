@@ -2,6 +2,7 @@ from typing import List, Dict, Optional
 import numpy as np
 from torchvision import transforms, models
 from torchvision.models import inception_v3
+from skimage.metrics import structural_similarity as ssim
 from abc import ABC, abstractmethod
 import os
 import torch
@@ -54,6 +55,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
     PIXEL_SIMILARITY: str = "pixel_similarity"
     SIFT_SIMILARITY: str = "sift_similarity"
     LPIPS_SIMILARITY: str = "lpips_similarity"
+    SSIM_SIMILARITY: str = "ssim_similarity"
     FID_SIMILARITY: str = "fid_similarity"
     NORMALIZE_FID_FACTOR: float = 0.0025
 
@@ -220,6 +222,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                     ],
                     [self.LPIPS_SIMILARITY, self.lpips_similarity, image, ref_image, white_image, True],
                     [self.FID_SIMILARITY, self.fid_similarity, image, ref_image, white_image, True],
+                    [self.SSIM_SIMILARITY, self.compute_ssim, rgb_image, rgb_ref_image, rgb_white_image, False],
                 ]
 
                 for metric_name, metric_fn, image1, image2, white_image, can_compute_on_white in metric_runs:
@@ -353,3 +356,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         fid_score = self._calculate_fid(features1, features2)
         normalize_fid: float = np.exp(-fid_score * self.NORMALIZE_FID_FACTOR)
         return normalize_fid
+
+    def compute_ssim(self, generated_image: np.ndarray, reference_image: np.ndarray) -> float:
+        """Compute the Structural Similarity Index (SSIM) between the generated and reference images."""
+        return ssim(generated_image, reference_image, multichannel=True)
