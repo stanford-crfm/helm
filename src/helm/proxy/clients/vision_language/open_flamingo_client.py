@@ -6,6 +6,7 @@ from huggingface_hub import hf_hub_download
 from helm.proxy.clients.vision_language.open_flamingo import create_model_and_transforms
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.media_object import TEXT_TYPE
@@ -56,18 +57,20 @@ class OpenFlamingoClient(CachingClient):
             raise ValueError("OpenFlamingoClient requires a checkpoint path")
         if not self._tokenizer_name:
             raise ValueError("OpenFlamingoClient requires a tokenizer name")
-        with self._model_lock:
-            self._model, self.image_processor, self.tokenizer = create_model_and_transforms(
-                clip_vision_encoder_path="ViT-L-14",
-                clip_vision_encoder_pretrained="openai",
-                lang_encoder_path=self._tokenizer_name,
-                tokenizer_path=self._tokenizer_name,
-                cross_attn_every_n_layers=self._cross_attn_every_n_layers,
-            )
-            self.tokenizer.padding_side = "left"
-            checkpoint_path = hf_hub_download(self._checkpoint_path, "checkpoint.pt")
-            self._model.load_state_dict(torch.load(checkpoint_path), strict=False)
-            self._model = self._model.to(self._device)
+        with htrack_block("Initializing OpenFlamingo model"):
+            with self._model_lock:
+                self._model, self.image_processor, self.tokenizer = create_model_and_transforms(
+                    clip_vision_encoder_path="ViT-L-14",
+                    clip_vision_encoder_pretrained="openai",
+                    lang_encoder_path=self._tokenizer_name,
+                    tokenizer_path=self._tokenizer_name,
+                    cross_attn_every_n_layers=self._cross_attn_every_n_layers,
+                )
+                self.tokenizer.padding_side = "left"
+                checkpoint_path = hf_hub_download(self._checkpoint_path, "checkpoint.pt")
+                self._model.load_state_dict(torch.load(checkpoint_path), strict=False)
+                self._model = self._model.to(self._device)
+                hlog(f"Loaded model to {self._device}.")
 
     def make_request(self, request: Request) -> RequestResult:
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
