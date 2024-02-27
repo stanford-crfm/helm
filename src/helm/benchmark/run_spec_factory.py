@@ -20,7 +20,7 @@ from helm.benchmark.model_metadata_registry import (
     NLG_PREFIX_TAG,
     NO_NEWLINES_TAG,
     OPENAI_CHATGPT_MODEL_TAG,
-    OUTPUT_FORMAT_INSTRUCTIONS_TAG,
+    MISTRAL_MODEL_TAG,
     ModelMetadata,
     get_model_metadata,
 )
@@ -34,7 +34,7 @@ from helm.benchmark.run_expander import (
     IncreaseTemperatureRunExpander,
     LlavaRunExpander,
     OpenAIRunExpander,
-    OutputFormatInsturctionsRunExpander,
+    MistralRunExpander,
     StopRunExpander,
 )
 from helm.benchmark.run_spec import RunSpec, get_run_spec_function
@@ -206,9 +206,9 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if GOOGLE_PALM_2_MODEL_TAG in model.tags or GOOGLE_GEMINI_MODEL_TAG in model.tags:
             run_spec = singleton(GoogleRunExpander().expand(run_spec))
 
-        # Prompts more explicit instructions about following the output format
-        if OUTPUT_FORMAT_INSTRUCTIONS_TAG in model.tags:
-            run_spec = singleton(OutputFormatInsturctionsRunExpander().expand(run_spec))
+        # Mistral prompts
+        if MISTRAL_MODEL_TAG in model.tags:
+            run_spec = singleton(MistralRunExpander().expand(run_spec))
 
         # IDEFICS instruct
         if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:

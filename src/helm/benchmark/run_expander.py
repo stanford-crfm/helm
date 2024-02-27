@@ -371,7 +371,7 @@ class GoogleRunExpander(RunExpander):
         ]
 
 
-class OutputFormatInsturctionsRunExpander(RunExpander):
+class MistralRunExpander(RunExpander):
     """Give the models more explicit instructions about following the output format."""
 
     # TODO: Refactor out common logic between this and GoogleRunExpander and OpenAIRunExpander.
