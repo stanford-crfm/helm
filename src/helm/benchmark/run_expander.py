@@ -314,7 +314,7 @@ class OpenAIRunExpander(RunExpander):
     These models need more explicit instructions about following the format.
     """
 
-    # TODO: Refactor out common logic between this and GoogleRunExpander and OutputFormatInstructionsRunExpander.
+    # TODO: Refactor out common logic between this and GoogleRunExpander and MistralRunExpander.
 
     name = "openai"
 
@@ -347,7 +347,7 @@ class GoogleRunExpander(RunExpander):
     These models need more explicit instructions about following the format.
     """
 
-    # TODO: Refactor out common logic between this and OpenAIRunExpander and OutputFormatInstructionsRunExpander.
+    # TODO: Refactor out common logic between this and OpenAIRunExpander and MistralRunExpander.
 
     name = "google"
 
