@@ -174,6 +174,11 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
 
                 image: Image.Image = self._file_cache.load_image(response["image_path"])
 
+                # TODO: Remove this debugging saving
+                image.save(os.path.join(debug_save_path, f"{save_id}_pred.png"))
+                ref_image.save(os.path.join(debug_save_path, f"{save_id}_ref.png"))
+                save_id += 1
+
                 # Handle difference in size
                 if image.size != ref_image.size:
                     if self._size_handling_method == "none":
@@ -245,11 +250,6 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                     stats_dict[metric_name].add(value)
 
                 stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
-
-                # TODO: Remove this debugging saving
-                image.save(os.path.join(debug_save_path, f"{save_id}_pred.png"))
-                ref_image.save(os.path.join(debug_save_path, f"{save_id}_ref.png"))
-                save_id += 1
 
         return list(stats_dict.values())
 
