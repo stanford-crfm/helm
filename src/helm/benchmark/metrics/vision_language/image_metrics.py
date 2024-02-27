@@ -182,7 +182,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                             " when the size handling method is none."
                         )
                     elif self._size_handling_method == "resize":
-                        image.resize(ref_image.size)
+                        image = image.resize(ref_image.size)
                     else:
                         raise ValueError(f"size handling method {self._size_handling_method} not recognized.")
                 assert image.size == ref_image.size
