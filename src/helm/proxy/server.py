@@ -196,7 +196,16 @@ def handle_request():
                 raise ValueError(f"Unknown model '{request.model}'")
             request = dataclasses.replace(request, model_deployment=model_deployment)
 
-        return dataclasses.asdict(service.make_request(auth, request))
+        raw_response = dataclasses.asdict(service.make_request(auth, request))
+
+        # Hack to maintain reverse compatibility with clients with version <= 1.0.0.
+        # Clients with version <= 1.0.0 expect each token to contain a `top_logprobs`
+        # field of type dict.
+        for completion in raw_response["completions"]:
+            for token in completion["tokens"]:
+                token["top_logprobs"] = {}
+
+        return raw_response
 
     return safe_call(perform)
 
