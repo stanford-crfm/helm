@@ -138,9 +138,7 @@ class OpenFlamingoClient(CachingClient):
         except RuntimeError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
-        tokens: List[Token] = [
-            Token(text=str(self.tokenizer.decode(id)), logprob=0) for id in lang_x["input_ids"][0]
-        ]
+        tokens: List[Token] = [Token(text=str(self.tokenizer.decode(id)), logprob=0) for id in lang_x["input_ids"][0]]
         completions: List[Sequence] = [Sequence(text=result["output"], logprob=0, tokens=tokens)]
         return RequestResult(
             success=True,
