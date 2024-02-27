@@ -189,11 +189,9 @@ def handle_latex_error(
         # and our TEX_INCLUDES might lack some packages.
         # Error format: "LaTeX Error: Environment <env> undefined."
         undefined_search = re.search(r"LaTeX Error: Environment (.*) undefined", str_e)
-        print(f"Search: {undefined_search}")
         if undefined_search:
             # If a package is missing and this is our first retry, then simply include TEX_INCLUDES
             if num_try_remaining == MAX_NUM_TRIES:
-                print("This is our first try")
                 fixed_code = fixed_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
             if num_try_remaining < MAX_NUM_TRIES or fixed_code == original_latex_code:
                 # Here we try to manually solve the missing environment.
@@ -204,7 +202,6 @@ def handle_latex_error(
                 # Since we cannot know the name of the package that contains the missing environment,
                 # we simply hope that they are named the same way.
                 env_undefined: str = undefined_search.group(1)
-                print(f"env_undefined: {env_undefined}")
 
                 if f"\\usepackage{{{env_undefined}}}" in fixed_code:
                     # We already tried to include the missing package, but it probably
@@ -212,8 +209,6 @@ def handle_latex_error(
                     raise RuntimeError from e
 
                 fixed_code = fixed_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + f"\n\\usepackage{{{env_undefined}}}\n")
-        else:
-            print("found no match")
 
         # Try again with the fixed code (if the fixed code is different from the original code)
         if fixed_code != original_latex_code:
