@@ -23,12 +23,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
-          restore-keys: |
-            pip-
+          cache: pip
       - run: python3 -m pip install --upgrade build
       - run: python3 -m build
       - run: python3 -m pip install dist/crfm_helm-*.whl
@@ -51,12 +46,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-
+          cache: pip
       # Installs dependencies and performs static code checks
       - run: python3 -m pip install virtualenv && python3 -m virtualenv -p python3 venv
       - run: source venv/bin/activate && ./install-dev.sh
