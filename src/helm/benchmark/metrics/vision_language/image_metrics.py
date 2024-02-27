@@ -222,7 +222,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                     ],
                     [self.LPIPS_SIMILARITY, self.lpips_similarity, image, ref_image, white_image, True],
                     [self.FID_SIMILARITY, self.fid_similarity, image, ref_image, white_image, True],
-                    [self.SSIM_SIMILARITY, self.compute_ssim, rgb_image, rgb_ref_image, rgb_white_image, False],
+                    [self.SSIM_SIMILARITY, self.compute_ssim, gray_image, gray_ref_image, gray_white_image, False],
                 ]
 
                 for metric_name, metric_fn, image1, image2, white_image, can_compute_on_white in metric_runs:
@@ -359,4 +359,4 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
 
     def compute_ssim(self, generated_image: np.ndarray, reference_image: np.ndarray) -> float:
         """Compute the Structural Similarity Index (SSIM) between the generated and reference images."""
-        return ssim(generated_image, reference_image, multichannel=True)
+        return ssim(generated_image, reference_image)
