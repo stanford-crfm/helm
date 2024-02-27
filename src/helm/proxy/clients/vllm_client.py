@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 from helm.common.cache import CacheConfig
 from helm.common.request import Request
 from helm.proxy.clients.openai_client import OpenAIClient
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
 
 class VLLMClient(OpenAIClient):

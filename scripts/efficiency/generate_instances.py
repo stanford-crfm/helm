@@ -18,8 +18,8 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from helm.proxy.tokenizers.tokenizer import Tokenizer
-from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
+from helm.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.proxy.services.service import (
     CACHE_DIR,
 )

@@ -16,12 +16,12 @@ from helm.benchmark.tokenizer_config_registry import TokenizerConfig, get_tokeni
 from helm.benchmark.window_services.test_utils import get_tokenizer_service
 from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from helm.proxy.clients.client import Client
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 from helm.benchmark.window_services.window_service import WindowService
 
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.proxy.clients.auto_client import AutoClient
-from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
+from helm.tokenizers.auto_tokenizer import AutoTokenizer
 
 
 INT_MAX: int = 2**31 - 1

@@ -10,7 +10,7 @@ import torch
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import OptionalDependencyNotInstalled
 from helm.common.request import Request, RequestResult, Sequence, Token
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
 from .client import CachingClient
 from .lit_gpt_generate import generate  # type: ignore

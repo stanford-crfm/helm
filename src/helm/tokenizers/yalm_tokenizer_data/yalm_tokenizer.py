@@ -16,7 +16,7 @@ adapted from https://github.com/yandex/YaLM-100B/blob/main/megatron_lm/megatron/
 """
 
 
-YALM_TOKENIZER_PACKAGE: str = "helm.proxy.tokenizers.yalm_tokenizer_data"
+YALM_TOKENIZER_PACKAGE: str = "helm.tokenizers.yalm_tokenizer_data"
 YALM_TOKENIZER_VOCAB_FILENAME: str = "voc_100b.sp"
 
 

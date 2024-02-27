@@ -15,7 +15,7 @@ from helm.common.tokenization_request import (
 )
 from helm.common.request import wrap_request_time
 from helm.proxy.clients.client import CachingClient, generate_uid_for_multimodal_prompt
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
 try:
     from PIL import Image

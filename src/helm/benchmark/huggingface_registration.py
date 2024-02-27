@@ -13,7 +13,7 @@ from helm.benchmark.model_metadata_registry import (
 )
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, TokenizerSpec, register_tokenizer_config
 from helm.common.hierarchical_logger import hlog
-from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
+from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 def register_huggingface_model(
@@ -62,7 +62,7 @@ def register_huggingface_model(
     tokenizer_config = TokenizerConfig(
         name=helm_model_name,
         tokenizer_spec=TokenizerSpec(
-            class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer",
+            class_name="helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer",
             args=object_spec_args,
         ),
         end_of_text_token=end_of_text_token,

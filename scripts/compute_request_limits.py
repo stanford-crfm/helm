@@ -8,13 +8,13 @@ from helm.common.cache_backend_config import SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
 from helm.proxy.clients.auto_client import AutoClient
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
-from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
+from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.common.request import Request
 from helm.common.tokenization_request import TokenizationRequest
 
 # TODO #1592: reenable this once the imports are faster
 # from helm.proxy.clients.client import Client
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
 import os
 import math
