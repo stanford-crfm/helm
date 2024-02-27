@@ -53,7 +53,15 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
     SIFT_SIMILARITY: str = "sift_similarity"
     LPIPS_SIMILARITY: str = "lpips_similarity"
 
-    def __init__(self, generation_type: str, metric_names: List[str], normalize_by_white_score: bool = False):
+    SIZE_HANDLING_METHODS: List[str] = ["resize", "none"]
+
+    def __init__(
+        self,
+        generation_type: str,
+        metric_names: List[str],
+        normalize_by_white_score: bool = False,
+        size_handling_method: str = "resize",
+    ):
         self.generation_type = generation_type
         self._metric_names: List[str] = metric_names
         self._lpips_metric: Optional[LearnedPerceptualImagePatchSimilarity] = None
@@ -61,6 +69,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         self._normalize_by_white_score = normalize_by_white_score
         self._cache: Optional[Cache] = None
         self._file_cache: Optional[LocalPILFileCache] = None
+        self._size_handling_method: str = size_handling_method
 
     # TODO #2391: Make this more configurable and move to MetricService
     def _get_file_cache(self, file_storage_path: str) -> LocalPILFileCache:
@@ -164,7 +173,20 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                     continue
 
                 image: Image.Image = self._file_cache.load_image(response["image_path"])
+
+                # Handle difference in size
+                if image.size != ref_image.size:
+                    if self._size_handling_method == "none":
+                        raise ValueError(
+                            "Compiled image and reference image should have the same size"
+                            " when the size handling method is none."
+                        )
+                    elif self._size_handling_method == "resize":
+                        image.resize(ref_image.size)
+                    else:
+                        raise ValueError(f"size handling method {self._size_handling_method} not recognized.")
                 assert image.size == ref_image.size
+
                 rgb_image: np.ndarray = np.array(image)
                 gray_image: np.ndarray = preprocess_image(image)
 

@@ -38,7 +38,7 @@ class LatexMetric(GenerateImageFromCompletionMetric):
 
         # Convert the latex code to an image
         try:
-            image: Image = latex_to_image(completion, assets_path, crop=True, resize_to=ref_image.size)[0]
+            image: Image = latex_to_image(completion, assets_path, crop=True)[0]
         except RuntimeError as e:
             # We do not want to catch OptionalDependencyNotInstalled (error with latex installation)
             # because it is a fatal error and should be handled by the user
