@@ -2,6 +2,7 @@ from typing import List, Dict, Optional
 import numpy as np
 from torchvision import transforms, models
 from torchvision.models import inception_v3
+from tqdm import tqdm
 from skimage.metrics import structural_similarity as ssim
 from abc import ABC, abstractmethod
 import os
@@ -122,7 +123,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
             name: Stat(MetricName(name)) for name in (self._metric_names + [self.COMPILE_METRIC])
         }
 
-        for request_state in request_states:
+        for request_state in tqdm(request_states, desc="Compiling and evaluating images"):
             reference = request_state.instance.references[0]
             assert reference.output.multimedia_content is not None
             assert len(reference.output.multimedia_content.media_objects) > 0
