@@ -372,7 +372,7 @@ class GoogleRunExpander(RunExpander):
 
 
 class MistralRunExpander(RunExpander):
-    """Give the models more explicit instructions about following the output format."""
+    """Custom prompt for Mistral models."""
 
     # TODO: Refactor out common logic between this and GoogleRunExpander and OpenAIRunExpander.
 

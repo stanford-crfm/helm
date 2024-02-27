@@ -22,7 +22,7 @@ CHATML_MODEL_TAG: str = "CHATML_MODEL_TAG"
 # OpenAI Chat format
 OPENAI_CHATGPT_MODEL_TAG: str = "OPENAI_CHATGPT_MODEL_TAG"
 
-# Models which need more explicit instructions about following the output format.
+# Mistral instruction-following format
 MISTRAL_MODEL_TAG: str = "MISTRAL_MODEL_TAG"
 
 # For Anthropic models
