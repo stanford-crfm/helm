@@ -2,7 +2,7 @@ from typing import List
 from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 
 from helm.common.request import Request, Sequence, Token
-from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
+from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
 
 

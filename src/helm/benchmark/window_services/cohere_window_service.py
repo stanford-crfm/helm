@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from helm.proxy.tokenizers.cohere_tokenizer import CohereTokenizer
+from helm.tokenizers.cohere_tokenizer import CohereTokenizer
 from .local_window_service import LocalWindowService
 from .window_service import EncodeResult
 from helm.common.tokenization_request import (

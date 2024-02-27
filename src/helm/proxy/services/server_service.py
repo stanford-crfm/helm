@@ -35,7 +35,7 @@ from helm.benchmark.model_deployment_registry import get_model_deployment_host_o
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
-from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
+from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from .service import (
     Service,
     CACHE_DIR,

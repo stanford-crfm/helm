@@ -15,7 +15,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
 
 class AutoTokenizer(Tokenizer):

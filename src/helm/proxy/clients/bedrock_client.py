@@ -8,7 +8,7 @@ from helm.common.cache import CacheConfig
 from helm.proxy.clients.client import CachingClient, truncate_and_tokenize_response_text
 from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
 from helm.proxy.clients.bedrock_utils import get_bedrock_client
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
 
 JSON_CONTENT_TYPE = "application/json"
