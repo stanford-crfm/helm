@@ -60,7 +60,7 @@ model_deployments:
     tokenizer_name: simple/model1
     max_sequence_length: 2048
     client_spec:
-      class_name: "helm.proxy.clients.simple_client.SimpleClient"
+      class_name: "helm.clients.simple_client.SimpleClient"
       args: {}
     window_service_spec:
       class_name: "helm.benchmark.window_services.openai_window_service.OpenAIWindowService"

@@ -9,7 +9,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from helm.proxy.clients.cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
+from helm.clients.cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
 from .caching_tokenizer import CachingTokenizer
 
 

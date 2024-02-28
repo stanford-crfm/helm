@@ -14,7 +14,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import TokenizationRequest
 from helm.common.request import wrap_request_time
-from helm.proxy.clients.client import CachingClient, generate_uid_for_multimodal_prompt
+from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 from helm.tokenizers.tokenizer import Tokenizer
 
 try:

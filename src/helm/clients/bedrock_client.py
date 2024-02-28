@@ -5,9 +5,9 @@ import os
 from typing import Any, Dict, List, Mapping, Optional
 
 from helm.common.cache import CacheConfig
-from helm.proxy.clients.client import CachingClient, truncate_and_tokenize_response_text
+from helm.clients.client import CachingClient, truncate_and_tokenize_response_text
 from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
-from helm.proxy.clients.bedrock_utils import get_bedrock_client
+from helm.clients.bedrock_utils import get_bedrock_client
 from helm.tokenizers.tokenizer import Tokenizer
 
 

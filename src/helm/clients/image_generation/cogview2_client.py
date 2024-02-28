@@ -18,8 +18,8 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.proxy.clients.client import Client, CachingClient
-from helm.proxy.clients.image_generation.cogview2.coglm_strategy import CoglmStrategy
+from helm.clients.client import Client, CachingClient
+from helm.clients.image_generation.cogview2.coglm_strategy import CoglmStrategy
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 
@@ -43,11 +43,11 @@ class CogView2Client(Client):
     def _get_model(self) -> None:
         try:
             from SwissArmyTransformer import get_args
-            from helm.proxy.clients.image_generation.cogview2.coglm_utils import (
+            from helm.clients.image_generation.cogview2.coglm_utils import (
                 get_recipe,
                 InferenceModel,
             )
-            from helm.proxy.clients.image_generation.cogview2.sr_pipeline import SRGroup
+            from helm.clients.image_generation.cogview2.sr_pipeline import SRGroup
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
@@ -86,7 +86,7 @@ class CogView2Client(Client):
     def _model_inference(self, prompt) -> torch.Tensor:
         try:
             from SwissArmyTransformer.generation.autoregressive_sampling import filling_sequence
-            from helm.proxy.clients.image_generation.cogview2.coglm_utils import get_masks_and_position_ids_coglm
+            from helm.clients.image_generation.cogview2.coglm_utils import get_masks_and_position_ids_coglm
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
