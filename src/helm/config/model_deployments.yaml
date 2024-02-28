@@ -1513,7 +1513,7 @@ model_deployments:
     tokenizer_name: mistralai/Mistral-7B-v0.1
     max_sequence_length: 4095 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
     client_spec:
-      class_name: "helm.proxy.clients.together_client.TogetherClient"
+      class_name: "helm.clients.together_client.TogetherClient"
 
   ## Stanford
   - name: together/alpaca-7b
