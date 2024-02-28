@@ -1,7 +1,6 @@
 from typing import List, Dict, Optional
 import numpy as np
 from torchvision import transforms, models
-from torchvision.models import inception_v3
 from tqdm import tqdm
 from skimage.metrics import structural_similarity as ssim
 from abc import ABC, abstractmethod
@@ -344,10 +343,6 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         This metric is defined here as it requires loading the Inception model.
         Storing the model in this class is easier than passing it as an argument.
         """
-        if self._inception_model is None:
-            self._inception_model = inception_v3(pretrained=True).to(self._device)
-            self._inception_model.eval()
-
         img1_tensor = self._preprocess_image(generated_image).unsqueeze(0).to(self._device)
         img2_tensor = self._preprocess_image(reference_image).unsqueeze(0).to(self._device)
 
