@@ -1,106 +1,78 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
+
+function getCurrentSubsite(): string {
+  // TODO: Fetch this from a configuration file.
+  if (window.HELM_TYPE === "LITE") {
+    return "Lite";
+  } else if (window.HELM_TYPE === "CLASSIC") {
+    return "Classic";
+  } else if (window.HELM_TYPE === "HEIM") {
+    return "HEIM";
+  } else if (window.HELM_TYPE === "INSTRUCT") {
+    return "Instruct";
+  }
+  return "Lite";
+}
 
 function NavDropdown() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
   return (
-    <div className="relative inline-block text-left p-2">
-      <div className="inline-flex items-center p-2">
-        <Link to="/">
-          <div className="flex items-center">
-            <img
-              src="https://crfm.stanford.edu/helm/v0.3.0/images/helm-logo-simple.png"
-              alt="Image 1"
-              className="h-10 object-cover"
-            />
-            {/* Manually set whether Classic or Not via config, otherwise don't show this */}
-            {window.HELM_TYPE ? (
-              <div className="hidden lg:flex pl-3">
-                {" "}
-                <strong>{window.HELM_TYPE}</strong>{" "}
-              </div>
-            ) : (
-              <> </>
-            )}
-          </div>
-        </Link>
-
-        {/* Chevron Button */}
-        <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 ml-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
+    <div className="dropdown">
+      <div
+        tabIndex={0}
+        role="button"
+        className="btn normal-case bg-white font-bold p-2 border-0 text-lg"
+        aria-haspopup="true"
+        aria-controls="menu"
+      >
+        {getCurrentSubsite()}{" "}
+        <ChevronDownIcon fill="black" color="black" className="text w-4 h-4" />
       </div>
-
-      {dropdownOpen && (
-        <div className="absolute mt-2 w-max translate-x-4 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-          <div
-            className="py-1"
-            role="menu"
-            aria-orientation="vertical"
-            aria-labelledby="options-menu"
+      <ul
+        tabIndex={0}
+        className="-translate-x-36 dropdown-content z-[1] menu p-1 shadow-lg bg-base-100 rounded-box w-max text-base"
+        role="menu"
+      >
+        <li>
+          <a
+            href="https://crfm.stanford.edu/helm/lite/"
+            className="block"
+            role="menuitem"
           >
-            <div
-              className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-              role="menuitem"
-            >
-              <a href="https://crfm.stanford.edu/helm/classic/latest/">
-                <div className="flex items-center">
-                  <span>
-                    <strong>HELM Classic: </strong>Thorough language model
-                    evaluations based on the scenarios from the original HELM
-                    paper
-                  </span>
-                </div>
-              </a>
-            </div>
-
-            <div
-              className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-              role="menuitem"
-            >
-              <a href="https://crfm.stanford.edu/helm/lite/latest/">
-                <div className="flex items-center">
-                  <span>
-                    <strong>HELM Lite: </strong>Lightweight, broad evaluation of
-                    the capabilities of language models using in-context
-                    learning
-                  </span>
-                </div>
-              </a>
-            </div>
-            <div
-              className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-              role="menuitem"
-            >
-              <a href="https://crfm.stanford.edu/heim/latest/">
-                <div className="flex items-center">
-                  <span>
-                    <strong>HEIM: </strong>Holistic evaluation of text-to-image
-                    models
-                  </span>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
+            <strong className="inline">Lite:</strong> Lightweight, broad
+            evaluation of the capabilities of language models using in-context
+            learning
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://crfm.stanford.edu/helm/classic/"
+            className="block"
+            role="menuitem"
+          >
+            <strong>Classic:</strong> Thorough language model evaluations based
+            on the scenarios from the original HELM paper
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://crfm.stanford.edu/heim/"
+            className="block"
+            role="menuitem"
+          >
+            <strong>HEIM:</strong> Holistic evaluation of text-to-image models
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://crfm.stanford.edu/helm/instruct/"
+            className="block"
+            role="menuitem"
+          >
+            <strong>Instruct:</strong> Evaluations of instruction following
+            models with absolute ratings
+          </a>
+        </li>
+      </ul>
     </div>
   );
 }
