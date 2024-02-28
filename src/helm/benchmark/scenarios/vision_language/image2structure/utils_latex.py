@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 import io
 import os
@@ -35,6 +35,8 @@ TEX_INCLUDES = r"""
 \usepackage{tikz-dependency}
 \usepackage{tikz-3dplot}
 \usepackage{tikz-network}
+\usepackage[flushleft]{threeparttable}
+\usepackage{adjustbox}
 """
 
 # LaTeX delimiters
@@ -47,6 +49,20 @@ MAX_NUM_TRIES: int = 3
 
 TEX_BEGIN_DOCUMENT = r"""\begin{document}"""
 TEX_END_DOCUMENT = r"""\end{document}"""
+
+TEX_REPLACE_NUMBERING: List[Tuple[str, str]] = [
+    ("{equation}", "{equation*}"),
+    ("{align}", "{align*}"),
+    ("{alignat}", "{alignat*}"),
+    ("{gather}", "{gather*}"),
+    ("{flalign}", "{flalign*}"),
+    ("{multline}", "{multline*}"),
+    ("{eqnarray}", "{eqnarray*}"),
+    ("{subeqnarray}", "{subeqnarray*}"),
+    ("{subequations}", "{subequations*}"),
+    ("{multline}", "{multline*}"),
+    ("{aligneq}", "{aligneq*}"),
+]
 
 
 def latex_to_pdf(latex_code: str, assets_path: str) -> io.BytesIO:
@@ -69,7 +85,7 @@ def pdf_to_image(
         # Removes the white border around the image
         if crop:
             (w, h) = image.size
-            image = image.crop((0, 0, w, h - int(h * 0.13)))  # Remove pagination
+            image = image.crop((0, 0, w, h - int(h * 0.2)))  # Remove pagination
             image = image.crop(ImageOps.invert(image).getbbox())  # Remove white border
 
         # Resize the image
@@ -172,17 +188,20 @@ def handle_latex_error(
         # Missing includes are tolerated as the prompt suggests that it is not necessary to include them,
         # and our TEX_INCLUDES might lack some packages.
         # Error format: "LaTeX Error: Environment <env> undefined."
-        undefined_seach = re.search(r"LaTeX Error: Environment (.*) undefined", str_e)
-        if undefined_seach:
+        undefined_search = re.search(r"LaTeX Error: Environment (.*) undefined", str_e)
+        if undefined_search:
             # If a package is missing and this is our first retry, then simply include TEX_INCLUDES
             if num_try_remaining == MAX_NUM_TRIES:
                 fixed_code = fixed_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
-            else:
+            if num_try_remaining < MAX_NUM_TRIES or fixed_code == original_latex_code:
+                # Here we try to manually solve the missing environment.
+                # This is either executed on the second rety or the first if no changements
+                # were made in the first retry.
                 assert TEX_INCLUDES in fixed_code, "TEX_INCLUDES should be present in the code"
                 # TEX_INCLUDES is already present, so we add the missing package
                 # Since we cannot know the name of the package that contains the missing environment,
                 # we simply hope that they are named the same way.
-                env_undefined: str = undefined_seach.group(1)
+                env_undefined: str = undefined_search.group(1)
 
                 if f"\\usepackage{{{env_undefined}}}" in fixed_code:
                     # We already tried to include the missing package, but it probably
@@ -222,29 +241,40 @@ def latex_to_image(
     # but these might break the original LaTeX code so they are only applied
     # if the original LaTeX code does not compile.
 
+    # 0. Remove all environments that might cause numbering
+    # This is important because the numbering of the equations might change
+    # the bounding box of the image.
+    for replace in TEX_REPLACE_NUMBERING:
+        original_latex_code = original_latex_code.replace(replace[0], replace[1])
+    # Also removes all \label commands
+    # If it is followed by a \n, it should be removed as well
+    original_latex_code = re.sub(r"\\label\{.*?\}[\t ]*(\n)?", "", original_latex_code)
+
     # 1. Add begin/end document if not present
-    latex_code: str = original_latex_code
-    if TEX_BEGIN_DOCUMENT not in latex_code and TEX_BEGIN_FILE not in latex_code:
-        latex_code = TEX_BEGIN_DOCUMENT + latex_code
-    if TEX_END_DOCUMENT not in latex_code:
-        latex_code = latex_code + TEX_END_DOCUMENT
+    if TEX_BEGIN_DOCUMENT not in original_latex_code and TEX_BEGIN_FILE not in original_latex_code:
+        original_latex_code = TEX_BEGIN_DOCUMENT + original_latex_code
+    if TEX_END_DOCUMENT not in original_latex_code:
+        original_latex_code = original_latex_code + TEX_END_DOCUMENT
+
     # 2. Add preamble
     # 2.1. Remove \documentclass if present to make sure we use our own
-    documentclass_search = re.search(r"\\documentclass\{(.*)\}", latex_code)
+    documentclass_search = re.search(r"\\documentclass\{(.*)\}", original_latex_code)
     if documentclass_search:
         documentclass: str = documentclass_search.group(1)
-        latex_code = latex_code.replace(f"\\documentclass{{{documentclass}}}", TEX_BEGIN_FILE)
+        original_latex_code = original_latex_code.replace(f"\\documentclass{{{documentclass}}}", TEX_BEGIN_FILE)
     else:
         # If there is no \documentclass, we add our own
-        latex_code = TEX_BEGIN_FILE + "\n\n" + latex_code
-    # 2.2. Add includes. In this first step, we only add icnludes if none are present.
+        original_latex_code = TEX_BEGIN_FILE + "\n\n" + original_latex_code
+
+    # 2.2. Add includes. In this first step, we only add includes if none are present.
     # We do this because if some are present, we might define them twice which can cause errors
     # and this section should not make the original LaTeX code fail if it was compilable.
     # If there are missing packages, in handle_latex_error, we will add TEX_INCLUDES after the begin document,
     # which might define some packages twice, but often solves the problem.
-    if not re.search(r"\\usepackage\{.*\}", latex_code):
-        latex_code = latex_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
+    if not re.search(r"\\usepackage\{.*\}", original_latex_code):
+        original_latex_code = original_latex_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + "\n" + TEX_INCLUDES + "\n")
 
+    latex_code: str = original_latex_code
     try:
         pdf_stream = latex_to_pdf(latex_code, assets_path=assets_path)
         image = pdf_to_image(pdf_stream, crop=crop, resize_to=resize_to)
