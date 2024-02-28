@@ -18,7 +18,7 @@ export default function NavBar() {
           </label>
           <ul
             tabIndex={0}
-            className="menu menu-lg dropdown-content mt-3 z-[1] p-2 bg-base-100 shadow"
+            className="menu menu-lg dropdown-content mt-3 z-[1] p-2 bg-base-100 shadow-lg text-base"
           >
             <li>
               <Link to="leaderboard">Leaderboard</Link>
@@ -44,7 +44,7 @@ export default function NavBar() {
         <Link to="https://crfm.stanford.edu/" className="w-24">
           <img src={crfmLogo} className="object-contain" />
         </Link>
-        <Link to="https://crfm.stanford.edu/helm/" className="mx-2 w-32">
+        <Link to="/" className="mx-2 w-32">
           <img src={helmLogo} className="object-contain" />
         </Link>
         <NavDropdown></NavDropdown>
