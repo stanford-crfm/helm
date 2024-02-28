@@ -14,7 +14,7 @@ function getReleases(): string[] {
   } else if (window.HELM_TYPE === "INSTRUCT") {
     return ["v1.0.0"];
   }
-  return [];
+  return ["v1.1.0", "v1.0.0"];
 }
 
 function getReleaseUrl(version: string): string {
@@ -77,7 +77,7 @@ function ReleaseDropdown() {
       </div>
       <ul
         tabIndex={0}
-        className="dropdown-content z-[1] menu p-1 shadow-lg bg-base-100 rounded-box w-max"
+        className="dropdown-content z-[1] menu p-1 shadow-lg bg-base-100 rounded-box w-max text-base"
         role="menu"
       >
         {releases.map((release) => (

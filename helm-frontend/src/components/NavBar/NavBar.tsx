@@ -18,7 +18,7 @@ export default function NavBar() {
           </label>
           <ul
             tabIndex={0}
-            className="menu menu-lg dropdown-content mt-3 z-[1] p-2 bg-base-100 shadow-lg text-base"
+            className="menu menu-lg dropdown-content mt-3 z-[1] p-2 bg-base-100 shadow"
           >
             <li>
               <Link to="leaderboard">Leaderboard</Link>
