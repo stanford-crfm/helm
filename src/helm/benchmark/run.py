@@ -337,7 +337,7 @@ def main():
         disable_cache=args.disable_cache,
     )
 
-    if args.local:
+    if args.run_specs:
         hlog(
             "WARNING: The --run-specs flag is deprecated and will be removed in a future release. "
             "Use --run-entries instead."

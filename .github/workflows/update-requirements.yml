@@ -61,7 +61,7 @@ jobs:
       - name: Run tests
         run: pytest
       - name: Run helm-run
-        run: helm-run --suite test --run-specs simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
+        run: helm-run --suite test --run-entries simple1:model=simple/model1 --max-eval-instances 10 --exit-on-error
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:

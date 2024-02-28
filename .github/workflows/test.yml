@@ -27,7 +27,7 @@ jobs:
       - run: python3 -m pip install --upgrade build
       - run: python3 -m build
       - run: python3 -m pip install dist/crfm_helm-*.whl
-      - run: helm-run --run-specs simple1:model=simple/model1 --max-eval-instances 10 --suite test
+      - run: helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
       - run: helm-summarize --suite test
       - run: helm-server --help
 
