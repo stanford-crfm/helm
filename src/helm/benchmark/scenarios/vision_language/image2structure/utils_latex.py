@@ -59,7 +59,6 @@ TEX_REPLACE_NUMBERING: List[Tuple[str, str]] = [
     ("{multline}", "{multline*}"),
     ("{eqnarray}", "{eqnarray*}"),
     ("{subeqnarray}", "{subeqnarray*}"),
-    ("{subequations}", "{subequations*}"),
     ("{multline}", "{multline*}"),
     ("{aligneq}", "{aligneq*}"),
 ]
