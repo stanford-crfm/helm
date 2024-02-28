@@ -40,7 +40,7 @@ def register_huggingface_model(
     model_deployment = ModelDeployment(
         name=helm_model_name,
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.huggingface_client.HuggingFaceClient",
+            class_name="helm.clients.huggingface_client.HuggingFaceClient",
             args=object_spec_args,
         ),
         model_name=helm_model_name,

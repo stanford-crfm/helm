@@ -22,13 +22,13 @@ from helm.common.tokenization_request import (
 from helm.common.request import Request, RequestResult
 from helm.common.hierarchical_logger import hlog
 from helm.proxy.accounts import Accounts, Account
-from helm.proxy.clients.auto_client import AutoClient
-from helm.proxy.clients.moderation_api_client import ModerationAPIClient
-from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
-from helm.proxy.clients.image_generation.nudity_check_client import NudityCheckClient
-from helm.proxy.clients.gcs_client import GCSClient
-from helm.proxy.clients.clip_score_client import CLIPScoreClient
-from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
+from helm.clients.auto_client import AutoClient
+from helm.clients.moderation_api_client import ModerationAPIClient
+from helm.clients.perspective_api_client import PerspectiveAPIClient
+from helm.clients.image_generation.nudity_check_client import NudityCheckClient
+from helm.clients.gcs_client import GCSClient
+from helm.clients.clip_score_client import CLIPScoreClient
+from helm.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.example_queries import example_queries
 from helm.benchmark.model_metadata_registry import ALL_MODELS_METADATA
 from helm.benchmark.model_deployment_registry import get_model_deployment_host_organization

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from random import Random
 
-from helm.proxy.clients.google_translate_client import GoogleTranslateClient
+from helm.clients.google_translate_client import GoogleTranslateClient
 from .perturbation import TextPerturbation
 from .perturbation_description import PerturbationDescription
 

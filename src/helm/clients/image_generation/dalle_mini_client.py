@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.proxy.clients.client import Client, CachingClient
+from helm.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 
@@ -41,8 +41,8 @@ class DALLEMiniClient(Client):
             import jax.numpy as jnp
             from flax.jax_utils import replicate
 
-            from helm.proxy.clients.image_generation.dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
-            from helm.proxy.clients.image_generation.dalle_mini import DalleBart, DalleBartProcessor
+            from helm.clients.image_generation.dalle_mini.vqgan_jax.modeling_flax_vqgan import VQModel
+            from helm.clients.image_generation.dalle_mini import DalleBart, DalleBartProcessor
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 

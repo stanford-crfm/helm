@@ -11,7 +11,7 @@ from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
-from helm.proxy.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
+from helm.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 from .bias_metrics import BiasMetric

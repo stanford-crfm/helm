@@ -10,7 +10,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
-from helm.proxy.clients.client import cleanup_tokens
+from helm.clients.client import cleanup_tokens
 
 
 class LocalWindowService(ConfigurableWindowService, ABC):

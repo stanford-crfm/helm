@@ -5,8 +5,8 @@ from helm.common.file_caches.file_cache import FileCache
 from helm.common.general import singleton
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
-from helm.proxy.clients.moderation_api_client import ModerationAPIClient
-from helm.proxy.clients.client import CachingClient
+from helm.clients.moderation_api_client import ModerationAPIClient
+from helm.clients.client import CachingClient
 from .dalle2_client import DALLE2Client
 from .image_generation_client_utils import get_single_image_multimedia_object
 

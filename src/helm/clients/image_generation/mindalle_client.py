@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.proxy.clients.client import Client, CachingClient
+from helm.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 try:
@@ -36,7 +36,7 @@ class MinDALLEClient(Client):
 
     def _get_model(self):
         try:
-            from helm.proxy.clients.image_generation.mindalle.models import Dalle
+            from helm.clients.image_generation.mindalle.models import Dalle
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["heim"])
 
