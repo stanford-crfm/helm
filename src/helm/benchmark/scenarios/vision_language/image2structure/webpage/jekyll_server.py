@@ -113,7 +113,7 @@ class JekyllServer:
         self.setup_gemfile()
         self.setup_config()
         command_install = f"cd {self.repo_path} && bundle install"
-        os.system(command_install)
+        subprocess.run(command_install, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         command_serve = f"cd {self.repo_path} && bundle exec jekyll serve --port {self.port}"
         self.process = subprocess.Popen(
