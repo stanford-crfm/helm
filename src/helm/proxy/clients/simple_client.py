@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from helm.common.cache import CacheConfig
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
-from helm.proxy.tokenizers.simple_tokenizer import SimpleTokenizer
+from helm.tokenizers.simple_tokenizer import SimpleTokenizer
 from .client import CachingClient
 
 

@@ -17,7 +17,7 @@ from helm.proxy.clients.moderation_api_client import ModerationAPIClient
 from helm.proxy.critique.critique_client import CritiqueClient
 from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
-from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
+from helm.tokenizers.auto_tokenizer import AutoTokenizer
 
 
 class AuthenticationError(NonRetriableException):

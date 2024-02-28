@@ -10,7 +10,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.proxy.tokenizers.anthropic_tokenizer import AnthropicTokenizer
+from helm.tokenizers.anthropic_tokenizer import AnthropicTokenizer
 
 
 class TestAnthropicTokenizer:

@@ -14,7 +14,7 @@ from helm.common.request import (
 )
 from helm.common.tokenization_request import TokenizationRequest
 from helm.proxy.clients.client import CachingClient, truncate_sequence
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
 
 class MegatronClient(CachingClient):

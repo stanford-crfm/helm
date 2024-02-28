@@ -7,7 +7,7 @@ from helm.common.media_object import MultimediaObject, TEXT_TYPE
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.cache import Cache, CacheConfig
 from helm.common.tokenization_request import DecodeRequest, TokenizationRequest
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+from helm.tokenizers.tokenizer import Tokenizer
 
 
 class Client(ABC):

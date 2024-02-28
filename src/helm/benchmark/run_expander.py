@@ -314,7 +314,7 @@ class OpenAIRunExpander(RunExpander):
     These models need more explicit instructions about following the format.
     """
 
-    # TODO: Refactor out common logic between this and GoogleRunExpander.
+    # TODO: Refactor out common logic between this and GoogleRunExpander and MistralRunExpander.
 
     name = "openai"
 
@@ -347,9 +347,36 @@ class GoogleRunExpander(RunExpander):
     These models need more explicit instructions about following the format.
     """
 
-    # TODO: Refactor out common logic between this and OpenAIRunExpander.
+    # TODO: Refactor out common logic between this and OpenAIRunExpander and MistralRunExpander.
 
     name = "google"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if run_spec.adapter_spec.method != ADAPT_GENERATION:
+            return [run_spec]
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_suffix="\n\n"
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                    + "\n"
+                    + run_spec.adapter_spec.output_prefix.strip(),
+                ),
+            ),
+        ]
+
+
+class MistralRunExpander(RunExpander):
+    """Custom prompt for Mistral models."""
+
+    # TODO: Refactor out common logic between this and GoogleRunExpander and OpenAIRunExpander.
+
+    name = "output_format_instructions"
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if run_spec.adapter_spec.method != ADAPT_GENERATION:

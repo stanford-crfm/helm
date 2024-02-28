@@ -83,9 +83,13 @@ def get_multiple_choice_joint_adapter_spec(
 
 
 def get_image2structure_metric_specs(
-    metric_names: Optional[List[str]] = None, args: Optional[Dict] = None, normalize_by_white_score: bool = False
+    generate_image_metric_class: str,
+    metric_names: Optional[List[str]] = None,
+    args: Optional[Dict] = None,
+    normalize_by_white_score: bool = False,
+    include_edit_similarity: bool = True,
 ) -> List[MetricSpec]:
-    from .metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric
+    from helm.benchmark.metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric
 
     if metric_names is None:
         metric_names = [
@@ -93,19 +97,25 @@ def get_image2structure_metric_specs(
             GenerateImageFromCompletionMetric.PIXEL_SIMILARITY,
             GenerateImageFromCompletionMetric.SIFT_SIMILARITY,
             GenerateImageFromCompletionMetric.LPIPS_SIMILARITY,
+            GenerateImageFromCompletionMetric.SSIM_SIMILARITY,
+            GenerateImageFromCompletionMetric.FID_SIMILARITY,
         ]
     if args is None:
         args = {}
-    return [
+    metric_scpecs = [
         MetricSpec(
-            class_name="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",
+            class_name=generate_image_metric_class,
             args={"metric_names": metric_names, "normalize_by_white_score": normalize_by_white_score, **args},
         ),
-        MetricSpec(
-            class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
-            args={**args, "name": "edit_similarity"},
-        ),
     ]
+    if include_edit_similarity:
+        metric_scpecs.append(
+            MetricSpec(
+                class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
+                args={**args, "name": "edit_similarity"},
+            )
+        )
+    return metric_scpecs
 
 
 ############################################################
@@ -194,20 +204,52 @@ def get_vqa_spec() -> RunSpec:
 
 
 @run_spec_function("image2latex")
-def get_image2latex_latex_spec(subject: str, recompile_prompt: bool = True, args: Optional[Dict] = None) -> RunSpec:
+def get_image2latex_spec(subset: str, recompile_prompt: bool = True, args: Optional[Dict] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
-        args={"subject": subject, "recompile_prompt": recompile_prompt},
+        args={"subset": subset, "recompile_prompt": recompile_prompt},
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(args=args, normalize_by_white_score=False)
+    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+        generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",  # noqa: E501
+        args=args,
+        normalize_by_white_score=False,
+        include_edit_similarity=True,
+    )
 
     run_spec_name: str = "image2latex"
     return RunSpec(
-        name=f"{run_spec_name}:subject={subject}",
+        name=f"{run_spec_name}:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("image2webpage")
+def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario.WebpageScenario",
+        args={"subset": subset, "recompile_prompt": recompile_prompt},
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        instructions="Just give a short answer without answering in a complete sentence.",
+        max_tokens=2000,
+    )
+    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+        generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.webpage_metrics.WebpageMetric",  # noqa: E501
+        args=args,
+        normalize_by_white_score=False,
+        include_edit_similarity=False,
+    )
+
+    run_spec_name: str = "image2webpage"
+    return RunSpec(
+        name=f"{run_spec_name}:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -260,6 +302,31 @@ def get_heim_human_eval_spec(question_type: str) -> RunSpec:
     run_spec_name: str = "heim_human_eval"
     return RunSpec(
         name=f"{run_spec_name}:question_type={question_type}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("sheetmusic2lilypond")
+def get_sheetmusic2lilypond_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.image2structure.sheetmusic2lilypond_scenario."
+        "SheetMusic2LilyPondScenario",
+        args={},
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        instructions="Generate the LilyPond code for the following sheet music. "
+        "Just give the LilyPond code without any explanation.",
+        max_tokens=1000,
+    )
+    # TODO: add round trip metric for LilyPond
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "sheetmusic2lilypond"
+    return RunSpec(
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

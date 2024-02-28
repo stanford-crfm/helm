@@ -1,5 +1,5 @@
 from helm.common.cache import BlackHoleCacheConfig
-from helm.proxy.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
+from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from .client import truncate_sequence, truncate_and_tokenize_response_text
 from typing import List
 from helm.common.request import Request, Sequence, Token

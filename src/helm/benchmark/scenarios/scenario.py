@@ -25,6 +25,10 @@ DEFAULT_TEST_SIZE: int = 1000
 """ Reference tags """
 CORRECT_TAG: str = "correct"
 
+""" Asset tags (used for compiled outputs such as image2structure)"""
+ASSET_NAME_TAG: str = "asset_name"
+ASSET_PATH_TAG: str = "asset_path"
+
 # Reference tag functions for ranking scenarios.
 # @TODO: (For future) Should there be a base RankingScenario class?
 

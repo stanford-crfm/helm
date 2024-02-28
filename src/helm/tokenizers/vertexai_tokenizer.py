@@ -9,7 +9,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationToken,
 )
-from helm.proxy.tokenizers.caching_tokenizer import CachingTokenizer
+from helm.tokenizers.caching_tokenizer import CachingTokenizer
 from helm.proxy.retry import NonRetriableException
 
 try:
