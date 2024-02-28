@@ -240,19 +240,20 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
-        generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.webpage_metrics.WebpageMetric",  # noqa: E501
-        args=args,
-        normalize_by_white_score=False,
-        include_edit_similarity=False,
-    )
+    # metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+    #     generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.webpage_metrics.WebpageMetric",  # noqa: E501
+    #     args=args,
+    #     normalize_by_white_score=False,
+    #     include_edit_similarity=False,
+    # )
 
     run_spec_name: str = "image2webpage"
     return RunSpec(
         name=f"{run_spec_name}:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
+        # metric_specs=metric_specs,
+        metric_specs=[],
         groups=[run_spec_name],
     )
 
