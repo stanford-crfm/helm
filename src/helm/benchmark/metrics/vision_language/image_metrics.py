@@ -6,6 +6,7 @@ from skimage.metrics import structural_similarity as ssim
 from abc import ABC, abstractmethod
 import os
 import torch
+import warnings
 
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.common.images_utils import open_image
@@ -277,7 +278,9 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         Storing the model in this class is easier than passing it as an argument.
         """
         if self._lpips_metric is None:
-            self._lpips_metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg").to(self._device)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=UserWarning)
+                self._lpips_metric = LearnedPerceptualImagePatchSimilarity(net_type="vgg").to(self._device)
 
         preprocessing = transforms.Compose(
             [
@@ -317,7 +320,9 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
 
     def _get_inception_features(self, img_tensor):
         if self._inception_model is None:
-            self._inception_model = models.inception_v3(pretrained=True, transform_input=False)
+            self._inception_model = models.inception_v3(
+                weights=models.Inception_V3_Weights.IMAGENET1K_V1, transform_input=False
+            ).to(self._device)
             self._inception_model.eval()
         with torch.no_grad():
             if self._inception_model.training:
