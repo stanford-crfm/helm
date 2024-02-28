@@ -173,7 +173,7 @@ tokenizer_configs:
     
   - name: anas-awadalla/mpt-7b
     tokenizer_spec:
-      class_name: "helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
