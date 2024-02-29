@@ -1,5 +1,6 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 from abc import abstractmethod, ABC
+from dataclasses import dataclass
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.object_spec import ObjectSpec
@@ -11,15 +12,16 @@ class Annotator(ABC):
     parsing, rendering an image based on the text completion, etc."""
 
     @abstractmethod
-    def annotate(self, request_state: RequestState) -> Dict[str, Any]:
+    def annotate(self, request_state: RequestState) -> List[Dict[str, Any]]:
         """Fills the annotations field of the request state with additional information
         that are implementation specific."""
         pass
 
 
+@dataclass(frozen=True)
 class AnnotatorSpec(ObjectSpec):
     """Specifies how to create an `Annotator`."""
 
-    name: str
+    name: str = "annotator"  # Must be initialized since ObjectSpec has default value for args
     """Name of the annotator. This is used to dispatch to the proper `Annotator`
     in the factory that turn an `AnnotatorSpec` into an `Annotator`."""

@@ -97,6 +97,8 @@ class AnnotationExecutor:
             assert scenario_state.annotator_specs is not None
             return self.process(scenario_state.annotator_specs, request_state)
 
+        self.annotator_specs = scenario_state.annotator_specs
+
         request_states = parallel_map(
             do_it,
             scenario_state.request_states,
@@ -111,11 +113,19 @@ class AnnotationExecutor:
         )
 
     def process(self, annotator_specs: List[AnnotatorSpec], state: RequestState) -> RequestState:
-        annotations: Dict[str, Any] = {}
+        annotations: List[Dict[str, Any]] = []
         try:
             for annotator_spec in annotator_specs:
                 annotator: Annotator = self.factory.get_annotator(annotator_spec)
-                annotations.update(annotator.annotate(state))
+                new_annotations = annotator.annotate(state)
+                if len(annotations) == 0:
+                    annotations = new_annotations
+                elif len(new_annotations) > 0:
+                    # If there are new annotations, they should be the same length as the old ones
+                    # as one annotation corresponds to one completion
+                    assert len(annotations) == len(new_annotations)
+                    for i in range(len(annotations)):
+                        annotations[i].update(new_annotations[i])
         except Exception as e:
             raise AnnotationExecutorError(f"{str(e)} Request: {state.request}") from e
         return replace(state, annotations=annotations)

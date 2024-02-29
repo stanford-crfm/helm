@@ -40,7 +40,7 @@ class AnnotatorFactory:
             },
             provider_bindings={
                 "api_key": lambda: provide_api_key(self.credentials, annotator_name),
-                "file_cache": lambda: self._get_file_cache(annotator_name),
+                "file_cache_path": lambda: self._get_file_cache_path(annotator_name),
             },
         )
         annotator = create_object(annotator_spec)
@@ -54,3 +54,8 @@ class AnnotatorFactory:
         # Initialize `FileCache` for text-to-image model APIs
         local_file_cache_path: str = os.path.join(self.file_storage_path, "output", annotator_name)
         return LocalFileCache(local_file_cache_path, file_extension="png")
+
+    def _get_file_cache_path(self, annotator_name: str) -> str:
+        # Initialize `FileCache` for text-to-image model APIs
+        local_file_cache_path: str = os.path.join(self.file_storage_path, "output", annotator_name)
+        return local_file_cache_path

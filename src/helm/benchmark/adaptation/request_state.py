@@ -45,7 +45,7 @@ class RequestState:
     num_conditioning_tokens: int = 0
     """The number of initial tokens that will be ignored when computing language modeling metrics"""
 
-    annotations: Optional[Dict[str, Any]] = None
+    annotations: Optional[List[Dict[str, Any]]] = None
     """Output of some post-processing step that is needed for the metric to understand the request
     Example: parsing, rendering an image based on the text completion, etc."""
 

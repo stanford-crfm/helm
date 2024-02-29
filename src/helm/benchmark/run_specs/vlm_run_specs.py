@@ -14,6 +14,7 @@ from helm.benchmark.metrics.common_metric_specs import (
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
+from helm.benchmark.annotation.annotator import AnnotatorSpec
 
 
 ############################################################
@@ -219,6 +220,12 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = True, args: Optio
         normalize_by_white_score=False,
         include_edit_similarity=True,
     )
+    annotator_specs: List[AnnotatorSpec] = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.image2structure.latex_compiler_annotator.LatexCompilerAnnotator",
+            name="latex_compiler",
+        )
+    ]
 
     run_spec_name: str = "image2latex"
     return RunSpec(
@@ -227,6 +234,7 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = True, args: Optio
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=[run_spec_name],
+        annotators=annotator_specs,
     )
 
 
