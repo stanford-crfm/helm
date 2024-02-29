@@ -28,3 +28,18 @@ class AnnotatorSpec(ObjectSpec):
     name: str = "annotator"  # Must be initialized since ObjectSpec has default value for args
     """Name of the annotator. This is used to dispatch to the proper `Annotator`
     in the factory that turn an `AnnotatorSpec` into an `Annotator`."""
+
+
+class DummyAnnotator(Annotator):
+    """A dummy annotator that does nothing."""
+
+    def __init__(self, name: str):
+        super().__init__(name)
+
+    def annotate(self, request_state: RequestState) -> List[Dict[str, Any]]:
+        if request_state.result is None:
+            raise ValueError("Annotation requires a result")
+        annotations: List[Dict[str, Any]] = []
+        for completion in request_state.result.completions:
+            annotations.append({"all_caps": completion.text.upper()})
+        return annotations
