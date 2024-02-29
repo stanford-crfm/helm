@@ -48,11 +48,19 @@ def test_multimodal_text_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
+
+    # Test that the first instance is unperturbed
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation is None
+    media_objects = instances[0].input.multimedia_content.media_objects
+    assert media_objects[0].text == "Hello what is"
+    assert media_objects[1].text == "your name"
+
     assert instances[1].id == "id0"
     assert instances[1].perturbation.name == "extra_space"
-    assert instances[1].perturbation.num_spaces == 2
-    assert instances[1].input.text == "Hello  my  name  is"
-    assert instances[1].references[0].output.text == "some name"
+    media_objects = instances[1].input.multimedia_content.media_objects
+    assert media_objects[0].text == "Hello   what   is"
+    assert media_objects[1].text == "your   name"
 
 
 def test_misspelling_perturbation():
