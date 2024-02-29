@@ -1,0 +1,26 @@
+[
+	{
+		"title": "Lite",
+		"desc": "Thorough language model evaluations based on the scenarios from the original HELM paper",
+		"id": "lite",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "Classic",
+		"desc": "Lightweight, broad evaluation of the capabilities of language models using in-context learning",
+		"id": "classic",
+		"releases": ["v0.4.0", "v0.3.0", "v0.2.4", "v0.2.3", "v0.2.2"]
+	},
+	{
+		"title": "HEIM",
+		"desc": "Holistic evaluation of text-to-image models",
+		"id": "heim",
+		"releases": ["v1.1.0", "v1.0.0"]
+	},
+	{
+		"title": "Instruct",
+		"desc": "Evaluations of instruction following models with absolute ratings",
+		"id": "instruct",
+		"releases": ["v1.1.0", "v1.0.0"]
+	}
+]

@@ -1,20 +1,43 @@
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-
-function getCurrentSubsite(): string {
-  // TODO: Fetch this from a configuration file.
-  if (window.HELM_TYPE === "LITE") {
-    return "Lite";
-  } else if (window.HELM_TYPE === "CLASSIC") {
-    return "Classic";
-  } else if (window.HELM_TYPE === "HEIM") {
-    return "HEIM";
-  } else if (window.HELM_TYPE === "INSTRUCT") {
-    return "Instruct";
-  }
-  return "Lite";
-}
+import ReleaseIndexEntry from "@/types/ReleaseIndexEntry";
+import { useEffect, useState } from "react";
+import getReleaseUrl from "@/utils/getReleaseUrl";
 
 function NavDropdown() {
+  const [releaseIndex, setReleaseIndex] = useState<ReleaseIndexEntry[]>([]);
+  const [currReleaseIndexEntry, setCurrReleaseIndexEntry] = useState<
+    ReleaseIndexEntry | undefined
+  >();
+
+  useEffect(() => {
+    fetch("/releaseIndex.json")
+      .then((response) => response.json())
+      .then((data: ReleaseIndexEntry[]) => {
+        setReleaseIndex(data);
+        // set currReleaseIndexEntry to val where releaseIndexEntry.id matches window.RELEASE_INDEX_ID
+        if (window.RELEASE_INDEX_ID) {
+          const currentEntry = data.find(
+            (entry) => entry.id === window.RELEASE_INDEX_ID,
+          );
+          setCurrReleaseIndexEntry(currentEntry);
+          // handles falling back to HELM lite as was previously done in this file
+        } else {
+          const currentEntry = data.find((entry) => entry.id === "lite");
+          setCurrReleaseIndexEntry(currentEntry);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching JSON:", error);
+      });
+  }, []);
+
+  function getCurrentSubsite(): string {
+    return currReleaseIndexEntry !== undefined &&
+      currReleaseIndexEntry.title !== undefined
+      ? currReleaseIndexEntry.title
+      : "Lite";
+  }
+
   return (
     <div className="dropdown">
       <div
@@ -32,46 +55,17 @@ function NavDropdown() {
         className="-translate-x-36 dropdown-content z-[1] menu p-1 shadow-lg bg-base-100 rounded-box w-max text-base"
         role="menu"
       >
-        <li>
-          <a
-            href="https://crfm.stanford.edu/helm/lite/"
-            className="block"
-            role="menuitem"
-          >
-            <strong className="inline">Lite:</strong> Lightweight, broad
-            evaluation of the capabilities of language models using in-context
-            learning
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://crfm.stanford.edu/helm/classic/"
-            className="block"
-            role="menuitem"
-          >
-            <strong>Classic:</strong> Thorough language model evaluations based
-            on the scenarios from the original HELM paper
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://crfm.stanford.edu/heim/"
-            className="block"
-            role="menuitem"
-          >
-            <strong>HEIM:</strong> Holistic evaluation of text-to-image models
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://crfm.stanford.edu/helm/instruct/"
-            className="block"
-            role="menuitem"
-          >
-            <strong>Instruct:</strong> Evaluations of instruction following
-            models with absolute ratings
-          </a>
-        </li>
+        {releaseIndex.map((item, index) => (
+          <li key={index}>
+            <a
+              href={getReleaseUrl(item.id, item)}
+              className="block"
+              role="menuitem"
+            >
+              <strong>{item.title}:</strong> {item.desc}
+            </a>
+          </li>
+        ))}
       </ul>
     </div>
   );
