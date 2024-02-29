@@ -14,6 +14,6 @@ export default async function getReleaseSummary(
     return (await summary.json()) as ReleaseSummary;
   } catch (error) {
     console.log(error);
-    return { release: "", suites: [], date: "" };
+    return { release: undefined, suites: undefined, suite: undefined, date: "" };
   }
 }
