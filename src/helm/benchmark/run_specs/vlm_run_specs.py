@@ -151,10 +151,7 @@ def get_hateful_memes_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.hateful_memes_scenario.HatefulMemesScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
-        instructions="Answer Yes or No without an explanation.",
-        max_tokens=3,
-    )
+    adapter_spec = get_multiple_choice_joint_adapter_spec(input_noun=None, output_noun="Answer", max_train_instances=0)
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "hateful_memes"

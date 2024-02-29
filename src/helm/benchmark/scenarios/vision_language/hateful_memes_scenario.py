@@ -80,11 +80,13 @@ class HatefulMemesScenario(Scenario):
                     MediaObject(location=local_image_path, content_type="image/jpeg"),
                     MediaObject(text=self.QUESTION, content_type="text/plain"),
                 ]
-                answer: str = "Yes" if row["label"] == 1 else "No"
                 instances.append(
                     Instance(
                         Input(multimedia_content=MultimediaObject(content)),
-                        references=[Reference(Output(text=answer), tags=[CORRECT_TAG])],
+                        references=[
+                            Reference(Output(text="Yes"), tags=[CORRECT_TAG] if row["label"] == 1 else []),
+                            Reference(Output(text="No"), tags=[CORRECT_TAG] if row["label"] == 0 else []),
+                        ],
                         split=split,
                     )
                 )
