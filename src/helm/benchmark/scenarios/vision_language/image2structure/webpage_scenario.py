@@ -136,7 +136,7 @@ class WebpageScenario(Image2StructureScenario):
         # Structure is a base64 encoding of the repo
         if self._output_path is None:
             raise ValueError("Output path not set")
-        repo_path = os.path.join(self._output_path, f"tmp{threading.get_ident()}/{self._subset}")
+        repo_path = os.path.join(self._output_path, f"tmp{threading.get_ident()}_{self._subset}")
         ensure_directory_exists(repo_path)
 
         # Decode the base64 string which corresponds to an archive

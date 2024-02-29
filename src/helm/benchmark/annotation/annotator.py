@@ -11,6 +11,9 @@ class Annotator(ABC):
     information to a request state that is needed for a metric to understand the request. This could be
     parsing, rendering an image based on the text completion, etc."""
 
+    def __init__(self, name: str):
+        self.name = name
+
     @abstractmethod
     def annotate(self, request_state: RequestState) -> List[Dict[str, Any]]:
         """Fills the annotations field of the request state with additional information

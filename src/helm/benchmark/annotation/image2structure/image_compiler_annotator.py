@@ -20,7 +20,8 @@ class CompilationError(Exception):
 class ImageCompilerAnnotator(Annotator, ABC):
     """Annotator that compiles the text completions into an image."""
 
-    def __init__(self, cache_config: CacheConfig, file_cache_path: str):
+    def __init__(self, name: str, cache_config: CacheConfig, file_cache_path: str):
+        super().__init__(name)
         self._cache = Cache(cache_config)
         self._file_cache = LocalPILFileCache(file_cache_path)
 
@@ -33,6 +34,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
         assert request_state.result is not None, "Annotator can only be used after the request has been processed."
         annotations: List[Dict[str, Any]] = []
         for completion in request_state.result.completions:
+            completion_text: str = completion.text.strip()
 
             def do_it():
                 try:
@@ -40,14 +42,14 @@ class ImageCompilerAnnotator(Annotator, ABC):
                     image_path: str = self._file_cache.store_image(
                         lambda: self.compile_completion_into_image(
                             request_state,
-                            completion.text,
+                            completion_text,
                         )
                     )
                     return {"image_path": image_path}
                 except CompilationError as e:
                     return {"error": str(e)}
 
-            cache_key: Dict[str, str] = {"completion": completion.text}
+            cache_key: Dict[str, str] = {"completion": completion_text}
             response, _ = self._cache.get(cache_key, do_it)
-            annotations.append(response)
+            annotations.append({**response, "name": self.name})
         return annotations

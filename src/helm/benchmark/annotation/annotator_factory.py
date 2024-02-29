@@ -36,6 +36,7 @@ class AnnotatorFactory:
         annotator_spec = inject_object_spec_args(
             annotator_spec,
             constant_bindings={
+                "name": annotator_name,
                 "cache_config": cache_config,
             },
             provider_bindings={

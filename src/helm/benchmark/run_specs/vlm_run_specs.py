@@ -84,29 +84,34 @@ def get_multiple_choice_joint_adapter_spec(
 
 
 def get_image2structure_metric_specs(
-    generate_image_metric_class: str,
+    generation_type: str,
     metric_names: Optional[List[str]] = None,
     args: Optional[Dict] = None,
     normalize_by_white_score: bool = False,
     include_edit_similarity: bool = True,
 ) -> List[MetricSpec]:
-    from helm.benchmark.metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric
+    from helm.benchmark.metrics.vision_language.image_metrics import AnnotatedImageMetrics
 
     if metric_names is None:
         metric_names = [
-            GenerateImageFromCompletionMetric.EARTH_MOVER_SIMILARITY,
-            GenerateImageFromCompletionMetric.PIXEL_SIMILARITY,
-            GenerateImageFromCompletionMetric.SIFT_SIMILARITY,
-            GenerateImageFromCompletionMetric.LPIPS_SIMILARITY,
-            GenerateImageFromCompletionMetric.SSIM_SIMILARITY,
-            GenerateImageFromCompletionMetric.FID_SIMILARITY,
+            AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY,
+            AnnotatedImageMetrics.PIXEL_SIMILARITY,
+            AnnotatedImageMetrics.SIFT_SIMILARITY,
+            AnnotatedImageMetrics.LPIPS_SIMILARITY,
+            AnnotatedImageMetrics.SSIM_SIMILARITY,
+            AnnotatedImageMetrics.FID_SIMILARITY,
         ]
     if args is None:
         args = {}
     metric_scpecs = [
         MetricSpec(
-            class_name=generate_image_metric_class,
-            args={"metric_names": metric_names, "normalize_by_white_score": normalize_by_white_score, **args},
+            class_name="helm.benchmark.metrics.vision_language.image_metrics.AnnotatedImageMetrics",
+            args={
+                "generation_type": generation_type,
+                "metric_names": metric_names,
+                "normalize_by_white_score": normalize_by_white_score,
+                **args,
+            },
         ),
     ]
     if include_edit_similarity:
@@ -215,7 +220,7 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = True, args: Optio
         max_tokens=2000,
     )
     metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
-        generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.latex_metrics.LatexMetric",  # noqa: E501
+        generation_type="latex",
         args=args,
         normalize_by_white_score=False,
         include_edit_similarity=True,
@@ -249,11 +254,17 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
         max_tokens=2000,
     )
     metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
-        generate_image_metric_class="helm.benchmark.metrics.vision_language.image2structure.webpage_metrics.WebpageMetric",  # noqa: E501
+        generation_type="webpage",
         args=args,
         normalize_by_white_score=False,
         include_edit_similarity=False,
     )
+    annotator_specs: List[AnnotatorSpec] = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.image2structure.webpage_compiler_annotator.WebpageCompilerAnnotator",
+            name="webpage_compiler",
+        )
+    ]
 
     run_spec_name: str = "image2webpage"
     return RunSpec(
@@ -262,6 +273,7 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=[run_spec_name],
+        annotators=annotator_specs,
     )
 
 
