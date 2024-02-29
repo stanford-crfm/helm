@@ -349,7 +349,7 @@ run_groups:
       when: "2018"
       language: English
 
-  - name: visual_question_answering
+  - name: vqa
     display_name: VQAv2
     description: Open-ended questions about images
     metric_groups:
