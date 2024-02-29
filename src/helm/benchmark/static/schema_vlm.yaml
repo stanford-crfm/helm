@@ -192,6 +192,11 @@ metrics:
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
 
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+
 ############################################################
 perturbations:
   - name: robustness
