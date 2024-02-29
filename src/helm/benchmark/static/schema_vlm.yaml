@@ -340,7 +340,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: exact_match
+      main_name: f1_score
       main_split: test
     taxonomy:
       task: multimodal question answering
@@ -349,8 +349,8 @@ run_groups:
       when: "2018"
       language: English
 
-  - name: vqa
-    display_name: Visual Question Answering
+  - name: visual_question_answering
+    display_name: VQAv2
     description: Open-ended questions about images
     metric_groups:
       - accuracy
@@ -364,6 +364,23 @@ run_groups:
       what: Real-world images
       who: Human experts
       when: "2017"
+      language: English
+
+  - name: math_vista
+    display_name: MathVista
+    description: Evaluating Math Reasoning in Visual Contexts
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: Evaluating Math Reasoning in Visual Contexts
+      who: Human experts
+      when: "2024"
       language: English
 
   - name: mmmu

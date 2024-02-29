@@ -173,7 +173,7 @@ def get_viz_wiz_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.viz_wiz_scenario.VizWizScenario", args={}
     )
     adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "viz_wiz"
     return RunSpec(
