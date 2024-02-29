@@ -1,4 +1,6 @@
-from typing import Optional
+import os
+
+from typing import Optional, List, Dict, Any
 from dataclasses import dataclass, replace
 from helm.common.cache_backend_config import (
     CacheBackendConfig,
@@ -7,31 +9,23 @@ from helm.common.cache_backend_config import (
     SqliteCacheBackendConfig,
 )
 
-from helm.common.general import parallel_map
+from helm.common.general import ensure_directory_exists, parallel_map, get_credentials
 from helm.common.hierarchical_logger import htrack, hlog
-from helm.common.request import RequestResult, Sequence
-from helm.common.authentication import Authentication
-from helm.proxy.services.remote_service import RemoteService
-from helm.proxy.services.server_service import ServerService
-from helm.proxy.services.service import Service
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.annotation.annotator import AnnotatorSpec, Annotator
+from helm.benchmark.annotation.annotator_factory import AnnotatorFactory
+from helm.proxy.services.service import CACHE_DIR
 
 
-class ExecutorError(Exception):
+class AnnotationExecutorError(Exception):
     pass
 
 
 @dataclass(frozen=True)
-class ExecutionSpec:
+class AnnotationExecutionSpec:
 
-    url: Optional[str]
-    """If non-empty, URL of the proxy server we send requests to (e.g., http://localhost:1959)."""
-
-    auth: Authentication
-    """Authentication that will be passed into the local service, if using the local service."""
-
-    local_path: Optional[str]
+    local_path: str
     """Path where API credentials and cache is stored.
 
     This path is the same as `--base-path` when launching the proxy server (see server.py).
@@ -56,18 +50,20 @@ class ExecutionSpec:
     At most one of sqlite_cache_backend_config and mongo_cache_backend_config can be set."""
 
 
-class Executor:
+class AnnotationExecutor:
     """
     An `Executor` takes a `ScenarioState` which has a bunch of requests.
     Issue them to the API and return the results.
     """
 
-    def __init__(self, execution_spec: ExecutionSpec):
+    def __init__(self, execution_spec: AnnotationExecutionSpec):
         self.execution_spec = execution_spec
 
         cache_backend_config: CacheBackendConfig
         if execution_spec.sqlite_cache_backend_config and execution_spec.mongo_cache_backend_config:
-            raise ExecutorError("At most one of sqlite_cache_backend_config and mongo_cache_backend_config can be set.")
+            raise AnnotationExecutorError(
+                "At most one of sqlite_cache_backend_config and mongo_cache_backend_config can be set."
+            )
         elif execution_spec.sqlite_cache_backend_config:
             cache_backend_config = execution_spec.sqlite_cache_backend_config
         elif execution_spec.mongo_cache_backend_config:
@@ -75,49 +71,51 @@ class Executor:
         else:
             cache_backend_config = BlackHoleCacheBackendConfig()
 
-        self.service: Service
-        if execution_spec.url:
-            hlog(f"Running using remote API proxy server: {execution_spec.url}")
-            self.service = RemoteService(execution_spec.url)
-        elif execution_spec.local_path:
-            hlog(f"Running in local mode with base path: {execution_spec.local_path}")
-            self.service = ServerService(
-                base_path=execution_spec.local_path,
-                root_mode=True,
-                cache_backend_config=cache_backend_config,
-            )
-        else:
-            raise ValueError("Either the proxy server URL or the local path must be set")
+        base_path: str = execution_spec.local_path
+        ensure_directory_exists(base_path)
+        client_file_storage_path = os.path.join(base_path, CACHE_DIR)
+        ensure_directory_exists(client_file_storage_path)
+        credentials: Dict[str, str] = get_credentials(base_path)
+        self.factory = AnnotatorFactory(
+            credentials=credentials,
+            file_storage_path=client_file_storage_path,
+            cache_backend_config=cache_backend_config,
+        )
 
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
         if self.execution_spec.dry_run:
-            hlog("Skipped execution.")
+            hlog("Skipped annotation.")
+            return scenario_state
+
+        if scenario_state.annotator_specs is None or len(scenario_state.annotator_specs) == 0:
+            hlog("No annotators to run.")
             return scenario_state
 
         # Do it!
+        def do_it(request_state: RequestState) -> RequestState:
+            assert scenario_state.annotator_specs is not None
+            return self.process(scenario_state.annotator_specs, request_state)
+
         request_states = parallel_map(
-            self.process,
+            do_it,
             scenario_state.request_states,
             parallelism=self.execution_spec.parallelism,
         )
 
-        hlog(f"Processed {len(request_states)} requests")
+        hlog(f"Annotated {len(request_states)} requests")
         return ScenarioState(
             adapter_spec=scenario_state.adapter_spec,
             request_states=request_states,
             annotator_specs=scenario_state.annotator_specs,
         )
 
-    def process(self, state: RequestState) -> RequestState:
+    def process(self, annotator_specs: List[AnnotatorSpec], state: RequestState) -> RequestState:
+        annotations: Dict[str, Any] = {}
         try:
-            result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
+            for annotator_spec in annotator_specs:
+                annotator: Annotator = self.factory.get_annotator(annotator_spec)
+                annotations.update(annotator.annotate(state))
         except Exception as e:
-            raise ExecutorError(f"{str(e)} Request: {state.request}") from e
-        if not result.success:
-            if result.error_flags and not result.error_flags.is_fatal:
-                hlog(f"WARNING: Non-fatal error treated as empty completion: {result.error}")
-                result.completions = [Sequence(text="", logprob=0, tokens=[])]
-            else:
-                raise ExecutorError(f"{str(result.error)} Request: {state.request}")
-        return replace(state, result=result)
+            raise AnnotationExecutorError(f"{str(e)} Request: {state.request}") from e
+        return replace(state, annotations=annotations)
