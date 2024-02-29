@@ -1,9 +1,8 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import numpy as np
 from torchvision import transforms, models
 from tqdm import tqdm
 from skimage.metrics import structural_similarity as ssim
-from abc import ABC, abstractmethod
 import os
 import torch
 import warnings
@@ -33,7 +32,7 @@ class CompilationError(Exception):
     pass
 
 
-class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
+class GenerateImageFromCompletionMetric(EvaluateInstancesMetric):
     """Abstract class for image metrics.
 
     This class is designed to evaluate metrics on images that should be generated using the text
@@ -98,12 +97,6 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
             "completion": completion,
         }
 
-    @abstractmethod
-    def compile_completion_into_image(
-        self, request_state: RequestState, completion: str, ref_image: Image.Image, eval_cache_path: str
-    ) -> Image.Image:
-        raise NotImplementedError
-
     def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         if self._cache is None:
             self._cache = self._get_cache(eval_cache_path)
@@ -123,7 +116,16 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
             name: Stat(MetricName(name)) for name in (self._metric_names + [self.COMPILE_METRIC])
         }
 
-        for request_state in tqdm(request_states, desc="Compiling and evaluating images"):
+        for request_state in tqdm(request_states, desc="Evaluating images"):
+            if (
+                request_state.annotations is None
+                or request_state.result is None
+                or len(request_state.annotations) != len(request_state.result.completions)
+            ):
+                raise ValueError(
+                    "Annotations and results should be present and have the same length.",
+                    " Please make sure to add a compiler annotator to the run spec.",
+                )
             reference = request_state.instance.references[0]
             assert reference.output.multimedia_content is not None
             assert len(reference.output.multimedia_content.media_objects) > 0
@@ -156,31 +158,17 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                 completion.text.strip() for completion in request_result.completions if completion.text
             ]
 
-            for completion in completions:
+            for i, completion in enumerate(completions):
 
-                def do_it():
-                    try:
-                        assert self._file_cache is not None
-                        image_path: str = self._file_cache.store_image(
-                            lambda: self.compile_completion_into_image(
-                                request_state, completion, ref_image, eval_cache_path
-                            )
-                        )
-                        return {"image_path": image_path}
-                    except CompilationError as e:
-                        return {"error": str(e)}
-
-                cache_key = self._get_compilation_cache_key(completion)
-                response, _ = self._cache.get(cache_key, do_it)
-
-                if "error" in response:
+                annotation: Dict[str, Any] = request_state.annotations[i]
+                if "error" in annotation:
                     stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                     # For all other metrics, we set the value to zero
                     for metric_name in self._metric_names:
                         stats_dict[metric_name].add(0)
                     continue
 
-                image: Image.Image = self._file_cache.load_image(response["image_path"])
+                image: Image.Image = self._file_cache.load_image(annotation["image_path"])
 
                 # TODO: Remove this debugging saving
                 image.save(os.path.join(debug_save_path, f"{save_id}_pred.png"))
@@ -245,7 +233,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                         {
                             "metric_name": metric_name,
                             "ref_image_path": ref_media_object.location,
-                            "generated_image_path": response["image_path"],
+                            "generated_image_path": annotation["image_path"],
                             "normalize_by_white_score": self._normalize_by_white_score,
                         },
                         do_it,
