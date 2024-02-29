@@ -346,7 +346,7 @@ run_groups:
       - general_information
     environment:
       main_name: f1_score
-      main_split: test
+      main_split: valid
     taxonomy:
       task: multimodal question answering
       what: images and text
