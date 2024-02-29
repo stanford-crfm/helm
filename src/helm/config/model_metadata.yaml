@@ -630,7 +630,7 @@ models:
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/gemini-pro-vision
-    display_name: Gemini
+    display_name: Gemini Pro Vision
     description: Gemini is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
     creator_organization_name: Google
     access: limited

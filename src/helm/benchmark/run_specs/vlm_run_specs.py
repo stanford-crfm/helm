@@ -257,6 +257,34 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
     )
 
 
+@run_spec_function("math_vista")
+def get_math_vista_spec(grade: str, question_type: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.math_vista_scenario.MathVistaScenario",
+        args={"grade": grade, "question_type": question_type},
+    )
+
+    adapter_spec: AdapterSpec
+    if question_type == "free_form":
+        adapter_spec = get_short_answer_generation_adapter_spec()
+    elif question_type == "multi_choice":
+        adapter_spec = get_multiple_choice_joint_adapter_spec(
+            input_noun=None, output_noun="Answer", max_train_instances=0
+        )
+    else:
+        raise ValueError(f"Invalid question type: {question_type}")
+
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "math_vista"
+    return RunSpec(
+        name=f"{run_spec_name}:grade={grade},question_type={question_type}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("mmmu")
 def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
     scenario_spec = ScenarioSpec(

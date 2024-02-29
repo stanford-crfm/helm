@@ -18,8 +18,8 @@ from helm.common.general import ensure_file_downloaded
 
 class VizWizScenario(Scenario):
     """
-    VizWiz is a real-world visual question answering dataset consisting of questions
-    asked by people who are blind. It originates from a natural visual question answering
+    VizWiz is a real-world visual question answering dataset consisting of questions asked by people who are
+    visually impaired. It originates from a natural visual question answering
     setting where blind people each took an image and recorded a spoken question about it,
     together with 10 crowdsourced answers per visual question.
 
