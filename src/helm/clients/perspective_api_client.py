@@ -8,7 +8,7 @@ from googleapiclient import discovery
 from googleapiclient.errors import BatchError, HttpError
 from googleapiclient.http import BatchHttpRequest
 from httplib2 import HttpLib2Error
-from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
+from helm.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException
 
 from helm.common.cache import Cache, CacheConfig
