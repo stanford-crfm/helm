@@ -1,7 +1,10 @@
 from typing import Dict, List, Any
 
 from helm.benchmark.scenarios.scenario import VALID_SPLIT
-from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import Image2StructureScenario
+from helm.benchmark.scenarios.vision_language.image2structure.image2structure_scenario import (
+    Image2StructureScenario,
+    PROCESSED,
+)
 from helm.benchmark.scenarios.vision_language.image2structure.webpage.jekyll_server import JekyllServer
 from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import (
     save_random_screenshot,
@@ -15,6 +18,7 @@ import threading
 import tarfile
 import shutil
 import time
+import pickle
 
 
 def extract_repo(base64_encoding: str, repo_path: str) -> None:
@@ -133,6 +137,22 @@ class WebpageScenario(Image2StructureScenario):
 
     def preprocess_row(self, row: Dict[str, Any], assets_path: str) -> Dict[str, Any]:
         """Extract the base64 encoding of the repo from the row and return it."""
+        # No need to reprocess if the assets are already saved
+        assets_save_path: str = os.path.join(assets_path, str(row["num_id"]))
+        if os.path.exists(assets_save_path):
+            try:
+                with open(os.path.join(assets_save_path, "assets_paths.pkl"), "rb") as f:
+                    row["assets_paths"] = pickle.load(f)
+                with open(os.path.join(assets_save_path, "assets_names.pkl"), "rb") as f:
+                    row["assets_names"] = pickle.load(f)
+                del row["assets"]
+                row["structure"] = PROCESSED
+                return row
+            except Exception:
+                # There was an issue when loading the assets, reprocess
+                shutil.rmtree(assets_save_path)
+        ensure_directory_exists(assets_save_path)
+
         # Structure is a base64 encoding of the repo
         if self._output_path is None:
             raise ValueError("Output path not set")
@@ -143,7 +163,8 @@ class WebpageScenario(Image2StructureScenario):
         # and extract the files to the repo_path
         structure: str = row["structure"]
         extract_repo(structure, repo_path)
-        row["structure"] = repo_path
+        row["structure"] = PROCESSED
+        row["repo_path"] = repo_path  # Stored for cleanup
 
         # Process the assets
         asset_paths: List[str] = list_assets(row["structure"], self.ASSETS_EXTENSIONS)
@@ -153,10 +174,16 @@ class WebpageScenario(Image2StructureScenario):
         # Copy each asset to a unique persistent path
         for i, asset_local_path in enumerate(asset_paths):
             asset_name: str = asset_local_path
-            asset_dest_path = os.path.join(assets_path, f"{row['num_id']}_{i}.{asset_local_path.split('.')[-1]}")
+            asset_dest_path = os.path.join(assets_save_path, f"{i}.{asset_local_path.split('.')[-1]}")
             shutil.copyfile(os.path.join(row["structure"], asset_local_path), asset_dest_path)
             row["assets_paths"].append(asset_dest_path)
             row["assets_names"].append(asset_name)
+
+        # Save both assets_paths and assets_names as files than can be loaded
+        with open(os.path.join(assets_save_path, "assets_paths.pkl"), "wb") as f:
+            pickle.dump(row["assets_paths"], f)
+        with open(os.path.join(assets_save_path, "assets_names.pkl"), "wb") as f:
+            pickle.dump(row["assets_names"], f)
 
         return row
 
@@ -179,5 +206,6 @@ class WebpageScenario(Image2StructureScenario):
 
     def finalize(self, row: Dict[str, Any]) -> None:
         """Perform cleanup operations after the instance has been generated."""
-        repo_path: str = row["structure"]
-        shutil.rmtree(repo_path)
+        if "repo_path" in row:
+            repo_path: str = row["repo_path"]
+            shutil.rmtree(repo_path)
