@@ -1,7 +1,11 @@
 import dataclasses
 from typing import List
 
-from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, ADAPT_MULTIPLE_CHOICE_JOINT
+from helm.benchmark.adaptation.adapter_spec import (
+    ADAPT_GENERATION,
+    ADAPT_MULTIPLE_CHOICE_JOINT,
+    ADAPT_GENERATION_MULTIMODAL,
+)
 from helm.benchmark.model_deployment_registry import (
     ModelDeployment,
     get_default_model_deployment_for_model,
@@ -20,6 +24,8 @@ from helm.benchmark.model_metadata_registry import (
     NO_NEWLINES_TAG,
     OPENAI_CHATGPT_MODEL_TAG,
     MISTRAL_MODEL_TAG,
+    VISION_LANGUAGE_MODEL_TAG,
+    IDEFICS_MODEL_TAG,
     ModelMetadata,
     get_model_metadata,
 )
@@ -31,6 +37,7 @@ from helm.benchmark.run_expander import (
     GoogleRunExpander,
     IDEFICSInstructRunExpander,
     IncreaseTemperatureRunExpander,
+    IncreaseMaxTokensRunExpander,
     LlavaRunExpander,
     OpenAIRunExpander,
     MistralRunExpander,
@@ -134,9 +141,22 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if MISTRAL_MODEL_TAG in model.tags:
             run_spec = singleton(MistralRunExpander().expand(run_spec))
 
-        # IDEFICS instruct
-        if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:
-            run_spec = singleton(IDEFICSInstructRunExpander().expand(run_spec))
+        # Google Gemini Vision returns an empty completion or throws an error if max_tokens is 1
+        if (
+            VISION_LANGUAGE_MODEL_TAG in model.tags
+            and GOOGLE_GEMINI_MODEL_TAG in model.tags
+            and run_spec.adapter_spec.max_tokens == 1
+        ):
+            run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
+
+        # IDEFICS special handling
+        if IDEFICS_MODEL_TAG in model.tags:
+            # IDEFICS requires more `max_tokens` to generate something reasonable for open-ended generation
+            if run_spec.adapter_spec.method == ADAPT_GENERATION_MULTIMODAL:
+                run_spec = singleton(IncreaseMaxTokensRunExpander(value=30).expand(run_spec))
+
+            if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:
+                run_spec = singleton(IDEFICSInstructRunExpander().expand(run_spec))
 
         # Llava
         if LLAVA_MODEL_TAG in model.tags:
