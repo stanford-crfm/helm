@@ -25,6 +25,8 @@ class WebpageCompilerAnnotator(ImageCompilerAnnotator):
     """Annotator that compiles the text completions into a webpage
     And takes a screenshot of the webpage."""
 
+    name: str = "webpage_compiler"
+
     # Delimiters for the code block
     DELIMITERS: List[Tuple[str, str]] = [
         ("```json", "```"),

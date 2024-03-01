@@ -20,10 +20,9 @@ class CompilationError(Exception):
 class ImageCompilerAnnotator(Annotator, ABC):
     """Annotator that compiles the text completions into an image."""
 
-    def __init__(self, name: str, cache_config: CacheConfig, file_cache_path: str):
-        super().__init__(name)
+    def __init__(self, cache_config: CacheConfig, file_storage_path: str):
         self._cache = Cache(cache_config)
-        self._file_cache = LocalPILFileCache(file_cache_path)
+        self._file_cache = LocalPILFileCache(file_storage_path)
 
     @abstractmethod
     def compile_completion_into_image(self, request_state: RequestState, completion_text: str) -> Image.Image:

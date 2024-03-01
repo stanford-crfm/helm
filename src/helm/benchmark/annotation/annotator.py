@@ -11,8 +11,8 @@ class Annotator(ABC):
     information to a request state that is needed for a metric to understand the request. This could be
     parsing, rendering an image based on the text completion, etc."""
 
-    def __init__(self, name: str):
-        self.name = name
+    name: str
+    """Name of the annotator. Should be filled in by the subclass."""
 
     @abstractmethod
     def annotate(self, request_state: RequestState) -> List[Dict[str, Any]]:
@@ -23,18 +23,18 @@ class Annotator(ABC):
 
 @dataclass(frozen=True)
 class AnnotatorSpec(ObjectSpec):
-    """Specifies how to create an `Annotator`."""
+    """Specifies how to create an `Annotator`.
+    The user should only specify the class name.
+    The arguments will be filled in by the `AnnotatorFactory`.
+    """
 
-    name: str = "annotator"  # Must be initialized since ObjectSpec has default value for args
-    """Name of the annotator. This is used to dispatch to the proper `Annotator`
-    in the factory that turn an `AnnotatorSpec` into an `Annotator`."""
+    pass
 
 
 class DummyAnnotator(Annotator):
     """A dummy annotator that does nothing."""
 
-    def __init__(self, name: str):
-        super().__init__(name)
+    name = "dummy"
 
     def annotate(self, request_state: RequestState) -> List[Dict[str, Any]]:
         if request_state.result is None:

@@ -20,7 +20,7 @@ class TestAnnotatorFactory:
 
     def test_get_annotator(self):
         annotator = self.annotator_factory.get_annotator(
-            AnnotatorSpec(class_name="helm.benchmark.annotation.annotator.DummyAnnotator", name="dummy")
+            AnnotatorSpec(class_name="helm.benchmark.annotation.annotator.DummyAnnotator")
         )
         assert isinstance(annotator, Annotator)
         assert annotator.name == "dummy"

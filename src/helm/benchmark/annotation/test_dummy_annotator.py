@@ -9,7 +9,7 @@ from helm.common.request import Request, RequestResult, Sequence
 
 class TestDummyAnnotator:
     def setup_method(self):
-        self.annotator: Annotator = DummyAnnotator(name="dummy")
+        self.annotator: Annotator = DummyAnnotator()
         self.request_state = RequestState(
             instance=Instance(input=Input(text="hello world"), references=[]),
             request=Request(),

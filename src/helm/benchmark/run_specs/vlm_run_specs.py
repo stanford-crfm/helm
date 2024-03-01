@@ -228,7 +228,6 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = True, args: Optio
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(
             class_name="helm.benchmark.annotation.image2structure.latex_compiler_annotator.LatexCompilerAnnotator",
-            name="latex_compiler",
         )
     ]
 
@@ -262,7 +261,6 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(
             class_name="helm.benchmark.annotation.image2structure.webpage_compiler_annotator.WebpageCompilerAnnotator",
-            name="webpage_compiler",
         )
     ]
 

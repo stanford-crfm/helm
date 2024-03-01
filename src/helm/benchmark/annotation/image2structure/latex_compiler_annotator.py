@@ -14,6 +14,8 @@ except ModuleNotFoundError as e:
 class LatexCompilerAnnotator(ImageCompilerAnnotator):
     """Annotator that compiles the text completions into a LaTeX document."""
 
+    name: str = "latex_compiler"
+
     # Delimiters for the code block
     DELIMITERS: List[Tuple[str, str]] = [
         ("```latex", "```"),
