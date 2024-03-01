@@ -1108,7 +1108,15 @@ models:
     # TODO(#1828): Upgrade to FULL_FUNCTIONALITY_TEXT_MODEL_TAG
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-
+  # Allen Institute for AI
+  - name: allenai/olmo-7b-instruct
+    display_name: OLMo (7B)
+    description: OLMo is a series of Open Language Models trained on the Dolma dataset. The instruct version is trained on the Tulu SFT mixture anda cleaned version of the UltraFeedback dataset
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 13000000000
+    release_date: 2023-10-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
