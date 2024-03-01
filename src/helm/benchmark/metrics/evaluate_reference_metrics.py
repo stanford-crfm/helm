@@ -20,6 +20,7 @@ import re
 import string
 from . import code_metrics_helper
 import nltk
+from pycocoevalcap.cider.cider import Cider
 
 try:
     nltk.data.find("tokenizers/punkt")
@@ -188,6 +189,14 @@ def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
 
+def cider(gold: str, pred: str) -> float:
+    cider_evaluator = Cider()
+    candidate = {"caption": [pred]}
+    reference = {"caption": [gold]}
+    average_score, _ = cider_evaluator.compute_score(reference, candidate)
+    return average_score
+
+
 def extract_set_from_text(
     set_str: str,
     set_start_str: str = " is ",
@@ -325,6 +334,7 @@ def compute_reference_metrics(
         "math_equiv_chain_of_thought": is_equiv_chain_of_thought,
         "code_eval_acc": code_eval,
         "pass": code_eval,
+        "cider": cider,
         "f1_score": f1_score,
         "rouge_1": get_rouge_function("rouge1"),
         "rouge_2": get_rouge_function("rouge2"),

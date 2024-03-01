@@ -196,6 +196,10 @@ metrics:
     display_name: F1
     description: Average F1 score in terms of word overlap between the model output and correct reference.
     lower_is_better: false
+  - name: cider
+    display_name: CIDEr
+    description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
+    lower_is_better: false
 
 ############################################################
 perturbations:
@@ -293,6 +297,23 @@ run_groups:
       - vqa
       - mmmu
       - image2structure
+
+  - name: crossmodal_3600
+    display_name: Crossmodal 3600
+    description: Crossmodal-3600 dataset (XM3600 in short), a geographically-diverse set of 3600 images annotated with human-generated reference captions in 36 languages. ([paper](https://arxiv.org/abs/2205.12522))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: multilingual captioning
+      what: Real-world images
+      who: Human experts
+      when: "2022"
+      language: 36 languages
 
   - name: heim_human_eval
     display_name: HEIM Human Eval Scenario
