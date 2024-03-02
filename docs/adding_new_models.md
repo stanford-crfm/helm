@@ -19,7 +19,7 @@ In the first case, you should create the files `model_deployments.yaml`, `model_
 In the second case, if you want to add a model to HELM, you can directly do it in `src/helm/config`. You can then open a Pull Request on Github to share the model. When you do, make sure to:
 * Include any link justifying the metadata used in `ModelMetadata` such as the release data, number of parameters, capabilities and so on (you should not infer anything).
 * Check that you are respecting the format used in those files (`ModelMetadata` should be named as `<CREATOR-ORGANIZATION>/<MODEL-NAME>` and the `ModelDeployment` should be named as `<HOST-ORGANIZATION>/<MODEL-NAME>`, for example `ModelMetadata`: `openai/gpt2` and `ModelDeployment`: `huggingface/gpt2`). Add the appropriate comments and so on.
-* Run `helm-run --run-specs "mmlu:subject=anatomy,model_deployment=<YOUR-DEPLOYMENT>" --suite v1 --max-eval-instances 10` and make sure that everything works. Include the logs from the terminal in your PR.
+* Run `helm-run --run-entries "mmlu:subject=anatomy,model_deployment=<YOUR-DEPLOYMENT>" --suite v1 --max-eval-instances 10` and make sure that everything works. Include the logs from the terminal in your PR.
 * Not create unnecessary objects (`Client` `TokenizerCOnfig`, `WindowService`) and if you have to create one of these objects, document in your PR why you had to. Make them general enough so that they could be re-used by other models (especially the `Client`).
 
 
@@ -71,6 +71,6 @@ model_deployments:
 
 We won't be adding any `TokenizerConfig` here as we are reusing `simple/model1`. This shows a good practice when adding a new model, always check if the correct tokenizer does not already exists.
 
-You should now be able to run `helm-run --run-specs "mmlu:subject=anatomy,model_deployment=simple/tutorial" --suite v1 --max-eval-instances 10` without any error.
+You should now be able to run `helm-run --run-entries "mmlu:subject=anatomy,model_deployment=simple/tutorial" --suite v1 --max-eval-instances 10` without any error.
 
 
