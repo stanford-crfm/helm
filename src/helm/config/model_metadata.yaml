@@ -1187,6 +1187,37 @@ models:
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
+  # Allen Institute for AI
+  # OLMo Blog: https://blog.allenai.org/olmo-open-language-model-87ccfc95f580
+  - name: allenai/olmo-7B
+    display_name: OLMo (7B)
+    description: OLMo is a series of Open Language Models trained on the Dolma dataset.
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-02-01
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: allenai/olmo-7b-twin-2t
+    display_name: OLMo (7B Twin 2T)
+    description: OLMo is a series of Open Language Models trained on the Dolma dataset.
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-02-01
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: allenai/olmo-7b-twin-2t
+    display_name: OLMo (7B Instruct)
+    description: OLMo is a series of Open Language Models trained on the Dolma dataset. The instruct versions was trained on the Tulu SFT mixture and a cleaned version of the UltraFeedback dataset.
+    creator_organization_name: Allen Institute for AI
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-02-01
+    # TODO: Add instruct tag.
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+
   # Mistral AI
   - name: mistralai/mistral-7b-v0.1
     display_name: Mistral v0.1 (7B)
