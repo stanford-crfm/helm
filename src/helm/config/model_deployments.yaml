@@ -1503,7 +1503,6 @@ model_deployments:
 
 
   # Allen Institute for AI
-
   - name: together/olmo-7b
     model_name: allenai/olmo-7b
     tokenizer_name: allenai/olmo-7b
