@@ -1,6 +1,6 @@
 export default interface ReleaseIndexEntry {
   title: string;
-  desc: string;
+  description: string;
   id: string;
   releases: string[];
 }

@@ -62,7 +62,7 @@ function NavDropdown() {
               className="block"
               role="menuitem"
             >
-              <strong>{item.title}:</strong> {item.desc}
+              <strong>{item.title}:</strong> {item.description}
             </a>
           </li>
         ))}
