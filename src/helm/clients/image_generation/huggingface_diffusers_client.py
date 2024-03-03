@@ -16,7 +16,7 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
-from helm.proxy.clients.client import Client, CachingClient
+from helm.clients.client import Client, CachingClient
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 

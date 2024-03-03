@@ -20,7 +20,7 @@ from helm.common.cache import (
 from helm.common.request import Request
 from helm.common.file_caches.local_file_cache import LocalFileCache
 from helm.common.hierarchical_logger import hlog, htrack_block
-from helm.proxy.clients.image_generation.deep_floyd_client import DeepFloydClient
+from helm.clients.image_generation.deep_floyd_client import DeepFloydClient
 
 
 """

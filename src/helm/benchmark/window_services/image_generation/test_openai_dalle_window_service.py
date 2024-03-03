@@ -2,7 +2,7 @@ import shutil
 import tempfile
 
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.proxy.clients.image_generation.dalle2_client import DALLE2Client
+from helm.clients.image_generation.dalle2_client import DALLE2Client
 from helm.benchmark.window_services.test_utils import get_tokenizer_service, TEST_PROMPT
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.common.cache_backend_config import BlackHoleCacheBackendConfig

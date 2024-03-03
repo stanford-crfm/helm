@@ -7,7 +7,7 @@ import pytest
 
 from helm.common.request import Request, RequestResult
 from helm.common.general import get_credentials
-from helm.proxy.clients.auto_client import AutoClient
+from helm.clients.auto_client import AutoClient
 
 
 @pytest.mark.models

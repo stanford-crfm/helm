@@ -12,10 +12,10 @@ from helm.common.cache_backend_config import CacheBackendConfig, CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
 from helm.common.request import Request, RequestResult
-from helm.proxy.clients.client import Client
-from helm.proxy.clients.moderation_api_client import ModerationAPIClient
+from helm.clients.client import Client
+from helm.clients.moderation_api_client import ModerationAPIClient
 from helm.proxy.critique.critique_client import CritiqueClient
-from helm.proxy.clients.toxicity_classifier_client import ToxicityClassifierClient
+from helm.clients.toxicity_classifier_client import ToxicityClassifierClient
 from helm.proxy.retry import NonRetriableException, retry_request
 from helm.tokenizers.auto_tokenizer import AutoTokenizer
 
@@ -133,7 +133,7 @@ class AutoClient(Client):
         return GCSClient(bucket_name, cache_config)
 
     def get_nudity_check_client(self):
-        from helm.proxy.clients.image_generation.nudity_check_client import NudityCheckClient
+        from helm.clients.image_generation.nudity_check_client import NudityCheckClient
 
         cache_config: CacheConfig = self.cache_backend_config.get_cache_config("nudity")
         return NudityCheckClient(cache_config)
@@ -146,7 +146,7 @@ class AutoClient(Client):
 
     def get_toxicity_classifier_client(self) -> ToxicityClassifierClient:
         """Get the toxicity classifier client. We currently only support Perspective API."""
-        from helm.proxy.clients.perspective_api_client import PerspectiveAPIClient
+        from helm.clients.perspective_api_client import PerspectiveAPIClient
 
         cache_config: CacheConfig = self.cache_backend_config.get_cache_config("perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)

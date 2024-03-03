@@ -5,7 +5,7 @@ from transformers import AutoConfig, AutoModelForCausalLM
 from helm.common.cache import CacheConfig
 
 from helm.common.optional_dependencies import OptionalDependencyNotInstalled
-from helm.proxy.clients.huggingface_client import HuggingFaceClient
+from helm.clients.huggingface_client import HuggingFaceClient
 
 
 _register_open_lm_lock = Lock()

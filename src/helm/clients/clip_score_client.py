@@ -3,7 +3,7 @@ from dataclasses import asdict
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.clip_score_request import DEFAULT_CLIP_SCORE_MODEL, CLIPScoreRequest, CLIPScoreResult
-from helm.proxy.clients.clip_scorers.base_clip_scorer import BaseCLIPScorer
+from helm.clients.clip_scorers.base_clip_scorer import BaseCLIPScorer
 
 
 class CLIPScoreClientError(Exception):
@@ -27,7 +27,7 @@ class CLIPScoreClient:
 
             def do_it():
                 if self._clip_scorer is None:
-                    from helm.proxy.clients.clip_scorers.clip_scorer import CLIPScorer
+                    from helm.clients.clip_scorers.clip_scorer import CLIPScorer
 
                     self._clip_scorer = CLIPScorer()
 

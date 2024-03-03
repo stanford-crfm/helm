@@ -14,7 +14,7 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
 )
 from helm.common.request import wrap_request_time
-from helm.proxy.clients.client import CachingClient, generate_uid_for_multimodal_prompt
+from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 from helm.tokenizers.tokenizer import Tokenizer
 
 try:

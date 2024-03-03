@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List
 from helm.common.cache import create_key_value_store, MongoCacheConfig
 from helm.common.general import parse_hocon
 from helm.common.hierarchical_logger import hlog, htrack
-from helm.proxy.clients.anthropic_client import AnthropicLegacyClient
+from helm.clients.anthropic_client import AnthropicLegacyClient
 from helm.proxy.retry import get_retry_decorator
 
 

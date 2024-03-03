@@ -653,7 +653,7 @@ models:
     creator_organization_name: Google
     access: open
     release_date: 2024-02-21
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMMA_INSTRUCT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-7b
     display_name: Gemma (7B)
@@ -672,7 +672,7 @@ models:
     access: open
     release_date: 2024-02-21
     # TODO: Add OUTPUT_FORMAT_INSTRUCTIONS_TAG tag
-    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMMA_INSTRUCT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/text-bison@001
     display_name: PaLM-2 (Bison)
@@ -1196,6 +1196,16 @@ models:
     release_date: 2023-12-08
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: mistralai/mixtral-8x7b-instruct-v0.1
+    display_name: Mixtral (8x7B Instruct)
+    description: Mixtral (8x7B Instruct) is a version of Mixtral (8x7B) that was optimized through supervised fine-tuning and direct preference optimisation (DPO) for careful instruction following.
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 46700000000
+    # Blog post: https://mistral.ai/news/mixtral-of-experts/
+    release_date: 2023-12-11
+    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]
+
   - name: mistralai/bakLlava-v1-hf
     display_name: BakLLaVA v1 (7B)
     description: BakLLaVA v1 is a Mistral 7B base augmented with the LLaVA 1.5 architecture. ([blog](https://huggingface.co/llava-hf/bakLlava-v1-hf))
@@ -1210,7 +1220,7 @@ models:
     # TODO: Fill in description
     description: TBD
     creator_organization_name: Mistral AI
-    access: closed
+    access: limited
     # Blog post: https://mistral.ai/news/mistral-large/
     release_date: 2023-02-26
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]
@@ -1219,16 +1229,16 @@ models:
     display_name: Mistral Medium (2312)
     description: Mistral is a transformer model that uses Grouped-Query Attention (GQA) and Sliding-Window Attention (SWA).
     creator_organization_name: Mistral AI
-    access: closed
+    access: limited
     release_date: 2023-12-11
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]
 
   - name: mistralai/mistral-large-2402
-    display_name: Mistral Large 
+    display_name: Mistral Large (2402)
     # TODO: Fill in description
     description: TBD
     creator_organization_name: Mistral AI
-    access: closed
+    access: limited
     # Blog post: https://mistral.ai/news/mistral-large/
     release_date: 2023-02-26
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]

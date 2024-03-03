@@ -16,6 +16,7 @@ from helm.benchmark.model_metadata_registry import (
     ANTHROPIC_CLAUDE_2_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
     CHATML_MODEL_TAG,
+    GOOGLE_GEMMA_INSTRUCT_MODEL_TAG,
     GOOGLE_GEMINI_MODEL_TAG,
     GOOGLE_PALM_2_MODEL_TAG,
     IDEFICS_INSTRUCT_MODEL_TAG,
@@ -134,7 +135,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             run_spec = singleton(OpenAIRunExpander().expand(run_spec))
 
         # Google prompts
-        if GOOGLE_PALM_2_MODEL_TAG in model.tags or GOOGLE_GEMINI_MODEL_TAG in model.tags:
+        if (
+            GOOGLE_PALM_2_MODEL_TAG in model.tags
+            or GOOGLE_GEMINI_MODEL_TAG
+            or GOOGLE_GEMMA_INSTRUCT_MODEL_TAG in model.tags
+        ):
             run_spec = singleton(GoogleRunExpander().expand(run_spec))
 
         # Mistral prompts

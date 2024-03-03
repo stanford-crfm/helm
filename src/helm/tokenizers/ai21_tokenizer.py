@@ -12,7 +12,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from helm.proxy.clients.ai21_utils import AI21RequestError, handle_failed_request
+from helm.clients.ai21_utils import AI21RequestError, handle_failed_request
 from .tokenizer import Tokenizer
 
 

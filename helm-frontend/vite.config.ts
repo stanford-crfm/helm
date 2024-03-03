@@ -23,6 +23,7 @@ export default defineConfig({
           react: ["react", "react-dom", "react-markdown", "react-router-dom", "react-spinners"],
           tremor: ["@tremor/react"],
           recharts: ["recharts"],
+          yaml: ["yaml"],
         }
       }
     }

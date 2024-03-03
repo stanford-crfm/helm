@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional
 
 from helm.common.cache import CacheConfig
 from helm.common.request import Request
-from helm.proxy.clients.openai_client import OpenAIClient
+from helm.clients.openai_client import OpenAIClient
 from helm.tokenizers.tokenizer import Tokenizer
 
 
