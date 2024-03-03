@@ -325,9 +325,9 @@ def main():
     This entry point should only be used by SlurmRunner. Users should use `helm-run` instead.
     SlurmRunner has to use this entry point instead of helm-run because there is no way to
     specify the worker Slurm job parameters through `helm-run`. In particular, there is no way
-    to run a specific `RunSpec` using the `--run-specs` parameter of `helm-run`, because the
-    `run-specs` argument is a `RunSpec` description (not a `RunSpec`), and there is no way to
-    convert a `RunSpec` into a `RunSpec` description."""
+    to run a specific `RunSpec` using the `--run-entries` parameter of `helm-run`, because the
+    `run-entries` argument contains `RunEntry` description (not `RunSpec`s), and there is no way to
+    convert a `RunSpec` into a `RunEntry` description."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--slurm-runner-spec-path",
