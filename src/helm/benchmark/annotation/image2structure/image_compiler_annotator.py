@@ -6,6 +6,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.cache import Cache, CacheConfig
 from helm.common.file_caches.local_file_cache import LocalPILFileCache
 from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.media_object import MediaObject
 
 try:
     from PIL import Image
@@ -47,7 +48,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
                     image, infos = self.compile_completion_into_image(request_state, completion_text)
                     infos = self.postprocess_infos(infos)
                     image_path: str = self._file_cache.store_image(lambda: image)
-                    return {"image_path": image_path, **infos}
+                    return {"media_object": MediaObject(location=image_path, content_type="image/png"), **infos}
                 except CompilationError as e:
                     return {"error": str(e)}
 
