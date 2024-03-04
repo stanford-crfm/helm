@@ -9,7 +9,7 @@ from helm.common.cache import CacheConfig
 from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.request import wrap_request_time
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 
@@ -46,9 +46,17 @@ class QwenVLMClient(CachingClient):
         super().__init__(cache_config=cache_config)
         self._device: str = get_torch_device_name()
 
-    def _get_model(self, model_name: str) -> LoadedQwenModelProcessor:
+    def _get_model(self, helm_model_name: str) -> LoadedQwenModelProcessor:
         global _models_lock
         global _models
+
+        model_name: str
+        if helm_model_name == "huggingface/qwen-vl-chat":
+            model_name = "Qwen/Qwen-VL-Chat"
+        elif helm_model_name == "huggingface/qwen-vl":
+            model_name = "Qwen/Qwen-VL"
+        else:
+            raise ValueError(f"Unhandled model name: {helm_model_name}")
 
         # Ensure that only one thread is loading the model at a time
         with _models_lock:
@@ -108,13 +116,15 @@ class QwenVLMClient(CachingClient):
 
                     def do_it() -> Dict[str, Any]:
                         if request.model_deployment == "Qwen/Qwen-VL-Chat":
-                            response, _ = model.chat(tokenizer, query=tokenizer.from_list_format(query), history=None)
+                            completion, _ = model.chat(tokenizer, query=tokenizer.from_list_format(query), history=None)
                         else:
                             inputs = tokenizer(tokenizer.from_list_format(query), return_tensors="pt")
                             inputs = inputs.to(self._device)
                             pred = model.generate(**inputs, **generation_args)
-                            response = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
-                        return {"output": response}
+                            completion = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
+
+                        tokens: List[str] = tokenizer.tokenize(completion)
+                        return {"output": (completion, tokens)}
 
                     # Include the prompt and model name in the cache key
                     cache_key = CachingClient.make_cache_key(
@@ -132,7 +142,7 @@ class QwenVLMClient(CachingClient):
                         success=False, cached=False, error=str(model_error), completions=[], embedding=[]
                     )
 
-                text: str = result["output"]
+                text, tokens = result["output"]
 
                 # Truncate the output text as the original Qwen includes the prompt in the output sequence
                 if request.model_deployment == "Qwen/Qwen-VL":
@@ -141,7 +151,9 @@ class QwenVLMClient(CachingClient):
                     hlog(f"Truncated: {text}")
 
                 # Tokenize truncated text to get the list of tokens
-                completions.append(Sequence(text=text, logprob=0, tokens=[]))
+                completions.append(
+                    Sequence(text=text, logprob=0, tokens=[Token(text=str(token), logprob=0) for token in tokens])
+                )
 
                 request_time += result["request_time"]
                 # Use the datetime from the first completion because that's when the request was fired
