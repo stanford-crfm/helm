@@ -125,7 +125,7 @@ class Sequence:
     tokens: List[Token]
 
     # Why did the sequence finish?
-    finish_reason: Optional[Dict] = None
+    finish_reason: Optional[Dict[str, Any]] = None
 
     # Could be a sequence made up of multimedia content
     multimodal_content: Optional[MultimediaObject] = None

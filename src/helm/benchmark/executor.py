@@ -103,7 +103,11 @@ class Executor:
         )
 
         hlog(f"Processed {len(request_states)} requests")
-        return ScenarioState(scenario_state.adapter_spec, request_states)
+        return ScenarioState(
+            adapter_spec=scenario_state.adapter_spec,
+            request_states=request_states,
+            annotator_specs=scenario_state.annotator_specs,
+        )
 
     def process(self, state: RequestState) -> RequestState:
         try:

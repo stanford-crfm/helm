@@ -8,6 +8,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.scenarios.scenario import ScenarioSpec
+from helm.benchmark.annotation.annotator import AnnotatorSpec
 
 
 @dataclass(frozen=True)
@@ -17,23 +18,26 @@ class RunSpec:
     computes a list of stats based on the defined metrics.
     """
 
-    # Unique identifier of the RunSpec
     name: str
+    """Unique identifier of the RunSpec"""
 
-    # Which scenario
     scenario_spec: ScenarioSpec
+    """Which scenario"""
 
-    # Specifies how to adapt an instance into a set of requests
     adapter_spec: AdapterSpec
+    """Specifies how to adapt an instance into a set of requests"""
 
-    # What to evaluate on
     metric_specs: List[MetricSpec]
+    """What to evaluate on"""
 
-    # Data augmenter. The default `DataAugmenterSpec` does nothing.
     data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
+    """Data augmenter. The default `DataAugmenterSpec` does nothing."""
 
-    # Groups that this run spec belongs to (for aggregation)
     groups: List[str] = field(default_factory=list)
+    """Groups that this run spec belongs to (for aggregation)"""
+
+    annotators: Optional[List[AnnotatorSpec]] = None
+    """Annotators to use for this run spec"""
 
     def __post_init__(self):
         """
