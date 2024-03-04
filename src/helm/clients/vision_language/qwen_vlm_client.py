@@ -96,7 +96,7 @@ class QwenVLMClient(CachingClient):
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
 
         completions: List[Sequence] = []
-        with htrack_block(f"Generating for prompt: {prompt_text}"):
+        with htrack_block(fr"Generating for prompt: {prompt_text}"):
             try:
 
                 def do_it() -> Dict[str, Any]:
