@@ -89,7 +89,7 @@ class OpenFlamingoClient(CachingClient):
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
                     raise ValueError("MediaObject of text type has missing text field value")
-                prompt_text += media_object.text + self.END_OF_CHUNK_TOKEN
+                prompt_text += media_object.text
             else:
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
 
@@ -123,7 +123,7 @@ class OpenFlamingoClient(CachingClient):
                 ), f"Generated text: {generated_text} does not start with prompt: {prompt_text}"
 
                 # Remove the prompt from the generated text
-                generated_text = generated_text[len(prompt_text) :].strip()
+                generated_text = generated_text[len(prompt_text) :].replace(self.END_OF_CHUNK_TOKEN, "").strip()
                 return {"output": generated_text}
 
             cache_key = CachingClient.make_cache_key(
