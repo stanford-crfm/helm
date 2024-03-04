@@ -1,0 +1,144 @@
+from threading import Lock
+from typing import Any, Dict, List, Optional
+
+from dataclasses import dataclass
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers.generation import GenerationConfig
+
+from helm.common.cache import CacheConfig
+from helm.common.gpu_utils import get_torch_device_name
+from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.media_object import TEXT_TYPE
+from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import wrap_request_time
+from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
+
+
+@dataclass(frozen=True)
+class LoadedQwenModelProcessor:
+    """Loaded model and processor for Qwen."""
+
+    model: AutoModelForCausalLM
+    tokenizer: AutoTokenizer
+
+
+_models_lock: Lock = Lock()
+_models: Dict[str, Optional[LoadedQwenModelProcessor]] = {
+    "Qwen/Qwen-VL": None,
+    "Qwen/Qwen-VL-Chat": None,
+}
+
+
+class QwenVLMClient(CachingClient):
+    """
+    From https://huggingface.co/Qwen/Qwen-VL,
+    Qwen-VL (Qwen Large Vision Language Model) is the visual multimodal version of the large model series,
+    Qwen (abbr. Tongyi Qianwen), proposed by Alibaba Cloud. Qwen-VL accepts image, text, and bounding box
+    as inputs, outputs text and bounding box.
+    Alibaba released Qwen-VL and Qwen-VL-Chat, which is a chatbot model based on Qwen-VL.
+    """
+
+    END_OF_TEXT_TOKEN: str = "<|endoftext|>"
+
+    def __init__(self, cache_config: CacheConfig):
+        super().__init__(cache_config=cache_config)
+        self._device: str = get_torch_device_name()
+
+    def _get_model(self, model_name: str) -> LoadedQwenModelProcessor:
+        global _models_lock
+        global _models
+
+        # Ensure that only one thread is loading the model at a time
+        with _models_lock:
+            loaded_model_processor = _models[model_name]
+            if loaded_model_processor is None:
+                hlog(f"Loading model {model_name} and caching in memory...")
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_name, device_map=self._device, trust_remote_code=True
+                ).eval()
+                if model_name == "Qwen/Qwen-VL-Chat":
+                    model.generation_config = GenerationConfig.from_pretrained(model_name, trust_remote_code=True)
+                tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+                _models[model_name] = LoadedQwenModelProcessor(model, tokenizer)
+                loaded_model_processor = _models[model_name]
+
+        assert loaded_model_processor is not None
+        return loaded_model_processor
+
+    def make_request(self, request: Request) -> RequestResult:
+        assert request.model_deployment in _models, f"Not a valid model for this client: {request.model_deployment}"
+        assert request.multimodal_prompt is not None, "Multimodal prompt is required"
+
+        loaded_model_processor: LoadedQwenModelProcessor = self._get_model(request.model_deployment)
+        model = loaded_model_processor.model
+        tokenizer = loaded_model_processor.tokenizer
+
+        generation_args = {
+            "max_length": request.max_tokens,
+        }
+
+        query: List[Dict[str, str]] = []
+        prompt_text: str = ""
+        for media_object in request.multimodal_prompt.media_objects:
+            if media_object.is_type("image") and media_object.location:
+                query.append({"image": media_object.location})
+                prompt_text += f"<img>{media_object.location}</img>"
+            elif media_object.is_type(TEXT_TYPE):
+                if media_object.text is None:
+                    raise ValueError("MediaObject of text type has missing text field value")
+
+                query.append({"text": media_object.text})
+                prompt_text += media_object.text
+            else:
+                raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
+
+        completions: List[Sequence] = []
+        with htrack_block(f"Generating for prompt: {query}"):
+            try:
+
+                def do_it() -> Dict[str, Any]:
+                    if request.model_deployment == "Qwen/Qwen-VL-Chat":
+                        response, _ = model.chat(tokenizer, query=tokenizer.from_list_format(query), history=None)
+                        model.prepare_for_new_chat()
+                    else:
+                        inputs = tokenizer(query, return_tensors="pt")
+                        inputs = inputs.to(self._device)
+                        pred = model.generate(**inputs)
+                        response = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
+
+                    import pdb; pdb.set_trace()
+                    return {"output": response}
+
+                # Include the prompt and model name in the cache key
+                cache_key = CachingClient.make_cache_key(
+                    raw_request={
+                        "n": request.num_completions,
+                        "model": request.model,
+                        "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
+                        **generation_args,
+                    },
+                    request=request,
+                )
+                result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            except RuntimeError as model_error:
+                return RequestResult(success=False, cached=False, error=str(model_error), completions=[], embedding=[])
+
+            for text in result["output"]:
+                hlog(f"Generated text: {text}")
+
+                # Truncate the output text as the original Qwen outputs the entire sequence including the prompt
+                if request.model_deployment == "Qwen/Qwen-VL":
+                    text = text[len(prompt_text) :]
+                    text = text.replace(self.END_OF_TEXT_TOKEN, "")
+                    hlog(f"Truncated: {text}")
+
+                # Tokenize truncated text to get the list of tokens
+                completions.append(Sequence(text=text, logprob=0, tokens=[]))
+
+        return RequestResult(
+            success=True,
+            cached=cached,
+            request_time=result["request_time"],
+            completions=completions,
+            embedding=[],
+        )
