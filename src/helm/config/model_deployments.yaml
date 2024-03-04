@@ -1781,14 +1781,14 @@ model_deployments:
         together_model: Qwen/Qwen1.5-72B
 
   - name: huggingface/qwen-vl
-    model_name: Qwen/Qwen-VL
+    model_name: qwen/qwen-vl
     tokenizer_name: qwen/qwen-vl
     max_sequence_length: 8191
     client_spec:
       class_name: "helm.clients.vision_language.qwen_vlm_client.QwenVLMClient"
 
   - name: huggingface/qwen-vl-chat
-    model_name: Qwen/Qwen-VL-Chat
+    model_name: qwen/qwen-vl-chat
     tokenizer_name: qwen/qwen-vl-chat
     max_sequence_length: 8191
     client_spec:
