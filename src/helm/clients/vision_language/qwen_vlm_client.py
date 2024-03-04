@@ -79,10 +79,13 @@ class QwenVLMClient(CachingClient):
 
         query: List[Dict[str, str]] = []
         prompt_text: str = ""
+
+        image_index: int = 1
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("image") and media_object.location:
                 query.append({"image": media_object.location})
-                prompt_text += f"<img>{media_object.location}</img>"
+                prompt_text += f"Picture {image_index}: <img>{media_object.location}</img>"
+                image_index += 1
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
                     raise ValueError("MediaObject of text type has missing text field value")
