@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import torch
 from huggingface_hub import hf_hub_download
@@ -106,25 +106,31 @@ class OpenFlamingoClient(CachingClient):
         try:
             generation_args = {
                 "max_new_tokens": request.max_tokens,
-                "num_beams": 1,
+                "num_beams": request.num_completions,
             }
 
             def do_it():
-                generated_text: str = self._model.generate(
+                tensors = self._model.generate(
                     vision_x=vision_x.to(self._device),
                     lang_x=lang_x["input_ids"].to(self._device),
                     attention_mask=lang_x["attention_mask"].to(self._device),
                     max_new_tokens=generation_args["max_new_tokens"],
                     num_beams=generation_args["num_beams"],
+                    num_return_sequences=generation_args["num_beams"],
                 )
-                generated_text = self.tokenizer.decode(generated_text[0])
-                assert generated_text.startswith(
-                    prompt_text
-                ), f"Generated text: {generated_text} does not start with prompt: {prompt_text}"
+                generated_completions: List[Tuple[str, List[str]]] = []
+                for tensor in tensors:
+                    generated_text: str = self.tokenizer.decode(tensor)
+                    assert generated_text.startswith(
+                        prompt_text
+                    ), f"Generated text: {generated_text} does not start with prompt: {prompt_text}"
 
-                # Remove the prompt from the generated text
-                generated_text = generated_text[len(prompt_text) :].replace(self.END_OF_CHUNK_TOKEN, "").strip()
-                return {"output": generated_text}
+                    # Remove the prompt from the generated text
+                    generated_text = generated_text[len(prompt_text) :].replace(self.END_OF_CHUNK_TOKEN, "").strip()
+                    raw_tokens: List[str] = self.tokenizer.tokenize(generated_text)
+                    generated_completions.append((generated_text, raw_tokens))
+
+                return {"output": generated_completions}
 
             cache_key = CachingClient.make_cache_key(
                 raw_request={
@@ -138,8 +144,12 @@ class OpenFlamingoClient(CachingClient):
         except RuntimeError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
-        tokens: List[Token] = [Token(text=str(self.tokenizer.decode(id)), logprob=0) for id in lang_x["input_ids"][0]]
-        completions: List[Sequence] = [Sequence(text=result["output"], logprob=0, tokens=tokens)]
+        completions: List[Sequence] = []
+        for text, tokens in result["output"]:
+            completions.append(
+                Sequence(text=result["output"], logprob=0, tokens=[Token(text=token, logprob=0) for token in tokens])
+            )
+
         return RequestResult(
             success=True,
             cached=cached,
