@@ -11,6 +11,13 @@ from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver imp
     ScreenshotOptions,
 )
 from helm.common.general import ensure_directory_exists
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from html2text import HTML2Text
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, suggestions=["image2structure"])
+
 
 import base64
 import os
@@ -55,7 +62,7 @@ def serve_and_take_screenshot(
     destination_path: str,
     screenshot_options: ScreenshotOptions = ScreenshotOptions(),
     max_tries: int = 5,
-) -> None:
+) -> Dict[str, Any]:
     # Start the Jekyll server
     # Select a unique port per thread
     port: int = 4000 + int(threading.get_ident()) % 1000
@@ -71,7 +78,7 @@ def serve_and_take_screenshot(
     error: Exception
     for _ in range(max_tries):
         try:
-            save_random_screenshot(destination_path, port=port, options=screenshot_options)
+            infos: Dict[str, Any] = save_random_screenshot(destination_path, port=port, options=screenshot_options)
             success = True
             break
         except Exception as e:
@@ -90,6 +97,8 @@ def serve_and_take_screenshot(
     # Stop the server
     server.stop()
     time.sleep(0.1)
+
+    return infos
 
 
 class WebpageScenario(Image2StructureScenario):
@@ -134,6 +143,8 @@ class WebpageScenario(Image2StructureScenario):
     ):
         super().__init__(subset, recompile_prompt, split)
         self._screenshot_options = screenshot_options
+        self._html2text = HTML2Text()
+        self._html2text.ignore_links = True
 
     def preprocess_row(self, row: Dict[str, Any], assets_path: str) -> Dict[str, Any]:
         """Extract the base64 encoding of the repo from the row and return it."""
@@ -198,11 +209,13 @@ class WebpageScenario(Image2StructureScenario):
                 prompt += f"- {asset_local_path}\n"
         return prompt
 
-    def compile_and_save(self, structure: str, assets_path: str, destination_path: str) -> None:
+    def compile_and_save(self, structure: str, assets_path: str, destination_path: str) -> str:
         # Structure is the path to the repo
         # Serve and take screenshot
         repo_path: str = structure
-        serve_and_take_screenshot(repo_path, destination_path, self._screenshot_options)
+        infos: Dict[str, Any] = serve_and_take_screenshot(repo_path, destination_path, self._screenshot_options)
+        text: str = self._html2text.handle(infos["html"])
+        return text
 
     def finalize(self, row: Dict[str, Any]) -> None:
         """Perform cleanup operations after the instance has been generated."""

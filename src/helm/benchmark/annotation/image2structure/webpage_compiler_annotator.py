@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 import json
 import os
 import shutil
@@ -17,8 +17,9 @@ from helm.common.cache import CacheConfig
 
 try:
     from PIL import Image
+    from html2text import HTML2Text
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, suggestions=["images"])
+    handle_module_not_found_error(e, suggestions=["image2structure"])
 
 
 class WebpageCompilerAnnotator(ImageCompilerAnnotator):
@@ -33,8 +34,21 @@ class WebpageCompilerAnnotator(ImageCompilerAnnotator):
         ("```", "```"),
     ]
 
-    def compile_completion_into_image(self, request_state: RequestState, completion_text: str) -> Image.Image:
-        """Given a completion, parse the code and compile it into an image."""
+    def __init__(self, cache_config: CacheConfig, file_storage_path: str):
+        super().__init__(cache_config, file_storage_path)
+        self._html2text = HTML2Text()
+        self._html2text.ignore_links = True
+
+    def postprocess_infos(self, infos: Dict[str, Any]) -> Dict[str, Any]:
+        """Postprocess the infos."""
+        assert "html" in infos, "The html field should be present in the infos"
+        infos["text"] = self._html2text.handle(infos["html"])
+        return infos
+
+    def compile_completion_into_image(
+        self, request_state: RequestState, completion_text: str
+    ) -> Tuple[Image.Image, Dict[str, Any]]:
+        """Given a completion, parse the code and compile it into an image and return the image and the infos."""
         # Create a temporary directory to store the files
         cache_config: CacheConfig = self._cache.config
         repo_path: str = "prod_env/tmp"
@@ -109,10 +123,10 @@ class WebpageCompilerAnnotator(ImageCompilerAnnotator):
 
         # Save the screenshot, loads the image and remove the file
         destination_path: str = os.path.join(repo_path, "output.png")
-        serve_and_take_screenshot(repo_path, destination_path, ScreenshotOptions())
+        infos: Dict[str, Any] = serve_and_take_screenshot(repo_path, destination_path, ScreenshotOptions())
         image: Image.Image = Image.open(destination_path)
 
         # Delete the repository
         shutil.rmtree(repo_path)
 
-        return image
+        return image, infos

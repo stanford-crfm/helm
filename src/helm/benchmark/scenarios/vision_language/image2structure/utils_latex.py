@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Dict, Any
 
 import io
 import os
@@ -96,6 +96,19 @@ def pdf_to_image(
         raise Exception("PDF to Image conversion failed")
 
 
+def strip_unnecessary_latex_parts(latex_code: str) -> str:
+    """Strip unnecessary parts of the LaTeX code."""
+    # Remove \documentclass and any \usepackage lines
+    minimal_latex_code = re.sub(r"\\documentclass\{.*?\}\n", "", latex_code)
+    minimal_latex_code = re.sub(r"\\usepackage\{.*?\}\n", "", minimal_latex_code)
+
+    # Remove everything before \begin{document} and including it, and everything after \end{document}
+    minimal_latex_code = re.sub(r".*\\begin\{document\}\n", "", minimal_latex_code, flags=re.DOTALL)
+    minimal_latex_code = re.sub(r"\\end\{document\}.*", "", minimal_latex_code, flags=re.DOTALL)
+
+    return minimal_latex_code.strip()
+
+
 def handle_latex_error(
     e: Exception,
     original_latex_code: str,
@@ -103,7 +116,7 @@ def handle_latex_error(
     crop: bool,
     resize_to: Optional[Tuple[int, int]],
     num_try_remaining: int,
-) -> Tuple[Image, Tuple[int, int]]:
+) -> Tuple[Image, Dict[str, Any]]:
     # Check for error that are caused by the original LaTeX code itself
     # and should not be fixed by trying again with a different code
     # TODO #2346: Make this list more exhaustive
@@ -181,7 +194,7 @@ def handle_latex_error(
         # and not some unclear instructions, so we do not handle it.
         # Error format: "Missing $ inserted" or "<command> allowed only in math mode"
         if "Missing $ inserted" in str(e) or " allowed only in math mode" in str_e:
-            fixed_code = f"${fixed_code}$"
+            fixed_code = f"$${fixed_code}$$"  # Use double $ to avoid inline math mode
 
         # Missing include
         # Missing includes are tolerated as the prompt suggests that it is not necessary to include them,
@@ -233,7 +246,26 @@ def latex_to_image(
     crop: bool = False,
     resize_to: Optional[Tuple[int, int]] = None,
     num_try_remaining: int = MAX_NUM_TRIES,
-) -> Tuple[Image, Tuple[int, int]]:
+) -> Tuple[Image, Dict[str, Any]]:
+    """Convert a LaTeX code to an image.
+
+    Args:
+        original_latex_code (str): The LaTeX code to convert to an image.
+        assets_path (str): The path to the assets.
+        crop (bool, optional): Whether to crop the image. Defaults to False.
+        resize_to (Optional[Tuple[int, int]], optional): The size to resize the image to. Defaults to None.
+        num_try_remaining (int, optional): The number of tries remaining. Defaults to MAX_NUM_TRIES.
+
+    Returns:
+        image (Image): The image of the LaTeX code.
+        infos (Dict[str, Any]): a dictionnary containing:
+            size (Tuple[int, int]): The size of the image.
+            latex_code (str): The modified LaTeX code that was successfully compiled.
+
+    Raises:
+        OptionalDependencyNotInstalled: If LaTeX is not installed.
+        RuntimeError: If the LaTeX code cannot be converted to an image.
+    """
     # Basic LaTeX processing
     # This changes cannot break the original LaTeX code
     # Other processing will be done in the handle_latex_error function
@@ -277,7 +309,7 @@ def latex_to_image(
     try:
         pdf_stream = latex_to_pdf(latex_code, assets_path=assets_path)
         image = pdf_to_image(pdf_stream, crop=crop, resize_to=resize_to)
-        return image, image.size
+        return image, {"image_size": image.size, "latex_code": latex_code}
     except RuntimeError as e:
         if str(e) == "No available builder could be instantiated. Please make sure LaTeX is installed.":
             raise OptionalDependencyNotInstalled(

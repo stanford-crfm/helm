@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.adaptation.request_state import RequestState
@@ -25,8 +25,14 @@ class ImageCompilerAnnotator(Annotator, ABC):
         self._file_cache = LocalPILFileCache(file_storage_path)
 
     @abstractmethod
-    def compile_completion_into_image(self, request_state: RequestState, completion_text: str) -> Image.Image:
+    def compile_completion_into_image(
+        self, request_state: RequestState, completion_text: str
+    ) -> Tuple[Image.Image, Dict[str, Any]]:
         raise NotImplementedError
+
+    def postprocess_infos(self, infos: Dict[str, Any]) -> Dict[str, Any]:
+        """Postprocess the infos."""
+        return infos
 
     def annotate(self, request_state: RequestState) -> List[Dict[str, Any]]:
         """Fills the annotations field of the request state with the compiled image."""
@@ -38,13 +44,10 @@ class ImageCompilerAnnotator(Annotator, ABC):
             def do_it():
                 try:
                     assert self._file_cache is not None
-                    image_path: str = self._file_cache.store_image(
-                        lambda: self.compile_completion_into_image(
-                            request_state,
-                            completion_text,
-                        )
-                    )
-                    return {"image_path": image_path}
+                    image, infos = self.compile_completion_into_image(request_state, completion_text)
+                    infos = self.postprocess_infos(infos)
+                    image_path: str = self._file_cache.store_image(lambda: image)
+                    return {"image_path": image_path, **infos}
                 except CompilationError as e:
                     return {"error": str(e)}
 
