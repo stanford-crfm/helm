@@ -154,7 +154,7 @@ class Runner:
         self.executor = Executor(execution_spec)
         self.annotator_executor = AnnotationExecutor(
             AnnotationExecutionSpec(
-                local_path=execution_spec.local_path or "prod_env",
+                local_path=execution_spec.local_path if execution_spec.local_path is not None else "",
                 parallelism=execution_spec.parallelism,
                 dry_run=execution_spec.dry_run,
                 sqlite_cache_backend_config=execution_spec.sqlite_cache_backend_config,

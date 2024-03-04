@@ -30,6 +30,7 @@ class AnnotatorFactory:
     def get_annotator(self, annotator_spec: AnnotatorSpec) -> Annotator:
         """Return a annotator based on the name."""
         # First try to find the annotator in the cache
+        assert annotator_spec.args is None or annotator_spec.args == {}
         annotator_name: str = annotator_spec.class_name.split(".")[-1].lower().replace("annotator", "")
         annotator: Optional[Annotator] = self.annotators.get(annotator_name)
         if annotator is not None:
