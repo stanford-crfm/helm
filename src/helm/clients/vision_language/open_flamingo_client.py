@@ -147,7 +147,7 @@ class OpenFlamingoClient(CachingClient):
         completions: List[Sequence] = []
         for text, tokens in result["output"]:
             completions.append(
-                Sequence(text=result["output"], logprob=0, tokens=[Token(text=token, logprob=0) for token in tokens])
+                Sequence(text=text, logprob=0, tokens=[Token(text=token, logprob=0) for token in tokens])
             )
 
         return RequestResult(
