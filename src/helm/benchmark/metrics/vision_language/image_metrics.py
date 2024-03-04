@@ -3,7 +3,6 @@ import numpy as np
 from torchvision import transforms, models
 from tqdm import tqdm
 from skimage.metrics import structural_similarity as ssim
-from abc import ABC, abstractmethod
 import os
 import torch
 import warnings
@@ -11,9 +10,7 @@ import warnings
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device
-from helm.common.file_caches.local_file_cache import LocalPILFileCache
 from helm.common.cache import Cache, SqliteCacheConfig
-from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.media_object import MediaObject
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -33,7 +30,7 @@ class CompilationError(Exception):
     pass
 
 
-class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
+class AnnotatedImageMetrics(EvaluateInstancesMetric):
     """Abstract class for image metrics.
 
     This class is designed to evaluate metrics on images that should be generated using the text
@@ -64,7 +61,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
 
     def __init__(
         self,
-        generation_type: str,
+        generation_type: str,  # TODO: This is for debugging purposes, remove it
         metric_names: List[str],
         normalize_by_white_score: bool = False,
         size_handling_method: str = "resize",
@@ -76,14 +73,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         self._device = get_torch_device()
         self._normalize_by_white_score = normalize_by_white_score
         self._cache: Optional[Cache] = None
-        self._file_cache: Optional[LocalPILFileCache] = None
         self._size_handling_method: str = size_handling_method
-
-    # TODO #2391: Make this more configurable and move to MetricService
-    def _get_file_cache(self, file_storage_path: str) -> LocalPILFileCache:
-        # Initialize `FileCache` to store compiled images
-        local_file_cache_path: str = os.path.join(file_storage_path, self.generation_type)
-        return LocalPILFileCache(local_file_cache_path)
 
     # TODO #2391: Make this more configurable and move to MetricService
     def _get_cache(self, path: str) -> Cache:
@@ -98,17 +88,9 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
             "completion": completion,
         }
 
-    @abstractmethod
-    def compile_completion_into_image(
-        self, request_state: RequestState, completion: str, ref_image: Image.Image, eval_cache_path: str
-    ) -> Image.Image:
-        raise NotImplementedError
-
     def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         if self._cache is None:
             self._cache = self._get_cache(eval_cache_path)
-        if self._file_cache is None:
-            self._file_cache = self._get_file_cache(eval_cache_path)
 
         # TODO: Remove this debugging saving
         assert len(request_states) > 0
@@ -117,13 +99,22 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
         )
         os.makedirs(debug_save_path, exist_ok=True)
         # count the number of files in the directory
-        save_id: int = len(os.listdir(debug_save_path))
+        save_id: int = int(len(os.listdir(debug_save_path)) / 3)
 
         stats_dict: Dict[str, Stat] = {
             name: Stat(MetricName(name)) for name in (self._metric_names + [self.COMPILE_METRIC])
         }
 
-        for request_state in tqdm(request_states, desc="Compiling and evaluating images"):
+        for request_state in tqdm(request_states, desc="Evaluating images"):
+            if (
+                request_state.annotations is None
+                or request_state.result is None
+                or len(request_state.annotations) != len(request_state.result.completions)
+            ):
+                raise ValueError(
+                    "Annotations and results should be present and have the same length.",
+                    " Please make sure to add a compiler annotator to the run spec.",
+                )
             reference = request_state.instance.references[0]
             assert reference.output.multimedia_content is not None
             assert len(reference.output.multimedia_content.media_objects) > 0
@@ -150,37 +141,16 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                 gray_white_image = preprocess_image(white_image)
 
             assert request_state.result is not None
-            request_result: RequestResult = request_state.result
-            # Filter out empty completions
-            completions: List[str] = [
-                completion.text.strip() for completion in request_result.completions if completion.text
-            ]
-
-            for completion in completions:
-
-                def do_it():
-                    try:
-                        assert self._file_cache is not None
-                        image_path: str = self._file_cache.store_image(
-                            lambda: self.compile_completion_into_image(
-                                request_state, completion, ref_image, eval_cache_path
-                            )
-                        )
-                        return {"image_path": image_path}
-                    except CompilationError as e:
-                        return {"error": str(e)}
-
-                cache_key = self._get_compilation_cache_key(completion)
-                response, _ = self._cache.get(cache_key, do_it)
-
-                if "error" in response:
+            assert len(request_state.annotations) == len(request_state.result.completions)
+            for annotation in request_state.annotations:
+                if "error" in annotation:
                     stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                     # For all other metrics, we set the value to zero
                     for metric_name in self._metric_names:
                         stats_dict[metric_name].add(0)
                     continue
 
-                image: Image.Image = self._file_cache.load_image(response["image_path"])
+                image: Image.Image = Image.open(annotation["image_path"]).convert("RGB")
 
                 # TODO: Remove this debugging saving
                 image.save(os.path.join(debug_save_path, f"{save_id}_pred.png"))
@@ -245,7 +215,7 @@ class GenerateImageFromCompletionMetric(EvaluateInstancesMetric, ABC):
                         {
                             "metric_name": metric_name,
                             "ref_image_path": ref_media_object.location,
-                            "generated_image_path": response["image_path"],
+                            "generated_image_path": annotation["image_path"],
                             "normalize_by_white_score": self._normalize_by_white_score,
                         },
                         do_it,
