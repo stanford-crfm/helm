@@ -51,9 +51,9 @@ class QwenVLMClient(CachingClient):
         global _models
 
         model_name: str
-        if helm_model_name == "huggingface/qwen-vl-chat":
+        if helm_model_name == "qwen-vl-chat":
             model_name = "Qwen/Qwen-VL-Chat"
-        elif helm_model_name == "huggingface/qwen-vl":
+        elif helm_model_name == "qwen-vl":
             model_name = "Qwen/Qwen-VL"
         else:
             raise ValueError(f"Unhandled model name: {helm_model_name}")
@@ -78,7 +78,7 @@ class QwenVLMClient(CachingClient):
     def make_request(self, request: Request) -> RequestResult:
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
 
-        loaded_model_processor: LoadedQwenModelProcessor = self._get_model(request.model_deployment)
+        loaded_model_processor: LoadedQwenModelProcessor = self._get_model(request.model_engine)
         model = loaded_model_processor.model
         tokenizer = loaded_model_processor.tokenizer
 
@@ -114,7 +114,7 @@ class QwenVLMClient(CachingClient):
                 try:
 
                     def do_it() -> Dict[str, Any]:
-                        if request.model_deployment == "Qwen/Qwen-VL-Chat":
+                        if request.model_engine == "qwen-vl-chat":
                             completion, _ = model.chat(tokenizer, query=tokenizer.from_list_format(query), history=None)
                         else:
                             inputs = tokenizer(tokenizer.from_list_format(query), return_tensors="pt")
@@ -144,7 +144,7 @@ class QwenVLMClient(CachingClient):
                 text, tokens = result["output"]
 
                 # Truncate the output text as the original Qwen includes the prompt in the output sequence
-                if request.model_deployment == "Qwen/Qwen-VL":
+                if request.model_engine == "qwen-vl":
                     text = text[len(prompt_text) :]
                     text = text.replace(self.END_OF_TEXT_TOKEN, "")
                     hlog(f"Truncated: {text}")
