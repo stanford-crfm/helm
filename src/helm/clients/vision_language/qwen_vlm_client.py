@@ -54,7 +54,7 @@ class QwenVLMClient(CachingClient):
             if loaded_model_processor is None:
                 hlog(f"Loading model {model_name} and caching in memory...")
                 model = AutoModelForCausalLM.from_pretrained(
-                    model_name, device_map=self._device, trust_remote_code=True
+                    model_name, device_map=self._device, trust_remote_code=True, bf16=True
                 ).eval()
                 if model_name == "Qwen/Qwen-VL-Chat":
                     model.generation_config = GenerationConfig.from_pretrained(model_name, trust_remote_code=True)
@@ -93,20 +93,24 @@ class QwenVLMClient(CachingClient):
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
 
         completions: List[Sequence] = []
-        with htrack_block(f"Generating for prompt: {query}"):
+        with htrack_block(f"Generating for prompt: {prompt_text}"):
             try:
 
                 def do_it() -> Dict[str, Any]:
                     if request.model_deployment == "Qwen/Qwen-VL-Chat":
                         response, _ = model.chat(tokenizer, query=tokenizer.from_list_format(query), history=None)
+
+                        # Reset the chat history as each request or query is independent of one another
                         model.prepare_for_new_chat()
                     else:
-                        inputs = tokenizer(query, return_tensors="pt")
+                        inputs = tokenizer(tokenizer.from_list_format(query), return_tensors="pt")
                         inputs = inputs.to(self._device)
                         pred = model.generate(**inputs)
                         response = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
 
-                    import pdb; pdb.set_trace()
+                    import pdb
+
+                    pdb.set_trace()
                     return {"output": response}
 
                 # Include the prompt and model name in the cache key
@@ -123,17 +127,17 @@ class QwenVLMClient(CachingClient):
             except RuntimeError as model_error:
                 return RequestResult(success=False, cached=False, error=str(model_error), completions=[], embedding=[])
 
-            for text in result["output"]:
-                hlog(f"Generated text: {text}")
+            text: str = result["output"]
+            hlog(f"Generated text: {text}")
 
-                # Truncate the output text as the original Qwen outputs the entire sequence including the prompt
-                if request.model_deployment == "Qwen/Qwen-VL":
-                    text = text[len(prompt_text) :]
-                    text = text.replace(self.END_OF_TEXT_TOKEN, "")
-                    hlog(f"Truncated: {text}")
+            # Truncate the output text as the original Qwen includes the prompt in the output sequence
+            if request.model_deployment == "Qwen/Qwen-VL":
+                text = text[len(prompt_text) :]
+                text = text.replace(self.END_OF_TEXT_TOKEN, "")
+                hlog(f"Truncated: {text}")
 
-                # Tokenize truncated text to get the list of tokens
-                completions.append(Sequence(text=text, logprob=0, tokens=[]))
+            # Tokenize truncated text to get the list of tokens
+            completions.append(Sequence(text=text, logprob=0, tokens=[]))
 
         return RequestResult(
             success=True,
