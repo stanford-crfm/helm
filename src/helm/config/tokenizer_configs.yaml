@@ -273,6 +273,7 @@ tokenizer_configs:
       args:
         pretrained_model_name_or_path: Qwen/Qwen-VL
         trust_remote_code: true
+    # Source: https://github.com/QwenLM/Qwen-VL
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
@@ -282,6 +283,7 @@ tokenizer_configs:
       args:
         pretrained_model_name_or_path: Qwen/Qwen-VL-Chat
         trust_remote_code: true
+    # Source: https://github.com/QwenLM/Qwen-VL
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 

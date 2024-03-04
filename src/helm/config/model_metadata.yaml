@@ -1741,7 +1741,7 @@ models:
 
   - name: Qwen/Qwen-VL
     display_name: Qwen-VL
-    description: Visual multimodal version of the large model series, Qwen
+    description: Visual multimodal version of the large model series ([paper](https://arxiv.org/abs/2308.12966)).
     creator_organization_name: Alibaba Cloud
     access: open
     release_date: 2023-08-24
@@ -1749,7 +1749,7 @@ models:
 
   - name: Qwen/Qwen-VL-Chat
     display_name: Qwen-VL Chat
-    description: Chat version of the visual multimodal model, Qwen-VL
+    description: Chat version of the visual multimodal model Qwen ([paper](https://arxiv.org/abs/2308.12966)).
     creator_organization_name: Alibaba Cloud
     access: open
     release_date: 2023-08-24

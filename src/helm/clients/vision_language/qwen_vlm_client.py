@@ -36,6 +36,8 @@ class QwenVLMClient(CachingClient):
     Qwen (abbr. Tongyi Qianwen), proposed by Alibaba Cloud. Qwen-VL accepts image, text, and bounding box
     as inputs, outputs text and bounding box.
     Alibaba released Qwen-VL and Qwen-VL-Chat, which is a chatbot model based on Qwen-VL.
+
+    Paper: https://arxiv.org/abs/2308.12966
     """
 
     END_OF_TEXT_TOKEN: str = "<|endoftext|>"
@@ -131,7 +133,6 @@ class QwenVLMClient(CachingClient):
                     )
 
                 text: str = result["output"]
-                hlog(f"Generated text: {text}")
 
                 # Truncate the output text as the original Qwen includes the prompt in the output sequence
                 if request.model_deployment == "Qwen/Qwen-VL":
