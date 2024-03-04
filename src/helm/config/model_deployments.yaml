@@ -1767,3 +1767,17 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: Qwen/Qwen1.5-72B
+
+  - name: Qwen/Qwen-VL
+    model_name: Qwen/Qwen-VL
+    tokenizer_name: qwen/qwen-vl
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen_vlm_client.QwenVLMClient"
+
+  - name: Qwen/Qwen-VL-Chat
+    model_name: Qwen/Qwen-VL-Chat
+    tokenizer_name: qwen/qwen-vl-chat
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.vision_language.qwen_vlm_client.QwenVLMClient"
