@@ -76,7 +76,6 @@ class QwenVLMClient(CachingClient):
         return loaded_model_processor
 
     def make_request(self, request: Request) -> RequestResult:
-        assert request.model_deployment in _models, f"Not a valid model for this client: {request.model_deployment}"
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
 
         loaded_model_processor: LoadedQwenModelProcessor = self._get_model(request.model_deployment)
