@@ -3,7 +3,6 @@ from typing import List, Optional
 
 import torch
 from huggingface_hub import hf_hub_download
-from helm.proxy.clients.vision_language.open_flamingo import create_model_and_transforms
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog, htrack_block
@@ -13,7 +12,8 @@ from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.request import wrap_request_time
-from helm.proxy.clients.client import CachingClient, generate_uid_for_multimodal_prompt
+from helm.clients.vision_language.open_flamingo import create_model_and_transforms
+from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
 
 try:
     from PIL import Image
