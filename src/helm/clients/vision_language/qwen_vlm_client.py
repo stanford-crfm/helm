@@ -84,7 +84,7 @@ class QwenVLMClient(CachingClient):
         for media_object in request.multimodal_prompt.media_objects:
             if media_object.is_type("image") and media_object.location:
                 query.append({"image": media_object.location})
-                prompt_text += f"Picture {image_index}: <img>{media_object.location}</img>"
+                prompt_text += f"Picture {image_index}: <img>{media_object.location}</img>\n"
                 image_index += 1
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
@@ -96,56 +96,62 @@ class QwenVLMClient(CachingClient):
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
 
         completions: List[Sequence] = []
-        with htrack_block(fr"Generating for prompt: {prompt_text}"):
-            try:
+        request_time: float = 0
+        request_datetime: Optional[int] = None
+        all_cached: bool = True
 
-                def do_it() -> Dict[str, Any]:
-                    if request.model_deployment == "Qwen/Qwen-VL-Chat":
-                        response, _ = model.chat(tokenizer, query=tokenizer.from_list_format(query), history=None)
+        with htrack_block(f"Generating for prompt: {prompt_text}"):
+            for completion_index in range(request.num_completions):
+                try:
 
-                        # Reset the chat history as each request or query is independent of one another
-                        model.prepare_for_new_chat()
-                    else:
-                        inputs = tokenizer(tokenizer.from_list_format(query), return_tensors="pt")
-                        inputs = inputs.to(self._device)
-                        pred = model.generate(**inputs)
-                        response = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
+                    def do_it() -> Dict[str, Any]:
+                        if request.model_deployment == "Qwen/Qwen-VL-Chat":
+                            response, _ = model.chat(tokenizer, query=tokenizer.from_list_format(query), history=None)
+                        else:
+                            inputs = tokenizer(tokenizer.from_list_format(query), return_tensors="pt")
+                            inputs = inputs.to(self._device)
+                            pred = model.generate(**inputs, **generation_args)
+                            response = tokenizer.decode(pred.cpu()[0], skip_special_tokens=False)
+                        return {"output": response}
 
-                    import pdb
+                    # Include the prompt and model name in the cache key
+                    cache_key = CachingClient.make_cache_key(
+                        raw_request={
+                            "completion_index": completion_index,
+                            "model": request.model,
+                            "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
+                            **generation_args,
+                        },
+                        request=request,
+                    )
+                    result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                except RuntimeError as model_error:
+                    return RequestResult(
+                        success=False, cached=False, error=str(model_error), completions=[], embedding=[]
+                    )
 
-                    pdb.set_trace()
-                    return {"output": response}
+                text: str = result["output"]
+                hlog(f"Generated text: {text}")
 
-                # Include the prompt and model name in the cache key
-                cache_key = CachingClient.make_cache_key(
-                    raw_request={
-                        "n": request.num_completions,
-                        "model": request.model,
-                        "prompt": generate_uid_for_multimodal_prompt(request.multimodal_prompt),
-                        **generation_args,
-                    },
-                    request=request,
-                )
-                result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            except RuntimeError as model_error:
-                return RequestResult(success=False, cached=False, error=str(model_error), completions=[], embedding=[])
+                # Truncate the output text as the original Qwen includes the prompt in the output sequence
+                if request.model_deployment == "Qwen/Qwen-VL":
+                    text = text[len(prompt_text) :]
+                    text = text.replace(self.END_OF_TEXT_TOKEN, "")
+                    hlog(f"Truncated: {text}")
 
-            text: str = result["output"]
-            hlog(f"Generated text: {text}")
+                # Tokenize truncated text to get the list of tokens
+                completions.append(Sequence(text=text, logprob=0, tokens=[]))
 
-            # Truncate the output text as the original Qwen includes the prompt in the output sequence
-            if request.model_deployment == "Qwen/Qwen-VL":
-                text = text[len(prompt_text) :]
-                text = text.replace(self.END_OF_TEXT_TOKEN, "")
-                hlog(f"Truncated: {text}")
-
-            # Tokenize truncated text to get the list of tokens
-            completions.append(Sequence(text=text, logprob=0, tokens=[]))
+                request_time += result["request_time"]
+                # Use the datetime from the first completion because that's when the request was fired
+                request_datetime = request_datetime or result.get("request_datetime")
+                all_cached = all_cached and cached
 
         return RequestResult(
             success=True,
-            cached=cached,
-            request_time=result["request_time"],
+            cached=all_cached,
+            request_time=request_time,
+            request_datetime=request_datetime,
             completions=completions,
             embedding=[],
         )
