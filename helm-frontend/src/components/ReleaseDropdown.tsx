@@ -1,18 +1,50 @@
 import { useEffect, useState } from "react";
-import getBenchmarkRelease from "@/utils/getBenchmarkRelease";
 import getReleaseSummary from "@/services/getReleaseSummary";
 import ReleaseSummary from "@/types/ReleaseSummary";
-import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
+import ReleaseIndexEntry from "@/types/ReleaseIndexEntry";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import getReleaseUrl from "@/utils/getReleaseUrl";
 
 function ReleaseDropdown() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [summary, setSummary] = useState<ReleaseSummary>({
-    release: "",
-    suites: [],
+    release: undefined,
+    suites: undefined,
+    suite: undefined,
     date: "",
   });
-  const release = getBenchmarkRelease();
-  const suite = getBenchmarkSuite();
+
+  const [currReleaseIndexEntry, setCurrReleaseIndexEntry] = useState<
+    ReleaseIndexEntry | undefined
+  >();
+
+  useEffect(() => {
+    fetch("/releaseIndex.json")
+      .then((response) => response.json())
+      .then((data: ReleaseIndexEntry[]) => {
+        // set currReleaseIndexEntry to val where releaseIndexEntry.id matches window.RELEASE_INDEX_ID
+        if (window.RELEASE_INDEX_ID) {
+          const currentEntry = data.find(
+            (entry) => entry.id === window.RELEASE_INDEX_ID,
+          );
+          setCurrReleaseIndexEntry(currentEntry);
+          // handles falling back to HELM lite as was previously done in this file
+        } else {
+          const currentEntry = data.find((entry) => entry.id === "lite");
+          setCurrReleaseIndexEntry(currentEntry);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching JSON:", error);
+      });
+  }, []);
+
+  function getReleases(): string[] {
+    return currReleaseIndexEntry !== undefined &&
+      currReleaseIndexEntry.releases !== undefined
+      ? currReleaseIndexEntry.releases
+      : ["v1.0.0"];
+  }
+
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
@@ -24,63 +56,49 @@ function ReleaseDropdown() {
     return () => controller.abort();
   }, []);
 
-  const accessibleReleases = ["v0.4.0", "v0.3.0", "v0.2.2"]; // this could also read from a config file in the future
+  const releases = getReleases();
+
+  const releaseInfo = `Release ${
+    summary.release || summary.suite || "unknown"
+  } (${summary.date})`;
+
+  if (releases.length <= 1) {
+    return <div>{releaseInfo}</div>;
+  }
 
   return (
-    <div>
-      <div className="inline-flex items-center">
-        {/* Chevron Button */}
-        <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-        >
-          <div>
-            {" "}
-            Release:{" "}
-            {(release == "null" || release == null ? suite : release) +
-              " : " +
-              summary.date}{" "}
-          </div>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 ml-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
+    <div className="dropdown">
+      <div
+        tabIndex={0}
+        role="button"
+        className="normal-case bg-white border-0"
+        aria-haspopup="true"
+        aria-controls="menu"
+      >
+        {releaseInfo}{" "}
+        <ChevronDownIcon
+          fill="black"
+          color="black"
+          className="inline text w-4 h-4"
+        />
       </div>
-
-      {dropdownOpen && (
-        <div className="absolute mt-2 w-max translate-x-4 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-          <div
-            className="py-1"
-            role="menu"
-            aria-orientation="vertical"
-            aria-labelledby="options-menu"
-          >
-            {accessibleReleases.map((currRelease) => (
-              <div
-                className="block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                role="menuitem"
-              >
-                <a href={"https://crfm.stanford.edu/helm/" + currRelease}>
-                  <div className="flex items-center">
-                    <span>{currRelease}</span>
-                  </div>
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <ul
+        tabIndex={0}
+        className="dropdown-content z-[1] menu p-1 shadow-lg bg-base-100 rounded-box w-max text-base"
+        role="menu"
+      >
+        {releases.map((release) => (
+          <li>
+            <a
+              href={getReleaseUrl(release, currReleaseIndexEntry)}
+              className="block"
+              role="menuitem"
+            >
+              {release}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

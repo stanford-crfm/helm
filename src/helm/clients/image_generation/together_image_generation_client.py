@@ -12,7 +12,7 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 
-from helm.proxy.clients.client import CachingClient, Client
+from helm.clients.client import CachingClient, Client
 from .image_generation_client_utils import get_single_image_multimedia_object
 
 

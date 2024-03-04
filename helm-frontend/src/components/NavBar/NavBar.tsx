@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import crfmLogo from "@/assets/crfm-logo.png";
-//import helmLogo from "@/assets/helm-logo-simple.png";
+import helmLogo from "@/assets/helm-logo-simple.png";
 import NavDropdown from "@/components/NavDropdown";
 import ReleaseDropdown from "../ReleaseDropdown";
 
@@ -43,6 +43,9 @@ export default function NavBar() {
       <div className="flex-1 items-center">
         <Link to="https://crfm.stanford.edu/" className="w-24">
           <img src={crfmLogo} className="object-contain" />
+        </Link>
+        <Link to="/" className="mx-2 w-32">
+          <img src={helmLogo} className="object-contain" />
         </Link>
         <NavDropdown></NavDropdown>
       </div>

@@ -13,7 +13,7 @@ from helm.common.request import (
     Token,
 )
 from helm.common.tokenization_request import TokenizationRequest
-from helm.proxy.clients.client import CachingClient, truncate_sequence
+from helm.clients.client import CachingClient, truncate_sequence
 from helm.tokenizers.tokenizer import Tokenizer
 
 
