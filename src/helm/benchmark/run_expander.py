@@ -447,6 +447,26 @@ class LlavaRunExpander(RunExpander):
         ]
 
 
+class OpenFlamingoRunExpander(RunExpander):
+    """
+    Custom prompt for OpenFlamingo following: https://huggingface.co/openflamingo/OpenFlamingo-9B-vitl-mpt7b
+    """
+
+    name = "open_flamingo"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec,
+                    input_prefix=f"<|endofchunk|>{run_spec.adapter_spec.input_prefix}",
+                ),
+            ),
+        ]
+
+
 class FormatPromptRunExpander(RunExpander):
     """Adds a prefix and suffix to the prompt."""
 
