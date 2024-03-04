@@ -107,6 +107,7 @@ class OpenFlamingoClient(CachingClient):
             generation_args = {
                 "max_new_tokens": request.max_tokens,
                 "num_beams": request.num_completions,
+                "n": request.num_completions,
             }
 
             def do_it():
