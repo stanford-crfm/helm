@@ -267,6 +267,26 @@ tokenizer_configs:
     end_of_text_token: "<|endoftext|>"
     prefix_token: ""
 
+  - name: qwen/qwen-vl
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Qwen/Qwen-VL
+        trust_remote_code: true
+    # Source: https://github.com/QwenLM/Qwen-VL
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
+  - name: qwen/qwen-vl-chat
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Qwen/Qwen-VL-Chat
+        trust_remote_code: true
+    # Source: https://github.com/QwenLM/Qwen-VL
+    end_of_text_token: "<|endoftext|>"
+    prefix_token: ""
+
   # Tiiuae
   - name: tiiuae/falcon-7b
     tokenizer_spec:
