@@ -57,4 +57,11 @@ export default function Indicator({ stats }: Props) {
     }
     return <BadgeError value={`exact match: ${stats["exact_match"]}`} />;
   }
+  
+  if (stats["accuracy"] !== undefined) {
+    if (stats["accuracy"] > 0) {
+      return <BadgeSuccess value={`accuracy: ${stats["accuracy"]}`} />;
+    }
+    return <BadgeError value={`accuracy: ${stats["accuracy"]}`} />;
+  }
 }
