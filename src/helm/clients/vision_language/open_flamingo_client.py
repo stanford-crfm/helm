@@ -96,11 +96,7 @@ class OpenFlamingoClient(CachingClient):
         # Preprocess
         vision_x: torch.Tensor = torch.cat([self.image_processor(image).unsqueeze(0) for image in images], dim=0)
         vision_x = vision_x.unsqueeze(1).unsqueeze(0)
-
-        lang_x = self.tokenizer(
-            [prompt_text],
-            return_tensors="pt",
-        )
+        lang_x = self.tokenizer([prompt_text], return_tensors="pt")
 
         # Generate
         try:
@@ -141,7 +137,11 @@ class OpenFlamingoClient(CachingClient):
         completions: List[Sequence] = []
         for text, tokens in result["output"]:
             # Remove the prompt from the generated text
-            text = text[len(prompt_text) :].replace(self.END_OF_CHUNK_TOKEN, "").strip()
+            text = (
+                text[len(prompt_text) :].replace(self.END_OF_CHUNK_TOKEN, "").strip()
+                if len(text) >= len(prompt_text)
+                else text[-1]
+            )
             completions.append(
                 Sequence(text=text, logprob=0, tokens=[Token(text=token, logprob=0) for token in tokens])
             )
