@@ -98,13 +98,29 @@ def pdf_to_image(
 
 def strip_unnecessary_latex_parts(latex_code: str) -> str:
     """Strip unnecessary parts of the LaTeX code."""
+
+    # Remove comments
+    minimal_latex_code = re.sub(r"%.*?\n", "\n", latex_code)
+
     # Remove \documentclass and any \usepackage lines
     minimal_latex_code = re.sub(r"\\documentclass\{.*?\}\n", "", latex_code)
-    minimal_latex_code = re.sub(r"\\usepackage\{.*?\}\n", "", minimal_latex_code)
+    minimal_latex_code = re.sub(r"\\usepackage(\[.*?\])?\{.*?\}\n", "", minimal_latex_code)
 
     # Remove everything before \begin{document} and including it, and everything after \end{document}
-    minimal_latex_code = re.sub(r".*\\begin\{document\}\n", "", minimal_latex_code, flags=re.DOTALL)
+    minimal_latex_code = re.sub(r"\\begin\{document\}\n*", "", minimal_latex_code, flags=re.DOTALL)
     minimal_latex_code = re.sub(r"\\end\{document\}.*", "", minimal_latex_code, flags=re.DOTALL)
+
+    # Ensure \begin{...} is followed by a \n
+    minimal_latex_code = re.sub(r"(\\begin\{.*?\}(\[.*?\])?)(?!\n)", r"\1\n", minimal_latex_code)
+
+    # Normalize space sequences to a single space globally
+    minimal_latex_code = re.sub(r" +", " ", minimal_latex_code)
+    # Replace tabs with a single space
+    minimal_latex_code = re.sub(r"\t", " ", minimal_latex_code)
+    # Remove leading and trailing spaces on each line
+    minimal_latex_code = re.sub(r"^[ \t]+|[ \t]+$", "", minimal_latex_code, flags=re.MULTILINE)
+    # Remove unnecessary whitespace - multiple empty lines and tabulations
+    minimal_latex_code = re.sub(r"\n\s*\n", "\n", minimal_latex_code)
 
     return minimal_latex_code.strip()
 
