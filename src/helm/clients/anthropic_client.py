@@ -235,7 +235,6 @@ class AnthropicMessagesClient(CachingClient):
         self.api_key: Optional[str] = api_key
 
     def make_request(self, request: Request) -> RequestResult:
-
         if request.max_tokens > AnthropicMessagesClient.MAX_OUTPUT_TOKENS:
             raise AnthropicMessagesRequestError(
                 f"Request.max_tokens must be <= {AnthropicMessagesClient.MAX_OUTPUT_TOKENS}"
