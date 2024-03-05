@@ -23,7 +23,7 @@ class AnthropicTokenizer(CachingTokenizer):
         super().__init__(cache_config)
         with AnthropicTokenizer.LOCK:
             self._tokenizer: PreTrainedTokenizerBase = PreTrainedTokenizerFast(
-                tokenizer_object=anthropic.get_tokenizer()
+                tokenizer_object=anthropic.Anthropic().get_tokenizer()
             )
 
     def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
