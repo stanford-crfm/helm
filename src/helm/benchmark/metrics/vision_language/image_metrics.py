@@ -150,7 +150,12 @@ class AnnotatedImageMetrics(EvaluateInstancesMetric):
                         stats_dict[metric_name].add(0)
                     continue
 
-                image: Image.Image = Image.open(annotation["image_path"]).convert("RGB")
+                assert "media_object" in annotation, "No media object in the annotation"
+                assert isinstance(annotation["media_object"], MediaObject)
+                media_object: MediaObject = annotation["media_object"]
+                assert media_object.type == "image"
+                assert media_object.is_local_file and media_object.location is not None
+                image: Image.Image = Image.open(media_object.location).convert("RGB")
 
                 # TODO: Remove this debugging saving
                 image.save(os.path.join(debug_save_path, f"{save_id}_pred.png"))
@@ -215,7 +220,7 @@ class AnnotatedImageMetrics(EvaluateInstancesMetric):
                         {
                             "metric_name": metric_name,
                             "ref_image_path": ref_media_object.location,
-                            "generated_image_path": annotation["image_path"],
+                            "generated_image_path": media_object.location,
                             "normalize_by_white_score": self._normalize_by_white_score,
                         },
                         do_it,
