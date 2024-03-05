@@ -248,7 +248,8 @@ class AnthropicMessagesClient(CachingClient):
         if request.messages:
             messages = cast(List[MessageParam], request.messages)
             if messages[0]["role"] == "system":
-                system_message = messages.pop(0)
+                system_message = messages[0]
+                messages = messages[1:]
         else:
             messages = [{"role": "user", "content": request.prompt}]
 
