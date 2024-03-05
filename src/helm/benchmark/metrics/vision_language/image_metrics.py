@@ -11,7 +11,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.common.images_utils import open_image
 from helm.common.gpu_utils import get_torch_device
-from helm.common.cache import Cache, SqliteCacheConfig
+from helm.common.cache import Cache
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.media_object import MediaObject
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -81,13 +81,6 @@ class AnnotatedImageMetrics(Metric):
         self._cache: Optional[Cache] = None
         self._size_handling_method: str = size_handling_method
 
-    # TODO #2391: Make this more configurable and move to MetricService
-    def _get_cache(self, path: str) -> Cache:
-        # Initialize `Cache` to store metric results and completions to the path
-        # of the compiled image stored in the `LocalPILFileCache`
-        sql_cache_path: str = os.path.join(path, f"{self.generation_type}.sqlite")
-        return Cache(SqliteCacheConfig(sql_cache_path))
-
     def _get_compilation_cache_key(self, completion: str) -> Dict[str, str]:
         return {
             "generation_type": self.generation_type,
@@ -102,7 +95,7 @@ class AnnotatedImageMetrics(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         if self._cache is None:
-            self._cache = self._get_cache(eval_cache_path)
+            self._cache = metric_service.get_cache(f"image_metrics_{self.generation_type}")
 
         # TODO: Remove this debugging saving
         debug_save_path = os.path.join(
