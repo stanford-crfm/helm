@@ -2,8 +2,9 @@ from typing import List, Tuple, Optional
 import json
 import os
 import shutil
+import threading
 
-from helm.benchmark.metrics.vision_language.image_metrics import GenerateImageFromCompletionMetric, CompilationError
+from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import (
@@ -11,6 +12,8 @@ from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver imp
 )
 from helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario import serve_and_take_screenshot
 from helm.benchmark.scenarios.scenario import ASSET_NAME_TAG, ASSET_PATH_TAG
+from helm.common.general import ensure_directory_exists
+from helm.common.cache import CacheConfig
 
 try:
     from PIL import Image
@@ -18,39 +21,42 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["images"])
 
 
-class WebpageMetric(GenerateImageFromCompletionMetric):
+class WebpageCompilerAnnotator(ImageCompilerAnnotator):
+    """Annotator that compiles the text completions into a webpage
+    And takes a screenshot of the webpage."""
+
+    name: str = "webpage_compiler"
+
+    # Delimiters for the code block
     DELIMITERS: List[Tuple[str, str]] = [
         ("```json", "```"),
+        ("```", "```"),
     ]
 
-    def __init__(
-        self,
-        metric_names: List[str],
-        normalize_by_white_score: bool = False,
-        screenshot_options: ScreenshotOptions = ScreenshotOptions(),
-    ):
-        super().__init__("webpage", metric_names, normalize_by_white_score)
-        self._screenshot_options = screenshot_options
-
-    def compile_completion_into_image(
-        self, request_state: RequestState, completion: str, ref_image: Image.Image, eval_cache_path: str
-    ) -> Image.Image:
+    def compile_completion_into_image(self, request_state: RequestState, completion_text: str) -> Image.Image:
         """Given a completion, parse the code and compile it into an image."""
-        repo_path: str = os.path.join(eval_cache_path, "repo")
+        # Create a temporary directory to store the files
+        cache_config: CacheConfig = self._cache.config
+        repo_path: str = "prod_env/tmp"
+        if hasattr(cache_config, "path"):
+            repo_path = os.path.join(os.path.dirname(cache_config.path), "tmp")
+        # Make the repo path thread safe by adding the thread id
+        repo_path = f"{repo_path}_{threading.get_ident()}"
+        ensure_directory_exists(repo_path)
 
         # Check for code block delimiters
         # After this completion should be a valid json object
         for start, end in self.DELIMITERS:
-            if start in completion and end in completion[completion.index(start) + len(start) :]:
-                start_index = completion.index(start) + len(start)
-                end_index = completion.index(end, start_index)
-                completion = completion[start_index:end_index]
+            if start in completion_text and end in completion_text[completion_text.index(start) + len(start) :]:
+                start_index = completion_text.index(start) + len(start)
+                end_index = completion_text.index(end, start_index)
+                completion_text = completion_text[start_index:end_index]
                 break
 
         # Parse code into json object
         structure: dict
         try:
-            structure = json.loads(completion)
+            structure = json.loads(completion_text)
         except json.JSONDecodeError as e:
             raise CompilationError(f"Failed to parse the completion as a JSON object: {e}") from e
 
@@ -103,7 +109,7 @@ class WebpageMetric(GenerateImageFromCompletionMetric):
 
         # Save the screenshot, loads the image and remove the file
         destination_path: str = os.path.join(repo_path, "output.png")
-        serve_and_take_screenshot(repo_path, destination_path, self._screenshot_options)
+        serve_and_take_screenshot(repo_path, destination_path, ScreenshotOptions())
         image: Image.Image = Image.open(destination_path)
 
         # Delete the repository

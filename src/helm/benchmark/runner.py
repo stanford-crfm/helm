@@ -30,6 +30,7 @@ from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.run_spec import RunSpec
 from helm.benchmark.data_preprocessor import DataPreprocessor
 from helm.benchmark.executor import ExecutionSpec, Executor
+from helm.benchmark.annotation_executor import AnnotationExecutionSpec, AnnotationExecutor
 from helm.benchmark.metrics.dry_run_metrics import DryRunMetric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
@@ -151,6 +152,15 @@ class Runner:
         exit_on_error: bool,
     ):
         self.executor = Executor(execution_spec)
+        self.annotator_executor = AnnotationExecutor(
+            AnnotationExecutionSpec(
+                local_path=execution_spec.local_path if execution_spec.local_path is not None else "",
+                parallelism=execution_spec.parallelism,
+                dry_run=execution_spec.dry_run,
+                sqlite_cache_backend_config=execution_spec.sqlite_cache_backend_config,
+                mongo_cache_backend_config=execution_spec.mongo_cache_backend_config,
+            )
+        )
         self.dry_run: bool = execution_spec.dry_run
         self.tokenizer_service = TokenizerService(self.executor.service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.service, execution_spec.auth)
@@ -267,10 +277,17 @@ class Runner:
         # Adapt (convert to requests)
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
         request_states: List[RequestState] = adapter.adapt(instances, self.executor.execution_spec.parallelism)
-        scenario_state: ScenarioState = ScenarioState(run_spec.adapter_spec, request_states)
+        scenario_state: ScenarioState = ScenarioState(
+            adapter_spec=run_spec.adapter_spec,
+            request_states=request_states,
+            annotator_specs=run_spec.annotators,
+        )
 
         # Execute (fill up results)
         scenario_state = self.executor.execute(scenario_state)
+
+        # Annotate (post-process the results)
+        scenario_state = self.annotator_executor.execute(scenario_state)
 
         # Apply the metrics
         # When performing a dry run, only estimate the number of tokens instead

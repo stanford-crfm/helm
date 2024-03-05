@@ -630,7 +630,7 @@ models:
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/gemini-pro-vision
-    display_name: Gemini
+    display_name: Gemini Pro Vision
     description: Gemini is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
     creator_organization_name: Google
     access: limited
@@ -1146,6 +1146,16 @@ models:
     num_parameters: 13000000000
     release_date: 2023-10-05
     tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
+    
+  
+  - name: openflamingo/OpenFlamingo-9B-vitl-mpt7b
+    display_name: OpenFlamingo (9B)
+    description: OpenFlamingo is an open source implementation of DeepMind's Flamingo models. This 9B-parameter model uses a CLIP ViT-L/14 vision encoder and MPT-7B language model. ([paper](https://arxiv.org/abs/2308.01390))
+    creator_organization_name: OpenFlamingo
+    access: open
+    num_parameters: 9000000000
+    release_date: 2023-08-02
+    tags: [VISION_LANGUAGE_MODEL_TAG, OPEN_FLAMINGO_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
 
   - name: microsoft/phi-2
     display_name: Phi-2
@@ -1728,6 +1738,22 @@ models:
     access: open
     release_date: 2024-02-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen-vl
+    display_name: Qwen-VL
+    description: Visual multimodal version of the large model series ([paper](https://arxiv.org/abs/2308.12966)).
+    creator_organization_name: Alibaba Cloud
+    access: open
+    release_date: 2023-08-24
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+
+  - name: qwen/qwen-vl-chat
+    display_name: Qwen-VL Chat
+    description: Chat version of the visual multimodal model Qwen ([paper](https://arxiv.org/abs/2308.12966)).
+    creator_organization_name: Alibaba Cloud
+    access: open
+    release_date: 2023-08-24
+    tags: [VISION_LANGUAGE_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
   # Salesforce
   - name: salesforce/codegen # NOT SUPPORTED

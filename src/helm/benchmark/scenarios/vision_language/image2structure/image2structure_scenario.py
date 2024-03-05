@@ -21,6 +21,8 @@ from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
 
+PROCESSED: str = "processed"
+
 
 class Image2StructureScenario(Scenario):
     BASE_PROMPT: str
@@ -139,14 +141,24 @@ class Image2StructureScenario(Scenario):
                 reference = Reference(
                     output=Output(
                         multimedia_content=MultimediaObject(
-                            [image_object]
-                            # [image_object, MediaObject(location=row["structure"], content_type="path/path")]
+                            [image_object, MediaObject(location=row["structure"], content_type="path/path")]
                         )
                     ),
                     tags=[CORRECT_TAG],
                 )
+            elif row["structure"] == PROCESSED:
+                # 5.a.2 The structure has been processed and is no longer present in the row
+                # This can be the case if the structure is a base64 encoding of an archive that
+                # has been extracted to a temporary path and processed but the path is no longer
+                # existing (deleted after the processing is done)
+                reference = Reference(
+                    output=Output(
+                        multimedia_content=MultimediaObject([image_object]),
+                    ),
+                    tags=[CORRECT_TAG],  # TODO: Add assets
+                )
             else:
-                # 5.a.2 The structure is not a path, therefore it is directly a valid string
+                # 5.a.3 The structure is not a path, therefore it is directly a valid string
                 # representing the structure (such as LaTeX code)
                 reference = Reference(
                     output=Output(
