@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Callable
 import numpy as np
 from torchvision import transforms, models
 from skimage.metrics import structural_similarity as ssim
@@ -28,6 +28,7 @@ from helm.benchmark.metrics.vision_language.image_utils import (
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
     from PIL import Image
+    import imagehash
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["image2structure"])
 
@@ -64,6 +65,10 @@ class AnnotatedImageMetrics(Metric):
     NORMALIZE_FID_FACTOR: float = 0.0025
 
     SIZE_HANDLING_METHODS: List[str] = ["resize", "none"]
+
+    # Hashing (for caching)
+    HASH_LENGTH: int = 16
+    HASH_FUNC: Callable = imagehash.average_hash
 
     def __init__(
         self,
@@ -204,6 +209,10 @@ class AnnotatedImageMetrics(Metric):
                 [self.SSIM_SIMILARITY, self.compute_ssim, gray_image, gray_ref_image, gray_white_image, False],
             ]
 
+            hash_dict = {
+                "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+                "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(image, hash_size=self.HASH_LENGTH)),
+            }
             for metric_name, metric_fn, image1, image2, white_image, can_compute_on_white in metric_runs:
                 if metric_name not in self._metric_names:
                     continue
@@ -222,9 +231,8 @@ class AnnotatedImageMetrics(Metric):
                 response_metric, _ = self._cache.get(
                     {
                         "metric_name": metric_name,
-                        "ref_image_path": ref_media_object.location,
-                        "generated_image_path": media_object.location,
                         "normalize_by_white_score": self._normalize_by_white_score,
+                        **hash_dict,
                     },
                     do_it,
                 )
