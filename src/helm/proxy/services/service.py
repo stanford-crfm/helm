@@ -21,6 +21,7 @@ from helm.common.request import Request, RequestResult
 from helm.benchmark.model_metadata_registry import ModelMetadata
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.accounts import Authentication, Account
+from helm.common.cache import CacheConfig
 
 VERSION = "1.0"
 ACCOUNTS_FILE = "accounts.sqlite"
@@ -172,4 +173,9 @@ class Service(ABC):
     @abstractmethod
     def shutdown(self, auth: Authentication):
         """Shutdown server."""
+        pass
+
+    @abstractmethod
+    def get_cache_config(self, shard_name: str) -> CacheConfig:
+        """Returns a CacheConfig"""
         pass

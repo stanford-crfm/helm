@@ -57,7 +57,8 @@ class Image2StructureScenario(Scenario):
         return self.BASE_PROMPT
 
     @abstractmethod
-    def compile_and_save(self, structure: str, assets_path: str, destination_path: str) -> None:
+    def compile_and_save(self, structure: str, assets_path: str, destination_path: str) -> str:
+        """Compile the prompt, should save the image and return the text extracted from the image"""
         pass
 
     def finalize(self, row: Dict[str, Any]) -> None:
@@ -119,7 +120,10 @@ class Image2StructureScenario(Scenario):
                     row["image"].save(image_path)
                 else:  # 2.b
                     structure: str = row["structure"]
-                    self.compile_and_save(structure, assets_path, image_path)
+                    text: str = self.compile_and_save(structure, assets_path, image_path)
+                    row["text"] = text
+            else:
+                row["text"] = "This image has already been processed and the prompt is not recompiled."
 
             # Step 3: Create the prompt
             prompt: str = self.build_prompt(row)
@@ -133,43 +137,32 @@ class Image2StructureScenario(Scenario):
 
             # Step 5: Create the references
             # 5.a Create the reference containing the structure and the associated image.
-            reference: Reference
+            multimedia_object: MultimediaObject
             if os.path.exists(row["structure"]):
                 # 5.a.1 The structure is a path, therefore represent it as a multimedia object
                 # containing the files used to compile the structure (such as a repository
                 # containing the HTML, CSS, and JavaScript files used to generate a webpage)
-                reference = Reference(
-                    output=Output(
-                        multimedia_content=MultimediaObject(
-                            [image_object, MediaObject(location=row["structure"], content_type="path/path")]
-                        )
-                    ),
-                    tags=[CORRECT_TAG],
+                multimedia_object = MultimediaObject(
+                    [image_object, MediaObject(location=row["structure"], content_type="path/path")]
                 )
             elif row["structure"] == PROCESSED:
                 # 5.a.2 The structure has been processed and is no longer present in the row
                 # This can be the case if the structure is a base64 encoding of an archive that
                 # has been extracted to a temporary path and processed but the path is no longer
                 # existing (deleted after the processing is done)
-                reference = Reference(
-                    output=Output(
-                        multimedia_content=MultimediaObject([image_object]),
-                    ),
-                    tags=[CORRECT_TAG],  # TODO: Add assets
-                )
+                multimedia_object = MultimediaObject([image_object])
             else:
                 # 5.a.3 The structure is not a path, therefore it is directly a valid string
                 # representing the structure (such as LaTeX code)
-                reference = Reference(
-                    output=Output(
-                        text=row["structure"],
-                        multimedia_content=MultimediaObject([image_object]),
-                    ),
-                    tags=[CORRECT_TAG],  # TODO: Add assets
-                )
+                multimedia_object = MultimediaObject([image_object])
+            reference = Reference(
+                output=Output(text=row["text"], multimedia_content=multimedia_object),
+                tags=[CORRECT_TAG],
+            )
             references: List[Reference] = [reference]
+
+            # 5.b Create the reference containing the assets
             if len(row["assets_paths"]) > 0:
-                # 5.b Create the reference containing the assets
                 assets_paths_reference: Reference = Reference(
                     output=Output(
                         text=", ".join(
