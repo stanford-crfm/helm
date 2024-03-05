@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypedDict, cast
 import json
 import requests
 import time
@@ -20,14 +20,26 @@ from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
+from helm.proxy.retry import NonRetriableException
 from helm.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence
+from helm.clients.client import CachingClient, truncate_sequence, truncate_and_tokenize_response_text
 
 try:
-    import anthropic
+    from anthropic import Anthropic
+    from anthropic.types import MessageParam
     import websocket
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["anthropic"])
+
+
+class AnthropicCompletionRequest(TypedDict):
+    prompt: str
+    stop_sequences: List[str]
+    model: str
+    max_tokens_to_sample: int
+    temperature: float
+    top_p: float
+    top_k: int
 
 
 class AnthropicClient(CachingClient):
@@ -63,12 +75,12 @@ class AnthropicClient(CachingClient):
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
         self.api_key: Optional[str] = api_key
-        self._client = anthropic.Client(api_key) if api_key else None
+        self.client = Anthropic(api_key=api_key)
 
-    def _send_request(self, raw_request: Dict[str, Any]) -> Dict[str, Any]:
+    def _send_request(self, raw_request: AnthropicCompletionRequest) -> Dict[str, Any]:
         if self.api_key is None:
             raise Exception("API key is not set. Please set it in the HELM config file.")
-        result = self._client.completion(**raw_request)
+        result = self.client.completions.create(**raw_request).model_dump()
         assert "error" not in result, f"Request failed with error: {result['error']}"
         return result
 
@@ -103,7 +115,7 @@ class AnthropicClient(CachingClient):
         if request.max_tokens == 0 and not request.echo_prompt:
             raise ValueError("echo_prompt must be True when max_tokens=0.")
 
-        raw_request = {
+        raw_request: AnthropicCompletionRequest = {
             "prompt": request.prompt,
             "stop_sequences": request.stop_sequences,
             "model": request.model_engine,
@@ -179,6 +191,104 @@ class AnthropicClient(CachingClient):
             # TODO(#1512): Fix this with post-processing.
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
+
+        return RequestResult(
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
+            request_datetime=response["request_datetime"],
+            completions=completions,
+            embedding=[],
+        )
+
+
+class AnthropicMessagesRequest(TypedDict, total=False):
+    messages: List[MessageParam]
+    model: str
+    stop_sequences: List[str]
+    system: str
+    max_tokens: int
+    temperature: float
+    top_k: int
+    top_p: float
+
+
+class AnthropicMessagesRequestError(NonRetriableException):
+    pass
+
+
+class AnthropicMessagesResponseError(Exception):
+    pass
+
+
+class AnthropicMessagesClient(CachingClient):
+    # Source: https://docs.anthropic.com/claude/docs/models-overview
+    MAX_OUTPUT_TOKENS = 4096
+
+    def __init__(
+        self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: Optional[str] = None
+    ):
+        super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
+        self.client = Anthropic(api_key=api_key)
+        self.api_key: Optional[str] = api_key
+
+    def make_request(self, request: Request) -> RequestResult:
+
+        if request.max_tokens > AnthropicMessagesClient.MAX_OUTPUT_TOKENS:
+            raise AnthropicMessagesRequestError(
+                f"Request.max_tokens must be <= {AnthropicMessagesClient.MAX_OUTPUT_TOKENS}"
+            )
+
+        messages: List[MessageParam] = []
+        system_message: Optional[MessageParam] = None
+        if request.messages and request.prompt:
+            raise AnthropicMessagesRequestError("Exactly one of Request.messages and Request.prompt should be set")
+        if request.messages:
+            messages = cast(List[MessageParam], request.messages)
+            if messages[0]["role"] == "system":
+                system_message = messages.pop(0)
+        else:
+            messages = [{"role": "user", "content": request.prompt}]
+
+        raw_request: AnthropicMessagesRequest = {
+            "messages": messages,
+            "model": request.model_engine,
+            "stop_sequences": request.stop_sequences,
+            "max_tokens": request.max_tokens,
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+            "top_k": request.top_k_per_token,
+        }
+        if system_message is not None:
+            raw_request["system"] = cast(str, system_message["content"])
+        completions: List[Sequence] = []
+
+        # `num_completions` is not supported, so instead make `num_completions` separate requests.
+        for completion_index in range(request.num_completions):
+
+            def do_it() -> Dict[str, Any]:
+                result = self.client.messages.create(**raw_request).model_dump()
+                if "content" not in result or not result["content"]:
+                    raise AnthropicMessagesResponseError(f"Anthropic response has empty content: {result}")
+                elif "text" not in result["content"][0]:
+                    raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
+                return result
+
+            cache_key = CachingClient.make_cache_key(
+                {
+                    "completion_index": completion_index,
+                    **raw_request,
+                },
+                request,
+            )
+
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            completion = truncate_and_tokenize_response_text(
+                response["content"][0]["text"], request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
+            )
+            completions.append(completion)
 
         return RequestResult(
             success=True,
