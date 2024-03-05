@@ -1189,7 +1189,7 @@ models:
 
   # Allen Institute for AI
   # OLMo Blog: https://blog.allenai.org/olmo-open-language-model-87ccfc95f580
-  - name: allenai/olmo-7B
+  - name: allenai/olmo-7b
     display_name: OLMo (7B)
     description: OLMo is a series of Open Language Models trained on the Dolma dataset.
     creator_organization_name: Allen Institute for AI
