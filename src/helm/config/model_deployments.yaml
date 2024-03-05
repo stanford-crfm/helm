@@ -1501,6 +1501,30 @@ model_deployments:
       args:
         together_model: zero-one-ai/Yi-34B
 
+
+  # Allen Institute for AI
+  - name: together/olmo-7b
+    model_name: allenai/olmo-7b
+    tokenizer_name: allenai/olmo-7b
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/olmo-7b-twin-2t
+    model_name: allenai/olmo-7b-twin-2t
+    tokenizer_name: allenai/olmo-7b
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/olmo-7b-instruct
+    model_name: allenai/olmo-7b-instruct
+    tokenizer_name: allenai/olmo-7b
+    max_sequence_length: 2047
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+
   ## MistralAI
   - name: together/mistral-7b-v0.1
     model_name: mistralai/mistral-7b-v0.1
