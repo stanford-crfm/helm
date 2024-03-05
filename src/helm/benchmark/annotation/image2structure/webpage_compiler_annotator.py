@@ -7,9 +7,8 @@ import threading
 from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import (
-    ScreenshotOptions,
-)
+from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver import ScreenshotOptions
+from helm.benchmark.scenarios.vision_language.image2structure.webpage.utils import convert_html_to_text
 from helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario import serve_and_take_screenshot
 from helm.benchmark.scenarios.scenario import ASSET_NAME_TAG, ASSET_PATH_TAG
 from helm.common.general import ensure_directory_exists
@@ -42,7 +41,7 @@ class WebpageCompilerAnnotator(ImageCompilerAnnotator):
     def postprocess_infos(self, infos: Dict[str, Any]) -> Dict[str, Any]:
         """Postprocess the infos."""
         assert "html" in infos, "The html field should be present in the infos"
-        infos["text"] = self._html2text.handle(infos["html"])
+        infos["text"] = convert_html_to_text(self._html2text, infos["html"])
         return infos
 
     def compile_completion_into_image(

@@ -10,6 +10,7 @@ from helm.benchmark.scenarios.vision_language.image2structure.webpage.driver imp
     save_random_screenshot,
     ScreenshotOptions,
 )
+from helm.benchmark.scenarios.vision_language.image2structure.webpage.utils import convert_html_to_text
 from helm.common.general import ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 
@@ -214,7 +215,7 @@ class WebpageScenario(Image2StructureScenario):
         # Serve and take screenshot
         repo_path: str = structure
         infos: Dict[str, Any] = serve_and_take_screenshot(repo_path, destination_path, self._screenshot_options)
-        text: str = self._html2text.handle(infos["html"])
+        text: str = convert_html_to_text(self._html2text, infos["html"])
         return text
 
     def finalize(self, row: Dict[str, Any]) -> None:
