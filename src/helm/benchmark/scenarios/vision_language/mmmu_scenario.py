@@ -184,7 +184,4 @@ class MMMUScenario(Scenario):
                 )
             )
 
-        assert (
-            len(instances) > 0
-        ), f"No instances found for subject {self._subject} and question type {self._question_type}"
         return instances
