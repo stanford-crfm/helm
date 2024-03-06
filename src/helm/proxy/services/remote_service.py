@@ -5,6 +5,8 @@ import urllib.parse
 from dataclasses import asdict
 from typing import Any, List, Optional
 
+from helm.common.cache import CacheConfig
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from helm.common.authentication import Authentication
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
@@ -177,6 +179,10 @@ class RemoteService(Service):
         except requests.exceptions.ConnectionError:
             # A ConnectionError is expected when shutting down the server.
             pass
+
+    def get_cache_config(self, shard_name: str) -> CacheConfig:
+        """Returns a CacheConfig"""
+        return BlackHoleCacheBackendConfig().get_cache_config(shard_name)
 
 
 def add_service_args(parser: argparse.ArgumentParser):

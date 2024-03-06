@@ -1,9 +1,12 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 
 from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.benchmark.scenarios.vision_language.image2structure.utils_latex import latex_to_image
+from helm.benchmark.scenarios.vision_language.image2structure.utils_latex import (
+    latex_to_image,
+    strip_unnecessary_latex_parts,
+)
 
 try:
     from PIL import Image
@@ -22,7 +25,15 @@ class LatexCompilerAnnotator(ImageCompilerAnnotator):
         ("```", "```"),
     ]
 
-    def compile_completion_into_image(self, request_state: RequestState, completion_text: str) -> Image.Image:
+    def postprocess_infos(self, infos: Dict[str, Any]) -> Dict[str, Any]:
+        """Postprocess the infos."""
+        assert "latex_code" in infos, "The latex_code field should be present in the infos"
+        infos["text"] = strip_unnecessary_latex_parts(infos["latex_code"])
+        return infos
+
+    def compile_completion_into_image(
+        self, request_state: RequestState, completion_text: str
+    ) -> Tuple[Image.Image, Dict[str, Any]]:
         """Given a completion, parse the LaTeX and compile it into an image."""
         # Get the assets path
         assets_path: str = ""
@@ -38,10 +49,10 @@ class LatexCompilerAnnotator(ImageCompilerAnnotator):
 
         # Convert the latex code to an image
         try:
-            image: Image.Image = latex_to_image(completion_text, assets_path, crop=True)[0]
+            image, infos = latex_to_image(completion_text, assets_path, crop=True)
         except RuntimeError as e:
             # We do not want to catch OptionalDependencyNotInstalled (error with latex installation)
             # because it is a fatal error and should be handled by the user
             raise CompilationError from e
 
-        return image
+        return image, infos

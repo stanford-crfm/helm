@@ -3,6 +3,7 @@ import os
 import signal
 from typing import List, Optional
 
+from helm.common.cache import CacheConfig
 from helm.common.cache_backend_config import CacheBackendConfig, BlackHoleCacheBackendConfig
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
 from helm.common.authentication import Authentication
@@ -65,6 +66,7 @@ class ServerService(Service):
         credentials = get_credentials(base_path)
         accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
 
+        self.cache_backend_config = cache_backend_config
         self.client = AutoClient(credentials, client_file_storage_path, cache_backend_config)
         self.tokenizer = AutoTokenizer(credentials, cache_backend_config)
         self.token_counter = AutoTokenCounter(self.tokenizer)
@@ -243,3 +245,6 @@ class ServerService(Service):
         hlog(f"Shutting down server by killing its own process {pid}...")
         os.kill(pid, signal.SIGTERM)
         hlog("Done.")
+
+    def get_cache_config(self, shard_name: str) -> CacheConfig:
+        return self.cache_backend_config.get_cache_config(shard_name)

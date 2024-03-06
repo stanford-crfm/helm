@@ -8,6 +8,7 @@ from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.proxy.services.service import Service
+from helm.common.cache import Cache
 
 
 class MetricService(TokenizerService):
@@ -32,3 +33,6 @@ class MetricService(TokenizerService):
 
     def make_critique_request(self, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
         return self._service.make_critique_request(self._auth, request)
+
+    def get_cache(self, shard_name: str) -> Cache:
+        return Cache(self._service.get_cache_config(shard_name))
