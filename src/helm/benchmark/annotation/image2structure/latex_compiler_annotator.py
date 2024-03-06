@@ -53,6 +53,6 @@ class LatexCompilerAnnotator(ImageCompilerAnnotator):
         except RuntimeError as e:
             # We do not want to catch OptionalDependencyNotInstalled (error with latex installation)
             # because it is a fatal error and should be handled by the user
-            raise CompilationError from e
+            raise CompilationError(str(e)) from e
 
         return image, infos
