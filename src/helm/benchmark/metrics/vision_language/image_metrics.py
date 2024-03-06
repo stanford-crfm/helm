@@ -3,7 +3,6 @@ from torchvision import transforms, models
 from skimage.metrics import structural_similarity as ssim
 from nltk.tokenize.treebank import TreebankWordTokenizer
 
-import os
 import torch
 import warnings
 import numpy as np
@@ -74,12 +73,7 @@ class AnnotatedImageMetrics(Metric):
     HASH_LENGTH: int = 16
     HASH_FUNC: Callable = imagehash.average_hash
 
-    def __init__(
-        self,
-        generation_type: str,  # TODO: This is for debugging purposes, remove it
-        metric_names: List[str],
-        size_handling_method: str = "resize",
-    ):
+    def __init__(self, generation_type: str, metric_names: List[str], size_handling_method: str = "resize"):
         self.generation_type = generation_type
         self._metric_names: List[str] = metric_names
         self._lpips_metric: Optional[LearnedPerceptualImagePatchSimilarity] = None
@@ -104,14 +98,6 @@ class AnnotatedImageMetrics(Metric):
     ) -> List[Stat]:
         if self._cache is None:
             self._cache = metric_service.get_cache(f"image_metrics_{self.generation_type}")
-
-        # TODO: Remove this debugging saving
-        debug_save_path = os.path.join(
-            eval_cache_path, f"debug/{self.generation_type}/{request_state.request.model_deployment}"
-        )
-        os.makedirs(debug_save_path, exist_ok=True)
-        # count the number of files in the directory
-        save_id: int = int(len(os.listdir(debug_save_path)) / 3)
 
         stats_dict: Dict[str, Stat] = {
             name: Stat(MetricName(name)) for name in (self._metric_names + [self.COMPILE_METRIC])
@@ -165,10 +151,6 @@ class AnnotatedImageMetrics(Metric):
             assert media_object.type == "image"
             assert media_object.is_local_file and media_object.location is not None
             image: Image.Image = Image.open(media_object.location).convert("RGB")
-
-            # TODO: Remove this debugging saving
-            image.save(os.path.join(debug_save_path, f"{save_id}_pred.png"))
-            ref_image.save(os.path.join(debug_save_path, f"{save_id}_ref.png"))
 
             # Handle difference in size
             if image.size != ref_image.size:
@@ -231,16 +213,7 @@ class AnnotatedImageMetrics(Metric):
                     value = response_metric["value"]
                 stats_dict[metric_name].add(value)
 
-                # TODO: Remove this debugging saving
-                # Save metric values in a txt file
-                with open(os.path.join(debug_save_path, f"{save_id}_metrics.txt"), "a") as f:
-                    f.write(f"{metric_name}: {value}\n")
-
             stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
-
-            # TODO: Remove this debugging saving
-            # Save metric values in a txt file
-            save_id += 1
 
         return list(stats_dict.values())
 
