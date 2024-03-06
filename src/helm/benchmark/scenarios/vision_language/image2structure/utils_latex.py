@@ -112,6 +112,8 @@ def strip_unnecessary_latex_parts(latex_code: str) -> str:
 
     # Ensure \begin{...} is followed by a \n
     minimal_latex_code = re.sub(r"(\\begin\{.*?\}(\[.*?\])?)(?!\n)", r"\1\n", minimal_latex_code)
+    # Ensure \end{...} has a \n before it
+    minimal_latex_code = re.sub(r"(\\end\{.*?\})(?!\n)", r"\1\n", minimal_latex_code)
 
     # Normalize space sequences to a single space globally
     minimal_latex_code = re.sub(r" +", " ", minimal_latex_code)
