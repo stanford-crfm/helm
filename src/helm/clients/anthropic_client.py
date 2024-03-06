@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, TypedDict, cast
+from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 import json
 import requests
 import time
@@ -256,7 +256,7 @@ class AnthropicMessagesClient(CachingClient):
             messages = [{"role": "user", "content": request.prompt}]
 
         elif request.multimodal_prompt is not None:
-            blocks = []
+            blocks: List[Union[TextBlockParam, ImageBlockParam]] = []
             for media_object in request.multimodal_prompt.media_objects:
                 if media_object.is_type(IMAGE_TYPE):
                     # TODO(#2439): Refactor out Request validation
@@ -284,6 +284,7 @@ class AnthropicMessagesClient(CachingClient):
                         "text": media_object.text,
                     }
                     blocks.append(text_block)
+            messages = [{"role": "user", "content": blocks}]
 
         else:
             # TODO(#2439): Refactor out Request validation
