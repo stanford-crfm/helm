@@ -48,18 +48,49 @@ def earth_mover_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
     return 1.0 - wasserstein_distance(hist_a, hist_b)
 
 
-def pixel_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
+def pixel_similarity(img_a: np.ndarray, img_b: np.ndarray, threshold: float = 0.5, tolerance: float = 0.02) -> float:
     """
     Measure the pixel-level similarity between two images
+    If the image has a color that occurs more than 100 * threshold percent of the time,
+    Then the associated pixels are ignored and the match is computed only on the other pixels.
+    A tolerance is used to compare each pixels to allow some small variations in color.
+    The tolerance is between 0 (exact match) and 1 (every color is ok)
 
     Args:
         img_a (np.ndarray): the first image
         img_b (np.ndarray): the second image
+        threshold (float): Threshold to ignore dominant colors.
+        tolerance (float): Tolerance for color variation.
     Returns:
-        float: the pixel-level similarity between the images
+        float: the pixel-level similarity between the images (between 0 and 1)
     """
-    height, width = img_a.shape
-    return 1.0 - np.sum(np.abs(img_a - img_b)) / (height * width * 255)
+    if img_a.shape != img_b.shape:
+        raise ValueError("Images must have the same dimensions")
+
+    # Flatten the images
+    img_a_flat = img_a.reshape(-1, img_a.shape[-1])
+    img_b_flat = img_b.reshape(-1, img_b.shape[-1])
+
+    # Calculate color differences with tolerance
+    color_diff = np.linalg.norm(img_a_flat - img_b_flat, axis=1) / 255
+    within_tolerance = color_diff <= tolerance
+
+    # Calculate frequencies of all colors
+    unique_colors, indices = np.unique(np.concatenate((img_a_flat, img_b_flat), axis=0), axis=0, return_inverse=True)
+    color_counts = np.bincount(indices)
+
+    # Identify colors to ignore based on frequency threshold
+    ignore_colors_mask = color_counts > (len(img_a_flat) + len(img_b_flat)) * threshold / 2
+    ignore_in_a = ignore_colors_mask[indices[: len(img_a_flat)]]
+    ignore_in_b = ignore_colors_mask[indices[len(img_a_flat) :]]
+
+    # Apply ignore mask
+    valid_pixels = np.logical_not(np.logical_or(ignore_in_a, ignore_in_b)) & within_tolerance
+
+    # Calculate similarity
+    similarity = np.mean(valid_pixels) if len(valid_pixels) > 0 else 0
+
+    return similarity
 
 
 def sift_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:

@@ -112,6 +112,8 @@ def strip_unnecessary_latex_parts(latex_code: str) -> str:
 
     # Ensure \begin{...} is followed by a \n
     minimal_latex_code = re.sub(r"(\\begin\{.*?\}(\[.*?\])?)(?!\n)", r"\1\n", minimal_latex_code)
+    # Ensure \end{...} has a \n before it
+    minimal_latex_code = re.sub(r"(\\end\{.*?\})(?!\n)", r"\1\n", minimal_latex_code)
 
     # Normalize space sequences to a single space globally
     minimal_latex_code = re.sub(r" +", " ", minimal_latex_code)
@@ -196,7 +198,7 @@ def handle_latex_error(
         r""" already defined.""",
     ]:
         if error_message in str_e:
-            raise RuntimeError from e
+            raise RuntimeError(str(e)) from e
 
     if num_try_remaining > 0:
         # Check if the error is easily fixable
@@ -210,7 +212,13 @@ def handle_latex_error(
         # and not some unclear instructions, so we do not handle it.
         # Error format: "Missing $ inserted" or "<command> allowed only in math mode"
         if "Missing $ inserted" in str(e) or " allowed only in math mode" in str_e:
-            fixed_code = f"$${fixed_code}$$"  # Use double $ to avoid inline math mode
+            # Only wrap the content after \begin{document} and before \end{document}
+            fixed_code = re.sub(
+                r"(?<=\\begin{document})(.*?)(?=\\end{document})",
+                r"$$\1$$",
+                fixed_code,
+                flags=re.DOTALL,
+            )  # Use \begin{equation} instead of $ to avoid inline mode
 
         # Missing include
         # Missing includes are tolerated as the prompt suggests that it is not necessary to include them,
@@ -234,7 +242,7 @@ def handle_latex_error(
                 if f"\\usepackage{{{env_undefined}}}" in fixed_code:
                     # We already tried to include the missing package, but it probably
                     # does not exist, so we raise an error
-                    raise RuntimeError from e
+                    raise RuntimeError(str(e)) from e
 
                 fixed_code = fixed_code.replace(TEX_BEGIN_FILE, TEX_BEGIN_FILE + f"\n\\usepackage{{{env_undefined}}}\n")
 
@@ -253,7 +261,7 @@ def handle_latex_error(
     # - generation error: should not be fixed and raised
     # - easily fixable: should be fixed and tried again
     # If we reach this point, it means that none of the above cases were detected.
-    raise RuntimeError from e
+    raise RuntimeError(str(e)) from e
 
 
 def latex_to_image(
