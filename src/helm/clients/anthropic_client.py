@@ -247,15 +247,22 @@ class AnthropicMessagesClient(CachingClient):
         system_message: Optional[MessageParam] = None
 
         if request.messages is not None:
+            # TODO(#2439): Refactor out Request validation
+            if request.multimodal_prompt is not None or request.prompt:
+                raise AnthropicMessagesRequestError(
+                    "Exactly one of Request.messages, Request.prompt or Request.multimodel_prompt should be set"
+                )
             messages = cast(List[MessageParam], request.messages)
             if messages[0]["role"] == "system":
                 system_message = messages[0]
                 messages = messages[1:]
 
-        elif request.prompt:
-            messages = [{"role": "user", "content": request.prompt}]
-
         elif request.multimodal_prompt is not None:
+            # TODO(#2439): Refactor out Request validation
+            if request.messages is not None or request.prompt:
+                raise AnthropicMessagesRequestError(
+                    "Exactly one of Request.messages, Request.prompt or Request.multimodel_prompt should be set"
+                )
             blocks: List[Union[TextBlockParam, ImageBlockParam]] = []
             for media_object in request.multimodal_prompt.media_objects:
                 if media_object.is_type(IMAGE_TYPE):
@@ -287,10 +294,7 @@ class AnthropicMessagesClient(CachingClient):
             messages = [{"role": "user", "content": blocks}]
 
         else:
-            # TODO(#2439): Refactor out Request validation
-            raise AnthropicMessagesRequestError(
-                "Exactly one of Request.messages, Request.prompt or Request.multimodel_prompt should be set"
-            )
+            messages = [{"role": "user", "content": request.prompt}]
 
         raw_request: AnthropicMessagesRequest = {
             "messages": messages,
