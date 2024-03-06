@@ -18,7 +18,9 @@ function ReleaseDropdown() {
   >();
 
   useEffect(() => {
-    fetch("/releaseIndex.json")
+    fetch(
+      "https://storage.googleapis.com/crfm-helm-public/config/release_index.json",
+    )
       .then((response) => response.json())
       .then((data: ReleaseIndexEntry[]) => {
         // set currReleaseIndexEntry to val where releaseIndexEntry.id matches window.RELEASE_INDEX_ID
