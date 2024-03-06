@@ -1,5 +1,4 @@
 import os
-import pdb
 from typing import List
 
 from datasets import load_dataset
@@ -58,7 +57,6 @@ class Flickr30KScenario(Scenario):
             image_filename: str = row["filename"]
             local_image_path: str = os.path.join(images_path, image_filename)
             image = row["image"]
-            pdb.set_trace()
             if not os.path.exists(local_image_path):
                 image.save(local_image_path)
 
