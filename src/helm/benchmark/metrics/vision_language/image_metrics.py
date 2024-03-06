@@ -1,10 +1,12 @@
 from typing import List, Dict, Optional, Callable
-import numpy as np
 from torchvision import transforms, models
 from skimage.metrics import structural_similarity as ssim
+from nltk.tokenize.treebank import TreebankWordTokenizer
+
 import os
 import torch
 import warnings
+import numpy as np
 
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_service import MetricService
@@ -18,6 +20,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.metrics.copyright_metrics import _edit_similarity
 from helm.benchmark.metrics.vision_language.image_utils import (
     preprocess_image,
     earth_mover_similarity,
@@ -62,6 +65,7 @@ class AnnotatedImageMetrics(Metric):
     LPIPS_SIMILARITY: str = "lpips_similarity"
     SSIM_SIMILARITY: str = "ssim_similarity"
     FID_SIMILARITY: str = "fid_similarity"
+    EDIT_SIMILARITY: str = "edit_similarity"
     NORMALIZE_FID_FACTOR: float = 0.0025
 
     SIZE_HANDLING_METHODS: List[str] = ["resize", "none"]
@@ -74,7 +78,6 @@ class AnnotatedImageMetrics(Metric):
         self,
         generation_type: str,  # TODO: This is for debugging purposes, remove it
         metric_names: List[str],
-        normalize_by_white_score: bool = False,
         size_handling_method: str = "resize",
     ):
         self.generation_type = generation_type
@@ -82,9 +85,9 @@ class AnnotatedImageMetrics(Metric):
         self._lpips_metric: Optional[LearnedPerceptualImagePatchSimilarity] = None
         self._inception_model: Optional[models.Inception3] = None
         self._device = get_torch_device()
-        self._normalize_by_white_score = normalize_by_white_score
         self._cache: Optional[Cache] = None
         self._size_handling_method: str = size_handling_method
+        self.tokenizer = TreebankWordTokenizer()
 
     def _get_compilation_cache_key(self, completion: str) -> Dict[str, str]:
         return {
@@ -123,7 +126,10 @@ class AnnotatedImageMetrics(Metric):
                 "Annotations and results should be present and have the same length.",
                 " Please make sure to add a compiler annotator to the run spec.",
             )
+
+        # Get the references (normally a text and an image)
         reference = request_state.instance.references[0]
+        ref_text: str = reference.output.text
         assert reference.output.multimedia_content is not None
         assert len(reference.output.multimedia_content.media_objects) > 0
         ref_media_object: MediaObject = reference.output.multimedia_content.media_objects[0]
@@ -140,13 +146,6 @@ class AnnotatedImageMetrics(Metric):
                 "Remote images are not supported in metrics. "
                 "Images should be downloaded when constructing the instance."
             )
-        white_image: Optional[Image.Image] = None
-        rgb_white_image: Optional[np.ndarray] = None
-        gray_white_image: Optional[np.ndarray] = None
-        if self._normalize_by_white_score:
-            white_image = Image.new("RGB", ref_image.size, (255, 255, 255))
-            rgb_white_image = np.array(white_image)
-            gray_white_image = preprocess_image(white_image)
 
         assert request_state.result is not None
         assert len(request_state.annotations) == len(request_state.result.completions)
@@ -158,6 +157,8 @@ class AnnotatedImageMetrics(Metric):
                     stats_dict[metric_name].add(0)
                 continue
 
+            assert "text" in annotation, "No text in the annotation"
+            text: str = annotation["text"]
             assert "media_object" in annotation, "No media object in the annotation"
             assert isinstance(annotation["media_object"], MediaObject)
             media_object: MediaObject = annotation["media_object"]
@@ -191,51 +192,37 @@ class AnnotatedImageMetrics(Metric):
             # 2. Function to compute the metric
             # 3. The generated image obhect (type can depend on the metric)
             # 4. The reference image object (type can depend on the metric)
-            # 5. The white image object (type can depend on the metric) - may be used to normalize the metric
-            # 6. Whether the metric can be computed on the white image - if not, the metric is not normalized
             metric_runs: list = [
-                [self.PIXEL_SIMILARITY, pixel_similarity, gray_image, gray_ref_image, gray_white_image, True],
-                [self.SIFT_SIMILARITY, sift_similarity, rgb_image, rgb_ref_image, rgb_white_image, False],
-                [
-                    self.EARTH_MOVER_SIMILARITY,
-                    earth_mover_similarity,
-                    gray_image,
-                    gray_ref_image,
-                    gray_white_image,
-                    True,
-                ],
-                [self.LPIPS_SIMILARITY, self.lpips_similarity, image, ref_image, white_image, True],
-                [self.FID_SIMILARITY, self.fid_similarity, image, ref_image, white_image, True],
-                [self.SSIM_SIMILARITY, self.compute_ssim, gray_image, gray_ref_image, gray_white_image, False],
+                # Image
+                [self.PIXEL_SIMILARITY, pixel_similarity, gray_image, gray_ref_image],
+                [self.SIFT_SIMILARITY, sift_similarity, rgb_image, rgb_ref_image],
+                [self.EARTH_MOVER_SIMILARITY, earth_mover_similarity, gray_image, gray_ref_image],
+                [self.LPIPS_SIMILARITY, self.lpips_similarity, image, ref_image],
+                [self.FID_SIMILARITY, self.fid_similarity, image, ref_image],
+                [self.SSIM_SIMILARITY, self.compute_ssim, gray_image, gray_ref_image],
+                # Text
+                [self.EDIT_SIMILARITY, self.compute_edit_sim, text, ref_text],
             ]
 
             hash_dict = {
                 "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
                 "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(image, hash_size=self.HASH_LENGTH)),
             }
-            for metric_name, metric_fn, image1, image2, white_image, can_compute_on_white in metric_runs:
+            for metric_name, metric_fn, pred, gt in metric_runs:
                 if metric_name not in self._metric_names:
                     continue
 
                 def do_it():
                     try:
-                        value = metric_fn(image1, image2)
-                        if self._normalize_by_white_score and can_compute_on_white:
-                            assert white_image is not None
-                            value_white: float = metric_fn(image2, white_image)
-                            value = (value - value_white) / (1.0 - value_white)
+                        value = metric_fn(pred, gt)
                         return {"value": value}
                     except Exception as e:
                         return {"error": str(e)}
 
-                response_metric, _ = self._cache.get(
-                    {
-                        "metric_name": metric_name,
-                        "normalize_by_white_score": self._normalize_by_white_score,
-                        **hash_dict,
-                    },
-                    do_it,
-                )
+                cache_key = {"metric_name": metric_name, "pred": pred, "gt": gt}
+                if not isinstance(pred, str):
+                    cache_key = {"metric_name": metric_name, **hash_dict}
+                response_metric, _ = self._cache.get(cache_key, do_it)
                 value: float
                 if "error" in response_metric:
                     hlog(f"Error in metric {metric_name}: {response_metric['error']}")
@@ -347,3 +334,18 @@ class AnnotatedImageMetrics(Metric):
     def compute_ssim(self, generated_image: np.ndarray, reference_image: np.ndarray) -> float:
         """Compute the Structural Similarity Index (SSIM) between the generated and reference images."""
         return ssim(generated_image, reference_image)
+
+    def compute_edit_sim(self, completion: str, reference: str) -> float:
+        # `reference` is the entire remaining book for each instance.
+        # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
+        truncated_reference: str = reference[: len(completion)]
+
+        completion_tokens = self.tokenizer.tokenize(completion)
+        truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
+
+        # Exploit numpy SIMD for efficiency on CPUs.
+        completion_tokens = np.array(completion_tokens)
+        truncated_reference_tokens = np.array(truncated_reference_tokens)
+
+        result = _edit_similarity(completion_tokens, truncated_reference_tokens)
+        return result
