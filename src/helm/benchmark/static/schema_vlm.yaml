@@ -315,6 +315,23 @@ run_groups:
       when: "2022"
       language: 36 languages
 
+  - name: flickr30k
+    display_name: Flickr30k
+    description: An image caption corpus consisting of 158,915 crowd-sourced captions describing 31,783 Flickr images. ([paper](https://shannon.cs.illinois.edu/DenotationGraph/TACLDenotationGraph.pdf))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: cider
+      main_split: valid
+    taxonomy:
+      task: image captioning
+      what: Flickr images
+      who: Human experts
+      when: "2014"
+      language: English
+
   - name: heim_human_eval
     display_name: HEIM Human Eval Scenario
     description: Seeing if we can use VLMs to evaluate AI-generated images from HEIM
