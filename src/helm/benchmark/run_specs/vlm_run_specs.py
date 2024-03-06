@@ -176,7 +176,9 @@ def get_flickr30k_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.flickr30k_scenario.Flickr30KScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        instructions="Generate a short caption for the following image", max_tokens=20
+    )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "flickr30k"
