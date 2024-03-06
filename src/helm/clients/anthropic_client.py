@@ -6,6 +6,7 @@ import urllib.parse
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
@@ -27,6 +28,8 @@ from helm.clients.client import CachingClient, truncate_sequence, truncate_and_t
 try:
     from anthropic import Anthropic
     from anthropic.types import MessageParam
+    from anthropic.types.image_block_param import ImageBlockParam
+    from anthropic.types.text_block_param import TextBlockParam
     import websocket
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["anthropic"])
@@ -242,15 +245,51 @@ class AnthropicMessagesClient(CachingClient):
 
         messages: List[MessageParam] = []
         system_message: Optional[MessageParam] = None
-        if request.messages and request.prompt:
-            raise AnthropicMessagesRequestError("Exactly one of Request.messages and Request.prompt should be set")
-        if request.messages:
+
+        if request.messages is not None:
             messages = cast(List[MessageParam], request.messages)
             if messages[0]["role"] == "system":
                 system_message = messages[0]
                 messages = messages[1:]
-        else:
+
+        elif request.prompt:
             messages = [{"role": "user", "content": request.prompt}]
+
+        elif request.multimodal_prompt is not None:
+            blocks = []
+            for media_object in request.multimodal_prompt.media_objects:
+                if media_object.is_type(IMAGE_TYPE):
+                    # TODO(#2439): Refactor out Request validation
+                    if not media_object.location:
+                        raise Exception("MediaObject of image type has missing location field value")
+
+                    from helm.common.images_utils import encode_base64
+
+                    base64_image: str = encode_base64(media_object.location, format="JPEG")
+                    image_block: ImageBlockParam = {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/jpeg",
+                            "data": base64_image,
+                        },
+                    }
+                    blocks.append(image_block)
+                if media_object.is_type(TEXT_TYPE):
+                    # TODO(#2439): Refactor out Request validation
+                    if media_object.text is None:
+                        raise ValueError("MediaObject of text type has missing text field value")
+                    text_block: TextBlockParam = {
+                        "type": "text",
+                        "text": media_object.text,
+                    }
+                    blocks.append(text_block)
+
+        else:
+            # TODO(#2439): Refactor out Request validation
+            raise AnthropicMessagesRequestError(
+                "Exactly one of Request.messages, Request.prompt or Request.multimodel_prompt should be set"
+            )
 
         raw_request: AnthropicMessagesRequest = {
             "messages": messages,
