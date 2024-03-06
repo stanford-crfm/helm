@@ -342,7 +342,7 @@ run_groups:
       language: English
 
   - name: vqa
-    display_name: Visual Question Answering
+    display_name: VQAv2
     description: Open-ended questions about images
     metric_groups:
       - accuracy

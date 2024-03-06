@@ -96,17 +96,12 @@ class OpenFlamingoClient(CachingClient):
         # Preprocess
         vision_x: torch.Tensor = torch.cat([self.image_processor(image).unsqueeze(0) for image in images], dim=0)
         vision_x = vision_x.unsqueeze(1).unsqueeze(0)
-
-        lang_x = self.tokenizer(
-            [prompt_text],
-            return_tensors="pt",
-        )
+        lang_x = self.tokenizer([prompt_text], return_tensors="pt")
 
         # Generate
         try:
             generation_args = {
                 "max_new_tokens": request.max_tokens,
-                "num_beams": request.num_completions,
                 "n": request.num_completions,
             }
 
@@ -116,18 +111,12 @@ class OpenFlamingoClient(CachingClient):
                     lang_x=lang_x["input_ids"].to(self._device),
                     attention_mask=lang_x["attention_mask"].to(self._device),
                     max_new_tokens=generation_args["max_new_tokens"],
-                    num_beams=generation_args["num_beams"],
-                    num_return_sequences=generation_args["num_beams"],
+                    num_beams=generation_args["n"],
+                    num_return_sequences=generation_args["n"],
                 )
                 generated_completions: List[Tuple[str, List[str]]] = []
                 for tensor in tensors:
                     generated_text: str = self.tokenizer.decode(tensor)
-                    assert generated_text.startswith(
-                        prompt_text
-                    ), f"Generated text: {generated_text} does not start with prompt: {prompt_text}"
-
-                    # Remove the prompt from the generated text
-                    generated_text = generated_text[len(prompt_text) :].replace(self.END_OF_CHUNK_TOKEN, "").strip()
                     raw_tokens: List[str] = self.tokenizer.tokenize(generated_text)
                     generated_completions.append((generated_text, raw_tokens))
 
@@ -142,11 +131,17 @@ class OpenFlamingoClient(CachingClient):
                 request=request,
             )
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except RuntimeError as e:
-            return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
+        except RuntimeError as ex:
+            return RequestResult(success=False, cached=False, error=str(ex), completions=[], embedding=[])
 
         completions: List[Sequence] = []
         for text, tokens in result["output"]:
+            # Remove the prompt from the generated text
+            text = (
+                text[len(prompt_text) :].replace(self.END_OF_CHUNK_TOKEN, "").strip()
+                if len(text) >= len(prompt_text)
+                else text[-1]
+            )
             completions.append(
                 Sequence(text=text, logprob=0, tokens=[Token(text=token, logprob=0) for token in tokens])
             )

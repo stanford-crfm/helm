@@ -54,7 +54,7 @@ class VQAScenario(Scenario):
         TEST_SPLIT: "http://images.cocodataset.org/zips/test2015.zip",
     }
 
-    name = "visual_question_answering"
+    name = "vqa"
     description = "Open-ended questions about images ([paper](https://arxiv.org/abs/1612.00837))."
     tags = ["vision-language", "visual question answering"]
 
