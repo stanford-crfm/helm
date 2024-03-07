@@ -8,7 +8,7 @@ export default function Home() {
     return <LiteLanding />;
   } else if (window.RELEASE_INDEX_ID === "instruct") {
     return <InstructLanding />;
-  } else if (window.HELM_TYPE === "HEIM") {
+  } else if (window.RELEASE_INDEX_ID === "heim") {
     return <HEIMLanding />;
   } else {
     // TODO: better global/default landing page
