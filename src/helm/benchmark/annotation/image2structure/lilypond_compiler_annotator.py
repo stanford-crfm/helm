@@ -47,7 +47,7 @@ class LilyPondAnnotator(ImageCompilerAnnotator):
             # Generate PNG image from the LilyPond file
             result = subprocess.run(["lilypond", "--png", ly_file_path], capture_output=True, text=True)
             assert result.returncode == 0, f"lilypond failed: {result.stderr}"
-            assert os.path.exists(sheet_music_path), f"lilypond did not generate the image"
+            assert os.path.exists(sheet_music_path), "lilypond did not generate the image"
 
             # Load the image as a PIL Image object
             image = Image.open(sheet_music_path)
