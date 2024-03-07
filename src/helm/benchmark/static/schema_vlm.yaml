@@ -323,13 +323,30 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: cider
+      main_name: f1_score
       main_split: valid
     taxonomy:
       task: image captioning
       what: Flickr images
       who: Human experts
       when: "2014"
+      language: English
+
+  - name: gqa
+    display_name: GQA
+    description: Questions about real-world visual reasoning and compositional QA
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2019"
       language: English
 
   - name: heim_human_eval
