@@ -79,8 +79,9 @@ class Crossmodal3600Scenario(Scenario):
     )
     tags = ["vision-language", "multilinguality"]
 
-    def __init__(self, language: str):
+    def __init__(self, location: str, language: str):
         super().__init__()
+        self._locale_id: str = self.LANGUAGE_TO_ID[location]
         self._language_id: str = self.LANGUAGE_TO_ID[language]
         self._instruction: str = f"Generate a short caption for the following image in {language}."
 
@@ -106,16 +107,16 @@ class Crossmodal3600Scenario(Scenario):
             for line in captions_file:
                 example: Dict = json.loads(line)
 
-                language_id: str = example["image/locale"]
-                if language_id != self._language_id:
+                locale_id: str = example["image/locale"]
+                if locale_id != self._locale_id:
                     continue
 
                 key: str = example["image/key"]
                 image_path: str = os.path.join(images_path, f"{key}.jpg")
                 assert os.path.exists(image_path), f"Image {image_path} does not exist"
 
-                assert language_id in example, f"Language {language_id} not found in example"
-                all_captions: Dict = example[language_id]
+                assert self._language_id in example, f"Language {self._language_id} not found in example"
+                all_captions: Dict = example[self._language_id]
                 captions: List[str] = all_captions["caption"]
 
                 content: List[MediaObject] = [

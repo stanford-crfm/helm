@@ -143,17 +143,17 @@ def get_chart2csv_spec() -> RunSpec:
 
 
 @run_spec_function("crossmodal_3600")
-def get_crossmodal_3600_spec(language: str) -> RunSpec:
+def get_crossmodal_3600_spec(location: str, language: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.crossmodal_3600_scenario.Crossmodal3600Scenario",
-        args={"language": language},
+        args={"location": location, "language": language},
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(max_tokens=20)
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "crossmodal_3600"
     return RunSpec(
-        name=f"{run_spec_name}:language={language}",
+        name=f"{run_spec_name}:location={location},language={language}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
