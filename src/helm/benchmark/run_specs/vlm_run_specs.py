@@ -118,6 +118,28 @@ def get_image2structure_metric_specs(
 # VHELM run specs
 
 
+@run_spec_function("a_okvqa")
+def get_a_okvqa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.a_okvqa_scenario.AOKVQAScenario",
+        args={},
+    )
+
+    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+    run_spec_name: str = "a_okvqa"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("chart2csv")
 def get_chart2csv_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
