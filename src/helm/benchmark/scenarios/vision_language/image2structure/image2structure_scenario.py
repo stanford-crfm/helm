@@ -122,8 +122,6 @@ class Image2StructureScenario(Scenario):
                     structure: str = row["structure"]
                     text: str = self.compile_and_save(structure, assets_path, image_path)
                     row["text"] = text
-            else:
-                row["text"] = "This image has already been processed and the prompt is not recompiled."
 
             # Step 3: Create the prompt
             prompt: str = self.build_prompt(row)

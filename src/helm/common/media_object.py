@@ -5,6 +5,7 @@ from dataclasses import dataclass, field, replace
 from typing import List, Optional
 
 
+IMAGE_TYPE = "image"
 TEXT_TYPE = "text"
 
 

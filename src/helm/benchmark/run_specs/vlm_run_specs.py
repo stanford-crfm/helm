@@ -87,20 +87,18 @@ def get_image2structure_metric_specs(
     generation_type: str,
     metric_names: Optional[List[str]] = None,
     args: Optional[Dict] = None,
-    normalize_by_white_score: bool = False,
     include_edit_similarity: bool = True,
 ) -> List[MetricSpec]:
     from helm.benchmark.metrics.vision_language.image_metrics import AnnotatedImageMetrics
 
     if metric_names is None:
         metric_names = [
-            AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY,
             AnnotatedImageMetrics.PIXEL_SIMILARITY,
-            AnnotatedImageMetrics.SIFT_SIMILARITY,
-            AnnotatedImageMetrics.LPIPS_SIMILARITY,
-            AnnotatedImageMetrics.SSIM_SIMILARITY,
             AnnotatedImageMetrics.FID_SIMILARITY,
+            AnnotatedImageMetrics.EDIT_SIMILARITY,
         ]
+    if include_edit_similarity:
+        metric_names.append(AnnotatedImageMetrics.EDIT_SIMILARITY)
     if args is None:
         args = {}
     metric_scpecs = [
@@ -109,18 +107,10 @@ def get_image2structure_metric_specs(
             args={
                 "generation_type": generation_type,
                 "metric_names": metric_names,
-                "normalize_by_white_score": normalize_by_white_score,
                 **args,
             },
         ),
     ]
-    if include_edit_similarity:
-        metric_scpecs.append(
-            MetricSpec(
-                class_name="helm.benchmark.metrics.copyright_metrics.BasicCopyrightMetric",
-                args={**args, "name": "edit_similarity"},
-            )
-        )
     return metric_scpecs
 
 
@@ -264,7 +254,7 @@ def get_vqa_spec() -> RunSpec:
 
 
 @run_spec_function("image2latex")
-def get_image2latex_spec(subset: str, recompile_prompt: bool = True, args: Optional[Dict] = None) -> RunSpec:
+def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Optional[Dict] = None) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
         args={"subset": subset, "recompile_prompt": recompile_prompt},
@@ -276,7 +266,6 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = True, args: Optio
     metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
         generation_type="latex",
         args=args,
-        normalize_by_white_score=False,
         include_edit_similarity=True,
     )
     annotator_specs: List[AnnotatorSpec] = [
@@ -309,8 +298,7 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
     metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
         generation_type="webpage",
         args=args,
-        normalize_by_white_score=False,
-        include_edit_similarity=False,
+        include_edit_similarity=True,
     )
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(
