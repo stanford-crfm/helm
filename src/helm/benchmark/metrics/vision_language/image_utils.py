@@ -65,7 +65,9 @@ def pixel_similarity(img_a: np.ndarray, img_b: np.ndarray, threshold: float = 0.
         float: the pixel-level similarity between the images (between 0 and 1)
     """
     if img_a.shape != img_b.shape:
-        raise ValueError("Images must have the same dimensions")
+        raise ValueError(
+            f"Images must have the same dimensions. img_a.shape = {img_a.shape}, img_b.shape = {img_b.shape}"
+        )
 
     # Flatten the images
     img_a_flat = img_a.reshape(-1, img_a.shape[-1])

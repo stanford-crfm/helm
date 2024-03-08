@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Callable
+from typing import List, Dict, Optional, Callable, Tuple
 from torchvision import transforms, models
 from skimage.metrics import structural_similarity as ssim
 from nltk.tokenize.treebank import TreebankWordTokenizer
@@ -35,6 +35,16 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["image2structure"])
 
 
+def pad(small_image: Image.Image, large_image: Image.Image, axis: int) -> Image.Image:
+    """Pad the axis of the small image to match the size of the large image."""
+    new_dim: List[int] = list(small_image.size)
+    new_dim[axis] = large_image.size[axis]
+    new_dim_tupe: Tuple[int, int] = tuple(new_dim)  # type: ignore
+    new_image: Image.Image = Image.new("RGB", new_dim_tupe, (255, 255, 255))
+    new_image.paste(small_image, (0, 0))
+    return new_image
+
+
 class CompilationError(Exception):
     pass
 
@@ -67,7 +77,7 @@ class AnnotatedImageMetrics(Metric):
     EDIT_SIMILARITY: str = "edit_similarity"
     NORMALIZE_FID_FACTOR: float = 0.0025
 
-    SIZE_HANDLING_METHODS: List[str] = ["resize", "none"]
+    SIZE_HANDLING_METHODS: List[str] = ["resize", "padding", "none"]
 
     # Hashing (for caching)
     HASH_LENGTH: int = 16
@@ -121,12 +131,8 @@ class AnnotatedImageMetrics(Metric):
         ref_media_object: MediaObject = reference.output.multimedia_content.media_objects[0]
         assert ref_media_object.type == "image"
         ref_image: Image.Image
-        rgb_ref_image: np.ndarray
-        gray_ref_image: np.ndarray
         if ref_media_object.is_local_file and ref_media_object.location is not None:
             ref_image = open_image(ref_media_object.location)
-            rgb_ref_image = np.array(ref_image)
-            gray_ref_image = preprocess_image(ref_image)
         else:
             raise Exception(
                 "Remote images are not supported in metrics. "
@@ -161,10 +167,18 @@ class AnnotatedImageMetrics(Metric):
                     )
                 elif self._size_handling_method == "resize":
                     image = image.resize(ref_image.size)
+                elif self._size_handling_method == "padding":
+                    for axis in range(2):
+                        if image.size[axis] < ref_image.size[axis]:
+                            image = pad(image, ref_image, axis)
+                        elif image.size[axis] > ref_image.size[axis]:
+                            ref_image = pad(ref_image, image, axis)
                 else:
                     raise ValueError(f"size handling method {self._size_handling_method} not recognized.")
             assert image.size == ref_image.size
 
+            rgb_ref_image: np.ndarray = np.array(ref_image)
+            gray_ref_image: np.ndarray = preprocess_image(ref_image)
             rgb_image: np.ndarray = np.array(image)
             gray_image: np.ndarray = preprocess_image(image)
 

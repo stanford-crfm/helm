@@ -88,6 +88,7 @@ def get_image2structure_metric_specs(
     metric_names: Optional[List[str]] = None,
     args: Optional[Dict] = None,
     include_edit_similarity: bool = True,
+    size_handling_method: str = "resize",
 ) -> List[MetricSpec]:
     from helm.benchmark.metrics.vision_language.image_metrics import AnnotatedImageMetrics
 
@@ -107,6 +108,7 @@ def get_image2structure_metric_specs(
             args={
                 "generation_type": generation_type,
                 "metric_names": metric_names,
+                "size_handling_method": size_handling_method,
                 **args,
             },
         ),
@@ -213,6 +215,7 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Opti
         generation_type="latex",
         args=args,
         include_edit_similarity=True,
+        size_handling_method="padding",
     )
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(
@@ -245,6 +248,7 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
         generation_type="webpage",
         args=args,
         include_edit_similarity=True,
+        size_handling_method="none",
     )
     annotator_specs: List[AnnotatorSpec] = [
         AnnotatorSpec(
