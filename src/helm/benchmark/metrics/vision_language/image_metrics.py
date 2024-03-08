@@ -19,7 +19,6 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.copyright_metrics import _edit_similarity
 from helm.benchmark.metrics.vision_language.image_utils import (
     preprocess_image,
     earth_mover_similarity,
@@ -125,7 +124,6 @@ class AnnotatedImageMetrics(Metric):
 
         # Get the references (normally a text and an image)
         reference = request_state.instance.references[0]
-        ref_text: str = reference.output.text
         assert reference.output.multimedia_content is not None
         assert len(reference.output.multimedia_content.media_objects) > 0
         ref_media_object: MediaObject = reference.output.multimedia_content.media_objects[0]
@@ -149,8 +147,6 @@ class AnnotatedImageMetrics(Metric):
                     stats_dict[metric_name].add(0)
                 continue
 
-            assert "text" in annotation, "No text in the annotation"
-            text: str = annotation["text"]
             assert "media_object" in annotation, "No media object in the annotation"
             assert isinstance(annotation["media_object"], MediaObject)
             media_object: MediaObject = annotation["media_object"]
@@ -196,9 +192,16 @@ class AnnotatedImageMetrics(Metric):
                 [self.LPIPS_SIMILARITY, self.lpips_similarity, image, ref_image],
                 [self.FID_SIMILARITY, self.fid_similarity, image, ref_image],
                 [self.SSIM_SIMILARITY, self.compute_ssim, gray_image, gray_ref_image],
-                # Text
-                [self.EDIT_SIMILARITY, self.compute_edit_sim, text, ref_text],
             ]
+
+            if "text" in annotation:
+                # For some tasks, we have the reference text. For those, compute the edit similarity for some signal.
+                # Although having the reference text is not a requirement for a task to be included in Image2Structure.
+                text: str = annotation["text"]
+                ref_text: str = reference.output.text
+                metric_runs.append(
+                    [self.EDIT_SIMILARITY, self.compute_edit_sim, text, ref_text],
+                )
 
             hash_dict = {
                 "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
@@ -323,6 +326,8 @@ class AnnotatedImageMetrics(Metric):
         return ssim(generated_image, reference_image)
 
     def compute_edit_sim(self, completion: str, reference: str) -> float:
+        from helm.benchmark.metrics.copyright_metrics import _edit_similarity
+
         # `reference` is the entire remaining book for each instance.
         # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
         truncated_reference: str = reference[: len(completion)]
