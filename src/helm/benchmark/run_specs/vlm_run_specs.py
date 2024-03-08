@@ -101,7 +101,7 @@ def get_image2structure_metric_specs(
         metric_names.append(AnnotatedImageMetrics.EDIT_SIMILARITY)
     if args is None:
         args = {}
-    metric_scpecs = [
+    metric_specs = [
         MetricSpec(
             class_name="helm.benchmark.metrics.vision_language.image_metrics.AnnotatedImageMetrics",
             args={
@@ -111,7 +111,7 @@ def get_image2structure_metric_specs(
             },
         ),
     ]
-    return metric_scpecs
+    return metric_specs
 
 
 ############################################################
@@ -429,10 +429,18 @@ def get_sheetmusic2lilypond_spec() -> RunSpec:
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
         instructions="Generate the LilyPond code for the following sheet music. "
         "Just give the LilyPond code without any explanation.",
-        max_tokens=1000,
+        max_tokens=1500,
     )
-    # TODO: add round trip metric for LilyPond
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+        generation_type="lilypond",
+        include_edit_similarity=False,
+    )
+    annotator_specs: List[AnnotatorSpec] = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.image2structure.lilypond_compiler_annotator.LilyPondAnnotator",
+        )
+    ]
 
     run_spec_name: str = "sheetmusic2lilypond"
     return RunSpec(
@@ -440,5 +448,6 @@ def get_sheetmusic2lilypond_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
+        annotators=annotator_specs,
         groups=[run_spec_name],
     )
