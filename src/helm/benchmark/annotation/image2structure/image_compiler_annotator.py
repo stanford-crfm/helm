@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple
 
-from helm.benchmark.annotation.annotator import Annotator, Annotation
+from helm.benchmark.annotation.annotation import Annotation
+from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.cache import Cache, CacheConfig
 from helm.common.file_caches.local_file_cache import LocalPILFileCache

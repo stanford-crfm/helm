@@ -1,6 +1,6 @@
 from typing import List, Tuple, Dict, Any
 
-from helm.benchmark.annotation.annotator import Annotation
+from helm.benchmark.annotation.annotation import Annotation
 from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.optional_dependencies import handle_module_not_found_error

@@ -4,7 +4,7 @@ import os
 import shutil
 import threading
 
-from helm.benchmark.annotation.annotator import Annotation
+from helm.benchmark.annotation.annotation import Annotation
 from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -43,8 +43,8 @@ class WebpageCompilerAnnotator(ImageCompilerAnnotator):
         """Postprocess the infos."""
         annotations = super().postprocess_infos(infos)
         assert "html" in annotations, "The html field should be present in the infos"
-        annotations["text"] = Annotation(convert_html_to_text(self._html2text, infos["html"].data), displayable=True)
-        return infos
+        annotations["text"] = Annotation(convert_html_to_text(self._html2text, infos["html"]), displayable=True)
+        return annotations
 
     def compile_completion_into_image(
         self, request_state: RequestState, completion_text: str

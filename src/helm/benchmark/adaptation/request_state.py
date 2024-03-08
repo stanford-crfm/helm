@@ -4,7 +4,7 @@ from typing import Optional, Dict, List
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.general import indent_lines, format_text_lines, serialize
 from helm.common.request import Request, RequestResult
-from helm.benchmark.annotation.annotator import Annotation
+from helm.benchmark.annotation.annotation import Annotation
 
 
 @dataclass(frozen=True)

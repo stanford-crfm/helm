@@ -1,18 +1,10 @@
-from typing import Dict, Any, List
+from typing import Dict, List
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
 
+from helm.benchmark.annotation.annotation import Annotation
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.object_spec import ObjectSpec
-
-
-@dataclass
-class Annotation:
-    data: Any
-    """Data of the annotation"""
-
-    displayable: bool = False
-    """Whether it should be displayed in the frontend or not."""
 
 
 class Annotator(ABC):
