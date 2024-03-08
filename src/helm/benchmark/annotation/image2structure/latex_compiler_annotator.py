@@ -1,5 +1,6 @@
 from typing import List, Tuple, Dict, Any
 
+from helm.benchmark.annotation.annotator import Annotation
 from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -25,11 +26,14 @@ class LatexCompilerAnnotator(ImageCompilerAnnotator):
         ("```", "```"),
     ]
 
-    def postprocess_infos(self, infos: Dict[str, Any]) -> Dict[str, Any]:
+    def postprocess_infos(self, infos: Dict[str, Any]) -> Dict[str, Annotation]:
         """Postprocess the infos."""
-        assert "latex_code" in infos, "The latex_code field should be present in the infos"
-        infos["text"] = strip_unnecessary_latex_parts(infos["latex_code"])
-        return infos
+        annotations = super().postprocess_infos(infos)
+        assert "latex_code" in annotations, "The latex_code field should be present in the infos"
+        annotations["text"] = Annotation(
+            strip_unnecessary_latex_parts(annotations["latex_code"].data), displayable=True
+        )
+        return annotations
 
     def compile_completion_into_image(
         self, request_state: RequestState, completion_text: str

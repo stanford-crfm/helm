@@ -8,6 +8,7 @@ import torch
 import warnings
 import numpy as np
 
+from helm.benchmark.annotation.annotator import Annotation
 from helm.benchmark.metrics.copyright_metrics import _edit_similarity
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_service import MetricService
@@ -122,7 +123,7 @@ class AnnotatedImageMetrics(Metric):
         self,
         inputs_required: Set[str],
         request_state: RequestState,
-        annotation: Dict[str, Any],
+        annotation: Dict[str, Annotation],
         ref_image: Optional[Image.Image],
     ) -> Dict[str, Tuple[Any, Any]]:
         inputs: Dict[str, Tuple[Any, Any]] = {}
@@ -132,8 +133,8 @@ class AnnotatedImageMetrics(Metric):
             # Get the image and make sure we have a reference image
             assert ref_image is not None
             assert "media_object" in annotation
-            assert isinstance(annotation["media_object"], MediaObject)
-            media_object: MediaObject = annotation["media_object"]
+            assert isinstance(annotation["media_object"].data, MediaObject)
+            media_object: MediaObject = annotation["media_object"].data
             assert media_object.type == "image"
             assert media_object.is_local_file and media_object.location is not None
             image: Image.Image = Image.open(media_object.location).convert("RGB")
@@ -173,7 +174,7 @@ class AnnotatedImageMetrics(Metric):
         # Text
         if any([input_type.startswith("text") for input_type in inputs_required]):
             assert "text" in annotation
-            text: str = annotation["text"]
+            text: str = annotation["text"].data
             reference = request_state.instance.references[0]
             inputs["text_str"] = (text, reference.output.text)
 
