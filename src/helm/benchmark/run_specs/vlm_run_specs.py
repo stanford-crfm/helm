@@ -9,6 +9,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 )
 from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
+    get_generative_harms_metric_specs,
     get_open_ended_generation_metric_specs,
 )
 from helm.benchmark.metrics.metric import MetricSpec
@@ -232,6 +233,27 @@ def get_hateful_memes_spec() -> RunSpec:
     run_spec_name: str = "hateful_memes"
     return RunSpec(
         name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("mm_safety_bench")
+def get_mm_safety_bench_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.mm_safety_bench_scenario.MMSafetyBenchScenario",
+        args={"subset": subset},
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(max_tokens=500)
+    metric_specs: List[MetricSpec] = get_generative_harms_metric_specs(
+        include_basic_metrics=True, include_generative_harms_metrics=True
+    )
+
+    run_spec_name: str = "mm_safety_bench"
+    return RunSpec(
+        name=f"{run_spec_name}:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
