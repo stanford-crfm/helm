@@ -363,7 +363,7 @@ run_groups:
       - general_information
     environment:
       main_name: exact_match
-      main_split: test
+      main_split: valid
     taxonomy:
       task: multiple-choice question answering
       what: Real-world images

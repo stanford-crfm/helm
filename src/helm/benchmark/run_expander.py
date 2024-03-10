@@ -815,6 +815,28 @@ def suffix(text: str) -> PerturbationSpec:
     )
 
 
+# Image perturbations
+def blurred_image() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.image.image_filter_perturbation.BlurredImageFilterPerturbation",
+        args={},
+    )
+
+
+def sepia_image() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.image.image_filter_perturbation.SepiaImageFilterPerturbation",
+        args={},
+    )
+
+
+def sharpened_image() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.image.image_filter_perturbation.SharpenedImageFilterPerturbation",
+        args={},
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -1019,6 +1041,14 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             suffix("animation"),
             suffix("vector graphics"),
             suffix("pixel art"),
+        ]
+    },
+    # Images
+    "instagram": {
+        "instagram": [
+            blurred_image(),
+            sepia_image(),
+            sharpened_image(),
         ]
     },
 }
