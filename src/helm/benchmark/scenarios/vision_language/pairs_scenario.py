@@ -191,6 +191,7 @@ class PAIRSScenario(Scenario):
     tags = ["vision-language", "bias"]
 
     def __init__(self, subset: str, person: str):
+        super().__init__()
         assert person in ["black_man", "black_woman", "white_man", "white_woman"]
         self._person: str = person
 
@@ -214,6 +215,10 @@ class PAIRSScenario(Scenario):
         for question_type, questions in self._type_to_questions.items():
 
             image_url: str = self.IMAGE_URL.format(subset=self._subset, type=question_type, person=self._person)
+            # We have to add this due to a mistake in naming in the original dataset
+            if self._subset == "status" and question_type == "phone" and self._person == "white_man":
+                image_url = image_url.replace(".png", "1.png")
+
             local_image_path: str = os.path.join(images_path, f"{question_type}_{self._person}.png")
             if not os.path.exists(local_image_path):
                 ensure_file_downloaded(
