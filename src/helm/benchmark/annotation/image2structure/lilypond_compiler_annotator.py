@@ -36,6 +36,8 @@ class LilyPondAnnotator(ImageCompilerAnnotator):
         with open(ly_file_path, "w") as f:
             f.write(completion_text)
 
+        # What we pass in as -o should be the same name as the .ly file, but without the extension
+        output_path: str = ly_file_path.replace(".ly", "")
         # The image file of the music sheet should have the same path as the .ly file, but with .png extension
         sheet_music_path: str = ly_file_path.replace(".ly", ".png")
 
@@ -45,8 +47,10 @@ class LilyPondAnnotator(ImageCompilerAnnotator):
             assert result.returncode == 0, f"convert-ly failed: {result.stderr}"
 
             # Generate PNG image from the LilyPond file
-            result = subprocess.run(["lilypond", "--png", ly_file_path], capture_output=True, text=True)
-            assert result.returncode == 0, f"lilypond failed: {result.stderr}"
+            # LilyPond supports partial compilation, which means it attempts to produce an image
+            # for the correct portions of the code, even if there are errors elsewhere
+            subprocess.run(["lilypond", "--png", "-o", output_path, ly_file_path], capture_output=True, text=True)
+            # If an image file is not generated, we consider it an absolute compilation failure
             assert os.path.exists(sheet_music_path), "lilypond did not generate the image"
 
             # Load the image as a PIL Image object
