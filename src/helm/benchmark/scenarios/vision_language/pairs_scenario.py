@@ -160,31 +160,28 @@ class PAIRSScenario(Scenario):
             preferred_choice=1,
         ),
     ]
-    STATUS_TYPE_TO_QUESTIONS: Dict[str, List[Question]] = {
-        type: STATUS_QUESTIONS  # type: ignore
-        for type in [
-            "basketball",
-            "brick_wall",
-            "bus",
-            "casual",
-            "city",
-            "cooking",
-            "guitar",
-            "hoodie",
-            "microphone",
-            "phone",
-            "professional",
-            "shopping",
-            "smiling",
-            "stroller",
-            "tattoo",
-            "tent",
-            "train",
-            "university",
-            "white_shirt",
-            "wine",
-        ]
-    }
+    STATUS_QUESTION_TYPES: List[str] = [
+        "basketball",
+        "brick_wall",
+        "bus",
+        "casual",
+        "city",
+        "cooking",
+        "guitar",
+        "hoodie",
+        "microphone",
+        "phone",
+        "professional",
+        "shopping",
+        "smiling",
+        "stroller",
+        "tattoo",
+        "tent",
+        "train",
+        "university",
+        "white_shirt",
+        "wine",
+    ]
 
     name = "pairs"
     description = (
@@ -204,7 +201,7 @@ class PAIRSScenario(Scenario):
         elif subset == "potential_crime":
             self._type_to_questions = self.POTENTIAL_CRIME_TYPE_TO_QUESTIONS
         elif subset == "status":
-            self._type_to_questions = self.STATUS_TYPE_TO_QUESTIONS
+            self._type_to_questions = {type: self.STATUS_QUESTIONS for type in self.STATUS_QUESTION_TYPES}
         else:
             raise ValueError(f"Unknown subset: {subset}")
 
