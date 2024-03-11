@@ -103,7 +103,7 @@ class OpenAIClient(CachingClient):
 
     def _make_chat_request(self, request: Request) -> RequestResult:
         messages: Optional[List[Dict[str, Union[str, Any]]]] = request.messages
-        if request.messages and len(request.messages) > 0:
+        if request.messages is not None:
             # Checks that all messages have a role and some content
             for message in request.messages:
                 if not message.get("role") or not message.get("content"):
