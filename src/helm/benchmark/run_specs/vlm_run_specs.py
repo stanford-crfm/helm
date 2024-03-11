@@ -441,6 +441,30 @@ def get_heim_human_eval_spec(question_type: str) -> RunSpec:
     )
 
 
+@run_spec_function("pairs")
+def get_pairs_spec(subset: str, person: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.pairs_scenario.PAIRSScenario",
+        args={"subset": subset, "person": person},
+    )
+    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+        input_noun=None,
+        output_noun="Answer",
+        num_outputs=1,
+        max_train_instances=0,
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "pairs"
+    return RunSpec(
+        name=f"{run_spec_name}:subset={subset},person={person}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("sheetmusic2lilypond")
 def get_sheetmusic2lilypond_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
