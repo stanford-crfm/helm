@@ -164,7 +164,7 @@ opencv-python-headless==4.9.0.80
 opt-einsum==3.3.0
 optax==0.1.8
 orbax-checkpoint==0.2.3
-orjson==3.9.14
+orjson==3.9.15
 packaging==23.2
 pandas==2.0.3
 param==2.0.2
