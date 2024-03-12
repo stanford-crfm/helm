@@ -12,7 +12,7 @@ from helm.common.media_object import MediaObject, MultimediaObject
 
 class OriginalityScenario(Scenario):
     """
-    Test the originality of VLMs.
+    Test the originality of VLMs. Work in progress.
     """
 
     name = "originality_vlm"
