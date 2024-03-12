@@ -290,7 +290,9 @@ class AnthropicMessagesClient(CachingClient):
                         "type": "text",
                         "text": media_object.text,
                     }
-                    blocks.append(text_block)
+                    # Anthropic does not support empty text blocks
+                    if media_object.text.strip():
+                        blocks.append(text_block)
             messages = [{"role": "user", "content": blocks}]
 
         else:
