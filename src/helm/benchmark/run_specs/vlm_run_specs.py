@@ -261,6 +261,26 @@ def get_mm_safety_bench_spec(subset: str) -> RunSpec:
     )
 
 
+@run_spec_function("originality_vlm")
+def get_originality_vlm_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.originality_scenario.OriginalityScenario", args={}
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(max_tokens=500)
+    metric_specs: List[MetricSpec] = get_generative_harms_metric_specs(
+        include_basic_metrics=True, include_generative_harms_metrics=True
+    )
+
+    run_spec_name: str = "originality_vlm"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("viz_wiz")
 def get_viz_wiz_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
