@@ -603,6 +603,23 @@ run_groups:
       when: "2024"
       language: English
 
+  - name: pairs
+    display_name: PAIRS
+    description: Examining Gender and Racial Bias in Large Vision-Language Models Using a Novel Dataset of Parallel Images.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: Bias
+      who: Human experts
+      when: "2024"
+      language: English
+
   - name: sheetmusic2lilypond
     display_name: SheetMusic2LilyPond
     description: Sheet music to LilyPond
