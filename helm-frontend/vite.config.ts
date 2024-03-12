@@ -1,4 +1,5 @@
-import { defineConfig, ViteDevServer } from "vite";
+import { defineConfig } from "vitest/config";
+import { ViteDevServer } from "vite";
 import serveStatic from "serve-static";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -8,7 +9,7 @@ const ServeBenchmarkOutputPlugin = {
   configureServer(server: ViteDevServer) {
     server.middlewares.use(
       "/benchmark_output",
-      // TODO: Make the path configurable via environment variable
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
       serveStatic("../benchmark_output", {fallthrough: false, index: false})
     )
   }
