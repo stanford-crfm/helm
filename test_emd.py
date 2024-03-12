@@ -3,7 +3,6 @@ from typing import List, Tuple
 from PIL import Image
 import cv2
 import numpy as np
-from scipy.stats import wasserstein_distance
 import matplotlib.pyplot as plt
 from toolbox.printing import debug
 from tqdm import tqdm
@@ -74,42 +73,6 @@ def get_most_frequent_color(img: np.array) -> Tuple[np.array, float]:
     return most_frequent_color, frequency
 
 
-def compute_cost_matrix(img1, img2, patch_size=(8, 8), to_gray=False):
-    """
-    Discretize the images into patches, for each couple of patches, call img_to_sig and then compute the EMD
-    """
-    assert img1.shape == img2.shape
-    if to_gray:
-        img1 = np.mean(img1, axis=2, keepdims=True)
-        img2 = np.mean(img2, axis=2, keepdims=True)
-
-    # Assume no padding is needed
-    patches_dim_0 = img1.shape[0] // patch_size[0]
-    patches_dim_1 = img1.shape[1] // patch_size[1]
-
-    # Reshape the image to a 5D array of patches: (num_patches_0, num_patches_1, patch_height, patch_width, num_channels)
-    reshaped1 = img1[: patches_dim_0 * patch_size[0], : patches_dim_1 * patch_size[1]].reshape(
-        patches_dim_0, patch_size[0], patches_dim_1, patch_size[1], img1.shape[2]
-    )
-    reshaped2 = img2[: patches_dim_0 * patch_size[0], : patches_dim_1 * patch_size[1]].reshape(
-        patches_dim_0, patch_size[0], patches_dim_1, patch_size[1], img2.shape[2]
-    )
-    # The cost matrix is a 2D array of shape (num_patches_0 * num_patches_1, num_patches_0 * num_patches_1)
-    cost_matrix = np.zeros((patches_dim_0 * patches_dim_1, patches_dim_0 * patches_dim_1))
-
-    print("Computing cost matrix of size", cost_matrix.shape)
-    for i in tqdm(range(patches_dim_0)):
-        for j in tqdm(range(patches_dim_1)):
-            for ii in range(patches_dim_0):
-                for jj in range(patches_dim_1):
-                    patch1 = reshaped1[i, j, :, :, :]
-                    patch2 = reshaped2[ii, jj, :, :, :]
-                    sig1 = img_to_sig(patch1)
-                    sig2 = img_to_sig(patch2)
-                    cost_matrix[i * patches_dim_1 + j, ii * patches_dim_1 + jj] = cv2.EMD(sig1, sig2, cv2.DIST_L2)[0]
-    return cost_matrix.astype(np.float32)
-
-
 def img_to_sig_patches(img, most_frequent_color: np.array, patch_size=(2, 2), to_gray=False):
     """
     Convert an RGB image to a signature for cv2.EMD, processing the image in patches.
@@ -172,7 +135,7 @@ def img_to_sig_patches(img, most_frequent_color: np.array, patch_size=(2, 2), to
 
     # Flatten patches and concatenate with their normalized positions
     flattened_patches = patches.reshape(patches.shape[0], -1)
-    sig = np.hstack((np.ones_like(flattened_patches), flattened_patches, patch_positions))
+    sig = np.hstack((flattened_patches, patch_positions))
 
     return sig.astype(np.float32)
 
@@ -241,18 +204,20 @@ def compute_cost_matrix_on_sig(sig1, sig2, most_frequent_color, patch_size=(8, 8
 
     # Reshape the sub-signatures at the beginning
     debug(sig1)
-    debug(sig1[:, 1:-2:2])
-    sig1_reshaped = reshape_sub_sig_batch(sig1[:, 1:-2:2], patch_size, most_frequent_color).astype(np.float32)
-    sig2_reshaped = reshape_sub_sig_batch(sig2[:, 1:-2:2], patch_size, most_frequent_color).astype(np.float32)
+    debug(sig1[:, :-2])
+    sig1_reshaped = reshape_sub_sig_batch(sig1[:, :-2], patch_size, most_frequent_color).astype(np.float32)
+    sig2_reshaped = reshape_sub_sig_batch(sig2[:, :-2], patch_size, most_frequent_color).astype(np.float32)
 
     cost_matrix = np.zeros((sig1.shape[0], sig2.shape[0]))
     for i in tqdm(range(sig1.shape[0])):
         for j in range(sig2.shape[0]):
             pos_sig1 = sig1[i, -2:]
             pos_sig2 = sig2[j, -2:]
-            cost_matrix[i, j] = cv2.EMD(sig1_reshaped[i], sig2_reshaped[j], cv2.DIST_L2)[0] + patch_size[
-                0
-            ] * np.linalg.norm(pos_sig1 - pos_sig2)
+            emd_value, _, flow = cv2.EMD(sig1_reshaped[i], sig2_reshaped[j], cv2.DIST_L2)
+            cost_matrix[i, j] = emd_value + patch_size[0] * np.linalg.norm(pos_sig1 - pos_sig2)
+            # if True:  # i == j:
+            #     plot_flow_simple(sig1_reshaped[i], sig2_reshaped[j], flow, dim=patch_size)
+            #     plt.savefig(f"flow_{i}_{j}.png")
 
     # for i in range(cost_matrix.shape[0]):
     #     debug(np.min(cost_matrix[i]))
@@ -332,8 +297,6 @@ def compute_emd(
 
     img1 = np.array(img1)
     img2 = np.array(img2)
-    plt.imshow(img2)
-    plt.show()
 
     debug(num_patches)
     (most_frequent_color, frequency) = get_most_frequent_color(img1)
@@ -370,7 +333,12 @@ def compute_emd(
     # Compute EMD
     emd_value, _, flow = cv2.EMD(distribution1, distribution2, cv2.DIST_USER, cost)
     plot_flow(
-        distribution1, distribution2, flow=flow, dim=(closest_round_height, closest_round_width), patch_size=patch_size
+        distribution1,
+        distribution2,
+        flow=flow,
+        dim=(closest_round_height, closest_round_width),
+        patch_size=patch_size,
+        most_frequent_color=most_frequent_color,
     )
     debug(emd_value)
 
@@ -425,7 +393,7 @@ def compute_emd_with_threshold(img1: np.array, img2: np.array, threshold: float 
     return emd_value / 255.0
 
 
-def plot_flow(sig1, sig2, flow, dim, patch_size, arrow_width_scale=3):
+def plot_flow_simple(sig1, sig2, flow, dim, arrow_width_scale=3):
     """Plots the flow computed by cv2.EMD
 
     The source images are retrieved from the signatures and
@@ -434,10 +402,8 @@ def plot_flow(sig1, sig2, flow, dim, patch_size, arrow_width_scale=3):
     overplotted to show moved earth, with arrow thickness
     indicating the amount of moved earth."""
 
-    img1 = patch_sig_to_img(sig1, dim, patch_size)
-    img2 = patch_sig_to_img(sig2, dim, patch_size)
-    plt.imshow(img2)
-    plt.show()
+    img1 = sig_to_img(sig1, dim)
+    img2 = sig_to_img(sig2, dim)
     combined = np.dstack((img1, img2, 0 * img2))
     # RGB values should be between 0 and 1
     combined /= combined.max()
@@ -448,13 +414,15 @@ def plot_flow(sig1, sig2, flow, dim, patch_size, arrow_width_scale=3):
     for src, dest in flows:
         # Skip the pixel value in the first element, grab the
         # coordinates. It'll be useful later to transpose x/y.
-        start = sig1[src, 2:][::-1]
-        end = sig2[dest, 2:][::-1]
+        start = sig1[src, -2:][::-1]
+        end = sig2[dest, -2:][::-1]
         if np.all(start == end):
             # Unmoved earth shows up as a "flow" from a pixel
             # to that same exact pixel---don't plot mini arrows
             # for those pixels
             continue
+        start = start * dim[::-1]
+        end = end * dim[::-1]
 
         # Add a random shift to arrow positions to reduce overlap.
         shift = np.random.random(1) * 0.3 - 0.15
@@ -468,8 +436,8 @@ def plot_flow(sig1, sig2, flow, dim, patch_size, arrow_width_scale=3):
             angles="xy",
             scale_units="xy",
             scale=1,
-            color="white",
-            edgecolor="black",
+            color="purple",
+            edgecolor="purple",
             linewidth=mag / 3,
             width=mag,
             units="dots",
@@ -481,24 +449,77 @@ def plot_flow(sig1, sig2, flow, dim, patch_size, arrow_width_scale=3):
     plt.title("Earth moved from img1 to img2")
 
 
+def plot_flow(sig1, sig2, flow, dim, patch_size, most_frequent_color, arrow_width_scale=3):
+    """Plots the flow computed by cv2.EMD
+
+    The source images are retrieved from the signatures and
+    plotted in a combined image, with the first image in the
+    red channel and the second in the green. Arrows are
+    overplotted to show moved earth, with arrow thickness
+    indicating the amount of moved earth."""
+
+    img1 = patch_sig_to_img(sig1, dim, patch_size, most_frequent_color=most_frequent_color)
+    img2 = patch_sig_to_img(sig2, dim, patch_size, most_frequent_color=most_frequent_color)
+    combined = np.dstack((img1, img2, 0 * img2))
+    # RGB values should be between 0 and 1
+    combined /= combined.max()
+    print('Red channel is "before"; green channel is "after"; yellow means "unchanged"')
+    plt.imshow(combined)
+
+    flows = np.transpose(np.nonzero(flow))
+    for src, dest in flows:
+        # Skip the pixel value in the first element, grab the
+        # coordinates. It'll be useful later to transpose x/y.
+        start = sig1[src, -2:][::-1]
+        end = sig2[dest, -2:][::-1]
+        if np.all(start == end):
+            # Unmoved earth shows up as a "flow" from a pixel
+            # to that same exact pixel---don't plot mini arrows
+            # for those pixels
+            continue
+        start = start * dim[::-1]
+        end = end * dim[::-1]
+
+        # Add a random shift to arrow positions to reduce overlap.
+        shift = np.random.random(1) * 0.3 - 0.15
+        start = start + shift
+        end = end + shift
+
+        mag = flow[src, dest] * arrow_width_scale
+        plt.quiver(
+            *start,
+            *(end - start),
+            angles="xy",
+            scale_units="xy",
+            scale=1,
+            color="purple",
+            edgecolor="purple",
+            linewidth=mag * patch_size[0] / 3,
+            width=mag * patch_size[0],
+            units="dots",
+            headlength=5 * patch_size[0] / 3,
+            headwidth=3 * patch_size[0] / 3,
+            headaxislength=4.5 * patch_size[0] / 3,
+        )
+
+    plt.title("Earth moved from img1 to img2")
+    plt.show()
+
+
 def sig_to_img(sig, dim):
     """Convert a signature back to a 2D image"""
     img = np.zeros(dim, dtype=float)
     for i in range(sig.shape[0]):
-        x = int(sig[i, 3] * dim[1])
-        y = int(sig[i, 2] * dim[0])
+        x = round(sig[i, 3] * dim[1])
+        y = round(sig[i, 2] * dim[0])
         img[y, x] = sig[i, 1]
-    debug(img)
     return img
 
 
-def patch_sig_to_img(sig, dim, patch_size):
+def patch_sig_to_img(sig, dim, patch_size, most_frequent_color):
     """Convert a signature back to a 2D image"""
-    debug(sig)
-    patches_sig = reshape_sub_sig_batch(sig[:, 1:-2:2], patch_size, np.array([1.0]))
-    debug(patches_sig)
-    debug(dim)
-    img = np.zeros(dim, dtype=float)
+    patches_sig = reshape_sub_sig_batch(sig[:, :-2], patch_size, np.array([1.0]))
+    img = np.ones(dim, dtype=float) * most_frequent_color
     for i in range(patches_sig.shape[0]):
         xx = round(dim[1] * sig[i, -1])
         yy = round(dim[0] * sig[i, -2])
@@ -506,7 +527,6 @@ def patch_sig_to_img(sig, dim, patch_size):
             y = round(patches_sig[i, j, 3] * patch_size[1])
             x = round(patches_sig[i, j, 2] * patch_size[0])
             img[y + yy, x + xx] = patches_sig[i, j, 1]
-    debug(img)
     return img
 
 
@@ -607,7 +627,7 @@ if __name__ == "__main__":
 
     for emd_function in [compute_emd]:  # , compute_emd_with_threshold]:
         print("")
-        print(f"{emd_function} (white, ref): {emd_function(white_PIL, img_ref)}\n\n\n")
+        # print(f"{emd_function} (white, ref): {emd_function(white_PIL, img_ref)}\n\n\n")
         print(f"{emd_function} (pred, ref): {emd_function(img_pred, img_ref)}")
         # print(
         #     f"{emd_function} (ref - ref): {emd_function(image_ref_np, image_ref_np)} / patches: {emd_function(image_ref_np_patches.copy(), image_ref_np_patches.copy())}"
