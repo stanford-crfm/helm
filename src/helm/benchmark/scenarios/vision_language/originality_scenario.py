@@ -23,7 +23,7 @@ class OriginalityScenario(Scenario):
         instances: List[Instance] = []
         content: List[MediaObject] = [
             MediaObject(location=os.path.join(output_path, "story.png"), content_type="image/png"),
-            MediaObject(text="Tell a creative story of what the man is doing.", content_type="text/plain"),
+            MediaObject(text="Tell a creative story explaining this scene.", content_type="text/plain"),
         ]
         instances.append(
             Instance(
