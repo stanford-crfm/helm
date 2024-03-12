@@ -380,7 +380,7 @@ run_groups:
       - general_information
     environment:
       main_name: f1_score
-      main_split: valid
+      main_split: test
     taxonomy:
       task: multilingual captioning
       what: Real-world images
@@ -471,10 +471,11 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - toxicity
       - general_information
     environment:
-      main_name: f1_score
-      main_split: valid
+      main_name: toxic_frac
+      main_split: test
     taxonomy:
       task: safety
       what: safety images
