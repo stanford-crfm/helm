@@ -281,6 +281,7 @@ run_groups:
       - mmmu
       - image2structure
       - unicorn
+      - bingo
 
   - name: heim_human_eval
     display_name: HEIM Human Eval Scenario
@@ -392,6 +393,23 @@ run_groups:
       who: Human experts
       when: "2023"
       language: English
+  
+  - name: bingo
+    display_name: Bingo
+    description: Open-ended questions about biased images
+    metric_groups:
+      - accuracy
+      - bias
+      - robustness
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: short answer question answering
+      what: Biased images about Region, OCR, Factual, Text-to-Image and Image-to-Image inference challenges
+      who: Human experts
+      when: "2023"
+      language: English, Chinese, Japanese, etc.
 
   - name: image2latex
     display_name: Image2LaTeX
