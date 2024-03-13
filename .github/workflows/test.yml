@@ -3,9 +3,11 @@ on:
   push:
     branches: [ main ]
     paths-ignore:
+      - 'docs/**'
       - 'helm-frontend/**'
   pull_request:
     paths-ignore:
+      - 'docs/**'
       - 'helm-frontend/**'
 
 jobs:
