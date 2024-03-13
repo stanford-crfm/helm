@@ -266,6 +266,8 @@ metric_groups:
         split: ${main_split}
       - name: fid_similarity
         split: ${main_split}
+      - name: earth_mover_similarity
+        split: ${main_split}
 
 ############################################################
 run_groups:

@@ -97,6 +97,7 @@ def get_image2structure_metric_specs(
             AnnotatedImageMetrics.PIXEL_SIMILARITY,
             AnnotatedImageMetrics.FID_SIMILARITY,
             AnnotatedImageMetrics.EDIT_SIMILARITY,
+            AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY,
         ]
     if include_edit_similarity:
         metric_names.append(AnnotatedImageMetrics.EDIT_SIMILARITY)

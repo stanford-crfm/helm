@@ -24,10 +24,10 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.vision_language.image_utils import (
     preprocess_image,
-    earth_mover_similarity,
     pixel_similarity,
     sift_similarity,
 )
+from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_similarity_recursive
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -105,7 +105,7 @@ class AnnotatedImageMetrics(Metric):
         metrics: List[AnnotatedMetric] = [
             AnnotatedMetric(self.PIXEL_SIMILARITY, pixel_similarity, "image_np_gray"),
             AnnotatedMetric(self.SIFT_SIMILARITY, sift_similarity, "image_np"),
-            AnnotatedMetric(self.EARTH_MOVER_SIMILARITY, earth_mover_similarity, "image_np_gray"),
+            AnnotatedMetric(self.EARTH_MOVER_SIMILARITY, compute_emd_similarity_recursive, "image_PIL"),
             AnnotatedMetric(self.LPIPS_SIMILARITY, self.lpips_similarity, "image_PIL"),
             AnnotatedMetric(self.FID_SIMILARITY, self.fid_similarity, "image_PIL"),
             AnnotatedMetric(self.SSIM_SIMILARITY, self.compute_ssim, "image_np_gray"),
