@@ -1,4 +1,3 @@
-from scipy.stats import wasserstein_distance
 import numpy as np
 
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -19,33 +18,6 @@ def preprocess_image(image: Image) -> np.ndarray:
     np_image = np.array(image)
     assert np_image.dtype == np.uint8
     return np_image
-
-
-def get_histogram(img: np.ndarray) -> np.ndarray:
-    """
-    Get the histogram of an image using numpy for efficiency. For an 8-bit, grayscale image, the
-    histogram will be a 256 unit vector in which the nth value indicates
-    the percent of the pixels in the image with the given darkness level.
-    The histogram's values sum to 1.
-    """
-    hist, _ = np.histogram(img, bins=256, range=(0, 256))
-    hist = hist.astype(float) / img.size  # Normalize the histogram
-    return hist
-
-
-def earth_mover_similarity(img_a: np.ndarray, img_b: np.ndarray) -> float:
-    """
-    Measure the 1 - Earth Mover's distance between two images
-
-    Args:
-        img_a (np.ndarray): the first image
-        img_b (np.ndarray): the second image
-    Returns:
-        float: the Earth Mover's distance between the images
-    """
-    hist_a = get_histogram(img_a)
-    hist_b = get_histogram(img_b)
-    return 1.0 - wasserstein_distance(hist_a, hist_b)
 
 
 def pixel_similarity(img_a: np.ndarray, img_b: np.ndarray, threshold: float = 0.5, tolerance: float = 0.02) -> float:
