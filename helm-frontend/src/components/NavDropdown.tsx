@@ -33,11 +33,11 @@ function NavDropdown() {
       });
   }, []);
 
-  function getCurrentSubsite(): string {
-    return currReleaseIndexEntry !== undefined &&
-      currReleaseIndexEntry.title !== undefined
-      ? currReleaseIndexEntry.title
-      : "Lite";
+  if (
+    currReleaseIndexEntry === undefined ||
+    currReleaseIndexEntry.title === undefined
+  ) {
+    return null;
   }
 
   return (
@@ -49,7 +49,7 @@ function NavDropdown() {
         aria-haspopup="true"
         aria-controls="menu"
       >
-        {getCurrentSubsite()}{" "}
+        {currReleaseIndexEntry.title}
         <ChevronDownIcon fill="black" color="black" className="text w-4 h-4" />
       </div>
       <ul
@@ -60,7 +60,7 @@ function NavDropdown() {
         {releaseIndex.map((item, index) => (
           <li key={index}>
             <a
-              href={getReleaseUrl(item.id, item)}
+              href={getReleaseUrl(undefined, item)}
               className="block"
               role="menuitem"
             >

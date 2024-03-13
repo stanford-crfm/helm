@@ -60,9 +60,13 @@ function ReleaseDropdown() {
 
   const releases = getReleases();
 
-  const releaseInfo = `Release ${
-    summary.release || summary.suite || "unknown"
-  } (${summary.date})`;
+  if (!summary.release && !summary.suite) {
+    return null;
+  }
+
+  const releaseInfo = `Release ${summary.release || summary.suite} (${
+    summary.date
+  })`;
 
   if (releases.length <= 1) {
     return <div>{releaseInfo}</div>;
