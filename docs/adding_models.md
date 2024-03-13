@@ -14,6 +14,10 @@ Create a file called `model_deployments.yaml` underneath that directory (e.g. `.
 
 This file should contain a YAML-formatted `ModelDeployments` object. For an example of this format, refer to the built-in `model_deployments.yaml` in the GitHub repository, or follow the example below for your preferred model platform.
 
+After adding a model deployment, you can then run your model by running `helm-run` with a run entry with `model=myorg/mymodel` where `myorg/mymodel` is the value of `model_name` (_not_ `name`) in your `ModelDeployments` entry.
+
+Although this is not required by `helm-run`, you should also add metadata for your model, which will be used by `helm-summarize` and the HELM web frontend later. Instructions for doing so will be added to the documentation in the future.
+
 ## Model platform integrations
 
 ### Hugging Face
@@ -22,7 +26,6 @@ Example:
 
 ```yaml
 model_deployments:
-
   - name: vllm/pythia-70m
     model_name: eleutherai/pythia-70m
     tokenizer_name: EleutherAI/gpt-neox-20b
