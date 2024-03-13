@@ -9,36 +9,6 @@ from tqdm import tqdm
 
 import numpy as np
 import math
-from scipy.stats import mode
-
-
-def img_to_sig(img):
-    """
-    Convert an RGB image to a signature for cv2.EMD.
-
-    Parameters:
-    - img: A 3D numpy array representing an RGB image (height, width, channels).
-
-    Returns:
-    - A numpy array of shape (height*width, 5), suitable for cv2.EMD, containing the
-      color values and coordinates of each pixel.
-    """
-    # Ensure img is a numpy array of type float32
-    img = np.array(img, dtype=np.float32)
-    num_color_channels = img.shape[2]
-
-    # Generate coordinate grids for the entire array
-    x, y = np.meshgrid(np.arange(img.shape[1]), np.arange(img.shape[0]))
-
-    # Flatten the arrays
-    x_flat = x.ravel() / img.shape[1]
-    y_flat = y.ravel() / img.shape[0]
-    colors_flat = img.reshape(-1, num_color_channels) / 255.0  # Flatten color channels, maintaining the RGB structure
-
-    # Combine color values with their coordinates
-    sig = np.hstack((np.ones_like(colors_flat), colors_flat, y_flat[:, np.newaxis], x_flat[:, np.newaxis]))
-
-    return sig.astype(np.float32)
 
 
 def get_most_frequent_color(img: np.array) -> Tuple[np.array, float]:
@@ -67,42 +37,44 @@ def get_most_frequent_color(img: np.array) -> Tuple[np.array, float]:
 
     # Calculate frequency percentage
     frequency = counts[most_frequent_color_index] / pixels.shape[0]
-    debug(frequency)
-    debug(most_frequent_color)
 
     return most_frequent_color, frequency
 
 
-def img_to_sig_patches(img, most_frequent_color: np.array, patch_size=(2, 2), to_gray=False):
+def img_to_sig_patches(
+    img: np.array,
+    rgb_most_frequent_color: np.array,
+    patch_size: Tuple[int, int],
+    weight_most_frequent_color: float = 0.01,
+):
     """
     Convert an RGB image to a signature for cv2.EMD, processing the image in patches.
 
-    Parameters:
+    Args:
     - img: A 3D numpy array representing an RGB image (height, width, channels).
+    - rgb_most_frequent_color: The most frequent color in the image.
     - patch_size: Tuple indicating the height and width of the patches.
-    - to_gray: Boolean indicating whether to collapse the color dimension to grayscale.
+    - weight_most_frequent_color: The weight assigned to the most frequent color in the patches.
 
     Returns:
     - A numpy array suitable for cv2.EMD, containing color values and coordinates of each patch.
+        The shape is (num_patches, patch_size[0] * patch_size[1] + 3).
     """
-    assert len(img.shape) == 3
+    assert len(img.shape) == 3, "Input image must be a 3D numpy array"
+
     # Ensure img is a numpy array of type float32
     img = np.array(img, dtype=np.float32)
 
     # Determine padding needs
     pad_height = (-img.shape[0]) % patch_size[0]
     pad_width = (-img.shape[1]) % patch_size[1]
-    debug(patch_size)
-    debug(pad_height)
-    debug(pad_width)
-    debug(img.shape[0] + pad_height)
 
     # Adjust padding for RGB channels
     padding = ((0, pad_height), (0, pad_width), (0, 0))
     pad_values = (
-        (most_frequent_color[0], most_frequent_color[0]),
-        (most_frequent_color[1], most_frequent_color[1]),
-        (most_frequent_color[2], most_frequent_color[2]),
+        (rgb_most_frequent_color[0], rgb_most_frequent_color[0]),
+        (rgb_most_frequent_color[1], rgb_most_frequent_color[1]),
+        (rgb_most_frequent_color[2], rgb_most_frequent_color[2]),
     )
 
     # Find the most frequent color for padding
@@ -110,11 +82,8 @@ def img_to_sig_patches(img, most_frequent_color: np.array, patch_size=(2, 2), to
         img = np.pad(img, padding, "constant", constant_values=pad_values)
     img /= 255.0  # Normalize colors to [0, 1]
 
-    # Collapse color dimensions to grayscale if needed
-    if to_gray:
-        img = np.mean(img, axis=2, keepdims=True)
-        # plt.imshow(img[:, :, 0])
-        # plt.show()
+    # Collapse color dimensions to grayscale
+    img = np.mean(img, axis=2, keepdims=True)
 
     # Reshape image into patches and flatten the color dimensions within each patch
     patches = (
@@ -133,9 +102,17 @@ def img_to_sig_patches(img, most_frequent_color: np.array, patch_size=(2, 2), to
     # Normalize positions
     patch_positions = patch_positions / np.array([img.shape[0] // patch_size[0], img.shape[1] // patch_size[1]])
 
-    # Flatten patches and concatenate with their normalized positions
+    # Compute the weight of each patch
+    # The weight of each point is 1 if the color is not the most frequent color, weight_most_frequent_color otherwise
     flattened_patches = patches.reshape(patches.shape[0], -1)
-    sig = np.hstack((flattened_patches, patch_positions))
+    gray_most_frequent_color: float = np.mean(rgb_most_frequent_color) / 255.0
+    weight = weight_most_frequent_color + (1 - weight_most_frequent_color) * np.any(
+        flattened_patches != gray_most_frequent_color, axis=1, keepdims=True
+    ).astype(np.float32)
+    weight /= np.sum(weight)
+
+    # Flatten patches and concatenate with their normalized positions and weights
+    sig = np.hstack((weight, flattened_patches, patch_positions))
 
     return sig.astype(np.float32)
 
@@ -150,28 +127,38 @@ def pad(small_image: Image.Image, large_image: Image.Image, axis: int) -> Image.
     return new_image
 
 
-def get_translation(image: np.array, translation: Tuple[int, int]) -> np.array:
-    """Translate the image by the given translation."""
-    copy = np.ones_like(image) * image.max()
-    copy[
-        max(0, translation[0]) : min(image.shape[0], image.shape[0] + translation[0]),
-        max(0, translation[1]) : min(image.shape[1], image.shape[1] + translation[1]),
-    ] = image[
-        max(0, -translation[0]) : min(image.shape[0], image.shape[0] - translation[0]),
-        max(0, -translation[1]) : min(image.shape[1], image.shape[1] - translation[1]),
-    ]
-    return copy
-
-
-def reshape_sub_sig_batch(sub_sigs, patch_size, most_frequent_color):
+def reshape_sub_sig_batch(
+    sub_sigs: np.array,
+    patch_size: Tuple[int, int],
+    gray_most_frequent_color: float,
+    weight_most_frequent_color: float = 0.01,
+) -> np.array:
     """
-    Reshape a batch of sub-signatures.
+    Reshape a patch-based signature of an image (Shape: (num_patches, patch_size[0] * patch_size[1] + 3))
+    to a batch of signatures for each patch (Shape: (num_patches, patch_size[0] * patch_size[1], 4)).
+    Basically goes from a signature on the patch level to a batch of signatures on the pixel level.
+
+    Args:
+    - sub_sigs: A numpy array of shape (num_patches, patch_size[0] * patch_size[1] + 1) representing the
+        sub-signatures. (the spatial info should have been stripped).
+    - patch_size: Tuple indicating the height and width of the patches.
+    - gray_most_frequent_color: The most frequent color in the image.
+        This is used to reduce the weight assigned to the most frequent color in the patches.
+    - weight_most_frequent_color: The weight assigned to the most frequent color in the patches.
+
+    Returns:
+    - A numpy array of shape (num_patches, patch_size[0] * patch_size[1], 4) representing the sub-signatures of
+        each patch (pixel-level signatures).
     """
+    # Ensure sub_sigs has the correct shape
     num_patches = sub_sigs.shape[0]
     flat_patch_size = patch_size[0] * patch_size[1]
+    assert sub_sigs.shape[1] == flat_patch_size + 1, f"Expected {flat_patch_size + 1} columns, got {sub_sigs.shape[1]}."
 
     # Ensure sub_sigs is reshaped to include an extra dimension for concatenation
-    sub_sigs_reshaped = sub_sigs.reshape(num_patches, flat_patch_size, 1)  # Add an extra dimension
+    num_channels: int = int(round(sub_sigs.shape[0] * sub_sigs.shape[1] / (num_patches * flat_patch_size)))
+    assert num_channels == 1, "Only grayscale images are supported for now."
+    sub_sigs_reshaped = sub_sigs[:, 1:].reshape(num_patches, flat_patch_size, num_channels)
 
     # Generate spatial information
     x = np.arange(patch_size[0]) / patch_size[0]
@@ -184,213 +171,141 @@ def reshape_sub_sig_batch(sub_sigs, patch_size, most_frequent_color):
         spatial_info[np.newaxis, :, :], num_patches, axis=0
     )  # Shape: (num_patches, flat_patch_size, 2)
 
-    # Concatenate sub_sigs with spatial information
-    # The weight of each point is 1 if the color is not the most frequent color, 0 otherwise
-    weights = 0.1 + 0.9 * (sub_sigs_reshaped != most_frequent_color).astype(np.float32)
-    weights /= np.sum(weights, axis=1, keepdims=True)
-    sub_sigs_with_spatial_info = np.concatenate(
-        (weights, sub_sigs_reshaped, spatial_info_repeated), axis=2
-    )  # Shape: (num_patches, flat_patch_size, 3)
+    # The weight of each point is 1 if the color is not the most frequent color, weight_most_frequent_color otherwise
+    # The weight of a pixel is the product of the weight of the patch and the weight of the pixel in the patch
+    local_weights = weight_most_frequent_color + (1 - weight_most_frequent_color) * (
+        sub_sigs_reshaped != gray_most_frequent_color
+    ).astype(np.float32)
+    global_weights = sub_sigs[:, 0:1]
+    local_weights *= global_weights.reshape(-1, 1, 1)
+    local_weights /= np.sum(local_weights, axis=1, keepdims=True)
 
-    debug(sub_sigs_with_spatial_info)
+    # Concatenate sub_sigs with weights and spatial information
+    sub_sigs_with_spatial_info = np.concatenate(
+        (local_weights, sub_sigs_reshaped, spatial_info_repeated), axis=2
+    )  # Shape: (num_patches, flat_patch_size, 4)
+
     return sub_sigs_with_spatial_info
 
 
-def compute_cost_matrix_on_sig(sig1, sig2, most_frequent_color, patch_size=(8, 8)):
+def compute_cost_matrix_on_sig(
+    sig1: np.array,
+    sig2: np.array,
+    gray_most_frequent_color: float,
+    patch_size: Tuple[int, int],
+    weight_most_frequent_color: float = 0.01,
+    use_tqdm: bool = True,
+) -> np.array:
     """
     Compute the cost matrix for the EMD between two signatures with pre-reshaping optimization.
+
+    Args:
+    - sig1: A numpy array of shape (num_patches, patch_size[0] * patch_size[1] + 2) representing the first signature.
+    - sig2: A numpy array of shape (num_patches, patch_size[0] * patch_size[1] + 2) representing the second signature.
+    - gray_most_frequent_color: The most frequent color in the images, used to filter out patches that are constant
+        equal to the most frequent color.
+    - patch_size: Tuple indicating the height and width of the patches.
+    - use_tqdm: Boolean indicating whether to display a progress bar.
+
+    Returns:
+    - A numpy array of shape (num_patches, num_patches) representing the cost matrix.
     """
     assert sig1.shape == sig2.shape
 
     # Reshape the sub-signatures at the beginning
-    debug(sig1)
-    debug(sig1[:, :-2])
-    sig1_reshaped = reshape_sub_sig_batch(sig1[:, :-2], patch_size, most_frequent_color).astype(np.float32)
-    sig2_reshaped = reshape_sub_sig_batch(sig2[:, :-2], patch_size, most_frequent_color).astype(np.float32)
+    sig1_reshaped = reshape_sub_sig_batch(
+        sig1[:, :-2], patch_size, gray_most_frequent_color, weight_most_frequent_color
+    ).astype(np.float32)
+    sig2_reshaped = reshape_sub_sig_batch(
+        sig2[:, :-2], patch_size, gray_most_frequent_color, weight_most_frequent_color
+    ).astype(np.float32)
 
     cost_matrix = np.zeros((sig1.shape[0], sig2.shape[0]))
-    for i in tqdm(range(sig1.shape[0])):
+    for i in tqdm(range(sig1.shape[0]), disable=not use_tqdm):
         for j in range(sig2.shape[0]):
             pos_sig1 = sig1[i, -2:]
             pos_sig2 = sig2[j, -2:]
-            emd_value, _, flow = cv2.EMD(sig1_reshaped[i], sig2_reshaped[j], cv2.DIST_L2)
+            emd_value, _, _ = cv2.EMD(sig1_reshaped[i], sig2_reshaped[j], cv2.DIST_L2)
             cost_matrix[i, j] = emd_value + patch_size[0] * np.linalg.norm(pos_sig1 - pos_sig2)
-            # if True:  # i == j:
-            #     plot_flow_simple(sig1_reshaped[i], sig2_reshaped[j], flow, dim=patch_size)
-            #     plt.savefig(f"flow_{i}_{j}.png")
-
-    # for i in range(cost_matrix.shape[0]):
-    #     debug(np.min(cost_matrix[i]))
     return cost_matrix.astype(np.float32)
 
 
-def compute_emd_simple(img1: np.array, img2: np.array, to_gray: bool = True, threshold: float = 0.5):
-    # Flatten the images to turn them into 1D distributions
-    debug(img1)
-    debug(img2)
-    if to_gray:
-        img1 = np.mean(img1, axis=2, keepdims=True)
-        img2 = np.mean(img2, axis=2, keepdims=True)
-    (most_frequent_color, frequency) = get_most_frequent_color(img1)
-    distribution1 = img_to_sig(img1)
-    distribution2 = img_to_sig(img2)
-    print("Before removing most frequent color")
-    debug(distribution1)
-    debug(distribution2)
-    debug(most_frequent_color)
-    debug(frequency)
-    if frequency > threshold and to_gray:
-        # Ignore patches that are constant equal to the most frequent color
-        most_frequent_color = np.mean(most_frequent_color) / 255.0
-        # Filter all patches that are equal to the most frequent color on every point except the last 2 that correspond to the coordinates
-        # print(distribution1[:10, :-2])
-        mask1 = np.any(distribution1[:, 1:2] != most_frequent_color, axis=1)
-        mask2 = np.any(distribution2[:, 1:2] != most_frequent_color, axis=1)
-        print("Size of mask 1", np.sum(mask1) / mask1.size)
-        print("Size of mask 2", np.sum(mask2) / mask2.size)
-        mask = np.logical_or(mask1, mask2)
-        distribution1 = distribution1[mask]
-        distribution2 = distribution2[mask]
-    print("After removing most frequent color")
-    debug(distribution1)
-    debug(distribution2)
-    print("")
-
-    # Compute EMD
-    # help(cv2.EMD)
-    emd_value = cv2.EMD(distribution2, distribution1, cv2.DIST_L1)
-    debug(emd_value)
-    emd_value = emd_value[0]
-
-    return emd_value
-
-
 def compute_emd(
-    img1: Image.Image,
-    img2: Image.Image,
-    to_gray: bool = True,
+    img1_PIL: Image.Image,
+    img2_PIL: Image.Image,
     threshold: float = 0.5,
     patch_size: Tuple[int, int] = (8, 8),
     max_num_patches: int = 100,
+    weight_most_frequent_color: float = 0.01,
+    use_tqdm: bool = True,
 ):
-    # Flatten the images to turn them into 1D distributions
-    assert img1.size == img2.size
-    debug(img1)
-    debug(img2)
-    num_patches = math.ceil(img1.size[0] / patch_size[0]) * math.ceil(img1.size[1] / patch_size[1])
+    assert img1_PIL.size == img2_PIL.size
+
+    # Resize the images so that there are not too many patches
+    # Try to maintain the aspect ratio and resize to a multiple of the patch size
+    num_patches = math.ceil(img1_PIL.size[0] / patch_size[0]) * math.ceil(img1_PIL.size[1] / patch_size[1])
     if num_patches > max_num_patches:
         ideal_divider = (num_patches / max_num_patches) ** 0.5
-        debug(ideal_divider)
-        closest_round_width = math.ceil((img1.size[0] / patch_size[1]) / ideal_divider) * patch_size[1]
+        closest_round_width = math.ceil((img1_PIL.size[0] / patch_size[1]) / ideal_divider) * patch_size[1]
         num_patches_width = closest_round_width / patch_size[0]
-        debug(closest_round_width)
-        debug(num_patches_width)
         # Chooses a round height such that:
         # - (round_width / patch_size[1]) * (round_height / patch_size[0]) <= max_num_patches
         # - the ratio is as unchanged as possible: (original_width / round_width) / (original_height / round_height) is close to 1
         closest_round_height = math.floor(max_num_patches / num_patches_width) * patch_size[0]
-        debug(closest_round_height)
-        debug(closest_round_height / patch_size[1])
+        # Resize the images
+        img1_PIL = img1_PIL.resize((closest_round_width, closest_round_height))
+        img2_PIL = img2_PIL.resize((closest_round_width, closest_round_height))
 
-        img1 = img1.resize((closest_round_width, closest_round_height))
-        img2 = img2.resize((closest_round_width, closest_round_height))
+    # Convert the images to numpy arrays
+    img1_np = np.array(img1_PIL)
+    img2_np = np.array(img2_PIL)
 
-    img1 = np.array(img1)
-    img2 = np.array(img2)
+    # Get the patch-signature of the images.
+    # This is of shape (num_patches, patch_size[0] * patch_size[1] + 3)
+    # Each row is a patch, and the columns are:
+    # - index 0: weight of the patch
+    # - index 1 - 1 + patch_size[0] * patch_size[1]: color values of the patch
+    # - index -2, -1: position of the patch
+    (rgb_most_frequent_color, frequency) = get_most_frequent_color(img1_np)
+    gray_most_frequent_color = np.mean(rgb_most_frequent_color) / 255.0
+    sig1 = img_to_sig_patches(img1_np, rgb_most_frequent_color, patch_size, weight_most_frequent_color)
+    sig2 = img_to_sig_patches(img2_np, rgb_most_frequent_color, patch_size, weight_most_frequent_color)
 
-    debug(num_patches)
-    (most_frequent_color, frequency) = get_most_frequent_color(img1)
-    distribution1 = img_to_sig_patches(img1, most_frequent_color, patch_size=patch_size, to_gray=to_gray)
-    distribution2 = img_to_sig_patches(img2, most_frequent_color, patch_size=patch_size, to_gray=to_gray)
-    print("Before removing most frequent color")
-    debug(distribution1)
-    debug(distribution2)
-    debug(most_frequent_color)
-    debug(frequency)
-    if frequency > threshold and to_gray:
+    if frequency > threshold:
         # Ignore patches that are constant equal to the most frequent color
-        most_frequent_color = np.mean(most_frequent_color) / 255.0
-        # Filter all patches that are equal to the most frequent color on every point except the last 2 that correspond to the coordinates
-        # print(distribution1[:10, :-2])
-        mask1 = np.any(distribution1[:, :-2] != most_frequent_color, axis=1)
-        mask2 = np.any(distribution2[:, :-2] != most_frequent_color, axis=1)
-        print("Size of mask 1", np.sum(mask1) / mask1.size)
-        print("Size of mask 2", np.sum(mask2) / mask2.size)
+        mask1 = np.any(sig1[:, 1:-2] != gray_most_frequent_color, axis=1)
+        mask2 = np.any(sig2[:, 1:-2] != gray_most_frequent_color, axis=1)
         mask = np.logical_or(mask1, mask2)
-        distribution1 = distribution1[mask]
-        distribution2 = distribution2[mask]
-    print("After removing most frequent color")
-    debug(distribution1)
-    debug(distribution2)
-    print("")
+        sig1 = sig1[mask]
+        sig2 = sig2[mask]
 
-    cost = compute_cost_matrix_on_sig(
-        distribution1, distribution2, patch_size=patch_size, most_frequent_color=most_frequent_color
-    )
-    # plt.imshow(cost)
-    # plt.show()
+    # Normalize the weights
+    weight1 = sig1[:, 0]
+    weight2 = sig2[:, 0]
+    sig1[:, 0] /= np.sum(weight1)
+    sig2[:, 0] /= np.sum(weight2)
 
     # Compute EMD
-    emd_value, _, flow = cv2.EMD(distribution1, distribution2, cv2.DIST_USER, cost)
+    cost = compute_cost_matrix_on_sig(
+        sig1=sig1,
+        sig2=sig2,
+        gray_most_frequent_color=gray_most_frequent_color,
+        patch_size=patch_size,
+        weight_most_frequent_color=weight_most_frequent_color,
+        use_tqdm=use_tqdm,
+    )
+    emd_value, _, flow = cv2.EMD(sig1, sig2, cv2.DIST_USER, cost)
+
     plot_flow(
-        distribution1,
-        distribution2,
+        sig1,
+        sig2,
         flow=flow,
         dim=(closest_round_height, closest_round_width),
         patch_size=patch_size,
-        most_frequent_color=most_frequent_color,
+        most_frequent_color=gray_most_frequent_color,
     )
-    debug(emd_value)
 
     return emd_value
-
-
-def filter_pixels_by_threshold(img, threshold):
-    """
-    Identify pixels that exceed the threshold frequency in the image
-    and return a mask for all pixels to be kept.
-    """
-    unique, counts = np.unique(img, return_counts=True)
-    frequencies = counts / img.size
-    # Pixels to keep are those whose frequencies are below the threshold
-    pixels_to_keep = unique[frequencies < threshold]
-    mask = np.isin(img, pixels_to_keep)
-
-    # Print the colors that were ignored
-    ignored_colors = unique[frequencies >= threshold]
-    # if len(ignored_colors) > 0:
-    #     print(f"Ignored colors: {ignored_colors}")
-    return mask
-
-
-def compute_emd_with_threshold(img1: np.array, img2: np.array, threshold: float = 0.5):
-    """
-    Compute the EMD between two images, ignoring pixel values in both images
-    that exceed a specified presence threshold in the first image.
-    """
-    # Identify pixels in img1 that are below the threshold
-    mask1 = filter_pixels_by_threshold(img1, threshold)
-    # print("Size of mask", np.sum(mask1) / mask1.size)
-    # print(np.mean(img1[mask1]))
-
-    # Apply the same for img2 for consistency in comparison
-    mask2 = filter_pixels_by_threshold(img2, threshold)
-    # print("Size of mask", np.sum(mask2) / mask2.size)
-    # print(np.mean(img2[mask2]))
-
-    # Combine masks to focus on common set of pixels for comparison
-    combined_mask = np.logical_or(mask1, mask2)
-
-    # Apply the mask and flatten the filtered images to 1D distributions
-    filtered_distribution1 = img_to_sig(img1[combined_mask])
-    filtered_distribution2 = img_to_sig(img2[combined_mask])
-    debug(filtered_distribution1)
-
-    # Compute EMD on filtered distributions
-    emd_value = cv2.EMD(filtered_distribution1, filtered_distribution2, cv2.DIST_L2)[0]
-    debug(emd_value)
-
-    return emd_value / 255.0
 
 
 def plot_flow_simple(sig1, sig2, flow, dim, arrow_width_scale=3):
@@ -593,7 +508,7 @@ if __name__ == "__main__":
     # raise ValueError("done")
 
     # print(img_to_sig(np.array([[0.5, 0.1], [0.7, 0.2]])))
-    num: int = 0
+    num: int = 1
     img_path_ref = f"../images_test/ref_image_{num}.png"
     img_path_pred = f"../images_test/pred_image_{num}.png"
     img_ref = Image.open(img_path_ref)
@@ -627,7 +542,7 @@ if __name__ == "__main__":
 
     for emd_function in [compute_emd]:  # , compute_emd_with_threshold]:
         print("")
-        # print(f"{emd_function} (white, ref): {emd_function(white_PIL, img_ref)}\n\n\n")
+        print(f"{emd_function} (white, ref): {emd_function(white_PIL, img_ref)}\n\n\n")
         print(f"{emd_function} (pred, ref): {emd_function(img_pred, img_ref)}")
         # print(
         #     f"{emd_function} (ref - ref): {emd_function(image_ref_np, image_ref_np)} / patches: {emd_function(image_ref_np_patches.copy(), image_ref_np_patches.copy())}"
