@@ -290,6 +290,26 @@ def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
         groups=[run_spec_name],
     )
 
+@run_spec_function("unicorn")
+def get_unicorn_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.unicorn_scenario.UnicornScenario",
+        args={"subject": subject}
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        instructions="Only give numerical or boolean answer without an explanation."
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "unicorn"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
 
 @run_spec_function("heim_human_eval")
 def get_heim_human_eval_spec(question_type: str) -> RunSpec:

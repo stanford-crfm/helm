@@ -280,6 +280,7 @@ run_groups:
       - vqa
       - mmmu
       - image2structure
+      - unicorn
 
   - name: heim_human_eval
     display_name: HEIM Human Eval Scenario
@@ -371,6 +372,23 @@ run_groups:
     taxonomy:
       task: multiple-choice question answering
       what: Art & Design, Business, Science, Health & Medicine, Humanities & Social Science, and Tech & Engineering
+      who: Human experts
+      when: "2023"
+      language: English
+  
+  - name: unicorn
+    display_name: Unicorn
+    description: Safety Evaluation Benchmark for Evaluating on Out-of-Distribution and Sketch Images
+    metric_groups:
+      - accuracy
+      - robustness
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: short answer question answering
+      what: OOD images and sketch images
       who: Human experts
       when: "2023"
       language: English
