@@ -24,62 +24,55 @@ class CIMCQAScenario(Scenario):
 
     name = "ci_mcqa"
     description = (
-        "MedMCQA is a multiple-choice question answering (MCQA) dataset designed to address "
-        "real-world medical entrance exam questions."
+        "CIMCQA is a multiple-choice question answering (MCQA) dataset designed to"
+        "study concept inventories in CS Education."
     )
     tags = ["question_answering", "biomedical"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
-        data_path: str = os.path.join(output_path, "data.json")
-        ensure_file_downloaded(
-            source_url=self.DATASET_DOWNLOAD_URL,
-            target_path=data_path,
-            # unpack=True,
-            # unpack_type="unzip",
-        )
+        data_path: str = os.path.join("restricted", "scs1.json")
+        assert os.path.exists(data_path)
 
-        instances: List[Instance] = []
+        with open(data_path, "r", encoding="utf8") as f:
+            data = json.load(f)
+        
+        # Data is a list of dictionaries now, each one a question and its associated answers and metadata.
+        instances: List[Instance] = list()
 
-        print("DATA PATH: ", data_path)
-        with open(data_path, "r") as f:
-            example = json.loads(f.read(), strict=False) # to allow newline control characters
-        print("EXAMPLE: ", example)
-        references = list()
-        for key in example:
-            if key[:2] == 'op':
-                # CURRENTLY HARDCODED CORRECT CHOICE FOR TESTING NEED TO UPDATE
-                references.append(Reference(Output(text=example[key]), tags=[CORRECT_TAG] if key == 'opb' else []))
-        instance: Instance = Instance(
-                    input=Input(text=example["question"]),
-                    references=references,
-                    split=VALID_SPLIT, # No training data for testing currently
-                )
+        # UNCOMMENT BELOW FOR FEW-SHOT RUN
+        training_data_path: str = os.path.join("restricted", "mock_scs1.json")
+        assert os.path.exists(training_data_path)
 
-        # # From https://github.com/MedMCQA/MedMCQA#model-submission-and-test-set-evaluation,
-        # # "to preserve the integrity of test results, we do not release the test set's ground-truth to the public".
-        # for split in [TRAIN_SPLIT, VALID_SPLIT]:
-        #     # Although the files end with ".json", they are actually JSONL files
-        #     split_file_name: str = f"{'dev' if split == VALID_SPLIT else split}.json"
-        #     split_path: str = os.path.join(data_path, split_file_name)
-
-        #     with open(split_path, "r") as f:
-        #         for line in f:
-        #             # The data fields and their explanations can be found here:
-        #             # https://github.com/MedMCQA/MedMCQA#data-fields
-        #             example: Dict[str, str] = json.loads(line.rstrip())
-
-        #             # Just edit my references to use the format given
-        #             # HELM does not look at the JSON, it can be formatted however
-        #             references: List[Reference] = [
-        #                 # Value of "cop" corresponds to the index of the correct option
-        #                 Reference(Output(text=example[option]), tags=[CORRECT_TAG] if index == example["cop"] else [])
-        #                 for option, index in MedMCQAScenario.ANSWER_OPTION_TO_INDEX.items()
-        #             ]
-        #             instance: Instance = Instance(
-        #                 input=Input(text=example["question"]),
-        #                 references=references,
-        #                 split=split,
-        #             )
-        #             instances.append(instance)
+        with open(training_data_path, "r", encoding="utf8") as f:
+            training_data = json.load(f)
+        for question in training_data:
+            question_text = question['question']
+            references = list()
+            for index, answer in enumerate(question['options']):
+                reference_answer = Output(text=answer)
+                # Correct option offset by 1 due to zero-indexing
+                tag = [CORRECT_TAG] if index == question['correct_option'] - 1 else []
+                references.append(Reference(reference_answer, tags=tag))
+            instance: Instance = Instance(
+                input=Input(text=question_text),
+                references=references,
+                split=TRAIN_SPLIT,
+            )
+            instances.append(instance)
+        
+        for question in data:
+            question_text = question['question']
+            references = list()
+            for index, answer in enumerate(question['options']):
+                reference_answer = Output(text=answer)
+                # Correct option offset by 1 due to zero-indexing
+                tag = [CORRECT_TAG] if index == question['correct_option'] - 1 else []
+                references.append(Reference(reference_answer, tags=tag))
+            instance: Instance = Instance(
+                input=Input(text=question_text),
+                references=references,
+                split=VALID_SPLIT, # Just doing zero shot to start
+            )
+            instances.append(instance)
 
         return instances
