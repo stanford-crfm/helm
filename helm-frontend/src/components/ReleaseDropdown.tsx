@@ -77,11 +77,11 @@ function ReleaseDropdown() {
       <div
         tabIndex={0}
         role="button"
-        className="normal-case bg-white border-0"
+        className="normal-case bg-white border-0 block whitespace-nowrap"
         aria-haspopup="true"
         aria-controls="menu"
       >
-        {releaseInfo}{" "}
+        {releaseInfo}&nbsp;
         <ChevronDownIcon
           fill="black"
           color="black"

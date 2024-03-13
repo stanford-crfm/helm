@@ -45,12 +45,16 @@ function NavDropdown() {
       <div
         tabIndex={0}
         role="button"
-        className="btn normal-case bg-white font-bold p-2 border-0 text-lg"
+        className="btn normal-case bg-white font-bold p-2 border-0 text-lg block whitespace-nowrap"
         aria-haspopup="true"
         aria-controls="menu"
       >
-        {currReleaseIndexEntry.title}
-        <ChevronDownIcon fill="black" color="black" className="text w-4 h-4" />
+        {currReleaseIndexEntry.title}&nbsp;
+        <ChevronDownIcon
+          fill="black"
+          color="black"
+          className="text w-4 h-4 inline"
+        />
       </div>
       <ul
         tabIndex={0}
