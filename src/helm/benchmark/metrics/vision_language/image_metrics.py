@@ -27,7 +27,7 @@ from helm.benchmark.metrics.vision_language.image_utils import (
     pixel_similarity,
     sift_similarity,
 )
-from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_similarity_recursive
+from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive, get_most_frequent_color
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -105,7 +105,7 @@ class AnnotatedImageMetrics(Metric):
         metrics: List[AnnotatedMetric] = [
             AnnotatedMetric(self.PIXEL_SIMILARITY, pixel_similarity, "image_np_gray"),
             AnnotatedMetric(self.SIFT_SIMILARITY, sift_similarity, "image_np"),
-            AnnotatedMetric(self.EARTH_MOVER_SIMILARITY, compute_emd_similarity_recursive, "image_PIL"),
+            AnnotatedMetric(self.EARTH_MOVER_SIMILARITY, self.compute_emd_similarity_recursive, "image_PIL"),
             AnnotatedMetric(self.LPIPS_SIMILARITY, self.lpips_similarity, "image_PIL"),
             AnnotatedMetric(self.FID_SIMILARITY, self.fid_similarity, "image_PIL"),
             AnnotatedMetric(self.SSIM_SIMILARITY, self.compute_ssim, "image_np_gray"),
@@ -392,3 +392,46 @@ class AnnotatedImageMetrics(Metric):
 
         result = _edit_similarity(completion_tokens, truncated_reference_tokens)
         return result
+
+    def compute_emd_similarity_recursive(
+        self,
+        pred_image: Image.Image,
+        ref_image: Image.Image,
+        threshold_most_frequent_color: float = 0.5,
+        patch_size: Tuple[int, int] = (8, 8),
+        max_num_patches: int = 100,
+        weight_most_frequent_color: float = 0.001,
+        use_tqdm: bool = False,
+    ):
+        emd_value = compute_emd_recursive(
+            pred_image,
+            ref_image,
+            threshold_most_frequent_color,
+            patch_size,
+            max_num_patches,
+            weight_most_frequent_color,
+            use_tqdm,
+        )
+
+        def do_it():
+            color: np.ndarray = get_most_frequent_color(np.array(ref_image))[0]
+            constant_image = Image.new("RGB", ref_image.size, tuple(color))  # type: ignore
+            value = compute_emd_recursive(
+                constant_image,
+                ref_image,
+                threshold_most_frequent_color,
+                patch_size,
+                max_num_patches,
+                weight_most_frequent_color,
+                use_tqdm,
+            )
+            return {"value": value}
+
+        hash_dict = {
+            "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+        }
+        cache_key = {"metric_name": f"intermediate_{self.EARTH_MOVER_SIMILARITY}", **hash_dict}
+        assert self._cache is not None
+        response_metric, _ = self._cache.get(cache_key, do_it)
+
+        return 1.0 - emd_value / response_metric["value"]

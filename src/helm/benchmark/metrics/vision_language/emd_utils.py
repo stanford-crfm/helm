@@ -332,37 +332,3 @@ def compute_emd_recursive(
     )
     emd_value, _, _ = cv2.EMD(sig1, sig2, cv2.DIST_USER, cost)
     return emd_value
-
-
-def compute_emd_similarity_recursive(
-    img1_PIL: Image.Image,
-    img2_PIL: Image.Image,
-    threshold_most_frequent_color: float = 0.5,
-    patch_size: Tuple[int, int] = (8, 8),
-    max_num_patches: int = 100,
-    weight_most_frequent_color: float = 0.001,
-    use_tqdm: bool = False,
-):
-    """
-    Same as compute_emd_recursive but returns the similarity instead of the distance.
-    This is also normalized by comparing to the distance between the reference image and a white image.
-    """
-    emd_value = compute_emd_recursive(
-        img1_PIL,
-        img2_PIL,
-        threshold_most_frequent_color,
-        patch_size,
-        max_num_patches,
-        weight_most_frequent_color,
-        use_tqdm,
-    )
-    emd_value_white = compute_emd_recursive(
-        Image.new("RGB", img1_PIL.size, (255, 255, 255)),
-        img2_PIL,
-        threshold_most_frequent_color,
-        patch_size,
-        max_num_patches,
-        weight_most_frequent_color,
-        use_tqdm,
-    )
-    return 1 - emd_value / emd_value_white
