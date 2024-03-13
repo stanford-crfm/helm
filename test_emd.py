@@ -225,6 +225,7 @@ def compute_cost_matrix_on_sig(
         for j in range(sig2.shape[0]):
             pos_sig1 = sig1[i, -2:]
             pos_sig2 = sig2[j, -2:]
+            # debug(np.sum(sig1_reshaped[i, 0]))
             emd_value, _, _ = cv2.EMD(sig1_reshaped[i], sig2_reshaped[j], cv2.DIST_L2)
             cost_matrix[i, j] = emd_value + patch_size[0] * np.linalg.norm(pos_sig1 - pos_sig2)
     return cost_matrix.astype(np.float32)
@@ -284,6 +285,10 @@ def compute_emd(
     weight2 = sig2[:, 0]
     sig1[:, 0] /= np.sum(weight1)
     sig2[:, 0] /= np.sum(weight2)
+    # weights = np.maximum(weight1, weight2)
+    # weights /= np.sum(weights)
+    # sig1[:, 0] = weights
+    # sig2[:, 0] = weights
 
     # Compute EMD
     cost = compute_cost_matrix_on_sig(
