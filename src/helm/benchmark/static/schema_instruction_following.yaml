@@ -40,7 +40,7 @@ adapter:
   - name: model
     description: Name of the language model (<creator_organization>/<model name>) to send requests to.
   - name: model_deployment
-    description: Name of the language model (<host_organization>/<model name>) to send requests to.
+    description: Name of the language model deployment (<host_organization>/<model name>) to send requests to.
   - name: temperature
     description: Temperature parameter used in generation.
   - name: max_tokens
