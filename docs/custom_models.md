@@ -1,4 +1,4 @@
-# Adding Models
+# Custom Models
 
 HELM comes with more than a hundred built-in models. If you want to run a HELM evaluation on a model that is not built-in, you can configure HELM to add your own model. This also allows you to evaluate private models that not publicly accessible, such as a model checkpoint on local disk, or a model server on a private network
 
