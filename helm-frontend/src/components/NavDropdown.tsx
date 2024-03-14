@@ -33,11 +33,11 @@ function NavDropdown() {
       });
   }, []);
 
-  function getCurrentSubsite(): string {
-    return currReleaseIndexEntry !== undefined &&
-      currReleaseIndexEntry.title !== undefined
-      ? currReleaseIndexEntry.title
-      : "Lite";
+  if (
+    currReleaseIndexEntry === undefined ||
+    currReleaseIndexEntry.title === undefined
+  ) {
+    return null;
   }
 
   return (
@@ -45,12 +45,16 @@ function NavDropdown() {
       <div
         tabIndex={0}
         role="button"
-        className="btn normal-case bg-white font-bold p-2 border-0 text-lg"
+        className="btn normal-case bg-white font-bold p-2 border-0 text-lg block whitespace-nowrap"
         aria-haspopup="true"
         aria-controls="menu"
       >
-        {getCurrentSubsite()}{" "}
-        <ChevronDownIcon fill="black" color="black" className="text w-4 h-4" />
+        {currReleaseIndexEntry.title}&nbsp;
+        <ChevronDownIcon
+          fill="black"
+          color="black"
+          className="text w-4 h-4 inline"
+        />
       </div>
       <ul
         tabIndex={0}
@@ -60,7 +64,7 @@ function NavDropdown() {
         {releaseIndex.map((item, index) => (
           <li key={index}>
             <a
-              href={getReleaseUrl(item.id, item)}
+              href={getReleaseUrl(undefined, item)}
               className="block"
               role="menuitem"
             >

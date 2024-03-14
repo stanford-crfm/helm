@@ -47,9 +47,9 @@ adapter:
   - name: sample_train
     description: If true, randomly sample N training examples; if false, select N consecutive training examples
   - name: model
-    description: DEPRECATED. Name of the language model (<creator_organization>/<model name>) to send requests to.
+    description: Name of the language model (<creator_organization>/<model name>) to send requests to.
   - name: model_deployment
-    description: Name of the language model (<host_organization>/<model name>) to send requests to.
+    description: Name of the language model deployment (<host_organization>/<model name>) to send requests to.
   - name: temperature
     description: Temperature parameter used in generation.
   - name: max_tokens
@@ -339,6 +339,8 @@ metric_groups:
         split: ${main_split}
       - name: fid_similarity
         split: ${main_split}
+      - name: earth_mover_similarity
+        split: ${main_split}
 
 ############################################################
 run_groups:
@@ -560,7 +562,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: edit_similarity
+      main_name: earth_mover_similarity
       main_split: valid
     taxonomy:
       task: image-to-text
@@ -578,7 +580,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: edit_similarity
+      main_name: earth_mover_similarity
       main_split: valid
     taxonomy:
       task: image-to-text
