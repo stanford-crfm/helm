@@ -49,7 +49,7 @@ function NavDropdown() {
         aria-haspopup="true"
         aria-controls="menu"
       >
-        {currReleaseIndexEntry.title}&nbsp;
+        {currProjectMetadata.title}&nbsp;
         <ChevronDownIcon
           fill="black"
           color="black"
