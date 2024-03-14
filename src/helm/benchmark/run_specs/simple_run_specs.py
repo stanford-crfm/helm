@@ -4,9 +4,13 @@ from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
     AdapterSpec,
 )
-from helm.benchmark.adaptation.common_adapter_specs import get_multiple_choice_joint_adapter_spec
+from helm.benchmark.adaptation.common_adapter_specs import (
+    get_generation_adapter_spec,
+    get_multiple_choice_joint_adapter_spec,
+)
 from helm.benchmark.metrics.common_metric_specs import (
     get_basic_generation_metric_specs,
+    get_classification_metric_specs,
     get_exact_match_metric_specs,
     get_generic_metric_specs,
     get_open_ended_generation_metric_specs,
@@ -36,7 +40,7 @@ def get_simple_mcqa_run_spec() -> RunSpec:
 @run_spec_function("simple_short_answer_qa")
 def get_simple_short_answer_qa_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.simple_scenarios.SimpleShortAnswerQAScenario")
-    adapter_spec = get_multiple_choice_joint_adapter_spec(
+    adapter_spec = get_generation_adapter_spec(
         instructions="Answer the following questions with a single word only.",
         input_noun="Question",
         output_noun="Answer",
@@ -57,12 +61,12 @@ def get_simple_short_answer_qa_run_spec() -> RunSpec:
 @run_spec_function("simple_classification")
 def get_simple_classification_run_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.simple_scenarios.SimpleClassificationScenario")
-    adapter_spec = get_multiple_choice_joint_adapter_spec(
-        instructions="Answer the following questions with a single word only.",
-        input_noun="Question",
-        output_noun="Answer",
+    adapter_spec = get_generation_adapter_spec(
+        instructions='Classify the following numbers by their parity. The classes are "Even" and "Odd".',
+        input_noun="Number",
+        output_noun="Parity",
     )
-    metric_specs = get_exact_match_metric_specs()
+    metric_specs = get_exact_match_metric_specs() + get_classification_metric_specs()
     return RunSpec(
         name="simple_classification",
         scenario_spec=scenario_spec,
