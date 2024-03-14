@@ -1,4 +1,5 @@
-from typing import List, Dict, Optional, Callable
+from typing import List, Dict, Optional, Callable, Tuple, Any, Set
+from dataclasses import dataclass
 from torchvision import transforms, models
 from skimage.metrics import structural_similarity as ssim
 from nltk.tokenize.treebank import TreebankWordTokenizer
@@ -7,6 +8,8 @@ import torch
 import warnings
 import numpy as np
 
+from helm.benchmark.annotation.annotator import Annotation
+from helm.benchmark.metrics.copyright_metrics import _edit_similarity
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -21,9 +24,12 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.vision_language.image_utils import (
     preprocess_image,
-    earth_mover_similarity,
     pixel_similarity,
     sift_similarity,
+)
+from helm.benchmark.metrics.vision_language.emd_utils import (  # noqa: F401
+    compute_emd_recursive,
+    get_most_frequent_color,
 )
 
 try:
@@ -34,8 +40,25 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["image2structure"])
 
 
+def pad(small_image: Image.Image, large_image: Image.Image, axis: int) -> Image.Image:
+    """Pad the axis of the small image to match the size of the large image."""
+    new_dim: List[int] = list(small_image.size)
+    new_dim[axis] = large_image.size[axis]
+    new_dim_tupe: Tuple[int, int] = tuple(new_dim)  # type: ignore
+    new_image: Image.Image = Image.new("RGB", new_dim_tupe, (255, 255, 255))
+    new_image.paste(small_image, (0, 0))
+    return new_image
+
+
 class CompilationError(Exception):
     pass
+
+
+@dataclass
+class AnnotatedMetric:
+    name: str
+    function: Callable
+    input_type: str
 
 
 class AnnotatedImageMetrics(Metric):
@@ -66,7 +89,7 @@ class AnnotatedImageMetrics(Metric):
     EDIT_SIMILARITY: str = "edit_similarity"
     NORMALIZE_FID_FACTOR: float = 0.0025
 
-    SIZE_HANDLING_METHODS: List[str] = ["resize", "none"]
+    SIZE_HANDLING_METHODS: List[str] = ["resize", "padding", "none"]
 
     # Hashing (for caching)
     HASH_LENGTH: int = 16
@@ -80,13 +103,93 @@ class AnnotatedImageMetrics(Metric):
         self._device = get_torch_device()
         self._cache: Optional[Cache] = None
         self._size_handling_method: str = size_handling_method
-        self.tokenizer = TreebankWordTokenizer()
+        self._tokenizer = TreebankWordTokenizer()
+
+        metrics: List[AnnotatedMetric] = [
+            AnnotatedMetric(self.PIXEL_SIMILARITY, pixel_similarity, "image_np_gray"),
+            AnnotatedMetric(self.SIFT_SIMILARITY, sift_similarity, "image_np"),
+            AnnotatedMetric(self.EARTH_MOVER_SIMILARITY, self.compute_emd_similarity_recursive, "image_PIL"),
+            AnnotatedMetric(self.LPIPS_SIMILARITY, self.lpips_similarity, "image_PIL"),
+            AnnotatedMetric(self.FID_SIMILARITY, self.fid_similarity, "image_PIL"),
+            AnnotatedMetric(self.SSIM_SIMILARITY, self.compute_ssim, "image_np_gray"),
+            AnnotatedMetric(self.EDIT_SIMILARITY, self.compute_edit_sim, "text_str"),
+        ]
+        self.metrics: Dict[str, AnnotatedMetric] = {metric.name: metric for metric in metrics}
 
     def _get_compilation_cache_key(self, completion: str) -> Dict[str, str]:
         return {
             "generation_type": self.generation_type,
             "completion": completion,
         }
+
+    def _prepare_inputs(
+        self,
+        inputs_required: Set[str],
+        request_state: RequestState,
+        annotation: Dict[str, Annotation],
+        ref_image: Optional[Image.Image],
+    ) -> Dict[str, Tuple[Any, Any]]:
+        inputs: Dict[str, Tuple[Any, Any]] = {}
+
+        # Image
+        if any([input_type.startswith("image") for input_type in inputs_required]):
+            # Get the image and make sure we have a reference image
+            assert ref_image is not None
+            assert "media_object" in annotation
+            assert isinstance(annotation["media_object"].data, MediaObject)
+            media_object: MediaObject = annotation["media_object"].data
+            assert media_object.type == "image"
+            assert media_object.is_local_file and media_object.location is not None
+            image: Image.Image = Image.open(media_object.location).convert("RGB")
+
+            # Handle difference in size
+            if image.size != ref_image.size:
+                if self._size_handling_method == "none":
+                    raise ValueError(
+                        "Compiled image and reference image should have the same size"
+                        " when the size handling method is none."
+                    )
+                elif self._size_handling_method == "resize":
+                    image = image.resize(ref_image.size)
+                elif self._size_handling_method == "padding":
+                    for axis in range(2):
+                        if image.size[axis] < ref_image.size[axis]:
+                            image = pad(image, ref_image, axis)
+                        elif image.size[axis] > ref_image.size[axis]:
+                            ref_image = pad(ref_image, image, axis)
+                else:
+                    raise ValueError(f"size handling method {self._size_handling_method} not recognized.")
+            assert image.size == ref_image.size
+
+            # Save the inputs
+            inputs["image_PIL"] = (image, ref_image)
+
+            # Convert to numpy array
+            if "image_np" in inputs_required:
+                rgb_ref_image: np.ndarray = np.array(ref_image)
+                rgb_image: np.ndarray = np.array(image)
+                inputs["image_np"] = (rgb_image, rgb_ref_image)
+            if "image_np_gray" in inputs_required:
+                gray_ref_image: np.ndarray = preprocess_image(ref_image)
+                gray_image: np.ndarray = preprocess_image(image)
+                inputs["image_np_gray"] = (gray_image, gray_ref_image)
+
+        # Text
+        if any([input_type.startswith("text") for input_type in inputs_required]):
+            assert "text" in annotation
+            text: str = annotation["text"].data
+            reference = request_state.instance.references[0]
+            inputs["text_str"] = (text, reference.output.text)
+
+        # Check that all inputs are present
+        SUPPORTED_INPUTS: List[str] = ["image_PIL", "image_np", "image_np_gray", "text_str"]
+        for input_type in inputs_required:
+            if input_type not in SUPPORTED_INPUTS:
+                raise AssertionError(f"Input type {input_type} is not supported.")
+            if input_type not in inputs:
+                raise ValueError(f"Input type {input_type} is required for the metrics but not present.")
+
+        return inputs
 
     def evaluate_generation(
         self,
@@ -112,28 +215,33 @@ class AnnotatedImageMetrics(Metric):
                 " Please make sure to add a compiler annotator to the run spec.",
             )
 
-        # Get the references (normally a text and an image)
-        reference = request_state.instance.references[0]
-        assert reference.output.multimedia_content is not None
-        assert len(reference.output.multimedia_content.media_objects) > 0
-        ref_media_object: MediaObject = reference.output.multimedia_content.media_objects[0]
-        assert ref_media_object.type == "image"
-        ref_image: Image.Image
-        rgb_ref_image: np.ndarray
-        gray_ref_image: np.ndarray
-        if ref_media_object.is_local_file and ref_media_object.location is not None:
-            ref_image = open_image(ref_media_object.location)
-            rgb_ref_image = np.array(ref_image)
-            gray_ref_image = preprocess_image(ref_image)
-        else:
-            raise Exception(
-                "Remote images are not supported in metrics. "
-                "Images should be downloaded when constructing the instance."
-            )
+        inputs_required: Set[str] = set()
+        for metric_name in self._metric_names:
+            inputs_required.add(self.metrics[metric_name].input_type)
 
+        # Get the image reference (only once as opening an image is slow)
+        # The text annotation can be loaded several times without performance issues
+        reference = request_state.instance.references[0]
+        ref_image: Optional[Image.Image] = None
+        if any([input_type.startswith("image") for input_type in inputs_required]):
+            assert reference.output.multimedia_content is not None
+            assert len(reference.output.multimedia_content.media_objects) > 0
+            ref_media_object: MediaObject = reference.output.multimedia_content.media_objects[0]
+            assert ref_media_object.type == "image"
+            if ref_media_object.is_local_file and ref_media_object.location is not None:
+                ref_image = open_image(ref_media_object.location)
+            else:
+                raise Exception(
+                    "Remote images are not supported in metrics. "
+                    "Images should be downloaded when constructing the instance."
+                )
+
+        # For each completion, evaluate the metrics
         assert request_state.result is not None
         assert len(request_state.annotations) == len(request_state.result.completions)
         for annotation in request_state.annotations:
+
+            # Handle errors in annotation
             if "error" in annotation:
                 stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                 # For all other metrics, we set the value to zero
@@ -141,71 +249,33 @@ class AnnotatedImageMetrics(Metric):
                     stats_dict[metric_name].add(0)
                 continue
 
-            assert "media_object" in annotation, "No media object in the annotation"
-            assert isinstance(annotation["media_object"], MediaObject)
-            media_object: MediaObject = annotation["media_object"]
-            assert media_object.type == "image"
-            assert media_object.is_local_file and media_object.location is not None
-            image: Image.Image = Image.open(media_object.location).convert("RGB")
+            # Get te inputs
+            inputs = self._prepare_inputs(inputs_required, request_state, annotation, ref_image)
 
-            # Handle difference in size
-            if image.size != ref_image.size:
-                if self._size_handling_method == "none":
-                    raise ValueError(
-                        "Compiled image and reference image should have the same size"
-                        " when the size handling method is none."
-                    )
-                elif self._size_handling_method == "resize":
-                    image = image.resize(ref_image.size)
-                else:
-                    raise ValueError(f"size handling method {self._size_handling_method} not recognized.")
-            assert image.size == ref_image.size
+            # Hash the images for the cache key
+            hash_dict: Optional[Dict[str, str]] = None
+            if "image_PIL" in inputs:
+                (image, _) = inputs["image_PIL"]
+                hash_dict = {
+                    "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+                    "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(image, hash_size=self.HASH_LENGTH)),
+                }
 
-            rgb_image: np.ndarray = np.array(image)
-            gray_image: np.ndarray = preprocess_image(image)
-
-            # List of metrics and arguments to evaluate
-            # The arguments are as follows:
-            # 1. Name of the metric
-            # 2. Function to compute the metric
-            # 3. The generated image obhect (type can depend on the metric)
-            # 4. The reference image object (type can depend on the metric)
-            metric_runs: list = [
-                # Image
-                [self.PIXEL_SIMILARITY, pixel_similarity, gray_image, gray_ref_image],
-                [self.SIFT_SIMILARITY, sift_similarity, rgb_image, rgb_ref_image],
-                [self.EARTH_MOVER_SIMILARITY, earth_mover_similarity, gray_image, gray_ref_image],
-                [self.LPIPS_SIMILARITY, self.lpips_similarity, image, ref_image],
-                [self.FID_SIMILARITY, self.fid_similarity, image, ref_image],
-                [self.SSIM_SIMILARITY, self.compute_ssim, gray_image, gray_ref_image],
-            ]
-
-            if "text" in annotation:
-                # For some tasks, we have the reference text. For those, compute the edit similarity for some signal.
-                # Although having the reference text is not a requirement for a task to be included in Image2Structure.
-                text: str = annotation["text"]
-                ref_text: str = reference.output.text
-                metric_runs.append(
-                    [self.EDIT_SIMILARITY, self.compute_edit_sim, text, ref_text],
-                )
-
-            hash_dict = {
-                "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
-                "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(image, hash_size=self.HASH_LENGTH)),
-            }
-            for metric_name, metric_fn, pred, gt in metric_runs:
-                if metric_name not in self._metric_names:
-                    continue
+            # Evaluate the metrics
+            for metric_name in self._metric_names:
+                metric: AnnotatedMetric = self.metrics[metric_name]
+                (pred, gt) = inputs[metric.input_type]
 
                 def do_it():
                     try:
-                        value = metric_fn(pred, gt)
+                        value = metric.function(pred, gt)
                         return {"value": value}
                     except Exception as e:
                         return {"error": str(e)}
 
                 cache_key = {"metric_name": metric_name, "pred": pred, "gt": gt}
                 if not isinstance(pred, str):
+                    assert hash_dict is not None
                     cache_key = {"metric_name": metric_name, **hash_dict}
                 response_metric, _ = self._cache.get(cache_key, do_it)
                 value: float
@@ -312,14 +382,12 @@ class AnnotatedImageMetrics(Metric):
         return ssim(generated_image, reference_image)
 
     def compute_edit_sim(self, completion: str, reference: str) -> float:
-        from helm.benchmark.metrics.copyright_metrics import _edit_similarity
-
         # `reference` is the entire remaining book for each instance.
         # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
         truncated_reference: str = reference[: len(completion)]
 
-        completion_tokens = self.tokenizer.tokenize(completion)
-        truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
+        completion_tokens = self._tokenizer.tokenize(completion)
+        truncated_reference_tokens = self._tokenizer.tokenize(truncated_reference)
 
         # Exploit numpy SIMD for efficiency on CPUs.
         completion_tokens = np.array(completion_tokens)
@@ -327,3 +395,47 @@ class AnnotatedImageMetrics(Metric):
 
         result = _edit_similarity(completion_tokens, truncated_reference_tokens)
         return result
+
+    def compute_emd_similarity_recursive(
+        self,
+        pred_image: Image.Image,
+        ref_image: Image.Image,
+        threshold_most_frequent_color: float = 0.5,
+        patch_size: Tuple[int, int] = (8, 8),
+        max_num_patches: int = 100,
+        weight_most_frequent_color: float = 0.001,
+        use_tqdm: bool = False,
+    ):
+        emd_value = compute_emd_recursive(
+            pred_image,
+            ref_image,
+            threshold_most_frequent_color,
+            patch_size,
+            max_num_patches,
+            weight_most_frequent_color,
+            use_tqdm,
+        )
+
+        def do_it():
+            # color: np.ndarray = get_most_frequent_color(np.array(ref_image))[0]
+            # constant_image = Image.new("RGB", ref_image.size, tuple(color))  # type: ignore
+            constant_image = Image.new("RGB", ref_image.size, (255, 255, 255))  # default color is white
+            value = compute_emd_recursive(
+                constant_image,
+                ref_image,
+                threshold_most_frequent_color,
+                patch_size,
+                max_num_patches,
+                weight_most_frequent_color,
+                use_tqdm,
+            )
+            return {"value": value}
+
+        hash_dict = {
+            "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+        }
+        cache_key = {"metric_name": f"intermediate_{self.EARTH_MOVER_SIMILARITY}", **hash_dict}
+        assert self._cache is not None
+        response_metric, _ = self._cache.get(cache_key, do_it)
+
+        return 1.0 - emd_value / response_metric["value"]

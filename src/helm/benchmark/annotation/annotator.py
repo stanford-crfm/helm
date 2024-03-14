@@ -1,7 +1,8 @@
-from typing import Dict, Any, List
+from typing import Dict, List
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
 
+from helm.benchmark.annotation.annotation import Annotation
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.object_spec import ObjectSpec
 
@@ -15,7 +16,7 @@ class Annotator(ABC):
     """Name of the annotator. Should be filled in by the subclass."""
 
     @abstractmethod
-    def annotate(self, request_state: RequestState) -> List[Dict[str, Any]]:
+    def annotate(self, request_state: RequestState) -> List[Dict[str, Annotation]]:
         """Fills the annotations field of the request state with additional information
         that are implementation specific."""
         pass
@@ -36,10 +37,10 @@ class DummyAnnotator(Annotator):
 
     name = "dummy"
 
-    def annotate(self, request_state: RequestState) -> List[Dict[str, Any]]:
+    def annotate(self, request_state: RequestState) -> List[Dict[str, Annotation]]:
         if request_state.result is None:
             raise ValueError("Annotation requires a result")
-        annotations: List[Dict[str, Any]] = []
+        annotations: List[Dict[str, Annotation]] = []
         for completion in request_state.result.completions:
-            annotations.append({"all_caps": completion.text.upper()})
+            annotations.append({"all_caps": Annotation(completion.text.upper())})
         return annotations

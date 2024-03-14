@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List
 
 from helm.benchmark.scenarios.scenario import Instance
 from helm.common.general import indent_lines, format_text_lines, serialize
 from helm.common.request import Request, RequestResult
+from helm.benchmark.annotation.annotation import Annotation
 
 
 @dataclass(frozen=True)
@@ -45,7 +46,7 @@ class RequestState:
     num_conditioning_tokens: int = 0
     """The number of initial tokens that will be ignored when computing language modeling metrics"""
 
-    annotations: Optional[List[Dict[str, Any]]] = None
+    annotations: Optional[List[Dict[str, Annotation]]] = None
     """Output of some post-processing step that is needed for the metric to understand the request
     Example: parsing, rendering an image based on the text completion, etc."""
 

@@ -266,6 +266,8 @@ metric_groups:
         split: ${main_split}
       - name: fid_similarity
         split: ${main_split}
+      - name: earth_mover_similarity
+        split: ${main_split}
 
 ############################################################
 run_groups:
@@ -384,7 +386,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: edit_similarity
+      main_name: earth_mover_similarity
       main_split: valid
     taxonomy:
       task: image-to-text
@@ -402,7 +404,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: edit_similarity
+      main_name: earth_mover_similarity
       main_split: valid
     taxonomy:
       task: image-to-text
