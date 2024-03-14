@@ -60,9 +60,13 @@ function ReleaseDropdown() {
 
   const releases = getReleases();
 
-  const releaseInfo = `Release ${
-    summary.release || summary.suite || "unknown"
-  } (${summary.date})`;
+  if (!summary.release && !summary.suite) {
+    return null;
+  }
+
+  const releaseInfo = `Release ${summary.release || summary.suite} (${
+    summary.date
+  })`;
 
   if (releases.length <= 1) {
     return <div>{releaseInfo}</div>;
@@ -73,11 +77,11 @@ function ReleaseDropdown() {
       <div
         tabIndex={0}
         role="button"
-        className="normal-case bg-white border-0"
+        className="normal-case bg-white border-0 block whitespace-nowrap"
         aria-haspopup="true"
         aria-controls="menu"
       >
-        {releaseInfo}{" "}
+        {releaseInfo}&nbsp;
         <ChevronDownIcon
           fill="black"
           color="black"
