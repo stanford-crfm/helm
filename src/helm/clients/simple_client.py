@@ -52,7 +52,8 @@ class SimpleClient(CachingClient):
 
     def invoke_model(self, raw_request: SimpleClientRequest) -> Dict[str, Any]:
         """
-        Example: 7 2 4 6
+        Example:
+        Prompt: 7 2 4 6
         Completions (num_completions = 3):
         - 6
         - 4
