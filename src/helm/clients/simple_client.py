@@ -59,6 +59,25 @@ class SimpleClient(CachingClient):
         - 4
         - 2
         """
+<<<<<<< HEAD
         prompt_words: List[str] = raw_request["prompt"].split()
         completions = list(itertools.islice(itertools.cycle(reversed(prompt_words)), raw_request["num_completions"]))
         return {"completions": completions}
+=======
+        prompt_tokens: List[str] = raw_request["prompt"].split(" ")
+        choices = reversed(prompt_tokens[-raw_request["n"] :])
+        response = {"completions": dict((text, -i) for i, text in enumerate(choices))}
+        return response
+
+    def invoke_model_tutorial(self, raw_request: Dict) -> Dict:
+        """Always returns: 'The model is generating some text. Hooray, the tutorial works! (Completion {i})'.
+        This supports multiple completions.
+        """
+        response = {
+            "completions": dict(
+                (f"The model is generating some text. Hooray, the tutorial works! (Completion {i})", -i)
+                for i in range(raw_request["n"])
+            )
+        }
+        return response
+>>>>>>> Fix SimpleTokenizer
