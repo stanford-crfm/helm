@@ -31,7 +31,7 @@ export default function Predictions({
           <div className="w-full" key={idx}>
             {predictions.length > 1 ? <h2>Trial {idx}</h2> : null}
             <div className="mt-2 w-full">
-              {prediction.base64_images && // update to check length > 0
+              {prediction.base64_images &&
               prediction.base64_images.length > 0 ? (
                 <>
                   <h3 className="mr-4">Prediction image</h3>
