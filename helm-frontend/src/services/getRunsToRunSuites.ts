@@ -1,14 +1,12 @@
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
-import getBenchmarkRelease from "@/utils/getBenchmarkRelease";
+import getVersionBaseUrl from "@/utils/getVersionBaseUrl";
 
 export default async function getRunsToRunSuites(
   signal: AbortSignal,
 ): Promise<Record<string, string>> {
   try {
     const runsToRunSuites = await fetch(
-      getBenchmarkEndpoint(
-        `/releases/${getBenchmarkRelease()}/runs_to_run_suites.json`,
-      ),
+      getBenchmarkEndpoint(`${getVersionBaseUrl()}/runs_to_run_suites.json`),
       { signal },
     );
 
