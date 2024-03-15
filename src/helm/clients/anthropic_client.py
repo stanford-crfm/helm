@@ -3,6 +3,7 @@ import json
 import requests
 import time
 import urllib.parse
+import httpx
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
@@ -26,7 +27,7 @@ from helm.tokenizers.tokenizer import Tokenizer
 from helm.clients.client import CachingClient, truncate_sequence, truncate_and_tokenize_response_text
 
 try:
-    from anthropic import Anthropic
+    from anthropic import Anthropic, BadRequestError
     from anthropic.types import MessageParam
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.text_block_param import TextBlockParam
@@ -313,12 +314,22 @@ class AnthropicMessagesClient(CachingClient):
         for completion_index in range(request.num_completions):
 
             def do_it() -> Dict[str, Any]:
-                result = self.client.messages.create(**raw_request).model_dump()
-                if "content" not in result or not result["content"]:
-                    raise AnthropicMessagesResponseError(f"Anthropic response has empty content: {result}")
-                elif "text" not in result["content"][0]:
-                    raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
-                return result
+                try:
+                    result = self.client.messages.create(**raw_request).model_dump()
+                    if "content" not in result or not result["content"]:
+                        raise AnthropicMessagesResponseError(f"Anthropic response has empty content: {result}")
+                    elif "text" not in result["content"][0]:
+                        raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
+                    return result
+                except BadRequestError as e:
+                    if e.status_code == 400:
+                        response: httpx.Response = e.response
+                        assert response.json()["type"] == "error"
+                        if response.json()["error"]["message"] == "Output blocked by content filtering policy":
+                            hlog(f"Anthropic - output blocked by content filtering policy: {e}")
+                            return {"content": [{"text": ""}]}  # Return empty completion
+                        raise AnthropicMessagesRequestError(f"Anthropic error 400: {e}")
+                    raise e
 
             cache_key = CachingClient.make_cache_key(
                 {
