@@ -9,7 +9,7 @@ from helm.tokenizers.tokenizer import Tokenizer
 
 
 class SimpleTokenizer(Tokenizer):
-    """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
+    """Simple tokenizer for tutorials and for debugging."""
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         if request.encode:
