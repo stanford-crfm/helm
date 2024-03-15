@@ -6,16 +6,8 @@ from .scenario import Scenario, Instance, Reference, CORRECT_TAG, VALID_SPLIT, I
 
 
 class CIMCQAScenario(Scenario):
-    """
-    Add comment describing data set and giving example from
-    the data set once you have it ready.
-    """
-
-    # From https://github.com/MedMCQA/MedMCQA#data-fields, there are four possible answer choices
-    # where "cop" corresponds to the index of the correct option.
-
-    # How to account for cases with more than 4 options/variable options?
-    # ANSWER_OPTION_TO_INDEX: Dict[str, int] = {"opa": 1, "opb": 2, "opc": 3, "opd": 4}
+    """CIMCQA is a multiple-choice question answering (MCQA) dataset designed to
+    study concept inventories in CS Education."""
 
     DATASET_DOWNLOAD_URL: str = "https://drive.google.com/uc?export=download&id=1siYjhDiasI5FIiS0ckLbo40UnOj8EU2h"
 
@@ -24,7 +16,7 @@ class CIMCQAScenario(Scenario):
         "CIMCQA is a multiple-choice question answering (MCQA) dataset designed to"
         "study concept inventories in CS Education."
     )
-    tags = ["question_answering", "biomedical"]
+    tags = ["question_answering"]
 
     def get_instances(self, output_path: str) -> List[Instance]:
         data_path: str = os.path.join("restricted", "scs1.json")
