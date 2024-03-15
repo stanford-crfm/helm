@@ -3,7 +3,6 @@ import json
 import requests
 import time
 import urllib.parse
-import httpx
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import htrack_block, hlog
@@ -206,6 +205,15 @@ class AnthropicClient(CachingClient):
         )
 
 
+def _is_content_moderation_failure(response: Dict) -> bool:
+    """Return whether a a response failed because of the content moderation filter."""
+    if response["status_code"] == 400:
+        if response["response"]["error"]["message"] == "Output blocked by content filtering policy":
+            hlog(f"Anthropic - output blocked by content filtering policy: {response}")
+            return True
+    return False
+
+
 class AnthropicMessagesRequest(TypedDict, total=False):
     messages: List[MessageParam]
     model: str
@@ -322,14 +330,7 @@ class AnthropicMessagesClient(CachingClient):
                         raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
                     return result
                 except BadRequestError as e:
-                    if e.status_code == 400:
-                        response: httpx.Response = e.response
-                        assert response.json()["type"] == "error"
-                        if response.json()["error"]["message"] == "Output blocked by content filtering policy":
-                            hlog(f"Anthropic - output blocked by content filtering policy: {e}")
-                            return {"content": [{"text": ""}]}  # Return empty completion
-                        raise AnthropicMessagesRequestError(f"Anthropic error 400: {e}")
-                    raise e
+                    return {"error": {"status_code": e.status_code, "response": e.response.json()}}
 
             cache_key = CachingClient.make_cache_key(
                 {
@@ -338,8 +339,24 @@ class AnthropicMessagesClient(CachingClient):
                 },
                 request,
             )
-
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
+            if _is_content_moderation_failure(response):
+                hlog(
+                    f"WARNING: Returning empty request for {request.model_deployment} "
+                    "due to content moderation filter"
+                )
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error=response["error"]["response"]["error"]["message"],
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    request_time=response["request_time"],
+                    request_datetime=response["request_datetime"],
+                )
+
             completion = truncate_and_tokenize_response_text(
                 response["content"][0]["text"], request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
             )
