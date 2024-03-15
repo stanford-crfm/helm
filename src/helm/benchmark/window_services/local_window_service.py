@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List, Optional, cast
 
-from .window_service import WindowService, EncodeResult
+from .window_service import ConfigurableWindowService, EncodeResult
 from .tokenizer_service import TokenizerService
 from helm.common.tokenization_request import (
     DecodeRequest,
@@ -10,11 +10,28 @@ from helm.common.tokenization_request import (
     TokenizationRequestResult,
     TokenizationToken,
 )
-from helm.proxy.clients.client import cleanup_tokens
+from helm.clients.client import cleanup_tokens
 
 
-class LocalWindowService(WindowService, ABC):
-    def __init__(self, service: TokenizerService):
+class LocalWindowService(ConfigurableWindowService, ABC):
+    def __init__(
+        self,
+        service: TokenizerService,
+        tokenizer_name: str,
+        max_sequence_length: int,
+        max_request_length: Optional[int] = None,
+        max_sequence_and_generated_tokens_length: Optional[int] = None,
+        end_of_text_token: Optional[str] = None,
+        prefix_token: Optional[str] = None,
+    ):
+        super().__init__(
+            tokenizer_name=tokenizer_name,
+            max_sequence_length=max_sequence_length,
+            max_request_length=max_request_length,
+            max_sequence_and_generated_tokens_length=max_sequence_and_generated_tokens_length,
+            end_of_text_token=end_of_text_token,
+            prefix_token=prefix_token,
+        )
         self.service: TokenizerService = service
 
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:

@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 import unittest
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.benchmark.scenarios.scenario import Instance, Reference, Input, Output, TEST_SPLIT, TRAIN_SPLIT, CORRECT_TAG
@@ -14,7 +15,7 @@ from .multimodal_prompt import MultimodalPrompt
 class TestInContextLearningMultimodalAdapter(unittest.TestCase):
     def setup_method(self, _):
         self._path: str = tempfile.mkdtemp()
-        self._tokenizer_service = get_tokenizer_service(self._path)
+        self._tokenizer_service = get_tokenizer_service(self._path, BlackHoleCacheBackendConfig())
 
     def teardown_method(self, _):
         shutil.rmtree(self._path)

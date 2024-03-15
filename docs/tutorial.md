@@ -10,7 +10,7 @@ We will run two runs using the `mmlu` scenario on the `openai/gpt2` model. The `
 
 To run this benchmark using the HELM command-line tools, we need to specify **run spec descriptions** that describes the desired runs. For this example, the run spec descriptions are `mmlu:subject=anatomy,model=openai/gpt2` (for anatomy) and `mmlu:subject=philosophy,model=openai/gpt2` (for philosophy).
 
-Next, we need to create a **run spec configuration file** contining these run spec descriptions. A run spec configuration file is a text file containing `RunEntries` serialized to JSON, where each entry in `RunEntries` contains a run spec description. The `description` field of each entry should be a **run spec description**. Create a text file named `run_specs.conf` with the following contents:
+Next, we need to create a **run spec configuration file** containing these run spec descriptions. A run spec configuration file is a text file containing `RunEntries` serialized to JSON, where each entry in `RunEntries` contains a run spec description. The `description` field of each entry should be a **run spec description**. Create a text file named `run_specs.conf` with the following contents:
 
 ```
 entries: [
@@ -47,6 +47,8 @@ Each output sub-directory will contain several JSON files that were generated du
 
 `helm-run` provides additional arguments that can be used to filter out `--models-to-run`, `--groups-to-run` and `--priority`. It can be convenient to create a large `run_specs.conf` file containing every run spec description of interest, and then use these flags to filter down the RunSpecs to actually run. As an example, the main `run_specs.conf` file used for the HELM benchmarking paper can be found [here](https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/presentation/run_specs.conf).
 
+**Using model or model_deployment:** Some models have several deployments (for exmaple `eleutherai/gpt-j-6b` is deployed under `huggingface/gpt-j-6b`, `gooseai/gpt-j-6b` and `together/gpt-j-6b`). Since the results can differ depending on the deployment, we provide a way to specify the deployment instead of the model. Instead of using `model=eleutherai/gpt-g-6b`, use `model_deployment=huggingface/gpt-j-6b`. If you do not, a deployment will be arbitrarily chosen. This can still be used for models that have a single deployment and is a good practice to follow to avoid any ambiguity.
+
 ## Using `helm-summarize`
 
 The `helm-summarize` reads the output files of `helm-run` and computes aggregate statistics across runs. Run the following:
@@ -63,7 +65,7 @@ This reads the pre-existing files in `benchmark_output/runs/v1/` that were writt
 - `groups.json` contains a serialized list of `Table`, each containing information about groups in a group category.
 - `groups_metadata.json` contains a list of all the groups along with a human-readable description and a taxonomy.
 
-Additionally, for each group and group-relavent metric, it will output a pair of files: `benchmark_output/runs/v1/groups/latex/<group_name>_<metric_name>.tex` and `benchmark_output/runs/v1/groups/latex/<group_name>_<metric_name>.json`. These files contain the statistics for that metric from each run within the group.
+Additionally, for each group and group-relavent metric, it will output a pair of files: `benchmark_output/runs/v1/groups/latex/<group_name>_<metric_name>.tex` and `benchmark_output/runs/v1/groups/json/<group_name>_<metric_name>.json`. These files contain the statistics for that metric from each run within the group.
 
 <!--
 # TODO(#1441): Enable plots

@@ -5,9 +5,15 @@ import urllib.parse
 from dataclasses import asdict
 from typing import Any, List, Optional
 
+from helm.common.cache import CacheConfig
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from helm.common.authentication import Authentication
+from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.critique_request import CritiqueRequest, CritiqueRequestResult
+from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
+from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.tokenization_request import (
     WindowServiceInfo,
     TokenizationRequest,
@@ -27,6 +33,8 @@ class RemoteServiceError(Exception):
 
 
 class RemoteService(Service):
+    NOT_SUPPORTED_ERROR: str = "Not supported through the remote service."
+
     def __init__(self, base_url):
         self.base_url: str = base_url
 
@@ -84,6 +92,15 @@ class RemoteService(Service):
         RemoteService._check_response(response, request_json)
         return from_dict(DecodeRequestResult, response)
 
+    def upload(self, auth: Authentication, request: FileUploadRequest) -> FileUploadResult:
+        raise NotImplementedError(self.NOT_SUPPORTED_ERROR)
+
+    def check_nudity(self, auth: Authentication, request: NudityCheckRequest) -> NudityCheckResult:
+        raise NotImplementedError(self.NOT_SUPPORTED_ERROR)
+
+    def compute_clip_score(self, auth: Authentication, request: CLIPScoreRequest) -> CLIPScoreResult:
+        raise NotImplementedError(self.NOT_SUPPORTED_ERROR)
+
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         request_json: str = json.dumps(asdict(request))
         params = {
@@ -93,6 +110,16 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/toxicity?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response, request_json)
         return from_dict(PerspectiveAPIRequestResult, response)
+
+    def get_moderation_results(self, auth: Authentication, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
+        request_json: str = json.dumps(asdict(request))
+        params = {
+            "auth": json.dumps(asdict(auth)),
+            "request": request_json,
+        }
+        response = requests.get(f"{self.base_url}/api/moderation?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response, request_json)
+        return from_dict(ModerationAPIRequestResult, response)
 
     def make_critique_request(self, auth: Authentication, request: CritiqueRequest) -> CritiqueRequestResult:
         raise NotImplementedError("make_critique_request is not supported by RemoteServer")
@@ -152,6 +179,10 @@ class RemoteService(Service):
         except requests.exceptions.ConnectionError:
             # A ConnectionError is expected when shutting down the server.
             pass
+
+    def get_cache_config(self, shard_name: str) -> CacheConfig:
+        """Returns a CacheConfig"""
+        return BlackHoleCacheBackendConfig().get_cache_config(shard_name)
 
 
 def add_service_args(parser: argparse.ArgumentParser):

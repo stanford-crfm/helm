@@ -24,6 +24,8 @@ plugins:
               ignore_init_summary: true
 
   - include-markdown
+hooks:
+  - docs/mkdocs_hooks.py
 extra_css:
   - docstrings.css
 markdown_extensions:
@@ -35,6 +37,7 @@ nav:
   - 'User Guide':
     - 'installation.md'
     - 'quick_start.md'
+    - 'heim.md'
     - 'get_helm_rank.md'
     - 'tutorial.md'
     - 'benchmark.md'

@@ -44,6 +44,7 @@ points:
     - anthropic/stanford-online-all-v4-s3
     - anthropic/claude-v1.3
     - anthropic/claude-instant-v1
+    - anthropic/claude-instant-1.2
     groups:
     - the_pile
     level: strong
@@ -83,7 +84,6 @@ points:
     - openai/code-davinci-002
     - openai/code-davinci-001
     - openai/code-cushman-001
-    - openai/chat-gpt
     groups:
     - natural_qa_closedbook
     - natural_qa_openbook_longans

@@ -2,6 +2,7 @@ import shutil
 import tempfile
 from typing import List
 
+from helm.common.cache_backend_config import BlackHoleCacheBackendConfig
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 from .test_utils import get_tokenizer_service, TEST_PROMPT
@@ -120,7 +121,7 @@ class TestAnthropicWindowService:
 
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
-        service: TokenizerService = get_tokenizer_service(self.path)
+        service: TokenizerService = get_tokenizer_service(self.path, BlackHoleCacheBackendConfig())
         self.window_service = WindowServiceFactory.get_window_service("anthropic/claude-v1.3", service)
 
     def teardown_method(self, method):

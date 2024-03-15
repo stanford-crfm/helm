@@ -4,14 +4,15 @@ from sklearn.metrics import f1_score
 from sklearn.preprocessing import MultiLabelBinarizer
 
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.basic_metrics import normalize_text
-from helm.benchmark.metrics.metric import Metric, MetricName
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
+from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
+from helm.benchmark.metrics.metric import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.request import Sequence
 
 
-class ClassificationMetric(Metric):
+class ClassificationMetric(EvaluateInstancesMetric):
     """Defines metrics for multi-class classification using the generation adapter.
 
     Currently provides `classification_macro_f1` and `classification_micro_f1`.
@@ -37,7 +38,7 @@ class ClassificationMetric(Metric):
     def is_multi_label(self) -> bool:
         return bool(self.delimiter)
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         y_pred: List[List[str]] = []
         y_true: List[List[str]] = []
         for request_state in request_states:  # one request state per instance
@@ -72,13 +73,13 @@ class ClassificationMetric(Metric):
         ]
 
 
-class MultipleChoiceClassificationMetric(Metric):
+class MultipleChoiceClassificationMetric(EvaluateInstancesMetric):
     """
     Calculate population micro/macro F1 score for multiple_choice_* adapters.
     For generation adapters, please use ClassificationMetric.
     """
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         y_pred: List[str] = []
         y_true: List[str] = []
         for request_state in request_states:  # one request state per instance

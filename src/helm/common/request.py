@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 from helm.common.media_object import MultimediaObject
+from helm.common.image_generation_parameters import ImageGenerationParameters
 from .general import indent_lines, format_text
 
 
@@ -68,6 +69,9 @@ class Request:
     multimodal_prompt: Optional[MultimediaObject] = None
     """Multimodal prompt with media objects interleaved (e.g., text, video, image, text, ...)"""
 
+    image_generation_parameters: Optional[ImageGenerationParameters] = None
+    """Parameters for image generation."""
+
     @property
     def model_host(self) -> str:
         """Returns the model host (referring to the deployment).
@@ -93,8 +97,6 @@ class Token:
     """
     A `Token` represents one token position in a `Sequence`, which has the
     chosen `text` as well as the top probabilities under the model.
-
-    Note: (text, logprob) could exist or not exist in `top_logprobs`.
     """
 
     # Text that was chosen
@@ -103,16 +105,9 @@ class Token:
     # Log probability of generating that
     logprob: float
 
-    # text -> log probability of generating that
-    top_logprobs: Dict[str, float]
-
     def render_lines(self) -> List[str]:
-        top_logprobs_entries = sorted(self.top_logprobs.items(), key=lambda entry: -entry[1])
-        top_logprobs_str = (
-            "{" + ", ".join(f"{format_text(text)}: {logprob}" for text, logprob in top_logprobs_entries) + "}"
-        )
         return [
-            f"{format_text(self.text)} logprob={self.logprob} top_logprobs={top_logprobs_str}",
+            f"{format_text(self.text)} logprob={self.logprob}",
         ]
 
 
@@ -130,7 +125,10 @@ class Sequence:
     tokens: List[Token]
 
     # Why did the sequence finish?
-    finish_reason: Optional[Dict] = None
+    finish_reason: Optional[Dict[str, Any]] = None
+
+    # Could be a sequence made up of multimedia content
+    multimodal_content: Optional[MultimediaObject] = None
 
     def __add__(self, other: "Sequence") -> "Sequence":
         return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
@@ -227,7 +225,7 @@ EMBEDDING_UNAVAILABLE_REQUEST_RESULT = RequestResult(
 )
 
 
-def wrap_request_time(compute: Callable[[], Dict[str, Any]]) -> Callable[[], Any]:
+def wrap_request_time(compute: Callable[[], Dict[str, Any]]) -> Callable[[], Dict[str, Any]]:
     """Return a version of `compute` that puts `request_time` into its output."""
 
     def wrapped_compute():

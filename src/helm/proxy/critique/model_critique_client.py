@@ -2,7 +2,7 @@ from typing import Dict, List, Union, Optional
 import string
 import dataclasses
 
-from helm.benchmark.run_specs import get_default_model_deployment_for_model
+from helm.benchmark.run_spec_factory import get_default_model_deployment_for_model
 from helm.common.critique_request import (
     CritiqueRequest,
     CritiqueRequestResult,
@@ -13,7 +13,7 @@ from helm.common.critique_request import (
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, Sequence
-from helm.proxy.clients.client import Client
+from helm.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
 
 

@@ -5,35 +5,37 @@ on:
     branches:
       - '*'
     paths:
-      - 'src/helm-frontend/**'
+      - 'helm-frontend/**'
   pull_request:
     branches:
       - '*'
     paths:
-      - 'src/helm-frontend/**'
+      - 'helm-frontend/**'
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
+    - name: Install Yarn
+      run: npm install --global yarn
     - name: Install dependencies
-      working-directory: ./src/helm-frontend
-      run: npm ci
+      working-directory: ./helm-frontend
+      run: yarn install
     - name: Run lint
-      working-directory: ./src/helm-frontend
-      run: npm run lint
+      working-directory: ./helm-frontend
+      run: yarn lint
     - name: Run check format
-      working-directory: ./src/helm-frontend
-      run: npm run format:check
+      working-directory: ./helm-frontend
+      run: yarn format:check
     - name: Run tests
-      working-directory: ./src/helm-frontend
-      run: npm run test
+      working-directory: ./helm-frontend
+      run: yarn test
 
   build:
     runs-on: ubuntu-latest
@@ -48,19 +50,22 @@ jobs:
       VITE_HELM_BENCHMARKS_SUITE: ${{ vars.VITE_HELM_BENCHMARKS_SUITE }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
+    - name: Install Yarn
+      working-directory: ./helm-frontend
+      run: npm install --global yarn
     - name: Install dependencies
-      working-directory: ./src/helm-frontend
-      run: npm ci
+      working-directory: ./helm-frontend
+      run: yarn install
     - name: Build app
-      working-directory: ./src/helm-frontend
-      run: npm run build
+      working-directory: ./helm-frontend
+      run: yarn build
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: ./src/helm/benchmark/static_build/
 
@@ -76,4 +81,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v3

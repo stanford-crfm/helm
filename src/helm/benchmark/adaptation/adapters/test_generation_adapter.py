@@ -11,24 +11,27 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
-from helm.benchmark.run_specs import get_scenario_spec1, get_adapter_spec1
+from helm.benchmark.run_specs.classic_run_specs import get_simple1_spec
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_GENERATION
+from .generation_adapter import GenerationAdapter
 from .test_adapter import TestAdapter
 
 
 class TestGenerationAdapter(TestAdapter):
     def test_adapt(self):
-        scenario = create_scenario(get_scenario_spec1())
-        adapter_spec = get_adapter_spec1()
+        run_spec = get_simple1_spec()
+        scenario = create_scenario(run_spec.scenario_spec)
+        adapter_spec = run_spec.adapter_spec
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
-        scenario_state = adapter.adapt(scenario.get_instances(output_path=""), parallelism=1)
+        instances = scenario.get_instances(output_path="")
+        request_states = adapter.adapt(instances, parallelism=1)
+        non_train_instances = [instance for instance in instances if instance.split != TRAIN_SPLIT]
 
         # Make sure we generated the right number of request_states:
         # For each trial, instance and reference (+ 1 for free-form generation).
-        num_instances = len(scenario_state.instances)
-        assert num_instances * adapter_spec.num_train_trials == len(scenario_state.request_states)
+        assert len(non_train_instances) * adapter_spec.num_train_trials == len(request_states)
 
     def test_construct_prompt(self):
         adapter_spec = AdapterSpec(
@@ -194,7 +197,7 @@ class TestGenerationAdapter(TestAdapter):
             ],
             split=TEST_SPLIT,
         )
-        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1).request_states
+        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1)
         assert len(actual_instances) == 1
         assert actual_instances[0].request.prompt == (
             "Input: Second reference is correct\n"
@@ -244,7 +247,7 @@ class TestGenerationAdapter(TestAdapter):
             ],
             split=TEST_SPLIT,
         )
-        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1).request_states
+        actual_instances = adapter.adapt(train_instances + [eval_instance], parallelism=1)
         assert len(actual_instances) == 1
         assert actual_instances[0].request.prompt == (
             "Input: Second reference is correct\n"
@@ -254,3 +257,24 @@ class TestGenerationAdapter(TestAdapter):
             "Input: First reference is correct\n"
             "Output:"
         )
+
+    def test_construct_prompt_image_generation(self):
+        adapter_spec = AdapterSpec(
+            model_deployment="openai/dall-e-2",
+            method=ADAPT_GENERATION,
+            input_prefix="",
+            input_suffix="",
+            output_prefix="",
+            output_suffix="",
+            max_train_instances=0,
+            num_outputs=1,
+            max_tokens=0,
+        )
+        adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
+        assert isinstance(adapter, GenerationAdapter)
+
+        eval_instance = Instance(Input(text="a blue dog"), references=[])
+        prompt: Prompt = adapter.construct_prompt([], eval_instance, include_output=False, reference_index=None)
+
+        assert adapter.window_service.fits_within_context_window(prompt.text)
+        assert prompt.text == "a blue dog"
