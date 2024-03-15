@@ -397,7 +397,7 @@ metric_groups:
 run_groups:
   - name: mmlu_subjects
     display_name: MMLU Subjects
-    description: MMLU Subjects 2
+    description: MMLU evaluations by subject
     category: All Groups
     subgroups:
       - mmlu_abstract_algebra
