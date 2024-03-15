@@ -26,7 +26,11 @@ export default function InstanceData({
           {`Instance id: ${instance.id} [split:  ${instance.split}]`}
         </h3>
         <h3>Input</h3>
-        <Preview value={instance.input.text} />
+        {instance.input.text.includes("<img") ? (
+          <div dangerouslySetInnerHTML={{ __html: instance.input.text }} />
+        ) : (
+          <Preview value={instance.input.text} />
+        )}
 
         <div>
           {instance.references && instance.references.length > 0 ? (
