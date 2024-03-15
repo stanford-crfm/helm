@@ -1,5 +1,5 @@
-window.SUITE = "latest";
-window.RELEASE = null;
+window.SUITE = null;
+window.RELEASE = "v1.0.0";
 window.BENCHMARK_OUTPUT_BASE_URL =
-	"https://nlp.stanford.edu/helm/vhelm/benchmark_output";
+	"https://storage.googleapis.com/crfm-helm-public/lite/benchmark_output/";
 window.RELEASE_INDEX_ID = "lite";
