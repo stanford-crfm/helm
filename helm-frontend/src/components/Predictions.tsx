@@ -25,68 +25,65 @@ export default function Predictions({
   }
 
   return (
-    <div>
-      <div className="flex flex-wrap justify-start items-start">
-        {predictions.map((prediction, idx) => (
-          <div className="w-full" key={idx}>
-            {predictions.length > 1 ? <h2>Trial {idx}</h2> : null}
-            <div className="mt-2 w-full">
-              {prediction.base64_images && prediction.base64_images.length ? (
-                <>
-                  <h3 className="mr-4">Prediction image</h3>
-                  {prediction.base64_images.map((base64_image) => (
-                    <img
-                      src={"data:image;base64," + base64_image}
-                      alt="Base64 Image"
-                    />
-                  ))}
-                </>
-              ) : (
-                <>
-                  <h3>
-                    <span className="mr-4">Prediction raw text</span>
-                    <Indicator stats={prediction.stats} />
-                  </h3>
-                  <Preview value={prediction.predicted_text} />
-                  {prediction.mapped_output ? (
-                    <>
-                      <h3>Prediction mapped output</h3>
-                      <Preview value={String(prediction.mapped_output)} />
-                    </>
-                  ) : null}
-                </>
-              )}
-            </div>
-            <h3>Metrics</h3>
-            <List>
-              {Object.keys(prediction.stats).map((statKey, idx) => (
-                <ListItem key={idx}>
-                  {metricFieldMap[statKey] ? (
-                    <span title={metricFieldMap[statKey].description}>
-                      {metricFieldMap[statKey].display_name}
-                    </span>
-                  ) : (
-                    <span>{statKey}</span>
-                  )}
-                  <span>
-                    {String(
-                      prediction.stats[
-                        statKey as keyof typeof prediction.stats
-                      ],
-                    )}
-                  </span>
-                </ListItem>
-              ))}
-            </List>
-            <details className="collapse collapse-arrow border rounded-md bg-white">
-              <summary className="collapse-title">Request details</summary>
-              <div className="collapse-content">
-                <Request request={requests[idx]} />
-              </div>
-            </details>
+    <div className="flex flex-wrap justify-start items-start">
+      {predictions.map((prediction, idx) => (
+        <div className="w-full" key={idx}>
+          {predictions.length > 1 ? <h2>Trial {idx}</h2> : null}
+          <div className="mt-2 w-full">
+            {prediction.base64_images && // update to check length > 0
+            prediction.base64_images.length > 0 ? (
+              <>
+                <h3 className="mr-4">Prediction image</h3>
+                {prediction.base64_images.map((base64_image) => (
+                  <img
+                    src={"data:image;base64," + base64_image}
+                    alt="Base64 Image"
+                  />
+                ))}
+              </>
+            ) : (
+              <>
+                <h3>
+                  <span className="mr-4">Prediction raw text</span>
+                  <Indicator stats={prediction.stats} />
+                </h3>
+                <Preview value={prediction.predicted_text} />
+                {prediction.mapped_output ? (
+                  <>
+                    <h3>Prediction mapped output</h3>
+                    <Preview value={String(prediction.mapped_output)} />
+                  </>
+                ) : null}
+              </>
+            )}
           </div>
-        ))}
-      </div>
+          <h3>Metrics</h3>
+          <List>
+            {Object.keys(prediction.stats).map((statKey, idx) => (
+              <ListItem key={idx}>
+                {metricFieldMap[statKey] ? (
+                  <span title={metricFieldMap[statKey].description}>
+                    {metricFieldMap[statKey].display_name}
+                  </span>
+                ) : (
+                  <span>{statKey}</span>
+                )}
+                <span>
+                  {String(
+                    prediction.stats[statKey as keyof typeof prediction.stats],
+                  )}
+                </span>
+              </ListItem>
+            ))}
+          </List>
+          <details className="collapse collapse-arrow border rounded-md bg-white">
+            <summary className="collapse-title">Request details</summary>
+            <div className="collapse-content">
+              <Request request={requests[idx]} />
+            </div>
+          </details>
+        </div>
+      ))}
     </div>
   );
 }
