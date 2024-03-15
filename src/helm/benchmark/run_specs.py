@@ -2012,7 +2012,7 @@ def get_ci_mcqa_spec() -> RunSpec:
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Give a letter answer among A, B, C or D.",
+        instructions="Give a letter answer among the options given. For example, if the options are A, B, C, D, E, and F, your answer should consist of the single letter that corresponds to the correct answer.",
         input_noun="Question",
         output_noun="Answer",
     )
