@@ -8,6 +8,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
 )
 from helm.benchmark.metrics.common_metric_specs import (
+    get_basic_reference_metric_specs,
     get_exact_match_metric_specs,
     get_open_ended_generation_metric_specs,
 )
@@ -114,7 +115,7 @@ def get_image2structure_metric_specs(
             },
         ),
     ]
-    return metric_specs
+    return metric_specs + get_basic_reference_metric_specs()
 
 
 ############################################################
