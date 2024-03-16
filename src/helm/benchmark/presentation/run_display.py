@@ -10,6 +10,7 @@ from helm.benchmark.adaptation.adapter_spec import (
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.annotation.annotation import Annotation
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.common.multimodal_request_utils import gather_generated_image_locations
@@ -56,6 +57,8 @@ class DisplayPrediction:
 
     stats: Dict[str, float]
     """Statistics computed from the predicted output"""
+
+    annotations: Optional[List[Dict[str, Annotation]]]
 
 
 @dataclass(frozen=True)
@@ -298,6 +301,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 mapped_output=mapped_output,
                 reference_index=request_state.reference_index,
                 stats=trial_stats,
+                annotations=request_state.annotations,
             )
         )
         requests.append(

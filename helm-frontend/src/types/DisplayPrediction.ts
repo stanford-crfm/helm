@@ -12,4 +12,5 @@ export default interface DisplayPrediction {
   };
   mapped_output: string | undefined;
   base64_images?: string[] | undefined;
+  annotations: any | undefined;
 }
