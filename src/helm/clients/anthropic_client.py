@@ -207,10 +207,9 @@ class AnthropicClient(CachingClient):
 
 def _is_content_moderation_failure(response: Dict) -> bool:
     """Return whether a a response failed because of the content moderation filter."""
-    if response["status_code"] == 400:
-        if response["response"]["error"]["message"] == "Output blocked by content filtering policy":
-            hlog(f"Anthropic - output blocked by content filtering policy: {response}")
-            return True
+    if response["error"]["message"] == "Output blocked by content filtering policy":
+        hlog(f"Anthropic - output blocked by content filtering policy: {response}")
+        return True
     return False
 
 
@@ -330,7 +329,10 @@ class AnthropicMessagesClient(CachingClient):
                         raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
                     return result
                 except BadRequestError as e:
-                    return {"error": {"status_code": e.status_code, "response": e.response.json()}}
+                    response = e.response.json()
+                    if _is_content_moderation_failure(response):
+                        return response
+                    raise
 
             cache_key = CachingClient.make_cache_key(
                 {
@@ -349,7 +351,7 @@ class AnthropicMessagesClient(CachingClient):
                 return RequestResult(
                     success=False,
                     cached=False,
-                    error=response["error"]["response"]["error"]["message"],
+                    error=response["error"]["message"],
                     completions=[],
                     embedding=[],
                     error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
