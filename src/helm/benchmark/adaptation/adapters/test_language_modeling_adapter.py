@@ -1,6 +1,5 @@
 # mypy: check_untyped_defs = False
 from typing import List
-from helm.benchmark.window_services.gpt2_window_service import GPT2WindowService
 
 from helm.common.tokenization_request import TokenizationToken
 from helm.benchmark.adaptation.request_state import RequestState
@@ -9,18 +8,6 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_LANGUAGE_MODELING
 from .test_adapter import TestAdapter
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, Instance, Input, Reference
-
-
-class MockGPT2Window(GPT2WindowService):
-    """Utility for overriding properties of a GPT2WindowService for test purposes."""
-
-    def __init__(self, service, *, max_sequence_length):
-        super().__init__(service)
-        self._max_sequence_length = max_sequence_length
-
-    @property
-    def max_sequence_length(self) -> int:
-        return self._max_sequence_length
 
 
 class TestLanguageModelingAdapter(TestAdapter):
@@ -100,7 +87,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             split=TEST_SPLIT,
         )
         # Ensure the adapter returns the correct prompt
-        request_states: List[RequestState] = adapter.adapt([instance], parallelism=1).request_states
+        request_states: List[RequestState] = adapter.adapt([instance], parallelism=1)
         request: Request = request_states[0].request
         # The prompt should be "<|endoftext|>Excuse me, do you have the time?"
         assert request.prompt == "<|endoftext|>Excuse me, do you have the time?"
@@ -112,7 +99,7 @@ class TestLanguageModelingAdapter(TestAdapter):
             references=[reference],
             split=TEST_SPLIT,
         )
-        request_states_long: List[RequestState] = adapter.adapt([instance_long], parallelism=1).request_states
+        request_states_long: List[RequestState] = adapter.adapt([instance_long], parallelism=1)
         request_long: Request = request_states_long[0].request
         # Count the number of tokens of the prompt
         num_tokens = len(adapter.window_service.encode(request_long.prompt).token_values)
@@ -130,7 +117,7 @@ class TestLanguageModelingAdapter(TestAdapter):
         adapter_2 = AdapterFactory.get_adapter(adapter_spec_2_, self.tokenizer_service)
 
         # Step 2.1. Check that if the prompt is not too long, it is not truncated
-        request_state_2: List[RequestState] = adapter_2.adapt([instance], parallelism=1).request_states
+        request_state_2: List[RequestState] = adapter_2.adapt([instance], parallelism=1)
         request_2: Request = request_state_2[0].request
         # The prompt should be unchanged
         assert request_2.prompt == "<|endoftext|>Excuse me, do you have the time?"
@@ -138,7 +125,7 @@ class TestLanguageModelingAdapter(TestAdapter):
 
         # Step 2.2. Check that if the prompt + max_tokens is too long, it is truncated
         # but that we keep the same number of tokens as in the previous test
-        request_states_long_2: List[RequestState] = adapter_2.adapt([instance_long], parallelism=1).request_states
+        request_states_long_2: List[RequestState] = adapter_2.adapt([instance_long], parallelism=1)
         request_long_2: Request = request_states_long_2[0].request
         # Count the number of tokens of the prompt
         num_tokens_2 = len(adapter_2.window_service.encode(request_long_2.prompt).token_values)
@@ -159,12 +146,13 @@ class TestLanguageModelingAdapter(TestAdapter):
         )
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
         # Monkey patch the window service to have really short max sequences.
-        adapter.window_service = MockGPT2Window(self.tokenizer_service, max_sequence_length=max_sequence_length)
+        adapter.window_service._max_sequence_length = max_sequence_length
+        adapter.window_service._max_request_length = max_sequence_length + 1
         input_text = Input(text=" ".join(str(i) for i in range(input_tokens)))
         instance = Instance(input=input_text, references=[], split=TEST_SPLIT)
 
         # Generate the requests
-        request_states: List[RequestState] = adapter.adapt([instance], parallelism=1).request_states
+        request_states: List[RequestState] = adapter.adapt([instance], parallelism=1)
         # A smaller window service creates more requests
         assert len(request_states) == 3
         assert request_states[0].request.prompt == "<|endoftext|>0 1 2 3 4 5 6 7 8 9"

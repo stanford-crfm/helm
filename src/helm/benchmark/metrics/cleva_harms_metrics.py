@@ -11,7 +11,7 @@ from helm.common.hierarchical_logger import hlog
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.cleva_metrics_helper import ChineseTokenizer
-from helm.proxy.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
+from helm.clients.perspective_api_client import PerspectiveAPIClientCredentialsError
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.optional_dependencies import handle_module_not_found_error
 from .bias_metrics import BiasMetric
@@ -136,7 +136,7 @@ class CLEVABiasMetric(BiasMetric):
         pair_to_count: Dict[Tuple[str, str], int] = defaultdict(int)
         for text in texts:
             tokens = jieba.lcut(text)  # Chinese word segmentation
-            for (target_word, group) in itertools.product(target_words, demographic_groups):
+            for target_word, group in itertools.product(target_words, demographic_groups):
                 group_words = self.demographic_group_to_words[group]
                 num_group_tokens = sum([tokens.count(w) for w in group_words])  # e.g. number of time asian names occur
                 num_target_tokens = tokens.count(target_word)  # e.g. number of tokens that are in the adj list

@@ -3,39 +3,36 @@ on:
   push:
     branches: [ main ]
     paths-ignore:
-      - 'src/helm-frontend/**'
+      - 'helm-frontend/**'
   pull_request:
     paths-ignore:
-      - 'src/helm-frontend/**'
+      - 'helm-frontend/**'
 
 jobs:
   install:
     # Tests that the HELM CLI commands work when only installing required dependencies
     # without optional extra dependencies.
-    name: Install
+    name: Run HELM with minimal dependencies only
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
-          restore-keys: |
-            pip-
-      - run: pip install -e .
-      - run: helm-run -h
-      - run: helm-summarize -h
-      - run: echo "Finished installation."
+          cache: pip
+      - run: python3 -m pip install --upgrade build
+      - run: python3 -m build
+      - run: python3 -m pip install dist/crfm_helm-*.whl
+      - run: helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
+      - run: helm-summarize --suite test
+      - run: helm-server --help
 
   test:
-    name: Tests
+    name: Run all tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,22 +42,17 @@ jobs:
         run: |
             sudo rm -rf /opt/ghc
             df -h
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-
+          cache: pip
       # Installs dependencies and performs static code checks
       - run: python3 -m pip install virtualenv && python3 -m virtualenv -p python3 venv
       - run: source venv/bin/activate && ./install-dev.sh
       - run: source venv/bin/activate && ./pre-commit.sh
       - name: Run tests
-        run: source venv/bin/activate && pytest
+        run: source venv/bin/activate && pytest --durations=20
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'main' }}

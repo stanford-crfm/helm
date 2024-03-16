@@ -43,13 +43,17 @@ class WindowServiceFactory:
             #    in the users configuration file. Instead, they have to be constructed dynamically at runtime.
             window_service_spec = inject_object_spec_args(
                 window_service_spec,
-                {
+                constant_bindings={
                     "service": service,
                     "tokenizer_name": model_deployment.tokenizer_name,
                     "max_sequence_length": model_deployment.max_sequence_length,
                     "max_request_length": model_deployment.max_request_length,
+                    "max_sequence_and_generated_tokens_length": model_deployment.max_sequence_and_generated_tokens_length,  # noqa
                     "end_of_text_token": end_of_text_token,
                     "prefix_token": prefix_token,
+                },
+                provider_bindings={
+                    "gpt2_window_service": lambda: WindowServiceFactory.get_window_service("huggingface/gpt2", service)
                 },
             )
             return create_object(window_service_spec)

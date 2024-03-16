@@ -7,6 +7,7 @@ import urllib
 import uuid
 import zstandard
 from typing import Any, Callable, Dict, List, Optional, TypeVar
+from datetime import datetime, date
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
@@ -62,7 +63,7 @@ def shell(args: List[str]):
     hlog(f"Executing: {cmd}")
     exit_code = subprocess.call(args)
     if exit_code != 0:
-        hlog(f"Failed with exit code {exit_code}: {cmd}")
+        raise Exception(f"Failed with exit code {exit_code}: {cmd}")
 
 
 @htrack(None)
@@ -158,6 +159,13 @@ def asdict_without_nones(obj: Any) -> Dict[str, Any]:
     if not is_dataclass(obj):
         raise ValueError(f"Expected dataclass, got '{obj}'")
     return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
+
+
+def serialize_dates(obj):
+    """Serialize dates (pass deault=serialize_dates into json.dumps)."""
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError(f"Type {type(obj)} is not serializable")
 
 
 def binarize_dict(d: Dict[str, int]) -> Dict[str, int]:

@@ -6,79 +6,69 @@ import traceback
 import typing
 from collections import Counter
 import dataclasses
-from dataclasses import dataclass, field
 from typing import Any, Dict, List
 import numpy as np
 
 from tqdm import tqdm
 
+from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
-from .augmentations.data_augmenter import DataAugmenterSpec
-from .scenarios.scenario import (
+from helm.benchmark.scenarios.scenario import (
     EVAL_SPLITS,
     TRAIN_SPLIT,
     Scenario,
-    ScenarioSpec,
     create_scenario,
     Instance,
+    get_scenario_cache_path,
     with_instance_ids,
 )
-from .adaptation.adapters.adapter import Adapter
-from .adaptation.adapters.adapter_factory import AdapterFactory
-from .adaptation.scenario_state import ScenarioState
-from .adaptation.adapter_spec import AdapterSpec
-from .data_preprocessor import DataPreprocessor
-from .executor import ExecutionSpec, Executor
-from .metrics.dry_run_metrics import DryRunMetric
-from .metrics.metric_name import MetricName
-from .metrics.metric_service import MetricService
-from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
-from .window_services.tokenizer_service import TokenizerService
+from helm.benchmark.adaptation.adapters.adapter import Adapter
+from helm.benchmark.adaptation.adapters.adapter_factory import AdapterFactory
+from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.run_spec import RunSpec
+from helm.benchmark.data_preprocessor import DataPreprocessor
+from helm.benchmark.executor import ExecutionSpec, Executor
+from helm.benchmark.annotation_executor import AnnotationExecutionSpec, AnnotationExecutor
+from helm.benchmark.metrics.dry_run_metrics import DryRunMetric
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, create_metric, Stat
+from helm.benchmark.window_services.tokenizer_service import TokenizerService
 
 
 LATEST_SYMLINK: str = "latest"
+_BENCHMARK_OUTPUT_PATH: str = "benchmark_output"
+_CACHED_MODELS_FOLDER: str = "models"
+
+
+def get_benchmark_output_path() -> str:
+    """Get the benchmark output path.
+
+    Many run spec functions need to know the benchmark output path,
+    but there is no way to pass it via  the run spec function,
+    so instead the run spec function should read this global variable."""
+    return _BENCHMARK_OUTPUT_PATH
+
+
+def get_cached_models_path() -> str:
+    """Get the cached models pat within the benchmark output path."""
+    path: str = os.path.join(get_benchmark_output_path(), _CACHED_MODELS_FOLDER)
+    ensure_directory_exists(path)
+    return path
+
+
+def set_benchmark_output_path(benchmark_output_path: str) -> None:
+    """Set the benchmark output path."""
+    global _BENCHMARK_OUTPUT_PATH
+    _BENCHMARK_OUTPUT_PATH = benchmark_output_path
 
 
 class RunnerError(Exception):
     """Error that happens in the Runner."""
 
     pass
-
-
-@dataclass(frozen=True)
-class RunSpec:
-    """
-    Specifies how to do a single run, which gets a scenario, adapts it, and
-    computes a list of stats based on the defined metrics.
-    """
-
-    # Unique identifier of the RunSpec
-    name: str
-
-    # Which scenario
-    scenario_spec: ScenarioSpec
-
-    # Specifies how to adapt an instance into a set of requests
-    adapter_spec: AdapterSpec
-
-    # What to evaluate on
-    metric_specs: List[MetricSpec]
-
-    # Data augmenter. The default `DataAugmenterSpec` does nothing.
-    data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
-
-    # Groups that this run spec belongs to (for aggregation)
-    groups: List[str] = field(default_factory=list)
-
-    def __post_init__(self):
-        """
-        `self.name` is used as the name of the output folder for the `RunSpec`.
-        Clean up `self.name` by replacing any "/"'s with "_".
-        """
-        # TODO: Don't mutate name! clean this up before passing it into the constructor here
-        object.__setattr__(self, "name", self.name.replace(os.path.sep, "_"))
 
 
 def remove_stats_nans(stats: List[Stat]) -> List[Stat]:
@@ -162,6 +152,15 @@ class Runner:
         exit_on_error: bool,
     ):
         self.executor = Executor(execution_spec)
+        self.annotator_executor = AnnotationExecutor(
+            AnnotationExecutionSpec(
+                local_path=execution_spec.local_path if execution_spec.local_path is not None else "",
+                parallelism=execution_spec.parallelism,
+                dry_run=execution_spec.dry_run,
+                sqlite_cache_backend_config=execution_spec.sqlite_cache_backend_config,
+                mongo_cache_backend_config=execution_spec.mongo_cache_backend_config,
+            )
+        )
         self.dry_run: bool = execution_spec.dry_run
         self.tokenizer_service = TokenizerService(self.executor.service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.service, execution_spec.auth)
@@ -172,9 +171,8 @@ class Runner:
         self.exit_on_error: bool = exit_on_error
 
         ensure_directory_exists(output_path)
-        # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
-        self.scenarios_path: str = os.path.join(output_path, "scenarios")
-        ensure_directory_exists(self.scenarios_path)
+        self.output_path = output_path
+
         # Decide where to save input instances
         self.instances_path: str = os.path.join(output_path, "scenario_instances")
         ensure_directory_exists(self.instances_path)
@@ -234,10 +232,6 @@ class Runner:
         # Load the scenario
         scenario: Scenario = create_scenario(run_spec.scenario_spec)
 
-        # This `output_path` will be used when `Adapter` calls `Scenario.get_instances`.
-        scenario_output_path = os.path.join(self.scenarios_path, scenario.name)
-        ensure_directory_exists(scenario_output_path)
-
         # This 'output_path' will be used when the model's input instances are saved.
         args_str = ",".join([f"{k}={v}" for k, v in sorted(run_spec.scenario_spec.args.items())])
         scenario_name_with_args = f"{scenario.name}:{args_str}" if args_str else f"{scenario.name}"
@@ -254,6 +248,7 @@ class Runner:
                 instances = [dacite.from_dict(Instance, instance) for instance in json_instances]
             else:
                 # Create the instances of the scenario
+                scenario_output_path = get_scenario_cache_path(self.output_path, scenario.name)
                 with htrack_block("scenario.get_instances"):
                     instances = scenario.get_instances(scenario_output_path)
         if self.cache_instances and not os.path.exists(input_instances_file_path):
@@ -281,15 +276,23 @@ class Runner:
 
         # Adapt (convert to requests)
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
-        scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
+        request_states: List[RequestState] = adapter.adapt(instances, self.executor.execution_spec.parallelism)
+        scenario_state: ScenarioState = ScenarioState(
+            adapter_spec=run_spec.adapter_spec,
+            request_states=request_states,
+            annotator_specs=run_spec.annotators,
+        )
 
         # Execute (fill up results)
         scenario_state = self.executor.execute(scenario_state)
 
+        # Annotate (post-process the results)
+        scenario_state = self.annotator_executor.execute(scenario_state)
+
         # Apply the metrics
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
-        metrics: List[Metric] = (
+        metrics: List[MetricInterface] = (
             [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
         )
         stats: List[Stat] = []

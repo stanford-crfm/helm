@@ -4,16 +4,16 @@ from typing import Dict, List, Optional, Tuple
 
 from nltk.tokenize import word_tokenize
 import numpy as np
+from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 
 from helm.common.request import RequestResult, Sequence
 from helm.benchmark.adaptation.request_state import RequestState
 from .statistic import Stat
-from .metric import Metric
 from .metric_name import MetricName
 from .bias_word_lists import GENDER_TO_WORD_LISTS, RACE_TO_NAME_LISTS, ADJECTIVE_LIST, PROFESSION_LIST
 
 
-class BiasMetric(Metric):
+class BiasMetric(EvaluateInstancesMetric):
     """Compute metrics to evaluate social bias.
 
     We compute demographic representation and mean stereotypical association bias in model generated text using word
@@ -155,7 +155,7 @@ class BiasMetric(Metric):
         pair_to_count: Dict[Tuple[str, str], int] = defaultdict(int)
         for text in texts:
             tokens = word_tokenize(text.lower())
-            for (target_word, group) in itertools.product(target_words, demographic_groups):
+            for target_word, group in itertools.product(target_words, demographic_groups):
                 group_words = self.demographic_group_to_words[group]
                 num_group_tokens = sum([tokens.count(w) for w in group_words])  # e.g. number of time asian names occur
                 num_target_tokens = tokens.count(target_word)  # e.g. number of tokens that are in the adj list
@@ -214,7 +214,7 @@ class BiasMetric(Metric):
 
         return tv_distance
 
-    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState], eval_cache_path: str) -> List[Stat]:
         """Compute the bias score on the request_states."""
 
         # Get completion texts from the request_results

@@ -1,5 +1,11 @@
 from typing import Optional
 from dataclasses import dataclass, replace
+from helm.common.cache_backend_config import (
+    CacheBackendConfig,
+    BlackHoleCacheBackendConfig,
+    MongoCacheBackendConfig,
+    SqliteCacheBackendConfig,
+)
 
 from helm.common.general import parallel_map
 from helm.common.hierarchical_logger import htrack, hlog
@@ -18,28 +24,36 @@ class ExecutorError(Exception):
 
 @dataclass(frozen=True)
 class ExecutionSpec:
-    # If non-empty, URL of the proxy server we send requests to (e.g., http://localhost:1959).
+
     url: Optional[str]
+    """If non-empty, URL of the proxy server we send requests to (e.g., http://localhost:1959)."""
 
-    # Pass into the service
     auth: Authentication
+    """Authentication that will be passed into the local service, if using the local service."""
 
-    # Path where API credentials and cache is stored.
-    # This path is the same as `--base-path` when launching the proxy server (see server.py).
-    # Required when url is not set.
     local_path: Optional[str]
+    """Path where API credentials and cache is stored.
 
-    # How many threads to have at once
+    This path is the same as `--base-path` when launching the proxy server (see server.py).
+    Required when url is not set."""
+
     parallelism: int
+    """How many threads to have at once"""
 
-    # Whether to skip execution
     dry_run: bool = False
+    """Whether to skip execution"""
 
-    # URL to the MongoDB database.
-    # If non-empty, the MongoDB database will be used for caching instead of SQLite.
-    # Example format: mongodb://[username:password@]host1[:port1]/[dbname]
-    # For full format, see: https://www.mongodb.com/docs/manual/reference/connection-string/
-    mongo_uri: str = ""
+    sqlite_cache_backend_config: Optional[SqliteCacheBackendConfig] = None
+    """If set, SQLite will be used for the cache.
+
+    This specifies the directory in which the SQLite cache will store files.
+    At most one of sqlite_cache_backend_config and mongo_cache_backend_config can be set."""
+
+    mongo_cache_backend_config: Optional[MongoCacheBackendConfig] = None
+    """If set, MongoDB will be used for the cache.
+
+    This specifies the MongoDB database to be used by the MongoDB cache.
+    At most one of sqlite_cache_backend_config and mongo_cache_backend_config can be set."""
 
 
 class Executor:
@@ -51,6 +65,16 @@ class Executor:
     def __init__(self, execution_spec: ExecutionSpec):
         self.execution_spec = execution_spec
 
+        cache_backend_config: CacheBackendConfig
+        if execution_spec.sqlite_cache_backend_config and execution_spec.mongo_cache_backend_config:
+            raise ExecutorError("At most one of sqlite_cache_backend_config and mongo_cache_backend_config can be set.")
+        elif execution_spec.sqlite_cache_backend_config:
+            cache_backend_config = execution_spec.sqlite_cache_backend_config
+        elif execution_spec.mongo_cache_backend_config:
+            cache_backend_config = execution_spec.mongo_cache_backend_config
+        else:
+            cache_backend_config = BlackHoleCacheBackendConfig()
+
         self.service: Service
         if execution_spec.url:
             hlog(f"Running using remote API proxy server: {execution_spec.url}")
@@ -58,7 +82,9 @@ class Executor:
         elif execution_spec.local_path:
             hlog(f"Running in local mode with base path: {execution_spec.local_path}")
             self.service = ServerService(
-                base_path=execution_spec.local_path, root_mode=True, mongo_uri=execution_spec.mongo_uri
+                base_path=execution_spec.local_path,
+                root_mode=True,
+                cache_backend_config=cache_backend_config,
             )
         else:
             raise ValueError("Either the proxy server URL or the local path must be set")
@@ -77,7 +103,11 @@ class Executor:
         )
 
         hlog(f"Processed {len(request_states)} requests")
-        return ScenarioState(scenario_state.adapter_spec, request_states)
+        return ScenarioState(
+            adapter_spec=scenario_state.adapter_spec,
+            request_states=request_states,
+            annotator_specs=scenario_state.annotator_specs,
+        )
 
     def process(self, state: RequestState) -> RequestState:
         try:

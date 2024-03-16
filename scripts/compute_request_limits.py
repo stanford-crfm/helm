@@ -4,15 +4,17 @@
 # python compute_request_limits.py --model_deployment_name="writer/palmyra-base" --tokenizer_name="Writer/palmyra-base"
 
 from typing import Any, Optional, Dict
-from helm.proxy.clients.auto_client import AutoClient
+from helm.common.cache_backend_config import SqliteCacheBackendConfig
+from helm.common.general import ensure_directory_exists
+from helm.clients.auto_client import AutoClient
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
-from helm.proxy.tokenizers.auto_tokenizer import AutoTokenizer
+from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.common.request import Request
 from helm.common.tokenization_request import TokenizationRequest
 
 # TODO #1592: reenable this once the imports are faster
-# from helm.proxy.clients.client import Client
-from helm.proxy.tokenizers.tokenizer import Tokenizer
+# from helm.clients.client import Client
+from helm.tokenizers.tokenizer import Tokenizer
 
 import os
 import math
@@ -124,7 +126,8 @@ def figure_out_max_prompt_length(
 
 
 def figure_out_max_prompt_length_plus_tokens(
-    client: Any,  # Client,
+    client: AutoClient,
+    auto_tokenizer: AutoTokenizer,
     model_deployment_name: str,
     model_name: str,
     tokenizer_name: str,
@@ -132,7 +135,7 @@ def figure_out_max_prompt_length_plus_tokens(
     prefix: str = "",
     suffix: str = "",
 ) -> int:
-    tokenizer = client._get_tokenizer(tokenizer_name)
+    tokenizer = auto_tokenizer._get_tokenizer(tokenizer_name)
     lower_bound = 1
     upper_bound = 2 * max_prompt_length + 1
 
@@ -344,8 +347,11 @@ def main():
     cache_path = os.path.join(current_path, args.cache_path)
     print(f"cache_path: {cache_path}")
 
-    client = AutoClient(credentials=credentials, cache_path=cache_path)
-    auto_tokenizer = AutoTokenizer(credentials=credentials, cache_path=cache_path)
+    ensure_directory_exists(cache_path)
+    client = AutoClient(
+        credentials=credentials, file_storage_path=cache_path, cache_backend_config=SqliteCacheBackendConfig(cache_path)
+    )
+    auto_tokenizer = AutoTokenizer(credentials=credentials, cache_backend_config=SqliteCacheBackendConfig(cache_path))
     print("client successfully created")
 
     print("Making short request...")
@@ -387,6 +393,7 @@ def main():
     print("========== Figure out max_prompt_length_plus_tokens ==========")
     max_prompt_length_plus_tokens: int = figure_out_max_prompt_length_plus_tokens(
         client,
+        auto_tokenizer,
         args.model_deployment_name,
         args.model_name,
         args.tokenizer_name,

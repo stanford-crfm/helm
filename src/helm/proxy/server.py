@@ -1,5 +1,3 @@
-# mypy: check_untyped_defs = False
-
 """
 Starts a REST server for the frontend to interact with.
 Look at `index.js` to see how the functionality is invoked.
@@ -16,12 +14,21 @@ import time
 from dacite import from_dict
 import bottle
 
+from helm.benchmark.config_registry import (
+    register_configs_from_directory,
+    register_builtin_configs_from_helm_package,
+)
+from helm.benchmark.model_deployment_registry import get_default_model_deployment_for_model
 from helm.common.authentication import Authentication
+from helm.common.cache_backend_config import CacheBackendConfig, MongoCacheBackendConfig, SqliteCacheBackendConfig
+from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request
 from helm.common.perspective_api_request import PerspectiveAPIRequest
+from helm.common.moderations_api_request import ModerationAPIRequest
 from helm.common.tokenization_request import TokenizationRequest, DecodeRequest
+from helm.proxy.services.service import CACHE_DIR
 from .accounts import Account
 from .services.server_service import ServerService
 from .query import Query
@@ -35,6 +42,7 @@ except ModuleNotFoundError as e:
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
 app = bottle.default_app()
+service: ServerService
 
 
 def safe_call(func, to_json=True):
@@ -83,9 +91,16 @@ def handle_static_filename(filename):
     return resp
 
 
+@app.get("/output/<filename:path>")
+def handle_output_filename(filename):
+    resp = bottle.static_file(filename, root=app.config["crfm.proxy.outputpath"])
+    return resp
+
+
 @app.get("/api/general_info")
 def handle_get_general_info():
     def perform(args):
+        global service
         return dataclasses.asdict(service.get_general_info())
 
     return safe_call(perform)
@@ -94,6 +109,7 @@ def handle_get_general_info():
 @app.get("/api/window_service_info")
 def handle_get_window_service_info():
     def perform(args):
+        global service
         return dataclasses.asdict(service.get_window_service_info(args["model_name"]))
 
     return safe_call(perform)
@@ -102,6 +118,7 @@ def handle_get_window_service_info():
 @app.post("/api/account")
 def handle_create_account():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         return dataclasses.asdict(service.create_account(auth))
 
@@ -111,6 +128,7 @@ def handle_create_account():
 @app.delete("/api/account")
 def handle_delete_account():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         api_key = args["api_key"]
         return dataclasses.asdict(service.delete_account(auth, api_key))
@@ -121,6 +139,7 @@ def handle_delete_account():
 @app.get("/api/account")
 def handle_get_account():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         if "all" in args and args["all"].lower() == "true":
             return [dataclasses.asdict(account) for account in service.get_accounts(auth)]
@@ -133,6 +152,7 @@ def handle_get_account():
 @app.put("/api/account")
 def handle_update_account():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         account = from_dict(Account, json.loads(args["account"]))
         return dataclasses.asdict(service.update_account(auth, account))
@@ -143,6 +163,7 @@ def handle_update_account():
 @app.put("/api/account/api_key")
 def handle_update_api_key():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         account = from_dict(Account, json.loads(args["account"]))
         return dataclasses.asdict(service.rotate_api_key(auth, account))
@@ -153,6 +174,7 @@ def handle_update_api_key():
 @app.get("/api/query")
 def handle_query():
     def perform(args):
+        global service
         query = Query(**args)
         return dataclasses.asdict(service.expand_query(query))
 
@@ -162,9 +184,28 @@ def handle_query():
 @app.get("/api/request")
 def handle_request():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         request = Request(**json.loads(args["request"]))
-        return dataclasses.asdict(service.make_request(auth, request))
+        # Hack to maintain reverse compatibility with clients with version <= 0.3.0.
+        # Clients with version <= 0.3.0 do not set model_deployment, but this is now
+        # required by Request.
+        if not request.model_deployment:
+            model_deployment = get_default_model_deployment_for_model(request.model)
+            if model_deployment is None:
+                raise ValueError(f"Unknown model '{request.model}'")
+            request = dataclasses.replace(request, model_deployment=model_deployment)
+
+        raw_response = dataclasses.asdict(service.make_request(auth, request))
+
+        # Hack to maintain reverse compatibility with clients with version <= 1.0.0.
+        # Clients with version <= 1.0.0 expect each token to contain a `top_logprobs`
+        # field of type dict.
+        for completion in raw_response["completions"]:
+            for token in completion["tokens"]:
+                token["top_logprobs"] = {}
+
+        return raw_response
 
     return safe_call(perform)
 
@@ -172,6 +213,7 @@ def handle_request():
 @app.get("/api/tokenize")
 def handle_tokenization():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         request = TokenizationRequest(**json.loads(args["request"]))
         return dataclasses.asdict(service.tokenize(auth, request))
@@ -182,6 +224,7 @@ def handle_tokenization():
 @app.get("/api/decode")
 def handle_decode():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         request = DecodeRequest(**json.loads(args["request"]))
         return dataclasses.asdict(service.decode(auth, request))
@@ -192,6 +235,7 @@ def handle_decode():
 @app.get("/api/toxicity")
 def handle_toxicity_request():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         request = PerspectiveAPIRequest(**json.loads(args["request"]))
         return dataclasses.asdict(service.get_toxicity_scores(auth, request))
@@ -199,9 +243,21 @@ def handle_toxicity_request():
     return safe_call(perform)
 
 
+@app.get("/api/moderation")
+def handle_moderation_request():
+    def perform(args):
+        global service
+        auth = Authentication(**json.loads(args["auth"]))
+        request = ModerationAPIRequest(**json.loads(args["request"]))
+        return dataclasses.asdict(service.get_moderation_results(auth, request))
+
+    return safe_call(perform)
+
+
 @app.get("/api/shutdown")
 def handle_shutdown():
     def perform(args):
+        global service
         auth = Authentication(**json.loads(args["auth"]))
         service.shutdown(auth)
 
@@ -214,6 +270,7 @@ def main():
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
     parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
     parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
+    parser.add_argument("--ssl-ca-certs", type=str, help="Path to SSL CA certs")
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
     parser.add_argument("-w", "--workers", type=int, help="Number of worker processes to handle requests", default=8)
     parser.add_argument("-t", "--timeout", type=int, help="Request timeout in seconds", default=5 * 60)
@@ -225,17 +282,32 @@ def main():
     )
     args = parser.parse_args()
 
-    service = ServerService(base_path=args.base_path, mongo_uri=args.mongo_uri)
+    register_builtin_configs_from_helm_package()
+    register_configs_from_directory(args.base_path)
+
+    cache_backend_config: CacheBackendConfig
+    if args.mongo_uri:
+        cache_backend_config = MongoCacheBackendConfig(args.mongo_uri)
+    else:
+        sqlite_cache_path = os.path.join(args.base_path, CACHE_DIR)
+        ensure_directory_exists(sqlite_cache_path)
+        cache_backend_config = SqliteCacheBackendConfig(sqlite_cache_path)
+
+    service = ServerService(base_path=args.base_path, cache_backend_config=cache_backend_config)
 
     gunicorn_args = {
         "workers": args.workers,
         "timeout": args.timeout,
         "limit_request_line": 0,  # Controls the maximum size of HTTP request line in bytes. 0 = unlimited.
     }
-    if args.ssl_key_file and args.ssl_cert_file:
+    if args.ssl_key_file:
         gunicorn_args["keyfile"] = args.ssl_key_file
+    if args.ssl_cert_file:
         gunicorn_args["certfile"] = args.ssl_cert_file
+    if args.ssl_ca_certs:
+        gunicorn_args["ca_certs"] = args.ssl_ca_certs
 
     # Clear arguments before running gunicorn as it also uses argparse
     sys.argv = [sys.argv[0]]
+    app.config["crfm.proxy.outputpath"] = os.path.join(os.path.realpath(args.base_path), "cache", "output")
     app.run(host="0.0.0.0", port=args.port, server="gunicorn", **gunicorn_args)

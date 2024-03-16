@@ -12,13 +12,13 @@ from collections import defaultdict
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.metrics.evaluate_reference_metrics import get_rouge_function
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from helm.common.optional_dependencies import handle_module_not_found_error
 from .metric import Metric, MetricResult
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .basic_metrics import get_rouge_function
 from .statistic import Stat
 from .summac.model_summac import SummaCZS
 from bert_score import BERTScorer
@@ -58,7 +58,7 @@ class SummarizationMetric(Metric):
         try:
             from summ_eval.data_stats_metric import DataStatsMetric
         except ModuleNotFoundError as e:
-            handle_module_not_found_error(e, ["metrics"])
+            handle_module_not_found_error(e, ["summarization"])
 
         self.data_stats_metric = DataStatsMetric()
         self.task: str = task

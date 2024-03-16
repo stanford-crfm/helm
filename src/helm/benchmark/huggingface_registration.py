@@ -1,22 +1,19 @@
 import os
 from typing import Optional
-from datetime import date
 
 from helm.benchmark.model_deployment_registry import (
     ClientSpec,
     ModelDeployment,
-    WindowServiceSpec,
     register_model_deployment,
 )
 from helm.benchmark.model_metadata_registry import (
     get_model_metadata,
-    ModelMetadata,
+    get_unknown_model_metadata,
     register_model_metadata,
-    TEXT_MODEL_TAG,
-    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 from helm.benchmark.tokenizer_config_registry import TokenizerConfig, TokenizerSpec, register_tokenizer_config
 from helm.common.hierarchical_logger import hlog
+from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 def register_huggingface_model(
@@ -26,18 +23,29 @@ def register_huggingface_model(
     if revision:
         object_spec_args["revision"] = revision
 
+    # Auto-infer model properties from the tokenizer.
+    with HuggingFaceTokenizer.create_tokenizer(**object_spec_args) as tokenizer:
+        max_sequence_length = tokenizer.model_max_length
+        end_of_text_token = tokenizer.eos_token or ""
+        prefix_token = tokenizer.bos_token or ""
+    # If the tokenizer config has a model_max_length of 1000000000000000019884624838656
+    # it means that model creator did not specify model_max_length.
+    if max_sequence_length > 1_000_000:
+        raise ValueError(
+            f"Could not infer the model_max_length of Hugging Face model {pretrained_model_name_or_path}, so "
+            f"--enable-huggingface-models and --enable-local-huggingface-models cannot be used for this model. "
+            f"Please configure the model using prod_env/model_deployments.yaml instead."
+        )
+
     model_deployment = ModelDeployment(
         name=helm_model_name,
         client_spec=ClientSpec(
-            class_name="helm.proxy.clients.huggingface_client.HuggingFaceClient",
+            class_name="helm.clients.huggingface_client.HuggingFaceClient",
             args=object_spec_args,
         ),
         model_name=helm_model_name,
         tokenizer_name=helm_model_name,
-        window_service_spec=WindowServiceSpec(
-            class_name="helm.benchmark.window_services.huggingface_window_service.HuggingFaceWindowService",
-            args=object_spec_args,
-        ),
+        max_sequence_length=max_sequence_length,
     )
 
     # We check if the model is already registered because we don't want to
@@ -47,26 +55,18 @@ def register_huggingface_model(
     try:
         _ = get_model_metadata(model_name=helm_model_name)
     except ValueError:
-        register_model_metadata(
-            ModelMetadata(
-                name=helm_model_name,
-                creator_organization_name="Unknown",
-                display_name=helm_model_name,
-                description=helm_model_name,
-                access="open",
-                release_date=date.today(),
-                tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
-            )
-        )
+        register_model_metadata(get_unknown_model_metadata(helm_model_name))
         hlog(f"Registered default metadata for model {helm_model_name}")
 
     register_model_deployment(model_deployment)
     tokenizer_config = TokenizerConfig(
         name=helm_model_name,
         tokenizer_spec=TokenizerSpec(
-            class_name="helm.proxy.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer",
+            class_name="helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer",
             args=object_spec_args,
         ),
+        end_of_text_token=end_of_text_token,
+        prefix_token=prefix_token,
     )
     register_tokenizer_config(tokenizer_config)
 

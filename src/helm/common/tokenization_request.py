@@ -19,9 +19,12 @@ class TokenizationRequest:
     text: str
 
     # Which tokenizer we should use
-    tokenizer: str = "huggingface/gpt2"
+    tokenizer: str
 
-    # Whether to encode
+    # Whether to encode tokens
+    #
+    # If true, the response's TokenizationToken should contain integers.
+    # Otherwise, the response's TokenizationToken should contain strings.
     encode: bool = False
 
     # Whether to truncate
@@ -103,7 +106,7 @@ class DecodeRequest:
     tokens: List[int]
 
     # Which tokenizer we should use
-    tokenizer: str = "huggingface/gpt2"
+    tokenizer: str
 
     # Whether to clean up the tokenization spaces. Setting to False preserves the original text.
     clean_up_tokenization_spaces: bool = False

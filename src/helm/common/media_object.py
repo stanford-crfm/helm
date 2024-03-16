@@ -5,6 +5,7 @@ from dataclasses import dataclass, field, replace
 from typing import List, Optional
 
 
+IMAGE_TYPE = "image"
 TEXT_TYPE = "text"
 
 
@@ -112,6 +113,14 @@ class MultimediaObject:
         :return: The combined multimodal content.
         """
         return MultimediaObject(media_objects=self.media_objects + other.media_objects)
+
+    @property
+    def size(self) -> int:
+        """
+        Get the number of `MediaObject`s in this multimodal content.
+        :return: The number of `MediaObject`s .
+        """
+        return len(self.media_objects)
 
     @property
     def text(self) -> str:
