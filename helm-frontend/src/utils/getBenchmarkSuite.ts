@@ -1,3 +1,3 @@
-export default function getBenchmarkSuite(): string {
-  return String(window.SUITE);
+export default function getBenchmarkSuite(): string | undefined {
+  return window.SUITE !== undefined ? window.SUITE : undefined;
 }
