@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import getReleaseSummary from "@/services/getReleaseSummary";
 import ReleaseSummary from "@/types/ReleaseSummary";
-import ReleaseIndexEntry from "@/types/ReleaseIndexEntry";
+import ProjectMetadata from "@/types/ProjectMetadata";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import getReleaseUrl from "@/utils/getReleaseUrl";
 
@@ -13,26 +13,26 @@ function ReleaseDropdown() {
     date: "",
   });
 
-  const [currReleaseIndexEntry, setCurrReleaseIndexEntry] = useState<
-    ReleaseIndexEntry | undefined
+  const [currProjectMetadata, setCurrProjectMetadata] = useState<
+    ProjectMetadata | undefined
   >();
 
   useEffect(() => {
     fetch(
-      "https://storage.googleapis.com/crfm-helm-public/config/release_index.json",
+      "https://storage.googleapis.com/crfm-helm-public/config/project_metadata.json",
     )
       .then((response) => response.json())
-      .then((data: ReleaseIndexEntry[]) => {
-        // set currReleaseIndexEntry to val where releaseIndexEntry.id matches window.RELEASE_INDEX_ID
-        if (window.RELEASE_INDEX_ID) {
+      .then((data: ProjectMetadata[]) => {
+        // set currProjectMetadata to val where projectMetadataEntry.id matches window.PROJECT_ID
+        if (window.PROJECT_ID) {
           const currentEntry = data.find(
-            (entry) => entry.id === window.RELEASE_INDEX_ID,
+            (entry) => entry.id === window.PROJECT_ID,
           );
-          setCurrReleaseIndexEntry(currentEntry);
+          setCurrProjectMetadata(currentEntry);
           // handles falling back to HELM lite as was previously done in this file
         } else {
           const currentEntry = data.find((entry) => entry.id === "lite");
-          setCurrReleaseIndexEntry(currentEntry);
+          setCurrProjectMetadata(currentEntry);
         }
       })
       .catch((error) => {
@@ -41,9 +41,9 @@ function ReleaseDropdown() {
   }, []);
 
   function getReleases(): string[] {
-    return currReleaseIndexEntry !== undefined &&
-      currReleaseIndexEntry.releases !== undefined
-      ? currReleaseIndexEntry.releases
+    return currProjectMetadata !== undefined &&
+      currProjectMetadata.releases !== undefined
+      ? currProjectMetadata.releases
       : ["v1.0.0"];
   }
 
@@ -96,7 +96,7 @@ function ReleaseDropdown() {
         {releases.map((release) => (
           <li>
             <a
-              href={getReleaseUrl(release, currReleaseIndexEntry)}
+              href={getReleaseUrl(release, currProjectMetadata)}
               className="block"
               role="menuitem"
             >

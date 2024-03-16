@@ -20,6 +20,7 @@ it("renders correctly", () => {
       temperature: 0,
       top_k_per_token: 1,
       top_p: 1,
+      multimodal_prompt: undefined,
     },
   };
 

@@ -195,6 +195,7 @@ def compute_cost_matrix_on_sig(
     sig2: np.ndarray,
     gray_most_frequent_color: float,
     patch_size: Tuple[int, int],
+    dim: Tuple[int, int],
     weight_most_frequent_color: float = 0.01,
     use_tqdm: bool = True,
 ) -> np.ndarray:
@@ -223,6 +224,7 @@ def compute_cost_matrix_on_sig(
     ).astype(np.float32)
 
     cost_matrix = np.zeros((sig1.shape[0], sig2.shape[0]))
+    multiplier: float = (patch_size[0] * patch_size[1]) ** 0.5 / (dim[0] + dim[1])
     for i in tqdm(range(sig1.shape[0]), disable=not use_tqdm):
         for j in range(sig2.shape[0]):
             pos_sig1 = sig1[i, -2:]
@@ -230,7 +232,7 @@ def compute_cost_matrix_on_sig(
             sub_sig1 = sig1_reshaped[i]
             sub_sig2 = sig2_reshaped[j]
             emd_value, _, _ = cv2.EMD(sub_sig1, sub_sig2, cv2.DIST_L1)
-            cost_matrix[i, j] = emd_value + np.linalg.norm(pos_sig1 - pos_sig2, 1) / patch_size[0]  # Use L1
+            cost_matrix[i, j] = emd_value + np.linalg.norm(pos_sig1 - pos_sig2, 1) * multiplier  # Use L1
     return cost_matrix.astype(np.float32)
 
 
@@ -327,6 +329,7 @@ def compute_emd_recursive(
         sig2=sig2,
         gray_most_frequent_color=gray_most_frequent_color,
         patch_size=patch_size,
+        dim=img1_PIL.size,
         weight_most_frequent_color=weight_most_frequent_color,
         use_tqdm=use_tqdm,
     )
