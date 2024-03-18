@@ -73,9 +73,7 @@ class InstructionFollowingCritiqueMetric(Metric):
     }
 
     KEYWORD_NAME: str = "Keyword Feedback"
-    KEYWORD_PROMPT: str = (
-        "Provide a comma-separated list of keywords that capture what's wrong with the response (e.g., typos, swear words, too long)"  # noqa: E501
-    )
+    KEYWORD_PROMPT: str = "Provide a comma-separated list of keywords that capture what's wrong with the response (e.g., typos, swear words, too long)"  # noqa: E501
 
     def __init__(self, num_respondents: int) -> None:
         self._template = CritiqueTaskTemplate(
