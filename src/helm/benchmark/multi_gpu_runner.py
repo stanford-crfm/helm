@@ -88,9 +88,11 @@ class MultiGPURunner(Runner):
         self.max_concurrent_workers = (
             int(env_max_concurrent_workers)
             if env_max_concurrent_workers
-            else RUNNER_CONFIG.helm_max_concurrent_workers
-            if RUNNER_CONFIG.helm_max_concurrent_workers > 0
-            else torch.cuda.device_count()
+            else (
+                RUNNER_CONFIG.helm_max_concurrent_workers
+                if RUNNER_CONFIG.helm_max_concurrent_workers > 0
+                else torch.cuda.device_count()
+            )
         )
 
     def safe_run_one(self, run_spec: RunSpec):

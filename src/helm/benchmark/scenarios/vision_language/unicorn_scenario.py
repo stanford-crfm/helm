@@ -21,11 +21,11 @@ class UnicornScenario(Scenario):
     """
     How Many Unicorns are in this Image? A Safety Evaluation Benchmark of Vision LLMs
 
-    We shift our focus from evaluating standard performance to introducing a comprehensive safety evaluation 
-    suite Unicorn, covering both out-of-distribution (OOD) generalization and adversarial robustness. For the OOD 
-    evaluation, we present two novel VQA datasets, each with one variant, designed to test model performance 
-    under challenging conditions. In exploring adversarial robustness, we propose a straightforward attack 
-    strategy for misleading VLLMs to produce visual-unrelated responses. Moreover, we assess the efficacy of 
+    We shift our focus from evaluating standard performance to introducing a comprehensive safety evaluation
+    suite Unicorn, covering both out-of-distribution (OOD) generalization and adversarial robustness. For the OOD
+    evaluation, we present two novel VQA datasets, each with one variant, designed to test model performance
+    under challenging conditions. In exploring adversarial robustness, we propose a straightforward attack
+    strategy for misleading VLLMs to produce visual-unrelated responses. Moreover, we assess the efficacy of
     two jailbreaking strategies, targeting either the vision or language component of VLLMs.
 
     @article{tu2023unicorns,
@@ -40,28 +40,20 @@ class UnicornScenario(Scenario):
 
     UNICORN_HUGGINGFACE_DATASET_NAME: str = "PahaII/unicorn"
 
-    IMAGE_URL: str = (
-        "https://huggingface.co/datasets/PahaII/unicorn/resolve/main/images/{image_path}?download=true"
-    )
+    IMAGE_URL: str = "https://huggingface.co/datasets/PahaII/unicorn/resolve/main/images/{image_path}?download=true"
 
-    SUBJECTS: List[str] = [
-        "OODCV-VQA",
-        "OODCV-Counterfactual",
-        "Sketchy-VQA",
-        "Sketchy-Challenging"
-    ]
+    SUBJECTS: List[str] = ["OODCV-VQA", "OODCV-Counterfactual", "Sketchy-VQA", "Sketchy-Challenging"]
 
     IMG_TYPE: Dict[str, str] = {
         "OODCV-VQA": "jpeg",
         "OODCV-Counterfactual": "jpeg",
         "Sketchy-VQA": "png",
-        "Sketchy-Challenging": "png"
+        "Sketchy-Challenging": "png",
     }
 
     name = "unicorn"
     description = (
-        "Evaluate multimodal models on out-of-distribution scenarios "
-        " ([paper](https://arxiv.org/abs/2311.16101))."
+        "Evaluate multimodal models on out-of-distribution scenarios " " ([paper](https://arxiv.org/abs/2311.16101))."
     )
     tags = ["vision-language"]
 
@@ -82,23 +74,24 @@ class UnicornScenario(Scenario):
         # Process the test set
         for row in tqdm(
             load_dataset(
-                self.UNICORN_HUGGINGFACE_DATASET_NAME, 
+                self.UNICORN_HUGGINGFACE_DATASET_NAME,
                 data_files=question_data_files,
-                split=TEST_SPLIT, 
-                cache_dir=output_path)
+                split=TEST_SPLIT,
+                cache_dir=output_path,
+            )
         ):
             # Download the image
             image_path: str = row["image_path"]
             local_image_path: str = os.path.join(output_path, image_path)
             ensure_file_downloaded(
-                    source_url=self.IMAGE_URL.format(image_path=image_path),
-                    target_path=local_image_path,
-                    unpack=False,
-                )
+                source_url=self.IMAGE_URL.format(image_path=image_path),
+                target_path=local_image_path,
+                unpack=False,
+            )
 
             content: List[MediaObject] = [
                 MediaObject(location=local_image_path, content_type=f"image/{self._image_type}"),
-                MediaObject(text=row['question'], content_type="text/plain"),
+                MediaObject(text=row["question"], content_type="text/plain"),
             ]
             answer: str = row["answer"]
             instances.append(

@@ -21,15 +21,15 @@ class BingoScenario(Scenario):
     """
     Holistic Analysis of Hallucination in GPT-4V(ision): Bias and Interference Challenges
 
-    We introduce a new benchmark, namely, the Bias and Interference Challenges in Visual Language Models (Bingo). 
-    This benchmark is designed to evaluate and shed light on the two common types of hallucinations in visual 
-    language models: bias and interference. Here, bias refers to the model's tendency to hallucinate certain types 
-    of responses, possibly due to imbalance in its training data. Interference pertains to scenarios where the 
-    judgment of GPT-4V(ision) can be disrupted due to how the text prompt is phrased or how the input image is 
-    presented. We identify a notable regional bias, whereby GPT-4V(ision) is better at interpreting Western images 
-    or images with English writing compared to images from other countries or containing text in other languages. 
+    We introduce a new benchmark, namely, the Bias and Interference Challenges in Visual Language Models (Bingo).
+    This benchmark is designed to evaluate and shed light on the two common types of hallucinations in visual
+    language models: bias and interference. Here, bias refers to the model's tendency to hallucinate certain types
+    of responses, possibly due to imbalance in its training data. Interference pertains to scenarios where the
+    judgment of GPT-4V(ision) can be disrupted due to how the text prompt is phrased or how the input image is
+    presented. We identify a notable regional bias, whereby GPT-4V(ision) is better at interpreting Western images
+    or images with English writing compared to images from other countries or containing text in other languages.
 
-    
+
     @article{cui2023holistic,
     title={Holistic analysis of hallucination in gpt-4v (ision): Bias and interference challenges},
     author={Cui, Chenhang and Zhou, Yiyang and Yang, Xinyu and Wu, Shirley and Zhang, Linjun and Zou, James and Yao, Huaxiu},
@@ -39,19 +39,12 @@ class BingoScenario(Scenario):
 
     Paper: https://arxiv.org/abs/2311.03287
     """
+
     UNICORN_HUGGINGFACE_DATASET_NAME: str = "PahaII/Bingo"
 
-    IMAGE_URL: str = (
-        "https://huggingface.co/datasets/PahaII/Bingo/resolve/main/images/{image_path}?download=true"
-    )
+    IMAGE_URL: str = "https://huggingface.co/datasets/PahaII/Bingo/resolve/main/images/{image_path}?download=true"
 
-    SUBJECTS: List[str] = [
-        "T2I",
-        "I2I",
-        "OCR",
-        "Factual",
-        "Region"
-    ]
+    SUBJECTS: List[str] = ["T2I", "I2I", "OCR", "Factual", "Region"]
 
     name = "unicorn"
     description = (
@@ -76,23 +69,24 @@ class BingoScenario(Scenario):
         # Process the test set
         for row in tqdm(
             load_dataset(
-                self.UNICORN_HUGGINGFACE_DATASET_NAME, 
+                self.UNICORN_HUGGINGFACE_DATASET_NAME,
                 data_files=question_data_files,
-                split=TEST_SPLIT, 
-                cache_dir=output_path)
+                split=TEST_SPLIT,
+                cache_dir=output_path,
+            )
         ):
             # Download the image
             image_path: str = row["image_path"]
             local_image_path: str = os.path.join(output_path, image_path)
             ensure_file_downloaded(
-                    source_url=self.IMAGE_URL.format(image_path=image_path),
-                    target_path=local_image_path,
-                    unpack=False,
-                )
+                source_url=self.IMAGE_URL.format(image_path=image_path),
+                target_path=local_image_path,
+                unpack=False,
+            )
 
             content: List[MediaObject] = [
                 MediaObject(location=local_image_path, content_type=f"image/png"),
-                MediaObject(text=row['question'], content_type="text/plain"),
+                MediaObject(text=row["question"], content_type="text/plain"),
             ]
             answer: str = row["answer"]
             instances.append(

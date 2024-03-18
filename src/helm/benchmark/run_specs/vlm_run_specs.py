@@ -290,11 +290,12 @@ def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
         groups=[run_spec_name],
     )
 
+
 @run_spec_function("unicorn")
 def get_unicorn_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.unicorn_scenario.UnicornScenario",
-        args={"subject": subject}
+        args={"subject": subject},
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
         instructions="Only give numerical or boolean answer without an explanation."
@@ -310,11 +311,11 @@ def get_unicorn_spec(subject: str) -> RunSpec:
         groups=[run_spec_name],
     )
 
+
 @run_spec_function("bingo")
 def get_bingo_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario",
-        args={"subject": subject}
+        class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario", args={"subject": subject}
     )
     adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
     metric_specs: List[MetricSpec] = get_open_ended_generation_metric_specs()
