@@ -22,6 +22,7 @@ from .run_spec import RunSpec
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
+from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
 
 
 class RunExpander(ABC):
@@ -611,6 +612,33 @@ class ModelDeploymentRunExpander(ReplaceValueRunExpander):
 
     name = "model_deployment"
     values_dict: Dict[str, List[Any]] = {}
+
+
+class EvalSplitRunExpander(RunExpander):
+    """Sets the evaluation split.
+
+    By default, evaluation instances are drawn from both test and validation splits.
+    This run expander allows drawing evaluation instances from only the test split or
+    only the validation split."""
+
+    # NOTE: This does not subclass `ReplaceValueRunExpander` because we want the
+    # run expander name to be "eval_split", not "eval_splits".
+
+    name = "eval_split"
+
+    def __init__(self, value):
+        if value != TEST_SPLIT and value != VALID_SPLIT:
+            raise ValueError(f'Split must be "{TEST_SPLIT}" or "{VALID_SPLIT}", but got "{value}"')
+        self.split = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}eval_split={self.split}",
+                adapter_spec=replace(run_spec.adapter_spec, eval_splits=[self.split]),
+            )
+        ]
 
 
 ############################################################
@@ -1375,6 +1403,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     NumPromptTokensRunExpander,
     NumOutputTokensRunExpander,
     ChatMLRunExpander,
+    EvalSplitRunExpander,
 ]
 
 
