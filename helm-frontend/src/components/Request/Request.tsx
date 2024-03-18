@@ -1,6 +1,7 @@
 import { List, ListItem } from "@tremor/react";
 import type DisplayRequest from "@/types/DisplayRequest";
 import Preview from "../Preview";
+import MultimediaObjectDisplay from "../MultimediaObjectDisplay";
 
 type Props = {
   request: DisplayRequest;
@@ -9,11 +10,11 @@ type Props = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatArray(arr: any): any {
   if (!Array.isArray(arr)) {
-    return arr;
+    return String(arr);
   }
 
-  if (arr.length === 0) {
-    return "";
+  if (arr.length == 0) {
+    return "[]";
   }
 
   return String(
@@ -24,18 +25,34 @@ function formatArray(arr: any): any {
 export default function Request({ request }: Props) {
   return (
     <div>
-      <h3 className="block text text-gray-400">
-        Prompt ({request.request.prompt.length} Chars)
-      </h3>
-      <Preview value={request.request.prompt} />
-
+      {request.request.prompt.length > 0 ? (
+        <div>
+          <h3 className="block text text-gray-400">
+            Prompt ({request.request.prompt.length} Chars)
+          </h3>
+          <Preview value={request.request.prompt} />
+        </div>
+      ) : request.request.multimodal_prompt ? (
+        <div>
+          <h3 className="block text text-gray-400">Prompt</h3>
+          <MultimediaObjectDisplay
+            multimediaObject={request.request.multimodal_prompt}
+          />
+        </div>
+      ) : (
+        <h3 className="block text text-gray-400">Empty Prompt</h3>
+      )}
       <List>
         {(Object.keys(request.request) as (keyof typeof request.request)[])
           .filter((key) => key !== "prompt")
           .map((key, idx) => (
             <ListItem key={idx + 1}>
               <span>{key}:</span>
-              <span>{formatArray(request.request[key])}</span>
+              {request.request && request.request[key] ? (
+                <span>{formatArray(request.request[key])}</span>
+              ) : (
+                "null"
+              )}
             </ListItem>
           ))}
       </List>

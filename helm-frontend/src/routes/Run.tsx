@@ -66,8 +66,9 @@ export default function Run() {
         return () => controller.abort();
       }
 
-      const runsToRunSuites = await getRunsToRunSuites(signal);
-      const suite = getSuiteForRun(runsToRunSuites, runName);
+      const suite = window.SUITE
+        ? window.SUITE
+        : getSuiteForRun(await getRunsToRunSuites(signal), runName);
       setRunSuite(suite);
 
       const [
