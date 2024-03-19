@@ -26,8 +26,10 @@ class BingoScenario(Scenario):
     language models: bias and interference. Here, bias refers to the model's tendency to hallucinate certain types
     of responses, possibly due to imbalance in its training data. Interference pertains to scenarios where the
     judgment of GPT-4V(ision) can be disrupted due to how the text prompt is phrased or how the input image is
-    presented. We identify a notable regional bias, whereby GPT-4V(ision) is better at interpreting Western images
-    or images with English writing compared to images from other countries or containing text in other languages.
+    presented. The benchmark consists of open-ended question-answer pairs, and we employ open-ended generation
+    metrics for evaluation. In the experiment, we identify a notable regional bias, whereby GPT-4V(ision) is
+    better at interpreting Western images or images with English writing compared to images from other countries
+    or containing text in other languages.
 
 
     @article{cui2023holistic,
@@ -47,9 +49,9 @@ class BingoScenario(Scenario):
 
     SUBJECTS: List[str] = ["T2I", "I2I", "OCR", "Factual", "Region"]
 
-    name = "unicorn"
+    name = "bingo"
     description = (
-        "Evaluate multimodal models on biased and inference-challenging scenarios"
+        "Evaluate multimodal models on biased and inference-challenging scenarios with five subjects"
         " ([paper](https://arxiv.org/abs/2311.03287))."
     )
     tags = ["vision-language"]

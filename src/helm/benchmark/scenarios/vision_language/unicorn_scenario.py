@@ -23,10 +23,11 @@ class UnicornScenario(Scenario):
 
     We shift our focus from evaluating standard performance to introducing a comprehensive safety evaluation
     suite Unicorn, covering both out-of-distribution (OOD) generalization and adversarial robustness. For the OOD
-    evaluation, we present two novel VQA datasets, each with one variant, designed to test model performance
-    under challenging conditions. In exploring adversarial robustness, we propose a straightforward attack
-    strategy for misleading VLLMs to produce visual-unrelated responses. Moreover, we assess the efficacy of
-    two jailbreaking strategies, targeting either the vision or language component of VLLMs.
+    evaluation, we present two novel VQA datasets --- OODCV-VQA and Sketchy-VQA, each with one variant, designed
+    to test model performance under challenging conditions. In the OOD scenario, questions are matched with
+    boolean or numerical answers, and we use exact match metrics for evaluation. When comparing OOD Sketchy-VQA
+    with its synthesized in-distribution counterpart, we found an average model output F1 drop of 8.9%,
+    highlighting the challenging nature of the OOD scenario in the Unicorn benchmark.
 
     @article{tu2023unicorns,
     title={How Many Unicorns Are in This Image? A Safety Evaluation Benchmark for Vision LLMs},
@@ -54,7 +55,8 @@ class UnicornScenario(Scenario):
 
     name = "unicorn"
     description = (
-        "Evaluate multimodal models on out-of-distribution scenarios " " ([paper](https://arxiv.org/abs/2311.16101))."
+        "Evaluate multimodal models on two out-of-distribution scenarios with four subjects"
+        " ([paper](https://arxiv.org/abs/2311.16101))."
     )
     tags = ["vision-language"]
 
