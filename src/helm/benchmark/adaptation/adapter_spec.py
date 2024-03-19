@@ -124,5 +124,5 @@ class AdapterSpec:
     # Parameters for image generation
     image_generation_parameters: Optional[ImageGenerationParameters] = None
 
-    # The splits from which evaluation instances will be drawn
-    eval_splits: Optional[List[str]] = None
+    # The splits from which evaluation instances will be drawn (set hash=False to make `AdapterSpec` hashable)
+    eval_splits: Optional[List[str]] = field(default=None, hash=False)
