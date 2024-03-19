@@ -1223,7 +1223,7 @@ models:
     release_date: 2024-02-01
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
-  - name: allenai/olmo-7b-twin-2t
+  - name: allenai/olmo-7b-instruct
     display_name: OLMo (7B Instruct)
     description: OLMo is a series of Open Language Models trained on the Dolma dataset. The instruct versions was trained on the Tulu SFT mixture and a cleaned version of the UltraFeedback dataset.
     creator_organization_name: Allen Institute for AI
