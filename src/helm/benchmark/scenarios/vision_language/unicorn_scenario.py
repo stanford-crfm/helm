@@ -30,7 +30,8 @@ class UnicornScenario(Scenario):
 
     @article{tu2023unicorns,
     title={How Many Unicorns Are in This Image? A Safety Evaluation Benchmark for Vision LLMs},
-    author={Tu, Haoqin and Cui, Chenhang and Wang, Zijun and Zhou, Yiyang and Zhao, Bingchen and Han, Junlin and Zhou, Wangchunshu and Yao, Huaxiu and Xie, Cihang},
+    author={Tu, Haoqin and Cui, Chenhang and Wang, Zijun and Zhou, Yiyang and Zhao, Bingchen and Han,
+    Junlin and Zhou, Wangchunshu and Yao, Huaxiu and Xie, Cihang},
     journal={arXiv preprint arXiv:2311.16101},
     year={2023}
     }

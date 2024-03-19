@@ -1,5 +1,5 @@
 import os.path
-from typing import Dict, List
+from typing import List
 
 from datasets import load_dataset
 from tqdm import tqdm
@@ -32,7 +32,8 @@ class BingoScenario(Scenario):
 
     @article{cui2023holistic,
     title={Holistic analysis of hallucination in gpt-4v (ision): Bias and interference challenges},
-    author={Cui, Chenhang and Zhou, Yiyang and Yang, Xinyu and Wu, Shirley and Zhang, Linjun and Zou, James and Yao, Huaxiu},
+    author={Cui, Chenhang and Zhou, Yiyang and Yang, Xinyu and Wu, Shirley and Zhang, Linjun and
+    Zou, James and Yao, Huaxiu},
     journal={arXiv preprint arXiv:2311.03287},
     year={2023}
     }
@@ -85,7 +86,7 @@ class BingoScenario(Scenario):
             )
 
             content: List[MediaObject] = [
-                MediaObject(location=local_image_path, content_type=f"image/png"),
+                MediaObject(location=local_image_path, content_type="image/png"),
                 MediaObject(text=row["question"], content_type="text/plain"),
             ]
             answer: str = row["answer"]
