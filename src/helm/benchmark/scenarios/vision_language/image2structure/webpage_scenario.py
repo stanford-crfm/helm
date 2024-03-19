@@ -150,7 +150,7 @@ class WebpageScenario(Image2StructureScenario):
     def preprocess_row(self, row: Dict[str, Any], assets_path: str) -> Dict[str, Any]:
         """Extract the base64 encoding of the repo from the row and return it."""
         # No need to reprocess if the assets are already saved
-        assets_save_path: str = os.path.join(assets_path, str(row["num_id"]))
+        assets_save_path: str = os.path.join(assets_path, str(row["uuid"].replace('"', "")))
         if os.path.exists(assets_save_path):
             try:
                 with open(os.path.join(assets_save_path, "assets_paths.pkl"), "rb") as f:
@@ -179,7 +179,7 @@ class WebpageScenario(Image2StructureScenario):
         row["repo_path"] = repo_path  # Stored for cleanup
 
         # Process the assets
-        asset_paths: List[str] = list_assets(row["structure"], self.ASSETS_EXTENSIONS)
+        asset_paths: List[str] = list_assets(repo_path, self.ASSETS_EXTENSIONS)
         del row["assets"]
         row["assets_paths"] = []
         row["assets_names"] = []
@@ -187,7 +187,7 @@ class WebpageScenario(Image2StructureScenario):
         for i, asset_local_path in enumerate(asset_paths):
             asset_name: str = asset_local_path
             asset_dest_path = os.path.join(assets_save_path, f"{i}.{asset_local_path.split('.')[-1]}")
-            shutil.copyfile(os.path.join(row["structure"], asset_local_path), asset_dest_path)
+            shutil.copyfile(os.path.join(row["repo_path"], asset_local_path), asset_dest_path)
             row["assets_paths"].append(asset_dest_path)
             row["assets_names"].append(asset_name)
 
