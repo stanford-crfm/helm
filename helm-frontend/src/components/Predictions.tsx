@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type DisplayPrediction from "@/types/DisplayPrediction";
 import type DisplayRequest from "@/types/DisplayRequest";
 import type MetricFieldMap from "@/types/MetricFieldMap";
@@ -5,6 +6,7 @@ import Indicator from "@/components/Indicator";
 import Request from "@/components/Request";
 import Preview from "@/components/Preview";
 import { List, ListItem } from "@tremor/react";
+import AnnotationsDisplay from "./AnnotationsDisplay";
 
 type Props = {
   predictions: DisplayPrediction[];
@@ -58,6 +60,9 @@ export default function Predictions({
                 </>
               )}
             </div>
+            <AnnotationsDisplay
+              predictionAnnotations={prediction.annotations}
+            />
             <h3>Metrics</h3>
             <List>
               {Object.keys(prediction.stats).map((statKey, idx) => (
