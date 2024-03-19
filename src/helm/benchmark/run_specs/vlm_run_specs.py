@@ -279,7 +279,7 @@ def get_image2musicsheet_spec(args: Optional[Dict] = None) -> RunSpec:
         max_tokens=2000,
     )
     metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
-        generation_type="musicsheet",
+        generation_type="lilypond",
         args=args,
         include_edit_similarity=False,  # No ground truth for music sheets
         size_handling_method="padding",
