@@ -6,25 +6,33 @@ import tempfile
 from helm.benchmark.annotation.image2structure.image_compiler_annotator import ImageCompilerAnnotator, CompilationError
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.cache import CacheConfig
-from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.optional_dependencies import handle_module_not_found_error, OptionalDependencyNotInstalled
 
 try:
-    from PIL import Image
+    from PIL import Image, ImageOps
 except ModuleNotFoundError as ex:
     handle_module_not_found_error(ex, suggestions=["images"])
 
 
-class LilyPondAnnotator(ImageCompilerAnnotator):
+class LilypondCompilerAnnotator(ImageCompilerAnnotator):
     """Annotator that compiles the text completions into a music sheet with LilyPond."""
 
     name: str = "lilypond_compiler"
+    base_path = "/home/josselin/installs/lilypond-2.24.3/bin"
 
-    def __int__(self, cache_config: CacheConfig, file_storage_path: str):
+    def __init__(self, cache_config: CacheConfig, file_storage_path: str):
         super().__init__(cache_config, file_storage_path)
-        result = subprocess.run(["lilypond", "--version"], capture_output=True, text=True)
-        assert (
-            result.returncode == 0
-        ), "LilyPond is not installed. Download and install it from https://lilypond.org/download.html"
+        try:
+            result = subprocess.run([f"{self.base_path}/lilypond", "--version"], capture_output=True, text=True)
+            if result.returncode != 0:
+                raise OptionalDependencyNotInstalled(
+                    "LilyPond is not installed. Download and install it from https://lilypond.org/download.html"
+                )
+        except FileNotFoundError as e:
+            raise OptionalDependencyNotInstalled(
+                "LilyPond is not installed. Download and install it from https://lilypond.org/download.html.\n"
+                f"Original error: {e}"
+            ) from e
 
     def compile_completion_into_image(
         self, request_state: RequestState, completion_text: str
@@ -43,18 +51,27 @@ class LilyPondAnnotator(ImageCompilerAnnotator):
 
         try:
             # Edits the LilyPond file to be compatible with the current version
-            result = subprocess.run(["convert-ly", "-e", ly_file_path], capture_output=True, text=True)
+            result = subprocess.run(
+                [f"{self.base_path}/convert-ly", "-e", ly_file_path], capture_output=True, text=True
+            )
             assert result.returncode == 0, f"convert-ly failed: {result.stderr}"
 
             # Generate PNG image from the LilyPond file
             # LilyPond supports partial compilation, which means it attempts to produce an image
             # for the correct portions of the code, even if there are errors elsewhere
-            subprocess.run(["lilypond", "--png", "-o", output_path, ly_file_path], capture_output=True, text=True)
+            subprocess.run(
+                [f"{self.base_path}/lilypond", "--png", "-o", output_path, ly_file_path], capture_output=True, text=True
+            )
             # If an image file is not generated, we consider it an absolute compilation failure
             assert os.path.exists(sheet_music_path), "lilypond did not generate the image"
 
             # Load the image as a PIL Image object
             image = Image.open(sheet_music_path)
+
+            # Crop the image to remove the white space around the music sheet
+            (w, h) = image.size
+            image = image.crop((0, 0, w, h - int(h * 0.2)))  # Remove pagination
+            image = image.crop(ImageOps.invert(image).getbbox())  # Remove white border
         except (AssertionError, RuntimeError) as e:
             raise CompilationError(str(e)) from e
         finally:

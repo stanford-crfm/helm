@@ -394,8 +394,8 @@ model_deployments:
   # See: https://ai.google.dev/models/gemini#model_variations
   - name: google/gemini-pro
     model_name: google/gemini-pro
-    tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 30720 # Officially 30720
+    tokenizer_name: google/text-bison@001
+    max_sequence_length: 30720
     max_sequence_and_generated_tokens_length: 32768 # Officially max_sequence_length + 2048
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
@@ -404,9 +404,9 @@ model_deployments:
 
   - name: google/gemini-pro-vision
     model_name: google/gemini-pro-vision
-    tokenizer_name: hf-internal-testing/llama-tokenizer
+    tokenizer_name: google/text-bison@001
     max_sequence_length: 12288
-    max_sequence_and_generated_tokens_length: 16384
+    max_sequence_and_generated_tokens_length: 16384 # Officially max_sequence_length + 4096, in practice max_output_tokens <= 2048 for vision models
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
     window_service_spec:
