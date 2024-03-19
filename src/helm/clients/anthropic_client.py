@@ -350,7 +350,7 @@ class AnthropicMessagesClient(CachingClient):
                 )
                 return RequestResult(
                     success=False,
-                    cached=False,
+                    cached=cached,
                     error=response["error"]["message"],
                     completions=[],
                     embedding=[],
