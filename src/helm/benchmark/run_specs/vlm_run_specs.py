@@ -97,7 +97,6 @@ def get_image2structure_metric_specs(
         metric_names = [
             AnnotatedImageMetrics.PIXEL_SIMILARITY,
             AnnotatedImageMetrics.FID_SIMILARITY,
-            AnnotatedImageMetrics.EDIT_SIMILARITY,
             AnnotatedImageMetrics.EARTH_MOVER_SIMILARITY,
         ]
     if include_edit_similarity:
@@ -269,6 +268,39 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
     )
 
 
+@run_spec_function("image2musicsheet")
+def get_image2musicsheet_spec(args: Optional[Dict] = None) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.image2structure.musicsheet_scenario.MusicSheetScenario",
+        args={"subset": "music", "recompile_prompt": False},  # There os only one subset for music sheets
+    )
+    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+        instructions="Just give a short answer without answering in a complete sentence.",
+        max_tokens=2000,
+    )
+    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+        generation_type="musicsheet",
+        args=args,
+        include_edit_similarity=False,  # No ground truth for music sheets
+        size_handling_method="padding",
+    )
+    annotator_specs: List[AnnotatorSpec] = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.image2structure.lilypond_compiler_annotator.LilypondCompilerAnnotator",  # noqa: E501
+        )
+    ]
+
+    run_spec_name: str = "image2musicsheet"
+    return RunSpec(
+        name=f"{run_spec_name}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+        annotators=annotator_specs,
+    )
+
+
 @run_spec_function("mmmu")
 def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -317,39 +349,5 @@ def get_heim_human_eval_spec(question_type: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=[run_spec_name],
-    )
-
-
-@run_spec_function("sheetmusic2lilypond")
-def get_sheetmusic2lilypond_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.vision_language.image2structure.sheetmusic2lilypond_scenario."
-        "SheetMusic2LilyPondScenario",
-        args={},
-    )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
-        instructions="Generate the LilyPond code for the following sheet music. "
-        "Just give the LilyPond code without any explanation.",
-        max_tokens=1500,
-    )
-
-    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
-        generation_type="lilypond",
-        include_edit_similarity=False,
-    )
-    annotator_specs: List[AnnotatorSpec] = [
-        AnnotatorSpec(
-            class_name="helm.benchmark.annotation.image2structure.lilypond_compiler_annotator.LilyPondAnnotator",
-        )
-    ]
-
-    run_spec_name: str = "sheetmusic2lilypond"
-    return RunSpec(
-        name=run_spec_name,
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
-        annotators=annotator_specs,
         groups=[run_spec_name],
     )
