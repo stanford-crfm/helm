@@ -1,3 +1,4 @@
+from typing import Any
 from dataclasses import replace
 import pytest
 
@@ -32,12 +33,11 @@ class TestDummyAnnotator:
                 cached=True,
             ),
         )
-        annotations = self.annotator.annotate(request_state)
+        annotations: Any = self.annotator.annotate(request_state)
         assert annotations is not None
-        assert len(annotations) == 1
         assert "all_caps" in annotations[0]
         assert request_state.result is not None  # To make mypy happy
-        assert annotations[0]["all_caps"].data == request_state.result.completions[0].text.upper()
+        assert annotations[0]["all_caps"] == request_state.result.completions[0].text.upper()
 
     def test_annotate_no_result(self):
         with pytest.raises(ValueError):
