@@ -26,7 +26,7 @@ from helm.tokenizers.tokenizer import Tokenizer
 from helm.clients.client import CachingClient, truncate_sequence, truncate_and_tokenize_response_text
 
 try:
-    from anthropic import Anthropic
+    from anthropic import Anthropic, BadRequestError
     from anthropic.types import MessageParam
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.text_block_param import TextBlockParam
@@ -205,6 +205,14 @@ class AnthropicClient(CachingClient):
         )
 
 
+def _is_content_moderation_failure(response: Dict) -> bool:
+    """Return whether a a response failed because of the content moderation filter."""
+    if response["error"]["message"] == "Output blocked by content filtering policy":
+        hlog(f"Anthropic - output blocked by content filtering policy: {response}")
+        return True
+    return False
+
+
 class AnthropicMessagesRequest(TypedDict, total=False):
     messages: List[MessageParam]
     model: str
@@ -313,12 +321,18 @@ class AnthropicMessagesClient(CachingClient):
         for completion_index in range(request.num_completions):
 
             def do_it() -> Dict[str, Any]:
-                result = self.client.messages.create(**raw_request).model_dump()
-                if "content" not in result or not result["content"]:
-                    raise AnthropicMessagesResponseError(f"Anthropic response has empty content: {result}")
-                elif "text" not in result["content"][0]:
-                    raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
-                return result
+                try:
+                    result = self.client.messages.create(**raw_request).model_dump()
+                    if "content" not in result or not result["content"]:
+                        raise AnthropicMessagesResponseError(f"Anthropic response has empty content: {result}")
+                    elif "text" not in result["content"][0]:
+                        raise AnthropicMessagesResponseError(f"Anthropic response has non-text content: {result}")
+                    return result
+                except BadRequestError as e:
+                    response = e.response.json()
+                    if _is_content_moderation_failure(response):
+                        return response
+                    raise
 
             cache_key = CachingClient.make_cache_key(
                 {
@@ -327,8 +341,24 @@ class AnthropicMessagesClient(CachingClient):
                 },
                 request,
             )
-
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+
+            if _is_content_moderation_failure(response):
+                hlog(
+                    f"WARNING: Returning empty request for {request.model_deployment} "
+                    "due to content moderation filter"
+                )
+                return RequestResult(
+                    success=False,
+                    cached=cached,
+                    error=response["error"]["message"],
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    request_time=response["request_time"],
+                    request_datetime=response["request_datetime"],
+                )
+
             completion = truncate_and_tokenize_response_text(
                 response["content"][0]["text"], request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
             )
