@@ -102,7 +102,7 @@ class Image2StructureScenario(Scenario):
                 cache_dir=output_path,
             )
         ):
-            question_uuid: str = row["uuid"]
+            question_uuid: str = str(row["uuid"]).replace('"', "")
             if row["category"][1:-1] != self._subset:
                 hlog(
                     f"Skipping instance {question_uuid} as it belong in category"
