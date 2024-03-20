@@ -1,3 +1,5 @@
+import CompletionAnnotation from "./CompletionAnnotation";
+
 export default interface DisplayPrediction {
   instance_id: string;
   predicted_text: string;
@@ -12,4 +14,6 @@ export default interface DisplayPrediction {
   };
   mapped_output: string | undefined;
   base64_images?: string[] | undefined;
+  // beware you will have to update this for future custom annotations
+  annotations?: Record<string, Array<CompletionAnnotation>> | undefined;
 }

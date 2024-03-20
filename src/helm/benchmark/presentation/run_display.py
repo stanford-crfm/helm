@@ -1,7 +1,7 @@
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass, replace
 import os
-from typing import Dict, Iterable, List, Optional, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Set, Tuple, Any
 
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS,
@@ -56,6 +56,8 @@ class DisplayPrediction:
 
     stats: Dict[str, float]
     """Statistics computed from the predicted output"""
+
+    annotations: Optional[Dict[str, Any]]
 
 
 @dataclass(frozen=True)
@@ -298,6 +300,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
                 mapped_output=mapped_output,
                 reference_index=request_state.reference_index,
                 stats=trial_stats,
+                annotations=request_state.annotations,
             )
         )
         requests.append(
