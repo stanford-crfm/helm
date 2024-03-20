@@ -21,7 +21,7 @@ export default function AnnotationDisplay({ predictionAnnotations }: Props) {
                 <div key={idx}>
                   {annotation.error && (
                     <div>
-                      <h3>Error</h3>
+                      <h3 className="ml-1">Error</h3>
                       <Preview value={annotation["error"]} />{" "}
                     </div>
                   )}
