@@ -126,7 +126,7 @@ def main():
     # Determine the location of the static directory.
     # This is a hack: it assumes that the static directory has a physical location,
     # which is not always the case (e.g. when using zipimport).
-    static_package_name = "helm.bencmark.static" if args.jquery else "helm.benchmark.static_build"
+    static_package_name = "helm.benchmark.static" if args.jquery else "helm.benchmark.static_build"
     resource_path = resources.files(static_package_name).joinpath("index.html")
     with resources.as_file(resource_path) as resource_filename:
         static_path = str(resource_filename.parent)
