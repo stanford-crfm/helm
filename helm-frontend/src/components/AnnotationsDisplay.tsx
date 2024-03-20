@@ -31,8 +31,7 @@ export default function AnnotationDisplay({ predictionAnnotations }: Props) {
                       <Preview value={annotation["text"]} />{" "}
                     </div>
                   )}
-                  {/* TODO remove this impossible condition, once Yifan's PR is merged. */}
-                  {annotation.media_object && !annotation.media_object && (
+                  {annotation.media_object && (
                     <MediaObjectDisplay
                       mediaObject={annotation["media_object"]}
                     />
