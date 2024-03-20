@@ -11,7 +11,12 @@ const ServeBenchmarkOutputPlugin = {
       "/benchmark_output",
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
       serveStatic("../benchmark_output", {fallthrough: false, index: false})
-    )
+    );
+    server.middlewares.use(
+      "/cache/output",
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
+      serveStatic("../prod_env/cache/output", {fallthrough: false, index: false})
+    );
   }
 }
 
