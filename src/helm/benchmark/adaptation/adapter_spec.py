@@ -102,8 +102,7 @@ class AdapterSpec:
     # Model deployment to make the request to (need to fill in)
     model_deployment: str = ""
 
-    # DEPRECATED: old model field, kept for backward compatibility
-    # TODO: Remove this once we do not wish to support backward compatibility anymore.
+    # Model to make the request to
     model: str = ""
 
     # Temperature to use
@@ -124,3 +123,6 @@ class AdapterSpec:
 
     # Parameters for image generation
     image_generation_parameters: Optional[ImageGenerationParameters] = None
+
+    # The splits from which evaluation instances will be drawn (set hash=False to make `AdapterSpec` hashable)
+    eval_splits: Optional[List[str]] = field(default=None, hash=False)

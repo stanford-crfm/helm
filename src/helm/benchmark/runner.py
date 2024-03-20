@@ -102,7 +102,9 @@ def remove_per_instance_stats_nans(per_instance_stats_list: List[PerInstanceStat
     return result
 
 
-def downsample_eval_instances(instances: List[Instance], max_eval_instances: int) -> List[Instance]:
+def downsample_eval_instances(
+    instances: List[Instance], max_eval_instances: int, eval_splits: List[str]
+) -> List[Instance]:
     """
     Get the instances necessary for this run:
     Train instances (split=train): keep all (if any) for in-context learning
@@ -111,7 +113,7 @@ def downsample_eval_instances(instances: List[Instance], max_eval_instances: int
     """
     all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
 
-    all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
+    all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in eval_splits]
     if len(all_eval_instances) > max_eval_instances:
         # The random sampling includes instances monotonically.
         np.random.seed(0)
@@ -266,8 +268,9 @@ class Runner:
 
         # Get the instances necessary for this run.
         max_eval_instances = run_spec.adapter_spec.max_eval_instances
+        eval_splits = run_spec.adapter_spec.eval_splits or EVAL_SPLITS
         if max_eval_instances is not None:
-            instances = downsample_eval_instances(instances, max_eval_instances)
+            instances = downsample_eval_instances(instances, max_eval_instances, eval_splits)
 
         # Data preprocessing
         instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(

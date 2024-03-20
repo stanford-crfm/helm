@@ -328,18 +328,22 @@ metric_groups:
       - name: toxic_frac
         split: ${main_split}
 
-  - name: image_generation
-    display_name: Image generation
+  - name: generation_image
+    display_name: Generation (image)
     metrics:
       - name: pixel_similarity
         split: ${main_split}
       - name: compilation_success
         split: ${main_split}
-      - name: edit_similarity
-        split: ${main_split}
       - name: fid_similarity
         split: ${main_split}
       - name: earth_mover_similarity
+        split: ${main_split}
+
+  - name: generation_text
+    display_name: Generation (text)
+    metrics:
+      - name: edit_similarity
         split: ${main_split}
 
 ############################################################
@@ -446,9 +450,9 @@ run_groups:
     description: Scenarios for evaluating the ability of Vision-Language models to generate structured outputs from images.
     category: All scenarios
     subgroups:
-      - chart2csv
       - image2latex
       - image2webpage
+      - image2musicsheet
 
   - name: hateful_memes
     display_name: Hateful Memes
@@ -558,7 +562,8 @@ run_groups:
     description: The Image2LaTeX benchmark for converting images of mathematical equations, tables. algorithms and tikz to LaTeX.
     metric_groups:
       - accuracy
-      - image_generation
+      - generation_image
+      - generation_text
       - efficiency
       - general_information
     environment:
@@ -576,7 +581,8 @@ run_groups:
     description: The Image2webpage benchmark for converting images of webpages to HTML/CSS/Javascript.
     metric_groups:
       - accuracy
-      - image_generation
+      - generation_image
+      - generation_text
       - efficiency
       - general_information
     environment:
@@ -585,6 +591,24 @@ run_groups:
     taxonomy:
       task: image-to-text
       what: css, html, javascript
+      who: n/a
+      when: "2024"
+      language: English
+
+  - name: image2musicsheet
+    display_name: Image2musicsheet
+    description: The Image2musicsheet benchmark for converting images of music sheets to LilyPond.
+    metric_groups:
+      - accuracy
+      - generation_image
+      - efficiency
+      - general_information
+    environment:
+      main_name: earth_mover_similarity
+      main_split: valid
+    taxonomy:
+      task: image-to-text
+      what: music sheets
       who: n/a
       when: "2024"
       language: English
@@ -620,22 +644,5 @@ run_groups:
       task: multiple-choice question answering
       what: Bias
       who: Human experts
-      when: "2024"
-      language: English
-
-  - name: sheetmusic2lilypond
-    display_name: SheetMusic2LilyPond
-    description: Sheet music to LilyPond
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: Sheet music to LilyPond
-      what: sheet music
-      who: n/a
       when: "2024"
       language: English

@@ -8,7 +8,6 @@ import torch
 import warnings
 import numpy as np
 
-from helm.benchmark.annotation.annotator import Annotation
 from helm.benchmark.metrics.copyright_metrics import _edit_similarity
 from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_service import MetricService
@@ -126,7 +125,7 @@ class AnnotatedImageMetrics(Metric):
         self,
         inputs_required: Set[str],
         request_state: RequestState,
-        annotation: Dict[str, Annotation],
+        annotation: Dict[str, Any],
         ref_image: Optional[Image.Image],
     ) -> Dict[str, Tuple[Any, Any]]:
         inputs: Dict[str, Tuple[Any, Any]] = {}
@@ -136,8 +135,8 @@ class AnnotatedImageMetrics(Metric):
             # Get the image and make sure we have a reference image
             assert ref_image is not None
             assert "media_object" in annotation
-            assert isinstance(annotation["media_object"].data, MediaObject)
-            media_object: MediaObject = annotation["media_object"].data
+            assert isinstance(annotation["media_object"], MediaObject)
+            media_object: MediaObject = annotation["media_object"]
             assert media_object.type == "image"
             assert media_object.is_local_file and media_object.location is not None
             image: Image.Image = Image.open(media_object.location).convert("RGB")
@@ -177,7 +176,7 @@ class AnnotatedImageMetrics(Metric):
         # Text
         if any([input_type.startswith("text") for input_type in inputs_required]):
             assert "text" in annotation
-            text: str = annotation["text"].data
+            text: str = annotation["text"]
             reference = request_state.instance.references[0]
             inputs["text_str"] = (text, reference.output.text)
 
@@ -198,6 +197,7 @@ class AnnotatedImageMetrics(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
+        compiler_name: str = f"{self.generation_type}_compiler"
         if self._cache is None:
             self._cache = metric_service.get_cache(f"image_metrics_{self.generation_type}")
 
@@ -205,15 +205,13 @@ class AnnotatedImageMetrics(Metric):
             name: Stat(MetricName(name)) for name in (self._metric_names + [self.COMPILE_METRIC])
         }
 
-        if (
-            request_state.annotations is None
-            or request_state.result is None
-            or len(request_state.annotations) != len(request_state.result.completions)
-        ):
+        if request_state.annotations is None or request_state.result is None:
             raise ValueError(
-                "Annotations and results should be present and have the same length.",
+                "Annotations and results should be present.",
                 " Please make sure to add a compiler annotator to the run spec.",
             )
+        if compiler_name not in request_state.annotations:
+            raise ValueError(f"Compiler {compiler_name} should be present in the annotations.")
 
         inputs_required: Set[str] = set()
         for metric_name in self._metric_names:
@@ -238,8 +236,8 @@ class AnnotatedImageMetrics(Metric):
 
         # For each completion, evaluate the metrics
         assert request_state.result is not None
-        assert len(request_state.annotations) == len(request_state.result.completions)
-        for annotation in request_state.annotations:
+        for completion_index in range(len(request_state.result.completions)):
+            annotation: Dict[str, Any] = request_state.annotations[compiler_name][completion_index]
 
             # Handle errors in annotation
             if "error" in annotation:
