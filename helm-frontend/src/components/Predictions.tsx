@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type DisplayPrediction from "@/types/DisplayPrediction";
 import type DisplayRequest from "@/types/DisplayRequest";
 import type MetricFieldMap from "@/types/MetricFieldMap";
