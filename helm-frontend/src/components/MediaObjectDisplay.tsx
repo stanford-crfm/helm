@@ -7,8 +7,13 @@ interface Props {
 
 export default function MediaObjectDisplay({ mediaObject }: Props) {
   if (mediaObject.content_type.includes("image")) {
+    if (mediaObject.location === undefined) {
+      return null;
+    }
     const url = getBenchmarkEndpoint(
-      String(mediaObject.location?.replace("benchmark_output/", "")),
+      mediaObject.location
+        .replace("benchmark_output/", "")
+        .replace("prod_env/", "../"),
     );
     return (
       <div>
