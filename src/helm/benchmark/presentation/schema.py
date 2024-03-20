@@ -92,11 +92,9 @@ class MetricNameMatcher:
         return MetricNameMatcher(
             name=mako.template.Template(self.name).render(**environment),
             split=mako.template.Template(self.split).render(**environment),
-            perturbation_name=(
-                mako.template.Template(self.perturbation_name).render(**environment)
-                if self.perturbation_name is not None
-                else None
-            ),
+            perturbation_name=mako.template.Template(self.perturbation_name).render(**environment)
+            if self.perturbation_name is not None
+            else None,
         )
 
 

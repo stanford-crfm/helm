@@ -2,6 +2,7 @@
 This script generates run_specs for the synthetic_efficiency_scenario.
 """
 
+
 import argparse
 from datetime import datetime
 

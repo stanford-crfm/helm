@@ -43,7 +43,7 @@ class BingoScenario(Scenario):
     Paper: https://arxiv.org/abs/2311.03287
     """
 
-    UNICORN_HUGGINGFACE_DATASET_NAME: str = "PahaII/Bingo"
+    BINGO_HUGGINGFACE_DATASET_NAME: str = "PahaII/Bingo"
 
     IMAGE_URL: str = "https://huggingface.co/datasets/PahaII/Bingo/resolve/main/images/{image_path}?download=true"
 
@@ -72,7 +72,7 @@ class BingoScenario(Scenario):
         # Process the test set
         for row in tqdm(
             load_dataset(
-                self.UNICORN_HUGGINGFACE_DATASET_NAME,
+                self.BINGO_HUGGINGFACE_DATASET_NAME,
                 data_files=question_data_files,
                 split=TEST_SPLIT,
                 cache_dir=output_path,

@@ -1,5 +1,4 @@
 """ DalleBart tokenizer """
-
 from transformers import BartTokenizerFast
 
 from .utils import PretrainedFromWandbMixin
