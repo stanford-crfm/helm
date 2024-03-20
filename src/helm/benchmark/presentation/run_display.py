@@ -1,7 +1,7 @@
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass, replace
 import os
-from typing import Dict, Iterable, List, Optional, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Set, Tuple, Any
 
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS,
@@ -10,7 +10,6 @@ from helm.benchmark.adaptation.adapter_spec import (
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.annotation.annotation import Annotation
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.common.multimodal_request_utils import gather_generated_image_locations
@@ -58,7 +57,7 @@ class DisplayPrediction:
     stats: Dict[str, float]
     """Statistics computed from the predicted output"""
 
-    annotations: Optional[List[Dict[str, Annotation]]]
+    annotations: Optional[Dict[str, Any]]
 
 
 @dataclass(frozen=True)
@@ -263,9 +262,9 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
         mapped_output = (
             request_state.output_mapping.get(predicted_text.strip()) if request_state.output_mapping else None
         )
-        instance_id_to_instance[
-            (request_state.instance.id, request_state.instance.perturbation)
-        ] = request_state.instance
+        instance_id_to_instance[(request_state.instance.id, request_state.instance.perturbation)] = (
+            request_state.instance
+        )
 
         # TODO: hacky way to display input images on the old frontend
         if request_state.instance.input.multimedia_content is not None:
