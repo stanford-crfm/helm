@@ -1,5 +1,6 @@
 import InstructLanding from "@/components/InstructLanding";
 import LiteLanding from "@/components/LiteLanding";
+import MMLULanding from "@/components/MMLULanding";
 import HEIMLanding from "@/components/HEIMLanding";
 
 export default function Home() {
@@ -10,6 +11,8 @@ export default function Home() {
     return <InstructLanding />;
   } else if (window.PROJECT_ID === "heim") {
     return <HEIMLanding />;
+  } else if (window.PROJECT_ID === "mmlu") {
+    return <MMLULanding />;
   } else {
     // TODO: better global/default landing page
     return <LiteLanding />;
