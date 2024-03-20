@@ -15,6 +15,5 @@ export default interface DisplayPrediction {
   mapped_output: string | undefined;
   base64_images?: string[] | undefined;
   // beware you will have to update this for future custom annotations
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-redundant-type-constituents
   annotations?: Record<string, Array<CompletionAnnotation>> | undefined;
 }

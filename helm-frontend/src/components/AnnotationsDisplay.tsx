@@ -14,11 +14,23 @@ export default function AnnotationDisplay({ predictionAnnotations }: Props) {
       {predictionAnnotations && predictionAnnotations !== undefined
         ? Object.entries(predictionAnnotations).map(([key, value]) => (
             <div key={key}>
-              <h3>{key}</h3>
+              <h3>
+                <strong>{key}</strong>
+              </h3>
               {value.map((annotation, idx) => (
                 <div key={idx}>
-                  {annotation.error && <Preview value={annotation["error"]} />}
-                  {annotation.text && <Preview value={annotation["text"]} />}
+                  {annotation.error && (
+                    <div>
+                      <h3>Error</h3>
+                      <Preview value={annotation["error"]} />{" "}
+                    </div>
+                  )}
+                  {annotation.text && (
+                    <div>
+                      <h3 className="ml-1">Text</h3>
+                      <Preview value={annotation["text"]} />{" "}
+                    </div>
+                  )}
                   {/* TODO remove this impossible condition, once Yifan's PR is merged. */}
                   {annotation.media_object && !annotation.media_object && (
                     <MediaObjectDisplay
