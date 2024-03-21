@@ -50,17 +50,13 @@ class LilypondCompilerAnnotator(ImageCompilerAnnotator):
 
         try:
             # Edits the LilyPond file to be compatible with the current version
-            result = subprocess.run(
-                ["convert-ly", "-e", ly_file_path], capture_output=True, text=True
-            )
+            result = subprocess.run(["convert-ly", "-e", ly_file_path], capture_output=True, text=True)
             assert result.returncode == 0, f"convert-ly failed: {result.stderr}"
 
             # Generate PNG image from the LilyPond file
             # LilyPond supports partial compilation, which means it attempts to produce an image
             # for the correct portions of the code, even if there are errors elsewhere
-            subprocess.run(
-                ["lilypond", "--png", "-o", output_path, ly_file_path], capture_output=True, text=True
-            )
+            subprocess.run(["lilypond", "--png", "-o", output_path, ly_file_path], capture_output=True, text=True)
             # If an image file is not generated, we consider it an absolute compilation failure
             assert os.path.exists(sheet_music_path), "lilypond did not generate the image"
 
