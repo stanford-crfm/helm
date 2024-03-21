@@ -18,12 +18,11 @@ class LilypondCompilerAnnotator(ImageCompilerAnnotator):
     """Annotator that compiles the text completions into a music sheet with LilyPond."""
 
     name: str = "lilypond_compiler"
-    base_path = "/home/josselin/installs/lilypond-2.24.3/bin"
 
     def __init__(self, cache_config: CacheConfig, file_storage_path: str):
         super().__init__(cache_config, file_storage_path)
         try:
-            result = subprocess.run([f"{self.base_path}/lilypond", "--version"], capture_output=True, text=True)
+            result = subprocess.run(["lilypond", "--version"], capture_output=True, text=True)
             if result.returncode != 0:
                 raise OptionalDependencyNotInstalled(
                     "LilyPond is not installed. Download and install it from https://lilypond.org/download.html"
@@ -52,7 +51,7 @@ class LilypondCompilerAnnotator(ImageCompilerAnnotator):
         try:
             # Edits the LilyPond file to be compatible with the current version
             result = subprocess.run(
-                [f"{self.base_path}/convert-ly", "-e", ly_file_path], capture_output=True, text=True
+                ["convert-ly", "-e", ly_file_path], capture_output=True, text=True
             )
             assert result.returncode == 0, f"convert-ly failed: {result.stderr}"
 
@@ -60,7 +59,7 @@ class LilypondCompilerAnnotator(ImageCompilerAnnotator):
             # LilyPond supports partial compilation, which means it attempts to produce an image
             # for the correct portions of the code, even if there are errors elsewhere
             subprocess.run(
-                [f"{self.base_path}/lilypond", "--png", "-o", output_path, ly_file_path], capture_output=True, text=True
+                ["lilypond", "--png", "-o", output_path, ly_file_path], capture_output=True, text=True
             )
             # If an image file is not generated, we consider it an absolute compilation failure
             assert os.path.exists(sheet_music_path), "lilypond did not generate the image"
