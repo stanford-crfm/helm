@@ -7,13 +7,8 @@ from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token, ErrorFlags
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
-from helm.tokenizers.tokenizer import Tokenizer
-from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
+from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, ErrorFlags
+from helm.clients.client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
     import vertexai
@@ -31,14 +26,10 @@ _models: Dict[str, Any] = {}
 class VertexAIClient(CachingClient, ABC):
     """Client for Vertex AI models"""
 
-    def __init__(
-        self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, project_id: str, location: str
-    ) -> None:
+    def __init__(self, cache_config: CacheConfig, project_id: str, location: str) -> None:
         super().__init__(cache_config=cache_config)
         self.project_id = project_id
         self.location = location
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
 
         # VertexAI's default safety filter is overly sensitive, so we disable it.
         self.safety_settings: Dict[HarmCategory, SafetySetting.HarmBlockThreshold] = {
@@ -111,12 +102,7 @@ class VertexAITextClient(VertexAIClient):
             response_text = prediction["text"]
 
             # The Python SDK does not support echo
-            # TODO #2084: Add support for echo.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
-
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
 
             # TODO #2085: Add support for log probs.
             # Once again, log probs seem to be supported by the API but not by the Python SDK.
@@ -124,9 +110,7 @@ class VertexAITextClient(VertexAIClient):
             # https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#response_body
             # Python SDK reference:
             # https://github.com/googleapis/python-aiplatform/blob/beae48f63e40ea171c3f1625164569e7311b8e5a/vertexai/language_models/_language_models.py#L868
-            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-
-            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
+            completion = Sequence(text=text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -247,17 +231,8 @@ class VertexAIChatClient(VertexAIClient):
             response_text = prediction["text"]
 
             # The Python SDK does not support echo
-            # TODO #2084: Add support for echo.
             text: str = request.prompt + response_text if request.echo_prompt else response_text
-
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
-
-            # TODO #2085: Add support for log probs.
-            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-
-            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
+            completion = Sequence(text=text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -352,12 +327,7 @@ class VertexAIChatClient(VertexAIClient):
                 return complete_for_valid_error(response["error"])
 
             response_text = response["predictions"][0]["text"]
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(response_text, tokenizer=self.tokenizer_name)
-            )
-            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-
-            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
+            completion = Sequence(text=response_text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
