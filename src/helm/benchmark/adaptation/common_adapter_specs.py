@@ -90,7 +90,7 @@ def get_multiple_choice_adapter_spec(
     output_noun: str,
     max_train_instances: int = 5,
     num_outputs: int = 5,
-    max_tokens: int = 100,
+    max_tokens: int = 1,
     empty_input: bool = False,
     sample_train: bool = True,
     **kwargs,
