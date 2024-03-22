@@ -1,0 +1,409 @@
+---
+############################################################
+adapter:
+  - name: method
+    description: The high-level strategy for converting instances into a prompt for the language model.
+    values:
+      - name: generation
+        description: Given the input, the model generates the output free-form.
+      - name: multiple_choice_joint
+        description: Given the input, the model selects from multiple-choice options (A., B., C., D., E.).
+      - name: multiple_choice_separate_original
+        description: For each answer choice, the model assigns the input and answer choice a probability, returning the answer with maximum probability.
+      - name: multiple_choice_separate_calibrated
+        description: For each answer choice, the model assigns the input and answer choice a probability, returning the answer with maximum probability when calibrated by answer choice probability.
+      - name: language_modeling
+        description: Given the input, the model assigns the sequence a probability.
+  - name: instructions
+    description: The description of the task that is included at the very beginning of the prompt.
+  - name: global_prefix
+    description: The string that is prepended to the prompt.
+  - name: global_suffix
+    description: The string that is appended to the prompt.
+  - name: instance_prefix
+    description: The string that is included before each instance (e.g., '\n\n').
+  - name: input_prefix
+    description: The string that is included before each input (e.g., 'Question:').
+  - name: input_suffix
+    description: The string that is included after each input (e.g., '\n').
+  - name: reference_prefix
+    description: The string that is included before each reference (for multiple-choice questions).
+  - name: reference_suffix
+    description: The string that is included after each reference (for multiple-choice questions).
+  - name: output_prefix
+    description: The string that is included before the correct answer/predicted output (e.g., 'Answer:').
+  - name: output_suffix
+    description: The string that is included after the correct answer/predicted output (e.g., '\n').
+  - name: substitutions
+    description: A list of regular expression substitutions (e.g., replacing '\n' with ';\n') to perform at the very end on the prompt.
+  - name: max_train_instances
+    description: Maximum number of training instances to include in the prompt (currently by randomly sampling).
+  - name: max_eval_instances
+    description: Maximum number of instances to evaluate on (over all splits - test, valid, etc.).
+  - name: num_outputs
+    description: Maximum number of possible outputs to generate by sampling multiple outputs.
+  - name: num_train_trials
+    description: Number of trials, where in each trial we choose an independent, random set of training instances. Used to compute variance.
+  - name: sample_train
+    description: If true, randomly sample N training examples; if false, select N consecutive training examples
+  - name: model
+    description: Name of the language model (<creator_organization>/<model name>) to send requests to.
+  - name: model_deployment
+    description: Name of the language model deployment (<host_organization>/<model name>) to send requests to.
+  - name: temperature
+    description: Temperature parameter used in generation.
+  - name: max_tokens
+    description: Maximum number of tokens to generate.
+  - name: stop_sequences
+    description: List of sequences, where we stop generation if we encounter any of them.
+  - name: random
+    description: Random seed (string), which guarantees reproducibility.
+  - name: multi_label
+    description: If true, for instances with multiple correct reference, the gold answer should be considered to be all of the correct references rather than any of the correct references.
+
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+
+  # Vision Language metrics [text]:
+  - name: edit_similarity
+    display_name: Edit similarity (Levenshtein)
+    short_display_name: Edit sim.
+    lower_is_better: false
+    description: Average Levenshtein edit similarity (1 - distance normalized by length of longer sequence) between model generation and reference.
+
+  # Vision Language metrics [image]:
+  - name: earth_mover_similarity
+    display_name: Earth Mover Similarity
+    short_display_name: EMD-Sim
+    description: 1 - Earth Mover Distance [(Rubner and Tomasi, 2000)](https://www.cs.cmu.edu/~efros/courses/LBMV07/Papers/rubner-jcviu-00.pdf) between an image generated by the model and the target image.
+    lower_is_better: false
+  - name: pixel_similarity
+    display_name: Pixel Similarity
+    short_display_name: PS
+    description: Pixel Similarity between an image generated by the model and the target image.
+    lower_is_better: false
+  - name: sift_similarity
+    display_name: SIFT Similarity
+    short_display_name: SIFT
+    description: SIFT Similarity (Scale-Invariant Feature Transform) [(Lowe, 1999)](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=790410) between an image generated by the model and the target image.
+    lower_is_better: false
+  - name: compilation_success
+    display_name: Compilation success
+    description: Fraction of instances where the generated code compiles successfully.
+    lower_is_better: false
+  - name: lpips_similarity
+    display_name: LPIPS similarity
+    short_display_name: LPIPS
+    description: LPIPS similarity (Learned Perceptual Image Patch Similarity) [(Zhang et al., 2018)](https://arxiv.org/abs/1801.03924) between an image generated by the model and the target image.
+    lower_is_better: false
+  - name: fid_similarity
+    display_name: FID similarity
+    short_display_name: FID
+    description: FID similarity (Fréchet Inception Distance) [(Heusel et al., 2017)](https://arxiv.org/abs/1706.08500) between an image generated by the model and the target image.
+    lower_is_better: false
+  - name: ssim_similarity
+    display_name: SSIM
+    short_display_name: SSIM
+    description: SSIM similarity (Structural Similarity Index) [(Wang et al., 2004)](https://www.cns.nyu.edu/pub/eero/wang03-reprint.pdf) between an image generated by the model and the target image.
+    lower_is_better: false
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: cider
+    display_name: CIDEr
+    description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
+    lower_is_better: false
+
+  # Bias metrics:
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
+    display_name: Stereotypical associations (race, profession)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=adjective
+    display_name: Stereotypical associations (race, adjectives)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
+    display_name: Stereotypical associations (gender, profession)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=adjective
+    display_name: Stereotypical associations (gender, adjectives)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bias_metric:mode=representation,demographic_category=race
+    display_name: Demographic representation (race)
+    short_display_name: Representation (race)
+    lower_is_better: true
+    description: Measures uneven representation of racial groups (Asian, Hispanic, White). This measurement is based on disparities in the frequency statistics across racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics).
+  - name: bias_metric:mode=representation,demographic_category=gender
+    display_name: Demographic representation (gender)
+    short_display_name: Representation (gender)
+    lower_is_better: true
+    description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
+  - name: bbq_metric_ambiguous_bias
+    display_name: BBQ (ambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on ambiguous examples.
+  - name: bbq_metric_unambiguous_bias
+    display_name: BBQ (unambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on unambiguous examples.
+
+  # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
+  - name: toxic_frac
+    display_name: Toxic fraction
+    lower_is_better: true
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
+
+############################################################
+perturbations:
+  - name: robustness
+    display_name: Robustness
+    description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
+  - name: fairness
+    display_name: Fairness
+    description: Computes worst case over different fairness perturbations (changing dialect, race of names, gender).
+  - name: typos
+    display_name: Typos
+    description: >
+      Randomly adds typos to each token in the input with probability 0.05 and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+  - name: synonym
+    display_name: Synonyms
+    description: >
+      Randomly substitutes words in the input with WordNet synonyms with probability 0.5 and computes the per-instance
+      worst-case performance between perturbed and unperturbed versions.
+  - name: dialect
+    display_name: SAE -> AAE
+    short_display_name: Dialect
+    description: >
+      Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of [Ziems et al. (2022)](https://aclanthology.org/2022.acl-long.258/) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: race
+    display_name: First names by race (White -> Black)
+    short_display_name: Race
+    description: >
+      Deterministically substitutes White first names with Black first names sampled from the lists of [Caliskan et al. (2017)](https://www.science.org/doi/10.1126/science.aal4230) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
+  - name: gender
+    display_name: Pronouns by gender (Male -> Female)
+    short_display_name: Gender
+    description: >
+      Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
+      performance between perturbed and unperturbed versions.
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+  - name: toxicity
+    display_name: Toxicity
+    metrics:
+      - name: toxic_frac
+        split: ${main_split}
+
+  - name: generation_image
+    display_name: Generation (image)
+    metrics:
+      - name: pixel_similarity
+        split: ${main_split}
+      - name: compilation_success
+        split: ${main_split}
+      - name: fid_similarity
+        split: ${main_split}
+      - name: earth_mover_similarity
+        split: ${main_split}
+
+  - name: generation_text
+    display_name: Generation (text)
+    metrics:
+      - name: edit_similarity
+        split: ${main_split}
+
+############################################################
+run_groups:
+  - name: core_scenarios
+    display_name: Core scenarios
+    description: The scenarios where we evaluate all the models.
+    category: All scenarios
+    subgroups:
+      - viz_wiz
+      - vqa
+      - mmmu
+
+  - name: viz_wiz
+    display_name: VizWiz
+    description: The VizWiz benchmark for visual question answering on images taken by blind people [(Gurari et al., 2018)](https://arxiv.org/pdf/1802.08218.pdf).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: multimodal question answering
+      what: images and text
+      who: blind people
+      when: "2018"
+      language: English
+
+  - name: vqa
+    display_name: VQAv2
+    description: Open-ended questions about images
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: English
+
+  - name: mmmu
+    display_name: MMMU
+    description: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multiple-choice question answering
+      what: Art & Design, Business, Science, Health & Medicine, Humanities & Social Science, and Tech & Engineering
+      who: Human experts
+      when: "2023"
+      language: English
