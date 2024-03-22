@@ -16,9 +16,7 @@ from helm.benchmark.model_metadata_registry import (
     ANTHROPIC_CLAUDE_2_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
     CHATML_MODEL_TAG,
-    GOOGLE_GEMMA_INSTRUCT_MODEL_TAG,
     GOOGLE_GEMINI_MODEL_TAG,
-    GOOGLE_PALM_2_MODEL_TAG,
     IDEFICS_INSTRUCT_MODEL_TAG,
     IDEFICS_MODEL_TAG,
     LLAVA_MODEL_TAG,
@@ -26,8 +24,6 @@ from helm.benchmark.model_metadata_registry import (
     VISION_LANGUAGE_MODEL_TAG,
     NLG_PREFIX_TAG,
     NO_NEWLINES_TAG,
-    OPENAI_CHATGPT_MODEL_TAG,
-    MISTRAL_MODEL_TAG,
     ModelMetadata,
     get_model_metadata,
 )
@@ -36,14 +32,11 @@ from helm.benchmark.run_expander import (
     AnthropicRunExpander,
     ChatMLRunExpander,
     GlobalPrefixRunExpander,
-    GoogleRunExpander,
     IDEFICSInstructRunExpander,
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
     LlavaRunExpander,
     OpenFlamingoRunExpander,
-    OpenAIRunExpander,
-    MistralRunExpander,
     StopRunExpander,
 )
 from helm.benchmark.run_spec import RunSpec, get_run_spec_function
@@ -131,22 +124,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # Anthropic prompts
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicRunExpander().expand(run_spec))
-
-        # OpenAI prompts
-        if OPENAI_CHATGPT_MODEL_TAG in model.tags:
-            run_spec = singleton(OpenAIRunExpander().expand(run_spec))
-
-        # Google prompts
-        if (
-            GOOGLE_PALM_2_MODEL_TAG in model.tags
-            or GOOGLE_GEMINI_MODEL_TAG
-            or GOOGLE_GEMMA_INSTRUCT_MODEL_TAG in model.tags
-        ):
-            run_spec = singleton(GoogleRunExpander().expand(run_spec))
-
-        # Mistral prompts
-        if MISTRAL_MODEL_TAG in model.tags:
-            run_spec = singleton(MistralRunExpander().expand(run_spec))
 
         # Google Gemini Vision returns an empty completion or throws an error if max_tokens is 1
         if (

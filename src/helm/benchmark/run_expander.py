@@ -15,7 +15,6 @@ from helm.benchmark.model_metadata_registry import (
     TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
 )
-from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .run_spec import RunSpec
@@ -298,105 +297,54 @@ class AnthropicRunExpander(RunExpander):
                 name=run_spec.name,
                 adapter_spec=replace(
                     run_spec.adapter_spec,
-                    global_prefix=anthropic.HUMAN_PROMPT + " " + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                    global_suffix="\n\n"
-                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + anthropic.AI_PROMPT
-                    + " "
-                    + run_spec.adapter_spec.output_prefix.strip(),
+                    global_prefix=anthropic.HUMAN_PROMPT,
+                    global_suffix=anthropic.AI_PROMPT,
                 ),
             ),
         ]
 
 
-class OpenAIRunExpander(RunExpander):
-    """
-    Custom prompt for OpenAI models.
-    These models need more explicit instructions about following the format.
-    """
+class AdditionalInstructionsRunExpander(RunExpander):
+    name = "additional_instructions"
 
-    # TODO: Refactor out common logic between this and GoogleRunExpander and MistralRunExpander.
-
-    name = "openai"
-
-    def __init__(self):
-        pass
+    def __init__(self, value: str):
+        self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        if run_spec.adapter_spec.method != ADAPT_GENERATION:
-            return [run_spec]
+        new_run_spec_name = (
+            f"{run_spec.name}{',' if ':' in run_spec.name else ':'}"
+            f"{AdditionalInstructionsRunExpander.name}={self.value}"
+        )
+        if self.value == "percy":
 
-        return [
-            replace(
-                run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                    global_suffix="\n\n"
-                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + "\n"
-                    + run_spec.adapter_spec.output_prefix.strip(),
+            return [
+                replace(
+                    run_spec,
+                    name=new_run_spec_name,
+                    adapter_spec=replace(
+                        run_spec.adapter_spec,
+                        global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                        global_suffix="\n\n"
+                        + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                        + "\n"
+                        + run_spec.adapter_spec.output_prefix.strip(),
+                    ),
                 ),
-            ),
-        ]
-
-
-class GoogleRunExpander(RunExpander):
-    """
-    Custom prompt for Google models.
-    These models need more explicit instructions about following the format.
-    """
-
-    # TODO: Refactor out common logic between this and OpenAIRunExpander and MistralRunExpander.
-
-    name = "google"
-
-    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        if run_spec.adapter_spec.method != ADAPT_GENERATION:
-            return [run_spec]
-
-        return [
-            replace(
-                run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                    global_suffix="\n\n"
-                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + "\n"
-                    + run_spec.adapter_spec.output_prefix.strip(),
+            ]
+        elif self.value == "yifan":
+            return [
+                replace(
+                    run_spec,
+                    name=new_run_spec_name,
+                    adapter_spec=replace(
+                        run_spec.adapter_spec,
+                        instructions=run_spec.adapter_spec.instructions
+                        + ' Answer the final question with "A", "B", "C" or "D" only.',
+                    ),
                 ),
-            ),
-        ]
-
-
-class MistralRunExpander(RunExpander):
-    """Custom prompt for Mistral models."""
-
-    # TODO: Refactor out common logic between this and GoogleRunExpander and OpenAIRunExpander.
-
-    name = "output_format_instructions"
-
-    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        if run_spec.adapter_spec.method != ADAPT_GENERATION:
-            return [run_spec]
-
-        return [
-            replace(
-                run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                    global_suffix="\n\n"
-                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + "\n"
-                    + run_spec.adapter_spec.output_prefix.strip(),
-                ),
-            ),
-        ]
+            ]
+        else:
+            return []
 
 
 class IDEFICSInstructRunExpander(RunExpander):
@@ -1404,6 +1352,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     NumOutputTokensRunExpander,
     ChatMLRunExpander,
     EvalSplitRunExpander,
+    AdditionalInstructionsRunExpander,
 ]
 
 
