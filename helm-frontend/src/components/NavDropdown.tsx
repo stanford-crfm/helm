@@ -1,31 +1,31 @@
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import ReleaseIndexEntry from "@/types/ReleaseIndexEntry";
+import ProjectMetadata from "@/types/ProjectMetadata";
 import { useEffect, useState } from "react";
 import getReleaseUrl from "@/utils/getReleaseUrl";
 
 function NavDropdown() {
-  const [releaseIndex, setReleaseIndex] = useState<ReleaseIndexEntry[]>([]);
-  const [currReleaseIndexEntry, setCurrReleaseIndexEntry] = useState<
-    ReleaseIndexEntry | undefined
+  const [projectMetadata, setProjectMetadata] = useState<ProjectMetadata[]>([]);
+  const [currProjectMetadata, setCurrProjectMetadata] = useState<
+    ProjectMetadata | undefined
   >();
 
   useEffect(() => {
     fetch(
-      "https://storage.googleapis.com/crfm-helm-public/config/release_index.json",
+      "https://storage.googleapis.com/crfm-helm-public/config/project_metadata.json",
     )
       .then((response) => response.json())
-      .then((data: ReleaseIndexEntry[]) => {
-        setReleaseIndex(data);
-        // set currReleaseIndexEntry to val where releaseIndexEntry.id matches window.RELEASE_INDEX_ID
-        if (window.RELEASE_INDEX_ID) {
+      .then((data: ProjectMetadata[]) => {
+        setProjectMetadata(data);
+        // set currProjectMetadata to val where projectMetadataEntry.id matches window.PROJECT_ID
+        if (window.PROJECT_ID) {
           const currentEntry = data.find(
-            (entry) => entry.id === window.RELEASE_INDEX_ID,
+            (entry) => entry.id === window.PROJECT_ID,
           );
-          setCurrReleaseIndexEntry(currentEntry);
+          setCurrProjectMetadata(currentEntry);
           // handles falling back to HELM lite as was previously done in this file
         } else {
           const currentEntry = data.find((entry) => entry.id === "lite");
-          setCurrReleaseIndexEntry(currentEntry);
+          setCurrProjectMetadata(currentEntry);
         }
       })
       .catch((error) => {
@@ -34,8 +34,8 @@ function NavDropdown() {
   }, []);
 
   if (
-    currReleaseIndexEntry === undefined ||
-    currReleaseIndexEntry.title === undefined
+    currProjectMetadata === undefined ||
+    currProjectMetadata.title === undefined
   ) {
     return null;
   }
@@ -49,7 +49,7 @@ function NavDropdown() {
         aria-haspopup="true"
         aria-controls="menu"
       >
-        {currReleaseIndexEntry.title}&nbsp;
+        {currProjectMetadata.title}&nbsp;
         <ChevronDownIcon
           fill="black"
           color="black"
@@ -61,7 +61,7 @@ function NavDropdown() {
         className="-translate-x-36 dropdown-content z-[1] menu p-1 shadow-lg bg-base-100 rounded-box w-max text-base"
         role="menu"
       >
-        {releaseIndex.map((item, index) => (
+        {projectMetadata.map((item, index) => (
           <li key={index}>
             <a
               href={getReleaseUrl(undefined, item)}

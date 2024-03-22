@@ -11,7 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
 )
-from helm.benchmark.run_specs.classic_run_specs import get_simple1_spec
+from helm.benchmark.run_specs.simple_run_specs import get_simple1_spec
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_GENERATION

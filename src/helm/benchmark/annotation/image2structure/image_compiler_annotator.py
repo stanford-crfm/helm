@@ -1,18 +1,28 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Callable
 
-from helm.benchmark.annotation.annotation import Annotation
 from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.cache import Cache, CacheConfig
 from helm.common.file_caches.local_file_cache import LocalPILFileCache
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.media_object import MediaObject
+from helm.proxy.retry import get_retry_decorator
 
 try:
     from PIL import Image
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["images"])
+
+
+def retry_if_compilation_failed(result: Dict[str, Any]) -> bool:
+    """Retries when the compilation fails."""
+    return "unknown_error" in result
+
+
+retry: Callable = get_retry_decorator(
+    "Compilation", max_attempts=5, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_compilation_failed
+)
 
 
 class CompilationError(Exception):
@@ -32,33 +42,39 @@ class ImageCompilerAnnotator(Annotator, ABC):
     ) -> Tuple[Image.Image, Dict[str, Any]]:
         raise NotImplementedError
 
-    def postprocess_infos(self, infos: Dict[str, Any]) -> Dict[str, Annotation]:
+    def postprocess_infos(self, infos: Dict[str, Any]) -> Dict[str, Any]:
         """Postprocess the infos."""
-        return {key: Annotation(value, displayable=False) for key, value in infos.items()}
+        return infos
 
-    def annotate(self, request_state: RequestState) -> List[Dict[str, Annotation]]:
+    def annotate(self, request_state: RequestState) -> List[Dict[str, Any]]:
         """Fills the annotations field of the request state with the compiled image."""
         assert request_state.result is not None, "Annotator can only be used after the request has been processed."
-        annotations: List[Dict[str, Annotation]] = []
+        annotations: List[Dict[str, Any]] = []
         for completion in request_state.result.completions:
             completion_text: str = completion.text.strip()
 
-            def do_it() -> Dict[str, Annotation]:
-                try:
-                    assert self._file_cache is not None
-                    image, infos = self.compile_completion_into_image(request_state, completion_text)
-                    infos = self.postprocess_infos(infos)
-                    image_path: str = self._file_cache.store_image(lambda: image)
-                    return {
-                        "media_object": Annotation(
-                            MediaObject(location=image_path, content_type="image/png"), displayable=True
-                        ),
-                        **infos,
-                    }
-                except CompilationError as e:
-                    return {"error": Annotation(str(e), displayable=True)}
+            def do_it() -> Dict[str, Any]:
+                @retry
+                def compile() -> Dict[str, Any]:
+                    try:
+                        assert self._file_cache is not None
+                        image, infos = self.compile_completion_into_image(request_state, completion_text)
+                        infos = self.postprocess_infos(infos)
+                        image_path: str = self._file_cache.store_image(lambda: image)
+                        return {
+                            "media_object": MediaObject(location=image_path, content_type="image/png"),
+                            **infos,
+                        }
+                    except CompilationError as e:
+                        return {"error": str(e)}
+                    except Exception as e:
+                        return {"unknown_error": str(e)}
+
+                return compile()
 
             cache_key: Dict[str, str] = {"completion": completion_text}
             response, _ = self._cache.get(cache_key, do_it)
-            annotations.append({**response, "name": Annotation(self.name, displayable=False)})
+
+            # Merge annotations
+            annotations.append(response)
         return annotations

@@ -1,3 +1,5 @@
+import MultimediaObject from "@/types/MultimediaObject";
+
 export default interface DisplayRequest {
   instance_id: string;
   train_trial_index: number;
@@ -14,5 +16,6 @@ export default interface DisplayRequest {
     temperature: number;
     top_k_per_token: number;
     top_p: number;
+    multimodal_prompt: MultimediaObject | undefined;
   };
 }

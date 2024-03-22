@@ -1,4 +1,4 @@
-export default interface ReleaseIndexEntry {
+export default interface ProjectMetadata {
   title: string;
   description: string;
   id: string;
