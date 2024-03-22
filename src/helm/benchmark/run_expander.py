@@ -338,8 +338,8 @@ class AdditionalInstructionsRunExpander(RunExpander):
                     name=new_run_spec_name,
                     adapter_spec=replace(
                         run_spec.adapter_spec,
-                        instructions=run_spec.adapter_spec.instructions
-                        + ' Answer the final question with "A", "B", "C" or "D" only.',
+                        instructions=run_spec.adapter_spec.instructions.strip()
+                        + " Answer only with a single letter corresponding to the correct option.\n",
                     ),
                 ),
             ]
