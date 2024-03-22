@@ -291,6 +291,13 @@ class AnthropicRunExpander(RunExpander):
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["anthropic"])
 
+        print(f"[debug:yifanmai] anthropic run expander saw: {run_spec}")
+        if (
+            anthropic.HUMAN_PROMPT in run_spec.adapter_spec.global_prefix
+            and anthropic.AI_PROMPT in run_spec.adapter_spec.global_suffix
+        ):
+            return [run_spec]
+
         return [
             replace(
                 run_spec,
@@ -311,26 +318,53 @@ class AdditionalInstructionsRunExpander(RunExpander):
         self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        try:
+            import anthropic
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["anthropic"])
         new_run_spec_name = (
             f"{run_spec.name}{',' if ':' in run_spec.name else ':'}"
             f"{AdditionalInstructionsRunExpander.name}={self.value}"
         )
         if self.value == "percy":
-
-            return [
-                replace(
-                    run_spec,
-                    name=new_run_spec_name,
-                    adapter_spec=replace(
-                        run_spec.adapter_spec,
-                        global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                        global_suffix="\n\n"
-                        + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                        + "\n"
-                        + run_spec.adapter_spec.output_prefix.strip(),
+            if (
+                run_spec.adapter_spec.model.startswith("anthropic/claude-v1")
+                or run_spec.adapter_spec.model.startswith("anthropic/claude-instant")
+                or run_spec.adapter_spec.model.startswith("anthropic/claude-2")
+            ):
+                return [
+                    replace(
+                        run_spec,
+                        name=new_run_spec_name,
+                        adapter_spec=replace(
+                            run_spec.adapter_spec,
+                            global_prefix=anthropic.HUMAN_PROMPT
+                            + " "
+                            + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX
+                            + "\n\n",
+                            global_suffix="\n\n"
+                            + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                            + anthropic.AI_PROMPT
+                            + " "
+                            + run_spec.adapter_spec.output_prefix.strip(),
+                        ),
                     ),
-                ),
-            ]
+                ]
+            else:
+                return [
+                    replace(
+                        run_spec,
+                        name=new_run_spec_name,
+                        adapter_spec=replace(
+                            run_spec.adapter_spec,
+                            global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                            global_suffix="\n\n"
+                            + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
+                            + "\n"
+                            + run_spec.adapter_spec.output_prefix.strip(),
+                        ),
+                    ),
+                ]
         elif self.value == "yifan":
             return [
                 replace(
