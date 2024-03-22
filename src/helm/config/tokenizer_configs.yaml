@@ -10,7 +10,7 @@
 
 tokenizer_configs:
 
-  - name: simple/model1
+  - name: simple/tokenizer1
     tokenizer_spec:
       class_name: "helm.tokenizers.simple_tokenizer.SimpleTokenizer"
     end_of_text_token: "</s>"

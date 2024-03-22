@@ -359,6 +359,8 @@ run_groups:
       - vqa
       - mmmu
       - image2structure
+      - unicorn
+      - bingo
 
   - name: a_okvqa
     display_name: A-OKVQA
@@ -556,6 +558,40 @@ run_groups:
       who: Human experts
       when: "2023"
       language: English
+  
+  - name: unicorn
+    display_name: Unicorn
+    description: Safety Evaluation Benchmark for Evaluating on Out-of-Distribution and Sketch Images
+    metric_groups:
+      - accuracy
+      - robustness
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: short answer question answering
+      what: OOD images and sketch images
+      who: Human experts
+      when: "2023"
+      language: English
+  
+  - name: bingo
+    display_name: Bingo
+    description: Open-ended questions about biased images
+    metric_groups:
+      - accuracy
+      - bias
+      - robustness
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: short answer question answering
+      what: Biased images about Region, OCR, Factual, Text-to-Image and Image-to-Image inference challenges
+      who: Human experts
+      when: "2023"
+      language: English, Chinese, Japanese, etc.
 
   - name: image2latex
     display_name: Image2LaTeX

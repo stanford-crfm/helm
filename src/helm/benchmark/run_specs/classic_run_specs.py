@@ -48,34 +48,6 @@ from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_p
 from helm.common.hierarchical_logger import hlog, htrack
 
 
-@run_spec_function("simple1")
-def get_simple1_spec() -> RunSpec:
-    """A run spec for debugging."""
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.simple_scenarios.Simple1Scenario",
-        args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 10, "num_test_instances": 10},
-    )
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.\n",
-        max_train_instances=5,
-        max_eval_instances=10,
-        num_outputs=3,
-        num_train_trials=3,
-        model="simple/model1",
-        model_deployment="simple/model1",
-        temperature=1,
-        stop_sequences=["."],
-    )
-    return RunSpec(
-        name="simple1",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_basic_generation_metric_specs([]) + get_generic_metric_specs(),
-        groups=[],
-    )
-
-
 @run_spec_function("bbq")
 def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
