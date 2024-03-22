@@ -135,7 +135,11 @@ class AnnotatedImageMetrics(Metric):
             # Get the image and make sure we have a reference image
             assert ref_image is not None
             assert "media_object" in annotation
-            image: Image.Image = Image.open(annotation["media_object"]).convert("RGB")
+            assert isinstance(annotation["media_object"], MediaObject)
+            media_object: MediaObject = annotation["media_object"]
+            assert media_object.type == "image"
+            assert media_object.is_local_file and media_object.location is not None
+            image: Image.Image = Image.open(media_object.location).convert("RGB")
 
             # Handle difference in size
             if image.size != ref_image.size:

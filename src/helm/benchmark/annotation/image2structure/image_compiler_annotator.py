@@ -6,6 +6,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.cache import Cache, CacheConfig
 from helm.common.file_caches.local_file_cache import LocalPILFileCache
 from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.media_object import MediaObject
 from helm.proxy.retry import get_retry_decorator
 
 try:
@@ -61,7 +62,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
                         infos = self.postprocess_infos(infos)
                         image_path: str = self._file_cache.store_image(lambda: image)
                         return {
-                            "media_object": image_path,
+                            "media_object": MediaObject(location=image_path, content_type="image/png"),
                             **infos,
                         }
                     except CompilationError as e:
