@@ -491,6 +491,23 @@ run_groups:
       when: "2023"
       language: English
 
+  - name: mscoco_captioning
+    display_name: MSCOCO (captioning)
+    description: Microsoft COCO (MS-COCO) is a large-scale object detection, segmentation, and captioning dataset.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: valid
+    taxonomy:
+      task: image captioning
+      what: Real world images
+      who: Human experts
+      when: "2014"
+      language: English
+
   - name: viz_wiz
     display_name: VizWiz
     description: The VizWiz benchmark for visual question answering on images taken by blind people [(Gurari et al., 2018)](https://arxiv.org/pdf/1802.08218.pdf).
