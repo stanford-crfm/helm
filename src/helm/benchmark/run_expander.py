@@ -377,8 +377,15 @@ class AdditionalInstructionsRunExpander(RunExpander):
                     ),
                 ),
             ]
+        elif self.value == "base":
+            return [
+                replace(
+                    run_spec,
+                    name=new_run_spec_name,
+                ),
+            ]
         else:
-            return []
+            raise ValueError(f"Invalid valud for additional_instruction={self.value}")
 
 
 class IDEFICSInstructRunExpander(RunExpander):
