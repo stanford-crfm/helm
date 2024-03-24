@@ -160,7 +160,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if IDEFICS_MODEL_TAG in model.tags:
             # IDEFICS requires more `max_tokens` to generate something reasonable for open-ended generation
             if run_spec.adapter_spec.method == ADAPT_GENERATION_MULTIMODAL:
-                run_spec = singleton(IncreaseMaxTokensRunExpander(value=30).expand(run_spec))
+                additional_tokens: int = (run_spec.adapter_spec.max_train_instances + 1) * 30
+                run_spec = singleton(IncreaseMaxTokensRunExpander(value=additional_tokens).expand(run_spec))
 
             if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:
                 run_spec = singleton(IDEFICSInstructRunExpander().expand(run_spec))
