@@ -5,6 +5,7 @@ from transformers import pipeline
 from transformers.pipelines import ImageToTextPipeline
 
 from helm.common.cache import CacheConfig
+from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -45,7 +46,7 @@ class HuggingFaceVLMClient(CachingClient):
         with self._models_lock:
             model_id: str = self._models_aliases.get(model_name, model_name)
             if model_id not in self._models:
-                self._models[model_id] = pipeline("image-to-text", model=model_id)
+                self._models[model_id] = pipeline("image-to-text", model=model_id, device=get_torch_device())
             return self._models[model_id]
 
     def make_request(self, request: Request) -> RequestResult:
