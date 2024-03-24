@@ -26,7 +26,7 @@ except ModuleNotFoundError as e:
 
 class HuggingFaceVLMClient(CachingClient):
     """
-    General CLient for VLM models from HuggingFace.
+    General client for VLM models from HuggingFace.
     """
 
     _models_lock: Lock = Lock()
@@ -92,11 +92,14 @@ class HuggingFaceVLMClient(CachingClient):
         except RuntimeError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
+        output: str = result["generated_text"]
+        if "ASSISTANT: " in output:
+            output = output.split("ASSISTANT: ")[1]
         tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-            TokenizationRequest(result["generated_text"], tokenizer=self.tokenizer_name)
+            TokenizationRequest(output, tokenizer=self.tokenizer_name)
         )
         tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-        completions: List[Sequence] = [Sequence(text=result["generated_text"], logprob=0, tokens=tokens)]
+        completions: List[Sequence] = [Sequence(text=output, logprob=0, tokens=tokens)]
         return RequestResult(
             success=True,
             cached=cached,
