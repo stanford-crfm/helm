@@ -359,7 +359,7 @@ run_groups:
 
   - name: viz_wiz
     display_name: VizWiz
-    description: The VizWiz benchmark for visual question answering on images taken by blind people [(Gurari et al., 2018)](https://arxiv.org/pdf/1802.08218.pdf).
+    description: The VizWiz benchmark for visual question answering on images taken by visually impaired people [(Gurari et al., 2018)](https://arxiv.org/pdf/1802.08218.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -370,7 +370,7 @@ run_groups:
     taxonomy:
       task: multimodal question answering
       what: images and text
-      who: blind people
+      who: visually impaired people
       when: "2018"
       language: English
 
