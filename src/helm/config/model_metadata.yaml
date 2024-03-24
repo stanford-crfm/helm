@@ -1162,7 +1162,15 @@ models:
     num_parameters: 13000000000
     release_date: 2023-10-05
     tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
-    
+
+  - name: huggingface/llava-v1.6-vicuna-7b
+    display_name: LLaVA 1.6 (7B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-01-01
+    tags: [ VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
   
   - name: openflamingo/OpenFlamingo-9B-vitl-mpt7b
     display_name: OpenFlamingo (9B)

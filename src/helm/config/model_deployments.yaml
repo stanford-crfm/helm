@@ -643,7 +643,14 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
-      
+
+  - name: huggingface/llava-v1.6-vicuna-7b
+    model_name: huggingface/llava-v1.6-vicuna-7b
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+
   ## OpenFlamingo
   - name: openflamingo/OpenFlamingo-9B-vitl-mpt7b
     model_name: openflamingo/OpenFlamingo-9B-vitl-mpt7b
