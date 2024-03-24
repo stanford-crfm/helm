@@ -643,7 +643,7 @@ model_deployments:
       class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
 
   - name: huggingface/llava-v1.6-vicuna-7b
-    model_name: huggingface/llava-v1.6-vicuna-7b
+    model_name: uw-madison/llava-v1.6-vicuna-7b
     tokenizer_name: hf-internal-testing/llama-tokenizer
     max_sequence_length: 2048
     client_spec:
