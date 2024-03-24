@@ -1170,7 +1170,34 @@ models:
     access: open
     num_parameters: 7000000000
     release_date: 2024-01-01
-    tags: [ VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
+
+  - name: uw-madison/llava-v1.6-vicuna-13b-hf
+    display_name: LLaVA 1.6 (13B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 13000000000
+    release_date: 2024-01-01
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
+
+  - name: uw-madison/llava-v1.6-mistral-7b-hf
+    display_name: LLaVA 1.6 + Mistral (7B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 7000000000
+    release_date: 2024-01-01
+    tags: [ VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG ]
+
+  - name: uw-madison/llava-v1.6-34b-hf
+    display_name: LLaVA + Nous-Hermes-2-Yi-34B (34B)
+    description: LLaVa is an open-source chatbot trained by fine-tuning LlamA/Vicuna on GPT-generated multimodal instruction-following data. ([paper](https://arxiv.org/abs/2304.08485))
+    creator_organization_name: Microsoft
+    access: open
+    num_parameters: 34000000000
+    release_date: 2024-01-01
+    tags: [VISION_LANGUAGE_MODEL_TAG, LLAVA_MODEL_TAG, LIMITED_FUNCTIONALITY_VLM_TAG]
   
   - name: openflamingo/OpenFlamingo-9B-vitl-mpt7b
     display_name: OpenFlamingo (9B)

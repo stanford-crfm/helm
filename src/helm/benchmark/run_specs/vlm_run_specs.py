@@ -193,7 +193,9 @@ def get_flickr30k_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.flickr30k_scenario.Flickr30KScenario", args={}
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
-        instructions="Generate a short caption for the following image", max_tokens=20
+        instructions="Generate a caption for the following image. The caption should neither be long "
+                     "nor a complete sentence.",
+        max_tokens=20
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
@@ -271,7 +273,9 @@ def get_mscoco_captioning_spec() -> RunSpec:
         args={},
     )
     adapter_spec: AdapterSpec = get_generation_adapter_spec(
-        instructions="Generate a short caption for the following image", max_tokens=20
+        instructions="Generate a caption for the following image. The caption should neither be long "
+                     "nor a complete sentence.",
+        max_tokens=20
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
