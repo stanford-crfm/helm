@@ -425,7 +425,7 @@ run_groups:
       - general_information
     environment:
       main_name: f1_score
-      main_split: valid
+      main_split: test
     taxonomy:
       task: image captioning
       what: Flickr images
