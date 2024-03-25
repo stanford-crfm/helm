@@ -267,19 +267,30 @@ def get_mm_safety_bench_spec(subset: str) -> RunSpec:
 
 
 @run_spec_function("mscoco_captioning")
-def get_mscoco_captioning_spec() -> RunSpec:
+def get_mscoco_captioning_spec(long: bool = False) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.mscoco_captioning_scenario.MSCOCOCaptioningScenario",
         args={},
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
-        instructions="Generate a caption for the following image. The caption should neither be long "
-        "nor a complete sentence.",
-        max_tokens=20,
-    )
+
+    adapter_spec: AdapterSpec
+    if long:
+        adapter_spec = get_generation_adapter_spec(
+            instructions="Generate a long, detailed caption for the following image.",
+            max_tokens=50,
+        )
+    else:
+        adapter_spec = get_generation_adapter_spec(
+            instructions="Generate a caption for the following image. The caption should neither be long "
+            "nor a complete sentence.",
+            max_tokens=20,
+        )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "mscoco_captioning"
+    if long:
+        run_spec_name += "_long"
+
     return RunSpec(
         name=run_spec_name,
         scenario_spec=scenario_spec,
