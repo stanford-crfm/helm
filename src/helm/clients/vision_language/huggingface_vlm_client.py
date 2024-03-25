@@ -5,7 +5,6 @@ from transformers import pipeline
 from transformers.pipelines import ImageToTextPipeline
 
 from helm.common.cache import CacheConfig
-from helm.common.gpu_utils import get_torch_device
 from helm.common.images_utils import open_image
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
