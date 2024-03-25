@@ -52,12 +52,22 @@ Run expanders are functions that modify how evaluation runs work. Concretely, a 
 
 Run expanders are an advanced topic. For most use cases, the only run expander that you will need to use is the `model` run expander. The `model=openai/gpt2` argument pair in the run entry indicates that the evaluation run should use the `openai/gpt2` model. More explanation will be added to the documentation in the future.
 
-### Advanced: Run entries and`RunSpec`s
+### Run entry naming
+
+The first part of the run entry name is usually be the name of the scenario by convention, but this may not always be the case. For instance, the run entry `commonsense:dataset=openbookqa,model=openai/gpt2` uses the `openbookqa` scenario.
+
+The first part of the run entry name is usually be the name of the run spec function name by convention, but this may not always be the case. For instance, the run entry `disinformation:type=wedging,model=openai/gpt2` results in the `RunSpec` name `disinfo:type=wedging,model=openai_gpt2`.
+
+### Run entries and `RunSpec`s
 
 You may have noticed that some run entries can produce multiple evaluation runs. Concretely, single run entry can produce multiple `RunSpec`s, and each `RunSpec` specifies a single evaluation run.
 
 This is because run expanders are functions that take in a `RunSpec` and can produce multiple `RunSpec`. As explained previously, the `model` run expander is an example of this.
 
-Note: There is usually a close resemblance between the `RunSpec` name and the run entry. However, this is merely a convention and may not always be the case, because the `RunSpec` name is determined by the run spec function and run expanders, and they are not required to follow this convention. For instance, the run entry `disinformation:type=wedging,model=openai/gpt2` results in the `RunSpec` name `disinfo:type=wedging,model=openai_gpt2`.
+### The `model` run expander
 
-More documentation on `RunSpec` will be added to the documentation in the future.
+The `model` run expander is the most commonly used run expander. As discussed earlier, it can be used to set the model for each run entry.
+
+The `model` run expander also supports **wildcard values**. For instance, the `med_qa:model=text` will run the `med_qa` scenario on _every_ text model that `helm-run` can find in its configuration files. The wildcard is intended to be used in conjuction with the `--models-to-run`, which controls which models will actually be evaluated. For example, `helm-run --run-entries med_qa:model=text --models-to-run openai/gpt2 openai/gpt-3.5-turbo-613` will run `med_qa` on _only_ `openai/gpt2` and `openai/gpt-3.5-turbo-613`.
+
+Wildcard values for the `model` run expander are common used in **run entries conf files** which will be discussed on a different page.
