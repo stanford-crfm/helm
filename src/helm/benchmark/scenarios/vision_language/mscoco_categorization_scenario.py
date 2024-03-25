@@ -1,7 +1,7 @@
 import json
 import os
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -86,14 +86,24 @@ class MSCOCOCategorizationScenario(Scenario):
                     MediaObject(location=image_path, content_type="image/jpeg"),
                 ]
                 references: List[Reference] = []
-                for category_id in category_ids:
-                    category = category_id_to_category[category_id]
-                    super_category = category_id_to_super_category[category_id]
-                    references.extend(
-                        [
-                            Reference(Output(text=category), tags=[CORRECT_TAG]),
-                            Reference(Output(text=super_category), tags=[CORRECT_TAG]),
-                        ]
+                correct_super_categories: Set[str] = set(
+                    category_id_to_super_category[category_id] for category_id in category_ids
+                )
+                # for category_id in category_ids:
+                #     category = category_id_to_category[category_id]
+                #     super_category = category_id_to_super_category[category_id]
+                #     references.extend(
+                #         [
+                #             Reference(Output(text=category), tags=[CORRECT_TAG]),
+                #             Reference(Output(text=super_category), tags=[CORRECT_TAG]),
+                #         ]
+                #     )
+                for super_category in super_categories_to_categories:
+                    references.append(
+                        Reference(
+                            Output(text=super_category),
+                            tags=[CORRECT_TAG] if super_category in correct_super_categories else [],
+                        )
                     )
 
                 instances.append(

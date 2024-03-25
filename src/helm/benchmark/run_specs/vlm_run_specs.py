@@ -307,15 +307,20 @@ def get_mscoco_categorization_spec() -> RunSpec:
         "MSCOCOCategorizationScenario",
         args={},
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
-        instructions="Give the most prevalent category of the objects in the image. "
-        "Just return the category without any explanation or in a complete sentence. "
-        "Here are the possible categories: textile, plant, building, furniture-stuff, "
-        "structural, raw-material, floor, ceiling, sky, ground, water, food-stuff, "
-        "solid, wall, window, other",
-        max_tokens=20,
+    # adapter_spec: AdapterSpec = get_generation_adapter_spec(
+    #     instructions="Give the most prevalent category of the objects in the image. "
+    #     "Just return the category without any explanation or in a complete sentence. "
+    #     "Here are the possible categories: textile, plant, building, furniture-stuff, "
+    #     "structural, raw-material, floor, ceiling, sky, ground, water, food-stuff, "
+    #     "solid, wall, window, other",
+    #     max_tokens=20,
+    # )
+    # metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
+    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
+
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "mscoco_categorization"
     return RunSpec(
