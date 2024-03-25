@@ -277,7 +277,7 @@ def get_mscoco_captioning_spec(long: bool = False) -> RunSpec:
     if long:
         adapter_spec = get_generation_adapter_spec(
             instructions="Generate a long, detailed caption for the following image.",
-            max_tokens=50,
+            max_tokens=150,
         )
     else:
         adapter_spec = get_generation_adapter_spec(
