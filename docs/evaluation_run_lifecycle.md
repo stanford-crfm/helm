@@ -1,8 +1,10 @@
 # Evaluation Run Lifecycle
 
-# Evaluation run steps
+Each invocation of `helm-run` will run a number of **evaluation runs**. Each evaluation run uses a single scenario and a single model, and is performed independently form other evaluation runs. Evaluation runs are usually executed serially / one at a time by the default runner, though some alternate runners (e.g. `SlurmRunner`) may execute evaluation runs in parallel.
 
-An evaluation run is performed as follows:
+## Evaluation steps
+
+An evaluation run has the following steps:
 
 1. Get in-context learning and evaluation instances from scenario. Each instance has an input (e.g. question) and a set of reference outputs (e.g. multiple choice options).
 2. (Advanced) Run _data augmenters / perturbations_ on the base instances to generate perturbed instances.
@@ -27,15 +29,15 @@ Each evaluation run is _fully specified_ by a **run specification** (`RunSpec`),
 3. An `AdapterSpec` specifies an `Adapter` instance.
 4. `MetricSpec`s specifies `Metric` instances.
 
-The `RunSpec` does not contain a `ClientSpec`, which is needed to specify the `Client`. Instead, the `RunSpec` specifies the name of the model deployment inside `AdapterSpec`. During the evaluation run, the model deployment name is used to retreive the `ClientSpec` from built-in or user-provided model deployment configurations, which is then used to construct the `Client`. This late binding allows the HELM user to perform user-specific configuration of clients, such as changing the type or location of the model inference platform for the model.
+Note: The `RunSpec` does not contain a `ClientSpec` specifies the `Client` instance. Instead, the `RunSpec` specifies the name of the model deployment inside `AdapterSpec`. During the evaluation run, the model deployment name is used to retreive the `ClientSpec` from built-in or user-provided model deployment configurations, which is then used to construct the `Client`. This late binding allows the HELM user to perform user-specific configuration of clients, such as changing the type or location of the model inference platform for the model.
 
 ## Serializability
 
 The objects above can be grouped into three categories:
 
 1. Specifications (`RunSpec`, `ScenarioSpec`, `DataAugmenterSpec`, `AdapterSpec`, `ClientSpec`, and `MetricsSpec`) are serializable. They may be written to evaluation run output files, to provide a record of how the evaluation run was configured and how to reproduce it.
-2. Code objects (`Scenario`, `DataAugmenter`, `Adapter`, `Client`, `Metric`) are not serializable. . Users can implement custom subclasses of these objects if needed.
-3. Data objects (`Instance`, `Request`, `Response`, `Stat`) are serializable. These are typcically produced as outputs of code objects. They are typically written to the evaluation run output files.
+2. Code objects (`Scenario`, `DataAugmenter`, `Adapter`, `Client`, `Metric`) are _not_ serializable. These contain program logic used for by the evlauation run. Users can implement custom subclasses of these objects if needed.
+3. Data objects (`Instance`, `Request`, `Response`, `Stat`) are serializable. These are typcically produced as outputs of code objects and written to the evaluation run output files.
 
 ## Run spec functions
 
