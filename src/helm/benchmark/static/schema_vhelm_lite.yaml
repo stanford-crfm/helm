@@ -359,7 +359,7 @@ run_groups:
 
   - name: viz_wiz
     display_name: VizWiz
-    description: The VizWiz benchmark for visual question answering on images taken by visually impaired people [(Gurari et al., 2018)](https://arxiv.org/pdf/1802.08218.pdf).
+    description: A benchmark for visual question answering with images and questions created by visually impaired people [(Gurari et al., 2018)](https://arxiv.org/abs/1802.08218).
     metric_groups:
       - accuracy
       - efficiency
@@ -368,15 +368,15 @@ run_groups:
       main_name: f1_score
       main_split: valid
     taxonomy:
-      task: multimodal question answering
-      what: images and text
-      who: visually impaired people
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Visually impaired people
       when: "2018"
       language: English
 
   - name: vqa
     display_name: VQAv2
-    description: Open-ended questions about images
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
     metric_groups:
       - accuracy
       - efficiency
@@ -385,7 +385,7 @@ run_groups:
       main_name: f1_score
       main_split: valid
     taxonomy:
-      task: short answer question answering
+      task: multimodal short answer question answering
       what: Real-world images
       who: Human experts
       when: "2017"
@@ -393,7 +393,7 @@ run_groups:
 
   - name: mmmu
     display_name: MMMU
-    description: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI
+    description: A benchmark designed to evaluate multimodal models on massive multi-discipline tasks demanding college-level subject knowledge and deliberate reasoning [(Yue et al., 2023)](https://arxiv.org/abs/2311.16502).
     metric_groups:
       - accuracy
       - efficiency
@@ -402,7 +402,7 @@ run_groups:
       main_name: exact_match
       main_split: valid
     taxonomy:
-      task: multiple-choice question answering
+      task: multimodal multiple-choice question answering
       what: Art & Design, Business, Science, Health & Medicine, Humanities & Social Science, and Tech & Engineering
       who: Human experts
       when: "2023"
