@@ -291,7 +291,6 @@ class AnthropicRunExpander(RunExpander):
         except ModuleNotFoundError as e:
             handle_module_not_found_error(e, ["anthropic"])
 
-        print(f"[debug:yifanmai] anthropic run expander saw: {run_spec}")
         if (
             anthropic.HUMAN_PROMPT in run_spec.adapter_spec.global_prefix
             and anthropic.AI_PROMPT in run_spec.adapter_spec.global_suffix
@@ -366,6 +365,46 @@ class AdditionalInstructionsRunExpander(RunExpander):
                     ),
                 ]
         elif self.value == "yifan":
+            return [
+                replace(
+                    run_spec,
+                    name=new_run_spec_name,
+                    adapter_spec=replace(
+                        run_spec.adapter_spec,
+                        instructions=run_spec.adapter_spec.instructions.strip()
+                        + " Answer only with a single letter corresponding to the correct option.\n",
+                    ),
+                ),
+            ]
+        elif self.value == "natural_qa_openbook":
+            return [
+                replace(
+                    run_spec,
+                    name=new_run_spec_name,
+                    adapter_spec=replace(
+                        run_spec.adapter_spec,
+                        instructions=(
+                            "Answer each of the following questions with a short answer "
+                            "that is a span within the passage or a boolean 'yes' or 'no' answer.\n"
+                        ),
+                    ),
+                ),
+            ]
+        elif self.value == "natural_qa_closedbook":
+            return [
+                replace(
+                    run_spec,
+                    name=new_run_spec_name,
+                    adapter_spec=replace(
+                        run_spec.adapter_spec,
+                        instructions=(
+                            "Answer each of the following questions with a short answer "
+                            "or a boolean 'yes' or 'no' answer.\n"
+                        ),
+                    ),
+                ),
+            ]
+        elif self.value == "narrative_qa":
             return [
                 replace(
                     run_spec,
