@@ -14,7 +14,9 @@ export default function Home() {
     return <HEIMLanding />;
   } else if (window.PROJECT_ID === "mmlu") {
     return <MMLULanding />;
-  } else {
+  } else if (window.PROJECT_ID === "global") {
     return <GlobalLanding />;
+  } else {
+    return <LiteLanding />;
   }
 }
