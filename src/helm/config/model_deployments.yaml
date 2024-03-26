@@ -405,8 +405,8 @@ model_deployments:
 
   - name: google/gemini-1.0-pro-001
     model_name: google/gemini-1.0-pro-001
-    tokenizer_name: hf-internal-testing/llama-tokenizer
-    max_sequence_length: 30720 # Officially 30720
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 30720
     max_sequence_and_generated_tokens_length: 32768 # Officially max_sequence_length + 2048
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAIChatClient"
@@ -477,7 +477,7 @@ model_deployments:
     model_name: google/text-bison@002
     tokenizer_name: google/text-bison@002
     max_sequence_length: 6000 # Officially 8192
-    max_sequence_and_generated_tokens_length: 7000 # Officially 9216
+    max_sequence_and_generated_tokens_length: 9216
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
     window_service_spec:
@@ -518,7 +518,7 @@ model_deployments:
     model_name: google/code-bison@002
     tokenizer_name: google/mt5-base # TODO #2188: change to actual tokenizer
     max_sequence_length: 6000 # Officially 6144
-    max_sequence_and_generated_tokens_length: 7000 # Officially 7168
+    max_sequence_and_generated_tokens_length: 7168
     client_spec:
       class_name: "helm.proxy.clients.vertexai_client.VertexAITextClient"
     window_service_spec:
