@@ -15,7 +15,7 @@ from helm.benchmark.scenarios.scenario import (
 
 
 class UnitxtScenario(Scenario):
-    """Integration with https://www.unitxt.org/"""
+    """Integration with https://unitxt.rtfd.io/"""
 
     name = "unitxt"
     description = "Unitxt Scenarios"
