@@ -12,10 +12,12 @@ def get_unitxt_spec(**kwargs) -> RunSpec:
     card = kwargs.get("card")
     if not card:
         raise Exception("Unitxt card must be specified")
+    name_suffix = ",".join([f"{key}={value}" for key, value in kwargs.items()])
+    name = f"unitxt:{name_suffix}"
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.unitxt_scenario.UnitxtScenario", args=kwargs)
     adapter_spec = get_generation_adapter_spec()
     return RunSpec(
-        name="unitxt",
+        name=name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=[

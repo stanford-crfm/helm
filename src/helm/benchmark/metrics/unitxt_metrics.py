@@ -4,16 +4,14 @@ from typing import Dict, List
 from datasets import load_dataset
 import evaluate
 
-from helm.benchmark.metrics.metric import Metric, MetricResult, PerInstanceStats
+from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats
 from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 
 
-class UnitxtMetric(Metric):
+class UnitxtMetric(MetricInterface):
     ID_PATTERN = re.compile("([a-z]+)([0-9]+)")
 
     def __init__(self, **kwargs):
@@ -24,8 +22,6 @@ class UnitxtMetric(Metric):
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
-        metric_result = super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism)
-
         # Fetch references from dataset and make them parallel to predictions
         predictions: List[str] = []
         references: List = []
@@ -82,15 +78,4 @@ class UnitxtMetric(Metric):
                 if metric_name == "score" or metric_name == "score_name":
                     continue
                 aggregated_stats.append(Stat(MetricName(name=metric_name)).add(metric_score))
-        metric_result.per_instance_stats.extend(per_instance_stats)
-        metric_result.aggregated_stats.extend(aggregated_stats)
-        return metric_result
-
-    def evaluate_generation(
-        self,
-        adapter_spec: AdapterSpec,
-        request_state: RequestState,
-        metric_service: MetricService,
-        eval_cache_path: str,
-    ) -> List[Stat]:
-        return []
+        return MetricResult(aggregated_stats=aggregated_stats, per_instance_stats=per_instance_stats)
