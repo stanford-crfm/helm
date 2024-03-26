@@ -314,6 +314,30 @@ metric_groups:
     - name: num_output_tokens
       split: ${main_split}
 
+  - name: classification_metrics
+    display_name: Main Score
+    metrics:
+      # Not included because already in main_score
+      # - name: accuracy
+      #   split: __all__
+      - name: f1_macro
+        split: __all__
+      - name: f1_micro
+        split: __all__
+
+  - name: summarization_metrics
+    display_name: Main Score
+    metrics:
+      - name: rouge1
+        split: __all__
+      - name: rouge2
+        split: __all__
+      # Not included because already in main_score
+      # - name: rougeL
+      #   split: __all__
+      - name: rougeLsum
+        split: __all__
+
 run_groups:
   - name: spanish_scenarios
     display_name: Spanish Scenarios
@@ -331,6 +355,7 @@ run_groups:
     description: Amazon MASS
     metric_groups:
       - main_score
+      - classification_metrics
       - efficiency
       - general_information
     environment:
@@ -350,6 +375,7 @@ run_groups:
     description: XNLI
     metric_groups:
       - main_score
+      - classification_metrics
       - efficiency
       - general_information
     environment:
@@ -369,6 +395,7 @@ run_groups:
     description: XL-Sum
     metric_groups:
       - main_score
+      - summarization_metrics
       - efficiency
       - general_information
     environment:
@@ -387,6 +414,7 @@ run_groups:
     description: MLSUM
     metric_groups:
       - main_score
+      - summarization_metrics
       - efficiency
       - general_information
     environment:
