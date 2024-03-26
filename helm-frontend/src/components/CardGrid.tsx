@@ -29,7 +29,7 @@ export default function CardGrid() {
             <ProjectCard
               key={index}
               title={project.title}
-              imageUrl={"null"}
+              imageUrl={undefined}
               text={project.description}
             />
           ))}
