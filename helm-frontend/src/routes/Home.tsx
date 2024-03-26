@@ -1,12 +1,13 @@
-import InstructLanding from "@/components/InstructLanding";
-import LiteLanding from "@/components/LiteLanding";
-import MMLULanding from "@/components/MMLULanding";
-import HEIMLanding from "@/components/HEIMLanding";
+import InstructLanding from "@/components/Landing/InstructLanding";
+import LiteLanding from "@/components/Landing/LiteLanding";
+import MMLULanding from "@/components/Landing/MMLULanding";
+import HEIMLanding from "@/components/Landing/HEIMLanding";
+import GlobalLanding from "@/components/Landing/GlobalLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
   if (window.PROJECT_ID === "lite") {
-    return <LiteLanding />;
+    return <GlobalLanding />;
   } else if (window.PROJECT_ID === "instruct") {
     return <InstructLanding />;
   } else if (window.PROJECT_ID === "heim") {
@@ -14,7 +15,6 @@ export default function Home() {
   } else if (window.PROJECT_ID === "mmlu") {
     return <MMLULanding />;
   } else {
-    // TODO: better global/default landing page
     return <LiteLanding />;
   }
 }
