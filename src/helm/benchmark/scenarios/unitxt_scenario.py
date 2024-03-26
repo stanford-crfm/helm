@@ -39,11 +39,10 @@ class UnitxtScenario(Scenario):
 
         for unitxt_split_name, helm_split_name in UnitxtScenario.UNITXT_SPLIT_NAME_TO_HELM_SPLIT_NAME.items():
             for index, row in enumerate(dataset[unitxt_split_name]):
-                correct_reference = row["target"]
                 references = [
                     Reference(
                         output=Output(text=reference_text),
-                        tags=[CORRECT_TAG] if reference_text == correct_reference else [],
+                        tags=[CORRECT_TAG],
                     )
                     for reference_text in row["references"]
                 ]
