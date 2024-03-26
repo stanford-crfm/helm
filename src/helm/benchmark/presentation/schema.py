@@ -71,7 +71,7 @@ class MetricNameMatcher:
         if self.name != metric_name.name:
             return False
 
-        if self.split != metric_name.split:
+        if self.split != "__all__" and self.split != metric_name.split:
             return False
 
         # Optional
