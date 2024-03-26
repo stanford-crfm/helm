@@ -8,7 +8,7 @@ export default function getReleaseUrl(
     return "#";
   }
   if (!version) {
-    return `https://crfm.stanford.edu/helm/${currProjectMetadata.id}/`;
+    return `https://crfm.stanford.edu/helm/${currProjectMetadata.id}/latest/`;
   }
-  return `https://crfm.stanford.edu/helm/${currProjectMetadata.id}/`;
+  return `https://crfm.stanford.edu/helm/${currProjectMetadata.id}/${version}/`;
 }
