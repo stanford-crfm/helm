@@ -19,7 +19,6 @@ export default function CardGrid() {
         console.error("Error fetching JSON:", error);
       });
   }, []);
-  console.log(projectEntries);
 
   return (
     <div className="p-10">
