@@ -23,6 +23,10 @@ _models_lock: Lock = Lock()
 _models: Dict[str, Any] = {}
 
 
+class VertexAIContentBlockedError(Exception):
+    pass
+
+
 class VertexAIClient(CachingClient, ABC):
     """Client for Vertex AI models"""
 
@@ -133,6 +137,17 @@ class VertexAIChatClient(VertexAIClient):
     # Gemini returns this error for certain valid requests
     CONTENT_HAS_NO_PARTS_ERROR: str = "Content has no parts."
 
+    # Enum taken from:
+    # https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1beta1#google.cloud.aiplatform.v1beta1.Candidate.FinishReason
+    # We don't directly import this enum because it can differ between different Vertex AI library versions.
+    CONTENT_BLOCKED_FINISH_REASONS: List[int] = [
+        3,  # SAFETY
+        4,  # RECITATION
+        6,  # BLOCKLIST
+        7,  # PROHIBITED_CONTENT
+        8,  # SPII
+    ]
+
     @staticmethod
     def get_model(model_name: str) -> Any:
         global _models_lock
@@ -186,16 +201,27 @@ class VertexAIChatClient(VertexAIClient):
                     contents, generation_config=parameters, safety_settings=self.safety_settings
                 )
                 candidates: List[Candidate] = response.candidates
+
+                # Depending on the version of the Vertex AI library and the type of content blocking,
+                # content blocking can show up in many ways, so this defensively handles most of these ways
+                if not response.candidates:
+                    raise VertexAIContentBlockedError("No candidates in response due to content blocking")
+                for candidate in response.candidates:
+                    if candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS:
+                        raise VertexAIContentBlockedError(
+                            f"Content blocked with finish reason {candidate.finish_reason}"
+                        )
                 try:
                     response_dict = {
-                        "predictions": [{"text": completion.text for completion in candidates}],
-                    }  # TODO: Extract more information from the response
+                        "predictions": [{"text": completion.text} for completion in candidates],
+                    }
                 except ValueError as e:
                     if "Content has no parts" in str(e):
                         # The prediction was either blocked due to safety settings or the model stopped and returned
                         # nothing (which also happens when the model is blocked).
-                        # In both cases, we return an empty prediction.
-                        return {"predictions": None}
+                        # For now, we don't cache blocked requests, because we are trying to get the
+                        # content blocking removed.
+                        raise VertexAIContentBlockedError("Content has no parts due to content blocking")
                 return response_dict
 
             # We need to include the engine's name to differentiate among requests made for different model
@@ -211,10 +237,20 @@ class VertexAIChatClient(VertexAIClient):
             )
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except VertexAIContentBlockedError:
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Response was empty due to content moderation filter",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
         except (requests.exceptions.RequestException, AssertionError) as e:
             error: str = f"VertexAITextClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
+        # Handle cached responses with blocked content from old versions of HELM.
         if response["predictions"] is None:
             return RequestResult(
                 success=False,
@@ -228,6 +264,18 @@ class VertexAIChatClient(VertexAIClient):
             )
 
         for prediction in response["predictions"]:
+            # Handle cached responses with blocked content from old versions of HELM.
+            if "text" not in prediction:
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error="Response was empty due to content moderation filter",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    request_time=response["request_time"],
+                    request_datetime=response["request_datetime"],
+                )
             response_text = prediction["text"]
 
             # The Python SDK does not support echo
