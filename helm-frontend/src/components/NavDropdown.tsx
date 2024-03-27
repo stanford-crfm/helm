@@ -64,7 +64,7 @@ function NavDropdown() {
         {projectMetadata.map((item, index) => (
           <li key={index}>
             <a
-              href={getReleaseUrl(undefined, item)}
+              href={getReleaseUrl(undefined, item.id)}
               className="block"
               role="menuitem"
             >

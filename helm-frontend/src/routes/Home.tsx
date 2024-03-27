@@ -8,7 +8,7 @@ import GlobalLanding from "@/components/Landing/GlobalLanding";
 export default function Home() {
   // TODO consider a more streamlined way to do this?
   if (window.PROJECT_ID === "lite") {
-    return <LiteLanding />;
+    return <GlobalLanding />;
   } else if (window.PROJECT_ID === "instruct") {
     return <InstructLanding />;
   } else if (window.PROJECT_ID === "heim") {
