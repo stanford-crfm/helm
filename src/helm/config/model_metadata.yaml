@@ -637,6 +637,7 @@ models:
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
     tags: [] # TODO: add tags
 
+    # Note: This is aliased to a snapshot of gemini-pro. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro
     display_name: Gemini Pro
     description: Gemini Pro is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
@@ -644,7 +645,6 @@ models:
     access: limited
     release_date: 2023-12-13
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
-    # Note: This is aliased to a snapshot of gemini-pro. When possible, please use a versioned snapshot instead.
 
   - name: google/gemini-1.0-pro-001
     display_name: Gemini 1.0 Pro
@@ -654,6 +654,7 @@ models:
     release_date: 2023-12-13
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+    # Note: This is aliased to a snapshot of gemini-pro-vision. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro-vision
     display_name: Gemini Pro Vision
     description: Gemini Pro Vision is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
@@ -661,7 +662,6 @@ models:
     access: limited
     release_date: 2023-12-13
     tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG]
-    # Note: This is aliased to a snapshot of gemini-pro-vision. When possible, please use a versioned snapshot instead.
 
   - name: google/gemini-1.0-pro-vision-001
     display_name: Gemini 1.0 Pro Vision
