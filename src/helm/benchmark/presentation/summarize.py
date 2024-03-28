@@ -1124,7 +1124,7 @@ class Summarizer:
                     adapter_to_runs=adapter_to_runs,
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
-                    add_win_rate=True,
+                    add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
                 )
                 tables.append(table)
         return tables

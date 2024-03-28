@@ -106,6 +106,9 @@ class MetricGroup(Field):
 
     metrics: List[MetricNameMatcher] = field(default_factory=list)
 
+    hide_win_rates: Optional[bool] = None
+    """If set to true, do not compute win rates."""
+
 
 BY_METRIC = "by_metric"
 BY_GROUP = "by_group"
