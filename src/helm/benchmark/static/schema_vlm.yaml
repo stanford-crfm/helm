@@ -288,6 +288,8 @@ run_groups:
       - image2structure
       - unicorn
       - bingo
+      - multipanelvqa
+      - pope
 
   - name: heim_human_eval
     display_name: HEIM Human Eval Scenario
@@ -416,6 +418,40 @@ run_groups:
       who: Human experts
       when: "2023"
       language: English, Chinese, Japanese, etc.
+  
+  - name: multipanelvqa
+    display_name: MultipanelVQA
+    description: Open-ended questions about multipanel images
+    metric_groups:
+      - accuracy
+      - bias
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: short answer or multiple-choice question answering
+      what: Real-world or synthetic multipanel images
+      who: Human experts
+      when: "2024"
+      language: English
+  
+  - name: pope
+    display_name: POPE
+    description: Open-ended questions about images
+    metric_groups:
+      - accuracy
+      - robustness
+      - bias
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
 
   - name: image2latex
     display_name: Image2LaTeX
