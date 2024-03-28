@@ -1,14 +1,37 @@
 from abc import abstractmethod
 import contextlib
+import dataclasses
 import json
 from typing import Dict, Generator, Iterable, Mapping, Optional, Tuple
 
 from sqlitedict import SqliteDict
 
 
+class JSONEncoderWithDataclasses(json.JSONEncoder):
+    def default(self, obj):
+        if dataclasses.is_dataclass(obj):
+            return dataclasses.asdict(obj)
+        return super().default(obj)
+
+
+class JSONDecoderWithDataclasses(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(object_hook=self.object_hook, *args, **kwargs)
+
+    def object_hook(self, obj):
+        if "__dataclass__" in obj:
+            return dataclasses.replace(obj)
+        return obj
+
+
 def request_to_key(request: Mapping) -> str:
     """Normalize a `request` into a `key` so that we can hash using it."""
-    return json.dumps(request, sort_keys=True)
+    return json.dumps(request, sort_keys=True, cls=JSONEncoderWithDataclasses)
+
+
+def key_to_request(key: str, object_pairs_hook=None) -> Dict:
+    """Convert a `key` back into a `request`."""
+    return json.loads(key, object_pairs_hook=object_pairs_hook, cls=JSONDecoderWithDataclasses)
 
 
 class KeyValueStore(contextlib.AbstractContextManager):

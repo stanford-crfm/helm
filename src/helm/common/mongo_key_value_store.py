@@ -1,7 +1,6 @@
-import json
 from typing import Dict, Generator, Iterable, Mapping, Optional, Tuple
 
-from helm.common.key_value_store import KeyValueStore
+from helm.common.key_value_store import KeyValueStore, request_to_key, key_to_request
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 try:
@@ -36,8 +35,8 @@ class MongoKeyValueStore(KeyValueStore):
         return
 
     def _canonicalize_key(self, key: Mapping) -> SON:
-        serialized = json.dumps(key, sort_keys=True)
-        return json.loads(serialized, object_pairs_hook=SON)
+        serialized = request_to_key(key)
+        return key_to_request(serialized, object_pairs_hook=SON)
 
     def contains(self, key: Dict) -> bool:
         query = {self._REQUEST_KEY: self._canonicalize_key(key)}
@@ -49,7 +48,7 @@ class MongoKeyValueStore(KeyValueStore):
         if document is not None:
             response = document[self._RESPONSE_KEY]
             if isinstance(response, str):
-                return json.loads(response)
+                return key_to_request(response)
             else:
                 return response
         return None
@@ -59,7 +58,7 @@ class MongoKeyValueStore(KeyValueStore):
             request = document[self._REQUEST_KEY]
             response = document[self._RESPONSE_KEY]
             if isinstance(response, str):
-                yield (request, json.loads(response))
+                yield (request, key_to_request(response))
             else:
                 yield (request, response)
 
@@ -72,7 +71,7 @@ class MongoKeyValueStore(KeyValueStore):
         except (InvalidDocument, OverflowError):
             # If the document is malformed (e.g. because of null bytes in keys) or some numbers cause overflows
             # (e.g. integers exceed 8 bits) instead store the response as a string.
-            alternate_document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, json.dumps(value))])
+            alternate_document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, request_to_key(value))])
             self._collection.replace_one(filter={"request": request}, replacement=alternate_document, upsert=True)
 
     def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
