@@ -27,8 +27,8 @@ class MediaObject:
     location: Optional[str] = None
     """When the media object is a file, specify the location of the media object, which can be a local path or URL."""
 
-    def __dict__(self):
-        return {key: value for key, value in self}
+    # def __dict__(self):
+    #     return {key: value for key, value in self}
 
     @property
     def type(self) -> str:
