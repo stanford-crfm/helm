@@ -29,7 +29,7 @@ def request_to_key(request: Mapping) -> str:
     return json.dumps(request, sort_keys=True, cls=JSONEncoderWithDataclasses)
 
 
-def key_to_request(key: str, object_pairs_hook=None) -> Dict:
+def key_to_request(key: str, object_pairs_hook=None):
     """Convert a `key` back into a `request`."""
     return json.loads(key, object_pairs_hook=object_pairs_hook, cls=JSONDecoderWithDataclasses)
 

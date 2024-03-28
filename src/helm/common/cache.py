@@ -129,6 +129,7 @@ def create_key_value_store(config: KeyValueStoreCacheConfig) -> KeyValueStore:
         raise ValueError(f"KeyValueStoreCacheConfig with unknown type: {config}")
 
 
+@retry
 def write_to_key_value_store(key_value_store: KeyValueStore, key: Mapping, response: Dict) -> bool:
     """
     Write to the key value store with retry. Returns boolean indicating whether the write was successful or not.
@@ -138,7 +139,6 @@ def write_to_key_value_store(key_value_store: KeyValueStore, key: Mapping, respo
         return True
     except Exception as e:
         hlog(f"Error when writing to cache: {str(e)}")
-        raise e
         return False
 
 

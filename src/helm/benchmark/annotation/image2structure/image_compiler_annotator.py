@@ -54,6 +54,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
             completion_text: str = completion.text.strip()
 
             def do_it() -> Dict[str, Any]:
+                @retry
                 def compile() -> Dict[str, Any]:
                     try:
                         assert self._file_cache is not None
@@ -62,7 +63,6 @@ class ImageCompilerAnnotator(Annotator, ABC):
                         image_path: str = self._file_cache.store_image(lambda: image)
                         return {
                             "media_object": MediaObject(location=image_path, content_type="image/png"),
-                            "debug": True,
                             **infos,
                         }
                     except CompilationError as e:
@@ -72,7 +72,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
 
                 return compile()
 
-            cache_key: Dict[str, str] = {"completion": completion_text, "debug": True}
+            cache_key: Dict[str, str] = {"completion": completion_text}
             response, _ = self._cache.get(cache_key, do_it)
 
             # Merge annotations
