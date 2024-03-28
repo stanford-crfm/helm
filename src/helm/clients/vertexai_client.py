@@ -214,7 +214,7 @@ class VertexAIChatClient(VertexAIClient):
                 try:
                     response_dict = {
                         "predictions": [{"text": completion.text} for completion in candidates],
-                    }
+                    }  # TODO: Extract more information from the response
                 except ValueError as e:
                     if "Content has no parts" in str(e):
                         # The prediction was either blocked due to safety settings or the model stopped and returned
