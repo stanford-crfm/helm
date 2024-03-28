@@ -138,6 +138,7 @@ def write_to_key_value_store(key_value_store: KeyValueStore, key: Mapping, respo
         return True
     except Exception as e:
         hlog(f"Error when writing to cache: {str(e)}")
+        raise e
         return False
 
 
