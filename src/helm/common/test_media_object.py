@@ -1,6 +1,8 @@
 import unittest
 
-from .media_object import MediaObject, MultimediaObject
+from helm.common.media_object import MediaObject, MultimediaObject
+from helm.common.key_value_store import request_to_key
+from helm.common.mongo_key_value_store import MongoKeyValueStore
 
 
 class TestMediaObject(unittest.TestCase):
@@ -35,3 +37,11 @@ class TestMediaObject(unittest.TestCase):
                 MediaObject(text="b", content_type="text/plain"),
             ],
         )
+
+    def test_canonicalize_key(self):
+        obj = MediaObject(text="Text", content_type="text/plain")
+        MongoKeyValueStore._canonicalize_key({"media_object": obj})
+
+    def test_request_to_key(self):
+        obj = MediaObject(text="Text", content_type="text/plain")
+        request_to_key({"media_object": obj})

@@ -35,16 +35,17 @@ class MongoKeyValueStore(KeyValueStore):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         return
 
-    def _canonicalize_key(self, key: Mapping) -> SON:
+    @staticmethod
+    def _canonicalize_key(key: Mapping) -> SON:
         serialized = json.dumps(key, sort_keys=True)
         return json.loads(serialized, object_pairs_hook=SON)
 
     def contains(self, key: Dict) -> bool:
-        query = {self._REQUEST_KEY: self._canonicalize_key(key)}
+        query = {self._REQUEST_KEY: MongoKeyValueStore._canonicalize_key(key)}
         return self._collection.find_one(query) is not None
 
     def get(self, key: Dict) -> Optional[Dict]:
-        query = {self._REQUEST_KEY: self._canonicalize_key(key)}
+        query = {self._REQUEST_KEY: MongoKeyValueStore._canonicalize_key(key)}
         document = self._collection.find_one(query)
         if document is not None:
             response = document[self._RESPONSE_KEY]
@@ -64,7 +65,7 @@ class MongoKeyValueStore(KeyValueStore):
                 yield (request, response)
 
     def put(self, key: Mapping, value: Dict) -> None:
-        request = self._canonicalize_key(key)
+        request = MongoKeyValueStore._canonicalize_key(key)
         document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
         # The MongoDB collection should have a unique indexed on "request"
         try:
@@ -78,7 +79,7 @@ class MongoKeyValueStore(KeyValueStore):
     def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
         operations = []
         for key, value in pairs:
-            request = self._canonicalize_key(key)
+            request = MongoKeyValueStore._canonicalize_key(key)
             document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
             operations.append(ReplaceOne({self._REQUEST_KEY: request}, document, upsert=True))
         # Note: unlike put, multi_put does not support documents with null bytes in keys.
