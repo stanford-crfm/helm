@@ -1,7 +1,7 @@
 import os
 import urllib
 from copy import deepcopy
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, asdict, is_dataclass, field, replace
 from typing import List, Optional
 
 
@@ -29,6 +29,18 @@ class MediaObject:
 
     # def __dict__(self):
     #     return {key: value for key, value in self}
+    def to_dict(self):
+        # If using Python's dataclass, asdict can automatically convert it to a dictionary
+        if is_dataclass(self):
+            return asdict(self)
+        else:
+            # Manual conversion for non-dataclass implementations
+            return {
+                "content_type": self.content_type,
+                "text": self.text,
+                "location": self.location,
+                # Include other fields as necessary
+            }
 
     @property
     def type(self) -> str:
