@@ -400,8 +400,6 @@ model_deployments:
     max_sequence_and_generated_tokens_length: 32768 # Officially max_sequence_length + 2048
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
   - name: google/gemini-1.0-pro-001
     model_name: google/gemini-1.0-pro-001
@@ -409,9 +407,7 @@ model_deployments:
     max_sequence_length: 30720
     max_sequence_and_generated_tokens_length: 32768 # Officially max_sequence_length + 2048
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAIChatClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
   - name: google/gemini-pro-vision
     model_name: google/gemini-pro-vision
@@ -420,8 +416,6 @@ model_deployments:
     max_sequence_and_generated_tokens_length: 16384 # Officially max_sequence_length + 4096, in practice max_output_tokens <= 2048 for vision models
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
   - name: google/gemini-1.0-pro-vision-001
     model_name: google/gemini-1.0-pro-vision-001
@@ -429,9 +423,7 @@ model_deployments:
     max_sequence_length: 12288
     max_sequence_and_generated_tokens_length: 16384
     client_spec:
-      class_name: "helm.proxy.clients.vertexai_client.VertexAIChatClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
   ## Gemma
   - name: together/gemma-2b
