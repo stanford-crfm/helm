@@ -46,6 +46,7 @@ from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_path
 from helm.common.hierarchical_logger import hlog, htrack
+from helm.common.gpu_utils import get_torch_device_name
 
 
 @run_spec_function("bbq")
@@ -1159,6 +1160,29 @@ def get_pubmed_qa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["pubmed_qa"],
+    )
+
+
+@run_spec_function("live_qa")
+def get_liveqa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.liveqa_scenario.LiveQAScenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Please answer the following consumer health question.",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=0,
+        max_tokens=512,
+    )
+
+    return RunSpec(
+        name="live_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(
+            {"task": "live_qa", "device": get_torch_device_name()},
+        ),
+        groups=["live_qa", "multimed_qa"],
     )
 
 
