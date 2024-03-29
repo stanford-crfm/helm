@@ -24,6 +24,7 @@ class LiveQAScenario(Scenario):
           year      = {2017}
         }
     """
+
     SOURCE_REPO_URL = "https://raw.githubusercontent.com/abachaa/LiveQA_MedicalTask_TREC2017/master/TestDataset/"
     FILENAME = "TREC-2017-LiveQA-Medical-Test-Questions-w-summaries.xml"
 
