@@ -279,7 +279,7 @@ class AnnotatedImageMetrics(Metric):
                     if not isinstance(pred, str):
                         assert hash_dict is not None
                         cache_key = {"metric_name": metric_name, **hash_dict}
-                    response_metric, _ = self._cache.get({**cache_key, "debug": "1234"}, do_it)
+                    response_metric, _ = self._cache.get(cache_key, do_it)
                     value = response_metric["value"]
                 except Exception as e:
                     hlog(f"Error in metric {metric_name}: {str(e)}")
