@@ -7,6 +7,8 @@ from nltk.tokenize.treebank import TreebankWordTokenizer
 import torch
 import warnings
 import numpy as np
+import os
+import tempfile
 
 from helm.benchmark.metrics.copyright_metrics import _edit_similarity
 from helm.benchmark.metrics.metric import Metric
@@ -337,9 +339,20 @@ class AnnotatedImageMetrics(Metric):
 
     def _get_inception_features(self, img_tensor):
         if self._inception_model is None:
-            self._inception_model = models.inception_v3(
-                weights=models.Inception_V3_Weights.IMAGENET1K_V1, transform_input=False
-            ).to(self._device)
+
+            def load_inception_model():
+                return models.inception_v3(weights=models.Inception_V3_Weights.IMAGENET1K_V1, transform_input=False).to(
+                    self._device
+                )
+
+            try:
+                self._inception_model = load_inception_model()
+            except PermissionError:
+                # If access denied, use a temporary directory
+                hlog("Access denied to torch cache directory. Using a temporary directory.")
+                temp_cache_dir = tempfile.mkdtemp()
+                os.environ["TORCH_HOME"] = temp_cache_dir
+                self._inception_model = load_inception_model()
             self._inception_model.eval()
         with torch.no_grad():
             if self._inception_model.training:
