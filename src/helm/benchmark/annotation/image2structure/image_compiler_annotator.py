@@ -55,9 +55,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
             completion_text: str = completion.text.strip()
             raw_response: Dict[str, Any]
 
-            @retry
             def compile() -> Dict[str, Any]:
-
                 def do_it() -> Dict[str, Any]:
                     try:
                         assert self._file_cache is not None
@@ -78,11 +76,15 @@ class ImageCompilerAnnotator(Annotator, ABC):
                 raw_response, _ = self._cache.get(cache_key, do_it)
                 return raw_response
 
-            try:
-                raw_response = compile()
-            except Exception as e:
-                raw_response = {"unknown_error": str(e)}
+            @retry
+            def compile_with_retry() -> Dict[str, Any]:
+                try:
+                    raw_response = compile()
+                except Exception as e:
+                    raw_response = {"unknown_error": str(e)}
+                return raw_response
 
+            raw_response = compile_with_retry()
             response = {**raw_response}
             if "media_object" in response:
                 response["media_object"] = MediaObject.from_dict(response["media_object"])
