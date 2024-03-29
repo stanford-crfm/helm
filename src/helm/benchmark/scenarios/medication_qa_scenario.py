@@ -34,8 +34,7 @@ class MedicationQAScenario(Scenario):
     description = "MedInfo 2019 MedicationQA medication question answering task"
     tags = ["knowledge", "generation", "question_answering", "biomedical"]
 
-    @staticmethod
-    def download_medication_qa(path: str):
+    def download_medication_qa(self, path: str):
         """download the .xlsx spreadsheet containing the question-answer pairs"""
         ensure_file_downloaded(
             source_url=os.path.join(self.SOURCE_REPO_URL, self.FILENAME),
