@@ -76,7 +76,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
                     raw_response, _ = self._cache.get(cache_key, do_it)
                     return raw_response
                 except Exception as e:
-                    raw_response = {"unknown_error": str(e)}
+                    return {"unknown_error": str(e)}
 
             raw_response = compile()
             response = {**raw_response}
