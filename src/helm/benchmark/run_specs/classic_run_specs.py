@@ -1117,7 +1117,7 @@ def get_med_mcqa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["MedMCQA"],
+        groups=["MedMCQA", "MultiMedQA"],
     )
 
 
@@ -1159,7 +1159,7 @@ def get_pubmed_qa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["pubmed_qa"],
+        groups=["pubmed_qa", "MultiMedQA"],
     )
 
 
@@ -1182,7 +1182,7 @@ def get_liveqa_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(
             {"task": "live_qa", "device": get_torch_device_name()},
         ),
-        groups=["live_qa", "multimed_qa"],
+        groups=["LiveQA", "MultiMedQA"],
     )
 
 
@@ -1205,7 +1205,7 @@ def get_medicationqa_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(
             {"task": "medication_qa", "device": get_torch_device_name()},
         ),
-        groups=["MedicationQA", "multimed_qa"],
+        groups=["MedicationQA", "MultiMedQA"],
     )
 
 
