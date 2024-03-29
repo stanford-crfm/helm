@@ -21,7 +21,7 @@ def retry_if_compilation_failed(result: Dict[str, Any]) -> bool:
 
 
 retry: Callable = get_retry_decorator(
-    "Compilation", max_attempts=5, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_compilation_failed
+    "Compilation", max_attempts=2, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_compilation_failed
 )
 
 
@@ -55,6 +55,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
 
             def do_it() -> Dict[str, Any]:
 
+                @retry
                 def compile() -> Dict[str, Any]:
                     try:
                         assert self._file_cache is not None
@@ -65,15 +66,15 @@ class ImageCompilerAnnotator(Annotator, ABC):
                             "media_object": MediaObject(location=image_path, content_type="image/png").to_dict(),
                             **infos,
                         }
+                        x = 3 / 0
                     except CompilationError as e:
                         return {"error": str(e)}
                     except Exception as e:
-                        raise e
-                        return {"unknown_error": str(e)}
+                        return {"unknown_error": e}
 
                 return compile()
 
-            cache_key: Dict[str, str] = {"completion": completion_text, "debug": str(1234)}
+            cache_key: Dict[str, str] = {"completion": completion_text, "debug": str(12345)}
             raw_response, _ = self._cache.get(cache_key, do_it)
             response = {**raw_response}
             if "media_object" in response:
