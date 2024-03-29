@@ -17,12 +17,11 @@ except ModuleNotFoundError as e:
 
 def retry_if_compilation_failed(result: Dict[str, Any]) -> bool:
     """Retries when the compilation fails."""
-    print("Result:", result)
     return "unknown_error" in result
 
 
 retry: Callable = get_retry_decorator(
-    "Compilation", max_attempts=2, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_compilation_failed
+    "Compilation", max_attempts=5, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_compilation_failed
 )
 
 
@@ -63,7 +62,6 @@ class ImageCompilerAnnotator(Annotator, ABC):
                         image, infos = self.compile_completion_into_image(request_state, completion_text)
                         infos = self.postprocess_infos(infos)
                         image_path: str = self._file_cache.store_image(lambda: image)
-                        x = 1 / 0
                         return {
                             "media_object": MediaObject(location=image_path, content_type="image/png").to_dict(),
                             **infos,
