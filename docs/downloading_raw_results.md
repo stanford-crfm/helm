@@ -1,6 +1,6 @@
 # Downloading Raw Results
 
-All of HELM's raw result data is stored in Google Cloud Storage (GCS). If you wish to download the raw result data, you can use Google Cloud's tools to do so.
+All of HELM's raw result data is stored in Google Cloud Storage (GCS) in the public `crfm-helm-public` bucket. If you wish to download the raw result data, you can use Google Cloud's tools to do so. The following walks through how to use the `gsutil` tool ([documentation](https://cloud.google.com/storage/docs/gsutil)) to download the data.
 
 ## Setup
 
@@ -76,3 +76,7 @@ mkdir $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
 ```sh
 gsutil -m rsync -r $GCS_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
 ```
+
+## Web browser
+
+If you wish to view the data in the web browser without downloading it, you can use the [GCS browser](https://console.cloud.google.com/storage/browser/crfm-helm-public). Note that this requires logging into any Google account and agreeing to the Google Cloud Platform Terms of Service.
