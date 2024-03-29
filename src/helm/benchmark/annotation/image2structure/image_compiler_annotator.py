@@ -68,6 +68,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
                     except CompilationError as e:
                         return {"error": str(e)}
                     except Exception as e:
+                        raise e
                         return {"unknown_error": str(e)}
 
                 return compile()
