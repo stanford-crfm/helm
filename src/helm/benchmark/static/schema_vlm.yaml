@@ -421,7 +421,7 @@ run_groups:
   
   - name: multipanelvqa
     display_name: MultipanelVQA
-    description: Open-ended questions about multipanel images
+    description: Question about real-world or synthetic multipanel images for evaluating multi-panel image reasoning ability
     metric_groups:
       - accuracy
       - bias
@@ -438,7 +438,7 @@ run_groups:
   
   - name: pope
     display_name: POPE
-    description: Open-ended questions about images
+    description: Open-ended questions about object appearance in real-world images for evaluating hallucination behaviour
     metric_groups:
       - accuracy
       - robustness

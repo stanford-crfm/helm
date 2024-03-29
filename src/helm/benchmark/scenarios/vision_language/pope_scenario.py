@@ -45,6 +45,17 @@ class POPEScenario(Scenario):
         "Open-ended questions about hallucination images ([paper](https://aclanthology.org/2023.emnlp-main.20/))."
     )
     tags = ["vision-language", "visual question answering"]
+    options: List[str] = ["Yes", "No"]
+
+    def get_label_from_answer(self, answer: str):
+        label: str
+        if answer == "yes":
+            label = "A"
+        elif answer == "no":
+            label = "B"
+        else:
+            raise NotImplementedError(f"Invalid answer: {answer}")
+        return label
 
     def get_instances(self, output_path: str) -> List[Instance]:
         images_path: str = os.path.join(output_path, "images")
@@ -63,15 +74,29 @@ class POPEScenario(Scenario):
             if not os.path.exists(image_path):
                 row["image"].save(image_path)
 
-            content: List[MediaObject] = [
-                MediaObject(location=image_path, content_type="image/jpeg"),
-                MediaObject(text=row["question"], content_type="text/plain"),
-            ]
+            question: str = row["question"]
             answer: str = row["answer"]
+            references: List[Reference] = []
+
+            answer = self.get_label_from_answer(answer)
+            # The given correct answer is a letter, but we need an index
+            correct_answer_index: int = ord(answer) - ord("A")
+            # The options are originally appended to the question
+
+            for i, option in enumerate(self.options):
+                reference: Reference
+                is_correct: bool = i == correct_answer_index
+                reference = Reference(Output(text=option), tags=[CORRECT_TAG] if is_correct else [])
+                references.append(reference)
+
+            content = [
+                MediaObject(location=image_path, content_type="image/jpeg"),
+                MediaObject(text=question, content_type="text/plain"),
+            ]
             instances.append(
                 Instance(
                     Input(multimedia_content=MultimediaObject(content)),
-                    references=[Reference(Output(text=answer), tags=[CORRECT_TAG])],
+                    references=references,
                     split=TEST_SPLIT,
                 )
             )
