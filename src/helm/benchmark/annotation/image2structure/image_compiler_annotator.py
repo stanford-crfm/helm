@@ -73,7 +73,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
 
                 return compile()
 
-            cache_key: Dict[str, str] = {"completion": completion_text}
+            cache_key: Dict[str, str] = {"completion": completion_text, "debug": str(1234)}
             raw_response, _ = self._cache.get(cache_key, do_it)
             response = {**raw_response}
             if "media_object" in response:
