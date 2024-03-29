@@ -55,6 +55,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
             completion_text: str = completion.text.strip()
             raw_response: Dict[str, Any]
 
+            @retry
             def compile() -> Dict[str, Any]:
                 def do_it() -> Dict[str, Any]:
                     try:
@@ -70,19 +71,14 @@ class ImageCompilerAnnotator(Annotator, ABC):
                     except CompilationError as e:
                         return {"error": str(e)}
 
-                cache_key: Dict[str, str] = {"completion": completion_text, "debug": str(123456)}
-                raw_response, _ = self._cache.get(cache_key, do_it)
-                return raw_response
-
-            @retry
-            def compile_with_retry() -> Dict[str, Any]:
                 try:
-                    raw_response = compile()
+                    cache_key: Dict[str, str] = {"completion": completion_text, "debug": str(123456)}
+                    raw_response, _ = self._cache.get(cache_key, do_it)
+                    return raw_response
                 except Exception as e:
                     raw_response = {"unknown_error": str(e)}
-                return raw_response
 
-            raw_response = compile_with_retry()
+            raw_response = compile()
             response = {**raw_response}
             if "media_object" in response:
                 response["media_object"] = MediaObject.from_dict(response["media_object"])
