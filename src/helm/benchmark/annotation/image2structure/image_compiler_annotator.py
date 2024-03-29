@@ -54,7 +54,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
             completion_text: str = completion.text.strip()
 
             def do_it() -> Dict[str, Any]:
-                @retry
+
                 def compile() -> Dict[str, Any]:
                     try:
                         assert self._file_cache is not None
