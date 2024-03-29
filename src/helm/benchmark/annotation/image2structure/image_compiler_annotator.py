@@ -70,7 +70,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
                         return {"error": str(e)}
 
                 try:
-                    cache_key: Dict[str, str] = {"completion": completion_text, "debug": str(123456)}
+                    cache_key: Dict[str, str] = {"completion": completion_text, "debug": str(1234567)}
                     raw_response, _ = self._cache.get(cache_key, do_it)
                     return raw_response
                 except Exception as e:
