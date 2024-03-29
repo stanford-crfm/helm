@@ -75,7 +75,8 @@ class ImageCompilerAnnotator(Annotator, ABC):
             cache_key: Dict[str, str] = {"completion": completion_text}
             raw_response, _ = self._cache.get(cache_key, do_it)
             response = {**raw_response}
-            response["media_object"] = MediaObject.from_dict(response["media_object"])
+            if "media_object" in response:
+                response["media_object"] = MediaObject.from_dict(response["media_object"])
 
             # Merge annotations
             annotations.append(response)
