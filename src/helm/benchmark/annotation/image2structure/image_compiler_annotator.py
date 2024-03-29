@@ -17,6 +17,7 @@ except ModuleNotFoundError as e:
 
 def retry_if_compilation_failed(result: Dict[str, Any]) -> bool:
     """Retries when the compilation fails."""
+    print("Result:", result)
     return "unknown_error" in result
 
 
@@ -52,30 +53,36 @@ class ImageCompilerAnnotator(Annotator, ABC):
         annotations: List[Dict[str, Any]] = []
         for completion in request_state.result.completions:
             completion_text: str = completion.text.strip()
+            raw_response: Dict[str, Any]
 
-            def do_it() -> Dict[str, Any]:
+            @retry
+            def compile() -> Dict[str, Any]:
 
-                @retry
-                def compile() -> Dict[str, Any]:
+                def do_it() -> Dict[str, Any]:
                     try:
                         assert self._file_cache is not None
                         image, infos = self.compile_completion_into_image(request_state, completion_text)
                         infos = self.postprocess_infos(infos)
                         image_path: str = self._file_cache.store_image(lambda: image)
+                        x = 1 / 0
                         return {
                             "media_object": MediaObject(location=image_path, content_type="image/png").to_dict(),
                             **infos,
                         }
-                        x = 3 / 0
                     except CompilationError as e:
                         return {"error": str(e)}
                     except Exception as e:
                         return {"unknown_error": e}
 
-                return compile()
+                cache_key: Dict[str, str] = {"completion": completion_text, "debug": str(123456)}
+                raw_response, _ = self._cache.get(cache_key, do_it)
+                return raw_response
 
-            cache_key: Dict[str, str] = {"completion": completion_text, "debug": str(12345)}
-            raw_response, _ = self._cache.get(cache_key, do_it)
+            try:
+                raw_response = compile()
+            except Exception as e:
+                raw_response = {"unknown_error": str(e)}
+
             response = {**raw_response}
             if "media_object" in response:
                 response["media_object"] = MediaObject.from_dict(response["media_object"])
