@@ -26,10 +26,7 @@ from helm.benchmark.metrics.vision_language.image_utils import (
     pixel_similarity,
     sift_similarity,
 )
-from helm.benchmark.metrics.vision_language.emd_utils import (  # noqa: F401
-    compute_emd_recursive,
-    get_most_frequent_color,
-)
+from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -418,8 +415,6 @@ class AnnotatedImageMetrics(Metric):
         )
 
         def do_it():
-            # color: np.ndarray = get_most_frequent_color(np.array(ref_image))[0]
-            # constant_image = Image.new("RGB", ref_image.size, tuple(color))  # type: ignore
             constant_image = Image.new("RGB", ref_image.size, (255, 255, 255))  # default color is white
             value = compute_emd_recursive(
                 constant_image,
