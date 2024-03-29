@@ -1186,6 +1186,29 @@ def get_liveqa_spec() -> RunSpec:
     )
 
 
+@run_spec_function("medication_qa")
+def get_medicationqa_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Please answer the following consumer health question.",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=0,
+        max_tokens=512,
+    )
+
+    return RunSpec(
+        name="medication_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(
+            {"task": "medication_qa", "device": get_torch_device_name()},
+        ),
+        groups=["MedicationQA", "multimed_qa"],
+    )
+
+
 @run_spec_function("lextreme")
 def get_lextreme_spec(subset: str) -> RunSpec:
     from helm.benchmark.scenarios.lextreme_scenario import (
