@@ -111,7 +111,7 @@ def img_to_sig_patches(
     # Compute the weight of each patch
     # The weight of each point is 1 if the color is not the most frequent color, weight_most_frequent_color otherwise
     flattened_patches = patches.reshape(patches.shape[0], -1)
-    gray_most_frequent_color: float = to_gray(rgb_most_frequent_color).squeeze() / 255.0
+    gray_most_frequent_color: float = float(to_gray(rgb_most_frequent_color).squeeze() / 255.0)
     weight = weight_most_frequent_color + (1 - weight_most_frequent_color) * np.any(
         flattened_patches != gray_most_frequent_color, axis=1, keepdims=True
     ).astype(np.float32)
@@ -307,7 +307,7 @@ def compute_emd_recursive(
     # - index 1 - 1 + patch_size[0] * patch_size[1]: color values of the patch
     # - index -2, -1: position of the patch
     (rgb_most_frequent_color, frequency) = get_most_frequent_color(img2_np)
-    gray_most_frequent_color = to_gray(rgb_most_frequent_color).squeeze() / 255.0
+    gray_most_frequent_color = float(to_gray(rgb_most_frequent_color).squeeze() / 255.0)
     sig1 = img_to_sig_patches(img1_np, rgb_most_frequent_color, patch_size, weight_most_frequent_color)
     sig2 = img_to_sig_patches(img2_np, rgb_most_frequent_color, patch_size, weight_most_frequent_color)
 
