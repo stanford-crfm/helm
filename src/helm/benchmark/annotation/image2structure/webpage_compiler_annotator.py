@@ -127,6 +127,6 @@ class WebpageCompilerAnnotator(ImageCompilerAnnotator):
         image: Image.Image = Image.open(destination_path)
 
         # Delete the repository
-        shutil.rmtree(repo_path)
+        shutil.rmtree(repo_path, ignore_errors=True)
 
         return image, infos
