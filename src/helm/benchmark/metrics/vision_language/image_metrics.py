@@ -240,6 +240,7 @@ class AnnotatedImageMetrics(Metric):
             annotation: Dict[str, Any] = request_state.annotations[compiler_name][completion_index]
 
             # Handle errors in annotation
+            print("Annotation: ", annotation)
             if "error" in annotation:
                 stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                 # For all other metrics, we set the value to zero
