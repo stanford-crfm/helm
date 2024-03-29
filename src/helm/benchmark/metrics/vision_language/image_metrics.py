@@ -269,24 +269,22 @@ class AnnotatedImageMetrics(Metric):
                 metric: AnnotatedMetric = self.metrics[metric_name]
                 (pred, gt) = inputs[metric.input_type]
 
-                def do_it():
-                    try:
+                value: float
+                try:
+
+                    def do_it():
                         value = metric.function(pred, gt)
                         return {"value": value}
-                    except Exception as e:
-                        return {"error": str(e)}
 
-                cache_key = {"metric_name": metric_name, "pred": pred, "gt": gt}
-                if not isinstance(pred, str):
-                    assert hash_dict is not None
-                    cache_key = {"metric_name": metric_name, **hash_dict}
-                response_metric, _ = self._cache.get(cache_key, do_it)
-                value: float
-                if "error" in response_metric:
-                    hlog(f"Error in metric {metric_name}: {response_metric['error']}")
-                    value = 0
-                else:
+                    cache_key = {"metric_name": metric_name, "pred": pred, "gt": gt}
+                    if not isinstance(pred, str):
+                        assert hash_dict is not None
+                        cache_key = {"metric_name": metric_name, **hash_dict}
+                    response_metric, _ = self._cache.get(cache_key, do_it)
                     value = response_metric["value"]
+                except Exception as e:
+                    hlog(f"Error in metric {metric_name}: {str(e)}")
+                    value = 0
                 stats_dict[metric_name].add(value)
 
             stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
