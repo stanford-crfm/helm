@@ -62,7 +62,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
                         infos = self.postprocess_infos(infos)
                         image_path: str = self._file_cache.store_image(lambda: image)
                         return {
-                            "media_object": MediaObject(location=image_path, content_type="image/png"),
+                            "media_object": MediaObject(location=image_path, content_type="image/png").to_dict(),
                             **infos,
                         }
                     except CompilationError as e:
@@ -73,7 +73,9 @@ class ImageCompilerAnnotator(Annotator, ABC):
                 return compile()
 
             cache_key: Dict[str, str] = {"completion": completion_text}
-            response, _ = self._cache.get(cache_key, do_it)
+            raw_response, _ = self._cache.get(cache_key, do_it)
+            response = {**raw_response}
+            response["media_object"] = MediaObject.from_dict(response["media_object"])
 
             # Merge annotations
             annotations.append(response)

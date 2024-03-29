@@ -27,6 +27,15 @@ class MediaObject:
     location: Optional[str] = None
     """When the media object is a file, specify the location of the media object, which can be a local path or URL."""
 
+    def to_dict(self) -> dict:
+        """Converts the media object to a dictionary."""
+        return {key: value for key, value in self.__dict__.items() if value is not None}
+
+    @staticmethod
+    def from_dict(data: dict) -> "MediaObject":
+        """Creates a media object from a dictionary."""
+        return MediaObject(**data)
+
     @property
     def type(self) -> str:
         """The MIME type of the media object."""
