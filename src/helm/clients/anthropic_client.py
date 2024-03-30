@@ -206,7 +206,7 @@ class AnthropicClient(CachingClient):
 
 
 def _is_content_moderation_failure(response: Dict) -> bool:
-    """Return whether a a response failed because of the content moderation filter."""
+    """Return whether a response failed because of the content moderation filter."""
     if (
         "error" in response
         and "message" in response["error"]
