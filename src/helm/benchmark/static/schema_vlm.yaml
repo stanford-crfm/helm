@@ -424,7 +424,7 @@ run_groups:
     description: Question about real-world or synthetic multipanel images for evaluating multi-panel image reasoning ability
     metric_groups:
       - accuracy
-      - bias
+      - efficiency
       - general_information
     environment:
       main_name: exact_match
@@ -441,8 +441,8 @@ run_groups:
     description: Open-ended questions about object appearance in real-world images for evaluating hallucination behaviour
     metric_groups:
       - accuracy
-      - robustness
-      - bias
+      - efficiency
+      - general_information
     environment:
       main_name: exact_match
       main_split: test
