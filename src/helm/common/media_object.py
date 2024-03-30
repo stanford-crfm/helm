@@ -31,11 +31,6 @@ class MediaObject:
         """Converts the media object to a dictionary."""
         return {key: value for key, value in self.__dict__.items() if value is not None}
 
-    @staticmethod
-    def from_dict(data: dict) -> "MediaObject":
-        """Creates a media object from a dictionary."""
-        return MediaObject(**data)
-
     @property
     def type(self) -> str:
         """The MIME type of the media object."""
