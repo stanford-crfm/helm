@@ -388,7 +388,6 @@ run_groups:
     description: Safety Evaluation Benchmark for Evaluating on Out-of-Distribution and Sketch Images
     metric_groups:
       - accuracy
-      - robustness
       - general_information
     environment:
       main_name: exact_match
@@ -405,8 +404,6 @@ run_groups:
     description: Open-ended questions about biased images
     metric_groups:
       - accuracy
-      - bias
-      - robustness
     environment:
       main_name: f1_score
       main_split: test
