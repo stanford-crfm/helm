@@ -1,7 +1,9 @@
-import InstructLanding from "@/components/InstructLanding";
-import LiteLanding from "@/components/LiteLanding";
-import MMLULanding from "@/components/MMLULanding";
-import HEIMLanding from "@/components/HEIMLanding";
+import InstructLanding from "@/components/Landing/InstructLanding";
+import LiteLanding from "@/components/Landing/LiteLanding";
+import MMLULanding from "@/components/Landing/MMLULanding";
+import HEIMLanding from "@/components/Landing/HEIMLanding";
+import VHELMLanding from "@/components/VHELMLanding";
+import GlobalLanding from "@/components/Landing/GlobalLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -13,8 +15,11 @@ export default function Home() {
     return <HEIMLanding />;
   } else if (window.PROJECT_ID === "mmlu") {
     return <MMLULanding />;
+  } else if (window.PROJECT_ID === "vhelm") {
+    return <VHELMLanding />;
+  } else if (window.PROJECT_ID === "global") {
+    return <GlobalLanding />;
   } else {
-    // TODO: better global/default landing page
     return <LiteLanding />;
   }
 }

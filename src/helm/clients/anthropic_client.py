@@ -206,8 +206,12 @@ class AnthropicClient(CachingClient):
 
 
 def _is_content_moderation_failure(response: Dict) -> bool:
-    """Return whether a response failed because of the content moderation filter."""
-    if "error" in response and response["error"]["message"] == "Output blocked by content filtering policy":
+    """Return whether a a response failed because of the content moderation filter."""
+    if (
+        "error" in response
+        and "message" in response["error"]
+        and ["message"] == "Output blocked by content filtering policy"
+    ):
         hlog(f"Anthropic - output blocked by content filtering policy: {response}")
         return True
     return False

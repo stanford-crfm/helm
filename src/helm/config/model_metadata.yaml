@@ -637,17 +637,35 @@ models:
     release_date: 2023-03-01 # was first announced on 2022-04 but remained private.
     tags: [] # TODO: add tags
 
+    # Note: This is aliased to a snapshot of gemini-pro. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro
-    display_name: Gemini
-    description: Gemini is a multimodal model able to reason across text, images, video, audio and code ([paper](https://arxiv.org/abs/2312.11805)).
+    display_name: Gemini Pro
+    description: Gemini Pro is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: google/gemini-1.0-pro-001
+    display_name: Gemini 1.0 Pro
+    description: Gemini 1.0 Pro is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+    # Note: This is aliased to a snapshot of gemini-pro-vision. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro-vision
     display_name: Gemini Pro Vision
-    description: Gemini is a multimodal model able to reason across text, images, video, audio and code ([paper](https://arxiv.org/abs/2312.11805)).
+    description: Gemini Pro Vision is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-12-13
+    tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG]
+
+  - name: google/gemini-1.0-pro-vision-001
+    display_name: Gemini 1.0 Pro Vision
+    description: Gemini 1.0 Pro Vision is a multimodal model able to reason across text, images, video, audio and code. ([paper](https://arxiv.org/abs/2312.11805))
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
@@ -698,6 +716,14 @@ models:
     release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
     tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: google/text-bison@002
+    display_name: PaLM-2 (Bison)
+    description: The best value PaLM model. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-07 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions
+    tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+
   - name: google/text-bison-32k
     display_name: PaLM-2 (Bison)
     description: The best value PaLM model with a 32K context. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
@@ -715,6 +741,14 @@ models:
     tags: [TEXT_MODEL_TAG, GOOGLE_PALM_2_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/code-bison@001
+    display_name: Codey PaLM-2 (Bison)
+    description: A model fine-tuned to generate code based on a natural language description of the desired code. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2023-06-29 # Source: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation#model_versions
+    tags: [CODE_MODEL_TAG]
+
+  - name: google/code-bison@002
     display_name: Codey PaLM-2 (Bison)
     description: A model fine-tuned to generate code based on a natural language description of the desired code. PaLM 2 (Pathways Language Model) is a Transformer-based model trained using a mixture of objectives that was evaluated on English and multilingual language, and reasoning tasks. ([report](https://arxiv.org/pdf/2305.10403.pdf))
     creator_organization_name: Google
