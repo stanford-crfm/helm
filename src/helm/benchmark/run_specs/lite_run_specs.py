@@ -130,7 +130,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["mmlu", "MultiMedQA"],
+        groups=["mmlu"],
     )
 
 
@@ -271,7 +271,7 @@ def get_med_qa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["med_qa", "MultiMedQA"],
+        groups=["med_qa"],
     )
 
 

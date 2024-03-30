@@ -46,7 +46,6 @@ from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.runner import get_benchmark_output_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec, get_scenario_cache_path
 from helm.common.hierarchical_logger import hlog, htrack
-from helm.common.gpu_utils import get_torch_device_name
 
 
 @run_spec_function("bbq")
@@ -1117,7 +1116,7 @@ def get_med_mcqa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["MedMCQA", "MultiMedQA"],
+        groups=["med_mcqa"],
     )
 
 
@@ -1159,12 +1158,14 @@ def get_pubmed_qa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["pubmed_qa", "MultiMedQA"],
+        groups=["pubmed_qa"],
     )
 
 
 @run_spec_function("live_qa")
-def get_liveqa_spec() -> RunSpec:
+def get_live_qa_spec() -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.liveqa_scenario.LiveQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -1182,12 +1183,14 @@ def get_liveqa_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(
             {"task": "live_qa", "device": get_torch_device_name()},
         ),
-        groups=["LiveQA", "MultiMedQA"],
+        groups=["live_qa"],
     )
 
 
 @run_spec_function("medication_qa")
-def get_medicationqa_spec() -> RunSpec:
+def get_medication_qa_spec() -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -1205,7 +1208,7 @@ def get_medicationqa_spec() -> RunSpec:
         metric_specs=get_summarization_metric_specs(
             {"task": "medication_qa", "device": get_torch_device_name()},
         ),
-        groups=["MedicationQA", "MultiMedQA"],
+        groups=["medication_qa"],
     )
 
 
