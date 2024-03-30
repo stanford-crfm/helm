@@ -322,7 +322,9 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         name="real_toxicity_prompts",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_generative_harms_metric_specs(include_basic_metrics=True),
+        metric_specs=get_generative_harms_metric_specs(
+            include_basic_metrics=True, include_generative_harms_metrics=True
+        ),
         groups=["real_toxicity_prompts"],
     )
 
