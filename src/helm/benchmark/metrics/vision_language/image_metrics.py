@@ -7,6 +7,8 @@ from nltk.tokenize.treebank import TreebankWordTokenizer
 import torch
 import warnings
 import numpy as np
+import os
+import tempfile
 
 from helm.benchmark.metrics.copyright_metrics import _edit_similarity
 from helm.benchmark.metrics.metric import Metric
@@ -26,10 +28,7 @@ from helm.benchmark.metrics.vision_language.image_utils import (
     pixel_similarity,
     sift_similarity,
 )
-from helm.benchmark.metrics.vision_language.emd_utils import (  # noqa: F401
-    compute_emd_recursive,
-    get_most_frequent_color,
-)
+from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -240,7 +239,12 @@ class AnnotatedImageMetrics(Metric):
             annotation: Dict[str, Any] = request_state.annotations[compiler_name][completion_index]
 
             # Handle errors in annotation
-            if "error" in annotation:
+            if "unknown_error" in annotation:
+                hlog(
+                    f"Unknown error in annotation: {annotation['unknown_error']}\n"
+                    f"Scores of zero will be returned for all metrics."
+                )
+            if "error" in annotation or "unknown_error" in annotation:
                 stats_dict[self.COMPILE_METRIC].add(0)  # Did not compile
                 # For all other metrics, we set the value to zero
                 for metric_name in self._metric_names:
@@ -264,24 +268,22 @@ class AnnotatedImageMetrics(Metric):
                 metric: AnnotatedMetric = self.metrics[metric_name]
                 (pred, gt) = inputs[metric.input_type]
 
-                def do_it():
-                    try:
+                value: float
+                try:
+
+                    def do_it():
                         value = metric.function(pred, gt)
                         return {"value": value}
-                    except Exception as e:
-                        return {"error": str(e)}
 
-                cache_key = {"metric_name": metric_name, "pred": pred, "gt": gt}
-                if not isinstance(pred, str):
-                    assert hash_dict is not None
-                    cache_key = {"metric_name": metric_name, **hash_dict}
-                response_metric, _ = self._cache.get(cache_key, do_it)
-                value: float
-                if "error" in response_metric:
-                    hlog(f"Error in metric {metric_name}: {response_metric['error']}")
-                    value = 0
-                else:
+                    cache_key = {"metric_name": metric_name, "pred": pred, "gt": gt}
+                    if not isinstance(pred, str):
+                        assert hash_dict is not None
+                        cache_key = {"metric_name": metric_name, **hash_dict}
+                    response_metric, _ = self._cache.get(cache_key, do_it)
                     value = response_metric["value"]
+                except Exception as e:
+                    hlog(f"Error in metric {metric_name}: {str(e)}")
+                    value = 0
                 stats_dict[metric_name].add(value)
 
             stats_dict[self.COMPILE_METRIC].add(1)  # Compiled
@@ -337,9 +339,20 @@ class AnnotatedImageMetrics(Metric):
 
     def _get_inception_features(self, img_tensor):
         if self._inception_model is None:
-            self._inception_model = models.inception_v3(
-                weights=models.Inception_V3_Weights.IMAGENET1K_V1, transform_input=False
-            ).to(self._device)
+
+            def load_inception_model():
+                return models.inception_v3(weights=models.Inception_V3_Weights.IMAGENET1K_V1, transform_input=False).to(
+                    self._device
+                )
+
+            try:
+                self._inception_model = load_inception_model()
+            except PermissionError:
+                # If access denied, use a temporary directory
+                hlog("Access denied to torch cache directory. Using a temporary directory.")
+                temp_cache_dir = tempfile.mkdtemp()
+                os.environ["TORCH_HOME"] = temp_cache_dir
+                self._inception_model = load_inception_model()
             self._inception_model.eval()
         with torch.no_grad():
             if self._inception_model.training:
@@ -415,8 +428,6 @@ class AnnotatedImageMetrics(Metric):
         )
 
         def do_it():
-            # color: np.ndarray = get_most_frequent_color(np.array(ref_image))[0]
-            # constant_image = Image.new("RGB", ref_image.size, tuple(color))  # type: ignore
             constant_image = Image.new("RGB", ref_image.size, (255, 255, 255))  # default color is white
             value = compute_emd_recursive(
                 constant_image,
