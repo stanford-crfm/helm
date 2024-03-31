@@ -145,7 +145,7 @@ class VertexAIChatClient(VertexAIClient):
         4,  # RECITATION
         6,  # BLOCKLIST
         7,  # PROHIBITED_CONTENT
-        8,  # SPII
+        8,  # SPII (Sensitive Personally Identifiable Information)
     ]
 
     @staticmethod
