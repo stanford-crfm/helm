@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple, Callable
 
+from dacite import from_dict
+
 from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.cache import Cache, CacheConfig
@@ -79,7 +81,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
             raw_response = compile()
             response = {**raw_response}
             if "media_object" in response:
-                response["media_object"] = MediaObject.from_dict(response["media_object"])
+                response["media_object"] = from_dict(MediaObject, response["media_object"])
 
             # Merge annotations
             annotations.append(response)
