@@ -463,8 +463,8 @@ run_groups:
       - mmlu_world_religions
 
   - name: mmlu
-    display_name: Massive Multitask Language Understanding (MMLU)
-    short_display_name: MMLU
+    display_name: Massive Multitask Language Understanding (MMLU) All Subjects
+    short_display_name: MMLU All Subjects
     description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2009.03300.pdf).
     metric_groups:
       - accuracy
