@@ -188,7 +188,8 @@ tokenizer_configs:
   - name: huggingface/gpt2
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
-      # openai-community/gpt2
+      args:
+        pretrained_model_name_or_path: openai-community/gpt2
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 
