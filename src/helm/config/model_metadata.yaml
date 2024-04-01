@@ -229,20 +229,28 @@ models:
     release_date: 2023-11-21
     tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: anthropic/claude-3-sonnet-20240229
-    display_name: Claude 3 Sonnet (20240229)
-    description: TBD
+  - name: anthropic/claude-3-haiku-20240307
+    display_name: Claude 3 Haiku (20240307)
+    description: Claude 3 is a a family of models that possess vision and multilingual capabilities. They were trained with various methods such as unsupervised learning and Constitutional AI.
     creator_organization_name: Anthropic
     access: limited
-    release_date: 2024-03-04
+    release_date: 2024-03-13  # https://www.anthropic.com/news/claude-3-haiku
+    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-3-sonnet-20240229
+    display_name: Claude 3 Sonnet (20240229)
+    description: Claude 3 is a a family of models that possess vision and multilingual capabilities. They were trained with various methods such as unsupervised learning and Constitutional AI.
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2024-03-04  # https://www.anthropic.com/news/claude-3-family
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/claude-3-opus-20240229
     display_name: Claude 3 Opus (20240229)
-    description: TBD
+    description: Claude 3 is a a family of models that possess vision and multilingual capabilities. They were trained with various methods such as unsupervised learning and Constitutional AI.
     creator_organization_name: Anthropic
     access: limited
-    release_date: 2024-03-04
+    release_date: 2024-03-04  # https://www.anthropic.com/news/claude-3-family
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # DEPRECATED: Please do not use.
