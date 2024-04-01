@@ -14,6 +14,7 @@ from helm.benchmark.model_deployment_registry import (
 from helm.benchmark.model_metadata_registry import (
     ANTHROPIC_CLAUDE_1_MODEL_TAG,
     ANTHROPIC_CLAUDE_2_MODEL_TAG,
+    ANTHROPIC_CLAUDE_3_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
     CHATML_MODEL_TAG,
     GOOGLE_GEMMA_INSTRUCT_MODEL_TAG,
@@ -33,7 +34,8 @@ from helm.benchmark.model_metadata_registry import (
 )
 from helm.benchmark.run_expander import (
     RUN_EXPANDERS,
-    AnthropicRunExpander,
+    AnthropicClaude2RunExpander,
+    AnthropicClaude3RunExpander,
     ChatMLRunExpander,
     GlobalPrefixRunExpander,
     GoogleRunExpander,
@@ -130,7 +132,11 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
 
         # Anthropic prompts
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
-            run_spec = singleton(AnthropicRunExpander().expand(run_spec))
+            run_spec = singleton(AnthropicClaude2RunExpander().expand(run_spec))
+
+        # Anthropic prompts
+        if ANTHROPIC_CLAUDE_3_MODEL_TAG in model.tags:
+            run_spec = singleton(AnthropicClaude3RunExpander().expand(run_spec))
 
         # OpenAI prompts
         if OPENAI_CHATGPT_MODEL_TAG in model.tags:
