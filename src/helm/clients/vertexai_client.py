@@ -236,7 +236,7 @@ class VertexAIChatClient(VertexAIClient):
                 request,
             )
 
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it), recompute_all=True)
         except VertexAIContentBlockedError:
             return RequestResult(
                 success=False,

@@ -200,13 +200,15 @@ class Cache(object):
         else:
             raise ValueError(f"CacheConfig with unknown type: {config}")
 
-    def get(self, request: Mapping, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
+    def get(self, request: Mapping, compute: Callable[[], Dict], recompute_all: bool = False) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
         cache_stats.increment_query(self.config.cache_stats_key)
 
         # TODO: Initialize key_value_store in constructor
         with create_key_value_store(self.config) as key_value_store:
             response = key_value_store.get(request)
+            if recompute_all:
+                response = None
             if response:
                 cached = True
             else:
