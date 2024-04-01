@@ -1435,3 +1435,25 @@ def get_lm_entry_spec(task: str, method: str = ADAPT_GENERATION) -> RunSpec:
         metric_specs=metric_specs,
         groups=["lm_entry"],
     )
+
+@run_spec_function("thai_exam")
+def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.thai_exam_scenario.ThaiExamScenario", args={"exam": exam}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,        
+        instructions=f"The following are multiple choice questions (with answers).",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=5,
+    )
+
+    return RunSpec(
+        name=f"thai_exam:exam={exam},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["thai_exam"],
+    )
