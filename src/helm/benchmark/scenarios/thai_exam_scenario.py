@@ -1,4 +1,3 @@
-import csv
 import os
 from typing import Dict, List
 import json
@@ -12,15 +11,29 @@ class ThaiExamScenario(Scenario):
     """
     ThaiExam, a benchmark comprising Thai multiple-choice examinations as follows:
 
-    ∙ ONET: The Ordinary National Educational Test (ONET) is an examination for students in Thailand. We select the grade-12 ONET exam, which comprises 5 subjects and each question has 5 choices. These subjects are Thai, English, Mathematics, Social Studies, and Science. We extracted these questions from the official 2021 ONET example, amounting to a total of 170 questions and options.
+    ∙ ONET: The Ordinary National Educational Test (ONET) is an examination for students in Thailand.
+    We select the grade-12 ONET exam, which comprises 5 subjects and each question has 5 choices.
+    These subjects are Thai, English, Mathematics, Social Studies, and Science.
+    Amounting to a total of 170 questions and options.
 
-    ∙ IC: The Investment Consultant (IC) examination, a licensing test for investment professionals in Thailand developed by the Stock Exchange of Thailand (SET), features 4 choices per question. We extracted questions for levels 1, 2, and 3 from the official SET website, resulting in a total of 95 questions and options.
+    ∙ IC: The Investment Consultant (IC) examination, a licensing test for investment professionals in Thailand.
+    Developed by the Stock Exchange of Thailand (SET), features 4 choices per question.
+    We extracted questions for levels 1, 2, and 3 resulting in a total of 95 questions and options.
 
-    ∙ TGAT: The Thai General Aptitude Test (TGAT), a national high school examination in Thailand, focuses on critical and logical thinking skills, as well as proficiency in the English language. We collected a total of 90 questions and answers. The TGAT consists of four choices per question.
+    ∙ TGAT: The Thai General Aptitude Test (TGAT), a national high school examination in Thailand.
+    Focuses on critical and logical thinking skills.
+    We collected a total of 90 questions and answers. The TGAT consists of four choices per question.
 
-    ∙ TPAT-1: The Thai Professional Aptitude Test 1 (TPAT-1) is a national high school examination in Thailand that assesses students’ professional skills requirement in medical schools. This subset contains reasoning and medical ethics. We collected a total of 116 questions and answers. The TPAT-1 consists of 5 choices per question.
+    ∙ TPAT-1: The Thai Professional Aptitude Test 1 (TPAT-1) is a national high school examination in Thailand.
+    The Exam assesses students’ professional skills requirement in medical schools.
+    This subset contains reasoning and medical ethics. We collected a total of 116 questions and answers.
+    The TPAT-1 consists of 5 choices per question.
 
-    ∙ A-Level: An academic knowledge assessment examination (Applied Knowledge Level) that covers general foundational subjects taught in schools. The content assessed in this examination aligns with the curriculum guidelines and emphasizes the practical application of knowledge in daily life. We collected a total of 175 questions and answers.
+    ∙ A-Level: An academic knowledge assessment examination (Applied Knowledge Level)
+    that covers general foundational subjects taught in schools.
+    The content assessed in this examination aligns with the curriculum guidelines
+    and emphasizes the practical application of knowledge in daily life.
+    We collected a total of 175 questions and answers.
 
     We created and used these exams to evaluate the performance of the Typhoon models(https://arxiv.org/abs/2312.13951).
 
