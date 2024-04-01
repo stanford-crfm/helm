@@ -1156,7 +1156,7 @@ model_deployments:
     model_name: openai/gpt-3.5-turbo-instruct
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 4096
-    max_sequence_length: 4097
+    max_request_length: 4097
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
