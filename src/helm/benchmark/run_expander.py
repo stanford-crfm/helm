@@ -90,16 +90,6 @@ class InstructionsRunExpander(RunExpander):
                 instructions="I am an expert AI assistant who is here to help you with the following. "
                 + adapter_spec.instructions,
             )
-        elif self.value == "prefix_1":
-            adapter_spec = replace(
-                adapter_spec,
-                instructions="Answer only with a single letter. " + adapter_spec.instructions,
-            )
-        elif self.value == "suffix_1":
-            adapter_spec = replace(
-                adapter_spec,
-                instructions=adapter_spec.instructions + " Answer only with a single letter.",
-            )
         else:
             raise Exception("Unknown value: {self.value}")
         return [
