@@ -19,7 +19,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .run_spec import RunSpec
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
+from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT, AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
@@ -89,16 +89,6 @@ class InstructionsRunExpander(RunExpander):
                 adapter_spec,
                 instructions="I am an expert AI assistant who is here to help you with the following. "
                 + adapter_spec.instructions,
-            )
-        elif self.value == "prefix_1":
-            adapter_spec = replace(
-                adapter_spec,
-                instructions="Answer only with a single letter. " + adapter_spec.instructions,
-            )
-        elif self.value == "suffix_1":
-            adapter_spec = replace(
-                adapter_spec,
-                instructions=adapter_spec.instructions + " Answer only with a single letter.",
             )
         else:
             raise Exception("Unknown value: {self.value}")
@@ -285,9 +275,9 @@ IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX = (
 )
 
 
-class AnthropicRunExpander(RunExpander):
+class AnthropicClaude2RunExpander(RunExpander):
     """
-    Custom prompt for Anthropic models.
+    Custom prompt for Anthropic Claude 1 and Claude 2 models.
     These models need more explicit instructions about following the format.
     """
 
@@ -317,6 +307,25 @@ class AnthropicRunExpander(RunExpander):
                 ),
             ),
         ]
+
+
+class AnthropicClaude3RunExpander(RunExpander):
+    """Custom prompts for Anthropic Claude 3 models."""
+
+    name = "claude_3"
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            instructions = "Answer with only a single letter."
+            if run_spec.adapter_spec.instructions:
+                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
+            return [
+                replace(
+                    run_spec,
+                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+                ),
+            ]
+        return [run_spec]
 
 
 class OpenAIRunExpander(RunExpander):
