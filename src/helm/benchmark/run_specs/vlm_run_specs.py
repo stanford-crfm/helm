@@ -50,9 +50,11 @@ def get_generation_adapter_spec(
     )
 
 
-def get_short_answer_generation_adapter_spec():
+def get_short_answer_generation_adapter_spec(instructions: Optional[str] = None):
     return get_generation_adapter_spec(
-        instructions="Just give a short answer without answering in a complete sentence.",
+        instructions="Just give a short answer without answering in a complete sentence."
+        if instructions is None
+        else instructions,
         max_tokens=20,
     )
 
@@ -214,7 +216,9 @@ def get_gqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.gqa_scenario.GQAScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
+    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec(
+        instructions="Answer the question using a single word or phrase."
+    )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "gqa"
@@ -357,7 +361,11 @@ def get_viz_wiz_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.viz_wiz_scenario.VizWizScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
+    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec(
+        # Following https://arxiv.org/abs/2310.03744
+        instructions="When the provided information is insufficient, respond with 'Unanswerable'. "
+        "Answer the question using a single word or phrase."
+    )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "viz_wiz"
@@ -375,7 +383,10 @@ def get_vqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.vqa_scenario.VQAScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
+    # Following https://arxiv.org/abs/2310.03744
+    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec(
+        instructions="Answer the question using a single word or phrase."
+    )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "vqa"

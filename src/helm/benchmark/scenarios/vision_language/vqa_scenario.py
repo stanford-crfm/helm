@@ -111,11 +111,13 @@ class VQAScenario(Scenario):
                     MediaObject(location=image_path, content_type="image/jpeg"),
                     MediaObject(text=question_json["question"], content_type="text/plain"),
                 ]
-
                 instances.append(
                     Instance(
                         Input(multimedia_content=MultimediaObject(content)),
-                        references=[Reference(Output(text=answers_json["multiple_choice_answer"]), tags=[CORRECT_TAG])],
+                        references=[
+                            Reference(Output(text=answer_json["answer"]), tags=[CORRECT_TAG])
+                            for answer_json in answers_json["answers"]
+                        ],
                         split=split,
                     )
                 )
