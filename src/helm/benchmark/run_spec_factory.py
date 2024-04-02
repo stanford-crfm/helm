@@ -139,7 +139,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # Google prompts
         if (
             GOOGLE_PALM_2_MODEL_TAG in model.tags
-            or GOOGLE_GEMINI_MODEL_TAG
+            or GOOGLE_GEMINI_MODEL_TAG in model.tags
             or GOOGLE_GEMMA_INSTRUCT_MODEL_TAG in model.tags
         ):
             run_spec = singleton(GoogleRunExpander().expand(run_spec))
