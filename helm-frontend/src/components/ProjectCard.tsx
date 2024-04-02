@@ -9,6 +9,9 @@ interface CardProps {
 }
 
 const ProjectCard: React.FC<CardProps> = ({ id, title, imageUrl, text }) => {
+  if (!title.includes("HE")) {
+    title = "HELM " + title;
+  }
   return (
     <div className="max-w-sm rounded overflow-hidden bg-gray-100 hover:scale-105 transition-transform duration-300">
       {imageUrl ? <img className="w-full" src={imageUrl} alt={title} /> : <></>}
