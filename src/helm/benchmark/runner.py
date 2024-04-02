@@ -264,7 +264,8 @@ class Runner:
             return  # Exit after saving the instances.
 
         # Give each instance a unique ID
-        instances = with_instance_ids(instances)
+        if any([instance.id is None for instance in instances]):
+            instances = with_instance_ids(instances)
 
         # Get the instances necessary for this run.
         max_eval_instances = run_spec.adapter_spec.max_eval_instances
