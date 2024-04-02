@@ -282,6 +282,9 @@ class AnthropicClaude2RunExpander(RunExpander):
 
     name = "anthropic"
 
+    # These strings must be added to the prompt in order to pass prompt validation,
+    # otherwise the Anthropic API will return an error.
+    # See: https://docs.anthropic.com/claude/reference/prompt-validation
     HUMAN_PROMPT = "\n\nHuman:"
     AI_PROMPT = "\n\nAssistant:"
 
