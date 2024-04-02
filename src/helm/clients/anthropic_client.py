@@ -282,9 +282,9 @@ class AnthropicMessagesClient(CachingClient):
                     if not media_object.location:
                         raise Exception("MediaObject of image type has missing location field value")
 
-                    from helm.common.images_utils import encode_base64
+                    from helm.common.images_utils import resize_and_encode_image
 
-                    base64_image: str = encode_base64(media_object.location, format="JPEG")
+                    base64_image: str = resize_and_encode_image(media_object.location)
                     image_block: ImageBlockParam = {
                         "type": "image",
                         "source": {

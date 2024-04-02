@@ -36,6 +36,42 @@ def encode_base64(image_location: str, format="JPEG") -> str:
     return base64.b64encode(image_file.getvalue()).decode("ascii")
 
 
+def resize_and_encode_image(image_path: str, max_size=8000) -> str:
+    """
+    Resizes an image so that neither dimension exceeds max_size, then encodes it to a base64 string.
+
+    Parameters:
+    - image_path: The file path of the image to be processed.
+    - max_size: The maximum allowed size for the image's width and height.
+
+    Returns:
+    - A base64-encoded string of the resized image.
+    """
+    # Open the image
+    with Image.open(image_path) as img:
+        width, height = img.size
+
+        # Determine the scaling factor to ensure neither dimension exceeds max_size
+        scaling_factor = min(max_size / width, max_size / height)
+
+        if scaling_factor < 1:
+            # Calculate the new dimensions
+            new_width = int(width * scaling_factor)
+            new_height = int(height * scaling_factor)
+
+            # Resize the image
+            img = img.resize((new_width, new_height), Image.ANTIALIAS)
+
+        # Save the resized image to a bytes buffer
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG")  # You can change the format to PNG or others depending on your needs
+
+        # Encode the image in buffer to base64
+        encoded_image = base64.b64encode(buffer.getvalue()).decode()
+
+    return encoded_image
+
+
 def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optional[int] = None):
     """
     Copies the image file from `src` path to `dest` path. If dimensions `width` and `height`
