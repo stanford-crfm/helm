@@ -18,10 +18,21 @@ function NavDropdown() {
         setProjectMetadata(data);
         // set currProjectMetadata to val where projectMetadataEntry.id matches window.PROJECT_ID
         if (window.PROJECT_ID) {
-          const currentEntry = data.find(
-            (entry) => entry.id === window.PROJECT_ID,
-          );
-          setCurrProjectMetadata(currentEntry);
+          if (window.PROJECT_ID === "global") {
+            // TODO replace this hardcoding if we choose to put global in the project metadata array
+            setCurrProjectMetadata({
+              id: "global",
+              title: "All Projects",
+              description: "description",
+              releases: ["releases"],
+              imageUrl: "imageUrl",
+            });
+          } else {
+            const currentEntry = data.find(
+              (entry) => entry.id === window.PROJECT_ID,
+            );
+            setCurrProjectMetadata(currentEntry);
+          }
           // handles falling back to HELM lite as was previously done in this file
         } else {
           const currentEntry = data.find((entry) => entry.id === "lite");

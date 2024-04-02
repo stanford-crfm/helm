@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
-import ModelsList from "@/components/ModelsList";
-import ScenariosList from "@/components/ScenariosList";
 import CardGrid from "@/components/CardGrid";
 import SimpleHero from "@/components/SimpleHero";
 
@@ -70,11 +68,18 @@ export default function LegacyLanding() {
   return (
     <>
       <SimpleHero />
-      <div className="container mt-40 mx-auto text-lg px-16">
+      <div className="container mt-40 mx-auto text-lg">
         <div className="flex flex-col sm:flex-row justify-center mb-10 flex sm:gap-8 md:gap-32">
           <h1 className="text-4xl  mx-4 ">
             <strong>HELM Projects</strong>
           </h1>
+        </div>
+        <div className="flex flex-col sm:flex-row flex sm:gap-8 md:gap-32">
+          <text>
+            HELM projects involve utilizing the HELM framework on specific
+            scenarios and models to evaluate language models on specified
+            subject matters.
+          </text>
         </div>
       </div>
       <CardGrid />
@@ -103,12 +108,6 @@ export default function LegacyLanding() {
               </div>
             </li>
           </ol>
-        </div>
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            <ModelsList models={schema.models} />
-            <ScenariosList runGroups={schema.run_groups} />
-          </div>
         </div>
       </div>
     </>
