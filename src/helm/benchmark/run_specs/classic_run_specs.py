@@ -1166,7 +1166,7 @@ def get_pubmed_qa_spec() -> RunSpec:
 def get_live_qa_spec() -> RunSpec:
     from helm.common.gpu_utils import get_torch_device_name
 
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.liveqa_scenario.LiveQAScenario")
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.live_qa_scenario.LiveQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
         instructions="Please answer the following consumer health question.",
