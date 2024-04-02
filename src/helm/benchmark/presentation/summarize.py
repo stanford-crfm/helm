@@ -853,7 +853,16 @@ class Summarizer:
         # Link the runs that this cell was aggregated from, if this is not a scenario table.
         # Scenario tables link to the runs in the model cells,
         # whereas non-scenario tables link to the runs in the metrics cells.
-        run_spec_names = None if is_scenario_table else aggregated_run_specs
+        run_spec_names: Optional[List] = None
+        if not is_scenario_table:
+            # Deduplicate run spec names becuase aggregated_run_specs may have duplicated
+            # run specs if a run spec belongs to multiple groups.
+            run_spec_names = []
+            run_spec_names_set = set()
+            for run_spec_name in aggregated_run_specs:
+                if run_spec_name not in run_spec_names_set:
+                    run_spec_names.append(run_spec_name)
+                    run_spec_names_set.add(run_spec_name)
 
         return Cell(
             value=value,
