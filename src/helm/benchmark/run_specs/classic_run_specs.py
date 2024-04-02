@@ -1436,6 +1436,7 @@ def get_lm_entry_spec(task: str, method: str = ADAPT_GENERATION) -> RunSpec:
         groups=["lm_entry"],
     )
 
+
 @run_spec_function("thai_exam")
 def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -1443,8 +1444,8 @@ def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_J
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
-        method=method,        
-        instructions=f"The following are multiple choice questions (with answers).",
+        method=method,
+        instructions="The following are multiple choice questions (with answers).",
         input_noun="Question",
         output_noun="Answer",
         max_train_instances=5,
