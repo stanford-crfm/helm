@@ -88,7 +88,7 @@ class IDEFICSClient(CachingClient):
 
         input_args: Dict[str, Union[str, bool]] = {"return_tensors": "pt"}
         generation_args = {
-            "max_length": request.max_tokens,
+            "max_new_tokens": request.max_tokens,
             "bad_words_ids": processor.tokenizer(self.BAD_WORD_TOKENS, add_special_tokens=False).input_ids,
         }
 

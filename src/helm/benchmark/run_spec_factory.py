@@ -4,7 +4,6 @@ from typing import List
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
     ADAPT_MULTIPLE_CHOICE_JOINT,
-    ADAPT_GENERATION_MULTIMODAL,
 )
 from helm.benchmark.model_deployment_registry import (
     ModelDeployment,
@@ -158,11 +157,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
 
         # IDEFICS special handling
         if IDEFICS_MODEL_TAG in model.tags:
-            # IDEFICS requires more `max_tokens` to generate something reasonable for open-ended generation
-            if run_spec.adapter_spec.method == ADAPT_GENERATION_MULTIMODAL:
-                additional_tokens: int = (run_spec.adapter_spec.max_train_instances + 1) * 30
-                run_spec = singleton(IncreaseMaxTokensRunExpander(value=additional_tokens).expand(run_spec))
-
             if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:
                 run_spec = singleton(IDEFICSInstructRunExpander().expand(run_spec))
 
