@@ -13,15 +13,20 @@ Then run the following shell script:
 # Pick any suite name of your choice
 export SUITE_NAME=my_suite
 
+# Replace this with your model or models
+export MODELS_TO_RUN=openai/gpt-3.5-turbo-0613
+
 # Get these from the list below
 export RUN_ENTRIES_CONF_PATH=run_entries_repro.conf
 export SCHEMA_PATH=schema_repro.yaml
-export NUM_TRAIN_TRIALS=3
-export NUM_EVAL_INSTANCES=1000
+export NUM_TRAIN_TRIALS=1
+export MAX_EVAL_INSTANCES=1000
 export PRIORITY=2
 
-helm-run --conf-files $RUN_ENTRIES_CONF_PATH --num-train-trials $NUM_TRAIN_TRIALS --max-eval-instances $MAX_EVAL_INSTANCES --priority $PRIORITY --suite $SUITE_NAME
+helm-run --conf-paths $RUN_ENTRIES_CONF_PATH --num-train-trials $NUM_TRAIN_TRIALS --max-eval-instances $MAX_EVAL_INSTANCES --priority $PRIORITY --suite $SUITE_NAME --models-to-run $MODELS_TO_RUN
+
 helm-summarize --schema $SCHEMA_PATH --suite $SUITE_NAME
+
 helm-server --suite $SUITE_NAME
 ```
 
@@ -35,7 +40,7 @@ The following specifies the appropriate parameters and configuration files for a
 export RUN_ENTRIES_CONF_PATH=run_entries_dec2023.conf
 export SCHEMA_PATH=schema_lite.yaml
 export NUM_TRAIN_TRIALS=1
-export NUM_EVAL_INSTANCES=1000
+export MAX_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
 
@@ -45,7 +50,7 @@ export PRIORITY=2
 export RUN_ENTRIES_CONF_PATH=run_specs.conf
 export SCHEMA_PATH=schema_classic.yaml
 export NUM_TRAIN_TRIALS=3
-export NUM_EVAL_INSTANCES=1000
+export MAX_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
 
@@ -55,7 +60,7 @@ export PRIORITY=2
 export RUN_ENTRIES_CONF_PATH=run_specs_lite.conf
 export SCHEMA_PATH=schema_classic.yaml
 export NUM_TRAIN_TRIALS=1
-export NUM_EVAL_INSTANCES=1000
+export MAX_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
 
