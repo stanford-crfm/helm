@@ -2,6 +2,108 @@
 
 ## [Upcoming]
 
+## [v0.5.0] - 2024-04-03
+
+### Breaking changes
+
+- The `--run-specs` flag was renamed to `--run-entries` (#2404)
+- The `run_specs*.conf` files were renamed to `run_entries*.conf` (#2430)
+- The `model_metadata` field was removed from `schema*.yaml` files (#2195)
+- The `helm.proxy.clients` package was moved to `helm.clients` (#2413)
+- The `helm.proxy.tokenizers` package was moved to `helm.tokenizers` (#2403)
+- The frontend only supports JSON output produced by `helm-summarize` at version 0.3.0 or newer (#2455)
+
+### Scenarios
+
+- Added DecodingTrust (#1827)
+- Added Hateful Memes (#1992)
+- Added MMMU (#2259)
+- Added Image2Structure (#2267, #2472)
+- Added MMU (#2259)
+- Added LMEntry (#1694)
+- Added Unicorn vision-language benchmark (#2456)
+- Added Bingo vision-language benchmark (#2456)
+- Added MultipanelVQA (#2517)
+- Added POPE (#2517)
+- Added MuliMedQA (#2524)
+- Added ThaiExam (#2534)
+
+### Models
+
+- Added OpenAI gpt-3.5-turbo-1106, gpt-3.5-turbo-0125, gpt-4-vision-preview, gpt-4-0125-preview, and gpt-3.5-turbo-instruct (#2189, #2295, #2376, #2400)
+- Added Google Gemini and Gemini Vision (#2186, #2189)
+- Improved handling of content blocking in the Vertex AI client (#2546, #2313)
+- Added Claude 3 (#2432, #2440, #2536)
+- Added Mistral Small, Medium and Large (#2307, #2333, #2399)
+- Added Mixtral 8x7b Instruct (#2416)
+- Added Luminous Multimodal (#2189)
+- Added Llava and BakLava (#2234)
+- Added Phi-2 (#2338)
+- Added Qwen1.5 (#2338, #2369)
+- Added Qwen VL and VL Chat (#2428)
+- Added Amazon Titan (#2165)
+- Added Google Gemma (#2397)
+- Added OpenFlamingo (#2237)
+- Removed logprobs from models hosted on Together (#2325)
+- Added support for vLLM (#2402)
+
+### Framework
+
+- Added support for text-to-image models (#1939)
+- Refactored of `Metric` class structure (#2170, #2171, #2218)
+- Fixed bug in computing general metrics (#2172)
+- Added a `--disable-cache` flag to disable caching in `helm-run` (#2143)
+- Added a `--schema-path` flag to support user-provided `schema.yaml` files in `helm-summarize` (#2520)
+
+### Frontend
+
+- Switched to the new React frontend for local development by default (#2251)
+- Added support for displaying images (#2371)
+- Made various improvements to project and version dropdown menus (#2272, #2401, #2458)
+- Made row and column headers sticky in leaderboard tables (#2273, #2275)
+
+
+### Evaluation Results
+
+- [Lite v1.0.0](https://crfm.stanford.edu/helm/lite/v1.0.0/)
+    - Added results for Phi-2 and Mistral Medium
+- [HEIM v1.1.0](https://crfm.stanford.edu/helm/heim/v1.1.0/)
+    - Added results for Adobe GigaGAN and DeepFloyd IF
+- [Instruct v1.1.0](https://crfm.stanford.edu/helm/instruct/v1.1.0/)
+    - Initial release with results for OpenAI GPT-4, OpenAI GPT-3.5 Turbo, Anthropic Claude v1.3, Cohere Command beta
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @acphile
+- @akashc1
+- @AlphaPav
+- @andyzorigin
+- @boxin-wbx
+- @brianwgoldman
+- @chenweixin107
+- @danielz02
+- @elronbandel
+- @farzaank
+- @garyxcj
+- @ImKeTT
+- @JosselinSomervilleRoberts
+- @kangmintong
+- @michiyasunaga
+- @mmonfort
+- @percyliang
+- @polaris-73
+- @pongib
+- @ritik99
+- @ruixin31
+- @sbdzdz
+- @teetone
+- @tybrs
+- @YianZhang
+- @yifanmai
+- @yoavkatz
+
 ## [v0.4.0] - 2023-12-20
 
 ### Models
@@ -305,7 +407,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.4.0...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.0...HEAD
+[v0.5.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.0
 [v0.4.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.4.0
 [v0.3.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.3.0
 [v0.2.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.4
