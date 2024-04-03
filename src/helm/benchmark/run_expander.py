@@ -16,7 +16,6 @@ from helm.benchmark.model_metadata_registry import (
     VISION_LANGUAGE_MODEL_TAG,
 )
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
-from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .run_spec import RunSpec
 from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT, AdapterSpec, Substitution
@@ -283,25 +282,29 @@ class AnthropicClaude2RunExpander(RunExpander):
 
     name = "anthropic"
 
+    # These strings must be added to the prompt in order to pass prompt validation,
+    # otherwise the Anthropic API will return an error.
+    # See: https://docs.anthropic.com/claude/reference/prompt-validation
+    HUMAN_PROMPT = "\n\nHuman:"
+    AI_PROMPT = "\n\nAssistant:"
+
     def __init__(self):
         pass
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        try:
-            import anthropic
-        except ModuleNotFoundError as e:
-            handle_module_not_found_error(e, ["anthropic"])
-
         return [
             replace(
                 run_spec,
                 name=run_spec.name,
                 adapter_spec=replace(
                     run_spec.adapter_spec,
-                    global_prefix=anthropic.HUMAN_PROMPT + " " + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_prefix=AnthropicClaude2RunExpander.HUMAN_PROMPT
+                    + " "
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX
+                    + "\n\n",
                     global_suffix="\n\n"
                     + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + anthropic.AI_PROMPT
+                    + AnthropicClaude2RunExpander.AI_PROMPT
                     + " "
                     + run_spec.adapter_spec.output_prefix.strip(),
                 ),
