@@ -14,7 +14,6 @@ from helm.benchmark.model_deployment_registry import (
 from helm.benchmark.model_metadata_registry import (
     ANTHROPIC_CLAUDE_1_MODEL_TAG,
     ANTHROPIC_CLAUDE_2_MODEL_TAG,
-    ANTHROPIC_CLAUDE_3_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
     CHATML_MODEL_TAG,
     GOOGLE_GEMINI_MODEL_TAG,
@@ -31,7 +30,6 @@ from helm.benchmark.model_metadata_registry import (
 from helm.benchmark.run_expander import (
     RUN_EXPANDERS,
     AnthropicClaude2RunExpander,
-    AnthropicClaude3RunExpander,
     ChatMLRunExpander,
     GlobalPrefixRunExpander,
     IDEFICSInstructRunExpander,
@@ -126,10 +124,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # Anthropic Claude 1 and 2 prompts
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicClaude2RunExpander().expand(run_spec))
-
-        # Anthropic Claude 3 prompts
-        if ANTHROPIC_CLAUDE_3_MODEL_TAG in model.tags:
-            run_spec = singleton(AnthropicClaude3RunExpander().expand(run_spec))
 
         # Google Gemini Vision returns an empty completion or throws an error if max_tokens is 1
         if (
