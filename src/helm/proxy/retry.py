@@ -84,10 +84,12 @@ def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResu
     return not result.success and retry_if_fail
 
 
+### To do: undo this as needed
+
 retry_request: Callable = get_retry_decorator(
-    "Request", max_attempts=5, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
+    "Request", max_attempts=1, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
 )
 
 retry_tokenizer_request: Callable = get_retry_decorator(
-    "Request", max_attempts=5, wait_exponential_multiplier_seconds=1, retry_on_result=retry_if_request_failed
+    "Request", max_attempts=1, wait_exponential_multiplier_seconds=1, retry_on_result=retry_if_request_failed
 )

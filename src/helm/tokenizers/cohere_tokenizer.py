@@ -9,25 +9,12 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from helm.clients.cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
+from helm.clients.cohere_utils import get_cohere_url
 from .caching_tokenizer import CachingTokenizer
 
 
 class CohereTokenizer(CachingTokenizer):
-    # From "https://docs.cohere.ai/versioning-reference",
-    # "this version [2021-11-08] introduces multiple generations, meaning that the generations endpoint will
-    # now accept a num_generations argument in the JSON and will always return an array of generations"
-    # Note that the API version is decoupled from the model version.
-    DEFAULT_API_VERSION: str = "2021-11-08"
-
     TOKENIZE_ENDPOINT: str = "tokenize"
-
-    # According to https://docs.cohere.ai/tokenize-reference#request, for tokenize, text: "the string to
-    # be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters."
-    # However, even sending a request with 60,000 characters sometimes fails, so we set the
-    # maximum length to 50,000, which is about 8,333 tokens.
-    # TODO: followed up with Cohere support with an example of a failure case
-    TOKENIZE_API_MAX_TEXT_LENGTH: int = 50_000
 
     def __init__(self, api_key: str, cache_config: CacheConfig) -> None:
         super().__init__(cache_config)
@@ -49,9 +36,8 @@ class CohereTokenizer(CachingTokenizer):
         }
         """
         text: str = request["text"]
-        assert (
-            1 <= len(text) <= CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH
-        ), f"Invalid text length: {len(text)}. Valid length: [1..{CohereTokenizer.TOKENIZE_API_MAX_TEXT_LENGTH:,d}]"
+        assert (1 <= len(text)), f"Invalid empty text with length: {len(text)}. Valid length: >= 1"
+        request["model"] = "command-r" ### To do
 
         response = requests.request(
             method="POST",
@@ -59,7 +45,6 @@ class CohereTokenizer(CachingTokenizer):
             headers={
                 "Authorization": f"BEARER {self.api_key}",
                 "Content-Type": "application/json",
-                "Cohere-Version": DEFAULT_COHERE_API_VERSION,
             },
             data=json.dumps(request),
         )
