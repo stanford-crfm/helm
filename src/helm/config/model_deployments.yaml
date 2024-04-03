@@ -202,6 +202,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
 
+  - name: anthropic/claude-3-haiku-20240307
+    model_name: anthropic/claude-3-haiku-20240307
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
+
   - name: anthropic/claude-3-opus-20240229
     model_name: anthropic/claude-3-opus-20240229
     tokenizer_name: anthropic/claude
