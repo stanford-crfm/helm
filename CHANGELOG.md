@@ -12,6 +12,11 @@
 - The `helm.proxy.clients` package was moved to `helm.clients` (#2413)
 - The `helm.proxy.tokenizers` package was moved to `helm.tokenizers` (#2403)
 - The frontend only supports JSON output produced by `helm-summarize` at version 0.3.0 or newer (#2455)
+- The `Sequence` class was renamed to `GeneratedOutput` (#2551)
+- The `black` linter was upgraded from 22.10.0 to 24.3.0, which produces different output  - run `pip install --upgrade black==24.3.0` to upgrade this dependency (#2545)
+- The `anthropic` dependency was upgraded from `anthropic~=0.2.5` to `anthropic~=0.17` - run `pip install --upgrade anthropic~=0.17` to upgrade this dependency (#2432)
+- The `openai` dependency was upgraded from `openai~=0.27.8` to `openai~=1.0`- run `pip install --upgrade openai~=1.0` to upgrade this dependency (#2384)
+    - The SQLite cache is not compatible across this dependency upgrade - if you encounter an `ModuleNotFoundError: No module named 'openai.openai_object` error after upgrading `openai`, you will have to delete your old OpenAI SQLite cache (e.g. by running `rm prod_env/cache/openai.sqlite`)
 
 ### Scenarios
 
