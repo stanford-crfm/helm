@@ -5,7 +5,7 @@ import pytest
 from helm.benchmark.annotation.annotator import Annotator, DummyAnnotator
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.scenarios.scenario import Instance, Input
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, GeneratedOutput
 
 
 class TestDummyAnnotator:
@@ -29,7 +29,7 @@ class TestDummyAnnotator:
             result=RequestResult(
                 success=True,
                 embedding=[],
-                completions=[Sequence(text="How are you?", logprob=0, tokens=[])],
+                completions=[GeneratedOutput(text="How are you?", logprob=0, tokens=[])],
                 cached=True,
             ),
         )

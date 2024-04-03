@@ -7,7 +7,7 @@ from helm.common.request import (
     wrap_request_time,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
 )
@@ -65,7 +65,7 @@ class HTTPModelClient(CachingClient):
                 response, cached = do_it(), False
 
             tokens = [Token(text=token["text"], logprob=token["logprob"]) for token in response["tokens"]]
-            completions = [Sequence(text=response["text"], logprob=response["logprob"], tokens=tokens)]
+            completions = [GeneratedOutput(text=response["text"], logprob=response["logprob"], tokens=tokens)]
 
             return RequestResult(
                 success=True,

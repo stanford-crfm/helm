@@ -7,7 +7,7 @@ from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, ErrorFlags
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, ErrorFlags
 from helm.clients.client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
@@ -71,7 +71,7 @@ class VertexAITextClient(VertexAIClient):
             # "echo": request.echo_prompt,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
 
         try:
@@ -114,7 +114,7 @@ class VertexAITextClient(VertexAIClient):
             # https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#response_body
             # Python SDK reference:
             # https://github.com/googleapis/python-aiplatform/blob/beae48f63e40ea171c3f1625164569e7311b8e5a/vertexai/language_models/_language_models.py#L868
-            completion = Sequence(text=text, logprob=0, tokens=[])
+            completion = GeneratedOutput(text=text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -183,7 +183,7 @@ class VertexAIChatClient(VertexAIClient):
             # "echo": request.echo_prompt,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
         model = self.get_model(model_name)
 
@@ -277,7 +277,7 @@ class VertexAIChatClient(VertexAIClient):
 
             # The Python SDK does not support echo
             text: str = request.prompt + response_text if request.echo_prompt else response_text
-            completion = Sequence(text=text, logprob=0, tokens=[])
+            completion = GeneratedOutput(text=text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -292,7 +292,7 @@ class VertexAIChatClient(VertexAIClient):
 
     def _make_multimodal_request(self, request: Request) -> RequestResult:
         def complete_for_valid_error(error_message: str) -> RequestResult:
-            empty_completion = Sequence(
+            empty_completion = GeneratedOutput(
                 text="",
                 logprob=0,
                 tokens=[],
@@ -333,7 +333,7 @@ class VertexAIChatClient(VertexAIClient):
             "candidate_count": 1,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
         model = self.get_model(model_name)
 
@@ -372,7 +372,7 @@ class VertexAIChatClient(VertexAIClient):
                 return complete_for_valid_error(response["error"])
 
             response_text = response["predictions"][0]["text"]
-            completion = Sequence(text=response_text, logprob=0, tokens=[])
+            completion = GeneratedOutput(text=response_text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 

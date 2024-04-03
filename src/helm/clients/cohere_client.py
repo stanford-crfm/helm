@@ -8,7 +8,7 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
 )
 from .client import CachingClient, truncate_sequence
@@ -120,7 +120,7 @@ class CohereClient(CachingClient):
             error: str = f"CohereClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         for generation in response["generations"]:
             # From https://docs.cohere.ai/generate-reference, "the likelihood refers to the average log-likelihood
             # of the entire specified string..." What we want is the sum of the log probabilities of all tokens.
@@ -140,7 +140,7 @@ class CohereClient(CachingClient):
                 # `return_likelihoods` is "ALL" and `max_tokens` is greater than 0.
                 sequence_text = request.prompt + sequence_text
 
-            completion: Sequence = Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens)
+            completion: GeneratedOutput = GeneratedOutput(text=sequence_text, logprob=sequence_logprob, tokens=tokens)
             completion = truncate_sequence(completion, request)
             completions.append(completion)
 
