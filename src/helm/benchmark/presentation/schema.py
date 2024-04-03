@@ -218,10 +218,13 @@ class Schema:
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema(filename: str) -> Schema:
+def get_default_schema_path() -> str:
+    return resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME)
+
+
+def read_schema(schema_path: str) -> Schema:
     # TODO: merge in model metadata from `model_metadata.yaml`
-    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(filename)
     hlog(f"Reading schema file {schema_path}...")
-    with schema_path.open("r") as f:
+    with open(schema_path, "r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Schema, raw)
