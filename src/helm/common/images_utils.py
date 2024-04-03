@@ -1,7 +1,10 @@
 import base64
 import io
+import os
+
 import requests
 import shutil
+import tempfile
 from typing import List, Optional
 from urllib.request import urlopen
 
@@ -36,40 +39,38 @@ def encode_base64(image_location: str, format="JPEG") -> str:
     return base64.b64encode(image_file.getvalue()).decode("ascii")
 
 
-def resize_and_encode_image(image_path: str, max_size=8000) -> str:
+def fit_within_max_dimension(image_path: str, max_dimension: int, output_path: Optional[str] = None) -> str:
     """
-    Resizes an image so that neither dimension exceeds max_size, then encodes it to a base64 string.
+    Resizes an image so that neither dimension exceeds max_dimension.
+    If the image is already smaller than max_dimension, it is not resized and the original path is returned.
 
     Parameters:
-    - image_path: The file path of the image to be processed.
-    - max_size: The maximum allowed size for the image's width and height.
+    - image: The image to be resized.
+    - max_dimension: The maximum allowed size for the image's width and height.
 
     Returns:
-    - A base64-encoded string of the resized image.
+    - The path to the resized image.
     """
-    # Open the image
-    with Image.open(image_path) as img:
-        width, height = img.size
-
-        # Determine the scaling factor to ensure neither dimension exceeds max_size
-        scaling_factor = min(max_size / width, max_size / height)
-
+    with Image.open(image_path) as image:
+        width, height = image.size
+        scaling_factor = min(max_dimension / width, max_dimension / height)
         if scaling_factor < 1:
-            # Calculate the new dimensions
             new_width = int(width * scaling_factor)
             new_height = int(height * scaling_factor)
+            image = image.resize((new_width, new_height), Image.ANTIALIAS)
+        else:
+            return image_path
 
-            # Resize the image
-            img = img.resize((new_width, new_height), Image.ANTIALIAS)
+        if output_path:
+            image.save(output_path)
+        else:
+            # Save to temporary file
+            with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
+                image.save(temp_file)
+                output_path = temp_file.name
 
-        # Save the resized image to a bytes buffer
-        buffer = io.BytesIO()
-        img.save(buffer, format="JPEG")  # You can change the format to PNG or others depending on your needs
-
-        # Encode the image in buffer to base64
-        encoded_image = base64.b64encode(buffer.getvalue()).decode()
-
-    return encoded_image
+        assert os.path.exists(output_path)
+        return output_path
 
 
 def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optional[int] = None):
