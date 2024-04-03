@@ -1,0 +1,17 @@
+# This file defines all the tokenizers that are supported by the Helm API.
+
+# If you want to add a new tokenizer, you can technically do it here but we recommend
+# you to do it in prod_env/tokenizer_configs.yaml instead.
+
+# Follow the template of this file to add a new tokenizer. You can copy paste this to get started:
+#    # This file contains the tokenizer configs for the private tokenizers
+#    tokenizer_configs: [] # Leave empty to disable private tokenizers
+
+
+tokenizer_configs:
+
+  - name: cohere/cohere
+    tokenizer_spec:
+      class_name: "helm.tokenizers.cohere_tokenizer.CohereTokenizer"
+    end_of_text_token: "<EOS_TOKEN>"
+    prefix_token: "<BOS_TOKEN>"
