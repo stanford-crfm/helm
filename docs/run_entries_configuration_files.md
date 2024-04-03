@@ -45,11 +45,11 @@ You would then use this file with `helm-run` with this command:
 helm-run --conf-file tutorial_run_entries.conf --suite tutorial --max-eval-instances 10 --models-to-run openai/gpt2
 ```
 
-This hsa exactly the same behavior has the previous example. For more information on model run expander wildcards, refer to the run entry format documentation.
+This has exactly the same behavior has the previous example. For more information on model run expander wildcards, refer to the run entry format documentation.
 
 ## Priorities 
 
-You can use the `--priority` flag in conjunction with `--conf-file`. This filter out run entries with a higher priority value than the specified `--priority` value. For instance, with this run entries configuration file:
+You can use the `--priority` flag in conjunction with `--conf-file`. This filters out run entries with a higher priority value than the specified `--priority` value. For instance, with this run entries configuration file:
 
 ```conf
 entries: [

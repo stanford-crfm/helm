@@ -14,7 +14,7 @@ There are two ways of passing the run entry to `helm-run`. We can use the `--run
 helm-run --run-entries med_qa:model=openai/gpt2 --suite my-suite --max-eval-instances 10
 ```
 
-Alternatively, we can put the run entry into a `run_entries.conf` file, and the pass that file to `helm-run` using the `--conf-file` flag. An explanation of the  format of `run_entries.conf` will be added to the documentation in the future. For example:
+Alternatively, we can put the run entry into a `run_entries.conf` file, and the pass that file to `helm-run` using the `--conf-file` flag. The `run_entries.conf` file is a **run entry configuration file** that conforms to the format documented [here](run_entries_configuration_files.md). For example:
 
 ```
 helm-run --conf-file run_entries.conf --suite my-suite --max-eval-instances 10
@@ -26,7 +26,7 @@ helm-run --conf-file run_entries.conf --suite my-suite --max-eval-instances 10
 
 The first part of the run entry before the `:` is the run spec function name. For example, in the run entry `med_qa:model=openai/gpt2`, the run spec function name is `med_qa`.
 
-A catalog of all run spec function names will be added o the documentation in the future. For now, the best way to find the run spec function name is to look through functions decorated with the `@run_spec_function()` in the Python modules `helm.benchmark.run_specs.*_run_specs`. The run spec function name is the decorator's parameter e.g. `@run_spec_function("med_qa")` indicates a run spec function name of `med_qa`.
+A catalog of all run spec function names will be added to the documentation in the future. For now, the best way to find the run spec function name is to look through functions decorated with the `@run_spec_function()` in the Python modules `helm.benchmark.run_specs.*_run_specs`. The run spec function name is the decorator's parameter e.g. `@run_spec_function("med_qa")` indicates a run spec function name of `med_qa`.
 
 Note: the run spec function name is frequently the same as the scenario name by convention, but this is not always the case. For instance, the `openbookqa` scenario has a run spec function that is named `commonsense`.
 
@@ -44,13 +44,13 @@ Some run spec functions take in arguments. For instance, the MMLU run spec funct
 
 `mmlu:subject=anatomy,model=openai/gpt2`
 
-A catalog of all run spec functions's' parameters will be added to the documentation in the future. For now, the best way to find the run spec function parameters would be to inspect the function definition in the Python modules `helm.benchmark.run_specs.*_run_specs` for the run spec function in question.
+A catalog of all run spec functions' parameters will be added to the documentation in the future. For now, the best way to find the run spec function parameters would be to inspect the function definition in the Python modules `helm.benchmark.run_specs.*_run_specs` for the run spec function in question.
 
 ### Run expanders
 
 Run expanders are functions that modify how evaluation runs work. Concretely, a run expander operates on a configuration of an evaluation run (a `RunSpec`) and produces zero, one or multiple evaluation runs configurations with modified configurations (`RunSpecs`).
 
-Run expanders are an advanced topic. For most use cases, the only run expander that you will need to use is the `model` run expander. The `model=openai/gpt2` argument pair in the run entry indicates that the evaluation run should use the `openai/gpt2` model. More explanation will be added to the documentation in the future.
+Run expanders are an advanced topic. For most use cases, the only run expander that you will need to use is the `model` run expander. The `model=openai/gpt2` argument pair in the run entry indicates that the evaluation run should use the `openai/gpt2` model. More explanation may be added to the documentation in the future.
 
 ### Run entry naming
 
@@ -68,6 +68,6 @@ This is because run expanders are functions that take in a `RunSpec` and can pro
 
 The `model` run expander is the most commonly used run expander. As discussed earlier, it can be used to set the model for each run entry.
 
-The `model` run expander also supports **wildcard values**. For instance, the `med_qa:model=text` will run the `med_qa` scenario on _every_ text model that `helm-run` can find in its configuration files. The wildcard is intended to be used in conjuction with the `--models-to-run`, which controls which models will actually be evaluated. For example, `helm-run --run-entries med_qa:model=text --models-to-run openai/gpt2 openai/gpt-3.5-turbo-613` will run `med_qa` on _only_ `openai/gpt2` and `openai/gpt-3.5-turbo-613`.
+The `model` run expander also supports **wildcard values**. For instance, the `med_qa:model=text` run entry will run the `med_qa` scenario on _every_ text model that `helm-run` can find in its configuration files. The wildcard is intended to be used in conjuction with the `--models-to-run`, which controls which models will actually be evaluated. For example, `helm-run --run-entries med_qa:model=text --models-to-run openai/gpt2 openai/gpt-3.5-turbo-613` will run `med_qa` on _only_ `openai/gpt2` and `openai/gpt-3.5-turbo-613`.
 
-Wildcard values for the `model` run expander are common used in **run entries conf files** which will be discussed on a different page.
+Wildcard values for the `model` run expander are common used in **run entries configuration files** which will are discussed [here](run_entries_configuration_files.md).
