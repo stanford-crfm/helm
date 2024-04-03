@@ -29,27 +29,7 @@ helm-server --suite $SUITE_NAME
 
 The following specifies the appropriate parameters and configuration files for a leaderboard, given its project and version number.
 
-#### Classic before v0.2.4
-
-```bash
-export RUN_ENTRIES_CONF_PATH=run_specs.conf
-export SCHEMA_PATH=schema_classic.yaml
-export NUM_TRAIN_TRIALS=3
-export NUM_EVAL_INSTANCES=1000
-export PRIORITY=2
-```
-
-#### Classic v0.2.4 and after
-
-```bash
-export RUN_ENTRIES_CONF_PATH=run_specs_lite.conf
-export SCHEMA_PATH=schema_classic.yaml
-export NUM_TRAIN_TRIALS=1
-export NUM_EVAL_INSTANCES=1000
-export PRIORITY=2
-```
-
-#### Lite
+### Lite
 
 ```bash
 export RUN_ENTRIES_CONF_PATH=run_entries_dec2023.conf
@@ -59,7 +39,27 @@ export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
 
-#### HEIM
+### Classic before v0.2.4
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_specs.conf
+export SCHEMA_PATH=schema_classic.yaml
+export NUM_TRAIN_TRIALS=3
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### Classic v0.2.4 and after
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_specs_lite.conf
+export SCHEMA_PATH=schema_classic.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### HEIM
 
 ```bash
 export RUN_ENTRIES_CONF_PATH=run_specs_heim.conf
