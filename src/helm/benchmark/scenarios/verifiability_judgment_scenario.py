@@ -137,7 +137,9 @@ class VerifiabilityJudgementScenario(Scenario):
         for _, filesplit in split_to_filesplit.items():
             target_name = f"verifiability_judgments_{filesplit}.jsonl"
             target_path: str = os.path.join(data_path, target_name)
-            url: str = f"https://github.com/nelson-liu/evaluating-verifiability-in-generative-search-engines/raw/40bf37e3a4eca7d82515df2c800ec9605458d637/verifiability_judgments/{target_name}.gz"  # noqa: E501
+            url: str = (
+                f"https://github.com/nelson-liu/evaluating-verifiability-in-generative-search-engines/raw/40bf37e3a4eca7d82515df2c800ec9605458d637/verifiability_judgments/{target_name}.gz"  # noqa: E501
+            )
             ensure_file_downloaded(source_url=url, target_path=target_path)
             assert os.path.exists(target_path)
 
