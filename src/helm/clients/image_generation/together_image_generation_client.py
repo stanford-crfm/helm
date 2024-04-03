@@ -46,12 +46,16 @@ class TogetherImageGenerationClient(Client):
             "model": request.model_engine,
             "prompt": request.prompt,
             "n": request.num_completions,
-            "guidance_scale": request.image_generation_parameters.guidance_scale
-            if request.image_generation_parameters.guidance_scale is not None
-            else self.DEFAULT_GUIDANCE_SCALE,
-            "steps": request.image_generation_parameters.diffusion_denoising_steps
-            if request.image_generation_parameters.diffusion_denoising_steps is not None
-            else self.DEFAULT_STEPS,
+            "guidance_scale": (
+                request.image_generation_parameters.guidance_scale
+                if request.image_generation_parameters.guidance_scale is not None
+                else self.DEFAULT_GUIDANCE_SCALE
+            ),
+            "steps": (
+                request.image_generation_parameters.diffusion_denoising_steps
+                if request.image_generation_parameters.diffusion_denoising_steps is not None
+                else self.DEFAULT_STEPS
+            ),
         }
 
         if (

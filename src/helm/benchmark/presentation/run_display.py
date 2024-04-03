@@ -262,9 +262,9 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema, ski
         mapped_output = (
             request_state.output_mapping.get(predicted_text.strip()) if request_state.output_mapping else None
         )
-        instance_id_to_instance[
-            (request_state.instance.id, request_state.instance.perturbation)
-        ] = request_state.instance
+        instance_id_to_instance[(request_state.instance.id, request_state.instance.perturbation)] = (
+            request_state.instance
+        )
 
         # Process images and include if they exist
         images: List[str] = [

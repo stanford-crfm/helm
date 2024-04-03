@@ -17,7 +17,7 @@ attrs==23.2.0
 autokeras==1.0.20
 awscli==1.29.85
 beautifulsoup4==4.12.3
-black==22.10.0
+black==24.3.0
 blis==0.7.11
 boto3==1.28.85
 botocore==1.31.85
@@ -172,7 +172,7 @@ parameterized==0.9.0
 pathspec==0.12.1
 pathtools==0.1.2
 pdf2image==1.16.3
-pillow==10.2.0
+pillow==10.3.0
 platformdirs==4.2.0
 pluggy==1.4.0
 portalocker==2.8.2
