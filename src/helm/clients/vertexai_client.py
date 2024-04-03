@@ -204,25 +204,22 @@ class VertexAIChatClient(VertexAIClient):
 
                 # Depending on the version of the Vertex AI library and the type of content blocking,
                 # content blocking can show up in many ways, so this defensively handles most of these ways
-                if not response.candidates:
+                if not candidates:
                     raise VertexAIContentBlockedError("No candidates in response due to content blocking")
-                for candidate in response.candidates:
-                    if candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS:
-                        raise VertexAIContentBlockedError(
-                            f"Content blocked with finish reason {candidate.finish_reason}"
-                        )
-                try:
-                    response_dict = {
-                        "predictions": [{"text": completion.text} for completion in candidates],
-                    }  # TODO: Extract more information from the response
-                except ValueError as e:
-                    if "Content has no parts" in str(e):
+                predictions: List[Dict[str, Any]] = []
+                for candidate in candidates:
+                    if (
+                        candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS
+                        or not candidate.content.parts
+                    ):
                         # The prediction was either blocked due to safety settings or the model stopped and returned
                         # nothing (which also happens when the model is blocked).
                         # For now, we don't cache blocked requests, because we are trying to get the
                         # content blocking removed.
                         raise VertexAIContentBlockedError("Content has no parts due to content blocking")
-                return response_dict
+                    predictions.append({"text": candidate.content.text})
+                    # TODO: Extract more information from the response
+                return {"predictions": predictions}
 
             # We need to include the engine's name to differentiate among requests made for different model
             # engines since the engine name is not included in the request itself.
