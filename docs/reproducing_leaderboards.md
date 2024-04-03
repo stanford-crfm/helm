@@ -2,16 +2,16 @@
 
 You can use the HELM package to rerun evaluation runs and recreate a specific public leaderboard.
 
-The general procedure is to first find the appropriate `run_entries_*.conf` and `schema_*.yaml` files from the HELM GitHub repository for the leaderboard version, and then place them in your current working directory. The locations of these files are as follows:
+The general procedure is to first find the appropriate `run_entries_*.conf` and `schema_*.yaml` files from the HELM GitHub repository for the leaderboard version and then place them in your current working directory. The locations of these files are as follows:
 
-- `run_entries_*.conf`: the `src/helm/benchmark/presentation/` directory
-- `schema_*.conf`: the `src/helm/benchmark/static/` directory
+- `run_entries_*.conf`: the `src/helm/benchmark/presentation/` directory [here](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/presentation)
+- `schema_*.conf`: the `src/helm/benchmark/static/` directory [here](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/static)
 
 Then run the following shell script:
 
 ```bash
 # Pick any suite name of your choice
-export SUITE_NAME=repro
+export SUITE_NAME=my_suite
 
 # Get these from the list below
 export RUN_ENTRIES_CONF_PATH=run_entries_repro.conf
@@ -27,7 +27,7 @@ helm-server --suite $SUITE_NAME
 
 ## Leaderboard versions
 
-The following specifies the appropriate parameters and configuration files for a leaderboard given its project and version number.
+The following specifies the appropriate parameters and configuration files for a leaderboard, given its project and version number.
 
 #### Classic before v0.2.4
 
