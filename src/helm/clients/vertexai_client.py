@@ -211,18 +211,17 @@ class VertexAIChatClient(VertexAIClient):
                         raise VertexAIContentBlockedError(
                             f"Content blocked with finish reason {candidate.finish_reason}"
                         )
-                try:
-                    response_dict = {
-                        "predictions": [{"text": completion.text} for completion in candidates],
-                    }  # TODO: Extract more information from the response
-                except ValueError as e:
-                    if "Content has no parts" in str(e):
+                predictions: List[Dict[str, Any]] = []
+                for completion in candidates:
+                    if not completion.content.parts:
                         # The prediction was either blocked due to safety settings or the model stopped and returned
                         # nothing (which also happens when the model is blocked).
                         # For now, we don't cache blocked requests, because we are trying to get the
                         # content blocking removed.
                         raise VertexAIContentBlockedError("Content has no parts due to content blocking")
-                return response_dict
+                    predictions.append({"text": completion.text})
+                    # TODO: Extract more information from the response
+                return {"predictions": predictions}
 
             # We need to include the engine's name to differentiate among requests made for different model
             # engines since the engine name is not included in the request itself.
