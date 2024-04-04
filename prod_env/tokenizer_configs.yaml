@@ -17,3 +17,11 @@ tokenizer_configs:
         pretrained_model_name_or_path: CohereForAI/c4ai-command-r-v01
     end_of_text_token: "<EOS_TOKEN>"
     prefix_token: "<BOS_TOKEN>"
+
+  - name: cohere/command-r-plus
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: CohereForAI/c4ai-command-r-plus
+    end_of_text_token: "<EOS_TOKEN>"
+    prefix_token: "<BOS_TOKEN>"
