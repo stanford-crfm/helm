@@ -414,6 +414,21 @@ run_groups:
       when: "2023"
       language: English, Chinese, Japanese, etc.
 
+  - name: mementos
+    display_name: Mementos
+    description: A Comprehensive Benchmark for Multimodal Large Language Model Reasoning over Image Sequences
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: f1_score
+      main_split: test
+    taxonomy:
+      task: short answer question answering
+      what: Image sequences of comics, dailylife and robotics
+      who: Human experts
+      when: "2024"
+      language: English
+
   - name: image2latex
     display_name: Image2LaTeX
     description: The Image2LaTeX benchmark for converting images of mathematical equations, tables. algorithms and tikz to LaTeX.
