@@ -11,9 +11,7 @@
 model_deployments:
   - name: cohere/command-r
     model_name: cohere/command-r
-    tokenizer_name: cohere/cohere
+    tokenizer_name: cohere/command-r
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.clients.cohere_client.CohereClient"
-    window_service_spec:
-      class_name: "helm.benchmark.window_services.cohere_window_service.CohereWindowService"
