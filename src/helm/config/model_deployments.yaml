@@ -754,6 +754,8 @@ model_deployments:
     max_request_length: 1025
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: openai-community/gpt2
 
   ## StabilityAI
   - name: huggingface/stablelm-base-alpha-3b
