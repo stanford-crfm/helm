@@ -1,6 +1,6 @@
 from typing import List, Optional
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
-from helm.common.request import Sequence
+from helm.common.request import GeneratedOutput
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from .metric_name import MetricName
@@ -151,7 +151,7 @@ class StereotypeMetric(EvaluateInstancesMetric):
             request_result: Optional[RequestResult] = request_state.result
             if not request_result:
                 continue
-            generations: List[Sequence] = request_result.completions
+            generations: List[GeneratedOutput] = request_result.completions
 
             row, col, depth = self.determine_position(stereotype_topic_tag, demographic_group_tag, sys_prompt_type_tag)
 

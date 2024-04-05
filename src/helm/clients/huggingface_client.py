@@ -14,7 +14,7 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
 )
 from .client import CachingClient, truncate_sequence
@@ -285,7 +285,7 @@ class HuggingFaceClient(CachingClient):
                 tokens.append(Token(text=token_text, logprob=logprob))
                 sequence_logprob += logprob
 
-            completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
+            completion = GeneratedOutput(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
             completion = truncate_sequence(completion, request)
             completions.append(completion)
 

@@ -13,7 +13,7 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
     ErrorFlags,
 )
@@ -128,7 +128,7 @@ class AnthropicClient(CachingClient):
             "top_k": request.top_k_per_token,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
@@ -189,7 +189,7 @@ class AnthropicClient(CachingClient):
             # Log probs are not currently not supported by the Anthropic, so set to 0 for now.
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
-            completion = Sequence(text=response["completion"], logprob=0, tokens=tokens)
+            completion = GeneratedOutput(text=response["completion"], logprob=0, tokens=tokens)
             # See NOTE() in _filter_completion() to understand why warnings are printed for truncation.
             # TODO(#1512): Fix this with post-processing.
             sequence = truncate_sequence(completion, request, print_warning=True)
@@ -319,7 +319,7 @@ class AnthropicMessagesClient(CachingClient):
         }
         if system_message is not None:
             raw_request["system"] = cast(str, system_message["content"])
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
         for completion_index in range(request.num_completions):
@@ -580,7 +580,7 @@ class AnthropicLegacyClient(CachingClient):
 
         # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,
         # and aggregate the results into `completions` and `request_time`.
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         all_cached = True
         request_time = 0
         request_datetime: Optional[int] = None
@@ -621,7 +621,7 @@ class AnthropicLegacyClient(CachingClient):
             if finish_reason == AnthropicLegacyClient.STOP_SEQUENCE_STOP_REASON:
                 finish_reason = "stop"
 
-            completion = Sequence(
+            completion = GeneratedOutput(
                 text=response["text"],
                 logprob=sequence_logprob,
                 tokens=tokens,
