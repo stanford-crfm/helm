@@ -1,42 +1,49 @@
+"""
+Scenario for contact center conversational summarization.
+
+Loads input conversations defined in the ContactCenterConversationScenario
+and packs task specific input/output format for summarization tasks.
+
+Task structure
+
+    Conversation:
+            agent: message1
+            visitor: message2
+            ....
+    Summary:
+            summary of the conversation
+
+
+Example from the dataset
+    convo: Part of the Broad Road was closed to traffic on Sunday at about 18:00 GMT.
+                The three adults and three children have been taken to Altnagelvin Hospital
+                with non life-threatening injuries. The Fire Service, Northern Ireland Ambulance Service
+                and police attended the crash. The Broad Road has since been reopened.
+    Summary: Three adults and three children have been taken to hospital following a crash involving
+                a tractor and a campervan in Limavady, County Londonderry
+"""
+
+
+import json
 import os
-import pickle
-
 from typing import List, Optional
+from helm.benchmark.scenarios.contactcenter_convo_base_scenario import ContactCenterConversationScenario
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from .scenario import Instance, Reference, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
-class ContactCenterConvoSummarizationScenario(Scenario):
+class ContactCenterConversationSummarizationScenario(ContactCenterConversationScenario):
     """
     Scenario for contact center conversational summarization.
-    Currently supports the following datasets:
-    1. [TBD]
-
-    Task structure
-
-        Conversation:
-                agent: message1
-                visitor: message2
-                ....
-        Summary:
-
-
-    Example from the dataset
-        convo: Part of the Broad Road was closed to traffic on Sunday at about 18:00 GMT.
-                   The three adults and three children have been taken to Altnagelvin Hospital
-                   with non life-threatening injuries. The Fire Service, Northern Ireland Ambulance Service
-                   and police attended the crash. The Broad Road has since been reopened.
-        Summary: Three adults and three children have been taken to hospital following a crash involving
-                  a tractor and a campervan in Limavady, County Londonderry
     """
 
     name = "cc_convo_summarization"
     description = "Scenario for contact centern summarization tasks"
-    tags = ["cc_convo_summarization"]
+    tags = ["cc_conversation_summarization"]
 
     def __init__(
         self,
-        dataset_name: str,
+        dataset_path: str,
         sampling_min_length: Optional[int] = None,
         sampling_max_length: Optional[int] = None,
         doc_max_length: Optional[int] = None,
@@ -44,7 +51,7 @@ class ContactCenterConvoSummarizationScenario(Scenario):
         """
         Initializes summarization scenario.
         Args:
-            dataset_name: String identifier for dataset.
+            dataset_path: path of dataset to load from
             sampling_min_length: Int indicating minimum length for training
                                  documents. Training examples smaller than
                                  sampling_min_length will be filtered out.
@@ -61,62 +68,55 @@ class ContactCenterConvoSummarizationScenario(Scenario):
                             NOTE: Currently uses whitespace tokenization.
         """
         super().__init__()
-        if dataset_name not in ["cresta"]:
-            raise Exception(f"Unknown dataset_name: {dataset_name}")
-        self.dataset_name = dataset_name
+        self.dataset_path = dataset_path
         self.sampling_min_length = sampling_min_length
         self.sampling_max_length = sampling_max_length
         self.doc_max_length = doc_max_length
 
-    def _clean_and_truncate(self, text: str, max_length: Optional[int] = None) -> str:
-        text = text.replace("\n", " ")
-        return " ".join(text.split()[:max_length])
-
     def _filter(self, convo: str, summary: str):
-        convo_len = len(convo.split())
+        """filter on conversation turns"""
+        convo_len = len(convo.split('\n'))
         if convo_len <= 10:
             return True
         return False
+    
+    def _load_summaries(self, dataset_path):
+        with open(dataset_path, 'r', encoding='utf-8') as f:
+            summaries_list = json.load(f)
+        summaries = {item['conversation_name']: item['summary'] for item in summaries_list}
+        return summaries
 
-    def _download_dataset(self, url, tag, output_path: str):
-        pass
+    def get_instances(self) -> List[Instance]:
+        conversation_path = os.path.join(self.dataset_path, "conversations.json")
+        summary_path = os.path.join(self.dataset_path, "summaries.json")
+        conversations = self._load_conversations(conversation_path)
+        summaries = self._load_summaries(summary_path)
 
-    def _load_dataset(self, dataset_name: str, output_path: str):
-        url = ""
-        dataset = self._download_dataset(url, "cresta", output_path)
-        convo_key = "convo"
-        summary_key = "summary"
-
-        return dataset, convo_key, summary_key
-
-    def get_instances(self, output_path: str) -> List[Instance]:
-        dataset, convo_key, summary_key = self._load_dataset(self.dataset_name, output_path)
-
-        splits = {"train": TRAIN_SPLIT, "validation": VALID_SPLIT, "test": TEST_SPLIT}
 
         instances: List[Instance] = []
 
-        for split_name, split in splits.items():
-            for example in dataset[split_name]:
-                convo: str = self._clean_and_truncate(example[convo_key], self.doc_max_length)
-                summary: str = self._clean_and_truncate(example[summary_key])
+        for example in conversations:
+            conversation_name = example['conversation_name']
+            full_conversation_text =  '\n'.join(f"{item['speaker_role']}:{item['text']}" for item in example['body'])
+            summary = summaries[conversation_name]
 
-                if split_name == "train":
-                    art_len = len(convo.split())
-                    if self.sampling_max_length and art_len > self.sampling_max_length:
-                        continue
-                    if self.sampling_min_length and art_len < self.sampling_min_length:
-                        continue
-                    if self.dataset_name == "cresta":
-                        if self._filter(convo, summary):
-                            continue
+            # use better tokenization to count tokens
+            conversation_len = len(full_conversation_text.split())
+            if self.sampling_max_length and conversation_len > self.sampling_max_length:
+                continue
+            if self.sampling_min_length and conversation_len < self.sampling_min_length:
+                continue
 
-                instances.append(
-                    Instance(
-                        input=Input(text=convo),
-                        references=[Reference(Output(text=summary), tags=[CORRECT_TAG])],
-                        split=split,
-                    )
+            if self._filter(full_conversation_text, summary):
+                    continue
+
+            # always load TEST split as we don't offer train data
+            instances.append(
+                Instance(
+                    input=Input(text=full_conversation_text),
+                    references=[Reference(Output(text=summary), tags=[CORRECT_TAG])],
+                    split=TEST_SPLIT,
                 )
+            )
 
         return instances
