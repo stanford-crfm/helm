@@ -197,7 +197,7 @@ pyext==0.7
 pyflakes==2.5.0
 Pygments==2.17.2
 pyhocon==0.3.60
-pymongo==4.2.0
+pymongo==4.6.3
 pyparsing==3.1.1
 pypinyin==0.49.0
 PySocks==1.7.1
