@@ -288,6 +288,8 @@ run_groups:
       - image2structure
       - unicorn
       - bingo
+      - multipanelvqa
+      - pope
 
   - name: heim_human_eval
     display_name: HEIM Human Eval Scenario
@@ -388,7 +390,6 @@ run_groups:
     description: Safety Evaluation Benchmark for Evaluating on Out-of-Distribution and Sketch Images
     metric_groups:
       - accuracy
-      - robustness
       - general_information
     environment:
       main_name: exact_match
@@ -405,8 +406,6 @@ run_groups:
     description: Open-ended questions about biased images
     metric_groups:
       - accuracy
-      - bias
-      - robustness
     environment:
       main_name: f1_score
       main_split: test
@@ -416,6 +415,40 @@ run_groups:
       who: Human experts
       when: "2023"
       language: English, Chinese, Japanese, etc.
+  
+  - name: multipanelvqa
+    display_name: MultipanelVQA
+    description: Question about real-world or synthetic multipanel images for evaluating multi-panel image reasoning ability
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: short answer or multiple-choice question answering
+      what: Real-world or synthetic multipanel images
+      who: Human experts
+      when: "2024"
+      language: English
+  
+  - name: pope
+    display_name: POPE
+    description: Open-ended questions about object appearance in real-world images for evaluating hallucination behaviour
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
 
   - name: image2latex
     display_name: Image2LaTeX

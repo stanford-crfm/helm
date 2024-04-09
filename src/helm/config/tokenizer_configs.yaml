@@ -106,6 +106,8 @@ tokenizer_configs:
   - name: google/t5-11b
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: google-t5/t5-11b
     end_of_text_token: "</s>"
     prefix_token: ""
   - name: google/flan-t5-xxl
@@ -126,6 +128,11 @@ tokenizer_configs:
   - name: google/text-bison@001
     tokenizer_spec:
       class_name: "helm.tokenizers.vertexai_tokenizer.VertexAITokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: ""
+  - name: google/text-bison@002
+    tokenizer_spec:
+      class_name: "helm.proxy.tokenizers.vertexai_tokenizer.VertexAITokenizer"
     end_of_text_token: "</s>"
     prefix_token: ""
   - name: google/text-unicorn@001
@@ -181,6 +188,8 @@ tokenizer_configs:
   - name: huggingface/gpt2
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: openai-community/gpt2
     end_of_text_token: "<|endoftext|>"
     prefix_token: "<|endoftext|>"
 
@@ -319,6 +328,8 @@ tokenizer_configs:
   - name: writer/gpt2
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: openai-community/gpt2
     end_of_text_token: ""
     prefix_token: ""
 

@@ -6,7 +6,7 @@ from nltk.tokenize import word_tokenize
 import numpy as np
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 
-from helm.common.request import RequestResult, Sequence
+from helm.common.request import RequestResult, GeneratedOutput
 from helm.benchmark.adaptation.request_state import RequestState
 from .statistic import Stat
 from .metric_name import MetricName
@@ -219,7 +219,7 @@ class BiasMetric(EvaluateInstancesMetric):
 
         # Get completion texts from the request_results
         request_results: List[RequestResult] = [rs.result for rs in request_states if rs.result]
-        completions: List[Sequence] = [c for rr in request_results for c in rr.completions if rr.completions]
+        completions: List[GeneratedOutput] = [c for rr in request_results for c in rr.completions if rr.completions]
         completion_texts: List[str] = [c.text for c in completions if c.text]
 
         # Compute the bias score

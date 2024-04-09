@@ -322,7 +322,9 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         name="real_toxicity_prompts",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_generative_harms_metric_specs(include_basic_metrics=True),
+        metric_specs=get_generative_harms_metric_specs(
+            include_basic_metrics=True, include_generative_harms_metrics=True
+        ),
         groups=["real_toxicity_prompts"],
     )
 
@@ -1116,7 +1118,7 @@ def get_med_mcqa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["MedMCQA"],
+        groups=["med_mcqa"],
     )
 
 
@@ -1159,6 +1161,56 @@ def get_pubmed_qa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["pubmed_qa"],
+    )
+
+
+@run_spec_function("live_qa")
+def get_live_qa_spec() -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.live_qa_scenario.LiveQAScenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Please answer the following consumer health question.",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=0,
+        max_tokens=512,
+    )
+
+    return RunSpec(
+        name="live_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(
+            {"task": "live_qa", "device": get_torch_device_name()},
+        ),
+        groups=["live_qa"],
+    )
+
+
+@run_spec_function("medication_qa")
+def get_medication_qa_spec() -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Please answer the following consumer health question.",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=0,
+        max_tokens=512,
+    )
+
+    return RunSpec(
+        name="medication_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(
+            {"task": "medication_qa", "device": get_torch_device_name()},
+        ),
+        groups=["medication_qa"],
     )
 
 
@@ -1432,4 +1484,27 @@ def get_lm_entry_spec(task: str, method: str = ADAPT_GENERATION) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["lm_entry"],
+    )
+
+
+@run_spec_function("thai_exam")
+def get_thai_exam_spec(exam: str = "onet", method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.thai_exam_scenario.ThaiExamScenario", args={"exam": exam}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="The following are multiple choice questions (with answers).",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=5,
+    )
+
+    return RunSpec(
+        name=f"thai_exam:exam={exam},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["thai_exam"],
     )

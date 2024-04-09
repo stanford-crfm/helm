@@ -11,10 +11,10 @@ directory exists.
 The `helm-run` provides several flags that can be used to test that the configuration and scenario are working correctly without actually sending requests to the model
 
     # Just load the config file
-    helm-run --conf src/helm/benchmark/presentation/run_specs_small.conf --max-eval-instances 10 --suite v1 --skip-instances
+    helm-run --conf src/helm/benchmark/presentation/run_entries_small.conf --max-eval-instances 10 --suite v1 --skip-instances
 
     # Create the instances and the requests, but don't send requests to the model
-    helm-run --conf src/helm/benchmark/presentation/run_specs_small.conf --max-eval-instances 10  --suite v1 --dry-run
+    helm-run --conf src/helm/benchmark/presentation/run_entries_small.conf --max-eval-instances 10  --suite v1 --dry-run
 
 ## Estimating Token Usage
 

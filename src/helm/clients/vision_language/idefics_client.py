@@ -11,7 +11,7 @@ from helm.common.gpu_utils import get_torch_device_name
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.tokenization_request import TokenizationRequest
 from helm.common.request import wrap_request_time
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
@@ -111,7 +111,7 @@ class IDEFICSClient(CachingClient):
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
         prompt_text: str = request.multimodal_prompt.text.replace(self.END_OF_UTTERANCE_TOKEN, " ")
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         with htrack_block(f"Generating for prompt: {prompt_text}"):
             try:
 
@@ -152,7 +152,7 @@ class IDEFICSClient(CachingClient):
                     TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=False)
                 )
                 tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-                completions.append(Sequence(text=text, logprob=0, tokens=tokens))
+                completions.append(GeneratedOutput(text=text, logprob=0, tokens=tokens))
 
         return RequestResult(
             success=True,

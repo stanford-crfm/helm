@@ -10,7 +10,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.code_scenario import CodeReference
 from helm.benchmark.scenarios.scenario import Reference
-from helm.common.request import Sequence
+from helm.common.request import GeneratedOutput
 from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from nltk.metrics.scores import f_measure
 from nltk.translate.bleu_score import sentence_bleu
@@ -346,7 +346,7 @@ def compute_reference_metrics(
 
     # Predicted outputs
     assert request_state.result is not None
-    sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+    sorted_completions: List[GeneratedOutput] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
     preds: List[str] = [completion.text.strip() for completion in sorted_completions]
 
     # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)

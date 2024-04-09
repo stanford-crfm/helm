@@ -9,7 +9,7 @@ import torch
 
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import OptionalDependencyNotInstalled
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.tokenizers.tokenizer import Tokenizer
 
 from .client import CachingClient
@@ -157,7 +157,7 @@ class LitGPTClient(CachingClient):
         generated_tokens = []
         for token in tokens:
             generated_tokens.append(Token(text=tokenizer.decode(token), logprob=0))
-        completions = [Sequence(text=output, logprob=0, tokens=generated_tokens)]
+        completions = [GeneratedOutput(text=output, logprob=0, tokens=generated_tokens)]
 
         return RequestResult(
             success=True,
