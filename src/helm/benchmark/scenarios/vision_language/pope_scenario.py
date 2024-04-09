@@ -70,7 +70,7 @@ class POPEScenario(Scenario):
         ):
             image_source: str = row["image_source"]
             # Save the image locally
-            image_path: str = os.path.join(output_path, f"{image_source}.jpg")
+            image_path: str = os.path.join(images_path, f"{image_source}.jpg")
             if not os.path.exists(image_path):
                 row["image"].save(image_path)
 

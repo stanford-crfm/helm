@@ -450,6 +450,41 @@ run_groups:
       when: "2023"
       language: English
 
+    - name: seed_bench
+    display_name: Seed Bench 
+    description: A massive multiple-choice question-answering benchmark spans 9 evaluation aspects with the image input
+    including the comprehension of both the image and video modality
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
+    - name: mme
+    display_name: MME
+    description: A comprehensive MLLM Evaluation benchmark with perception and cognition evaluations on 14 subtasks
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
   - name: image2latex
     display_name: Image2LaTeX
     description: The Image2LaTeX benchmark for converting images of mathematical equations, tables. algorithms and tikz to LaTeX.
