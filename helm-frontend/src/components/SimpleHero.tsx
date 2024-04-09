@@ -22,7 +22,7 @@ export default function SimpleHero() {
               })
             }
           >
-            <body>Our Projects</body>
+            <body>Projects</body>
           </button>
           <Link to="https://github.com/stanford-crfm/helm" className="ml-4">
             <button className="px-6 btn btn-grey rounded-md">Github</button>

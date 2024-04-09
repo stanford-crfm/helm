@@ -26,7 +26,6 @@ export default function MinimalNavBar() {
         </Link>
         <NavDropdown></NavDropdown>
       </div>
-      <div className="flex-none hidden md:block"></div>
     </nav>
   );
 }

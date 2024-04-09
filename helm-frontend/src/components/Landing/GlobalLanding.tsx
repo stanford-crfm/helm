@@ -76,9 +76,8 @@ export default function LegacyLanding() {
         </div>
         <div className="flex flex-col sm:flex-row flex sm:gap-8 md:gap-32">
           <text>
-            HELM projects involve utilizing the HELM framework on specific
-            scenarios and models to evaluate language models on specified
-            subject matters.
+            HELM projects leverage the HELM framework and target particular
+            domains, languages, or use cases.
           </text>
         </div>
       </div>
