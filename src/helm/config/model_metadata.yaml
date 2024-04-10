@@ -548,7 +548,8 @@ models:
     release_date: 2022-03-31
     tags: [] # TODO: add tags
 
-  # # Deepseek
+
+  # Deepseek
   - name: deepseek-ai/deepseek-llm-67b-chat
     display_name: DeepSeek Chat (67B)
     description: DeepSeek Chat is a open-source language model trained on 2 trillion tokens in both English and Chinese, and fine-tuned supervised fine-tuning (SFT) and Direct Preference Optimization (DPO). ([paper](https://arxiv.org/abs/2401.02954))
@@ -557,6 +558,7 @@ models:
     num_parameters: 67000000000
     release_date: 2024-01-05
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
 
   # EleutherAI
   - name: eleutherai/gpt-j-6b # Served by GooseAi, HuggingFace and Together.
