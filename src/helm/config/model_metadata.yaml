@@ -681,10 +681,10 @@ models:
 
   - name: google/gemini-1.5-pro-preview-0409
     display_name: Gemini 1.5 Pro
-    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts.
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
-    release_date: 2024-04-10  # Source: https://arxiv.org/abs/2403.05530
+    release_date: 2024-04-10
     tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/gemma-2b
