@@ -1276,6 +1276,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
+  - name: openai/gpt-4-turbo-2024-04-09
+    model_name: openai/gpt-4-turbo-2024-04-09
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
   - name: openai/gpt-4-vision-preview
     model_name: openai/gpt-4-vision-preview
     tokenizer_name: openai/cl100k_base
