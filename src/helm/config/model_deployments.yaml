@@ -374,6 +374,15 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
+  # Deepseek
+
+  - name: together/deepseek-llm-67b-chat
+    model_name: deepseek-ai/deepseek-llm-67b-chat
+    tokenizer_name: deepseek-ai/deepseek-llm-67b-chat
+    max_sequence_length: 4095
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
   # Gooseai
 
   # TODO: Migrate these models to use OpenAIClient
