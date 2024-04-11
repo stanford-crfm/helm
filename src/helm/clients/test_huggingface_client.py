@@ -18,7 +18,7 @@ class TestHuggingFaceClient:
                 prompt=prompt,
                 num_completions=3,
                 top_k_per_token=5,
-                max_tokens=0,
+                max_tokens=1,
                 echo_prompt=True,
             )
         )
