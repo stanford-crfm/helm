@@ -286,7 +286,7 @@ class AnthropicMessagesClient(CachingClient):
                     if not media_object.location:
                         raise Exception("MediaObject of image type has missing location field value")
 
-                    from helm.common.images_utils import encode_base64, get_dimensions, resize_image
+                    from helm.common.images_utils import encode_base64, get_dimensions, copy_image
 
                     image_location: str = media_object.location
                     base64_image: str
@@ -300,14 +300,14 @@ class AnthropicMessagesClient(CachingClient):
                             f"WARNING: Image {image_location} exceeds max allowed size: "
                             f"{AnthropicClient.MAX_IMAGE_DIMENSION} pixels"
                         )
-                        resized_image = resize_image(
-                            image_location,
-                            min(image_width, AnthropicClient.MAX_IMAGE_DIMENSION),
-                            min(image_height, AnthropicClient.MAX_IMAGE_DIMENSION),
-                        )
                         # Save the resized image to a temporary file
                         with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
-                            resized_image.save(temp_file.name)
+                            copy_image(
+                                src=image_location,
+                                dest=temp_file.name,
+                                width=min(image_width, AnthropicClient.MAX_IMAGE_DIMENSION),
+                                height=min(image_height, AnthropicClient.MAX_IMAGE_DIMENSION),
+                            )
                             base64_image = encode_base64(temp_file.name, format="JPEG")
                     else:
                         base64_image = encode_base64(image_location, format="JPEG")
