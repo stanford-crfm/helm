@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 import json
 import requests
+import tempfile
 import time
 import urllib.parse
 
@@ -68,6 +69,9 @@ class AnthropicClient(CachingClient):
     MAX_COMPLETION_LENGTH: int = (
         8192  # See https://docs.google.com/document/d/1vX6xgoA-KEKxqtMlBVAqYvE8KUfZ7ABCjTxAjf1T5kI/edit#
     )
+    # An Anthropic error message: "At least one of the image dimensions exceed max allowed size: 8000 pixels"
+    MAX_IMAGE_DIMENSION: int = 8000
+
     ADDITIONAL_TOKENS: int = 5
     PROMPT_ANSWER_START: str = "The answer is "
 
@@ -282,9 +286,32 @@ class AnthropicMessagesClient(CachingClient):
                     if not media_object.location:
                         raise Exception("MediaObject of image type has missing location field value")
 
-                    from helm.common.images_utils import encode_base64
+                    from helm.common.images_utils import encode_base64, get_dimensions, resize_image
 
-                    base64_image: str = encode_base64(media_object.location, format="JPEG")
+                    image_location: str = media_object.location
+                    base64_image: str
+
+                    image_width, image_height = get_dimensions(media_object.location)
+                    if (
+                        image_width > AnthropicClient.MAX_IMAGE_DIMENSION
+                        or image_height > AnthropicClient.MAX_IMAGE_DIMENSION
+                    ):
+                        hlog(
+                            f"WARNING: Image {image_location} exceeds max allowed size: "
+                            f"{AnthropicClient.MAX_IMAGE_DIMENSION} pixels"
+                        )
+                        resized_image = resize_image(
+                            image_location,
+                            min(image_width, AnthropicClient.MAX_IMAGE_DIMENSION),
+                            min(image_height, AnthropicClient.MAX_IMAGE_DIMENSION),
+                        )
+                        # Save the resized image to a temporary file
+                        with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
+                            resized_image.save(temp_file.name)
+                            base64_image = encode_base64(temp_file.name, format="JPEG")
+                    else:
+                        base64_image = encode_base64(image_location, format="JPEG")
+
                     image_block: ImageBlockParam = {
                         "type": "image",
                         "source": {

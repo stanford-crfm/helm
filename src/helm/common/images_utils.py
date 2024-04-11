@@ -3,7 +3,7 @@ import io
 
 import requests
 import shutil
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from urllib.request import urlopen
 
 import numpy as np
@@ -27,6 +27,18 @@ def open_image(image_location: str) -> Image.Image:
     else:
         image = Image.open(image_location)
     return image.convert("RGB")
+
+
+def get_dimensions(image_location: str) -> Tuple[int, int]:
+    """Returns the dimensions of the image."""
+    image: Image.Image = open_image(image_location)
+    return image.size
+
+
+def resize_image(image_location: str, width: int, height: int) -> Image.Image:
+    """Resizes the image to the specified dimensions."""
+    image: Image.Image = open_image(image_location)
+    return image.resize((width, height), Image.ANTIALIAS)
 
 
 def encode_base64(image_location: str, format="JPEG") -> str:
