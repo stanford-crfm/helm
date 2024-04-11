@@ -652,7 +652,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
-    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/gemini-1.0-pro-001
     display_name: Gemini 1.0 Pro
@@ -660,7 +660,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
-    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
     # Note: This is aliased to a snapshot of gemini-pro-vision. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro-vision
@@ -677,7 +677,15 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
-    tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+    tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/gemini-1.5-pro-preview-0409
+    display_name: Gemini 1.5 Pro
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-04-10
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/gemma-2b
     display_name: Gemma (2B)
