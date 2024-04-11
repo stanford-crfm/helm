@@ -51,7 +51,7 @@ def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optiona
     if (width is not None and height is not None) or is_url(src):
         image = open_image(src)
         if width is not None and height is not None:
-            image = image.resize((width, height), Image.ANTIALIAS)
+            image = image.resize((width, height), Image.LANCZOS)
         image.save(dest)
     else:
         shutil.copy(src, dest)
