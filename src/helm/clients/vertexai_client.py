@@ -4,7 +4,6 @@ from threading import Lock
 from typing import Any, Dict, Optional, List, Union
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, ErrorFlags
@@ -349,14 +348,27 @@ class VertexAIChatClient(VertexAIClient):
             try:
 
                 def do_it() -> Dict[str, Any]:
-                    raw_response = model.generate_content(
+                    response = model.generate_content(
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )
-                    if raw_response._raw_response.prompt_feedback.block_reason != 0:
-                        hlog(f"Content blocked for prompt: {request.multimodal_prompt}")
-                        return {"error": self.CONTENT_POLICY_VIOLATED_FINISH_REASON}
+                    candidates: List[Candidate] = response.candidates
 
-                    return {"predictions": [{"text": raw_response.candidates[0].text}]}
+                    if not candidates:
+                        raise VertexAIContentBlockedError("No candidates in response due to content blocking")
+
+                    # We should only have one candidate
+                    candidate: Candidate = candidates[0]
+                    if (
+                        candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS
+                        or not candidate.content.parts
+                    ):
+                        # The prediction was either blocked due to safety settings or the model stopped and returned
+                        # nothing (which also happens when the model is blocked).
+                        # For now, we don't cache blocked requests, because we are trying to get the
+                        # content blocking removed.
+                        raise VertexAIContentBlockedError("Content has no parts due to content blocking")
+
+                    return {"predictions": [{"text": candidate.text}]}
 
                 raw_cache_key = {"model_name": model_name, "prompt": prompt_key, **parameters}
                 if completion_index > 0:

@@ -239,7 +239,6 @@ class AnthropicMessagesResponseError(Exception):
 class AnthropicMessagesClient(CachingClient):
     # Source: https://docs.anthropic.com/claude/docs/models-overview
     MAX_OUTPUT_TOKENS: int = 4096
-    MAX_IMAGE_DIMENSION: int = 8000
 
     def __init__(
         self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: Optional[str] = None
@@ -283,11 +282,9 @@ class AnthropicMessagesClient(CachingClient):
                     if not media_object.location:
                         raise Exception("MediaObject of image type has missing location field value")
 
-                    from helm.common.images_utils import encode_base64, fit_within_max_dimension
+                    from helm.common.images_utils import encode_base64
 
-                    base64_image: str = encode_base64(
-                        fit_within_max_dimension(media_object.location, self.MAX_IMAGE_DIMENSION)
-                    )
+                    base64_image: str = encode_base64(media_object.location, format="JPEG")
                     image_block: ImageBlockParam = {
                         "type": "image",
                         "source": {

@@ -1,10 +1,8 @@
 import base64
 import io
-import os
 
 import requests
 import shutil
-import tempfile
 from typing import List, Optional
 from urllib.request import urlopen
 
@@ -37,40 +35,6 @@ def encode_base64(image_location: str, format="JPEG") -> str:
     image: Image.Image = open_image(image_location)
     image.save(image_file, format=format)
     return base64.b64encode(image_file.getvalue()).decode("ascii")
-
-
-def fit_within_max_dimension(image_path: str, max_dimension: int, output_path: Optional[str] = None) -> str:
-    """
-    Resizes an image so that neither dimension exceeds max_dimension.
-    If the image is already smaller than max_dimension, it is not resized and the original path is returned.
-
-    Parameters:
-    - image: The image to be resized.
-    - max_dimension: The maximum allowed size for the image's width and height.
-
-    Returns:
-    - The path to the resized image.
-    """
-    with Image.open(image_path) as image:
-        width, height = image.size
-        scaling_factor = min(max_dimension / width, max_dimension / height)
-        if scaling_factor < 1:
-            new_width = int(width * scaling_factor)
-            new_height = int(height * scaling_factor)
-            image = image.resize((new_width, new_height), Image.ANTIALIAS)
-        else:
-            return image_path
-
-        if output_path:
-            image.save(output_path)
-        else:
-            # Save to temporary file
-            with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
-                image.save(temp_file)
-                output_path = temp_file.name
-
-        assert os.path.exists(output_path)
-        return output_path
 
 
 def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optional[int] = None):
