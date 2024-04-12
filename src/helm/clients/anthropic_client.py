@@ -214,7 +214,7 @@ def _is_content_moderation_failure(response: Dict) -> bool:
     if (
         "error" in response
         and "message" in response["error"]
-        and ["message"] == "Output blocked by content filtering policy"
+        and response["error"]["message"] == "Output blocked by content filtering policy"
     ):
         hlog(f"Anthropic - output blocked by content filtering policy: {response}")
         return True
@@ -277,7 +277,7 @@ class AnthropicMessagesClient(CachingClient):
             # TODO(#2439): Refactor out Request validation
             if request.messages is not None or request.prompt:
                 raise AnthropicMessagesRequestError(
-                    "Exactly one of Request.messages, Request.prompt or Request.multimodel_prompt should be set"
+                    "Exactly one of Request.messages, Request.prompt or Request.multimodal_prompt should be set"
                 )
             blocks: List[Union[TextBlockParam, ImageBlockParam]] = []
             for media_object in request.multimodal_prompt.media_objects:
