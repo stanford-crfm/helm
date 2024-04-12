@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple, Callable
 
+from dacite import from_dict
+
 from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.common.cache import Cache, CacheConfig
@@ -52,28 +54,34 @@ class ImageCompilerAnnotator(Annotator, ABC):
         annotations: List[Dict[str, Any]] = []
         for completion in request_state.result.completions:
             completion_text: str = completion.text.strip()
+            raw_response: Dict[str, Any]
 
-            def do_it() -> Dict[str, Any]:
-                @retry
-                def compile() -> Dict[str, Any]:
+            @retry
+            def compile() -> Dict[str, Any]:
+                def do_it() -> Dict[str, Any]:
                     try:
                         assert self._file_cache is not None
                         image, infos = self.compile_completion_into_image(request_state, completion_text)
                         infos = self.postprocess_infos(infos)
                         image_path: str = self._file_cache.store_image(lambda: image)
                         return {
-                            "media_object": MediaObject(location=image_path, content_type="image/png"),
+                            "media_object": MediaObject(location=image_path, content_type="image/png").to_dict(),
                             **infos,
                         }
                     except CompilationError as e:
                         return {"error": str(e)}
-                    except Exception as e:
-                        return {"unknown_error": str(e)}
 
-                return compile()
+                try:
+                    cache_key: Dict[str, str] = {"completion": completion_text}
+                    raw_response, _ = self._cache.get(cache_key, do_it)
+                    return raw_response
+                except Exception as e:
+                    return {"unknown_error": str(e)}
 
-            cache_key: Dict[str, str] = {"completion": completion_text}
-            response, _ = self._cache.get(cache_key, do_it)
+            raw_response = compile()
+            response = {**raw_response}
+            if "media_object" in response:
+                response["media_object"] = from_dict(MediaObject, response["media_object"])
 
             # Merge annotations
             annotations.append(response)

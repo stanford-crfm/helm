@@ -21,14 +21,19 @@ export default function CardGrid() {
   }, []);
 
   return (
-    <div className="p-10">
+    <div className="p-10 mb-20">
       <div className="grid grid-cols-3 gap-4">
         {projectEntries &&
           projectEntries.map((project, index) => (
             <ProjectCard
               key={index}
+              id={project.id}
               title={project.title}
-              imageUrl={undefined}
+              imageUrl={
+                project.imageUrl !== undefined
+                  ? String(project.imageUrl)
+                  : undefined
+              }
               text={project.description}
             />
           ))}

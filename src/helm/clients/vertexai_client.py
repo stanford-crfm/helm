@@ -7,7 +7,7 @@ from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, ErrorFlags
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, ErrorFlags
 from helm.clients.client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
@@ -21,6 +21,10 @@ except ModuleNotFoundError as e:
 
 _models_lock: Lock = Lock()
 _models: Dict[str, Any] = {}
+
+
+class VertexAIContentBlockedError(Exception):
+    pass
 
 
 class VertexAIClient(CachingClient, ABC):
@@ -67,7 +71,7 @@ class VertexAITextClient(VertexAIClient):
             # "echo": request.echo_prompt,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
 
         try:
@@ -110,7 +114,7 @@ class VertexAITextClient(VertexAIClient):
             # https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#response_body
             # Python SDK reference:
             # https://github.com/googleapis/python-aiplatform/blob/beae48f63e40ea171c3f1625164569e7311b8e5a/vertexai/language_models/_language_models.py#L868
-            completion = Sequence(text=text, logprob=0, tokens=[])
+            completion = GeneratedOutput(text=text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -132,6 +136,17 @@ class VertexAIChatClient(VertexAIClient):
 
     # Gemini returns this error for certain valid requests
     CONTENT_HAS_NO_PARTS_ERROR: str = "Content has no parts."
+
+    # Enum taken from:
+    # https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1beta1#google.cloud.aiplatform.v1beta1.Candidate.FinishReason
+    # We don't directly import this enum because it can differ between different Vertex AI library versions.
+    CONTENT_BLOCKED_FINISH_REASONS: List[int] = [
+        3,  # SAFETY
+        4,  # RECITATION
+        6,  # BLOCKLIST
+        7,  # PROHIBITED_CONTENT
+        8,  # SPII (Sensitive Personally Identifiable Information)
+    ]
 
     @staticmethod
     def get_model(model_name: str) -> Any:
@@ -168,7 +183,7 @@ class VertexAIChatClient(VertexAIClient):
             # "echo": request.echo_prompt,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
         model = self.get_model(model_name)
 
@@ -186,17 +201,25 @@ class VertexAIChatClient(VertexAIClient):
                     contents, generation_config=parameters, safety_settings=self.safety_settings
                 )
                 candidates: List[Candidate] = response.candidates
-                try:
-                    response_dict = {
-                        "predictions": [{"text": completion.text for completion in candidates}],
-                    }  # TODO: Extract more information from the response
-                except ValueError as e:
-                    if "Content has no parts" in str(e):
+
+                # Depending on the version of the Vertex AI library and the type of content blocking,
+                # content blocking can show up in many ways, so this defensively handles most of these ways
+                if not candidates:
+                    raise VertexAIContentBlockedError("No candidates in response due to content blocking")
+                predictions: List[Dict[str, Any]] = []
+                for candidate in candidates:
+                    if (
+                        candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS
+                        or not candidate.content.parts
+                    ):
                         # The prediction was either blocked due to safety settings or the model stopped and returned
                         # nothing (which also happens when the model is blocked).
-                        # In both cases, we return an empty prediction.
-                        return {"predictions": None}
-                return response_dict
+                        # For now, we don't cache blocked requests, because we are trying to get the
+                        # content blocking removed.
+                        raise VertexAIContentBlockedError("Content has no parts due to content blocking")
+                    predictions.append({"text": candidate.content.text})
+                    # TODO: Extract more information from the response
+                return {"predictions": predictions}
 
             # We need to include the engine's name to differentiate among requests made for different model
             # engines since the engine name is not included in the request itself.
@@ -211,10 +234,20 @@ class VertexAIChatClient(VertexAIClient):
             )
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except VertexAIContentBlockedError:
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Response was empty due to content moderation filter",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
         except (requests.exceptions.RequestException, AssertionError) as e:
             error: str = f"VertexAITextClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
+        # Handle cached responses with blocked content from old versions of HELM.
         if response["predictions"] is None:
             return RequestResult(
                 success=False,
@@ -228,11 +261,23 @@ class VertexAIChatClient(VertexAIClient):
             )
 
         for prediction in response["predictions"]:
+            # Handle cached responses with blocked content from old versions of HELM.
+            if "text" not in prediction:
+                return RequestResult(
+                    success=False,
+                    cached=False,
+                    error="Response was empty due to content moderation filter",
+                    completions=[],
+                    embedding=[],
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    request_time=response["request_time"],
+                    request_datetime=response["request_datetime"],
+                )
             response_text = prediction["text"]
 
             # The Python SDK does not support echo
             text: str = request.prompt + response_text if request.echo_prompt else response_text
-            completion = Sequence(text=text, logprob=0, tokens=[])
+            completion = GeneratedOutput(text=text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -247,7 +292,7 @@ class VertexAIChatClient(VertexAIClient):
 
     def _make_multimodal_request(self, request: Request) -> RequestResult:
         def complete_for_valid_error(error_message: str) -> RequestResult:
-            empty_completion = Sequence(
+            empty_completion = GeneratedOutput(
                 text="",
                 logprob=0,
                 tokens=[],
@@ -288,7 +333,7 @@ class VertexAIChatClient(VertexAIClient):
             "candidate_count": 1,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
         model = self.get_model(model_name)
 
@@ -327,7 +372,7 @@ class VertexAIChatClient(VertexAIClient):
                 return complete_for_valid_error(response["error"])
 
             response_text = response["predictions"][0]["text"]
-            completion = Sequence(text=response_text, logprob=0, tokens=[])
+            completion = GeneratedOutput(text=response_text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 

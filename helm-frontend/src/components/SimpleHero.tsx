@@ -13,11 +13,17 @@ export default function SimpleHero() {
           </h1>
         </div>
         <div className="flex justify-start mt-6 ml-4">
-          <Link to="leaderboard">
-            <button className="px-6 btn btn-grey rounded-md">
-              <body>Leaderboard</body>
-            </button>
-          </Link>
+          <button
+            className="px-6 btn btn-grey rounded-md"
+            onClick={() =>
+              window.scrollTo({
+                top: 700,
+                behavior: "smooth",
+              })
+            }
+          >
+            <body>Projects</body>
+          </button>
           <Link to="https://github.com/stanford-crfm/helm" className="ml-4">
             <button className="px-6 btn btn-grey rounded-md">Github</button>
           </Link>

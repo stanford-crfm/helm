@@ -5,7 +5,7 @@ import requests
 from retrying import retry
 
 from helm.common.cache import CacheConfig
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from .client import CachingClient, truncate_sequence, cleanup_str
 
 
@@ -220,7 +220,7 @@ class TogetherClient(CachingClient):
                 )
 
         # Expect the result to be structured the same way as a response from OpenAI API.
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
             tokens: List[Token] = []
@@ -243,7 +243,7 @@ class TogetherClient(CachingClient):
             raw_finish_reason: Optional[str] = raw_completion.get("finish_reason")
             finish_reason: Optional[Dict] = {"reason": raw_finish_reason} if raw_finish_reason else None
 
-            completion = Sequence(
+            completion = GeneratedOutput(
                 text=cleanup_str(raw_completion["text"], "together"),
                 logprob=sequence_logprob,
                 tokens=tokens,

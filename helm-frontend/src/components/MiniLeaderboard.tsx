@@ -14,8 +14,6 @@ interface GroupDisplayData {
 }
 
 export default function MiniLeaderboard() {
-  const defaultGroup = { title: "Core Scenarios", name: "core_scenarios" };
-  const selectedGroupDisplayData = defaultGroup;
   const [allGroupData, setAllGroupData] = useState<GroupDisplayData[]>([]);
   const [groupsTables, setGroupsTables] = useState<GroupsTable[]>([]);
   const [groupMetadata, setGroupMetadata] = useState<
@@ -28,9 +26,6 @@ export default function MiniLeaderboard() {
   useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
-      if (selectedGroupDisplayData.name === undefined) {
-        return;
-      }
       const groups = await getGroupsTables(controller.signal);
       const result: GroupDisplayData[] = [];
       groups.forEach((group) => {
@@ -42,19 +37,22 @@ export default function MiniLeaderboard() {
         });
       });
       setAllGroupData(result);
-
+      if (result.length === 0) {
+        throw new Error("Could not find any groups!");
+      }
+      const selectedGroupName = result[0].name;
       const [group, metadata] = await Promise.all([
-        getGroupsTablesByName(selectedGroupDisplayData.name, controller.signal),
+        getGroupsTablesByName(selectedGroupName, controller.signal),
         getGroupsMetadata(controller.signal),
       ]);
       setGroupsTables(group);
-      setGroupMetadata(metadata[selectedGroupDisplayData.name]);
+      setGroupMetadata(metadata[selectedGroupName]);
       setIsLoading(false);
     }
 
     void fetchData();
     return () => controller.abort();
-  }, [selectedGroupDisplayData.name]);
+  }, []);
 
   if (isLoading || groupMetadata === undefined) {
     return <Loading />;

@@ -8,7 +8,7 @@ from helm.common.cache import CacheConfig
 from helm.common.images_utils import open_image
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -94,7 +94,7 @@ class HuggingFaceVLMClient(CachingClient):
             TokenizationRequest(result["generated_text"], tokenizer=self.tokenizer_name)
         )
         tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-        completions: List[Sequence] = [Sequence(text=result["generated_text"], logprob=0, tokens=tokens)]
+        completions: List[GeneratedOutput] = [GeneratedOutput(text=result["generated_text"], logprob=0, tokens=tokens)]
         return RequestResult(
             success=True,
             cached=cached,

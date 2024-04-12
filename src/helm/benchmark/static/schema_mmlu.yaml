@@ -369,6 +369,7 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
+    hide_win_rates: true
     metrics:
       - name: ${main_name}
         split: ${main_split}
@@ -381,6 +382,7 @@ metric_groups:
 
   - name: general_information
     display_name: General information
+    hide_win_rates: true
     metrics:
     - name: num_instances
       split: ${main_split}
@@ -397,9 +399,11 @@ metric_groups:
 run_groups:
   - name: mmlu_subjects
     display_name: MMLU Subjects
-    description: MMLU evaluations by subject
-    category: All Groups
+    short_display_name: MMLU Subjects
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2009.03300.pdf).
+    category: All Scenarios
     subgroups:
+      - mmlu
       - mmlu_abstract_algebra
       - mmlu_anatomy
       - mmlu_college_chemistry
@@ -459,8 +463,8 @@ run_groups:
       - mmlu_world_religions
 
   - name: mmlu
-    display_name: MMLU All Subjects Macro-Averaged
-    short_display_name: MMLU All Subjects Macro-Averaged
+    display_name: Massive Multitask Language Understanding (MMLU) All Subjects
+    short_display_name: MMLU All Subjects
     description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://arxiv.org/pdf/2009.03300.pdf).
     metric_groups:
       - accuracy
@@ -477,8 +481,8 @@ run_groups:
       language: English
 
   - name: mmlu_abstract_algebra
-    display_name: MMLU Abstract Algebra
-    short_display_name: MMLU Abstract Algebra
+    display_name: Abstract Algebra
+    short_display_name: Abstract Algebra
     description: The abstract algebra subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -495,8 +499,8 @@ run_groups:
       language: English
 
   - name: mmlu_anatomy
-    display_name: MMLU Anatomy
-    short_display_name: MMLU Anatomy
+    display_name: Anatomy
+    short_display_name: Anatomy
     description: The anatomy subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -513,8 +517,8 @@ run_groups:
       language: English
 
   - name: mmlu_college_chemistry
-    display_name: MMLU College Chemistry
-    short_display_name: MMLU College Chemistry
+    display_name: College Chemistry
+    short_display_name: College Chemistry
     description: The college chemistry subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -531,8 +535,8 @@ run_groups:
       language: English
 
   - name: mmlu_computer_security
-    display_name: MMLU Computer Security
-    short_display_name: MMLU Computer Security
+    display_name: Computer Security
+    short_display_name: Computer Security
     description: The computer security subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -549,8 +553,8 @@ run_groups:
       language: English
 
   - name: mmlu_econometrics
-    display_name: MMLU Econometrics
-    short_display_name: MMLU Econometrics
+    display_name: Econometrics
+    short_display_name: Econometrics
     description: The econometrics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -567,8 +571,8 @@ run_groups:
       language: English
 
   - name: mmlu_global_facts
-    display_name: MMLU Global Facts
-    short_display_name: MMLU Global Facts
+    display_name: Global Facts
+    short_display_name: Global Facts
     description: The global facts subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -585,8 +589,8 @@ run_groups:
       language: English
 
   - name: mmlu_jurisprudence
-    display_name: MMLU Jurisprudence
-    short_display_name: MMLU Jurisprudence
+    display_name: Jurisprudence
+    short_display_name: Jurisprudence
     description: The jurisprudence subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -603,8 +607,8 @@ run_groups:
       language: English
 
   - name: mmlu_philosophy
-    display_name: MMLU Philosophy
-    short_display_name: MMLU Philosophy
+    display_name: Philosophy
+    short_display_name: Philosophy
     description: The philosophy subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -621,8 +625,8 @@ run_groups:
       language: English
 
   - name: mmlu_professional_medicine
-    display_name: MMLU Professional Medicine
-    short_display_name: MMLU Professional Medicine
+    display_name: Professional Medicine
+    short_display_name: Professional Medicine
     description: The professional medicine subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -639,8 +643,8 @@ run_groups:
       language: English
 
   - name: mmlu_us_foreign_policy
-    display_name: MMLU Us Foreign Policy
-    short_display_name: MMLU Us Foreign Policy
+    display_name: Us Foreign Policy
+    short_display_name: Us Foreign Policy
     description: The us foreign policy subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -657,8 +661,8 @@ run_groups:
       language: English
 
   - name: mmlu_astronomy
-    display_name: MMLU Astronomy
-    short_display_name: MMLU Astronomy
+    display_name: Astronomy
+    short_display_name: Astronomy
     description: The astronomy subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -675,8 +679,8 @@ run_groups:
       language: English
 
   - name: mmlu_business_ethics
-    display_name: MMLU Business Ethics
-    short_display_name: MMLU Business Ethics
+    display_name: Business Ethics
+    short_display_name: Business Ethics
     description: The business ethics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -693,8 +697,8 @@ run_groups:
       language: English
 
   - name: mmlu_clinical_knowledge
-    display_name: MMLU Clinical Knowledge
-    short_display_name: MMLU Clinical Knowledge
+    display_name: Clinical Knowledge
+    short_display_name: Clinical Knowledge
     description: The clinical knowledge subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -711,8 +715,8 @@ run_groups:
       language: English
 
   - name: mmlu_college_biology
-    display_name: MMLU College Biology
-    short_display_name: MMLU College Biology
+    display_name: College Biology
+    short_display_name: College Biology
     description: The college biology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -729,8 +733,8 @@ run_groups:
       language: English
 
   - name: mmlu_college_computer_science
-    display_name: MMLU College Computer Science
-    short_display_name: MMLU College Computer Science
+    display_name: College Computer Science
+    short_display_name: College Computer Science
     description: The college computer science subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -747,8 +751,8 @@ run_groups:
       language: English
 
   - name: mmlu_college_mathematics
-    display_name: MMLU College Mathematics
-    short_display_name: MMLU College Mathematics
+    display_name: College Mathematics
+    short_display_name: College Mathematics
     description: The college mathematics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -765,8 +769,8 @@ run_groups:
       language: English
 
   - name: mmlu_college_medicine
-    display_name: MMLU College Medicine
-    short_display_name: MMLU College Medicine
+    display_name: College Medicine
+    short_display_name: College Medicine
     description: The college medicine subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -783,8 +787,8 @@ run_groups:
       language: English
 
   - name: mmlu_college_physics
-    display_name: MMLU College Physics
-    short_display_name: MMLU College Physics
+    display_name: College Physics
+    short_display_name: College Physics
     description: The college physics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -801,8 +805,8 @@ run_groups:
       language: English
 
   - name: mmlu_conceptual_physics
-    display_name: MMLU Conceptual Physics
-    short_display_name: MMLU Conceptual Physics
+    display_name: Conceptual Physics
+    short_display_name: Conceptual Physics
     description: The conceptual physics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -819,8 +823,8 @@ run_groups:
       language: English
 
   - name: mmlu_electrical_engineering
-    display_name: MMLU Electrical Engineering
-    short_display_name: MMLU Electrical Engineering
+    display_name: Electrical Engineering
+    short_display_name: Electrical Engineering
     description: The electrical engineering subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -837,8 +841,8 @@ run_groups:
       language: English
 
   - name: mmlu_elementary_mathematics
-    display_name: MMLU Elementary Mathematics
-    short_display_name: MMLU Elementary Mathematics
+    display_name: Elementary Mathematics
+    short_display_name: Elementary Mathematics
     description: The elementary mathematics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -855,8 +859,8 @@ run_groups:
       language: English
 
   - name: mmlu_formal_logic
-    display_name: MMLU Formal Logic
-    short_display_name: MMLU Formal Logic
+    display_name: Formal Logic
+    short_display_name: Formal Logic
     description: The formal logic subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -873,8 +877,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_biology
-    display_name: MMLU High School Biology
-    short_display_name: MMLU High School Biology
+    display_name: High School Biology
+    short_display_name: High School Biology
     description: The high school biology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -891,8 +895,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_chemistry
-    display_name: MMLU High School Chemistry
-    short_display_name: MMLU High School Chemistry
+    display_name: High School Chemistry
+    short_display_name: High School Chemistry
     description: The high school chemistry subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -909,8 +913,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_computer_science
-    display_name: MMLU High School Computer Science
-    short_display_name: MMLU High School Computer Science
+    display_name: High School Computer Science
+    short_display_name: High School Computer Science
     description: The high school computer science subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -927,8 +931,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_european_history
-    display_name: MMLU High School European History
-    short_display_name: MMLU High School European History
+    display_name: High School European History
+    short_display_name: High School European History
     description: The high school european history subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -945,8 +949,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_geography
-    display_name: MMLU High School Geography
-    short_display_name: MMLU High School Geography
+    display_name: High School Geography
+    short_display_name: High School Geography
     description: The high school geography subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -963,8 +967,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_government_and_politics
-    display_name: MMLU High School Government And Politics
-    short_display_name: MMLU High School Government And Politics
+    display_name: High School Government And Politics
+    short_display_name: High School Government And Politics
     description: The high school government and politics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -981,8 +985,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_macroeconomics
-    display_name: MMLU High School Macroeconomics
-    short_display_name: MMLU High School Macroeconomics
+    display_name: High School Macroeconomics
+    short_display_name: High School Macroeconomics
     description: The high school macroeconomics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -999,8 +1003,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_mathematics
-    display_name: MMLU High School Mathematics
-    short_display_name: MMLU High School Mathematics
+    display_name: High School Mathematics
+    short_display_name: High School Mathematics
     description: The high school mathematics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1017,8 +1021,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_microeconomics
-    display_name: MMLU High School Microeconomics
-    short_display_name: MMLU High School Microeconomics
+    display_name: High School Microeconomics
+    short_display_name: High School Microeconomics
     description: The high school microeconomics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1035,8 +1039,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_physics
-    display_name: MMLU High School Physics
-    short_display_name: MMLU High School Physics
+    display_name: High School Physics
+    short_display_name: High School Physics
     description: The high school physics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1053,8 +1057,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_psychology
-    display_name: MMLU High School Psychology
-    short_display_name: MMLU High School Psychology
+    display_name: High School Psychology
+    short_display_name: High School Psychology
     description: The high school psychology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1071,8 +1075,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_statistics
-    display_name: MMLU High School Statistics
-    short_display_name: MMLU High School Statistics
+    display_name: High School Statistics
+    short_display_name: High School Statistics
     description: The high school statistics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1089,8 +1093,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_us_history
-    display_name: MMLU High School Us History
-    short_display_name: MMLU High School Us History
+    display_name: High School US History
+    short_display_name: High School US History
     description: The high school us history subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1107,8 +1111,8 @@ run_groups:
       language: English
 
   - name: mmlu_high_school_world_history
-    display_name: MMLU High School World History
-    short_display_name: MMLU High School World History
+    display_name: High School World History
+    short_display_name: High School World History
     description: The high school world history subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1125,8 +1129,8 @@ run_groups:
       language: English
 
   - name: mmlu_human_aging
-    display_name: MMLU Human Aging
-    short_display_name: MMLU Human Aging
+    display_name: Human Aging
+    short_display_name: Human Aging
     description: The human aging subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1143,8 +1147,8 @@ run_groups:
       language: English
 
   - name: mmlu_human_sexuality
-    display_name: MMLU Human Sexuality
-    short_display_name: MMLU Human Sexuality
+    display_name: Human Sexuality
+    short_display_name: Human Sexuality
     description: The human sexuality subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1161,8 +1165,8 @@ run_groups:
       language: English
 
   - name: mmlu_international_law
-    display_name: MMLU International Law
-    short_display_name: MMLU International Law
+    display_name: International Law
+    short_display_name: International Law
     description: The international law subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1179,8 +1183,8 @@ run_groups:
       language: English
 
   - name: mmlu_logical_fallacies
-    display_name: MMLU Logical Fallacies
-    short_display_name: MMLU Logical Fallacies
+    display_name: Logical Fallacies
+    short_display_name: Logical Fallacies
     description: The logical fallacies subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1197,8 +1201,8 @@ run_groups:
       language: English
 
   - name: mmlu_machine_learning
-    display_name: MMLU Machine Learning
-    short_display_name: MMLU Machine Learning
+    display_name: Machine Learning
+    short_display_name: Machine Learning
     description: The machine learning subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1215,8 +1219,8 @@ run_groups:
       language: English
 
   - name: mmlu_management
-    display_name: MMLU Management
-    short_display_name: MMLU Management
+    display_name: Management
+    short_display_name: Management
     description: The management subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1233,8 +1237,8 @@ run_groups:
       language: English
 
   - name: mmlu_marketing
-    display_name: MMLU Marketing
-    short_display_name: MMLU Marketing
+    display_name: Marketing
+    short_display_name: Marketing
     description: The marketing subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1251,8 +1255,8 @@ run_groups:
       language: English
 
   - name: mmlu_medical_genetics
-    display_name: MMLU Medical Genetics
-    short_display_name: MMLU Medical Genetics
+    display_name: Medical Genetics
+    short_display_name: Medical Genetics
     description: The medical genetics subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1269,8 +1273,8 @@ run_groups:
       language: English
 
   - name: mmlu_miscellaneous
-    display_name: MMLU Miscellaneous
-    short_display_name: MMLU Miscellaneous
+    display_name: Miscellaneous
+    short_display_name: Miscellaneous
     description: The miscellaneous subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1287,8 +1291,8 @@ run_groups:
       language: English
 
   - name: mmlu_moral_disputes
-    display_name: MMLU Moral Disputes
-    short_display_name: MMLU Moral Disputes
+    display_name: Moral Disputes
+    short_display_name: Moral Disputes
     description: The moral disputes subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1305,8 +1309,8 @@ run_groups:
       language: English
 
   - name: mmlu_moral_scenarios
-    display_name: MMLU Moral Scenarios
-    short_display_name: MMLU Moral Scenarios
+    display_name: Moral Scenarios
+    short_display_name: Moral Scenarios
     description: The moral scenarios subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1323,8 +1327,8 @@ run_groups:
       language: English
 
   - name: mmlu_nutrition
-    display_name: MMLU Nutrition
-    short_display_name: MMLU Nutrition
+    display_name: Nutrition
+    short_display_name: Nutrition
     description: The nutrition subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1341,8 +1345,8 @@ run_groups:
       language: English
 
   - name: mmlu_prehistory
-    display_name: MMLU Prehistory
-    short_display_name: MMLU Prehistory
+    display_name: Prehistory
+    short_display_name: Prehistory
     description: The prehistory subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1359,8 +1363,8 @@ run_groups:
       language: English
 
   - name: mmlu_professional_accounting
-    display_name: MMLU Professional Accounting
-    short_display_name: MMLU Professional Accounting
+    display_name: Professional Accounting
+    short_display_name: Professional Accounting
     description: The professional accounting subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1377,8 +1381,8 @@ run_groups:
       language: English
 
   - name: mmlu_professional_law
-    display_name: MMLU Professional Law
-    short_display_name: MMLU Professional Law
+    display_name: Professional Law
+    short_display_name: Professional Law
     description: The professional law subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1395,8 +1399,8 @@ run_groups:
       language: English
 
   - name: mmlu_professional_psychology
-    display_name: MMLU Professional Psychology
-    short_display_name: MMLU Professional Psychology
+    display_name: Professional Psychology
+    short_display_name: Professional Psychology
     description: The professional psychology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1413,8 +1417,8 @@ run_groups:
       language: English
 
   - name: mmlu_public_relations
-    display_name: MMLU Public Relations
-    short_display_name: MMLU Public Relations
+    display_name: Public Relations
+    short_display_name: Public Relations
     description: The public relations subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1431,8 +1435,8 @@ run_groups:
       language: English
 
   - name: mmlu_security_studies
-    display_name: MMLU Security Studies
-    short_display_name: MMLU Security Studies
+    display_name: Security Studies
+    short_display_name: Security Studies
     description: The security studies subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1449,8 +1453,8 @@ run_groups:
       language: English
 
   - name: mmlu_sociology
-    display_name: MMLU Sociology
-    short_display_name: MMLU Sociology
+    display_name: Sociology
+    short_display_name: Sociology
     description: The sociology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1467,8 +1471,8 @@ run_groups:
       language: English
 
   - name: mmlu_virology
-    display_name: MMLU Virology
-    short_display_name: MMLU Virology
+    display_name: Virology
+    short_display_name: Virology
     description: The virology subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy
@@ -1485,8 +1489,8 @@ run_groups:
       language: English
 
   - name: mmlu_world_religions
-    display_name: MMLU World Religions
-    short_display_name: MMLU World Religions
+    display_name: World Religions
+    short_display_name: World Religions
     description: The world religions subject in the Massive Multitask Language Understanding (MMLU) benchmark.
     metric_groups:
       - accuracy

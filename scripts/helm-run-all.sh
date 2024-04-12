@@ -67,7 +67,7 @@ do
     logfile="${logfile// /_}"   # Replace spaces
 
     # Override with passed-in CLI arguments
-    # By default, the command will run the RunSpecs listed in src/helm/benchmark/presentation/run_specs.conf
+    # By default, the command will run the RunSpecs listed in src/helm/benchmark/presentation/run_entries.conf
     # and output results to `benchmark_output/runs/<Today's date e.g., 06-28-2022>`.
     execute "helm-run --models-to-run $model $* &> $logfile.log &"
 done

@@ -71,7 +71,7 @@ class MetricNameMatcher:
         if self.name != metric_name.name:
             return False
 
-        if self.split != metric_name.split:
+        if self.split != "__all__" and self.split != metric_name.split:
             return False
 
         # Optional
@@ -92,9 +92,11 @@ class MetricNameMatcher:
         return MetricNameMatcher(
             name=mako.template.Template(self.name).render(**environment),
             split=mako.template.Template(self.split).render(**environment),
-            perturbation_name=mako.template.Template(self.perturbation_name).render(**environment)
-            if self.perturbation_name is not None
-            else None,
+            perturbation_name=(
+                mako.template.Template(self.perturbation_name).render(**environment)
+                if self.perturbation_name is not None
+                else None
+            ),
         )
 
 
@@ -105,6 +107,9 @@ class MetricGroup(Field):
     """
 
     metrics: List[MetricNameMatcher] = field(default_factory=list)
+
+    hide_win_rates: Optional[bool] = None
+    """If set to true, do not compute win rates."""
 
 
 BY_METRIC = "by_metric"
@@ -215,10 +220,13 @@ class Schema:
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema(filename: str) -> Schema:
+def get_default_schema_path() -> str:
+    return resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME)
+
+
+def read_schema(schema_path: str) -> Schema:
     # TODO: merge in model metadata from `model_metadata.yaml`
-    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(filename)
     hlog(f"Reading schema file {schema_path}...")
-    with schema_path.open("r") as f:
+    with open(schema_path, "r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Schema, raw)
