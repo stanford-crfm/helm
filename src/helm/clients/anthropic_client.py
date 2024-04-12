@@ -210,7 +210,7 @@ def _is_content_moderation_failure(response: Dict) -> bool:
     if (
         "error" in response
         and "message" in response["error"]
-        and ["message"] == "Output blocked by content filtering policy"
+        and response["error"]["message"] == "Output blocked by content filtering policy"
     ):
         hlog(f"Anthropic - output blocked by content filtering policy: {response}")
         return True
