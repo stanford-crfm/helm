@@ -15,12 +15,14 @@ Task structure
 
 
 Example from the dataset
-    convo: Part of the Broad Road was closed to traffic on Sunday at about 18:00 GMT.
-                The three adults and three children have been taken to Altnagelvin Hospital
-                with non life-threatening injuries. The Fire Service, Northern Ireland Ambulance Service
-                and police attended the crash. The Broad Road has since been reopened.
-    Summary: Three adults and three children have been taken to hospital following a crash involving
-                a tractor and a campervan in Limavady, County Londonderry
+    Conversation: 
+            agent: hi how can i help you today
+            visitor: i need help with my account
+            agent: sure what is your account number
+            visitor: 123456
+            .....
+    Summary:
+           - agent helped visitor with account number 123456
 """
 
 
