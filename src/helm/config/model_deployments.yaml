@@ -1631,6 +1631,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
 
+  - name: together/mixtral-8x22b
+    model_name: mistralai/mixtral-8x22b
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 65535
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
   ## Stanford
   - name: together/alpaca-7b
     model_name: stanford/alpaca-7b
