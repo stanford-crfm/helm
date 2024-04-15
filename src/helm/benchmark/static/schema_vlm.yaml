@@ -290,6 +290,8 @@ run_groups:
       - bingo
       - multipanelvqa
       - pope
+      - seed_bench
+      - mme
 
   - name: heim_human_eval
     display_name: HEIM Human Eval Scenario
@@ -445,6 +447,41 @@ run_groups:
       main_split: test
     taxonomy:
       task: short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
+  - name: seed_bench
+    display_name: Seed Bench 
+    description: A massive multiple-choice question-answering benchmark that spans 9 evaluation aspects with the image input
+    including the comprehension of both the image and video modality
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: Real-world images
+      who: Human experts
+      when: "2023"
+      language: English
+
+  - name: mme
+    display_name: MME
+    description: A comprehensive MLLM Evaluation benchmark with perception and cognition evaluations on 14 subtasks
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
       what: Real-world images
       who: Human experts
       when: "2023"
