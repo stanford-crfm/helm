@@ -1,6 +1,7 @@
 import MarkdownValue from "@/components/MarkdownValue";
 import type RowValueType from "@/types/RowValue";
 import Link from "@/components/Link";
+import linkIcon from "@/assets/icons/link.png";
 
 interface Props {
   value: RowValueType;
@@ -41,7 +42,15 @@ export default function RowValue({ value, title }: Props) {
     if (href) {
       return (
         <Link to={href} inTable title={title}>
-          {formatNumber(value.value)}
+          <div className="flex items-center">
+            {formatNumber(value.value)}
+            <img
+              className="ml-1 opacity-50"
+              width="10px"
+              height="10px"
+              src={linkIcon}
+            />
+          </div>
         </Link>
       );
     } else {
@@ -56,7 +65,15 @@ export default function RowValue({ value, title }: Props) {
   if (value.href) {
     return (
       <Link to={value.href} inTable title={title}>
-        {formatNumber(value.value)}
+        <div className="flex items-center">
+          {formatNumber(value.value)}
+          <img
+            className="ml-1 opacity-50"
+            width="10px"
+            height="10px"
+            src={linkIcon}
+          />
+        </div>
       </Link>
     );
   }
