@@ -46,6 +46,7 @@ def get_generation_adapter_spec(
         num_outputs=1,
         max_tokens=max_tokens,
         stop_sequences=stop_sequences if stop_sequences is not None else [],
+        temperature=0.0,
         random=None,
     )
 

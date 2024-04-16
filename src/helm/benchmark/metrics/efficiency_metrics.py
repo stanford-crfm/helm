@@ -91,8 +91,15 @@ class EfficiencyMetric:
         window_service: WindowService = WindowServiceFactory.get_window_service(
             adapter_spec.model_deployment, tokenizer_service
         )
-        prompt: str = request_state.request.prompt
-        num_prompt_tokens: int = window_service.get_num_tokens(prompt)
+
+        prompt: str
+        num_prompt_tokens: int
+        if request_state.request.multimodal_prompt is not None:
+            prompt = request_state.request.multimodal_prompt.text
+            num_prompt_tokens = window_service.get_num_tokens(prompt)
+        else:
+            prompt = request_state.request.prompt
+            num_prompt_tokens = window_service.get_num_tokens(prompt)
 
         # Total number of tokens in the completion.
         num_completion_tokens: int = sum([len(completion.tokens) for completion in request_state.result.completions])
