@@ -287,10 +287,7 @@ export default function LeaderboardTables({
       ) : (
         <div>
           <div>
-            <table
-              className="rounded-lg shadow-md table"
-              style={{ width: "200px" }}
-            >
+            <table className="rounded-lg shadow-md table">
               <thead>
                 <tr>
                   {activeGroupsTable.header.map((headerValue, idx) => (
