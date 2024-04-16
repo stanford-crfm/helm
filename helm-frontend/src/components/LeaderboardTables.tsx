@@ -43,7 +43,7 @@ export default function LeaderboardTables({
     value: string;
   }
 
-  function truncateString(value: string): string {
+  function truncateHeader(value: string): string {
     if (value.length > 30) {
       return value.substring(0, 27) + "...";
     }
@@ -55,9 +55,9 @@ export default function LeaderboardTables({
     if (headerValueObject.value === "Model/adapter") {
       return "Model";
     } else if (headerValueObject.value.includes("-book")) {
-      return truncateString(headerValueObject.value.replace("-book", ""));
+      return truncateHeader(headerValueObject.value.replace("-book", ""));
     } else {
-      return truncateString(headerValueObject.value);
+      return truncateHeader(headerValueObject.value);
     }
   };
 
