@@ -1,7 +1,7 @@
 import MarkdownValue from "@/components/MarkdownValue";
 import type RowValueType from "@/types/RowValue";
 import Link from "@/components/Link";
-import linkIcon from "@/assets/icons/link.png";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 
 interface Props {
   value: RowValueType;
@@ -44,12 +44,7 @@ export default function RowValue({ value, title }: Props) {
         <Link to={href} inTable title={title}>
           <div className="flex items-center">
             {formatNumber(value.value)}
-            <img
-              className="ml-1 opacity-50"
-              width="10px"
-              height="10px"
-              src={linkIcon}
-            />
+            <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-40" />
           </div>
         </Link>
       );
@@ -67,12 +62,7 @@ export default function RowValue({ value, title }: Props) {
       <Link to={value.href} inTable title={title}>
         <div className="flex items-center">
           {formatNumber(value.value)}
-          <img
-            className="ml-1 opacity-50"
-            width="10px"
-            height="10px"
-            src={linkIcon}
-          />
+          <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-40" />
         </div>
       </Link>
     );
