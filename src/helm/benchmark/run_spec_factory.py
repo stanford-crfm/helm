@@ -17,9 +17,7 @@ from helm.benchmark.model_metadata_registry import (
     ANTHROPIC_CLAUDE_3_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
     CHATML_MODEL_TAG,
-    GOOGLE_GEMMA_INSTRUCT_MODEL_TAG,
     GOOGLE_GEMINI_MODEL_TAG,
-    GOOGLE_PALM_2_MODEL_TAG,
     IDEFICS_INSTRUCT_MODEL_TAG,
     IDEFICS_MODEL_TAG,
     LLAVA_MODEL_TAG,
@@ -38,7 +36,6 @@ from helm.benchmark.run_expander import (
     AnthropicClaude3RunExpander,
     ChatMLRunExpander,
     GlobalPrefixRunExpander,
-    GoogleRunExpander,
     IDEFICSInstructRunExpander,
     IncreaseTemperatureRunExpander,
     IncreaseMaxTokensRunExpander,
@@ -141,14 +138,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         # OpenAI prompts
         if OPENAI_CHATGPT_MODEL_TAG in model.tags:
             run_spec = singleton(OpenAIRunExpander().expand(run_spec))
-
-        # Google prompts
-        if (
-            GOOGLE_PALM_2_MODEL_TAG in model.tags
-            or GOOGLE_GEMINI_MODEL_TAG in model.tags
-            or GOOGLE_GEMMA_INSTRUCT_MODEL_TAG in model.tags
-        ):
-            run_spec = singleton(GoogleRunExpander().expand(run_spec))
 
         # Mistral prompts
         if MISTRAL_MODEL_TAG in model.tags:
