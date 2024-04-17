@@ -1,7 +1,8 @@
 from collections import defaultdict
 import math
 from dataclasses import dataclass
-from typing import List, Dict, Set
+import re
+from typing import List, Dict, Optional, Set
 from urllib.parse import unquote
 
 import numpy as np
@@ -315,6 +316,7 @@ def compute_request_state_metrics(
     stats.extend(efficiency_metric.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
     stats.extend(_compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
     stats.extend(_compute_truncation_metrics(adapter_spec, request_state, metric_service))
+    stats.extend(_compute_content_blocked_metrics(adapter_spec, request_state, metric_service))
 
     return stats
 
@@ -352,6 +354,37 @@ def _compute_truncation_metrics(
         Stat(MetricName("num_train_instances")).add(request_state.num_train_instances),
         Stat(MetricName("prompt_truncated")).add(request_state.prompt_truncated),
     ]
+
+
+CONTENT_BLOCK_PATTERN = re.compile("Content blocked with finish reason: (\S+)")
+
+
+def _compute_content_blocked_metrics(
+    adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+) -> List[Stat]:
+    """
+    Record the number of training instances used in the prompt and whether
+    even the prompt needed to be truncated (once we hit zero training instances).
+    """
+    response_finish_reason: Optional[int] = None
+    assert request_state.result
+    error = request_state.result.error
+    if error:
+        match = CONTENT_BLOCK_PATTERN.match(error)
+        if match:
+            response_finish_reason = int(match.group(1))
+
+    stats: List[Stat] = []
+    for finish_reason in range(3, 9):
+        stats.append(
+            Stat(MetricName(f"content_blocked_finish_reason_{finish_reason}")).add(
+                1 if response_finish_reason == finish_reason else 0
+            )
+        )
+    stats.append(
+        Stat(MetricName("content_blocked_finish_reason_any")).add(1 if response_finish_reason is not None else 0)
+    )
+    return stats
 
 
 def compute_language_modeling_metrics(

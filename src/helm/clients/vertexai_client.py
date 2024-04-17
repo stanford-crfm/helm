@@ -205,7 +205,7 @@ class VertexAIChatClient(VertexAIClient):
                 # Depending on the version of the Vertex AI library and the type of content blocking,
                 # content blocking can show up in many ways, so this defensively handles most of these ways
                 if not candidates:
-                    raise VertexAIContentBlockedError("No candidates in response due to content blocking")
+                    raise Exception("No candidates in response due to content blocking")
                 predictions: List[Dict[str, Any]] = []
                 for candidate in candidates:
                     if (
@@ -216,7 +216,9 @@ class VertexAIChatClient(VertexAIClient):
                         # nothing (which also happens when the model is blocked).
                         # For now, we don't cache blocked requests, because we are trying to get the
                         # content blocking removed.
-                        raise VertexAIContentBlockedError("Content has no parts due to content blocking")
+                        raise VertexAIContentBlockedError(
+                            f"Content blocked with finish reason: {candidate.finish_reason}"
+                        )
                     predictions.append({"text": candidate.content.text})
                     # TODO: Extract more information from the response
                 return {"predictions": predictions}
@@ -234,11 +236,11 @@ class VertexAIChatClient(VertexAIClient):
             )
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except VertexAIContentBlockedError:
+        except VertexAIContentBlockedError as e:
             return RequestResult(
                 success=False,
                 cached=False,
-                error="Response was empty due to content moderation filter",
+                error=str(e),
                 completions=[],
                 embedding=[],
                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
@@ -252,10 +254,10 @@ class VertexAIChatClient(VertexAIClient):
             return RequestResult(
                 success=False,
                 cached=False,
-                error="Response was empty due to content moderation filter",
+                error="Cached content filtered error: Response was empty due to content moderation filter",
                 completions=[],
                 embedding=[],
-                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=True),
                 request_time=response["request_time"],
                 request_datetime=response["request_datetime"],
             )
@@ -266,10 +268,10 @@ class VertexAIChatClient(VertexAIClient):
                 return RequestResult(
                     success=False,
                     cached=False,
-                    error="Response was empty due to content moderation filter",
+                    error="Cached content filtered error: Response was empty due to content moderation filter",
                     completions=[],
                     embedding=[],
-                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+                    error_flags=ErrorFlags(is_retriable=False, is_fatal=True),
                     request_time=response["request_time"],
                     request_datetime=response["request_datetime"],
                 )

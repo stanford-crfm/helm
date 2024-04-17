@@ -117,7 +117,7 @@ class Executor:
         if not result.success:
             if result.error_flags and not result.error_flags.is_fatal:
                 hlog(f"WARNING: Non-fatal error treated as empty completion: {result.error}")
-                result.completions = [GeneratedOutput(text="", logprob=0, tokens=[])]
+                result.completions = [GeneratedOutput(text=result.error if result.error else "", logprob=0, tokens=[])]
             else:
                 raise ExecutorError(f"{str(result.error)} Request: {state.request}")
         return replace(state, result=result)

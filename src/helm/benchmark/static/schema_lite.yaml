@@ -107,6 +107,27 @@ metrics:
   - name: prompt_truncated
     display_name: truncated
     description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: content_blocked_finish_reason_any
+    display_name: Content Blocked Any Finish Reason
+    description: Content blocked with any finish reason
+  - name: content_blocked_finish_reason_3
+    display_name: Content Blocked Finish Reason 3
+    description: Content blocked with finish reason 3
+  - name: content_blocked_finish_reason_4
+    display_name: Content Blocked Finish Reason 4
+    description: Content blocked with finish reason 4
+  - name: content_blocked_finish_reason_5
+    display_name: Content Blocked Finish Reason 5
+    description: Content blocked with finish reason 5
+  - name: content_blocked_finish_reason_6
+    display_name: Content Blocked Finish Reason 6
+    description: Content blocked with finish reason 6
+  - name: content_blocked_finish_reason_7
+    display_name: Content Blocked Finish Reason 7
+    description: Content blocked with finish reason 7
+  - name: content_blocked_finish_reason_8
+    display_name: Content Blocked Finish Reason 8
+    description: Content blocked with finish reason 8
   - name: finish_reason_length
     display_name: finish b/c length
     description: Fraction of instances where the the output was terminated because of the max tokens limit.
@@ -631,6 +652,20 @@ metric_groups:
     - name: num_prompt_tokens
       split: ${main_split}
     - name: num_output_tokens
+      split: ${main_split}
+    - name: content_blocked_finish_reason_any
+      split: ${main_split}
+    - name: content_blocked_finish_reason_3
+      split: ${main_split}
+    - name: content_blocked_finish_reason_4
+      split: ${main_split}
+    - name: content_blocked_finish_reason_5
+      split: ${main_split}
+    - name: content_blocked_finish_reason_6
+      split: ${main_split}
+    - name: content_blocked_finish_reason_7
+      split: ${main_split}
+    - name: content_blocked_finish_reason_8
       split: ${main_split}
 
 ############################################################
