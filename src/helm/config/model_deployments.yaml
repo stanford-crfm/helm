@@ -1882,6 +1882,15 @@ model_deployments:
       args:
         together_model: Qwen/Qwen1.5-14B
 
+  - name: together/qwen1.5-32b
+    model_name: qwen/qwen1.5-32b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: Qwen/Qwen1.5-32B
+
   - name: together/qwen1.5-72b
     model_name: qwen/qwen1.5-72b
     tokenizer_name: qwen/qwen1.5-7b
