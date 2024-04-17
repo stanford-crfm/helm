@@ -139,9 +139,7 @@ class OpenAIClient(CachingClient):
                         if self._is_high_res_vision_model(request.model_engine):
                             image_object["detail"] = "high"
 
-                        content.append(
-                            {"type": "image_url", "image_url": image_object}
-                        )
+                        content.append({"type": "image_url", "image_url": image_object})
                     elif media_object.is_type(TEXT_TYPE):
                         if media_object.text is None:
                             raise ValueError("MediaObject of text type has missing text field value")

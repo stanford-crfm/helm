@@ -377,7 +377,7 @@ class VertexAIChatClient(VertexAIClient):
                 cache_key = CachingClient.make_cache_key(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except (requests.exceptions.RequestException, ValueError) as e:
-                if str(e) == self.CONTENT_HAS_NO_PARTS_ERROR:
+                if "Content has no parts" in str(e):
                     return complete_for_valid_error(self.CONTENT_HAS_NO_PARTS_ERROR)
 
                 error: str = f"Gemini Vision error: {e}"
