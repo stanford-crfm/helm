@@ -44,7 +44,7 @@ export default function RowValue({ value, title }: Props) {
         <Link to={href} inTable title={title}>
           <div className="flex items-center">
             {formatNumber(value.value)}
-            <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-40" />
+            <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-30" />
           </div>
         </Link>
       );
