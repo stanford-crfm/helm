@@ -1562,6 +1562,24 @@ model_deployments:
       args:
         together_model: togethercomputer/llama-2-70b
 
+  - name: together/llama-3-8b
+    model_name: meta/llama-3-8b
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-8B
+
+  - name: together/llama-3-70b
+    model_name: meta/llama-3-70b
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-70B
+
   # 01.AI
   - name: together/yi-6b
     model_name: 01-ai/yi-6b
