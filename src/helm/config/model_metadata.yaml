@@ -1186,7 +1186,7 @@ models:
 
   - name: meta/llama-3-8b
     display_name: Llama 3 (8B)
-    description: TBD  # TODO: Fill in description
+    description: Llama 3 is a family of language models that have been trained on more than 15T tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
     creator_organization_name: Meta
     access: open
     num_parameters: 8000000000
@@ -1195,7 +1195,7 @@ models:
     
   - name: meta/llama-3-70b
     display_name: Llama 3 (70B)
-    description: TBD  # TODO: Fill in description
+    description: Llama 3 is a family of language models that have been trained on more than 15T tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
     creator_organization_name: Meta
     access: open
     num_parameters: 70000000000
