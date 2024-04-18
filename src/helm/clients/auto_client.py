@@ -16,6 +16,7 @@ from helm.clients.client import Client
 from helm.clients.moderation_api_client import ModerationAPIClient
 from helm.proxy.critique.critique_client import CritiqueClient
 from helm.clients.toxicity_classifier_client import ToxicityClassifierClient
+from helm.clients.gpt4v_originality_client import GPT4VOriginalityClient
 from helm.proxy.retry import NonRetriableException, retry_request
 from helm.tokenizers.auto_tokenizer import AutoTokenizer
 
@@ -150,6 +151,28 @@ class AutoClient(Client):
 
         cache_config: CacheConfig = self.cache_backend_config.get_cache_config("perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
+
+    def get_gpt4v_originality_client(self) -> GPT4VOriginalityClient:
+        """Get the GPT4V originality client for image and text input."""
+
+        # We only support GPT4V for evaluating the originality scores of VLMs now.
+        originality_model_deployment_name = "openai/gpt-4-vision-preview"
+
+        model_deployment: ModelDeployment = get_model_deployment(originality_model_deployment_name)
+        host_organization: str = model_deployment.host_organization
+        cache_config: CacheConfig = self.cache_backend_config.get_cache_config(host_organization)
+
+        client_params = {
+            "cache_config": cache_config,
+            "tokenizer_name": model_deployment.tokenizer_name,
+            "api_key": provide_api_key(self.credentials, host_organization, originality_model_deployment_name),
+            "tokenizer": self._auto_tokenizer._get_tokenizer(
+                tokenizer_name=model_deployment.tokenizer_name or model_deployment.name
+            ),
+            "org_id": self.credentials.get(host_organization + "OrgId", None),  # OpenAI, GooseAI, Microsoft
+        }
+
+        return GPT4VOriginalityClient(**client_params)
 
     def get_moderation_api_client(self) -> ModerationAPIClient:
         """Get the ModerationAPI client."""

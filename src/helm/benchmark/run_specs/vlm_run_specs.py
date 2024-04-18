@@ -11,6 +11,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_basic_reference_metric_specs,
     get_exact_match_metric_specs,
     get_open_ended_generation_metric_specs,
+    get_gpt4v_originality_metric_specs,
 )
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
@@ -53,6 +54,13 @@ def get_short_answer_generation_adapter_spec():
     return get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=20,
+    )
+
+
+def get_open_end_answer_generation_adapter_spec():
+    return get_generation_adapter_spec(
+        instructions="Follow the given instruction and give your complete answer.",
+        max_tokens=500,
     )
 
 
@@ -488,8 +496,8 @@ def get_mementos_spec(subject: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.mementos_scenario.MementosScenario",
         args={"subject": subject},
     )
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_open_ended_generation_metric_specs()
+    adapter_spec: AdapterSpec = get_open_end_answer_generation_adapter_spec()
+    metric_specs: List[MetricSpec] = get_gpt4v_originality_metric_specs()
 
     run_spec_name: str = "mementos"
     return RunSpec(

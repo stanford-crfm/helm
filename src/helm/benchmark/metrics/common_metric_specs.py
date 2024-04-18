@@ -165,3 +165,9 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
 
 def get_open_ended_generation_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"])
+
+
+def get_gpt4v_originality_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="helm.benchmark.metrics.gpt4v_originality_metrics.GPT4VOriginalityMetric", args={}),
+    ]

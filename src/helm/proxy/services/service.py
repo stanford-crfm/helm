@@ -10,6 +10,7 @@ from helm.common.file_upload_request import FileUploadResult, FileUploadRequest
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
+from helm.common.gpt4v_originality_request import GPT4VOriginalityRequestResult
 from helm.common.tokenization_request import (
     WindowServiceInfo,
     TokenizationRequest,
@@ -128,6 +129,11 @@ class Service(ABC):
     @abstractmethod
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """Get toxicity scores for a batch of text."""
+        pass
+
+    @abstractmethod
+    def get_gpt4v_originality_scores(self, auth: Authentication, request: Request) -> GPT4VOriginalityRequestResult:
+        """Get originality scores for a batch of text and image from GPT4V."""
         pass
 
     @abstractmethod

@@ -14,6 +14,7 @@ from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResu
 from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
+from helm.common.gpt4v_originality_request import GPT4VOriginalityRequestResult
 from helm.common.tokenization_request import (
     WindowServiceInfo,
     TokenizationRequest,
@@ -110,6 +111,9 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/toxicity?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response, request_json)
         return from_dict(PerspectiveAPIRequestResult, response)
+
+    def get_gpt4v_originality_scores(self, auth: Authentication, request: Request) -> GPT4VOriginalityRequestResult:
+        raise NotImplementedError(self.NOT_SUPPORTED_ERROR)
 
     def get_moderation_results(self, auth: Authentication, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
         request_json: str = json.dumps(asdict(request))

@@ -13,6 +13,7 @@ from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResu
 from helm.common.file_upload_request import FileUploadRequest, FileUploadResult
 from helm.common.general import ensure_directory_exists, parse_hocon, get_credentials
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from helm.common.gpt4v_originality_request import GPT4VOriginalityRequestResult
 from helm.common.tokenization_request import (
     WindowServiceInfo,
     TokenizationRequest,
@@ -30,6 +31,7 @@ from helm.clients.image_generation.nudity_check_client import NudityCheckClient
 from helm.clients.gcs_client import GCSClient
 from helm.clients.clip_score_client import CLIPScoreClient
 from helm.clients.toxicity_classifier_client import ToxicityClassifierClient
+from helm.clients.gpt4v_originality_client import GPT4VOriginalityClient
 from helm.proxy.example_queries import example_queries
 from helm.benchmark.model_metadata_registry import ALL_MODELS_METADATA
 from helm.benchmark.model_deployment_registry import get_model_deployment_host_organization
@@ -76,6 +78,7 @@ class ServerService(Service):
         self.moderation_api_client: Optional[ModerationAPIClient] = None
         self.toxicity_classifier_client: Optional[ToxicityClassifierClient] = None
         self.perspective_api_client: Optional[PerspectiveAPIClient] = None
+        self.gpt4v_originality_client: Optional[GPT4VOriginalityClient] = None
         self.nudity_check_client: Optional[NudityCheckClient] = None
         self.clip_score_client: Optional[CLIPScoreClient] = None
         self.gcs_client: Optional[GCSClient] = None
@@ -199,6 +202,16 @@ class ServerService(Service):
 
         self.accounts.authenticate(auth)
         return get_toxicity_scores_with_retry(request)
+
+    def get_gpt4v_originality_scores(self, auth: Authentication, request: Request) -> GPT4VOriginalityRequestResult:
+        @retry_request
+        def get_gpt4v_originality_scores_with_retry(request: Request) -> GPT4VOriginalityRequestResult:
+            if not self.gpt4v_originality_client:
+                self.gpt4v_originality_client = self.client.get_gpt4v_originality_client()
+            return self.gpt4v_originality_client.get_originality_scores(request)
+
+        self.accounts.authenticate(auth)
+        return get_gpt4v_originality_scores_with_retry(request)
 
     def get_moderation_results(self, auth: Authentication, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
         @retry_request

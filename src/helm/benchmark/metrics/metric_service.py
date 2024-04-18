@@ -6,6 +6,8 @@ from helm.common.file_upload_request import FileUploadResult, FileUploadRequest
 from helm.common.nudity_check_request import NudityCheckRequest, NudityCheckResult
 from helm.common.clip_score_request import CLIPScoreRequest, CLIPScoreResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from helm.common.gpt4v_originality_request import GPT4VOriginalityRequestResult
+from helm.common.request import Request
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.proxy.services.service import Service
 from helm.common.cache import Cache
@@ -30,6 +32,9 @@ class MetricService(TokenizerService):
 
     def get_toxicity_scores(self, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         return self._service.get_toxicity_scores(self._auth, request)
+
+    def get_gpt4v_originality_scores(self, request: Request) -> GPT4VOriginalityRequestResult:
+        return self._service.get_gpt4v_originality_scores(self._auth, request)
 
     def make_critique_request(self, request: CritiqueRequest) -> Optional[CritiqueRequestResult]:
         return self._service.make_critique_request(self._auth, request)
