@@ -271,18 +271,28 @@ export default function LeaderboardTables({
                                   : ""
                               }
                             >
-                              <RowValue
-                                value={{
-                                  ...rowValue,
-                                  href:
-                                    "/runs/?q=" +
-                                    getModelForRunName(String(row[0].value)),
-                                }}
-                                title={`Click value to see all predictions for: ${getModelForRunName(
-                                  String(row[0].value),
-                                )}`}
-                                ignoreHref={ignoreHref}
-                              />
+                              {cellIdx === 0 ? (
+                                <RowValue
+                                  value={{
+                                    ...rowValue,
+                                  }}
+                                  title={getModelDesc(String(row[0].value))}
+                                  hideIcon
+                                />
+                              ) : (
+                                <RowValue
+                                  value={{
+                                    ...rowValue,
+                                    href:
+                                      "/runs/?q=" +
+                                      getModelForRunName(String(row[0].value)),
+                                  }}
+                                  title={`Click value to see all predictions for: ${getModelForRunName(
+                                    String(row[0].value),
+                                  )}`}
+                                  ignoreHref={ignoreHref}
+                                />
+                              )}
                             </div>
                           </td>
                         ))}

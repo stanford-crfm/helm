@@ -5,8 +5,9 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 
 interface Props {
   value: RowValueType;
-  ignoreHref?: boolean;
   title?: string;
+  hideIcon?: boolean;
+  ignoreHref?: boolean;
 }
 
 function formatNumber(value: string | number): string {
@@ -17,7 +18,7 @@ function formatNumber(value: string | number): string {
   return String(Math.round(Number(value) * 1000) / 1000);
 }
 
-export default function RowValue({ value, title }: Props) {
+export default function RowValue({ value, title, hideIcon }: Props) {
   // TODO remove this once we stop adding ⚠ to output JSONs
   if (typeof value.value === "string" && value.value.includes("⚠")) {
     value.value = value.value.replace("⚠", "");
@@ -44,7 +45,9 @@ export default function RowValue({ value, title }: Props) {
         <Link to={href} inTable title={title}>
           <div className="flex items-center">
             {formatNumber(value.value)}
-            <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-30" />
+            {!hideIcon && (
+              <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-30" />
+            )}
           </div>
         </Link>
       );
@@ -62,7 +65,9 @@ export default function RowValue({ value, title }: Props) {
       <Link to={value.href} inTable title={title}>
         <div className="flex items-center">
           {formatNumber(value.value)}
-          <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-40" />
+          {!hideIcon && (
+            <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-30" />
+          )}
         </div>
       </Link>
     );
