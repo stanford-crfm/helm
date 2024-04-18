@@ -1184,6 +1184,23 @@ models:
     # TODO(#1828): Upgrade to FULL_FUNCTIONALITY_TEXT_MODEL_TAG
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: meta/llama-3-8b
+    display_name: Llama 3 (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: meta/llama-3-70b
+    display_name: Llama 3 (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
   # Microsoft/NVIDIA
