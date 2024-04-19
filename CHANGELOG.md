@@ -97,6 +97,7 @@ Thank you to the following contributors for your work on this HELM release!
 - @kangmintong
 - @michiyasunaga
 - @mmonfort
+- @mtake
 - @percyliang
 - @polaris-73
 - @pongib
