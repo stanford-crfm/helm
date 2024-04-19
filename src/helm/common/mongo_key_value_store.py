@@ -85,4 +85,5 @@ class MongoKeyValueStore(KeyValueStore):
         self._collection.bulk_write(operations)
 
     def remove(self, key: Dict) -> None:
-        self._collection.delete_one(key)
+        query = {self._REQUEST_KEY: self._canonicalize_key(key)}
+        self._collection.delete_one(query)
