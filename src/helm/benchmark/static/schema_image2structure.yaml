@@ -317,35 +317,11 @@ perturbations:
 ############################################################
 metric_groups:
   - name: accuracy
-    display_name: Accuracy
+    display_name: Compilation rate and Earth Mover Similarity
     metrics:
       - name: ${main_name}
         split: ${main_split}
-
-  - name: efficiency
-    display_name: Efficiency
-    metrics:
-    - name: inference_runtime
-      split: ${main_split}
-
-  - name: general_information
-    display_name: General information
-    metrics:
-    - name: num_instances
-      split: ${main_split}
-    - name: num_train_instances
-      split: ${main_split}
-    - name: prompt_truncated
-      split: ${main_split}
-    - name: num_prompt_tokens
-      split: ${main_split}
-    - name: num_output_tokens
-      split: ${main_split}
-
-  - name: toxicity
-    display_name: Toxicity
-    metrics:
-      - name: toxic_frac
+      - name: compilation_success
         split: ${main_split}
 
   - name: generation_image
@@ -384,8 +360,6 @@ run_groups:
       - accuracy
       - generation_image
       - generation_text
-      - efficiency
-      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -403,8 +377,6 @@ run_groups:
       - accuracy
       - generation_image
       - generation_text
-      - efficiency
-      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
@@ -421,8 +393,6 @@ run_groups:
     metric_groups:
       - accuracy
       - generation_image
-      - efficiency
-      - general_information
     environment:
       main_name: earth_mover_similarity
       main_split: valid
