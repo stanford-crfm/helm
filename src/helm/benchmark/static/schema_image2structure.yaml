@@ -317,7 +317,7 @@ perturbations:
 ############################################################
 metric_groups:
   - name: accuracy
-    display_name: Compilation rate and Earth Mover Similarity
+    display_name: Compilation Rate and Earth Mover Similarity
     metrics:
       - name: ${main_name}
         split: ${main_split}
