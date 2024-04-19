@@ -317,6 +317,7 @@ def compute_request_state_metrics(
     stats.extend(_compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
     stats.extend(_compute_truncation_metrics(adapter_spec, request_state, metric_service))
     stats.extend(_compute_content_blocked_metrics(adapter_spec, request_state, metric_service))
+    stats.extend(_compute_prompt_blocked_metrics(adapter_spec, request_state, metric_service))
 
     return stats
 
@@ -362,10 +363,6 @@ CONTENT_BLOCK_PATTERN = re.compile("Content blocked with finish reason: (\S+)")
 def _compute_content_blocked_metrics(
     adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
 ) -> List[Stat]:
-    """
-    Record the number of training instances used in the prompt and whether
-    even the prompt needed to be truncated (once we hit zero training instances).
-    """
     response_finish_reason: Optional[int] = None
     assert request_state.result
     error = request_state.result.error
@@ -384,6 +381,31 @@ def _compute_content_blocked_metrics(
     stats.append(
         Stat(MetricName("content_blocked_finish_reason_any")).add(1 if response_finish_reason is not None else 0)
     )
+    return stats
+
+
+PROMPT_BLOCK_PATTERN = re.compile("Prompt blocked with block reason: (\S+)")
+
+
+def _compute_prompt_blocked_metrics(
+    adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+) -> List[Stat]:
+    prompt_block_reason: Optional[int] = None
+    assert request_state.result
+    error = request_state.result.error
+    if error:
+        match = PROMPT_BLOCK_PATTERN.match(error)
+        if match:
+            prompt_block_reason = int(match.group(1))
+
+    stats: List[Stat] = []
+    for block_reason in range(1, 5):
+        stats.append(
+            Stat(MetricName(f"prompt_blocked_block_reason_{block_reason}")).add(
+                1 if prompt_block_reason == block_reason else 0
+            )
+        )
+    stats.append(Stat(MetricName("prompt_blocked_block_reason_any")).add(1 if prompt_block_reason is not None else 0))
     return stats
 
 

@@ -128,6 +128,21 @@ metrics:
   - name: content_blocked_finish_reason_8
     display_name: Content Blocked Finish Reason 8
     description: Content blocked with finish reason 8
+  - name: prompt_blocked_block_reason_any
+    display_name: Prompt Blocked Any Block Reason
+    description: Prompt blocked with any block reason
+  - name: prompt_blocked_block_reason_1
+    display_name: Prompt Blocked Block Reason 1
+    description: Prompt blocked with block reason 1
+  - name: prompt_blocked_block_reason_2
+    display_name: Prompt Blocked Block Reason 2
+    description: Prompt blocked with block reason 2
+  - name: prompt_blocked_block_reason_3
+    display_name: Prompt Blocked Block Reason 3
+    description: Prompt blocked with block reason 3
+  - name: prompt_blocked_block_reason_4
+    display_name: Prompt Blocked Block Reason 4
+    description: Prompt blocked with block reason 4
   - name: finish_reason_length
     display_name: finish b/c length
     description: Fraction of instances where the the output was terminated because of the max tokens limit.
@@ -666,6 +681,16 @@ metric_groups:
     - name: content_blocked_finish_reason_7
       split: ${main_split}
     - name: content_blocked_finish_reason_8
+      split: ${main_split}
+    - name: prompt_blocked_block_reason_any
+      split: ${main_split}
+    - name: prompt_blocked_block_reason_1
+      split: ${main_split}
+    - name: prompt_blocked_block_reason_2
+      split: ${main_split}
+    - name: prompt_blocked_block_reason_3
+      split: ${main_split}
+    - name: prompt_blocked_block_reason_4
       split: ${main_split}
 
 ############################################################

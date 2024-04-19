@@ -205,6 +205,10 @@ class VertexAIChatClient(VertexAIClient):
                 # Depending on the version of the Vertex AI library and the type of content blocking,
                 # content blocking can show up in many ways, so this defensively handles most of these ways
                 if not candidates:
+                    if response.prompt_feedback.block_reason:
+                        raise VertexAIContentBlockedError(
+                            f"Prompt blocked with block reason: {response.prompt_feedback.block_reason}"
+                        )
                     raise Exception("No candidates in response due to content blocking")
                 predictions: List[Dict[str, Any]] = []
                 for candidate in candidates:
