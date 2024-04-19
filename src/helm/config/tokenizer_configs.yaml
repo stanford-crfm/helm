@@ -230,8 +230,8 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
       args:
         pretrained_model_name_or_path: meta-llama/Meta-Llama-3-8B
-    end_of_text_token: "<|begin_of_text|>"
-    prefix_token: "<|end_of_text|>"
+    prefix_token: "<|begin_of_text|>"
+    end_of_text_token: "<|end_of_text|>"
 
   # 01-ai
   - name: 01-ai/Yi-6B
