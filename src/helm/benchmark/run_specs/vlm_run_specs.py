@@ -386,7 +386,8 @@ def get_vqa_spec() -> RunSpec:
     )
     # Following https://arxiv.org/abs/2310.03744
     adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec(
-        instructions="Answer the question using a single word or phrase."
+        instructions='Answer the question using a single word or phrase. When the question asks "How many...", '
+        "respond with just a number (e.g., 3) and not the word corresponding to the number."
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
 
