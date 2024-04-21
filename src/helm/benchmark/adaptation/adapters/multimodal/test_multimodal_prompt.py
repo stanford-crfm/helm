@@ -32,6 +32,7 @@ class TestMultimodalContent(unittest.TestCase):
 
         prompt = MultimodalPrompt(
             global_prefix="[START]",
+            global_suffix="",
             instance_prefix="\n",
             instructions="Please answer the following questions about the images.",
             train_instance_blocks=train_instance_blocks,
@@ -67,6 +68,7 @@ class TestMultimodalContent(unittest.TestCase):
 
         prompt = MultimodalPrompt(
             global_prefix="",
+            global_suffix="",
             instance_prefix="\n",
             instructions="",
             train_instance_blocks=[],

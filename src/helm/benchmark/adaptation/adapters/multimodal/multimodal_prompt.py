@@ -11,6 +11,9 @@ class MultimodalPrompt:
     # Global prefix, carried over from `AdapterSpec`
     global_prefix: str
 
+    # Global suffix, carried over from `AdapterSpec`
+    global_suffix: str
+
     # Instance prefix, carried over from `AdapterSpec`. What goes between the instruction and instances.
     instance_prefix: str
 
@@ -46,6 +49,10 @@ class MultimodalPrompt:
         # Add the global prefix if one exists
         if self.global_prefix:
             result = result.add_textual_prefix(self.global_prefix)
+
+        # Add the global prefix if one exists
+        if self.global_suffix:
+            result = result.add_textual_suffix(self.global_suffix)
 
         return result
 

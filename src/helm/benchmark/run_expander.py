@@ -319,6 +319,34 @@ class AnthropicRunExpander(RunExpander):
         ]
 
 
+class AnthropicClaude3RunExpander(RunExpander):
+    """
+    Custom prompt for Anthropic Claude 3 models.
+    These models need more explicit instructions about following the format.
+    """
+
+    name = "anthropic_claude_3"
+
+    def __init__(self):
+        pass
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        try:
+            import anthropic
+        except ModuleNotFoundError as e:
+            handle_module_not_found_error(e, ["anthropic"])
+
+        return [
+            replace(
+                run_spec,
+                name=run_spec.name,
+                adapter_spec=replace(
+                    run_spec.adapter_spec, global_prefix=anthropic.HUMAN_PROMPT, output_prefix=anthropic.AI_PROMPT
+                ),
+            ),
+        ]
+
+
 class OpenAIRunExpander(RunExpander):
     """
     Custom prompt for OpenAI models.

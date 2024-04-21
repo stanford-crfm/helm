@@ -79,6 +79,7 @@ class InContextLearningMultimodalAdapter(InContextLearningAdapter, ABC):
         # Prompt
         prompt = MultimodalPrompt(
             global_prefix=self.adapter_spec.global_prefix,
+            global_suffix=self.adapter_spec.global_suffix,
             instructions=self.adapter_spec.instructions,
             train_instance_blocks=train_instance_blocks,
             eval_instance_block=eval_instance_block,
