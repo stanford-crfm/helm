@@ -19,7 +19,12 @@ from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .run_spec import RunSpec
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
+from helm.benchmark.adaptation.adapter_spec import (
+    AdapterSpec,
+    Substitution,
+    ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
+    ADAPT_MULTIPLE_CHOICE_JOINT,
+)
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
@@ -341,7 +346,14 @@ class AnthropicClaude3RunExpander(RunExpander):
                 run_spec,
                 name=run_spec.name,
                 adapter_spec=replace(
-                    run_spec.adapter_spec, global_prefix=anthropic.HUMAN_PROMPT, output_prefix=anthropic.AI_PROMPT
+                    run_spec.adapter_spec,
+                    global_prefix=anthropic.HUMAN_PROMPT,
+                    input_suffix="",
+                    # Because of `reference_prefix` defaulting to "\n", we have to add this check
+                    output_prefix="\nAssistant:"
+                    if run_spec.adapter_spec.method
+                    in [ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT]
+                    else anthropic.AI_PROMPT,
                 ),
             ),
         ]
