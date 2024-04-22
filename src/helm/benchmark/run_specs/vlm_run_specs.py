@@ -65,11 +65,12 @@ def get_multiple_choice_joint_adapter_spec(
     output_noun: str,
     max_train_instances: int = 0,
     num_outputs: int = 1,
+    instructions: str = "Answer the multiple choice question by just giving the letter of the correct answer.",
 ) -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
         global_prefix="",
-        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
+        instructions=instructions,
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
         input_suffix="\n",
         output_prefix=f"{output_noun}: ",
@@ -540,7 +541,11 @@ def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
         adapter_spec = get_short_answer_generation_adapter_spec()
     elif question_type == "multiple-choice":
         adapter_spec = get_multiple_choice_joint_adapter_spec(
-            input_noun=None, output_noun="Answer", max_train_instances=0
+            input_noun=None,
+            output_noun="Answer",
+            max_train_instances=0,
+            instructions="Answer the multiple choice question by referring to the figure(s) and just giving the "
+            "letter of the correct answer (e.g., A, B, C, D, E).",
         )
     else:
         raise ValueError(f"Invalid question type: {question_type}")
