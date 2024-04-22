@@ -544,8 +544,8 @@ def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
             input_noun=None,
             output_noun="Answer",
             max_train_instances=0,
-            instructions="Answer the multiple choice question by referring to the figure(s) and just giving the "
-            "letter of the correct answer (e.g., A, B, C, D, E).",
+            instructions="Refer to the figure(s) and answer the multiple choice question by just responding with "
+            "the letter of the correct answer (e.g., A, B, C, D, E).",
         )
     else:
         raise ValueError(f"Invalid question type: {question_type}")
