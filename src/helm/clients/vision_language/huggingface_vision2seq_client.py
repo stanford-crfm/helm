@@ -97,8 +97,11 @@ class HuggingFaceVision2SeqClient(CachingClient):
                     messages = [{"role": "user", "content": multimodal_prompt}]
                     prompt = processor.apply_chat_template(messages, add_generation_prompt=True)
                     inputs = processor(
-                        text=[prompt] * request.num_completions,
-                        images=[load_image(image_path) for image_path in image_paths] * request.num_completions,
+                        text=[[prompt] for _ in range(request.num_completions)],
+                        images=[
+                            [load_image(image_path) for image_path in image_paths]
+                            for _ in range(request.num_completions)
+                        ],
                         return_tensors="pt",
                     )
                     inputs = {k: v.to(self._device) for k, v in inputs.items()}
