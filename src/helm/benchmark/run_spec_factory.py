@@ -133,8 +133,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if ANTHROPIC_CLAUDE_1_MODEL_TAG in model.tags or ANTHROPIC_CLAUDE_2_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicRunExpander().expand(run_spec))
 
-        if ANTHROPIC_CLAUDE_3_MODEL_TAG in model.tags:
-            run_spec = singleton(AnthropicClaude3RunExpander().expand(run_spec))
+        # if ANTHROPIC_CLAUDE_3_MODEL_TAG in model.tags:
+        #     run_spec = singleton(AnthropicClaude3RunExpander().expand(run_spec))
 
         # OpenAI prompts
         if OPENAI_CHATGPT_MODEL_TAG in model.tags:
