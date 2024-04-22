@@ -4,14 +4,17 @@ from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from transformers import AutoProcessor, AutoModelForVision2Seq
 from transformers.image_utils import load_image
+import torch
 
 from helm.common.cache import CacheConfig
-from helm.common.gpu_utils import get_torch_device_name
+from helm.common.gpu_utils import get_torch_device_name, is_cuda_available
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.request import wrap_request_time
+from helm.common.tokenization_request import TokenizationRequest
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
+from helm.tokenizers.tokenizer import Tokenizer
 
 
 @dataclass(frozen=True)
@@ -35,8 +38,10 @@ class HuggingFaceVision2SeqClient(CachingClient):
 
     ASSISTANT_PREFIX: str = "Assistant: "
 
-    def __init__(self, cache_config: CacheConfig):
+    def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
+        self.tokenizer = tokenizer
+        self.tokenizer_name = tokenizer_name
         self._device: str = get_torch_device_name()
 
     def _get_model(self, checkpoint: str) -> LoadedVision2SeqModelProcessor:
@@ -48,7 +53,8 @@ class HuggingFaceVision2SeqClient(CachingClient):
             loaded_model_processor = _models[checkpoint]
             if loaded_model_processor is None:
                 hlog(f"Loading model {checkpoint} and caching in memory...")
-                model = AutoModelForVision2Seq.from_pretrained(checkpoint).to(self._device)
+                torch_dtype: torch.dtype = torch.float16 if is_cuda_available() else torch.float32
+                model = AutoModelForVision2Seq.from_pretrained(checkpoint, torch_dtype=torch_dtype).to(self._device)
                 processor = AutoProcessor.from_pretrained(checkpoint)
 
                 _models[checkpoint] = LoadedVision2SeqModelProcessor(model, processor)
@@ -121,7 +127,11 @@ class HuggingFaceVision2SeqClient(CachingClient):
                 assert self.ASSISTANT_PREFIX in text, f"Expected {self.ASSISTANT_PREFIX} in the output"
                 text = text.rpartition(self.ASSISTANT_PREFIX)[-1]
                 hlog(f"Truncated: {text}")
-                completions.append(Sequence(text=text, logprob=0, tokens=[]))
+                tokenization_result = self.tokenizer.tokenize(
+                    TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=False)
+                )
+                tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
+                completions.append(Sequence(text=text, logprob=0, tokens=tokens))
 
         return RequestResult(
             success=True,
