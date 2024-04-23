@@ -224,12 +224,16 @@ class AddToStopRunExpander(RunExpander):
         self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if self.value == "newline":
+            stop_sequence = "\n"
+        else:
+            stop_sequence = self.value
         return [
             replace(
                 run_spec,
                 name=run_spec.name,
                 adapter_spec=replace(
-                    run_spec.adapter_spec, stop_sequences=run_spec.adapter_spec.stop_sequences + [self.value]
+                    run_spec.adapter_spec, stop_sequences=run_spec.adapter_spec.stop_sequences + [stop_sequence]
                 ),
             ),
         ]
