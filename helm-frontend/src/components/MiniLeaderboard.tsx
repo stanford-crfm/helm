@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PageTitle from "@/components/PageTitle";
-import LeaderboardTables from "@/components/LeaderboardTables";
+import MiniLeaderboardTables from "@/components/MiniLeaderboardTables";
 import type GroupsTable from "@/types/GroupsTable";
 import type GroupMetadata from "@/types/GroupMetadata";
 import getGroupsTablesByName from "@/services/getGroupTablesByName";
@@ -75,11 +75,9 @@ export default function MiniLeaderboard() {
   return (
     <>
       <>
-        <LeaderboardTables
+        <MiniLeaderboardTables
           groupsTables={groupsTables}
           activeGroup={activeGroup}
-          ignoreHref={true}
-          filtered
           numModelsToAutoFilter={6}
           filteredCols={[0, 1]}
         />
