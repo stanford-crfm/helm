@@ -13,7 +13,10 @@ interface GroupDisplayData {
   name: string;
 }
 
-export default function MiniLeaderboard() {
+interface Props {
+  numModelsToAutoFilter?: number;
+}
+export default function MiniLeaderboard({ numModelsToAutoFilter = 6 }: Props) {
   const [allGroupData, setAllGroupData] = useState<GroupDisplayData[]>([]);
   const [groupsTables, setGroupsTables] = useState<GroupsTable[]>([]);
   const [groupMetadata, setGroupMetadata] = useState<
@@ -78,7 +81,7 @@ export default function MiniLeaderboard() {
         <MiniLeaderboardTables
           groupsTables={groupsTables}
           activeGroup={activeGroup}
-          numModelsToAutoFilter={6}
+          numModelsToAutoFilter={numModelsToAutoFilter}
           filteredCols={[0, 1]}
         />
       </>

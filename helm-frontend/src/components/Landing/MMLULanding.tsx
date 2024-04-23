@@ -31,7 +31,7 @@ export default function MMLULanding() {
             </a>
           </div>
         </div>
-        <MiniLeaderboard />
+        <MiniLeaderboard numModelsToAutoFilter={10} />
       </div>
     </div>
   );
