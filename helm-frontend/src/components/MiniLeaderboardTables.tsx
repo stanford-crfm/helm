@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import type GroupsTable from "@/types/GroupsTable";
 import RowValue from "@/components/RowValue";
 import Schema from "@/types/Schema";
@@ -20,8 +19,6 @@ interface Props {
 export default function MiniLeaderboardTables({
   groupsTables,
   activeGroup,
-  ignoreHref = false,
-  sortable = true,
   sortFirstMetric = true,
   filteredCols = [],
   modelsToFilter = [],
@@ -107,28 +104,6 @@ export default function MiniLeaderboardTables({
     }
     return "";
   };
-  // create delimiter to parse out run group name (need to replace hyphen as some run names have hyphens in them)
-  /*function replaceLastHyphen(str: string): string {
-		const lastIndex = str.lastIndexOf(" - ");
-		if (lastIndex === -1) {
-			return str;
-		}
-		return str.substring(0, lastIndex) + "*" + str.substring(lastIndex + 1);
-	}
-	/*const getGroupForRunName = (rawGroup: string): string => {
-		const groupSplit = replaceLastHyphen(rawGroup).split("*");
-		const group = groupSplit[0].trim();
-		if (schema) {
-			const foundItem = schema.run_groups.find(
-				(item) =>
-					item.display_name === group || item.short_display_name === group
-			);
-			if (foundItem) {
-				return foundItem.name;
-			}
-		}
-		return "";
-	};*/
 
   useEffect(() => {
     setActiveGroupsTable({ ...groupsTables[activeGroup] });
@@ -224,14 +199,6 @@ export default function MiniLeaderboardTables({
                     >
                       <div className="flex gap-2 items-center">
                         <span>{getHeaderValue(headerValue)}</span>
-                        {sortable ? (
-                          <button
-                            className="link"
-                            onClick={() => handleSort(idx)}
-                          >
-                            <ChevronUpDownIcon className="w-6 h-6" />
-                          </button>
-                        ) : null}
                       </div>
                     </th>
                   ))}
@@ -285,7 +252,6 @@ export default function MiniLeaderboardTables({
                                 title={`Click value to see all predictions for: ${getModelForRunName(
                                   String(row[0].value),
                                 )}`}
-                                ignoreHref={ignoreHref}
                               />
                             )}
                           </div>

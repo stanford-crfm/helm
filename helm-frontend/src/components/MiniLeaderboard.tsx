@@ -78,7 +78,6 @@ export default function MiniLeaderboard() {
         <MiniLeaderboardTables
           groupsTables={groupsTables}
           activeGroup={activeGroup}
-          ignoreHref={true}
           numModelsToAutoFilter={6}
           filteredCols={[0, 1]}
         />
