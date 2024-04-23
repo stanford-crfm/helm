@@ -34,6 +34,7 @@
 - Added ThaiExam (#2534)
 - Added Seed-Bench and MME (#2559)
 - Added Mementos vision-language scenario (#2555)
+- Added Unitxt integration (#2442, #2553)
 
 ### Models
 
@@ -55,6 +56,7 @@
 - Added support for vLLM (#2402)
 - Added DeepSeek LLM 67B Chat (#2563)
 - Added Llama 3 (#2579)
+- Added DBRX Instruct (#2585)
 
 ### Framework
 
@@ -71,15 +73,20 @@
 - Made various improvements to project and version dropdown menus (#2272, #2401, #2458)
 - Made row and column headers sticky in leaderboard tables (#2273, #2275)
 
-
 ### Evaluation Results
 
-- [Lite v1.0.0](https://crfm.stanford.edu/helm/lite/v1.0.0/)
+- [Lite v1.1.0](https://crfm.stanford.edu/helm/lite/v1.1.0/)
     - Added results for Phi-2 and Mistral Medium
+- [Lite v1.2.0](https://crfm.stanford.edu/helm/lite/v1.2.0/)
+    - Added results for Llama 3, Mixtral 8x22B, OLMo, Qwen1.5, and Gemma
 - [HEIM v1.1.0](https://crfm.stanford.edu/helm/heim/v1.1.0/)
     - Added results for Adobe GigaGAN and DeepFloyd IF
-- [Instruct v1.1.0](https://crfm.stanford.edu/helm/instruct/v1.1.0/)
+- [Instruct v1.0.0](https://crfm.stanford.edu/helm/instruct/v1.0.0/)
     - Initial release with results for OpenAI GPT-4, OpenAI GPT-3.5 Turbo, Anthropic Claude v1.3, Cohere Command beta
+- [MMLU v1.0.0](https://crfm.stanford.edu/helm/mmlu/v1.0.0/)
+    - Initial release with 22 models
+- [MMLU v1.1.0](https://crfm.stanford.edu/helm/instruct/v1.1.0/)
+    - Added results for Llama 3, Mixtral 8x22B, OLMo, and Qwen1.5 (32B)
 
 ### Contributors
 
