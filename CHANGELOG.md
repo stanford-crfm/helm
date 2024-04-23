@@ -2,7 +2,7 @@
 
 ## [Upcoming]
 
-## [v0.5.0] - 2024-04-04
+## [v0.5.0] - 2024-04-23
 
 ### Breaking changes
 
@@ -26,21 +26,23 @@
 - Added Image2Structure (#2267, #2472)
 - Added MMU (#2259)
 - Added LMEntry (#1694)
-- Added Unicorn vision-language benchmark (#2456)
-- Added Bingo vision-language benchmark (#2456)
+- Added Unicorn vision-language scenario (#2456)
+- Added Bingo vision-language scenario (#2456)
 - Added MultipanelVQA (#2517)
 - Added POPE (#2517)
 - Added MuliMedQA (#2524)
 - Added ThaiExam (#2534)
+- Added Seed-Bench and MME (#2559)
+- Added Mementos vision-language scenario (#2555)
 
 ### Models
 
 - Added OpenAI gpt-3.5-turbo-1106, gpt-3.5-turbo-0125, gpt-4-vision-preview, gpt-4-0125-preview, and gpt-3.5-turbo-instruct (#2189, #2295, #2376, #2400)
-- Added Google Gemini and Gemini Vision (#2186, #2189)
+- Added Google Gemini 1.0, Gemini 1.5, and Gemini Vision (#2186, #2189, #2561)
 - Improved handling of content blocking in the Vertex AI client (#2546, #2313)
 - Added Claude 3 (#2432, #2440, #2536)
 - Added Mistral Small, Medium and Large (#2307, #2333, #2399)
-- Added Mixtral 8x7b Instruct (#2416)
+- Added Mixtral 8x7b Instruct and 8x22B (#2416, #2562)
 - Added Luminous Multimodal (#2189)
 - Added Llava and BakLava (#2234)
 - Added Phi-2 (#2338)
@@ -51,6 +53,8 @@
 - Added OpenFlamingo (#2237)
 - Removed logprobs from models hosted on Together (#2325)
 - Added support for vLLM (#2402)
+- Added DeepSeek LLM 67B Chat (#2563)
+- Added Llama 3 (#2579)
 
 ### Framework
 
@@ -104,6 +108,7 @@ Thank you to the following contributors for your work on this HELM release!
 - @ritik99
 - @ruixin31
 - @sbdzdz
+- @shenmishajing
 - @teetone
 - @tybrs
 - @YianZhang
