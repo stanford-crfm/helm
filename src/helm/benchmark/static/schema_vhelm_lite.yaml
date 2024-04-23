@@ -365,7 +365,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_prefix_exact_match
+      main_name: quasi_exact_match
       main_split: valid
     taxonomy:
       task: multimodal short answer question answering
@@ -382,7 +382,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: quasi_prefix_exact_match
+      main_name: quasi_exact_match
       main_split: valid
     taxonomy:
       task: multimodal short answer question answering
