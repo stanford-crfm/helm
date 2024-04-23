@@ -345,6 +345,15 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
+  # Databricks
+
+  - name: together/dbrx-instruct
+    model_name: databricks/dbrx-instruct
+    tokenizer_name: databricks/dbrx-instruct
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
   # DeepFloyd
 
   - name: DeepFloyd/IF-I-M-v1.0
@@ -1562,6 +1571,24 @@ model_deployments:
       args:
         together_model: togethercomputer/llama-2-70b
 
+  - name: together/llama-3-8b
+    model_name: meta/llama-3-8b
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-8B
+
+  - name: together/llama-3-70b
+    model_name: meta/llama-3-70b
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-70B
+
   # 01.AI
   - name: together/yi-6b
     model_name: 01-ai/yi-6b
@@ -1881,6 +1908,15 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: Qwen/Qwen1.5-14B
+
+  - name: together/qwen1.5-32b
+    model_name: qwen/qwen1.5-32b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: Qwen/Qwen1.5-32B
 
   - name: together/qwen1.5-72b
     model_name: qwen/qwen1.5-72b
