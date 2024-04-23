@@ -85,7 +85,7 @@
     - Initial release with results for OpenAI GPT-4, OpenAI GPT-3.5 Turbo, Anthropic Claude v1.3, Cohere Command beta
 - [MMLU v1.0.0](https://crfm.stanford.edu/helm/mmlu/v1.0.0/)
     - Initial release with 22 models
-- [MMLU v1.1.0](https://crfm.stanford.edu/helm/instruct/v1.1.0/)
+- [MMLU v1.1.0](https://crfm.stanford.edu/helm/mmlu/v1.1.0/)
     - Added results for Llama 3, Mixtral 8x22B, OLMo, and Qwen1.5 (32B)
 
 ### Contributors
