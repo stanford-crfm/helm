@@ -322,6 +322,16 @@ class AnthropicClaude3RunExpander(RunExpander):
     name = "claude_3"
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        # Remove all stop sequences that do not contain non-whitespace characters.
+        # This prevents the Anthropic API from returnin the following error:
+        # "stop_sequences: each stop sequence must contain non-whitespace"
+        stop_sequences_with_non_whitespace = [
+            stop_sequence for stop_sequence in run_spec.adapter_spec.stop_sequences if stop_sequence.strip()
+        ]
+        run_spec = replace(
+            run_spec,
+            adapter_spec=replace(run_spec.adapter_spec, stop_sequences=stop_sequences_with_non_whitespace),
+        )
         if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             instructions = "Answer with only a single letter."
             if run_spec.adapter_spec.instructions:
