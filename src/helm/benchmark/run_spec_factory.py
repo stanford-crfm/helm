@@ -33,7 +33,6 @@ from helm.benchmark.model_metadata_registry import (
 from helm.benchmark.run_expander import (
     RUN_EXPANDERS,
     AnthropicRunExpander,
-    AnthropicClaude3RunExpander,
     ChatMLRunExpander,
     GlobalPrefixRunExpander,
     GoogleRunExpander,
