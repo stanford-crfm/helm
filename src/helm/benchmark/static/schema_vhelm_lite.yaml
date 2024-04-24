@@ -59,6 +59,11 @@ adapter:
   - name: multi_label
     description: If true, for instances with multiple correct reference, the gold answer should be considered to be all of the correct references rather than any of the correct references.
 
+perturbations:
+  - name: robustness
+    display_name: Robustness
+    description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
+
 ############################################################
 metrics:
   # Accuracy metrics:
