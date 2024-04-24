@@ -8,12 +8,14 @@ from helm.benchmark.model_metadata_registry import (
     get_all_code_models,
     get_all_models,
     get_all_text_models,
+    get_model_metadata,
     get_model_names_with_tag,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     ABLATION_MODEL_TAG,
     TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
+    INSTRUCTION_FOLLOWING_MODEL_TAG,
 )
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
@@ -345,78 +347,39 @@ class AnthropicClaude3RunExpander(RunExpander):
         return [run_spec]
 
 
-class OpenAIRunExpander(RunExpander):
+class FollowTheFormatInstructionsRunExpander(RunExpander):
+    """Adds more explicit instructions about following the format to prompts.
+
+    The argument controlls which models will receive these instructions.
+    If "all", all models receive these instructions.
+    If "instruct", only instruction-following models receive these instructions.
+
+    Only supports the generation adaptation method. Raises an error if used on
+    a RunSpec that uses a different adaptation method.
+
+    Note: For legacy backwards compatibility reasons, despite the use of the word
+    "instructions" in this run expander's name, this run expander actually
+    modifies the global_prefix and the global_suffix of the AdapterSpec rather than
+    the instructions.
     """
-    Custom prompt for OpenAI models.
-    These models need more explicit instructions about following the format.
-    """
 
-    # TODO: Refactor out common logic between this and GoogleRunExpander and MistralRunExpander.
+    name = "follow_the_format_instructions"
 
-    name = "openai"
-
-    def __init__(self):
-        pass
+    def __init__(self, value: str):
+        if value != "all" and value != "instruct":
+            raise ValueError("Value of add_follow_the_format_instructions run expander must be 'all' or 'instruct'")
+        self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if run_spec.adapter_spec.method != ADAPT_GENERATION:
-            return [run_spec]
+            raise Exception(
+                "AddFollowTheFormatPrefixAndSuffixRunExpander only supports the generation adaptation method"
+            )
 
-        return [
-            replace(
-                run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                    global_suffix="\n\n"
-                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + "\n"
-                    + run_spec.adapter_spec.output_prefix.strip(),
-                ),
-            ),
-        ]
-
-
-class GoogleRunExpander(RunExpander):
-    """
-    Custom prompt for Google models.
-    These models need more explicit instructions about following the format.
-    """
-
-    # TODO: Refactor out common logic between this and OpenAIRunExpander and MistralRunExpander.
-
-    name = "google"
-
-    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        if run_spec.adapter_spec.method != ADAPT_GENERATION:
-            return [run_spec]
-
-        return [
-            replace(
-                run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                    global_suffix="\n\n"
-                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + "\n"
-                    + run_spec.adapter_spec.output_prefix.strip(),
-                ),
-            ),
-        ]
-
-
-class MistralRunExpander(RunExpander):
-    """Custom prompt for Mistral models."""
-
-    # TODO: Refactor out common logic between this and GoogleRunExpander and OpenAIRunExpander.
-
-    name = "output_format_instructions"
-
-    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        if run_spec.adapter_spec.method != ADAPT_GENERATION:
+        if (
+            self.value == "instruct"
+            and INSTRUCTION_FOLLOWING_MODEL_TAG not in get_model_metadata(run_spec.adapter_spec.model).tags
+        ):
             return [run_spec]
 
         return [
@@ -1425,6 +1388,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     NewlineRunExpander,
     StopRunExpander,
     FormatPromptRunExpander,
+    FollowTheFormatInstructionsRunExpander,
     AddToStopRunExpander,
     GlobalPrefixRunExpander,
     NumTrainTrialsRunExpander,
