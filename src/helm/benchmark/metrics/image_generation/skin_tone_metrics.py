@@ -92,9 +92,9 @@ class SkinToneMetric(Metric):
                     and (Cr <= ((-2.2857 * Cb) + 432.85))
                 ):
 
-                    blue.append(img_rgba[i, j].item(0))
+                    blue.append(img_rgba[i, j].item(2))
                     green.append(img_rgba[i, j].item(1))
-                    red.append(img_rgba[i, j].item(2))
+                    red.append(img_rgba[i, j].item(0))
                 else:
                     img_rgba[i, j] = [0, 0, 0, 0]
 
