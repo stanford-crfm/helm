@@ -263,6 +263,8 @@ models:
     release_date: 2021-12-01
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG]
 
+
+
   # Berkeley
   - name: berkeley/koala-13b # NOT SUPPORTED
     display_name: Koala (13B)
