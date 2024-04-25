@@ -65,12 +65,11 @@ def get_multiple_choice_joint_adapter_spec(
     output_noun: str,
     max_train_instances: int = 0,
     num_outputs: int = 1,
-    instructions: str = "Answer the multiple choice question by just giving the letter of the correct answer.",
 ) -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
         global_prefix="",
-        instructions=instructions,
+        instructions="Answer the multiple choice question by just giving the letter of the correct answer.",
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
         input_suffix="\n",
         output_prefix=f"{output_noun}: ",

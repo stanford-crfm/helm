@@ -805,7 +805,7 @@ models:
 
   - name: HuggingFaceM4/idefics-80b-instruct
     display_name: IDEFICS-instruct (80B)
-    description: IDEFICS-instruct (9B parameters) is the instruction-tuned version of IDEFICS 80B ([blog](https://huggingface.co/blog/idefics)).
+    description: IDEFICS-instruct (80B parameters) is the instruction-tuned version of IDEFICS 80B ([blog](https://huggingface.co/blog/idefics)).
     creator_organization_name: HuggingFace
     access: open
     num_parameters: 80000000000

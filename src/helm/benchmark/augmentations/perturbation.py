@@ -52,6 +52,7 @@ class TextPerturbation(Perturbation, ABC):
         if instance.input.multimedia_content:
             perturbed_media_objects = []
             for media_object in instance.input.multimedia_content.media_objects:
+                # Apply perturbations to the text data of the multimedia content
                 if media_object.is_type("text") and media_object.text is not None:
                     perturbed_media_objects.append(replace(media_object, text=self.perturb(media_object.text, rng)))
                 else:
@@ -86,43 +87,6 @@ class TextPerturbation(Perturbation, ABC):
     @abstractmethod
     def perturb(self, text: str, rng: Random) -> str:
         """How to perturb the text."""
-        pass
-
-
-class ImagePerturbation(Perturbation, ABC):
-    def apply(self, instance: Instance, seed: Optional[int] = None) -> Instance:
-        """
-        Generates a new Instance by applying `perturb` to the input images.
-        """
-        assert instance.input.multimedia_content is not None
-
-        rng: Random = self.get_rng(instance, seed)
-        description = replace(self.description, seed=seed)
-
-        perturbed_media_objects = []
-        for media_object in instance.input.multimedia_content.media_objects:
-            if media_object.is_type("image") and media_object.location is not None:
-                perturbed_image_path: str = self.perturb(media_object.location, rng)
-                perturbed_media_objects.append(replace(media_object, location=perturbed_image_path))
-            else:
-                perturbed_media_objects.append(media_object)
-
-        perturbed_input: Input = Input(
-            multimedia_content=replace(instance.input.multimedia_content, media_objects=perturbed_media_objects)
-        )
-
-        # Don't modify `id` of `Instance` here.
-        # All the perturbed Instances generated from a single Instance should have the same ID.
-        return replace(
-            instance,
-            input=perturbed_input,
-            perturbation=description,
-            contrast_inputs=[instance.input],
-        )
-
-    @abstractmethod
-    def perturb(self, image_path: str, rng: Random) -> str:
-        """How to perturb the image at `image_path`. Generates a new image and returns the path to it."""
         pass
 
 

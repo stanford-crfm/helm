@@ -6,6 +6,8 @@ adapter:
     values:
       - name: generation
         description: Given the input, the model generates the output free-form.
+      - name: generation_multimodal
+        description: Given the multimodal input, the model generates the output free-form.
       - name: multiple_choice_joint
         description: Given the input, the model selects from multiple-choice options (A., B., C., D., E.).
       - name: multiple_choice_separate_original
@@ -192,127 +194,11 @@ metrics:
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
     lower_is_better: false
 
-  - name: rouge_1
-    display_name: ROUGE-1
-    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
-    lower_is_better: false
-  - name: rouge_2
-    display_name: ROUGE-2
-    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
-    lower_is_better: false
-  - name: rouge_l
-    display_name: ROUGE-L
-    description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
-    lower_is_better: false
-  - name: bleu_1
-    display_name: BLEU-1
-    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
-    lower_is_better: false
-  - name: bleu_4
-    display_name: BLEU-4
-    description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
-    lower_is_better: false
-  - name: f1_score
-    display_name: F1
-    description: Average F1 score in terms of word overlap between the model output and correct reference.
-    lower_is_better: false
-  - name: cider
-    display_name: CIDEr
-    description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
-    lower_is_better: false
-
-  # Bias metrics:
-  - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
-    display_name: Stereotypical associations (race, profession)
-    short_display_name: Stereotypes (race)
-    lower_is_better: true
-    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-  - name: bias_metric:mode=associations,demographic_category=race,target_category=adjective
-    display_name: Stereotypical associations (race, adjectives)
-    short_display_name: Stereotypes (race)
-    lower_is_better: true
-    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-
-  - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
-    display_name: Stereotypical associations (gender, profession)
-    short_display_name: Stereotypes (gender)
-    lower_is_better: true
-    description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-  - name: bias_metric:mode=associations,demographic_category=gender,target_category=adjective
-    display_name: Stereotypical associations (gender, adjectives)
-    short_display_name: Stereotypes (gender)
-    lower_is_better: true
-    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-
-  - name: bias_metric:mode=representation,demographic_category=race
-    display_name: Demographic representation (race)
-    short_display_name: Representation (race)
-    lower_is_better: true
-    description: Measures uneven representation of racial groups (Asian, Hispanic, White). This measurement is based on disparities in the frequency statistics across racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics).
-  - name: bias_metric:mode=representation,demographic_category=gender
-    display_name: Demographic representation (gender)
-    short_display_name: Representation (gender)
-    lower_is_better: true
-    description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
-
-  - name: bbq_metric_ambiguous_bias
-    display_name: BBQ (ambiguous)
-    lower_is_better: true
-    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on ambiguous examples.
-  - name: bbq_metric_unambiguous_bias
-    display_name: BBQ (unambiguous)
-    lower_is_better: true
-    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on unambiguous examples.
-
-  # Toxicity metrics
-  - name: expected_max_toxicity
-    display_name: Average max toxicity
-    short_display_name: Avg. max toxicity
-    lower_is_better: true
-    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
-  - name: max_toxicity_probability
-    display_name: max toxicity
-    lower_is_better: true
-    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; [Gehman et al. (2020)](https://aclanthology.org/2020.findings-emnlp.301/)).
-  - name: toxic_frac
-    display_name: Toxic fraction
-    lower_is_better: true
-    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
-
 ############################################################
 perturbations:
   - name: robustness
     display_name: Robustness
     description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
-  - name: fairness
-    display_name: Fairness
-    description: Computes worst case over different fairness perturbations (changing dialect, race of names, gender).
-  - name: typos
-    display_name: Typos
-    description: >
-      Randomly adds typos to each token in the input with probability 0.05 and computes the per-instance worst-case
-      performance between perturbed and unperturbed versions.
-  - name: synonym
-    display_name: Synonyms
-    description: >
-      Randomly substitutes words in the input with WordNet synonyms with probability 0.5 and computes the per-instance
-      worst-case performance between perturbed and unperturbed versions.
-  - name: dialect
-    display_name: SAE -> AAE
-    short_display_name: Dialect
-    description: >
-      Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of [Ziems et al. (2022)](https://aclanthology.org/2022.acl-long.258/) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
-  - name: race
-    display_name: First names by race (White -> Black)
-    short_display_name: Race
-    description: >
-      Deterministically substitutes White first names with Black first names sampled from the lists of [Caliskan et al. (2017)](https://www.science.org/doi/10.1126/science.aal4230) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
-  - name: gender
-    display_name: Pronouns by gender (Male -> Female)
-    short_display_name: Gender
-    description: >
-      Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
-      performance between perturbed and unperturbed versions.
 
 ############################################################
 metric_groups:

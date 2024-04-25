@@ -19,12 +19,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .run_spec import RunSpec
-from helm.benchmark.adaptation.adapter_spec import (
-    AdapterSpec,
-    Substitution,
-    ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL,
-    ADAPT_MULTIPLE_CHOICE_JOINT,
-)
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
@@ -324,41 +319,6 @@ class AnthropicRunExpander(RunExpander):
         ]
 
 
-class AnthropicClaude3RunExpander(RunExpander):
-    """
-    Custom prompt for Anthropic Claude 3 models.
-    These models need more explicit instructions about following the format.
-    """
-
-    name = "anthropic_claude_3"
-
-    def __init__(self):
-        pass
-
-    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        try:
-            import anthropic
-        except ModuleNotFoundError as e:
-            handle_module_not_found_error(e, ["anthropic"])
-
-        return [
-            replace(
-                run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=anthropic.HUMAN_PROMPT,
-                    input_suffix="",
-                    # Because of `reference_prefix` defaulting to "\n", we have to add this check
-                    output_prefix="\nAssistant:"
-                    if run_spec.adapter_spec.method
-                    in [ADAPT_MULTIPLE_CHOICE_JOINT_MULTIMODAL, ADAPT_MULTIPLE_CHOICE_JOINT]
-                    else anthropic.AI_PROMPT,
-                ),
-            ),
-        ]
-
-
 class OpenAIRunExpander(RunExpander):
     """
     Custom prompt for OpenAI models.
@@ -563,7 +523,7 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
         "one": [1],
         "all": [0, 1, 2, 4, 8, 16],  # Cap at 16 due to limited context length
         "big_bench_few_shot_setting": [0, 1, 2, 3],  # Commonly used few-shot setting in BIG-bench
-        "vhelm": [1, 2, 4, 8],
+        "vhelm": [0, 1, 2, 4, 8],
     }
 
 
@@ -893,28 +853,6 @@ def suffix(text: str) -> PerturbationSpec:
     )
 
 
-# Image perturbations
-def blurred_image() -> PerturbationSpec:
-    return PerturbationSpec(
-        class_name="helm.benchmark.augmentations.image.image_filter_perturbation.BlurredImageFilterPerturbation",
-        args={},
-    )
-
-
-def sepia_image() -> PerturbationSpec:
-    return PerturbationSpec(
-        class_name="helm.benchmark.augmentations.image.image_filter_perturbation.SepiaImageFilterPerturbation",
-        args={},
-    )
-
-
-def sharpened_image() -> PerturbationSpec:
-    return PerturbationSpec(
-        class_name="helm.benchmark.augmentations.image.image_filter_perturbation.SharpenedImageFilterPerturbation",
-        args={},
-    )
-
-
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -1119,14 +1057,6 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             suffix("animation"),
             suffix("vector graphics"),
             suffix("pixel art"),
-        ]
-    },
-    # Images
-    "instagram": {
-        "instagram": [
-            blurred_image(),
-            sepia_image(),
-            sharpened_image(),
         ]
     },
 }
