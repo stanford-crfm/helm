@@ -347,7 +347,7 @@ class AnthropicClaude3RunExpander(RunExpander):
         return [run_spec]
 
 
-class FollowTheFormatInstructionsRunExpander(RunExpander):
+class FollowFormatInstructionsRunExpander(RunExpander):
     """Adds more explicit instructions about following the format to prompts.
 
     The argument controlls which models will receive these instructions.
@@ -363,7 +363,7 @@ class FollowTheFormatInstructionsRunExpander(RunExpander):
     the instructions.
     """
 
-    name = "follow_the_format_instructions"
+    name = "follow_format_instructions"
 
     def __init__(self, value: str):
         if value != "all" and value != "instruct":
@@ -372,9 +372,7 @@ class FollowTheFormatInstructionsRunExpander(RunExpander):
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if run_spec.adapter_spec.method != ADAPT_GENERATION:
-            raise Exception(
-                "AddFollowTheFormatPrefixAndSuffixRunExpander only supports the generation adaptation method"
-            )
+            raise Exception("follow_format_instructions run expander only supports the generation adaptation method")
 
         if (
             self.value == "instruct"
@@ -1388,7 +1386,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     NewlineRunExpander,
     StopRunExpander,
     FormatPromptRunExpander,
-    FollowTheFormatInstructionsRunExpander,
+    FollowFormatInstructionsRunExpander,
     AddToStopRunExpander,
     GlobalPrefixRunExpander,
     NumTrainTrialsRunExpander,
