@@ -302,6 +302,7 @@ class AnthropicMessagesClient(CachingClient):
                         )
                         # Save the resized image to a temporary file
                         with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
+                            hlog(f"Resizing image to temporary path: {temp_file.name}")
                             copy_image(
                                 src=image_location,
                                 dest=temp_file.name,
