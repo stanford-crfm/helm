@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, List, Union
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, ErrorFlags
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, ErrorFlags
 from helm.clients.client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
@@ -70,7 +70,7 @@ class VertexAITextClient(VertexAIClient):
             # "echo": request.echo_prompt,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
 
         try:
@@ -113,7 +113,7 @@ class VertexAITextClient(VertexAIClient):
             # https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#response_body
             # Python SDK reference:
             # https://github.com/googleapis/python-aiplatform/blob/beae48f63e40ea171c3f1625164569e7311b8e5a/vertexai/language_models/_language_models.py#L868
-            completion = Sequence(text=text, logprob=0, tokens=[])
+            completion = GeneratedOutput(text=text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -182,7 +182,7 @@ class VertexAIChatClient(VertexAIClient):
             # "echo": request.echo_prompt,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
         model = self.get_model(model_name)
 
@@ -203,25 +203,22 @@ class VertexAIChatClient(VertexAIClient):
 
                 # Depending on the version of the Vertex AI library and the type of content blocking,
                 # content blocking can show up in many ways, so this defensively handles most of these ways
-                if not response.candidates:
+                if not candidates:
                     raise VertexAIContentBlockedError("No candidates in response due to content blocking")
-                for candidate in response.candidates:
-                    if candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS:
-                        raise VertexAIContentBlockedError(
-                            f"Content blocked with finish reason {candidate.finish_reason}"
-                        )
-                try:
-                    response_dict = {
-                        "predictions": [{"text": completion.text} for completion in candidates],
-                    }  # TODO: Extract more information from the response
-                except ValueError as e:
-                    if "Content has no parts" in str(e):
+                predictions: List[Dict[str, Any]] = []
+                for candidate in candidates:
+                    if (
+                        candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS
+                        or not candidate.content.parts
+                    ):
                         # The prediction was either blocked due to safety settings or the model stopped and returned
                         # nothing (which also happens when the model is blocked).
                         # For now, we don't cache blocked requests, because we are trying to get the
                         # content blocking removed.
                         raise VertexAIContentBlockedError("Content has no parts due to content blocking")
-                return response_dict
+                    predictions.append({"text": candidate.content.text})
+                    # TODO: Extract more information from the response
+                return {"predictions": predictions}
 
             # We need to include the engine's name to differentiate among requests made for different model
             # engines since the engine name is not included in the request itself.
@@ -279,7 +276,7 @@ class VertexAIChatClient(VertexAIClient):
 
             # The Python SDK does not support echo
             text: str = request.prompt + response_text if request.echo_prompt else response_text
-            completion = Sequence(text=text, logprob=0, tokens=[])
+            completion = GeneratedOutput(text=text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -294,7 +291,7 @@ class VertexAIChatClient(VertexAIClient):
 
     def _make_multimodal_request(self, request: Request) -> RequestResult:
         def complete_for_valid_error(error_message: str) -> RequestResult:
-            empty_completion = Sequence(
+            empty_completion = GeneratedOutput(
                 text="",
                 logprob=0,
                 tokens=[],
@@ -335,7 +332,7 @@ class VertexAIChatClient(VertexAIClient):
             "candidate_count": 1,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
         model = self.get_model(model_name)
 
@@ -387,7 +384,7 @@ class VertexAIChatClient(VertexAIClient):
                 return complete_for_valid_error(response["error"])
 
             response_text = response["predictions"][0]["text"]
-            completion = Sequence(text=response_text, logprob=0, tokens=[])
+            completion = GeneratedOutput(text=response_text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 

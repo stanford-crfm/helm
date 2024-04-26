@@ -159,7 +159,10 @@ def register_model_metadata(model_metadata: ModelMetadata) -> None:
 def get_model_metadata(model_name: str) -> ModelMetadata:
     """Return the `ModelMetadata` for the model name."""
     if model_name not in MODEL_NAME_TO_MODEL_METADATA:
-        raise ValueError(f"No model with name: {model_name}")
+        raise ValueError(
+            f"No model metadata for model name: {model_name} - "
+            "did you remember to add this model to model_metadata.yaml?"
+        )
 
     return MODEL_NAME_TO_MODEL_METADATA[model_name]
 

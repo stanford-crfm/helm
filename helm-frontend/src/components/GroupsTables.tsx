@@ -111,10 +111,21 @@ export default function GroupsTables({
                     activeSortColumn === idx ? "bg-gray-100" : "bg-white"
                   }`}
                 >
-                  <RowValue
-                    ignoreHref={ignoreHref && idx === 0}
-                    value={rowValue}
-                  />
+                  <div
+                    className={
+                      rowValue &&
+                      rowValue.style &&
+                      rowValue.style["font-weight"] &&
+                      rowValue.style["font-weight"] === "bold"
+                        ? "font-bold"
+                        : ""
+                    }
+                  >
+                    <RowValue
+                      ignoreHref={ignoreHref && idx === 0}
+                      value={rowValue}
+                    />
+                  </div>
                 </td>
               ))}
             </tr>

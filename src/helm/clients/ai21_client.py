@@ -7,7 +7,7 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
 )
 from .client import CachingClient, truncate_sequence, cleanup_str
@@ -105,11 +105,11 @@ class AI21Client(CachingClient):
                 logprob=raw["generatedToken"]["raw_logprob"],
             )
 
-        def parse_sequence(raw: Dict, first: bool, finish_reason: Optional[Dict] = None) -> Sequence:
+        def parse_sequence(raw: Dict, first: bool, finish_reason: Optional[Dict] = None) -> GeneratedOutput:
             text = raw["text"]
             tokens = [parse_token(token, first and i == 0) for i, token in enumerate(raw["tokens"])]
             logprob = sum(token.logprob for token in tokens)
-            return Sequence(text=text, logprob=logprob, tokens=tokens, finish_reason=finish_reason)
+            return GeneratedOutput(text=text, logprob=logprob, tokens=tokens, finish_reason=finish_reason)
 
         prompt = parse_sequence(response["prompt"], True)
         completions = []

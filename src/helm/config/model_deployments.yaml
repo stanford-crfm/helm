@@ -202,6 +202,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
 
+  - name: anthropic/claude-3-haiku-20240307
+    model_name: anthropic/claude-3-haiku-20240307
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
+
   - name: anthropic/claude-3-opus-20240229
     model_name: anthropic/claude-3-opus-20240229
     tokenizer_name: anthropic/claude
@@ -338,6 +345,15 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
+  # Databricks
+
+  - name: together/dbrx-instruct
+    model_name: databricks/dbrx-instruct
+    tokenizer_name: databricks/dbrx-instruct
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
   # DeepFloyd
 
   - name: DeepFloyd/IF-I-M-v1.0
@@ -366,6 +382,15 @@ model_deployments:
       class_name: "helm.clients.image_generation.deep_floyd_client.DeepFloydClient"
     window_service_spec:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
+
+  # Deepseek
+
+  - name: together/deepseek-llm-67b-chat
+    model_name: deepseek-ai/deepseek-llm-67b-chat
+    tokenizer_name: deepseek-ai/deepseek-llm-67b-chat
+    max_sequence_length: 4095
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
 
   # Gooseai
 
@@ -422,6 +447,14 @@ model_deployments:
     tokenizer_name: hf-internal-testing/llama-tokenizer
     max_sequence_length: 12288
     max_sequence_and_generated_tokens_length: 16384
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+
+  - name: google/gemini-1.5-pro-preview-0409
+    model_name: google/gemini-1.5-pro-preview-0409
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1000000  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+    # TODO: Max output tokens: 8192
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
@@ -775,6 +808,8 @@ model_deployments:
     max_request_length: 1025
     client_spec:
       class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: openai-community/gpt2
 
   ## StabilityAI
   - name: huggingface/stablelm-base-alpha-3b
@@ -1193,7 +1228,7 @@ model_deployments:
     model_name: openai/gpt-3.5-turbo-instruct
     tokenizer_name: openai/cl100k_base
     max_sequence_length: 4096
-    max_sequence_length: 4097
+    max_request_length: 4097
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
@@ -1303,6 +1338,13 @@ model_deployments:
     # TODO: add max_generated_tokens_length of 4096 https://github.com/stanford-crfm/helm/issues/2098
     max_sequence_length: 128000
     max_request_length: 128001
+    client_spec:
+      class_name: "helm.clients.openai_client.OpenAIClient"
+
+  - name: openai/gpt-4-turbo-2024-04-09
+    model_name: openai/gpt-4-turbo-2024-04-09
+    tokenizer_name: openai/cl100k_base
+    max_sequence_length: 128000
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
@@ -1575,6 +1617,24 @@ model_deployments:
       args:
         together_model: togethercomputer/llama-2-70b
 
+  - name: together/llama-3-8b
+    model_name: meta/llama-3-8b
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-8B
+
+  - name: together/llama-3-70b
+    model_name: meta/llama-3-70b
+    tokenizer_name: meta/llama-3-8b
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: meta-llama/Meta-Llama-3-70B
+
   # 01.AI
   - name: together/yi-6b
     model_name: 01-ai/yi-6b
@@ -1641,6 +1701,13 @@ model_deployments:
     model_name: mistralai/mixtral-8x7b-instruct-v0.1
     tokenizer_name: mistralai/Mistral-7B-v0.1
     max_sequence_length: 4095 # Subtract 1 token to work around a off-by-one bug in Together's input validation token counting (#2080)
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/mixtral-8x22b
+    model_name: mistralai/mixtral-8x22b
+    tokenizer_name: mistralai/Mistral-7B-v0.1
+    max_sequence_length: 65535
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
 
@@ -1887,6 +1954,15 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: Qwen/Qwen1.5-14B
+
+  - name: together/qwen1.5-32b
+    model_name: qwen/qwen1.5-32b
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+      args:
+        together_model: Qwen/Qwen1.5-32B
 
   - name: together/qwen1.5-72b
     model_name: qwen/qwen1.5-72b

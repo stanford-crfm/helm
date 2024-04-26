@@ -229,20 +229,28 @@ models:
     release_date: 2023-11-21
     tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
-  - name: anthropic/claude-3-sonnet-20240229
-    display_name: Claude 3 Sonnet (20240229)
-    description: Claude 3 Sonnet is Anthropic's multimodal model that strikes the ideal balance between intelligence and speed ([blog](https://www.anthropic.com/news/claude-3-family)).
+  - name: anthropic/claude-3-haiku-20240307
+    display_name: Claude 3 Haiku (20240307)
+    description: Claude 3 is a a family of models that possess vision and multilingual capabilities. They were trained with various methods such as unsupervised learning and Constitutional AI ([blog](https://www.anthropic.com/news/claude-3-family)).
     creator_organization_name: Anthropic
     access: limited
-    release_date: 2024-03-04
+    release_date: 2024-03-13  # https://www.anthropic.com/news/claude-3-haiku
+    tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-3-sonnet-20240229
+    display_name: Claude 3 Sonnet (20240229)
+    description: Claude 3 is a a family of models that possess vision and multilingual capabilities. They were trained with various methods such as unsupervised learning and Constitutional AI ([blog](https://www.anthropic.com/news/claude-3-family)).
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2024-03-04  # https://www.anthropic.com/news/claude-3-family
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/claude-3-opus-20240229
     display_name: Claude 3 Opus (20240229)
-    description: Claude 3 Opus is Anthropic's most intelligent multimodal model ([blog](https://www.anthropic.com/news/claude-3-family)).
-    creator_organization_name: Anthropic
+    description: Claude 3 is a a family of models that possess vision and multilingual capabilities. They were trained with various methods such as unsupervised learning and Constitutional AI ([blog](https://www.anthropic.com/news/claude-3-family)).
     access: limited
-    release_date: 2024-03-04
+    creator_organization_name: Anthropic
+    release_date: 2024-03-04  # https://www.anthropic.com/news/claude-3-family
     tags: [ANTHROPIC_CLAUDE_3_MODEL_TAG, TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   # DEPRECATED: Please do not use.
@@ -519,6 +527,14 @@ models:
     release_date: 2023-04-12
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: databricks/dbrx-instruct
+    display_name: DBRX Instruct
+    description: DBRX is a large language model with a fine-grained mixture-of-experts (MoE) architecture that uses 16 experts and chooses 4. It has 132B total parameters, of which 36B parameters are active on any input. ([blog post](https://www.databricks.com/blog/introducing-dbrx-new-state-art-open-llm))
+    creator_organization_name: Databricks
+    access: open
+    num_parameters: 132000000000
+    release_date: 2024-03-27
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
   # DeepMind
@@ -540,6 +556,16 @@ models:
     release_date: 2022-03-31
     tags: [] # TODO: add tags
 
+
+  # Deepseek
+  - name: deepseek-ai/deepseek-llm-67b-chat
+    display_name: DeepSeek Chat (67B)
+    description: DeepSeek Chat is a open-source language model trained on 2 trillion tokens in both English and Chinese, and fine-tuned supervised fine-tuning (SFT) and Direct Preference Optimization (DPO). ([paper](https://arxiv.org/abs/2401.02954))
+    creator_organization_name: DeepSeek
+    access: open
+    num_parameters: 67000000000
+    release_date: 2024-01-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
   # EleutherAI
@@ -644,7 +670,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
-    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-1.0-pro-001
     display_name: Gemini 1.0 Pro
@@ -652,7 +678,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
-    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
     # Note: This is aliased to a snapshot of gemini-pro-vision. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro-vision
@@ -669,7 +695,15 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
-    tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
+    tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: google/gemini-1.5-pro-preview-0409
+    display_name: Gemini 1.5 Pro
+    description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2024-04-10
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-2b
     display_name: Gemma (2B)
@@ -1167,6 +1201,23 @@ models:
     # TODO(#1828): Upgrade to FULL_FUNCTIONALITY_TEXT_MODEL_TAG
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: meta/llama-3-8b
+    display_name: Llama 3 (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: meta/llama-3-70b
+    display_name: Llama 3 (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
   # Microsoft/NVIDIA
@@ -1320,7 +1371,7 @@ models:
     access: open
     num_parameters: 7300000000
     release_date: 2023-09-27
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mixtral-8x7b-32kseqlen
     display_name: Mixtral (8x7B 32K seqlen)
@@ -1329,7 +1380,7 @@ models:
     access: open
     num_parameters: 46700000000
     release_date: 2023-12-08
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/mixtral-8x7b-instruct-v0.1
     display_name: Mixtral (8x7B Instruct)
@@ -1339,7 +1390,16 @@ models:
     num_parameters: 46700000000
     # Blog post: https://mistral.ai/news/mixtral-of-experts/
     release_date: 2023-12-11
-    tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG, MISTRAL_MODEL_TAG]
+
+  - name: mistralai/mixtral-8x22b
+    display_name: Mixtral (8x22B)
+    description: Mistral AI's mixture-of-experts model ([tweet](https://twitter.com/MistralAI/status/1777869263778291896)).
+    creator_organization_name: Mistral AI
+    access: open
+    num_parameters: 176000000000
+    release_date: 2024-04-10
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: mistralai/bakLlava-v1-hf
     display_name: BakLLaVA v1 (7B)
@@ -1696,6 +1756,14 @@ models:
     release_date: 2024-01-25
     tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: openai/gpt-4-turbo-2024-04-09
+    display_name: GPT-4 Turbo (2024-04-09)
+    description: GPT-4 Turbo (2024-04-09) is a large multimodal model that is optimized for chat but works well for traditional completions tasks. The model is cheaper and faster than the original GPT-4 model. Snapshot from 2024-04-09.
+    creator_organization_name: OpenAI
+    access: limited
+    release_date: 2024-04-09
+    tags: [TEXT_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: openai/gpt-4-vision-preview
     display_name: GPT-4V (preview)
     description: GPT-4V is a large multimodal model that accepts both text and images and is optimized for chat ([model card](https://openai.com/research/gpt-4v-system-card)).
@@ -1859,6 +1927,14 @@ models:
   - name: qwen/qwen1.5-14b
     display_name: Qwen1.5 (14B)
     description: 14B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-02-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen1.5-32b
+    display_name: Qwen1.5 (32B)
+    description: 32B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05

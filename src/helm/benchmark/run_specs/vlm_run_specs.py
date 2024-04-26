@@ -53,9 +53,11 @@ def get_generation_adapter_spec(
 
 def get_short_answer_generation_adapter_spec(instructions: Optional[str] = None):
     return get_generation_adapter_spec(
-        instructions="Just give a short answer without answering in a complete sentence."
-        if instructions is None
-        else instructions,
+        instructions=(
+            "Just give a short answer without answering in a complete sentence."
+            if instructions is None
+            else instructions
+        ),
         max_tokens=20,
     )
 
@@ -647,6 +649,48 @@ def get_pope_spec() -> RunSpec:
     )
 
 
+@run_spec_function("seed_bench")
+def get_seed_bench_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.seed_bench_scenario.SEEDBenchScenario",
+        args={"subject": subject},
+    )
+    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "seed_bench"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("mme")
+def get_mme_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.mme_scenario.MMEScenario",
+        args={"subject": subject},
+    )
+    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+        input_noun=None, output_noun="Answer", max_train_instances=0
+    )
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
+
+    run_spec_name: str = "mme"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
 @run_spec_function("heim_human_eval")
 def get_heim_human_eval_spec(question_type: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -688,6 +732,25 @@ def get_pairs_spec(subset: str, person: str) -> RunSpec:
     run_spec_name: str = "pairs"
     return RunSpec(
         name=f"{run_spec_name}:subset={subset},person={person}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[run_spec_name],
+    )
+
+
+@run_spec_function("mementos")
+def get_mementos_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.vision_language.mementos_scenario.MementosScenario",
+        args={"subject": subject},
+    )
+    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
+    metric_specs: List[MetricSpec] = get_open_ended_generation_metric_specs()
+
+    run_spec_name: str = "mementos"
+    return RunSpec(
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,

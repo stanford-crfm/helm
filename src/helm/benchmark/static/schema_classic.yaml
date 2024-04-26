@@ -3048,3 +3048,20 @@ run_groups:
       who: n/a
       when: n/a
       language: synthetic
+
+  - name: thai_exam
+    display_name: Thai Exam
+    short_display_name: ThaiExam
+    description: A benchmark comprising Thai multiple-choice examinations.
+    metric_groups:
+      - accuracy
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: Thai

@@ -3,7 +3,7 @@ from typing import List, TypedDict
 from typing import Dict, Any
 
 from helm.common.cache import CacheConfig
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from helm.clients.client import CachingClient
 
 
@@ -33,7 +33,7 @@ class SimpleClient(CachingClient):
         response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         logprob = 0
         completions = [
-            Sequence(
+            GeneratedOutput(
                 text=text,
                 logprob=logprob,
                 tokens=[Token(text=text, logprob=logprob)],

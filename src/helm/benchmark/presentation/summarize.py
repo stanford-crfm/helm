@@ -22,7 +22,6 @@ from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
 from helm.benchmark.model_deployment_registry import get_model_deployment
-
 from helm.benchmark.model_metadata_registry import get_unknown_model_metadata
 from helm.common.general import (
     write,
@@ -49,7 +48,7 @@ from helm.benchmark.presentation.schema import (
     RunGroup,
     Field,
     read_schema,
-    SCHEMA_CLASSIC_YAML_FILENAME,
+    get_default_schema_path,
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
@@ -295,7 +294,7 @@ class Summarizer:
         release: Optional[str],
         suites: Optional[List[str]],
         suite: Optional[str],
-        schema_file: str,
+        schema_path: str,
         output_path: str,
         verbose: bool,
         num_threads: int,
@@ -315,7 +314,7 @@ class Summarizer:
         self.suites: List[str]
         self.run_suite_paths: List[str]
         self.suite: Optional[str] = None
-        self.schema_file = schema_file
+        self.schema_path = schema_path
         self.release: Optional[str] = None
         if suite:
             self.suite = suite
@@ -333,7 +332,7 @@ class Summarizer:
 
         ensure_directory_exists(self.run_release_path)
 
-        self.schema = read_schema(schema_file)
+        self.schema = read_schema(schema_path)
 
     def read_run(self, run_path: str) -> Run:
         """Load the `Run` object from `run_path`."""
@@ -361,7 +360,7 @@ class Summarizer:
                 if run_group_name not in self.schema.name_to_run_group:
                     hlog(
                         f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} "
-                        f"but undefined in {self.schema_file}, skipping"
+                        f"but undefined in {self.schema_path}, skipping"
                     )
                     continue
                 run_group = self.schema.name_to_run_group[run_group_name]
@@ -629,7 +628,7 @@ class Summarizer:
         for metric_name, run_spec_names in metric_name_to_run_spec_names.items():
             if metric_name not in defined_metric_names:
                 hlog(
-                    f"WARNING: metric name {metric_name} undefined in {self.schema_file} "
+                    f"WARNING: metric name {metric_name} undefined in {self.schema_path} "
                     f"but appears in {len(run_spec_names)} run specs, including {run_spec_names[0]}"
                 )
 
@@ -853,7 +852,16 @@ class Summarizer:
         # Link the runs that this cell was aggregated from, if this is not a scenario table.
         # Scenario tables link to the runs in the model cells,
         # whereas non-scenario tables link to the runs in the metrics cells.
-        run_spec_names = None if is_scenario_table else aggregated_run_specs
+        run_spec_names: Optional[List] = None
+        if not is_scenario_table:
+            # Deduplicate run spec names becuase aggregated_run_specs may have duplicated
+            # run specs if a run spec belongs to multiple groups.
+            run_spec_names = []
+            run_spec_names_set = set()
+            for run_spec_name in aggregated_run_specs:
+                if run_spec_name not in run_spec_names_set:
+                    run_spec_names.append(run_spec_name)
+                    run_spec_names_set.add(run_spec_name)
 
         return Cell(
             value=value,
@@ -906,7 +914,7 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} undefined in {self.schema_file}, skipping")
+                    hlog(f"WARNING: metric name {matcher.name} undefined in {self.schema_path}, skipping")
                     continue
                 metadata = {
                     "metric": header_field.get_short_display_name(),
@@ -1124,7 +1132,7 @@ class Summarizer:
                     adapter_to_runs=adapter_to_runs,
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     is_scenario_table=False,
-                    add_win_rate=True,
+                    add_win_rate=not self.schema.name_to_metric_group[metric_group].hide_win_rates,
                 )
                 tables.append(table)
         return tables
@@ -1289,9 +1297,9 @@ class Summarizer:
             for scenario_spec_instance_ids_json in scenario_spec_instance_ids_jsons:
                 scenario_spec_instance_ids_dict = json.loads(scenario_spec_instance_ids_json)
                 scenario_spec_instance_ids = cattrs.structure(scenario_spec_instance_ids_dict, ScenarioSpecInstanceIds)
-                self.scenario_spec_instance_id_dict[
-                    scenario_spec_instance_ids.scenario_spec
-                ] = scenario_spec_instance_ids.instance_ids
+                self.scenario_spec_instance_id_dict[scenario_spec_instance_ids.scenario_spec] = (
+                    scenario_spec_instance_ids.instance_ids
+                )
 
     def write_scenario_spec_instance_ids_json(self, file_path) -> None:
         for run in self.runs:
@@ -1368,10 +1376,9 @@ def main():
         "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
     )
     parser.add_argument(
-        "--schema-file",
+        "--schema-path",
         type=str,
-        help="File name of the schema to read (e.g., schema_classic.yaml).",
-        default=SCHEMA_CLASSIC_YAML_FILENAME,
+        help="Path to the schema file (e.g., schema_classic.yaml).",
     )
     parser.add_argument(
         "--suite",
@@ -1438,6 +1445,8 @@ def main():
     else:
         raise ValueError("Exactly one of --release or --suite must be specified.")
 
+    schema_path = args.schema_path if args.schema_path else get_default_schema_path()
+
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
 
@@ -1446,7 +1455,7 @@ def main():
         release=release,
         suites=suites,
         suite=suite,
-        schema_file=args.schema_file,
+        schema_path=schema_path,
         output_path=args.output_path,
         verbose=args.debug,
         num_threads=args.num_threads,

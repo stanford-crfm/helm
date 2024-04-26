@@ -4,7 +4,7 @@ from typing import List
 import numpy as np
 import pytest
 from helm.benchmark.metrics.disinformation_metrics import _monte_carlo_entropy, _self_bleu
-from helm.common.request import Sequence, Token
+from helm.common.request import GeneratedOutput, Token
 
 # Test tokens
 _TEST_1_TOKENS: List[Token] = [
@@ -25,10 +25,10 @@ test_empty_str_tokens: List[Token] = [
 ]
 
 # Test Sequences (two standard, one with an empty token, and one with no tokens)
-_TEST_1 = Sequence(text="This is a test", logprob=-1, tokens=_TEST_1_TOKENS)
-_TEST_2 = Sequence(text="This is another test", logprob=-1.25, tokens=_TEST_2_TOKENS)
-_TEST_EMPTY = Sequence(text="", logprob=-float("nan"), tokens=_TEST_EMPTY_TOKENS)
-_TEST_EMPTY_STR = Sequence(text="", logprob=0, tokens=test_empty_str_tokens)
+_TEST_1 = GeneratedOutput(text="This is a test", logprob=-1, tokens=_TEST_1_TOKENS)
+_TEST_2 = GeneratedOutput(text="This is another test", logprob=-1.25, tokens=_TEST_2_TOKENS)
+_TEST_EMPTY = GeneratedOutput(text="", logprob=-float("nan"), tokens=_TEST_EMPTY_TOKENS)
+_TEST_EMPTY_STR = GeneratedOutput(text="", logprob=0, tokens=test_empty_str_tokens)
 
 
 # Test Self-BLEU

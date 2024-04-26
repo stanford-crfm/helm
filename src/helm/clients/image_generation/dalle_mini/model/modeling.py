@@ -84,6 +84,7 @@ def smelu(beta: Any = 1.0):
 
 ACT2FN.update({"smelu": smelu()})
 
+
 # deepnet initialization
 def deepnet_init(init_std, gain=1):
     init = jax.nn.initializers.normal(init_std)
@@ -305,14 +306,18 @@ class FlaxBartAttention(FlaxBartAttention):
         self.q_proj = dense(kernel_init=jax.nn.initializers.normal(self.config.init_std))
         self.k_proj = dense(kernel_init=jax.nn.initializers.normal(self.config.init_std))
         self.v_proj = dense(
-            kernel_init=deepnet_init(self.config.init_std, gain)
-            if (self.config.use_deepnet_scaling or (self.config.use_subln_init and not self.is_cross_attention))
-            else jax.nn.initializers.normal(self.config.init_std)
+            kernel_init=(
+                deepnet_init(self.config.init_std, gain)
+                if (self.config.use_deepnet_scaling or (self.config.use_subln_init and not self.is_cross_attention))
+                else jax.nn.initializers.normal(self.config.init_std)
+            )
         )
         self.out_proj = dense(
-            kernel_init=deepnet_init(self.config.init_std, gain)
-            if (self.config.use_deepnet_scaling or (self.config.use_subln_init and not self.is_cross_attention))
-            else jax.nn.initializers.normal(self.config.init_std)
+            kernel_init=(
+                deepnet_init(self.config.init_std, gain)
+                if (self.config.use_deepnet_scaling or (self.config.use_subln_init and not self.is_cross_attention))
+                else jax.nn.initializers.normal(self.config.init_std)
+            )
         )
         self.dropout_layer = nn.Dropout(rate=self.dropout)
 
@@ -487,18 +492,22 @@ class GLU(nn.Module):
             self.ffn_dim,
             dtype=self.dtype,
             use_bias=self.config.use_bias,
-            kernel_init=deepnet_init(self.config.init_std, gain)
-            if (self.config.use_deepnet_scaling or self.config.use_subln_init)
-            else jax.nn.initializers.normal(self.config.init_std),
+            kernel_init=(
+                deepnet_init(self.config.init_std, gain)
+                if (self.config.use_deepnet_scaling or self.config.use_subln_init)
+                else jax.nn.initializers.normal(self.config.init_std)
+            ),
         )(x)
         w = ACT2FN[self.config.activation_function](w)
         v = nn.Dense(
             self.ffn_dim,
             dtype=self.dtype,
             use_bias=self.config.use_bias,
-            kernel_init=deepnet_init(self.config.init_std, gain)
-            if (self.config.use_deepnet_scaling or self.config.use_subln_init)
-            else jax.nn.initializers.normal(self.config.init_std),
+            kernel_init=(
+                deepnet_init(self.config.init_std, gain)
+                if (self.config.use_deepnet_scaling or self.config.use_subln_init)
+                else jax.nn.initializers.normal(self.config.init_std)
+            ),
         )(x)
         x = w * v
         if self.config.ln_positions in ["normformer", "subln"]:
@@ -514,9 +523,11 @@ class GLU(nn.Module):
             self.embed_dim,
             dtype=self.dtype,
             use_bias=self.config.use_bias,
-            kernel_init=deepnet_init(self.config.init_std, gain)
-            if (self.config.use_deepnet_scaling or self.config.use_subln_init)
-            else jax.nn.initializers.normal(self.config.init_std),
+            kernel_init=(
+                deepnet_init(self.config.init_std, gain)
+                if (self.config.use_deepnet_scaling or self.config.use_subln_init)
+                else jax.nn.initializers.normal(self.config.init_std)
+            ),
         )(x)
         if self.config.ln_positions in ["swinv2", "cogview"]:
             x = norm(self.config.ln_type, dtype=self.dtype, epsilon=1e-05)(x)
@@ -551,9 +562,11 @@ class FFN(nn.Module):
             self.ffn_dim,
             dtype=self.dtype,
             use_bias=self.config.use_bias,
-            kernel_init=deepnet_init(self.config.init_std, gain)
-            if (self.config.use_deepnet_scaling or self.config.use_subln_init)
-            else jax.nn.initializers.normal(self.config.init_std),
+            kernel_init=(
+                deepnet_init(self.config.init_std, gain)
+                if (self.config.use_deepnet_scaling or self.config.use_subln_init)
+                else jax.nn.initializers.normal(self.config.init_std)
+            ),
         )(x)
         x = ACT2FN[self.config.activation_function](x)
         if self.config.ln_positions in ["normformer", "subln"]:
@@ -568,9 +581,11 @@ class FFN(nn.Module):
             self.embed_dim,
             dtype=self.dtype,
             use_bias=self.config.use_bias,
-            kernel_init=deepnet_init(self.config.init_std, gain)
-            if (self.config.use_deepnet_scaling or self.config.use_subln_init)
-            else jax.nn.initializers.normal(self.config.init_std),
+            kernel_init=(
+                deepnet_init(self.config.init_std, gain)
+                if (self.config.use_deepnet_scaling or self.config.use_subln_init)
+                else jax.nn.initializers.normal(self.config.init_std)
+            ),
         )(x)
         if self.config.ln_positions in ["swinv2", "cogview"]:
             x = norm(self.config.ln_type, dtype=self.dtype, epsilon=1e-05)(x)

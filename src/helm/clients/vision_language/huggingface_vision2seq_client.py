@@ -10,7 +10,7 @@ from helm.common.cache import CacheConfig
 from helm.common.gpu_utils import get_torch_device_name, is_cuda_available
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.request import wrap_request_time
 from helm.common.tokenization_request import TokenizationRequest
 from helm.clients.client import CachingClient, generate_uid_for_multimodal_prompt
@@ -89,7 +89,7 @@ class HuggingFaceVision2SeqClient(CachingClient):
             else:
                 raise ValueError(f"Unrecognized MediaObject type {media_object.type}")
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         with htrack_block(f"Generating for prompt: {request.multimodal_prompt.text}"):
             try:
 
@@ -134,7 +134,7 @@ class HuggingFaceVision2SeqClient(CachingClient):
                     TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=False)
                 )
                 tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-                completions.append(Sequence(text=text, logprob=0, tokens=tokens))
+                completions.append(GeneratedOutput(text=text, logprob=0, tokens=tokens))
 
         return RequestResult(
             success=True,

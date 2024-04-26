@@ -8,18 +8,19 @@ from helm.benchmark.model_metadata_registry import (
     get_all_code_models,
     get_all_models,
     get_all_text_models,
+    get_model_metadata,
     get_model_names_with_tag,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     ABLATION_MODEL_TAG,
     TEXT_TO_IMAGE_MODEL_TAG,
     VISION_LANGUAGE_MODEL_TAG,
+    INSTRUCTION_FOLLOWING_MODEL_TAG,
 )
 from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
-from helm.common.general import handle_module_not_found_error
 from helm.benchmark.model_deployment_registry import get_model_names_with_tokenizer
 from .run_spec import RunSpec
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec, Substitution
+from helm.benchmark.adaptation.adapter_spec import ADAPT_MULTIPLE_CHOICE_JOINT, AdapterSpec, Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.scenarios.scenario import TEST_SPLIT, VALID_SPLIT
@@ -89,16 +90,6 @@ class InstructionsRunExpander(RunExpander):
                 adapter_spec,
                 instructions="I am an expert AI assistant who is here to help you with the following. "
                 + adapter_spec.instructions,
-            )
-        elif self.value == "prefix_1":
-            adapter_spec = replace(
-                adapter_spec,
-                instructions="Answer only with a single letter. " + adapter_spec.instructions,
-            )
-        elif self.value == "suffix_1":
-            adapter_spec = replace(
-                adapter_spec,
-                instructions=adapter_spec.instructions + " Answer only with a single letter.",
             )
         else:
             raise Exception("Unknown value: {self.value}")
@@ -235,12 +226,16 @@ class AddToStopRunExpander(RunExpander):
         self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if self.value == "newline":
+            stop_sequence = "\n"
+        else:
+            stop_sequence = self.value
         return [
             replace(
                 run_spec,
                 name=run_spec.name,
                 adapter_spec=replace(
-                    run_spec.adapter_spec, stop_sequences=run_spec.adapter_spec.stop_sequences + [self.value]
+                    run_spec.adapter_spec, stop_sequences=run_spec.adapter_spec.stop_sequences + [stop_sequence]
                 ),
             ),
         ]
@@ -285,33 +280,37 @@ IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX = (
 )
 
 
-class AnthropicRunExpander(RunExpander):
+class AnthropicClaude2RunExpander(RunExpander):
     """
-    Custom prompt for Anthropic models.
+    Custom prompt for Anthropic Claude 1 and Claude 2 models.
     These models need more explicit instructions about following the format.
     """
 
     name = "anthropic"
 
+    # These strings must be added to the prompt in order to pass prompt validation,
+    # otherwise the Anthropic API will return an error.
+    # See: https://docs.anthropic.com/claude/reference/prompt-validation
+    HUMAN_PROMPT = "\n\nHuman:"
+    AI_PROMPT = "\n\nAssistant:"
+
     def __init__(self):
         pass
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        try:
-            import anthropic
-        except ModuleNotFoundError as e:
-            handle_module_not_found_error(e, ["anthropic"])
-
         return [
             replace(
                 run_spec,
                 name=run_spec.name,
                 adapter_spec=replace(
                     run_spec.adapter_spec,
-                    global_prefix=anthropic.HUMAN_PROMPT + " " + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
+                    global_prefix=AnthropicClaude2RunExpander.HUMAN_PROMPT
+                    + " "
+                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX
+                    + "\n\n",
                     global_suffix="\n\n"
                     + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + anthropic.AI_PROMPT
+                    + AnthropicClaude2RunExpander.AI_PROMPT
                     + " "
                     + run_spec.adapter_spec.output_prefix.strip(),
                 ),
@@ -319,78 +318,66 @@ class AnthropicRunExpander(RunExpander):
         ]
 
 
-class OpenAIRunExpander(RunExpander):
-    """
-    Custom prompt for OpenAI models.
-    These models need more explicit instructions about following the format.
-    """
+class AnthropicClaude3RunExpander(RunExpander):
+    """Custom prompts for Anthropic Claude 3 models."""
 
-    # TODO: Refactor out common logic between this and GoogleRunExpander and MistralRunExpander.
-
-    name = "openai"
-
-    def __init__(self):
-        pass
+    name = "claude_3"
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        if run_spec.adapter_spec.method != ADAPT_GENERATION:
-            return [run_spec]
-
-        return [
-            replace(
-                run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                    global_suffix="\n\n"
-                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + "\n"
-                    + run_spec.adapter_spec.output_prefix.strip(),
-                ),
-            ),
+        # Remove all stop sequences that do not contain non-whitespace characters.
+        # This prevents the Anthropic API from returnin the following error:
+        # "stop_sequences: each stop sequence must contain non-whitespace"
+        stop_sequences_with_non_whitespace = [
+            stop_sequence for stop_sequence in run_spec.adapter_spec.stop_sequences if stop_sequence.strip()
         ]
-
-
-class GoogleRunExpander(RunExpander):
-    """
-    Custom prompt for Google models.
-    These models need more explicit instructions about following the format.
-    """
-
-    # TODO: Refactor out common logic between this and OpenAIRunExpander and MistralRunExpander.
-
-    name = "google"
-
-    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        if run_spec.adapter_spec.method != ADAPT_GENERATION:
-            return [run_spec]
-
-        return [
-            replace(
-                run_spec,
-                name=run_spec.name,
-                adapter_spec=replace(
-                    run_spec.adapter_spec,
-                    global_prefix=IN_CONTEXT_LEARNING_INSTRUCTIONS_PREFIX + "\n\n",
-                    global_suffix="\n\n"
-                    + IN_CONTEXT_LEARNING_INSTRUCTIONS_SUFFIX
-                    + "\n"
-                    + run_spec.adapter_spec.output_prefix.strip(),
+        run_spec = replace(
+            run_spec,
+            adapter_spec=replace(run_spec.adapter_spec, stop_sequences=stop_sequences_with_non_whitespace),
+        )
+        if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            instructions = "Answer with only a single letter."
+            if run_spec.adapter_spec.instructions:
+                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
+            return [
+                replace(
+                    run_spec,
+                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
                 ),
-            ),
-        ]
+            ]
+        return [run_spec]
 
 
-class MistralRunExpander(RunExpander):
-    """Custom prompt for Mistral models."""
+class FollowFormatInstructionsRunExpander(RunExpander):
+    """Adds more explicit instructions about following the format to prompts.
 
-    # TODO: Refactor out common logic between this and GoogleRunExpander and OpenAIRunExpander.
+    The argument controlls which models will receive these instructions.
+    If "all", all models receive these instructions.
+    If "instruct", only instruction-following models receive these instructions.
 
-    name = "output_format_instructions"
+    Only supports the generation adaptation method. Raises an error if used on
+    a RunSpec that uses a different adaptation method.
+
+    Note: For legacy backwards compatibility reasons, despite the use of the word
+    "instructions" in this run expander's name, this run expander actually
+    modifies the global_prefix and the global_suffix of the AdapterSpec rather than
+    the instructions.
+    """
+
+    name = "follow_format_instructions"
+
+    def __init__(self, value: str):
+        if value != "all" and value != "instruct":
+            raise ValueError("Value of add_follow_the_format_instructions run expander must be 'all' or 'instruct'")
+        self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if run_spec.adapter_spec.method != ADAPT_GENERATION:
+            raise Exception("follow_format_instructions run expander only supports the generation adaptation method")
+
+        if (
+            self.value == "instruct"
+            and INSTRUCTION_FOLLOWING_MODEL_TAG not in get_model_metadata(run_spec.adapter_spec.model).tags
+        ):
             return [run_spec]
 
         return [
@@ -1399,6 +1386,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     NewlineRunExpander,
     StopRunExpander,
     FormatPromptRunExpander,
+    FollowFormatInstructionsRunExpander,
     AddToStopRunExpander,
     GlobalPrefixRunExpander,
     NumTrainTrialsRunExpander,
