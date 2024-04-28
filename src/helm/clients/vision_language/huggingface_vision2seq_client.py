@@ -18,7 +18,7 @@ from helm.tokenizers.tokenizer import Tokenizer
 
 
 @dataclass(frozen=True)
-class LoadedVision2SeqModelProcessor:
+class Vision2SeqModelProcessor:
     """Loaded model and processor."""
 
     model: AutoModelForVision2Seq
@@ -26,7 +26,7 @@ class LoadedVision2SeqModelProcessor:
 
 
 _models_lock: Lock = Lock()
-_models: Dict[str, Optional[LoadedVision2SeqModelProcessor]] = {
+_models: Dict[str, Optional[Vision2SeqModelProcessor]] = {
     "HuggingFaceM4/idefics2-8b": None,
 }
 
@@ -44,7 +44,7 @@ class HuggingFaceVision2SeqClient(CachingClient):
         self.tokenizer_name = tokenizer_name
         self._device: str = get_torch_device_name()
 
-    def _get_model(self, checkpoint: str) -> LoadedVision2SeqModelProcessor:
+    def _get_model(self, checkpoint: str) -> Vision2SeqModelProcessor:
         global _models_lock
         global _models
 
@@ -57,7 +57,7 @@ class HuggingFaceVision2SeqClient(CachingClient):
                 model = AutoModelForVision2Seq.from_pretrained(checkpoint, torch_dtype=torch_dtype).to(self._device)
                 processor = AutoProcessor.from_pretrained(checkpoint)
 
-                _models[checkpoint] = LoadedVision2SeqModelProcessor(model, processor)
+                _models[checkpoint] = Vision2SeqModelProcessor(model, processor)
                 loaded_model_processor = _models[checkpoint]
 
         assert loaded_model_processor is not None
@@ -67,7 +67,7 @@ class HuggingFaceVision2SeqClient(CachingClient):
         assert request.model_deployment in _models, f"Not a valid model for this client: {request.model_deployment}"
         assert request.multimodal_prompt is not None, "Multimodal prompt is required"
 
-        loaded_model_processor: LoadedVision2SeqModelProcessor = self._get_model(request.model_deployment)
+        loaded_model_processor: Vision2SeqModelProcessor = self._get_model(request.model_deployment)
         model = loaded_model_processor.model
         processor = loaded_model_processor.processor
 

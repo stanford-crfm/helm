@@ -1772,14 +1772,6 @@ models:
     release_date: 2023-11-06
     tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
 
-  - name: openai/gpt-4-vision-preview-high-res
-    display_name: GPT-4V high res (preview)
-    description: GPT-4V with "high res" mode enabled, which first allows the model to see the low res image and then creates detailed crops of input images as 512px squares based on the input image size.
-    creator_organization_name: OpenAI
-    access: limited
-    release_date: 2023-11-06
-    tags: [VISION_LANGUAGE_MODEL_TAG, OPENAI_CHATGPT_MODEL_TAG, FULL_FUNCTIONALITY_VLM_TAG]
-
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 

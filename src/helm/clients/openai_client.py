@@ -55,12 +55,7 @@ class OpenAIClient(CachingClient):
             return True
         return False
 
-    def _is_high_res_vision_model(self, model_engine: str) -> bool:
-        return model_engine == "gpt-4-vision-preview-high-res"
-
     def _get_model_for_request(self, request: Request) -> str:
-        if self._is_high_res_vision_model(request.model_engine):
-            return "gpt-4-vision-preview"
         return request.model_engine
 
     def _get_cache_key(self, raw_request: Dict, request: Request):
@@ -136,9 +131,6 @@ class OpenAIClient(CachingClient):
 
                         base64_image: str = encode_base64(media_object.location)
                         image_object: Dict[str, str] = {"url": f"data:image/jpeg;base64,{base64_image}"}
-                        if self._is_high_res_vision_model(request.model_engine):
-                            image_object["detail"] = "high"
-
                         content.append({"type": "image_url", "image_url": image_object})
                     elif media_object.is_type(TEXT_TYPE):
                         if media_object.text is None:

@@ -1357,15 +1357,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.openai_client.OpenAIClient"
 
-  - name: openai/gpt-4-vision-preview-high-res
-    model_name: openai/gpt-4-vision-preview-high-res
-    tokenizer_name: openai/cl100k_base
-    max_sequence_length: 128000  # According to https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
-    max_request_length: 128001
-    max_sequence_and_generated_tokens_length: 132096
-    client_spec:
-      class_name: "helm.clients.openai_client.OpenAIClient"
-
   ## Codex Models
   # DEPRECATED: Codex models have been shut down on March 23 2023.
 

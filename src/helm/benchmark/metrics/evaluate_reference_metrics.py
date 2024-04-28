@@ -10,6 +10,7 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.code_scenario import CodeReference
 from helm.benchmark.scenarios.scenario import Reference
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import GeneratedOutput
 from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from nltk.metrics.scores import f_measure
@@ -20,7 +21,7 @@ import re
 import string
 from . import code_metrics_helper
 import nltk
-from pycocoevalcap.cider.cider import Cider
+
 
 try:
     nltk.data.find("tokenizers/punkt")
@@ -190,6 +191,11 @@ def bleu_4(gold: str, pred: str) -> float:
 
 
 def cider(gold: str, pred: str) -> float:
+    try:
+        from pycocoevalcap.cider.cider import Cider
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["vlm"])
+
     cider_evaluator = Cider()
     candidate = {"caption": [pred]}
     reference = {"caption": [gold]}

@@ -11,7 +11,7 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_basic_reference_metric_specs,
     get_exact_match_metric_specs,
     get_generative_harms_metric_specs,
-    get_open_ended_generation_metric_specs,
+    get_basic_metric_specs,
 )
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
@@ -23,7 +23,7 @@ from helm.benchmark.annotation.annotator import AnnotatorSpec
 # Prototypical adapter specs for VLM evaluation
 
 
-def get_generation_adapter_spec(
+def _get_generation_adapter_spec(
     instructions: str = "",
     input_prefix: str = "",
     input_suffix: str = "",
@@ -51,8 +51,8 @@ def get_generation_adapter_spec(
     )
 
 
-def get_short_answer_generation_adapter_spec(instructions: Optional[str] = None):
-    return get_generation_adapter_spec(
+def _get_short_answer_generation_adapter_spec(instructions: Optional[str] = None) -> AdapterSpec:
+    return _get_generation_adapter_spec(
         instructions=(
             "Just give a short answer without answering in a complete sentence."
             if instructions is None
@@ -62,7 +62,15 @@ def get_short_answer_generation_adapter_spec(instructions: Optional[str] = None)
     )
 
 
-def get_multiple_choice_joint_adapter_spec(
+def _get_captioning_adapter_spec() -> AdapterSpec:
+    return _get_generation_adapter_spec(
+        instructions="Generate a caption for the following image. The caption should be short and does "
+        "not need to be a complete sentence.",
+        max_tokens=20,
+    )
+
+
+def _get_multiple_choice_joint_adapter_spec(
     input_noun: Optional[str],
     output_noun: str,
     max_train_instances: int = 0,
@@ -90,7 +98,13 @@ def get_multiple_choice_joint_adapter_spec(
 # VHELM metric specs
 
 
-def get_image2structure_metric_specs(
+def _get_open_ended_generation_metric_specs() -> List[MetricSpec]:
+    return get_basic_metric_specs(
+        ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4", "cider"]
+    )
+
+
+def _get_image2structure_metric_specs(
     generation_type: str,
     metric_names: Optional[List[str]] = None,
     args: Optional[Dict] = None,
@@ -134,7 +148,7 @@ def get_a_okvqa_spec() -> RunSpec:
         args={},
     )
 
-    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
     )
 
@@ -155,7 +169,7 @@ def get_chart2csv_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.image2structure.chart2csv_scenario.Chart2CSVScenario",
         args={},
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Generate the CSV for the chart. Some of the labels may be missing due to the size of the chart. "
         "Please infer the missing labels based on the surrounding context. "
         "Just give the CSV without any explanation.",
@@ -179,8 +193,8 @@ def get_crossmodal_3600_spec(location: str, language: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.crossmodal_3600_scenario.Crossmodal3600Scenario",
         args={"location": location, "language": language},
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(max_tokens=20)
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(max_tokens=20)
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "crossmodal_3600"
     return RunSpec(
@@ -197,12 +211,8 @@ def get_flickr30k_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.flickr30k_scenario.Flickr30KScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
-        instructions="Generate a caption for the following image. The caption should neither be long "
-        "nor a complete sentence.",
-        max_tokens=20,
-    )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
+    adapter_spec: AdapterSpec = _get_captioning_adapter_spec()
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "flickr30k"
     return RunSpec(
@@ -219,10 +229,10 @@ def get_gqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.gqa_scenario.GQAScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec(
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
         instructions="Answer the question using a single word or phrase."
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "gqa"
     return RunSpec(
@@ -239,7 +249,7 @@ def get_hateful_memes_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.hateful_memes_scenario.HatefulMemesScenario", args={}
     )
-    adapter_spec = get_multiple_choice_joint_adapter_spec(input_noun=None, output_noun="Answer", max_train_instances=0)
+    adapter_spec = _get_multiple_choice_joint_adapter_spec(input_noun=None, output_noun="Answer", max_train_instances=0)
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
 
     run_spec_name: str = "hateful_memes"
@@ -258,7 +268,7 @@ def get_mm_safety_bench_spec(subset: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.mm_safety_bench_scenario.MMSafetyBenchScenario",
         args={"subset": subset},
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(max_tokens=500)
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(max_tokens=500)
     metric_specs: List[MetricSpec] = get_generative_harms_metric_specs(
         include_basic_metrics=True, include_generative_harms_metrics=True
     )
@@ -282,17 +292,13 @@ def get_mscoco_captioning_spec(long: bool = False) -> RunSpec:
 
     adapter_spec: AdapterSpec
     if long:
-        adapter_spec = get_generation_adapter_spec(
+        adapter_spec = _get_generation_adapter_spec(
             instructions="Generate a long, detailed caption for the following image.",
             max_tokens=150,
         )
     else:
-        adapter_spec = get_generation_adapter_spec(
-            instructions="Generate a caption for the following image. The caption should neither be long "
-            "nor a complete sentence.",
-            max_tokens=20,
-        )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
+        adapter_spec = _get_captioning_adapter_spec()
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "mscoco_captioning"
     if long:
@@ -314,16 +320,7 @@ def get_mscoco_categorization_spec() -> RunSpec:
         "MSCOCOCategorizationScenario",
         args={},
     )
-    # adapter_spec: AdapterSpec = get_generation_adapter_spec(
-    #     instructions="Give the most prevalent category of the objects in the image. "
-    #     "Just return the category without any explanation or in a complete sentence. "
-    #     "Here are the possible categories: textile, plant, building, furniture-stuff, "
-    #     "structural, raw-material, floor, ceiling, sky, ground, water, food-stuff, "
-    #     "solid, wall, window, other",
-    #     max_tokens=20,
-    # )
-    # metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
-    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
     )
 
@@ -344,7 +341,7 @@ def get_originality_vlm_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.originality_scenario.OriginalityScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(max_tokens=500)
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(max_tokens=500)
     metric_specs: List[MetricSpec] = get_generative_harms_metric_specs(
         include_basic_metrics=True, include_generative_harms_metrics=True
     )
@@ -364,12 +361,12 @@ def get_viz_wiz_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.viz_wiz_scenario.VizWizScenario", args={}
     )
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec(
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
         # Following https://arxiv.org/abs/2310.03744
         instructions="When the provided information is insufficient, respond with 'Unanswerable'. "
         "Answer the question using a single word or phrase."
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "viz_wiz"
     return RunSpec(
@@ -387,11 +384,11 @@ def get_vqa_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.vqa_scenario.VQAScenario", args={}
     )
     # Following https://arxiv.org/abs/2310.03744
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec(
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec(
         instructions='Answer the question using a single word or phrase. When the question asks "How many...", '
         "respond with just a number (e.g., 3) and not the word corresponding to the number."
     )
-    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + get_open_ended_generation_metric_specs()
+    metric_specs: List[MetricSpec] = get_exact_match_metric_specs() + _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "vqa"
     return RunSpec(
@@ -409,11 +406,11 @@ def get_image2latex_spec(subset: str, recompile_prompt: bool = False, args: Opti
         class_name="helm.benchmark.scenarios.vision_language.image2structure.latex_scenario.LatexScenario",
         args={"subset": subset, "recompile_prompt": recompile_prompt},
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+    metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
         generation_type="latex",
         args=args,
         include_edit_similarity=True,
@@ -442,11 +439,11 @@ def get_image2webpage_spec(subset: str, recompile_prompt: bool = False, args: Op
         class_name="helm.benchmark.scenarios.vision_language.image2structure.webpage_scenario.WebpageScenario",
         args={"subset": subset, "recompile_prompt": recompile_prompt},
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+    metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
         generation_type="webpage",
         args=args,
         include_edit_similarity=True,
@@ -478,9 +475,9 @@ def get_math_vista_spec(grade: str, question_type: str) -> RunSpec:
 
     adapter_spec: AdapterSpec
     if question_type == "free_form":
-        adapter_spec = get_short_answer_generation_adapter_spec()
+        adapter_spec = _get_short_answer_generation_adapter_spec()
     elif question_type == "multi_choice":
-        adapter_spec = get_multiple_choice_joint_adapter_spec(
+        adapter_spec = _get_multiple_choice_joint_adapter_spec(
             input_noun=None, output_noun="Answer", max_train_instances=0
         )
     else:
@@ -503,11 +500,11 @@ def get_image2musicsheet_spec(args: Optional[Dict] = None) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.image2structure.musicsheet_scenario.MusicSheetScenario",
         args={"subset": "music", "recompile_prompt": False},  # There os only one subset for music sheets
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Just give a short answer without answering in a complete sentence.",
         max_tokens=2000,
     )
-    metric_specs: List[MetricSpec] = get_image2structure_metric_specs(
+    metric_specs: List[MetricSpec] = _get_image2structure_metric_specs(
         generation_type="lilypond",
         args=args,
         include_edit_similarity=False,  # No ground truth for music sheets
@@ -539,9 +536,9 @@ def get_mmmu_spec(subject: str, question_type: str) -> RunSpec:
 
     adapter_spec: AdapterSpec
     if question_type == "open":
-        adapter_spec = get_short_answer_generation_adapter_spec()
+        adapter_spec = _get_short_answer_generation_adapter_spec()
     elif question_type == "multiple-choice":
-        adapter_spec = get_multiple_choice_joint_adapter_spec(
+        adapter_spec = _get_multiple_choice_joint_adapter_spec(
             input_noun=None,
             output_noun="Answer",
             max_train_instances=0,
@@ -568,7 +565,7 @@ def get_unicorn_spec(subject: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.unicorn_scenario.UnicornScenario",
         args={"subject": subject},
     )
-    adapter_spec: AdapterSpec = get_generation_adapter_spec(
+    adapter_spec: AdapterSpec = _get_generation_adapter_spec(
         instructions="Only give numerical or boolean answer without an explanation."
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
@@ -588,8 +585,8 @@ def get_bingo_spec(subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.bingo_scenario.BingoScenario", args={"subject": subject}
     )
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_open_ended_generation_metric_specs()
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec()
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "bingo"
     return RunSpec(
@@ -610,9 +607,9 @@ def get_multipanelvqa_spec(subject: str, question_type: str) -> RunSpec:
 
     adapter_spec: AdapterSpec
     if question_type == "open":
-        adapter_spec = get_short_answer_generation_adapter_spec()
+        adapter_spec = _get_short_answer_generation_adapter_spec()
     elif question_type == "multiple-choice":
-        adapter_spec = get_multiple_choice_joint_adapter_spec(
+        adapter_spec = _get_multiple_choice_joint_adapter_spec(
             input_noun=None, output_noun="Answer", max_train_instances=0
         )
     else:
@@ -634,7 +631,7 @@ def get_pope_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.vision_language.pope_scenario.POPEScenario",
     )
-    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
@@ -655,7 +652,7 @@ def get_seed_bench_spec(subject: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.seed_bench_scenario.SEEDBenchScenario",
         args={"subject": subject},
     )
-    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
@@ -676,7 +673,7 @@ def get_mme_spec(subject: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.mme_scenario.MMEScenario",
         args={"subject": subject},
     )
-    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None, output_noun="Answer", max_train_instances=0
     )
     metric_specs: List[MetricSpec] = get_exact_match_metric_specs()
@@ -697,7 +694,7 @@ def get_heim_human_eval_spec(question_type: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.heim_human_eval_scenario.HEIMHumanEvalScenario",
         args={"question_type": question_type},
     )
-    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None,
         output_noun="Answer",
         num_outputs=1,
@@ -721,7 +718,7 @@ def get_pairs_spec(subset: str, person: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.pairs_scenario.PAIRSScenario",
         args={"subset": subset, "person": person},
     )
-    adapter_spec: AdapterSpec = get_multiple_choice_joint_adapter_spec(
+    adapter_spec: AdapterSpec = _get_multiple_choice_joint_adapter_spec(
         input_noun=None,
         output_noun="Answer",
         num_outputs=1,
@@ -745,8 +742,8 @@ def get_mementos_spec(subject: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.vision_language.mementos_scenario.MementosScenario",
         args={"subject": subject},
     )
-    adapter_spec: AdapterSpec = get_short_answer_generation_adapter_spec()
-    metric_specs: List[MetricSpec] = get_open_ended_generation_metric_specs()
+    adapter_spec: AdapterSpec = _get_short_answer_generation_adapter_spec()
+    metric_specs: List[MetricSpec] = _get_open_ended_generation_metric_specs()
 
     run_spec_name: str = "mementos"
     return RunSpec(

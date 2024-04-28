@@ -354,6 +354,9 @@ class VertexAIChatClient(VertexAIClient):
                         raise VertexAIContentBlockedError("No candidates in response due to content blocking")
 
                     # We should only have one candidate
+                    assert (
+                        len(candidates) == 1
+                    ), f"Expected 1 candidate since candidate_count is 1, got {len(candidates)}."
                     candidate: Candidate = candidates[0]
                     if (
                         candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS
@@ -373,12 +376,11 @@ class VertexAIChatClient(VertexAIClient):
 
                 cache_key = CachingClient.make_cache_key(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            except (requests.exceptions.RequestException, VertexAIContentBlockedError) as e:
-                if "Content has no parts" in str(e):
-                    return complete_for_valid_error(self.CONTENT_HAS_NO_PARTS_ERROR)
-
+            except requests.exceptions.RequestException as e:
                 error: str = f"Gemini Vision error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+            except VertexAIContentBlockedError as e:
+                return complete_for_valid_error(str(e))
 
             if "error" in response:
                 return complete_for_valid_error(response["error"])
