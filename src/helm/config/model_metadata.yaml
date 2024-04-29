@@ -527,6 +527,14 @@ models:
     release_date: 2023-04-12
     tags: [TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: databricks/dbrx-instruct
+    display_name: DBRX Instruct
+    description: DBRX is a large language model with a fine-grained mixture-of-experts (MoE) architecture that uses 16 experts and chooses 4. It has 132B total parameters, of which 36B parameters are active on any input. ([blog post](https://www.databricks.com/blog/introducing-dbrx-new-state-art-open-llm))
+    creator_organization_name: Databricks
+    access: open
+    num_parameters: 132000000000
+    release_date: 2024-03-27
+    tags: [TEXT_MODEL_TAG, PARTIAL_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
 
   # DeepMind
@@ -662,7 +670,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
-    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemini-1.0-pro-001
     display_name: Gemini 1.0 Pro
@@ -670,7 +678,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
-    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
     # Note: This is aliased to a snapshot of gemini-pro-vision. When possible, please use a versioned snapshot instead.
   - name: google/gemini-pro-vision
@@ -695,7 +703,7 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2024-04-10
-    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [TEXT_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: google/gemma-2b
     display_name: Gemma (2B)
@@ -1184,6 +1192,23 @@ models:
     # TODO(#1828): Upgrade to FULL_FUNCTIONALITY_TEXT_MODEL_TAG
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
+  - name: meta/llama-3-8b
+    display_name: Llama 3 (8B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 8000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    
+  - name: meta/llama-3-70b
+    display_name: Llama 3 (70B)
+    description: Llama 3 is a family of language models that have been trained on more than 15 trillion tokens, and use Grouped-Query Attention (GQA) for improved inference scalability.
+    creator_organization_name: Meta
+    access: open
+    num_parameters: 70000000000
+    release_date: 2024-04-18
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
 
   # Microsoft/NVIDIA
@@ -1850,6 +1875,14 @@ models:
   - name: qwen/qwen1.5-14b
     display_name: Qwen1.5 (14B)
     description: 14B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
+    creator_organization_name: Qwen
+    access: open
+    release_date: 2024-02-05
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: qwen/qwen1.5-32b
+    display_name: Qwen1.5 (32B)
+    description: 32B-parameter version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen-7B is a Transformer-based large language model, which is pretrained on a large volume of data, including web texts, books, codes, etc. 
     creator_organization_name: Qwen
     access: open
     release_date: 2024-02-05

@@ -37,7 +37,7 @@ The following specifies the appropriate parameters and configuration files for a
 ### Lite
 
 ```bash
-export RUN_ENTRIES_CONF_PATH=run_entries_dec2023.conf
+export RUN_ENTRIES_CONF_PATH=run_entries_lite_20240424.conf
 export SCHEMA_PATH=schema_lite.yaml
 export NUM_TRAIN_TRIALS=1
 export MAX_EVAL_INSTANCES=1000
@@ -47,7 +47,7 @@ export PRIORITY=2
 ### Classic before v0.2.4
 
 ```bash
-export RUN_ENTRIES_CONF_PATH=run_specs.conf
+export RUN_ENTRIES_CONF_PATH=run_entries.conf
 export SCHEMA_PATH=schema_classic.yaml
 export NUM_TRAIN_TRIALS=3
 export MAX_EVAL_INSTANCES=1000
@@ -57,7 +57,7 @@ export PRIORITY=2
 ### Classic v0.2.4 and after
 
 ```bash
-export RUN_ENTRIES_CONF_PATH=run_specs_lite.conf
+export RUN_ENTRIES_CONF_PATH=run_entries_lite.conf
 export SCHEMA_PATH=schema_classic.yaml
 export NUM_TRAIN_TRIALS=1
 export MAX_EVAL_INSTANCES=1000
@@ -67,9 +67,19 @@ export PRIORITY=2
 ### HEIM
 
 ```bash
-export RUN_ENTRIES_CONF_PATH=run_specs_heim.conf
+export RUN_ENTRIES_CONF_PATH=run_entries_heim.conf
 export SCHEMA_PATH=schema_heim.yaml
 export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
+```
+
+### MMLU
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_mmlu.conf
+export SCHEMA_PATH=schema_mmlu.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=10000
+export PRIORITY=4
 ```
