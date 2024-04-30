@@ -18,9 +18,7 @@ function ReleaseDropdown() {
   >();
 
   useEffect(() => {
-    fetch(
-      "https://storage.googleapis.com/crfm-helm-public/config/project_metadata.json",
-    )
+    fetch("project_metadata.json")
       .then((response) => response.json())
       .then((data: ProjectMetadata[]) => {
         // set currProjectMetadata to val where projectMetadataEntry.id matches window.PROJECT_ID

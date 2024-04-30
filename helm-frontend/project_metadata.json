@@ -3,7 +3,8 @@
 		"title": "Lite",
 		"description": "Lightweight, broad evaluation of the capabilities of language models using in-context learning",
 		"id": "lite",
-		"releases": ["v1.1.0", "v1.0.0"]
+		"releases": ["v1.1.0", "v1.0.0"],
+		"imageUrl": "https://raw.githubusercontent.com/stanford-crfm/helm/main/helm-frontend/src/assets/helm-logo-simple.png"
 	},
 	{
 		"title": "Classic",
@@ -21,6 +22,12 @@
 		"title": "Instruct",
 		"description": "Evaluations of instruction following models with absolute ratings",
 		"id": "instruct",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "All Leaderboards",
+		"description": "Home page for all HELM leaderboards",
+		"id": "home",
 		"releases": ["v1.0.0"]
 	}
 ]
