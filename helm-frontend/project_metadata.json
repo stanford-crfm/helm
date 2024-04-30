@@ -3,8 +3,7 @@
 		"title": "Lite",
 		"description": "Lightweight, broad evaluation of the capabilities of language models using in-context learning",
 		"id": "lite",
-		"releases": ["v1.1.0", "v1.0.0"],
-		"imageUrl": "https://raw.githubusercontent.com/stanford-crfm/helm/main/helm-frontend/src/assets/helm-logo-simple.png"
+		"releases": ["v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "Classic",
@@ -16,7 +15,8 @@
 		"title": "HEIM",
 		"description": "Holistic evaluation of text-to-image models",
 		"id": "heim",
-		"releases": ["v1.1.0", "v1.0.0"]
+		"releases": ["v1.1.0", "v1.0.0"],
+		"imageUrl": "https://raw.githubusercontent.com/stanford-crfm/helm/main/helm-frontend/src/assets/heim-logo.png"
 	},
 	{
 		"title": "Instruct",

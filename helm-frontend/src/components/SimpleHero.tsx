@@ -28,12 +28,12 @@ export default function SimpleHero() {
             className="px-6 btn btn-grey rounded-md mb-4 md:mb-0"
             onClick={() =>
               window.scrollTo({
-                top: 700,
+                top: 760,
                 behavior: "smooth",
               })
             }
           >
-            <body>Leaderboards</body>
+            <div>Leaderboards ↓</div>
           </button>
           <button className="px-6 btn btn-grey rounded-md md:ml-4">
             <Link to="https://github.com/stanford-crfm/helm">Github</Link>

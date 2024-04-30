@@ -9,12 +9,27 @@ interface CardProps {
 }
 
 const ProjectCard: React.FC<CardProps> = ({ id, title, imageUrl, text }) => {
+  const defaultImageUrl =
+    "https://raw.githubusercontent.com/stanford-crfm/helm/main/helm-frontend/src/assets/helm-logo-simple.png";
   if (!title.includes("HE")) {
-    title = "HELM " + title;
+    if (title !== "All Leaderboards") {
+      title = "HELM " + title;
+    } else {
+      title = "All HELM Leaderboards";
+    }
+    if (imageUrl === undefined) {
+      imageUrl = defaultImageUrl;
+    }
   }
   return (
     <div className="max-w-sm rounded overflow-hidden bg-gray-100 hover:scale-105 transition-transform duration-300">
-      {imageUrl ? <img className="w-full" src={imageUrl} alt={title} /> : <></>}
+      {imageUrl ? (
+        <div className=" bg-white rounded-lg overflow-hidden px-4 mx-4 py-4 my-4">
+          <img className="w-full" src={imageUrl} alt={title} />
+        </div>
+      ) : (
+        <></>
+      )}
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">
           <a href={getReleaseUrl(undefined, id)}> {title + " →"}</a>
