@@ -344,6 +344,20 @@ class AnthropicClaude3RunExpander(RunExpander):
                     adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
                 ),
             ]
+        elif run_spec.adapter_spec.method == ADAPT_GENERATION:
+            output_noun = run_spec.adapter_spec.output_prefix.split(":")[0]
+            if output_noun != "Answer":
+                instructions = f"Answer with only the {output_noun.lower()}."
+            else:
+                instructions = "Answer only yes or no."
+            if run_spec.adapter_spec.instructions:
+                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
+            return [
+                replace(
+                    run_spec,
+                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+                ),
+            ]
         return [run_spec]
 
 
