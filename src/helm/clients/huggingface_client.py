@@ -65,7 +65,7 @@ class HuggingFaceServer:
                 from optimum.intel.openvino import OVModelForCausalLM
 
                 self.model = OVModelForCausalLM.from_pretrained(
-                    pretrained_model_name_or_path, trust_remote_code=True, **kwargs
+                    pretrained_model_name_or_path, trust_remote_code=True, export=True, **kwargs
                 ).to(self.device)
             else:
                 self.model = AutoModelForCausalLM.from_pretrained(

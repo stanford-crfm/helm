@@ -266,7 +266,7 @@ def main():
     )
     parser.add_argument(
         "--openvino",
-        type=bool,
+        action="store_true",
         default=False,
         help="Run openvino optimization on AutoModelForCausalLM models."
         "If a value for --openvino is not specified, run without openvino optimization",
