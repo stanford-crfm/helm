@@ -189,7 +189,7 @@ models:
 
   # Anthropic
   - name: anthropic/claude-v1.3
-    display_name: Anthropic Claude v1.3
+    display_name: Claude v1.3
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
     creator_organization_name: Anthropic
     access: limited
@@ -198,7 +198,7 @@ models:
     tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
  
   - name: anthropic/claude-instant-v1
-    display_name: Anthropic Claude Instant V1
+    display_name: Claude Instant V1
     description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
     creator_organization_name: Anthropic
     access: limited
@@ -206,7 +206,7 @@ models:
     tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/claude-instant-1.2
-    display_name: Anthropic Claude Instant 1.2
+    display_name: Claude Instant 1.2
     description: A lightweight version of Claude, a model trained using reinforcement learning from human feedback ([docs](https://www.anthropic.com/index/introducing-claude)).
     creator_organization_name: Anthropic
     access: limited
@@ -214,7 +214,7 @@ models:
     tags: [ANTHROPIC_CLAUDE_1_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/claude-2.0
-    display_name: Anthropic Claude 2.0
+    display_name: Claude 2.0
     description: Claude 2.0 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
     creator_organization_name: Anthropic
     access: limited
@@ -222,7 +222,7 @@ models:
     tags: [ANTHROPIC_CLAUDE_2_MODEL_TAG, TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
   - name: anthropic/claude-2.1
-    display_name: Anthropic Claude 2.1
+    display_name: Claude 2.1
     description: Claude 2.1 is a general purpose large language model developed by Anthropic. It uses a transformer architecture and is trained via unsupervised learning, RLHF, and Constitutional AI (including both a supervised and Reinforcement Learning (RL) phase). ([model card](https://efficient-manatee.files.svdcdn.com/production/images/Model-Card-Claude-2.pdf))
     creator_organization_name: Anthropic
     access: limited
@@ -559,8 +559,8 @@ models:
 
   # Deepseek
   - name: deepseek-ai/deepseek-llm-67b-chat
-    display_name: DeepSeek Chat (67B)
-    description: DeepSeek Chat is a open-source language model trained on 2 trillion tokens in both English and Chinese, and fine-tuned supervised fine-tuning (SFT) and Direct Preference Optimization (DPO). ([paper](https://arxiv.org/abs/2401.02954))
+    display_name: DeepSeek LLM Chat (67B)
+    description: DeepSeek LLM Chat is a open-source language model trained on 2 trillion tokens in both English and Chinese, and fine-tuned supervised fine-tuning (SFT) and Direct Preference Optimization (DPO). ([paper](https://arxiv.org/abs/2401.02954))
     creator_organization_name: DeepSeek
     access: open
     num_parameters: 67000000000
