@@ -8,7 +8,9 @@ export default function CardGrid() {
   >();
 
   useEffect(() => {
-    fetch("project_metadata.json")
+    fetch(
+      "https://raw.githubusercontent.com/stanford-crfm/helm/main/helm-frontend/project_metadata.json",
+    )
       .then((response) => response.json())
       .then((data: ReleaseIndexEntry[]) => {
         setProjectEntries(data);
