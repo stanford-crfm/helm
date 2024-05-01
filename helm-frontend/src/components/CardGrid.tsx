@@ -22,19 +22,18 @@ export default function CardGrid() {
     <div className="p-10 mb-20">
       <div className="grid grid-cols-3 gap-4">
         {projectEntries &&
-          projectEntries.map((project, index) => (
-            <ProjectCard
-              key={index}
-              id={project.id}
-              title={project.title}
-              imageUrl={
-                project.imageUrl !== undefined
-                  ? String(project.imageUrl)
-                  : undefined
-              }
-              text={project.description}
-            />
-          ))}
+          projectEntries.map((project, index) =>
+            project.id === "home" ? (
+              <></>
+            ) : (
+              <ProjectCard
+                key={index}
+                id={project.id}
+                title={project.title}
+                text={project.description}
+              />
+            ),
+          )}
       </div>
     </div>
   );

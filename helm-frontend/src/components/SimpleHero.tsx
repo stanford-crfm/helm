@@ -7,19 +7,18 @@ export default function SimpleHero() {
       <div className="flex-1 p-4 flex flex-col justify-center">
         <div className="flex justify-start">
           <div>
-            <h1 className="text-5xl mb-4 mx-4 mt-2">
+            <h1 className="text-4xl mb-4 mx-4 mt-2">
               <strong>
-                A holistic framework for evaluating foundation models.
+                A reproducible and transparent framework for evaluating
+                foundation models
               </strong>
             </h1>
             <h3
-              className="text-lg
+              className="text-xl
              mb-4 mx-4 mt-2"
             >
-              HELM is a powerful framework and leaderboard hub for reproducible
-              and transparent evaluations of foundation models. It supports many
-              scenarios, metrics, and models, including multimodality and
-              model-graded evaluations.
+              Find leaderboards with many scenarios, metrics, and models with
+              support for multimodality and model-graded evaluation.
             </h3>
           </div>
         </div>
