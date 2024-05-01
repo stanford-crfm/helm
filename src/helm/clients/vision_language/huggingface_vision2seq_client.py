@@ -36,7 +36,7 @@ class HuggingFaceVision2SeqClient(CachingClient):
     Models for Vision2Seq models from HuggingFace.
     """
 
-    ASSISTANT_PREFIX: str = "Assistant: "
+    ASSISTANT_PREFIX: str = "Assistant:"
 
     def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig):
         super().__init__(cache_config=cache_config)
