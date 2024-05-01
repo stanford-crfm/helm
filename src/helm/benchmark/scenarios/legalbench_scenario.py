@@ -96,8 +96,12 @@ class LegalBenchScenario(Scenario):
 
         # Download data from Huggingface. LegalBench provides splits for samples to
         # be used for prompt construction and for testing.
-        train_dataset = datasets.load_dataset("nguha/legalbench", self.subset, cache_dir=cache_dir, split="train")
-        test_dataset = datasets.load_dataset("nguha/legalbench", self.subset, cache_dir=cache_dir, split="test")
+        train_dataset = datasets.load_dataset(
+            "nguha/legalbench", self.subset, trust_remote_code=True, cache_dir=cache_dir, split="train"
+        )
+        test_dataset = datasets.load_dataset(
+            "nguha/legalbench", self.subset, trust_remote_code=True, cache_dir=cache_dir, split="test"
+        )
         assert isinstance(train_dataset, datasets.Dataset)
         assert isinstance(test_dataset, datasets.Dataset)
 
