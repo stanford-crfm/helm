@@ -17,6 +17,10 @@ function NavDropdown() {
       .then((data: ProjectMetadata[]) => {
         setProjectMetadata(data);
         // set currProjectMetadata to val where projectMetadataEntry.id matches window.PROJECT_ID
+        const currentEntry = data.find(
+          (entry) => entry.id === window.PROJECT_ID,
+        );
+        setCurrProjectMetadata(currentEntry);
         if (window.PROJECT_ID) {
           const currentEntry = data.find(
             (entry) => entry.id === window.PROJECT_ID,
