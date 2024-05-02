@@ -123,7 +123,7 @@ class WebpageScenario(Image2StructureScenario):
         "  }\n"
         "]\n"
         "You do not have to create files with the same names. Create as many files as you need, you can even use directories if necessary,"  # noqa: E501
-        " they will be created for you automatically. Try to write some realistic code keeping in mind that is should"
+        " they will be created for you automatically. Try to write some realistic code keeping in mind that it should"
         " look like the image as much as feasibly possible."
     )
 
