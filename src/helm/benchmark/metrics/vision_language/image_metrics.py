@@ -108,12 +108,12 @@ class AnnotatedImageMetrics(Metric):
         metrics: List[AnnotatedMetric] = [
             AnnotatedMetric(self.PIXEL_SIMILARITY, pixel_similarity, "image_np_gray"),
             AnnotatedMetric(self.SIFT_SIMILARITY, sift_similarity, "image_np"),
-            AnnotatedMetric(self.BLOCK_EARTH_MOVER_SIMILARITY, self.compute_block_emd_raw, "image_PIL"),
             # Raw block EMD
-            AnnotatedMetric(self.BLOCK_EARTH_MOVER_SIMILARITY_NORM1, self.compute_block_emd_white, "image_PIL"),
+            AnnotatedMetric(self.BLOCK_EARTH_MOVER_SIMILARITY, self.compute_block_emd_raw, "image_PIL"),
             # Normalized block EMD against white
-            AnnotatedMetric(self.BLOCK_EARTH_MOVER_SIMILARITY_NORM2, self.compute_block_emd_median, "image_PIL"),
+            AnnotatedMetric(self.BLOCK_EARTH_MOVER_SIMILARITY_NORM1, self.compute_block_emd_white, "image_PIL"),
             # Normalized block EMD against median
+            AnnotatedMetric(self.BLOCK_EARTH_MOVER_SIMILARITY_NORM2, self.compute_block_emd_median, "image_PIL"),
             AnnotatedMetric(self.LPIPS_SIMILARITY, self.lpips_similarity, "image_PIL"),
             AnnotatedMetric(self.FID_SIMILARITY, self.fid_similarity, "image_PIL"),
             AnnotatedMetric(self.SSIM_SIMILARITY, self.compute_ssim, "image_np_gray"),
@@ -494,7 +494,8 @@ class AnnotatedImageMetrics(Metric):
             ref_img_np = np.array(ref_image)
             (rgb_most_frequent_color, _) = get_most_frequent_color(ref_img_np)
 
-            constant_image = Image.new("RGB", ref_image.size, rgb_most_frequent_color)  # Most frequent color as base
+            # Most frequent color as base
+            constant_image = Image.new("RGB", ref_image.size, tuple(rgb_most_frequent_color))  # type: ignore
             value = compute_emd_recursive(
                 constant_image,
                 ref_image,
