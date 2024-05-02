@@ -28,7 +28,7 @@ from helm.benchmark.metrics.vision_language.image_utils import (
     pixel_similarity,
     sift_similarity,
 )
-from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive
+from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive, get_most_frequent_color
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -491,8 +491,6 @@ class AnnotatedImageMetrics(Metric):
             )
 
         def compute_denominator():
-            from emd_utils import get_most_frequent_color
-
             ref_img_np = np.array(ref_image)
             (rgb_most_frequent_color, _) = get_most_frequent_color(ref_img_np)
 
