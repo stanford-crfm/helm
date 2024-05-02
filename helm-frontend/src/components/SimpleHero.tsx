@@ -10,7 +10,7 @@ export default function SimpleHero() {
             <h1 className="text-4xl mb-4 mx-4 mt-2">
               <strong>
                 A reproducible and transparent framework for evaluating
-                foundation models
+                foundation models.
               </strong>
             </h1>
             <h3
