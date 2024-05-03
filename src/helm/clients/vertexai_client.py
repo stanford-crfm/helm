@@ -325,16 +325,16 @@ class VertexAIChatClient(VertexAIClient):
             try:
 
                 def do_it() -> Dict[str, Any]:
-                    response = model.generate_content(
+                    response: GenerationResponse = model.generate_content(
                         contents, generation_config=parameters, safety_settings=self.safety_settings
                     )
                     # Depending on the version of the Vertex AI library and the type of prompt blocking,
                     # prompt blocking can show up in many ways, so this defensively handles most of these ways
-                    if raw_response.prompt_feedback.block_reason:
+                    if response.prompt_feedback.block_reason:
                         raise VertexAIContentBlockedError(
-                            f"Prompt blocked with reason: {raw_response.prompt_feedback.block_reason}"
+                            f"Prompt blocked with reason: {response.prompt_feedback.block_reason}"
                         )
-                    if not raw_response.candidates:
+                    if not response.candidates:
                         raise VertexAIContentBlockedError(f"No candidates in response: {response}")
                     # We should only have one candidate
                     assert (
