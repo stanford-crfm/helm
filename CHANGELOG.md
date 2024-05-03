@@ -2,6 +2,41 @@
 
 ## [Upcoming]
 
+## [v0.5.1] - 2024-04-23
+
+### Scenarios
+
+- Updated to VLM models for VHELM (#1592)
+- Added `trust_remote_code=True` for `math` and `legalbench` scenarios (#2597)
+
+### Models
+
+- Added Snowflake Arctic Instruct (#2599, )
+- Updated to VLM scenarios for VHELM (#1592)
+- Improved handling of Gemini content blocking (#2603)
+- Added default instructions prefix for multiple-choice joint adaptation for Claude 3
+- Renamed some model names for consistency (#2596)
+- Added Snowflake Arctic Instruct (#2599, #2591)
+
+### Frontend
+
+- Added global landing page (#2593)
+
+### Evaluation Results
+
+- [VHELM v1.0.0](https://crfm.stanford.edu/helm/mmlu/v1.0.0/)
+    - Initial release with Claude 3 Sonnet, Claude 3 Opus, Gemini 1.0 Pro Vision, IDEFICS 2 and GPT-4V
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @farzaank
+- @neelguha
+- @percyliang
+- @teetone
+- @yifanmai
+
 ## [v0.5.0] - 2024-04-23
 
 ### Breaking changes
@@ -425,7 +460,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.0...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.1...HEAD
+[v0.5.1]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.1
 [v0.5.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.0
 [v0.4.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.4.0
 [v0.3.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.3.0
