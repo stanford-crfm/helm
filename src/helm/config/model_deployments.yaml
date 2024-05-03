@@ -1717,7 +1717,7 @@ model_deployments:
     tokenizer_name: snowflake/snowflake-arctic-instruct
     max_sequence_length: 4095
     client_spec:
-      class_name: "helm.clients.together_client.TogetherClient"
+      class_name: "helm.clients.together_client.TogetherChatClient"
 
   ## Stanford
   - name: together/alpaca-7b
