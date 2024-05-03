@@ -341,6 +341,8 @@ class VertexAIChatClient(VertexAIClient):
                         len(response.candidates) == 1
                     ), f"Expected 1 candidate since candidate_count is 1, got {len(response.candidates)}."
                     candidate = response.candidates[0]
+                    # Depending on the version of the Vertex AI library and the type of prompt blocking,
+                    # content blocking can show up in many ways, so this defensively handles most of these ways
                     if candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS:
                         raise VertexAIContentBlockedError(f"Content blocked with reason: {candidate.finish_reason}")
                     if not candidate.content.parts:
@@ -353,7 +355,9 @@ class VertexAIChatClient(VertexAIClient):
 
                 cache_key = CachingClient.make_cache_key(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-
+            except requests.exceptions.RequestException as e:
+                error: str = f"Gemini Vision error: {e}"
+                return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
             except VertexAIContentBlockedError as e:
                 return RequestResult(
                     success=False,
@@ -367,7 +371,7 @@ class VertexAIChatClient(VertexAIClient):
             if "error" in response:
                 return RequestResult(
                     success=False,
-                    cached=False,
+                    cached=True,
                     error=f"Content blocked error in cached response: {str(response)}",
                     completions=[],
                     embedding=[],
