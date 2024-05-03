@@ -130,9 +130,8 @@ class OpenAIClient(CachingClient):
                         from helm.common.images_utils import encode_base64
 
                         base64_image: str = encode_base64(media_object.location)
-                        content.append(
-                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
-                        )
+                        image_object: Dict[str, str] = {"url": f"data:image/jpeg;base64,{base64_image}"}
+                        content.append({"type": "image_url", "image_url": image_object})
                     elif media_object.is_type(TEXT_TYPE):
                         if media_object.text is None:
                             raise ValueError("MediaObject of text type has missing text field value")

@@ -436,7 +436,7 @@ model_deployments:
 
   - name: google/gemini-pro-vision
     model_name: google/gemini-pro-vision
-    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    tokenizer_name: openai/cl100k_base
     max_sequence_length: 12288
     max_sequence_and_generated_tokens_length: 16384 # Officially max_sequence_length + 4096, in practice max_output_tokens <= 2048 for vision models
     client_spec:
@@ -709,7 +709,35 @@ model_deployments:
     max_sequence_length: 2048
     client_spec:
       class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
-      
+
+  - name: huggingface/llava-v1.6-vicuna-7b-hf
+    model_name: uw-madison/llava-v1.6-vicuna-7b-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+
+  - name: huggingface/llava-v1.6-vicuna-13b-hf
+    model_name: uw-madison/llava-v1.6-vicuna-13b-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+
+  - name: huggingface/llava-v1.6-mistral-7b-hf
+    model_name: uw-madison/llava-v1.6-mistral-7b-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+
+  - name: huggingface/llava-v1.6-34b-hf
+    model_name: uw-madison/llava-v1.6-34b-hf
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.vision_language.huggingface_vlm_client.HuggingFaceVLMClient"
+
   ## OpenFlamingo
   - name: openflamingo/OpenFlamingo-9B-vitl-mpt7b
     model_name: openflamingo/OpenFlamingo-9B-vitl-mpt7b
@@ -963,6 +991,15 @@ model_deployments:
       class_name: "helm.benchmark.window_services.image_generation.clip_window_service.CLIPWindowService"
 
   # HuggingFaceM4
+  - name: HuggingFaceM4/idefics2-8b
+    model_name: HuggingFaceM4/idefics2-8b
+    # From https://huggingface.co/docs/transformers/main/en/model_doc/idefics2,
+    # "constructs a IDEFICS2 processor which wraps a LLama tokenizer."
+    tokenizer_name: hf-internal-testing/llama-tokenizer
+    max_sequence_length: 2048
+    client_spec:
+      class_name: "helm.clients.vision_language.huggingface_vision2seq_client.HuggingFaceVision2SeqClient"
+
   - name: HuggingFaceM4/idefics-9b
     model_name: HuggingFaceM4/idefics-9b
     tokenizer_name: HuggingFaceM4/idefics-9b

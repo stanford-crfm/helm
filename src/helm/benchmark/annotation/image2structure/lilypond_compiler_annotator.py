@@ -18,7 +18,7 @@ class LilypondCompilerAnnotator(ImageCompilerAnnotator):
     """Annotator that compiles the text completions into a music sheet with LilyPond."""
 
     name: str = "lilypond_compiler"
-    base_path = "/home/josselin/installs/lilypond-2.24.3/bin"
+    base_path = "lilypond-2.24.3/bin"
 
     def __init__(self, cache_config: CacheConfig, file_storage_path: str):
         super().__init__(cache_config, file_storage_path)
