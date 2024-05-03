@@ -65,12 +65,12 @@ function NavDropdown() {
           <li key={index}>
             <a
               href={getReleaseUrl(undefined, item.id)}
-              className={"block "}
+              className="block"
               role="menuitem"
             >
               <strong
                 className={
-                  "" + (currProjectMetadata.title === item.title && "underline")
+                  currProjectMetadata.title === item.title ? "underline" : ""
                 }
               >
                 {item.title}

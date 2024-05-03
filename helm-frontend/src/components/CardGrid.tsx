@@ -25,9 +25,7 @@ export default function CardGrid() {
       <div className="grid grid-cols-3 gap-4">
         {projectEntries &&
           projectEntries.map((project, index) =>
-            project.id === "home" ? (
-              <></>
-            ) : (
+            project.id === "home" ? null : (
               <ProjectCard
                 key={index}
                 id={project.id}

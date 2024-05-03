@@ -1,5 +1,4 @@
 import helmHero from "@/assets/helmhero.png";
-import { Link } from "react-router-dom";
 
 export default function SimpleHero() {
   return (
@@ -35,7 +34,7 @@ export default function SimpleHero() {
             <div>Leaderboards ↓</div>
           </button>
           <button className="px-6 btn btn-grey rounded-md md:ml-4">
-            <Link to="https://github.com/stanford-crfm/helm">Github</Link>
+            <a href="https://github.com/stanford-crfm/helm">Github</a>
           </button>
         </div>
       </div>
