@@ -11,7 +11,6 @@
 
 ### Models
 
-- Added Snowflake Arctic Instruct (#2599, )
 - Updated to VLM scenarios for VHELM (#1592)
 - Improved handling of Gemini content blocking (#2603)
 - Added default instructions prefix for multiple-choice joint adaptation for Claude 3
