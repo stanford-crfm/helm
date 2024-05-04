@@ -67,7 +67,7 @@ def serve_and_take_screenshot(
     # Start the Jekyll server
     # Select a unique port per thread
     port: int = 4000 + int(threading.get_ident()) % 1000
-    server = JekyllServer(repo_path, port=port, verbose=False)
+    server = JekyllServer(repo_path, port=port, verbose=True)
     success: bool = server.start()
     if not success:
         # This runs on examples that are not expected to fail
