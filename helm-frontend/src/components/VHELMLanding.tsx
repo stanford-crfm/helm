@@ -33,7 +33,7 @@ export default function VHELMLanding() {
         <em>Holistic Evaluation of Vision-Language Models (VHELM)</em> by
         extending the <a href="https://arxiv.org/abs/2211.09110">HELM</a>{" "}
         framework with the necessary adaptation methods to assess the
-        performance of 11 prominent VLMs on 3 standard VLM benchmarks.
+        performance of 6 prominent VLMs on 3 standard VLM benchmarks.
       </p>
       <p className="my-4 font-bold">
         This is ongoing work to achieve holistic evaluation for vision-language
