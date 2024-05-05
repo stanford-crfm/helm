@@ -30,6 +30,12 @@
 		"releases": ["v1.1.0", "v1.0.0"]
 	},
 	{
+		"title": "VHELM",
+		"description": "Holistic Evaluation of Vision-Language Models",
+		"id": "vhelm",
+		"releases": ["v1.0.0"]
+	},
+	{
 		"title": "All Leaderboards",
 		"description": "Home page for all HELM leaderboards",
 		"id": "home",
