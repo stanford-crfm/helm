@@ -695,10 +695,10 @@ models:
     creator_organization_name: Google
     access: limited
     release_date: 2023-12-13
-    tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+    tags: [VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, GOOGLE_GEMINI_PRO_VISION_V1_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
 
   - name: google/gemini-1.5-pro-preview-0409
-    display_name: Gemini 1.5 Pro
+    display_name: Gemini 1.5 Pro (preview - 0409)
     description: Gemini 1.5 Pro is a multimodal mixture-of-experts model capable of recalling and reasoning over fine-grained information from long contexts. ([paper](https://arxiv.org/abs/2403.05530))
     creator_organization_name: Google
     access: limited
