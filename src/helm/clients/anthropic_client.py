@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 import json
 import requests
+import tempfile
 import time
 import urllib.parse
 
@@ -68,6 +69,9 @@ class AnthropicClient(CachingClient):
     MAX_COMPLETION_LENGTH: int = (
         8192  # See https://docs.google.com/document/d/1vX6xgoA-KEKxqtMlBVAqYvE8KUfZ7ABCjTxAjf1T5kI/edit#
     )
+    # An Anthropic error message: "At least one of the image dimensions exceed max allowed size: 8000 pixels"
+    MAX_IMAGE_DIMENSION: int = 8000
+
     ADDITIONAL_TOKENS: int = 5
     PROMPT_ANSWER_START: str = "The answer is "
 
@@ -206,7 +210,7 @@ class AnthropicClient(CachingClient):
 
 
 def _is_content_moderation_failure(response: Dict) -> bool:
-    """Return whether a a response failed because of the content moderation filter."""
+    """Return whether a response failed because of the content moderation filter."""
     if (
         "error" in response
         and "message" in response["error"]
@@ -238,7 +242,7 @@ class AnthropicMessagesResponseError(Exception):
 
 class AnthropicMessagesClient(CachingClient):
     # Source: https://docs.anthropic.com/claude/docs/models-overview
-    MAX_OUTPUT_TOKENS = 4096
+    MAX_OUTPUT_TOKENS: int = 4096
 
     def __init__(
         self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: Optional[str] = None
@@ -273,7 +277,7 @@ class AnthropicMessagesClient(CachingClient):
             # TODO(#2439): Refactor out Request validation
             if request.messages is not None or request.prompt:
                 raise AnthropicMessagesRequestError(
-                    "Exactly one of Request.messages, Request.prompt or Request.multimodel_prompt should be set"
+                    "Exactly one of Request.messages, Request.prompt or Request.multimodal_prompt should be set"
                 )
             blocks: List[Union[TextBlockParam, ImageBlockParam]] = []
             for media_object in request.multimodal_prompt.media_objects:
@@ -282,9 +286,33 @@ class AnthropicMessagesClient(CachingClient):
                     if not media_object.location:
                         raise Exception("MediaObject of image type has missing location field value")
 
-                    from helm.common.images_utils import encode_base64
+                    from helm.common.images_utils import encode_base64, get_dimensions, copy_image
 
-                    base64_image: str = encode_base64(media_object.location, format="JPEG")
+                    image_location: str = media_object.location
+                    base64_image: str
+
+                    image_width, image_height = get_dimensions(media_object.location)
+                    if (
+                        image_width > AnthropicClient.MAX_IMAGE_DIMENSION
+                        or image_height > AnthropicClient.MAX_IMAGE_DIMENSION
+                    ):
+                        hlog(
+                            f"WARNING: Image {image_location} exceeds max allowed size: "
+                            f"{AnthropicClient.MAX_IMAGE_DIMENSION} pixels"
+                        )
+                        # Save the resized image to a temporary file
+                        with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
+                            hlog(f"Resizing image to temporary path: {temp_file.name}")
+                            copy_image(
+                                src=image_location,
+                                dest=temp_file.name,
+                                width=min(image_width, AnthropicClient.MAX_IMAGE_DIMENSION),
+                                height=min(image_height, AnthropicClient.MAX_IMAGE_DIMENSION),
+                            )
+                            base64_image = encode_base64(temp_file.name, format="JPEG")
+                    else:
+                        base64_image = encode_base64(image_location, format="JPEG")
+
                     image_block: ImageBlockParam = {
                         "type": "image",
                         "source": {
@@ -302,7 +330,9 @@ class AnthropicMessagesClient(CachingClient):
                         "type": "text",
                         "text": media_object.text,
                     }
-                    blocks.append(text_block)
+                    # Anthropic does not support empty text blocks
+                    if media_object.text.strip():
+                        blocks.append(text_block)
             messages = [{"role": "user", "content": blocks}]
 
         else:

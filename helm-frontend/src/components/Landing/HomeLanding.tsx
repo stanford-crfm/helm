@@ -47,7 +47,7 @@ const logos = [
   zeroOne,
 ];
 
-export default function LegacyLanding() {
+export default function HomeLanding() {
   const [schema, setSchema] = useState<Schema | undefined>(undefined);
 
   useEffect(() => {
@@ -68,17 +68,19 @@ export default function LegacyLanding() {
   return (
     <>
       <SimpleHero />
-      <div className="container mt-40 mx-auto text-lg">
+      <div className="container mt-30 mx-auto text-lg">
         <div className="flex flex-col sm:flex-row justify-center mb-10 flex sm:gap-8 md:gap-32">
           <h1 className="text-4xl  mx-4 ">
-            <strong>HELM Projects</strong>
+            <strong>HELM Leaderboards</strong>
           </h1>
         </div>
         <div className="flex flex-col sm:flex-row flex sm:gap-8 md:gap-32">
-          <text>
-            HELM projects leverage the HELM framework and target particular
-            domains, languages, or use cases.
-          </text>
+          <body>
+            HELM leaderboards leverage the HELM framework and target particular
+            domains and/or capabilities. Leaderboards range from real world
+            applications and specific domains to ones focused on multimodal
+            capabilities and model-evaluations.
+          </body>
         </div>
       </div>
       <CardGrid />

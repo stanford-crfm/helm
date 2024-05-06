@@ -48,11 +48,27 @@ class TextPerturbation(Perturbation, ABC):
 
         description = replace(self.description, seed=seed)
 
+        perturbed_input: Input
+        if instance.input.multimedia_content:
+            perturbed_media_objects = []
+            for media_object in instance.input.multimedia_content.media_objects:
+                # Apply perturbations to the text data of the multimedia content
+                if media_object.is_type("text") and media_object.text is not None:
+                    perturbed_media_objects.append(replace(media_object, text=self.perturb(media_object.text, rng)))
+                else:
+                    perturbed_media_objects.append(media_object)
+
+            perturbed_input = Input(
+                multimedia_content=replace(instance.input.multimedia_content, media_objects=perturbed_media_objects)
+            )
+        else:
+            perturbed_input = Input(text=self.perturb(instance.input.text, rng))
+
         # Don't modify `id` of `Instance` here.
         # All the perturbed Instances generated from a single Instance should have the same ID.
         return replace(
             instance,
-            input=Input(text=self.perturb(instance.input.text, rng)),
+            input=perturbed_input,
             references=references,
             perturbation=description,
             contrast_inputs=[instance.input],
