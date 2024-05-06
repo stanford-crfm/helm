@@ -26,7 +26,7 @@
 ### Evaluation Results
 
 - [VHELM v1.0.0](https://crfm.stanford.edu/helm/mmlu/v1.0.0/)
-    - Initial release with Claude 3 Sonnet, Claude 3 Opus, Gemini 1.0 Pro Vision, IDEFICS 2 and GPT-4V
+    - Initial release with Gemini 1.5 Pro, Claude 3 Sonnet, Claude 3 Opus, Gemini 1.0 Pro Vision, IDEFICS 2 and GPT-4V
 
 ### Contributors
 
