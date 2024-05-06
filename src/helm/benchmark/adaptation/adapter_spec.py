@@ -39,90 +39,91 @@ class AdapterSpec:
     Note that an `Instance` could produce many `Request`s (e.g., one for each `Reference`).
     """
 
-    # Method of adaptation
     method: str = ""
+    """The high-level strategy for converting instances into a prompt for the language model."""
 
-    # Prepend all prompts with this string.
-    # For example, it is recommended to prefix all prompts with [NLG] for UL2.
     global_prefix: str = ""
+    """The string that is prepended to the entire prompt."""
 
-    # Append all prompts with this string.
     global_suffix: str = ""
+    """The string that is appended to the entire prompt."""
 
-    # Prompt starts with instructions
     instructions: str = ""
+    """The description of the task that is included at the very beginning of the prompt."""
 
-    # What goes before the input
     input_prefix: str = "Input: "
+    """The string that is included before each input (e.g., 'Question:')."""
 
-    # What goes after the input
     input_suffix: str = "\n"
+    """The string that is included after each input (e.g., '\\n')."""
 
-    # What goes before the input (for multiple choice)
     reference_prefix: str = "A. "
+    """The string that is included before each reference (for multiple-choice questions)."""
 
-    # What goes before the input (for multiple choice)
     reference_suffix: str = "\n"
+    """The string that is included after each reference (for multiple-choice questions)."""
 
-    # What goes before the output
     output_prefix: str = "Output: "
+    """The string that is included before the correct answer/predicted output (e.g., 'Answer:')."""
 
-    # What goes after the output
     output_suffix: str = "\n"
+    """The string that is included after the correct answer/predicted output (e.g., '\\n')."""
 
-    # What goes between instruction and in-context example blocks in the constructed prompt
     instance_prefix: str = "\n"
+    """The string that is included before each instance (e.g., '\\n\\n')."""
 
-    # List of regular expression substitutions that we perform
     substitutions: List[Substitution] = field(default_factory=list, hash=False)
+    """A list of regular expression substitutions (e.g., replacing '\\n' with ';\\n')
+    to perform at the very end on the prompt."""
 
-    # Maximum number of (in-context) training instances to put into the prompt
     max_train_instances: int = 5
+    """Maximum number of training instances to include in the prompt (currently by randomly sampling)."""
 
-    # Maximum number of evaluation instances. For getting valid numbers, this
-    # should be the entire dataset; only reduce this for piloting.
     max_eval_instances: Optional[int] = None
+    """Maximum number of instances to evaluate on (over all splits - test, valid, etc.)."""
 
-    # Generate this many outputs (which could be realized by `num_completions`
-    # or `top_k_per_token`).
     num_outputs: int = 5
+    """Maximum number of possible outputs to generate by sampling multiple outputs."""
 
-    # Number of trials, where in each trial we choose an independent, random
-    # set of training instances.  Used to compute error bars.
     num_train_trials: int = 1
+    """Number of trials, where in each trial we choose an independent, random set of training instances.
+    Used to compute variance."""
 
-    # Number of trials, where we query the model with the same requests, but different random seeds
     num_trials: int = 1
+    """Number of trials, where we query the model with the same requests, but different random seeds."""
 
-    # If true, randomly sample N training examples; if false, select N consecutive training examples
     sample_train: bool = True
+    """If true, randomly sample N training examples; if false, select N consecutive training examples"""
 
     # Decoding parameters (inherited by `Request`)
 
-    # Model deployment to make the request to (need to fill in)
     model_deployment: str = ""
+    """Name of the language model deployment (<host_organization>/<model name>) to send requests to."""
 
-    # Model to make the request to
     model: str = ""
+    """Name of the language model (<creator_organization>/<model name>) to send requests to."""
 
-    # Temperature to use
     temperature: float = 1
+    """Temperature parameter used in generation."""
 
-    # Maximum number of tokens to generate
     max_tokens: int = 100
+    """Maximum number of tokens to generate."""
 
-    # When to stop (set hash=False to make `AdapterSpec` hashable)
+    # Set hash=False to make `AdapterSpec` hashable
     stop_sequences: List[str] = field(default_factory=list, hash=False)
+    """List of stop sequences. Output generation will be stopped if any stop sequence is encountered."""
 
     # Random string (used concretely to bypass cache / see diverse results)
     random: Optional[str] = None
+    """Random seed (string), which guarantees reproducibility."""
 
-    # If true, for instances with multiple correct reference, the gold answer should be considered
-    # to be all the correct references rather than any of the correct references.
     multi_label: bool = False
+    """If true, for instances with multiple correct reference, the gold answer should be considered to be all
+    of the correct references rather than any of the correct references."""
 
-    # Parameters for image generation
     image_generation_parameters: Optional[ImageGenerationParameters] = None
+    """Parameters for image generation."""
 
-    # The splits from which evaluation instances will be drawn (set hash=False to make `AdapterSpec` hashable)
+    # Set hash=False to make `AdapterSpec` hashable
     eval_splits: Optional[List[str]] = field(default=None, hash=False)
+    """The splits from which evaluation instances will be drawn."""
