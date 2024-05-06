@@ -496,7 +496,7 @@ class AnnotatedImageMetrics(Metric):
             grayscale_most_frequent_color = to_gray(rgb_most_frequent_color)[0]
 
             # Most frequent color as base
-            if grayscale_most_frequent_color<127:
+            if grayscale_most_frequent_color < 127:
                 constant_image = Image.new("RGB", ref_image.size, (255, 255, 255))  # Make it white
             else:
                 constant_image = Image.new("RGB", ref_image.size, (0, 0, 0))  # Make it black
