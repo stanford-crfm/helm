@@ -1,5 +1,9 @@
 ---
 ############################################################
+# For backwards compatibility with older versions of HELM.
+# TODO: Remove this after 2024-09-01.
+adapter: []
+############################################################
 metrics:
   - name: Helpfulness
     display_name: Helpfulness

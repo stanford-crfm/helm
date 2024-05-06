@@ -277,4 +277,6 @@ def read_schema(schema_path: str) -> Schema:
     with open(schema_path, "r") as f:
         raw = yaml.safe_load(f)
     schema = dacite.from_dict(Schema, raw)
+    if schema.adapter:
+        hlog(f"WARNING: The `adapter` field is deprecated and should be removed from schema file {schema_path}")
     return dataclasses.replace(schema, adapter=get_adapter_fields())
