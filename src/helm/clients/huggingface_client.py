@@ -62,10 +62,30 @@ class HuggingFaceServer:
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
             if openvino:
-                from optimum.intel.openvino import OVModelForCausalLM
+                """
+                Optimum Intel provides a simple interface to optimize Transformer models and convert them to \
+                OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
+                Intel® architectures using OpenVINO™ runtime.
+                """
+                from importlib.util import find_spec
+                from pathlib import Path
 
+                if not find_spec("optimum"):
+                    raise Exception(
+                        "package `optimum` is not installed. Please install it via `pip install optimum[openvino]`"
+                    )
+                else:
+                    from optimum.intel.openvino import OVModelForCausalLM
+                
+                model_file = Path(pretrained) / "openvino_model.xml"
+                if model_file.exists():
+                    export = False
+                else:
+                    export = True
+
+                self.device = "cpu"
                 self.model = OVModelForCausalLM.from_pretrained(
-                    pretrained_model_name_or_path, trust_remote_code=True, export=True, **kwargs
+                    pretrained_model_name_or_path, export=export, trust_remote_code=True, **kwargs
                 ).to(self.device)
             else:
                 self.model = AutoModelForCausalLM.from_pretrained(
