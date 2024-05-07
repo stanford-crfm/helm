@@ -194,7 +194,7 @@ export default function LeaderboardTables({
                       headerValue.description ? headerValue.description : ""
                     }
                   >
-                    <div className="z-10 flex justify-between items-center min-w-48 w-48 max-w-48 text-wrap">
+                    <div className="z-20 flex justify-between items-center min-w-48 w-48 max-w-48 text-wrap">
                       <span className={`inline-block w-full break-words`}>
                         {getHeaderValue(headerValue)}
                       </span>
