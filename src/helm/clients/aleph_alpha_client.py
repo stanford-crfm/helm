@@ -3,7 +3,7 @@ from typing import List
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token
 from .client import CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
 
 try:
@@ -79,7 +79,7 @@ class AlephAlphaClient(CachingClient):
             error: str = f"AlephAlphaClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         for completion in response["completions"]:
             sequence_logprob: float = 0
             tokens: List[Token] = []
@@ -96,7 +96,9 @@ class AlephAlphaClient(CachingClient):
                     )
                 )
 
-            sequence: Sequence = Sequence(text=completion["completion"], logprob=sequence_logprob, tokens=tokens)
+            sequence: GeneratedOutput = GeneratedOutput(
+                text=completion["completion"], logprob=sequence_logprob, tokens=tokens
+            )
             sequence = truncate_sequence(sequence, request)
             completions.append(sequence)
 

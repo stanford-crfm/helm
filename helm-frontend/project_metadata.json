@@ -3,7 +3,7 @@
 		"title": "Lite",
 		"description": "Lightweight, broad evaluation of the capabilities of language models using in-context learning",
 		"id": "lite",
-		"releases": ["v1.1.0", "v1.0.0"]
+		"releases": ["v1.2.0", "v1.1.0", "v1.0.0"]
 	},
 	{
 		"title": "Classic",
@@ -21,6 +21,24 @@
 		"title": "Instruct",
 		"description": "Evaluations of instruction following models with absolute ratings",
 		"id": "instruct",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "MMLU",
+		"description": "Massive Multitask Language Understanding (MMLU) evaluations using standardized prompts",
+		"id": "mmlu",
+		"releases": ["v1.1.0", "v1.0.0"]
+	},
+	{
+		"title": "VHELM",
+		"description": "Holistic Evaluation of Vision-Language Models",
+		"id": "vhelm",
+		"releases": ["v1.0.0"]
+	},
+	{
+		"title": "All Leaderboards",
+		"description": "Home page for all HELM leaderboards",
+		"id": "home",
 		"releases": ["v1.0.0"]
 	}
 ]

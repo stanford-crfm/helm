@@ -8,7 +8,7 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
 )
 from .client import CachingClient, truncate_sequence
@@ -21,6 +21,7 @@ class CohereClient(CachingClient):
 
     Cohere models will only support chat soon: https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat
     """
+
     ORGANIZATION: str = "cohere"
     CHAT_ENDPOINT: str = "chat"
 
@@ -37,15 +38,21 @@ class CohereClient(CachingClient):
             0 <= request.top_k_per_token <= 500
         ), f"Invalid top_k_per_token: {request.top_k_per_token}. Valid range: [0..500]"
         assert 0.0 <= request.top_p <= 1.0, f"Invalid top_p: {request.top_p}. Valid range: [0,1]"
-        assert 0.0 <= request.frequency_penalty <= 1.0, f"Invalid frequency_penalty: {request.frequency_penalty}. Valid range: [0,1]"
-        assert 0.0 <= request.presence_penalty <= 1.0, f"Invalid presence_penalty: {request.presence_penalty}. Valid range: [0,1]"
-        assert 0 <= len(request.stop_sequences) <= 5, f"Invalid length of stop_sequences: {request.stop_sequences}. Up to 5 strings permitted."
+        assert (
+            0.0 <= request.frequency_penalty <= 1.0
+        ), f"Invalid frequency_penalty: {request.frequency_penalty}. Valid range: [0,1]"
+        assert (
+            0.0 <= request.presence_penalty <= 1.0
+        ), f"Invalid presence_penalty: {request.presence_penalty}. Valid range: [0,1]"
+        assert (
+            0 <= len(request.stop_sequences) <= 5
+        ), f"Invalid length of stop_sequences: {request.stop_sequences}. Up to 5 strings permitted."
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         self._validate_request(request)
-    
+
         raw_request = {
             "model": request.model_engine,
             "message": request.prompt,
@@ -95,10 +102,12 @@ class CohereClient(CachingClient):
         # Cohere chat only supports 1 completion at a time
         # Furthermore, it does not support likelihoods, or return tokens (just text)
         dummy_log_prob = 0.0
-        dummy_tokens = []
+        dummy_tokens: List[Token] = []
 
-        completions: List[Sequence] = []
-        completion: Sequence = Sequence(text=response["text"], logprob=dummy_log_prob, tokens=dummy_tokens)
+        completions: List[GeneratedOutput] = []
+        completion: GeneratedOutput = GeneratedOutput(
+            text=response["text"], logprob=dummy_log_prob, tokens=dummy_tokens
+        )
         completion = truncate_sequence(completion, request)
         completions.append(completion)
 

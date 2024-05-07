@@ -1,7 +1,7 @@
 from typing import List, Dict
 
 from helm.common.cache import CacheConfig
-from helm.common.request import Request, RequestResult, Sequence, Token
+from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from .client import CachingClient, truncate_sequence
 
 
@@ -48,7 +48,7 @@ class GoogleClient(CachingClient):
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         # Expect the result to be structured the same way as a response from OpenAI API.
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
             tokens: List[Token] = []
@@ -58,7 +58,7 @@ class GoogleClient(CachingClient):
                 tokens.append(Token(text=text, logprob=logprob or 0))
                 sequence_logprob += logprob or 0
 
-            completion = Sequence(
+            completion = GeneratedOutput(
                 text=raw_completion["text"],
                 logprob=sequence_logprob,
                 tokens=tokens,

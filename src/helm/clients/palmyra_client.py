@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import wrap_request_time, Request, RequestResult, Sequence, Token, ErrorFlags
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token, ErrorFlags
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -67,7 +67,7 @@ class PalmyraClient(CachingClient):
             # "random_seed": request.random,
         }
 
-        completions: List[Sequence] = []
+        completions: List[GeneratedOutput] = []
         model_name: str = request.model_engine
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
@@ -130,7 +130,7 @@ class PalmyraClient(CachingClient):
             # Log probs are not currently not supported by the Writer, so set to 0 for now.
             tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
 
-            completion = Sequence(text=response_text, logprob=0, tokens=tokens)
+            completion = GeneratedOutput(text=response_text, logprob=0, tokens=tokens)
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 

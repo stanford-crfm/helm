@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PageTitle from "@/components/PageTitle";
-import LeaderboardTables from "@/components/LeaderboardTables";
+import MiniLeaderboardTables from "@/components/MiniLeaderboardTables";
 import type GroupsTable from "@/types/GroupsTable";
 import type GroupMetadata from "@/types/GroupMetadata";
 import getGroupsTablesByName from "@/services/getGroupTablesByName";
@@ -13,7 +13,10 @@ interface GroupDisplayData {
   name: string;
 }
 
-export default function MiniLeaderboard() {
+interface Props {
+  numModelsToAutoFilter?: number;
+}
+export default function MiniLeaderboard({ numModelsToAutoFilter = 6 }: Props) {
   const [allGroupData, setAllGroupData] = useState<GroupDisplayData[]>([]);
   const [groupsTables, setGroupsTables] = useState<GroupsTable[]>([]);
   const [groupMetadata, setGroupMetadata] = useState<
@@ -75,12 +78,10 @@ export default function MiniLeaderboard() {
   return (
     <>
       <>
-        <LeaderboardTables
+        <MiniLeaderboardTables
           groupsTables={groupsTables}
           activeGroup={activeGroup}
-          ignoreHref={true}
-          filtered
-          numModelsToAutoFilter={6}
+          numModelsToAutoFilter={numModelsToAutoFilter}
           filteredCols={[0, 1]}
         />
       </>

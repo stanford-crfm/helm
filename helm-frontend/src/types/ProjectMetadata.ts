@@ -3,4 +3,5 @@ export default interface ProjectMetadata {
   description: string;
   id: string;
   releases: string[];
+  imageUrl?: string | undefined;
 }

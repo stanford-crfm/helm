@@ -1,7 +1,7 @@
 from typing import List
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 
-from helm.common.request import Request, Sequence
+from helm.common.request import Request, GeneratedOutput
 from helm.tokenizers.auto_tokenizer import AutoTokenizer
 from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from .token_counter import TokenCounter
@@ -13,7 +13,7 @@ class AutoTokenCounter(TokenCounter):
     def __init__(self, auto_tokenizer: AutoTokenizer):
         self.auto_tokenizer: AutoTokenizer = auto_tokenizer
 
-    def count_tokens(self, request: Request, completions: List[Sequence]) -> int:
+    def count_tokens(self, request: Request, completions: List[GeneratedOutput]) -> int:
         """Counts tokens based on the model deployment.
 
         This counts the number of tokens in the request and completions.

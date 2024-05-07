@@ -1,14 +1,12 @@
-import ProjectMetadata from "@/types/ProjectMetadata";
-
 export default function getReleaseUrl(
   version: string | undefined,
-  currProjectMetadata: ProjectMetadata | undefined,
+  currProjectId: string | undefined,
 ): string {
-  if (!currProjectMetadata) {
+  if (!currProjectId) {
     return "#";
   }
   if (!version) {
-    return `https://crfm.stanford.edu/helm/${currProjectMetadata.id}/latest/`;
+    return `https://crfm.stanford.edu/helm/${currProjectId}/latest/`;
   }
-  return `https://crfm.stanford.edu/helm/${currProjectMetadata.id}/${version}/`;
+  return `https://crfm.stanford.edu/helm/${currProjectId}/${version}/`;
 }

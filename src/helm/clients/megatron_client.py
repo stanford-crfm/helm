@@ -9,7 +9,7 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
 )
 from helm.common.tokenization_request import TokenizationRequest
@@ -87,7 +87,7 @@ class MegatronClient(CachingClient):
 
         # NOTE: Megatron returns the de-tokenized response. Re-tokenize.
         tokens = self._tokenize_response(generated_text)
-        completion = Sequence(text=generated_text, logprob=0, tokens=tokens)
+        completion = GeneratedOutput(text=generated_text, logprob=0, tokens=tokens)
         completion = truncate_sequence(completion, request, print_warning=True)
 
         return RequestResult(

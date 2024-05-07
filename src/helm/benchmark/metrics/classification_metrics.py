@@ -9,7 +9,7 @@ from helm.benchmark.metrics.evaluate_reference_metrics import normalize_text
 from helm.benchmark.metrics.metric import MetricName
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.scenario import Reference
-from helm.common.request import Sequence
+from helm.common.request import GeneratedOutput
 
 
 class ClassificationMetric(EvaluateInstancesMetric):
@@ -90,7 +90,9 @@ class MultipleChoiceClassificationMetric(EvaluateInstancesMetric):
             ]
             assert len(golds) > 0, "MultipleChoiceClassificationMetric are designed for multiple_choice_* adapters"
             assert request_state.result is not None
-            sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+            sorted_completions: List[GeneratedOutput] = sorted(
+                request_state.result.completions, key=lambda x: -x.logprob
+            )
             pred: str = sorted_completions[0].text.strip()  # Only utilize the first prediction
             if request_state.output_mapping is not None:
                 pred = request_state.output_mapping.get(pred, pred)

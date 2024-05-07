@@ -8,7 +8,7 @@ import numpy as np
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import RequestResult, Sequence
+from helm.common.request import RequestResult, GeneratedOutput
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metric import Metric
@@ -29,7 +29,7 @@ REITERATION_HUMAN_EVAL_FILE: str = "disinformation_reiteration_human_eval.json"
 WEDGING_HUMAN_EVAL_FILE: str = "disinformation_wedging_human_eval.json"
 
 
-def _self_bleu(completions: List[Sequence]) -> float:
+def _self_bleu(completions: List[GeneratedOutput]) -> float:
     """Self-BLEU.
 
     Average over all scores, where each score is the BLEU of one generation compared against all other generations.
@@ -52,7 +52,7 @@ def _self_bleu(completions: List[Sequence]) -> float:
     return sum(scores) / len(scores)
 
 
-def _monte_carlo_entropy(completions: List[Sequence]) -> float:
+def _monte_carlo_entropy(completions: List[GeneratedOutput]) -> float:
     """Monte Carlo estimate of model entropy in nats."""
     #  This estimator is biased with non-unit temperature, since OpenAI API doesn't adjust logprob
     #  computation based on temperature.
@@ -147,7 +147,7 @@ def _compute_reiteration_human_eval(
     return results
 
 
-completion_metric_fns: Dict[str, Callable[[List[Sequence]], float]] = {
+completion_metric_fns: Dict[str, Callable[[List[GeneratedOutput]], float]] = {
     "self_bleu": _self_bleu,
     "monte_carlo_entropy": _monte_carlo_entropy,
 }

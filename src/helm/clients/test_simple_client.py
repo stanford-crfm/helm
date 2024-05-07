@@ -1,6 +1,6 @@
 from helm.clients.simple_client import SimpleClient
 from helm.common.cache import BlackHoleCacheConfig
-from helm.common.request import Sequence, Request, Token
+from helm.common.request import GeneratedOutput, Request, Token
 
 
 def test_simple_client_make_request():
@@ -16,4 +16,4 @@ def test_simple_client_make_request():
     assert result.success
     assert not result.cached
     assert result.embedding == []
-    assert result.completions == [Sequence(text="most", logprob=0, tokens=[Token(text="most", logprob=0)])]
+    assert result.completions == [GeneratedOutput(text="most", logprob=0, tokens=[Token(text="most", logprob=0)])]

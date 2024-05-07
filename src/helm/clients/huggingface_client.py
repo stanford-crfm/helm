@@ -14,11 +14,11 @@ from helm.common.request import (
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
     Request,
     RequestResult,
-    Sequence,
+    GeneratedOutput,
     Token,
 )
 from .client import CachingClient, truncate_sequence
-from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer, resolve_alias
+from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer
 from threading import Lock
 
 
@@ -236,13 +236,11 @@ class HuggingFaceClient(CachingClient):
             "stop_sequences": request.stop_sequences,
         }
 
-        pretrained_model_name_or_path: str
-        if self._pretrained_model_name_or_path:
-            pretrained_model_name_or_path = self._pretrained_model_name_or_path
-        else:
-            pretrained_model_name_or_path = resolve_alias(request.model_deployment)
+        pretrained_model_name_or_path = (
+            self._pretrained_model_name_or_path if self._pretrained_model_name_or_path else request.model
+        )
         huggingface_model: HuggingFaceServer = HuggingFaceServerFactory.get_server(
-            helm_model_name=request.model_deployment,
+            helm_model_name=request.model,
             pretrained_model_name_or_path=pretrained_model_name_or_path,
             **self._kwargs,
         )
@@ -285,7 +283,7 @@ class HuggingFaceClient(CachingClient):
                 tokens.append(Token(text=token_text, logprob=logprob))
                 sequence_logprob += logprob
 
-            completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
+            completion = GeneratedOutput(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
             completion = truncate_sequence(completion, request)
             completions.append(completion)
 

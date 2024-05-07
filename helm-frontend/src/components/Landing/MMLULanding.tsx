@@ -7,8 +7,8 @@ export default function MMLULanding() {
         Massive Multitask Language Understanding (MMLU) on HELM
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
+      <div className="flex flex-row md:flex-row items-center gap-8">
+        <div className="flex-1 text-xl">
           <p>
             <strong>Massive Multitask Language Understanding (MMLU)</strong>{" "}
             <a href="https://arxiv.org/pdf/2009.03300.pdf" className="link">
@@ -31,7 +31,9 @@ export default function MMLULanding() {
             </a>
           </div>
         </div>
-        <MiniLeaderboard />
+        <div className="flex-1">
+          <MiniLeaderboard numModelsToAutoFilter={10} />
+        </div>
       </div>
     </div>
   );

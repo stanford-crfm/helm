@@ -2,11 +2,11 @@ from helm.common.cache import BlackHoleCacheConfig
 from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 from .client import truncate_sequence, truncate_and_tokenize_response_text
 from typing import List
-from helm.common.request import Request, Sequence, Token
+from helm.common.request import Request, GeneratedOutput, Token
 
 
 def truncate_sequence_helper(tokens: List[str], request: Request, expected_tokens: List[str]):
-    sequence = Sequence(
+    sequence = GeneratedOutput(
         text="".join(tokens),
         tokens=[Token(text=text, logprob=-1) for text in tokens],
         logprob=-len(tokens),

@@ -10,7 +10,8 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.scenarios.code_scenario import CodeReference
 from helm.benchmark.scenarios.scenario import Reference
-from helm.common.request import Sequence
+from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.request import GeneratedOutput
 from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from nltk.metrics.scores import f_measure
 from nltk.translate.bleu_score import sentence_bleu
@@ -20,6 +21,7 @@ import re
 import string
 from . import code_metrics_helper
 import nltk
+
 
 try:
     nltk.data.find("tokenizers/punkt")
@@ -188,6 +190,19 @@ def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
 
+def cider(gold: str, pred: str) -> float:
+    try:
+        from pycocoevalcap.cider.cider import Cider
+    except ModuleNotFoundError as e:
+        handle_module_not_found_error(e, ["vlm"])
+
+    cider_evaluator = Cider()
+    candidate = {"caption": [pred]}
+    reference = {"caption": [gold]}
+    average_score, _ = cider_evaluator.compute_score(reference, candidate)
+    return average_score
+
+
 def extract_set_from_text(
     set_str: str,
     set_start_str: str = " is ",
@@ -325,6 +340,7 @@ def compute_reference_metrics(
         "math_equiv_chain_of_thought": is_equiv_chain_of_thought,
         "code_eval_acc": code_eval,
         "pass": code_eval,
+        "cider": cider,
         "f1_score": f1_score,
         "rouge_1": get_rouge_function("rouge1"),
         "rouge_2": get_rouge_function("rouge2"),
@@ -346,7 +362,7 @@ def compute_reference_metrics(
 
     # Predicted outputs
     assert request_state.result is not None
-    sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+    sorted_completions: List[GeneratedOutput] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
     preds: List[str] = [completion.text.strip() for completion in sorted_completions]
 
     # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)

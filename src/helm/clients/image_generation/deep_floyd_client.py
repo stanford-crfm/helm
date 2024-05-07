@@ -1,7 +1,7 @@
 from typing import List, Dict
 
 from helm.common.cache import Cache, CacheConfig
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, GeneratedOutput
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -57,8 +57,10 @@ class DeepFloydClient(Client):
             error: str = f"DeepFloyd Client error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(file_path))
+        completions: List[GeneratedOutput] = [
+            GeneratedOutput(
+                text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(file_path)
+            )
             for file_path in response["images"]
         ]
         return RequestResult(

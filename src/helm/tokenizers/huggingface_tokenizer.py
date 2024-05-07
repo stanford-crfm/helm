@@ -11,26 +11,6 @@ from .caching_tokenizer import CachingTokenizer
 from .tokenizer import cleanup_tokens
 
 
-# TODO: Delete this.
-_MODEL_NAME_ALIASES: Dict[str, str] = {
-    "google/t5-11b": "t5-11b",
-    "huggingface/gpt2": "gpt2",
-    "huggingface/santacoder": "bigcode/santacoder",
-    "huggingface/starcoder": "bigcode/starcoder",
-    "writer/gpt2": "gpt2",  # Palmyra models do not support echo
-    # So they have a different TokenizerConfig called "writer/gpt2"
-    # when in reality they use the same tokenizer as "huggingface/gpt2"
-    "microsoft/gpt2": "gpt2",  # Same as above
-}
-"""Mapping of some HELM model names to Hugging Face pretrained model name."""
-
-
-# TODO: Delete this.
-def resolve_alias(model_name: str) -> str:
-    """Resolve some HELM model names to Hugging Face pretrained model name."""
-    return _MODEL_NAME_ALIASES.get(model_name, model_name)
-
-
 WrappedPreTrainedTokenizer = ThreadSafeWrapper[PreTrainedTokenizerBase]
 """Thread safe wrapper around Hugging Face PreTrainedTokenizerBase.
 
@@ -106,11 +86,9 @@ class HuggingFaceTokenizer(CachingTokenizer):
 
     def _get_tokenizer_for_request(self, request: Dict[str, Any]) -> WrappedPreTrainedTokenizer:
         """Method used in both _tokenize_do_it and _decode_do_it to get the tokenizer."""
-        pretrained_model_name_or_path: str
-        if self._pretrained_model_name_or_path:
-            pretrained_model_name_or_path = self._pretrained_model_name_or_path
-        else:
-            pretrained_model_name_or_path = resolve_alias(request["tokenizer"])
+        pretrained_model_name_or_path = (
+            self._pretrained_model_name_or_path if self._pretrained_model_name_or_path else request["tokenizer"]
+        )
         return HuggingFaceTokenizer.get_tokenizer(
             helm_tokenizer_name=request["tokenizer"],
             pretrained_model_name_or_path=pretrained_model_name_or_path,

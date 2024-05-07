@@ -11,7 +11,7 @@ from helm.common.cache import CacheConfig, Cache
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence, wrap_request_time
+from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -170,8 +170,10 @@ class CogView2Client(Client):
             error: str = f"CogView2Client error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = [
-            Sequence(text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(location))
+        completions: List[GeneratedOutput] = [
+            GeneratedOutput(
+                text="", logprob=0, tokens=[], multimodal_content=get_single_image_multimedia_object(location)
+            )
             for location in results["file_locations"]
         ]
         return RequestResult(

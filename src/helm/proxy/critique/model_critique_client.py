@@ -12,7 +12,7 @@ from helm.common.critique_request import (
 )
 from helm.common.hierarchical_logger import hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult, GeneratedOutput
 from helm.clients.client import Client
 from helm.proxy.critique.critique_client import CritiqueClient
 
@@ -114,7 +114,7 @@ class ModelCritiqueClient(CritiqueClient):
         return answers
 
     def _multiple_choice_completion_to_answer(
-        self, question: CritiqueQuestionTemplate, completion: Sequence
+        self, question: CritiqueQuestionTemplate, completion: GeneratedOutput
     ) -> Optional[str]:
         """Convert a multiple choice completion to an answer."""
         assert question.question_type == "multiple_choice"
@@ -131,7 +131,7 @@ class ModelCritiqueClient(CritiqueClient):
             return None
 
     def _checkbox_completion_to_answer(
-        self, question: CritiqueQuestionTemplate, completion: Sequence
+        self, question: CritiqueQuestionTemplate, completion: GeneratedOutput
     ) -> Optional[List[str]]:
         """Convert a checkbox completion to an answer."""
         assert question.question_type == "checkbox"
@@ -147,7 +147,9 @@ class ModelCritiqueClient(CritiqueClient):
             hlog(f"Error parsing answer: {e}. Skipping question (and so the respondent entirely)")
             return None
 
-    def _free_response_completion_to_answer(self, question: CritiqueQuestionTemplate, completion: Sequence) -> str:
+    def _free_response_completion_to_answer(
+        self, question: CritiqueQuestionTemplate, completion: GeneratedOutput
+    ) -> str:
         """Convert a free response completion to an answer."""
         assert question.question_type == "free_response"
         return completion.text

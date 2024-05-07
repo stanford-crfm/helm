@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
-import ModelsList from "@/components/ModelsList";
-import ScenariosList from "@/components/ScenariosList";
 import CardGrid from "@/components/CardGrid";
 import SimpleHero from "@/components/SimpleHero";
 
@@ -49,7 +47,7 @@ const logos = [
   zeroOne,
 ];
 
-export default function LegacyLanding() {
+export default function HomeLanding() {
   const [schema, setSchema] = useState<Schema | undefined>(undefined);
 
   useEffect(() => {
@@ -70,10 +68,10 @@ export default function LegacyLanding() {
   return (
     <>
       <SimpleHero />
-      <div className="container mt-40 mx-auto text-lg px-16">
+      <div className="container py-5 mx-auto text-lg">
         <div className="flex flex-col sm:flex-row justify-center mb-10 flex sm:gap-8 md:gap-32">
-          <h1 className="text-4xl  mx-4 ">
-            <strong>HELM Projects</strong>
+          <h1 className="text-4xl mx-4 ">
+            <strong>HELM Leaderboards</strong>
           </h1>
         </div>
       </div>
@@ -103,12 +101,6 @@ export default function LegacyLanding() {
               </div>
             </li>
           </ol>
-        </div>
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            <ModelsList models={schema.models} />
-            <ScenariosList runGroups={schema.run_groups} />
-          </div>
         </div>
       </div>
     </>
