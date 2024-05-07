@@ -2,6 +2,8 @@ import json
 import requests
 from typing import Any, Dict, List
 
+import cohere
+
 from helm.common.cache import CacheConfig
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -10,7 +12,7 @@ from helm.common.tokenization_request import (
     TokenizationToken,
 )
 from helm.clients.cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
-from .caching_tokenizer import CachingTokenizer
+from helm.tokenizers.caching_tokenizer import CachingTokenizer
 
 
 class CohereTokenizer(CachingTokenizer):
@@ -81,3 +83,27 @@ class CohereTokenizer(CachingTokenizer):
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         raise NotImplementedError("The Cohere API does not support decoding.")
+
+
+class CohereLocalTokenizer(CachingTokenizer):
+    def __init__(self, api_key: str, cache_config: CacheConfig) -> None:
+        super().__init__(cache_config)
+        self.client = cohere.Client(api_key)
+
+    def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        model: str = request["tokenizer"].replace("cohere/", "")
+        response = self.client.tokenize(text=request["text"], model=model)
+        return response.dict()
+
+    def _tokenization_raw_response_to_tokens(
+        self, response: Dict[str, Any], request: TokenizationRequest
+    ) -> List[TokenizationToken]:
+        if request.encode:
+            return [TokenizationToken(token) for token in response["tokens"]]
+        else:
+            return [TokenizationToken(token) for token in response["token_strings"]]
+
+    def _decode_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        model: str = request["tokenizer"].replace("cohere/", "")
+        response = self.client.detokenize(tokens=request["tokens"], model=model)
+        return response.dict()
