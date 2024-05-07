@@ -28,7 +28,7 @@ from helm.benchmark.metrics.vision_language.image_utils import (
     pixel_similarity,
     sift_similarity,
 )
-from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive, get_most_frequent_color
+from helm.benchmark.metrics.vision_language.emd_utils import compute_emd_recursive, get_most_frequent_color, to_gray
 
 try:
     from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -113,7 +113,7 @@ class AnnotatedImageMetrics(Metric):
             # Normalized block EMD against white
             AnnotatedMetric(self.BLOCK_EARTH_MOVER_SIMILARITY_NORM1, self.compute_block_emd_white, "image_PIL"),
             # Normalized block EMD against median
-            AnnotatedMetric(self.BLOCK_EARTH_MOVER_SIMILARITY_NORM2, self.compute_block_emd_median, "image_PIL"),
+            AnnotatedMetric(self.BLOCK_EARTH_MOVER_SIMILARITY_NORM2, self.compute_block_emd_extreme, "image_PIL"),
             AnnotatedMetric(self.LPIPS_SIMILARITY, self.lpips_similarity, "image_PIL"),
             AnnotatedMetric(self.FID_SIMILARITY, self.fid_similarity, "image_PIL"),
             AnnotatedMetric(self.SSIM_SIMILARITY, self.compute_ssim, "image_np_gray"),
@@ -465,7 +465,7 @@ class AnnotatedImageMetrics(Metric):
 
         return 1.0 - emd_raw["value"] / emd_base["value"]
 
-    def compute_block_emd_median(
+    def compute_block_emd_extreme(
         self,
         pred_image: Image.Image,
         ref_image: Image.Image,
@@ -493,9 +493,13 @@ class AnnotatedImageMetrics(Metric):
         def compute_denominator():
             ref_img_np = np.array(ref_image)
             (rgb_most_frequent_color, _) = get_most_frequent_color(ref_img_np)
+            grayscale_most_frequent_color = to_gray(rgb_most_frequent_color)[0]
 
             # Most frequent color as base
-            constant_image = Image.new("RGB", ref_image.size, tuple(rgb_most_frequent_color))  # type: ignore
+            if grayscale_most_frequent_color < 127:
+                constant_image = Image.new("RGB", ref_image.size, (255, 255, 255))  # Make it white
+            else:
+                constant_image = Image.new("RGB", ref_image.size, (0, 0, 0))  # Make it black
             value = compute_emd_recursive(
                 constant_image,
                 ref_image,
