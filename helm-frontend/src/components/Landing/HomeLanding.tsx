@@ -68,19 +68,11 @@ export default function HomeLanding() {
   return (
     <>
       <SimpleHero />
-      <div className="container mt-30 mx-auto text-lg">
+      <div className="container py-5 mx-auto text-lg">
         <div className="flex flex-col sm:flex-row justify-center mb-10 flex sm:gap-8 md:gap-32">
-          <h1 className="text-4xl  mx-4 ">
+          <h1 className="text-4xl mx-4 ">
             <strong>HELM Leaderboards</strong>
           </h1>
-        </div>
-        <div className="flex flex-col sm:flex-row flex sm:gap-8 md:gap-32">
-          <body>
-            HELM leaderboards leverage the HELM framework and target particular
-            domains and/or capabilities. Leaderboards range from real world
-            applications and specific domains to ones focused on multimodal
-            capabilities and model-evaluations.
-          </body>
         </div>
       </div>
       <CardGrid />
