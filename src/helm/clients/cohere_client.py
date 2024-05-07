@@ -2,9 +2,8 @@ import json
 import requests
 from typing import List, Optional, Sequence, TypedDict
 
-import cohere
-
 from helm.common.cache import CacheConfig
+from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
@@ -14,7 +13,12 @@ from helm.common.request import (
     Token,
 )
 from helm.clients.client import CachingClient, truncate_sequence
-from helm.clients.cohere_utils import DEFAULT_COHERE_API_VERSION, get_cohere_url
+from helm.clients.cohere_utils import get_cohere_url, DEFAULT_COHERE_API_VERSION
+
+try:
+    import cohere
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, ["cohere"])
 
 
 class CohereClient(CachingClient):
@@ -172,17 +176,12 @@ class CohereRawChatRequest(TypedDict):
 
 
 def convert_to_raw_chat_request(request: Request) -> CohereRawChatRequest:
-    # if request.messages:
-    #     messages = request.messages
-    # else:
-    #     messages = [{"role": "user", "content": request.prompt}]
-    # message = ""
-    # chat_history: Optional[Sequence[cohere.ChatMessage]] = []
+    # TODO: Support chat
     model = request.model.replace("cohere/", "")
     return {
         "message": request.prompt,
         "model": model,
-        "preamble": "",
+        "preamble": None,
         "chat_history": None,
         "temperature": request.temperature,
         "max_tokens": request.max_tokens,
@@ -206,29 +205,13 @@ class CohereChatClient(CachingClient):
         super().__init__(cache_config=cache_config)
         self.client = cohere.Client(api_key=api_key)
 
-    def _validate_request(self, request: Request):
-        assert (
-            1 <= request.num_completions <= 1
-        ), f"Invalid num_completions: {request.num_completions}. Cohere chat only supports 1 completion at a time."
-        assert 0.0 <= request.temperature <= 1.0, f"Invalid temperature: {request.temperature}. Valid range: [0, 1]"
-        assert (
-            0 <= request.top_k_per_token <= 500
-        ), f"Invalid top_k_per_token: {request.top_k_per_token}. Valid range: [0..500]"
-        assert 0.0 <= request.top_p <= 1.0, f"Invalid top_p: {request.top_p}. Valid range: [0,1]"
-        assert (
-            0.0 <= request.frequency_penalty <= 1.0
-        ), f"Invalid frequency_penalty: {request.frequency_penalty}. Valid range: [0,1]"
-        assert (
-            0.0 <= request.presence_penalty <= 1.0
-        ), f"Invalid presence_penalty: {request.presence_penalty}. Valid range: [0,1]"
-        assert (
-            0 <= len(request.stop_sequences) <= 5
-        ), f"Invalid length of stop_sequences: {request.stop_sequences}. Up to 5 strings permitted."
-
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
-        self._validate_request(request)
+        # TODO: Support multiple completions
+        assert request.num_completions == 1, "CohereChatClient only supports num_completions=1"
+        # TODO: Support messages
+        assert not request.messages, "CohereChatClient currently does not support the messages API"
 
         raw_request: CohereRawChatRequest = convert_to_raw_chat_request(request)
 
@@ -252,16 +235,8 @@ class CohereChatClient(CachingClient):
             error: str = f"CohereClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        # Cohere chat only supports 1 completion at a time
-        # Furthermore, it does not support likelihoods, or return tokens (just text)
-        dummy_log_prob = 0.0
-        dummy_tokens: List[Token] = []
-
         completions: List[GeneratedOutput] = []
-        completion: GeneratedOutput = GeneratedOutput(
-            text=response["text"], logprob=dummy_log_prob, tokens=dummy_tokens
-        )
-        completion = truncate_sequence(completion, request)
+        completion: GeneratedOutput = GeneratedOutput(text=response["text"], logprob=0.0, tokens=[])
         completions.append(completion)
 
         return RequestResult(
