@@ -6,14 +6,14 @@
 
 ### Scenarios
 
-- Updated to VLM models for VHELM (#1592)
+- Updated VLM scenarios for VHELM (#1592)
 - Added `trust_remote_code=True` for `math` and `legalbench` scenarios (#2597)
 
 ### Models
 
 - Added Google Gemini 1.5 Pro as a VLM (#2607)
 - Add Mixtral 8x22b Instruct, Llama 3 Chat, and Yi Chat (#2610)
-- Updated to VLM scenarios for VHELM (#1592)
+- Updated VLM models for VHELM (#1592)
 - Improved handling of Gemini content blocking (#2603)
 - Added default instructions prefix for multiple-choice joint adaptation for Claude 3
 - Renamed some model names for consistency (#2596)
