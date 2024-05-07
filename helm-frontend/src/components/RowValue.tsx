@@ -66,7 +66,9 @@ export default function RowValue({ value, title, hideIcon }: Props) {
         <div className="flex items-center">
           {formatNumber(value.value)}
           {!hideIcon && (
-            <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-30" />
+            <div className="z-0">
+              <ArrowTopRightOnSquareIcon className="w-3 h-3 ml-1 opacity-30" />
+            </div>
           )}
         </div>
       </Link>
