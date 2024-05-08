@@ -295,14 +295,18 @@ class TogetherRawChatRequest(TypedDict):
     n: int
 
 
-def convert_to_raw_chat_request(request: Request) -> TogetherRawChatRequest:
+def convert_to_raw_chat_request(request: Request, together_model: Optional[str]) -> TogetherRawChatRequest:
     if request.messages:
         messages = request.messages
     else:
         messages = [{"role": "user", "content": request.prompt}]
+    if together_model is not None:
+        model = together_model
+    else:
+        model = request.model
     return {
         "messages": messages,
-        "model": request.model,
+        "model": model,
         "max_tokens": request.max_tokens,
         "stop": request.stop_sequences,
         "temperature": request.temperature,
@@ -317,12 +321,13 @@ def convert_to_raw_chat_request(request: Request) -> TogetherRawChatRequest:
 class TogetherChatClient(CachingClient):
     """Client that uses the Python Together library for chat models."""
 
-    def __init__(self, cache_config: CacheConfig, api_key: str, together_model: Optional[str] = None):
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str], together_model: Optional[str] = None):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
+        self._together_model = together_model
 
     def make_request(self, request: Request) -> RequestResult:
-        raw_request = convert_to_raw_chat_request(request)
+        raw_request = convert_to_raw_chat_request(request, self._together_model)
         cache_key = CachingClient.make_cache_key(raw_request, request)
 
         def do_it() -> Dict[Any, Any]:
@@ -365,7 +370,6 @@ class TogetherChatClient(CachingClient):
         )
 
 
-
 class TogetherRawCompletionRequest(TypedDict):
     prompt: str
     model: str
@@ -379,13 +383,14 @@ class TogetherRawCompletionRequest(TypedDict):
     n: int
 
 
-def convert_to_raw_completion_request(request: Request) -> TogetherRawCompletionRequest:
-    if request.messages:
-        messages = request.messages
-
+def convert_to_raw_completion_request(request: Request, together_model: Optional[str]) -> TogetherRawCompletionRequest:
+    if together_model is not None:
+        model = together_model
+    else:
+        model = request.model
     return {
-        "prompt": messages,
-        "model": request.model,
+        "prompt": request.prompt,
+        "model": model,
         "max_tokens": request.max_tokens,
         "stop": request.stop_sequences,
         "temperature": request.temperature,
@@ -400,12 +405,13 @@ def convert_to_raw_completion_request(request: Request) -> TogetherRawCompletion
 class TogetherCompletionClient(CachingClient):
     """Client that uses the Python Together library for text completion models."""
 
-    def __init__(self, cache_config: CacheConfig, api_key: str, together_model: Optional[str] = None):
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str], together_model: Optional[str] = None):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
+        self._together_model = together_model
 
     def make_request(self, request: Request) -> RequestResult:
-        raw_request = convert_to_raw_completion_request(request)
+        raw_request = convert_to_raw_completion_request(request, self._together_model)
         cache_key = CachingClient.make_cache_key(raw_request, request)
 
         def do_it() -> Dict[Any, Any]:
