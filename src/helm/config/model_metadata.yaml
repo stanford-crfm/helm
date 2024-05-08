@@ -2025,7 +2025,7 @@ models:
 
   - name: qwen/qwen1.5-110b-chat
     display_name: Qwen1.5 Chat (110B)
-    description: 110B-parameter chat version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. ([blog](https://qwenlm.github.io/blog/qwen1.5-110b/))
+    description: 110B-parameter chat version of the large language model series, Qwen 1.5 (abbr. Tongyi Qianwen), proposed by Aibaba Cloud. Qwen is a family of transformer models with SwiGLU activation, RoPE, and multi-head attention. The 110B version also includes grouped query attention (GQA). ([blog](https://qwenlm.github.io/blog/qwen1.5-110b/))
     creator_organization_name: Qwen
     access: open
     release_date: 2024-04-25
