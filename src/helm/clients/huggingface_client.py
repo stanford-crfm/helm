@@ -67,16 +67,13 @@ class HuggingFaceServer:
                 OpenVINO™ Intermediate Representation (IR) format to accelerate end-to-end pipelines on \
                 Intel® architectures using OpenVINO™ runtime.
                 """
-                from importlib.util import find_spec
-                from pathlib import Path
-
-                if not find_spec("optimum"):
-                    raise Exception(
-                        "package `optimum` is not installed. Please install it via `pip install optimum[openvino]`"
-                    )
-                else:
+                from pathlib import Path                
+                from helm.common.optional_dependencies import handle_module_not_found_error
+                try:
                     from optimum.intel.openvino import OVModelForCausalLM
-                
+                except ModuleNotFoundError as e:
+                    handle_module_not_found_error(e, ["openvino"])
+
                 model_file = Path(pretrained) / "openvino_model.xml"
                 if model_file.exists():
                     export = False

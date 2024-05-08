@@ -268,8 +268,8 @@ def main():
         "--openvino",
         action="store_true",
         default=False,
-        help="Run openvino optimization on AutoModelForCausalLM models."
-        "If a value for --openvino is not specified, run without openvino optimization",
+        help="Experimental: Apply openvino optimization to Hugging Face AutoModelForCausalLM models "
+        "specified with the --enable-huggingface-models and --enable-local-huggingface-models flags."
     )
     add_run_args(parser)
     args = parser.parse_args()
