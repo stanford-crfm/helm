@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
@@ -56,6 +57,12 @@ export default function VHELMLanding() {
         </div>
         <div className="flex-1">
           <MiniLeaderboard numModelsToAutoFilter={10} />
+          <Link
+            to="leaderboard"
+            className="px-4 mx-3 mt-1 btn bg-white rounded-md"
+          >
+            <span>See More</span>
+          </Link>
         </div>
       </div>
       {schema === undefined ? null : (
