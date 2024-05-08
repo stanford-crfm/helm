@@ -293,7 +293,7 @@ run_groups:
 
   - name: medication_qa
     display_name: MedicationQA
-    description: Consumer medicaiton questions with reference answers.
+    description: Consumer medication questions with reference answers.
     metric_groups:
       - accuracy
       - efficiency
