@@ -1,57 +1,8 @@
 ---
 ############################################################
-perturbations: []
-adapter:
-  - name: method
-    description: The high-level strategy for converting instances into a prompt for the language model.
-    values:
-      - name: generation
-        description: Given the input, the model generates the output free-form.
-  - name: instructions
-    description: The description of the task that is included at the very beginning of the prompt.
-  - name: global_prefix
-    description: The string that is prepended to the prompt.
-  - name: instance_prefix
-    description: The string that is included before each instance (e.g., '\n\n').
-  - name: input_prefix
-    description: The string that is included before each input (e.g., 'Question:').
-  - name: input_suffix
-    description: The string that is included after each input (e.g., '\n').
-  - name: reference_prefix
-    description: The string that is included before each reference (for multiple-choice questions).
-  - name: reference_suffix
-    description: The string that is included after each reference (for multiple-choice questions).
-  - name: output_prefix
-    description: The string that is included before the correct answer/predicted output (e.g., 'Answer:').
-  - name: output_suffix
-    description: The string that is included after the correct answer/predicted output (e.g., '\n').
-  - name: substitutions
-    description: A list of regular expression substitutions (e.g., replacing '\n' with ';\n') to perform at the very end on the prompt.
-  - name: max_train_instances
-    description: Maximum number of training instances to include in the prompt (currently by randomly sampling).
-  - name: max_eval_instances
-    description: Maximum number of instances to evaluate on (over all splits - test, valid, etc.).
-  - name: num_outputs
-    description: Maximum number of possible outputs to generate by sampling multiple outputs.
-  - name: num_train_trials
-    description: Number of trials, where in each trial we choose an independent, random set of training instances. Used to compute variance.
-  - name: sample_train
-    description: If true, randomly sample N training examples; if false, select N consecutive training examples
-  - name: model
-    description: Name of the language model (<creator_organization>/<model name>) to send requests to.
-  - name: model_deployment
-    description: Name of the language model deployment (<host_organization>/<model name>) to send requests to.
-  - name: temperature
-    description: Temperature parameter used in generation.
-  - name: max_tokens
-    description: Maximum number of tokens to generate.
-  - name: stop_sequences
-    description: List of sequences, where we stop generation if we encounter any of them.
-  - name: random
-    description: Random seed (string), which guarantees reproducibility.
-  - name: multi_label
-    description: If true, for instances with multiple correct reference, the gold answer should be considered to be all of the correct references rather than any of the correct references.
-
+# For backwards compatibility with older versions of HELM.
+# TODO: Remove this after 2024-09-01.
+adapter: []
 ############################################################
 metrics:
   - name: Helpfulness

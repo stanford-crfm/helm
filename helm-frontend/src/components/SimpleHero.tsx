@@ -2,7 +2,7 @@ import helmHero from "@/assets/helmhero.png";
 
 export default function SimpleHero() {
   return (
-    <div className="flex flex-col md:flex-row px-6 py-36">
+    <div className="flex flex-col md:flex-row px-6 py-32">
       <div className="flex-1 p-4 flex flex-col justify-center">
         <div className="flex justify-start">
           <div>

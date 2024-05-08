@@ -197,7 +197,7 @@ class VertexAIChatClient(VertexAIClient):
 
                 # Depending on the version of the Vertex AI library and the type of prompt blocking,
                 # prompt blocking can show up in many ways, so this defensively handles most of these ways
-                if response.prompt_feedback.block_reason:
+                if response.prompt_feedback and response.prompt_feedback.block_reason:
                     raise VertexAIContentBlockedError(
                         f"Prompt blocked with reason: {response.prompt_feedback.block_reason}"
                     )
@@ -209,8 +209,10 @@ class VertexAIChatClient(VertexAIClient):
                     # content blocking can show up in many ways, so this defensively handles most of these ways
                     if candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS:
                         raise VertexAIContentBlockedError(f"Content blocked with reason: {candidate.finish_reason}")
+                    if not candidate.content:
+                        raise VertexAIContentBlockedError(f"No content in candidate: {candidate}")
                     if not candidate.content.parts:
-                        raise VertexAIContentBlockedError(f"No parts in candidate: {candidate}")
+                        raise VertexAIContentBlockedError(f"No content parts in candidate: {candidate}")
                     predictions.append({"text": candidate.content.text})
                     # TODO: Extract more information from the response
                 return {"predictions": predictions}
@@ -330,7 +332,7 @@ class VertexAIChatClient(VertexAIClient):
                     )
                     # Depending on the version of the Vertex AI library and the type of prompt blocking,
                     # prompt blocking can show up in many ways, so this defensively handles most of these ways
-                    if response.prompt_feedback.block_reason:
+                    if response.prompt_feedback and response.prompt_feedback.block_reason:
                         raise VertexAIContentBlockedError(
                             f"Prompt blocked with reason: {response.prompt_feedback.block_reason}"
                         )
@@ -345,8 +347,10 @@ class VertexAIChatClient(VertexAIClient):
                     # content blocking can show up in many ways, so this defensively handles most of these ways
                     if candidate.finish_reason in VertexAIChatClient.CONTENT_BLOCKED_FINISH_REASONS:
                         raise VertexAIContentBlockedError(f"Content blocked with reason: {candidate.finish_reason}")
+                    if not candidate.content:
+                        raise VertexAIContentBlockedError(f"No content in candidate: {candidate}")
                     if not candidate.content.parts:
-                        raise VertexAIContentBlockedError(f"No parts in candidate: {candidate}")
+                        raise VertexAIContentBlockedError(f"No content parts in candidate: {candidate}")
                     return {"predictions": [{"text": candidate.text}]}
 
                 raw_cache_key = {"model_name": model_name, "prompt": prompt_key, **parameters}

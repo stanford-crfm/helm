@@ -1,6 +1,9 @@
+import ast
+import dataclasses
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 import dacite
+from inspect import cleandoc
 import mako.template
 import yaml
 import importlib_resources as resources
@@ -15,6 +18,11 @@ SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
 
 # TODO: add heim, vhelm, etc.
 SCHEMA_CLASSIC_YAML_FILENAME: str = "schema_classic.yaml"
+
+
+_ADAPTER_SPEC_PACKAGE = "helm.benchmark.adaptation"
+_ADAPTER_SPEC_FILENAME = "adapter_spec.py"
+_ADAPTER_SPEC_CLASS_NAME = "AdapterSpec"
 
 
 @dataclass(frozen=True)
@@ -198,9 +206,6 @@ class RunGroup(Field):
 class Schema:
     """Specifies information about what to display on the frontend."""
 
-    # Adapter fields (e.g., temperature)
-    adapter: List[Field]
-
     # Information about each field
     metrics: List[Field]
 
@@ -213,11 +218,53 @@ class Schema:
     # Group the scenarios
     run_groups: List[RunGroup]
 
+    # Adapter fields (e.g., temperature)
+    # Automatically populated from the docstrings in the AdapterSpec class definition.
+    # Should not be specified in the user's YAML file.
+    adapter: Optional[List[Field]] = None
+
     def __post_init__(self):
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
+
+
+def get_adapter_fields() -> List[Field]:
+    """Generate the adapter fields from the docstrings in the AdapterSpec class definition."""
+    # Unfortunately there is no standard library support for getting docstrings of class fields,
+    # so we have to do the parsing outselves. Fortunately, the parsing is quite straightforward.
+    adapter_spec_path = resources.files(_ADAPTER_SPEC_PACKAGE).joinpath(_ADAPTER_SPEC_FILENAME)
+    with open(adapter_spec_path, "r") as f:
+        contents = f.read()
+    module_node = ast.parse(contents)
+    adapter_spec_node = [
+        node
+        for node in ast.iter_child_nodes(module_node)
+        if isinstance(node, ast.ClassDef) and node.name == _ADAPTER_SPEC_CLASS_NAME
+    ][0]
+    metadata_fields: List[Field] = []
+    field_name: str = ""
+    for node in ast.iter_child_nodes(adapter_spec_node):
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            # This node is a field definition.
+            # Save the name of the field for later.
+            field_name = node.target.id
+        else:
+            # If this is a docstring that immediately follows a field definition,
+            # output an adapter field with the name set to  the field definition and
+            # the description set to the docstring.
+            if (
+                field_name
+                and isinstance(node, ast.Expr)
+                and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)
+            ):
+                description = cleandoc(node.value.value).replace("\n", " ")
+                metadata_fields.append(Field(name=field_name, description=description))
+            field_name = ""
+
+    return metadata_fields
 
 
 def get_default_schema_path() -> str:
@@ -229,4 +276,7 @@ def read_schema(schema_path: str) -> Schema:
     hlog(f"Reading schema file {schema_path}...")
     with open(schema_path, "r") as f:
         raw = yaml.safe_load(f)
-    return dacite.from_dict(Schema, raw)
+    schema = dacite.from_dict(Schema, raw)
+    if schema.adapter:
+        hlog(f"WARNING: The `adapter` field is deprecated and should be removed from schema file {schema_path}")
+    return dataclasses.replace(schema, adapter=get_adapter_fields())

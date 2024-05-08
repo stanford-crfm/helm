@@ -41,11 +41,11 @@ function NavDropdown() {
   }
 
   return (
-    <div className="dropdown">
+    <div className="dropdown z-40">
       <div
         tabIndex={0}
         role="button"
-        className="btn normal-case bg-white font-bold p-2 border-0 text-lg block whitespace-nowrap"
+        className="btn normal-case bg-white font-bold p-2 border-0 text-lg block whitespace-nowrap z-40"
         aria-haspopup="true"
         aria-controls="menu"
       >
@@ -62,7 +62,7 @@ function NavDropdown() {
         role="menu"
       >
         {projectMetadata.map((item, index) => (
-          <li key={index}>
+          <li key={index} className="z-40">
             <a
               href={getReleaseUrl(undefined, item.id)}
               className="block"
