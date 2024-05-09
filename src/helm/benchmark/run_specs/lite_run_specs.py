@@ -305,3 +305,23 @@ def get_wmt_14_spec(language_pair: str, max_train_instances: int = 1) -> RunSpec
         metric_specs=get_open_ended_generation_metric_specs(),
         groups=["wmt_14"],
     )
+
+
+@run_spec_function("test_custom_qa")
+def get_test_custom_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.test_custom_qa_scenario.TestCustomQAScenario",
+        args={"task": task},
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method, instructions="", input_noun="Question", output_noun="Answer"
+    )
+
+    return RunSpec(
+        name=f"test_custom_qa:task={task},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["test_custom_qa"],
+    )
