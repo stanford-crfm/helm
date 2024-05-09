@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import getSchema from "@/services/getSchema";
 import type Schema from "@/types/Schema";
 
 import ModelsList from "@/components/ModelsList";
+import MiniLeaderboard from "@/components/MiniLeaderboard";
 import ScenariosList from "@/components/ScenariosList";
 
 import vhelmFrameworkImage from "@/assets/vhelm/vhelm-framework.png";
@@ -39,16 +41,30 @@ export default function VHELMLanding() {
         This is ongoing work to achieve holistic evaluation for vision-language
         models, so please stay tuned!
       </p>
-      <img
-        src={vhelmFrameworkImage}
-        alt="An image of a helm and the text 'This helm is a' is sent to a Vision-Language Model, which produces the text 'wheel for steering a ship...'"
-        className="mx-auto lg:max-w-3xl block my-8"
-      />
-      <img
-        src={vhelmModelImage}
-        alt="An example of an evaluation for an Aspect (Knowledge) - a Scenario (MMMU) undergoes Adaptation (multimodal multiple choice) for a Model (GPT-4 Vision), then Metrics (Exact match) are computed"
-        className="mx-auto lg:max-w-3xl block my-8"
-      />
+
+      <div className="my-16 flex flex-col lg:flex-row items-center gap-8">
+        <div className="flex-1 text-xl">
+          <img
+            src={vhelmFrameworkImage}
+            alt="An image of a helm and the text 'This helm is a' is sent to a Vision-Language Model, which produces the text 'wheel for steering a ship...'"
+            className=""
+          />
+          <img
+            src={vhelmModelImage}
+            alt="An example of an evaluation for an Aspect (Knowledge) - a Scenario (MMMU) undergoes Adaptation (multimodal multiple choice) for a Model (GPT-4 Vision), then Metrics (Exact match) are computed"
+            className=""
+          />
+        </div>
+        <div className="flex-1">
+          <MiniLeaderboard numModelsToAutoFilter={10} />
+          <Link
+            to="leaderboard"
+            className="px-4 mx-3 mt-1 btn bg-white rounded-md"
+          >
+            <span>See More</span>
+          </Link>
+        </div>
+      </div>
       {schema === undefined ? null : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           <ModelsList models={schema.models} />
