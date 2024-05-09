@@ -1983,7 +1983,7 @@ model_deployments:
   - name: together/qwen-7b
     model_name: qwen/qwen-7b
     tokenizer_name: qwen/qwen-7b
-    max_sequence_length: 8191
+    max_sequence_length: 32767
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
@@ -2019,11 +2019,46 @@ model_deployments:
   - name: together/qwen1.5-72b
     model_name: qwen/qwen1.5-72b
     tokenizer_name: qwen/qwen1.5-7b
-    max_sequence_length: 4095
+    max_sequence_length: 32767
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
         together_model: Qwen/Qwen1.5-72B
+
+  - name: together/qwen1.5-7b-chat
+    model_name: qwen/qwen1.5-7b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/qwen1.5-14b-chat
+    model_name: qwen/qwen1.5-14b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/qwen1.5-32b-chat
+    model_name: qwen/qwen1.5-32b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/qwen1.5-72b-chat
+    model_name: qwen/qwen1.5-72b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
+
+  - name: together/qwen1.5-110b-chat
+    model_name: qwen/qwen1.5-110b-chat
+    tokenizer_name: qwen/qwen1.5-7b
+    max_sequence_length: 32767
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherClient"
 
   - name: huggingface/qwen-vl
     model_name: qwen/qwen-vl
