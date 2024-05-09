@@ -1670,7 +1670,7 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
       args:
-        together_model: zero-one-ai/Yi-34B-chat
+        together_model: zero-one-ai/Yi-34B
 
   - name: together/yi-6b-chat
     model_name: 01-ai/yi-6b-chat
