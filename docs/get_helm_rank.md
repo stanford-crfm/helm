@@ -38,7 +38,7 @@ Specifically, the authors calculated the CI 95% of Rank Location from the real r
 Choose your point on your tradeoff, how accurate do you need your rank? how much time do you want to wait? Once you have chosen, download the config and define your model
 ```bash
 export EXAMPLES_PER_SCENARIO=10 && \
-export MODEL_TO_RUN=huggingface/gpt2
+export MODEL_TO_RUN=openai/gpt2
 ```
 
 That's it, run the following to get the config file:
