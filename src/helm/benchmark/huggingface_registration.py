@@ -22,7 +22,7 @@ def register_huggingface_model(
     revision: Optional[str] = None,
     openvino: Optional[bool] = False,
 ) -> None:
-    object_spec_args = {"pretrained_model_name_or_path": pretrained_model_name_or_path}
+    object_spec_args: Dict[str, Union[str, bool]] = {"pretrained_model_name_or_path": pretrained_model_name_or_path}
     if revision:
         object_spec_args["revision"] = revision
     if openvino:

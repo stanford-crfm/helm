@@ -75,7 +75,7 @@ class HuggingFaceServer:
                 except ModuleNotFoundError as e:
                     handle_module_not_found_error(e, ["openvino"])
 
-                model_file = Path(pretrained) / "openvino_model.xml"
+                model_file = Path(pretrained_model_name_or_path) / "openvino_model.xml"
                 if model_file.exists():
                     export = False
                 else:
