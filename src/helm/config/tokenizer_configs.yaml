@@ -335,6 +335,9 @@ tokenizer_configs:
   - name: snowflake/snowflake-arctic-instruct
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: Snowflake/snowflake-arctic-instruct
+        trust_remote_code: true
     end_of_text_token: "<|im_end|>"
     prefix_token: "<|im_start|>"
 
