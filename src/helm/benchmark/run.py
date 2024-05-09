@@ -269,7 +269,7 @@ def main():
         action="store_true",
         default=False,
         help="Experimental: Apply openvino optimization to Hugging Face AutoModelForCausalLM models "
-        "specified with the --enable-huggingface-models and --enable-local-huggingface-models flags."
+        "specified with the --enable-huggingface-models and --enable-local-huggingface-models flags.",
     )
     add_run_args(parser)
     args = parser.parse_args()
@@ -286,7 +286,7 @@ def main():
                 register_huggingface_hub_model_from_flag_value(huggingface_model_name, args.openvino)
             else:
                 register_huggingface_hub_model_from_flag_value(huggingface_model_name)
-    
+
     if args.enable_local_huggingface_models:
         from helm.benchmark.huggingface_registration import register_huggingface_local_model_from_flag_value
 

@@ -17,7 +17,10 @@ from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
 
 
 def register_huggingface_model(
-    helm_model_name: str, pretrained_model_name_or_path: str, revision: Optional[str] = None, openvino: Optional[bool] = False,
+    helm_model_name: str,
+    pretrained_model_name_or_path: str,
+    revision: Optional[str] = None,
+    openvino: Optional[bool] = False,
 ) -> None:
     object_spec_args = {"pretrained_model_name_or_path": pretrained_model_name_or_path}
     if revision:
