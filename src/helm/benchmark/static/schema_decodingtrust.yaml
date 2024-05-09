@@ -421,10 +421,10 @@ run_groups:
       main_split: valid
     taxonomy:
       task: "?"
-      what: n/a
-      who: n/a
-      when: n/a
-      language: synthetic
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
   - name: stereotype_bias
     display_name: DecodingTrust - Stereotype Bias
@@ -438,7 +438,7 @@ run_groups:
       main_split: valid
     taxonomy:
       task: "?"
-      what: n/a
-      who: n/a
-      when: n/a
-      language: synthetic
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
