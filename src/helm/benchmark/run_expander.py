@@ -1380,6 +1380,62 @@ class ChatMLRunExpander(RunExpander):
         ]
 
 
+class ExtraScenarioInstructionsRunExpander(RunExpander):
+    """Extra scenario instructions."""
+
+    name = "extra_scenario_instructions"
+
+    def __init__(self, scenario):
+        self.scenario = scenario
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            instructions = "Answer with only a single letter."
+            if run_spec.adapter_spec.instructions:
+                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
+            return [
+                replace(
+                    run_spec,
+                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+                ),
+            ]
+        elif run_spec.adapter_spec.method == ADAPT_GENERATION:
+            output_noun = run_spec.adapter_spec.output_prefix.split(":")[0]
+            if self.scenario == "narrative_qa":
+                instructions = (
+                    "Answer with one word, a few-word phrase, or a short sentence. "
+                    + "Avoid extra, unnecessary information in the answer."
+                )
+            elif self.scenario == "natural_qa":
+                instructions = "Answer with a short answer or a boolean 'yes' or 'no' answer."
+            elif self.scenario == "legalbench":
+                if output_noun != "Answer":
+                    instructions = f"Answer with the {output_noun.lower()}."
+                else:
+                    instructions = "Answer yes or no."
+            elif self.scenario == "wmt_14":
+                instructions = "Answer with the English translation."
+            else:
+                raise ValueError(f"Unknown scenario {self.scenario}")
+
+            if run_spec.adapter_spec.output_prefix:
+                instructions = (
+                    f"{instructions} Do not include '{run_spec.adapter_spec.output_prefix.strip()}' in your answer."
+                )
+
+            if run_spec.adapter_spec.instructions:
+                instructions = f"{instructions}\n\n{run_spec.adapter_spec.instructions}"
+            else:
+                instructions = f"{instructions}\n"
+            return [
+                replace(
+                    run_spec,
+                    adapter_spec=replace(run_spec.adapter_spec, instructions=instructions),
+                ),
+            ]
+        return [run_spec]
+
+
 RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     InstructionsRunExpander,
     PromptRunExpander,
@@ -1402,6 +1458,7 @@ RUN_EXPANDER_SUBCLASSES: List[Type[RunExpander]] = [
     NumOutputTokensRunExpander,
     ChatMLRunExpander,
     EvalSplitRunExpander,
+    ExtraScenarioInstructionsRunExpander,
 ]
 
 
