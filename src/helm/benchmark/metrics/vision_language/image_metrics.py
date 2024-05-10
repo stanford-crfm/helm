@@ -79,6 +79,7 @@ class AnnotatedImageMetrics(Metric):
     # Metric names
     COMPILE_METRIC: str = "compilation_success"
     EARTH_MOVER_SIMILARITY = "earth_mover_similarity"
+    EARTH_MOVER_SIMILARITY_WHITE = "earth_mover_similarity_white"
     BLOCK_EMD: str = "block_emd"
     PIXEL_SIMILARITY: str = "pixel_similarity"
     SIFT_SIMILARITY: str = "sift_similarity"
