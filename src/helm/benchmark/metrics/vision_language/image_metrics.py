@@ -459,7 +459,7 @@ class AnnotatedImageMetrics(Metric):
             "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(pred_image, hash_size=self.HASH_LENGTH)),
         }
         cache_key_numerator = {"metric_name": f"intermediate_{self.BLOCK_EMD}", **hash_dict}
-        cache_key_denominator = {"metric_name": f"intermediate_ems_white_denominator", **hash_dict}
+        cache_key_denominator = {"metric_name": "intermediate_ems_white_denominator", **hash_dict}
 
         assert self._cache is not None
         emd_raw, _ = self._cache.get(cache_key_numerator, compute_numerator)
@@ -518,7 +518,7 @@ class AnnotatedImageMetrics(Metric):
             "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(pred_image, hash_size=self.HASH_LENGTH)),
         }
         cache_key_numerator = {"metric_name": f"intermediate_{self.BLOCK_EMD}", **hash_dict}
-        cache_key_denominator = {"metric_name": f"intermediate_ems_extreme_denominator", **hash_dict}
+        cache_key_denominator = {"metric_name": "intermediate_ems_extreme_denominator", **hash_dict}
 
         assert self._cache is not None
         emd_raw, _ = self._cache.get(cache_key_numerator, compute_numerator)
