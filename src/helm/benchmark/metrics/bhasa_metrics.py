@@ -1,36 +1,32 @@
-import re, string
+import re
+import string
 from dataclasses import replace
-from typing import Callable, List, Dict, Any, cast
 from functools import partial
-
-from helm.common.hierarchical_logger import hlog
-from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.scenarios.scenario import Reference
-from helm.benchmark.metrics.metric import MetricSpec
-
-from .metric import Metric, MetricResult
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
-
-from .evaluate_reference_metrics import rouge_score as rouge_score_fn
-from .evaluate_reference_metrics import exact_match
-from helm.benchmark.metrics.xlsum import rouge_scorer
-from helm.benchmark.metrics.xlsum import tokenizers
-from nltk.metrics.scores import f_measure
-from pythainlp.tokenize import word_tokenize
+from typing import Any, Callable, Dict, List, cast
 
 import numpy as np
+from nltk.metrics.scores import f_measure
+from pythainlp.tokenize import word_tokenize
 from sacrebleu.metrics import CHRF
-    
+
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.metrics.evaluate_reference_metrics import exact_match
+from helm.benchmark.metrics.evaluate_reference_metrics import rouge_score as rouge_score_fn
+from helm.benchmark.metrics.metric import Metric, MetricResult, MetricSpec
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.metric_service import MetricService
+from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.metrics.xlsum import rouge_scorer, tokenizers
+
+
 class BhasaMachineTranslationMetric(Metric):
     """Machine Translation Metrics
 
     This class computes the following standard machine translation metrics
 
-    1. ChrF
+    1. ChrF++
     """
 
     def __init__(self):
@@ -45,7 +41,7 @@ class BhasaMachineTranslationMetric(Metric):
         metrics: Dict[str, float] = {}
         metrics['ChrF++'] = self.chrf_scorer.sentence_score(pred, refs).score
         return metrics
-    
+
     def _remove_braces(self, text: str) -> str:
         if text.startswith("{"):
             text = text[1:]
@@ -72,7 +68,7 @@ class BhasaMachineTranslationMetric(Metric):
         result.extend([Stat(MetricName(name)).add(float(val)) for name, val in self._compute_chrf(refs, pred).items()])
 
         return result
-    
+
 class BhasaQAMetric(Metric):
     """Bhasa QA Metrics
 
@@ -93,16 +89,18 @@ class BhasaQAMetric(Metric):
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
-    
+
     def split_text(self, text: str) -> List[str]:
         """
-        For Thai, this will split the text using the PyThaiNLP's tokenizer. 
+        For Thai, this will split the text using PyThaiNLP's tokenizer.
         For all other languages, this will:
         - Lower text
-        - Remove punctuation 
+        - Remove punctuation
         - Remove extra whitespace
+
         If the language is English, it will
         - Remove articles "a", "an", and "the"
+
         Modifies code from [QuAC](http://quac.ai/) found at https://s3.amazonaws.com/my89public/quac/scorer.py
         """
 
@@ -126,14 +124,14 @@ class BhasaQAMetric(Metric):
             return set(white_space_fix(remove_articles(normalized_text)).split())
         else:
             return set(white_space_fix(normalized_text).split())
-    
+
     def squad_f1_score(self, gold: str, pred: str) -> float:
         score = f_measure(self.split_text(gold), self.split_text(pred))
 
         if score is None:
             return 0.0
         return score
-    
+
     def _remove_braces(self, text: str) -> str:
         if text.startswith("{"):
             text = text[1:]
@@ -170,13 +168,13 @@ class BhasaQAMetric(Metric):
                 stats.extend(metrics)
 
         return stats
-    
+
 class BhasaSummarizationMetric(Metric):
     """Summarization Metrics
 
     This class computes the following standard summarization metrics
 
-    1. Rouge L
+    1. Rouge-L (F1 score, using the "mid" result when performing bootstrap aggregation)
     """
 
     def __init__(self, language: str = 'en'):
@@ -188,8 +186,8 @@ class BhasaSummarizationMetric(Metric):
     def _get_bhasa_rouge_function(self, rouge_type: str) -> Callable[[str, str], float]:
         if self.language == "th":
             scorer = rouge_scorer.RougeScorer(
-                [rouge_type], 
-                use_stemmer=True, 
+                [rouge_type],
+                use_stemmer=True,
                 callable_tokenizer=tokenizers.ThaiTokenizer())
         else:
             scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True)
@@ -234,7 +232,7 @@ class BhasaSummarizationMetric(Metric):
         result.extend([Stat(MetricName(name)).add(float(val)) for name, val in self._compute_rouge(refs, pred).items()])
 
         return result
-    
+
 def get_bhasa_machine_translation_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="helm.benchmark.metrics.bhasa_metrics.BhasaMachineTranslationMetric")
