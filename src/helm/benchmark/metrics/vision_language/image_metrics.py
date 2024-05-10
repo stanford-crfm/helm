@@ -78,7 +78,7 @@ class AnnotatedImageMetrics(Metric):
 
     # Metric names
     COMPILE_METRIC: str = "compilation_success"
-    EARTH_MOVER_SIMILARITY = 'earth_mover_similarity'
+    EARTH_MOVER_SIMILARITY = "earth_mover_similarity"
     BLOCK_EMD: str = "block_emd"
     PIXEL_SIMILARITY: str = "pixel_similarity"
     SIFT_SIMILARITY: str = "sift_similarity"
@@ -107,10 +107,13 @@ class AnnotatedImageMetrics(Metric):
         metrics: List[AnnotatedMetric] = [
             AnnotatedMetric(self.PIXEL_SIMILARITY, pixel_similarity, "image_np_gray"),
             AnnotatedMetric(self.SIFT_SIMILARITY, sift_similarity, "image_np"),
-            # Raw block EMD
-            AnnotatedMetric(self.BLOCK_EMD, self.compute_block_emd_raw, "image_PIL"),
-            # Normalized block EMD against white
-            AnnotatedMetric(self.EARTH_MOVER_SIMILARITY, self.ems, "image_PIL"),
+            AnnotatedMetric(self.BLOCK_EMD, self.compute_block_emd_raw, "image_PIL"),  # Raw block-EMD
+            AnnotatedMetric(
+                self.EARTH_MOVER_SIMILARITY_WHITE, self.ems_white, "image_PIL"
+            ),  # Normalized block-EMD against white
+            AnnotatedMetric(
+                self.EARTH_MOVER_SIMILARITY, self.ems, "image_PIL"
+            ),  # Normalized block-EMD against black/white
             AnnotatedMetric(self.LPIPS_SIMILARITY, self.lpips_similarity, "image_PIL"),
             AnnotatedMetric(self.FID_SIMILARITY, self.fid_similarity, "image_PIL"),
             AnnotatedMetric(self.SSIM_SIMILARITY, self.compute_ssim, "image_np_gray"),
@@ -411,7 +414,7 @@ class AnnotatedImageMetrics(Metric):
         result = _edit_similarity(completion_tokens, truncated_reference_tokens)
         return result
 
-    def ems(
+    def ems_white(
         self,
         pred_image: Image.Image,
         ref_image: Image.Image,
@@ -452,9 +455,10 @@ class AnnotatedImageMetrics(Metric):
 
         hash_dict = {
             "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+            "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(pred_image, hash_size=self.HASH_LENGTH)),
         }
         cache_key_numerator = {"metric_name": f"intermediate_{self.BLOCK_EMD}", **hash_dict}
-        cache_key_denominator = {"metric_name": f"intermediate_ems_denominator_white", **hash_dict}
+        cache_key_denominator = {"metric_name": f"intermediate_ems_white_denominator", **hash_dict}
 
         assert self._cache is not None
         emd_raw, _ = self._cache.get(cache_key_numerator, compute_numerator)
@@ -462,7 +466,7 @@ class AnnotatedImageMetrics(Metric):
 
         return max(0, 1.0 - emd_raw["value"] / emd_base["value"])
 
-    def ems_extreme(
+    def ems(
         self,
         pred_image: Image.Image,
         ref_image: Image.Image,
@@ -510,9 +514,10 @@ class AnnotatedImageMetrics(Metric):
 
         hash_dict = {
             "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+            "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(pred_image, hash_size=self.HASH_LENGTH)),
         }
         cache_key_numerator = {"metric_name": f"intermediate_{self.BLOCK_EMD}", **hash_dict}
-        cache_key_denominator = {"metric_name": f"intermediate_ems_denominator_extreme", **hash_dict}
+        cache_key_denominator = {"metric_name": f"intermediate_ems_extreme_denominator", **hash_dict}
 
         assert self._cache is not None
         emd_raw, _ = self._cache.get(cache_key_numerator, compute_numerator)
@@ -543,6 +548,7 @@ class AnnotatedImageMetrics(Metric):
 
         hash_dict = {
             "reference_image": str(AnnotatedImageMetrics.HASH_FUNC(ref_image, hash_size=self.HASH_LENGTH)),
+            "generated_image": str(AnnotatedImageMetrics.HASH_FUNC(pred_image, hash_size=self.HASH_LENGTH)),
         }
         cache_key = {"metric_name": f"intermediate_{self.BLOCK_EMD}", **hash_dict}
         assert self._cache is not None
@@ -561,7 +567,7 @@ class AnnotatedImageMetrics(Metric):
         use_tqdm: bool = False,
     ):
         """Computes the block Earth Moving Distance (EMD). This attempts to
-        speed up EMD for images with huge areas by considering 
+        speed up EMD for images with huge areas by considering
         movement/transformation of blocks of pixels.
         """
         emd_value = compute_emd_recursive(
