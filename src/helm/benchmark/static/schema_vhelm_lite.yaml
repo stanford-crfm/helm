@@ -1,0 +1,109 @@
+---
+############################################################
+# For backwards compatibility with older versions of HELM.
+# TODO: Remove this after 2024-09-01.
+adapter: []
+############################################################
+perturbations:
+  - name: robustness
+    display_name: Robustness
+    description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
+
+############################################################
+metrics:
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+
+  - name: f1_score
+    display_name: F1
+    description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
+  - name: cider
+    display_name: CIDEr
+    description: Evaluates the quality of generated caption by measuring the weighted similarity of n-grams between the captions and a set of human-written reference captions, emphasizing informativeness and consensus.
+    lower_is_better: false
+
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+############################################################
+run_groups:
+  - name: core_scenarios
+    display_name: Core scenarios
+    description: The scenarios where we evaluate all the models.
+    category: All scenarios
+    subgroups:
+      - viz_wiz
+      - vqa
+      - mmmu
+
+  - name: viz_wiz
+    display_name: VizWiz
+    description: A benchmark for visual question answering with images and questions created by visually impaired people [(Gurari et al., 2018)](https://arxiv.org/abs/1802.08218).
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Visually impaired people
+      when: "2018"
+      language: English
+
+  - name: vqa
+    display_name: VQAv2
+    description: Open-ended questions about real-world images [(Goyal et al., 2017)](https://arxiv.org/abs/1612.00837).
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal short answer question answering
+      what: Real-world images
+      who: Human experts
+      when: "2017"
+      language: English
+
+  - name: mmmu
+    display_name: MMMU
+    description: A benchmark designed to evaluate multimodal models on massive multi-discipline tasks demanding college-level subject knowledge and deliberate reasoning [(Yue et al., 2023)](https://arxiv.org/abs/2311.16502).
+    metric_groups:
+      - accuracy
+    environment:
+      main_name: exact_match
+      main_split: valid
+    taxonomy:
+      task: multimodal multiple-choice question answering
+      what: Art & Design, Business, Science, Health & Medicine, Humanities & Social Science, and Tech & Engineering
+      who: Human experts
+      when: "2023"
+      language: English

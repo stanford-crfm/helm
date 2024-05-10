@@ -3,7 +3,7 @@ import LiteLanding from "@/components/Landing/LiteLanding";
 import MMLULanding from "@/components/Landing/MMLULanding";
 import HEIMLanding from "@/components/Landing/HEIMLanding";
 import VHELMLanding from "@/components/VHELMLanding";
-import GlobalLanding from "@/components/Landing/GlobalLanding";
+import HomeLanding from "@/components/Landing/HomeLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -17,8 +17,8 @@ export default function Home() {
     return <MMLULanding />;
   } else if (window.PROJECT_ID === "vhelm") {
     return <VHELMLanding />;
-  } else if (window.PROJECT_ID === "global") {
-    return <GlobalLanding />;
+  } else if (window.PROJECT_ID === "home") {
+    return <HomeLanding />;
   } else {
     return <LiteLanding />;
   }

@@ -1166,8 +1166,6 @@ def get_pubmed_qa_spec() -> RunSpec:
 
 @run_spec_function("live_qa")
 def get_live_qa_spec() -> RunSpec:
-    from helm.common.gpu_utils import get_torch_device_name
-
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.live_qa_scenario.LiveQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -1182,17 +1180,13 @@ def get_live_qa_spec() -> RunSpec:
         name="live_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(
-            {"task": "live_qa", "device": get_torch_device_name()},
-        ),
+        metric_specs=get_open_ended_generation_metric_specs(),
         groups=["live_qa"],
     )
 
 
 @run_spec_function("medication_qa")
 def get_medication_qa_spec() -> RunSpec:
-    from helm.common.gpu_utils import get_torch_device_name
-
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -1207,9 +1201,7 @@ def get_medication_qa_spec() -> RunSpec:
         name="medication_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(
-            {"task": "medication_qa", "device": get_torch_device_name()},
-        ),
+        metric_specs=get_open_ended_generation_metric_specs(),
         groups=["medication_qa"],
     )
 

@@ -4,7 +4,6 @@ from typing import List
 from helm.benchmark.adaptation.adapter_spec import (
     ADAPT_GENERATION,
     ADAPT_MULTIPLE_CHOICE_JOINT,
-    ADAPT_GENERATION_MULTIMODAL,
 )
 from helm.benchmark.model_deployment_registry import (
     ModelDeployment,
@@ -17,14 +16,14 @@ from helm.benchmark.model_metadata_registry import (
     ANTHROPIC_CLAUDE_3_MODEL_TAG,
     BUGGY_TEMP_0_TAG,
     CHATML_MODEL_TAG,
-    GOOGLE_GEMINI_MODEL_TAG,
+    GOOGLE_GEMINI_PRO_VISION_V1_TAG,
     IDEFICS_INSTRUCT_MODEL_TAG,
-    IDEFICS_MODEL_TAG,
     LLAVA_MODEL_TAG,
     OPEN_FLAMINGO_MODEL_TAG,
-    VISION_LANGUAGE_MODEL_TAG,
     NLG_PREFIX_TAG,
     NO_NEWLINES_TAG,
+    VISION_LANGUAGE_MODEL_TAG,
+    IDEFICS_MODEL_TAG,
     ModelMetadata,
     get_model_metadata,
 )
@@ -131,20 +130,16 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         if ANTHROPIC_CLAUDE_3_MODEL_TAG in model.tags:
             run_spec = singleton(AnthropicClaude3RunExpander().expand(run_spec))
 
-        # Google Gemini Vision returns an empty completion or throws an error if max_tokens is 1
+        # Google Gemini Vision v1.0 returns an empty completion or throws an error if max_tokens is 1
         if (
             VISION_LANGUAGE_MODEL_TAG in model.tags
-            and GOOGLE_GEMINI_MODEL_TAG in model.tags
+            and GOOGLE_GEMINI_PRO_VISION_V1_TAG in model.tags
             and run_spec.adapter_spec.max_tokens == 1
         ):
             run_spec = singleton(IncreaseMaxTokensRunExpander(value=1).expand(run_spec))
 
         # IDEFICS special handling
         if IDEFICS_MODEL_TAG in model.tags:
-            # IDEFICS requires more `max_tokens` to generate something reasonable for open-ended generation
-            if run_spec.adapter_spec.method == ADAPT_GENERATION_MULTIMODAL:
-                run_spec = singleton(IncreaseMaxTokensRunExpander(value=30).expand(run_spec))
-
             if IDEFICS_INSTRUCT_MODEL_TAG in model.tags:
                 run_spec = singleton(IDEFICSInstructRunExpander().expand(run_spec))
 

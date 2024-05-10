@@ -1,8 +1,9 @@
 import base64
 import io
+
 import requests
 import shutil
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from urllib.request import urlopen
 
 import numpy as np
@@ -28,6 +29,12 @@ def open_image(image_location: str) -> Image.Image:
     return image.convert("RGB")
 
 
+def get_dimensions(image_location: str) -> Tuple[int, int]:
+    """Returns the dimensions of the image."""
+    image: Image.Image = open_image(image_location)
+    return image.size
+
+
 def encode_base64(image_location: str, format="JPEG") -> str:
     """Returns the base64 representation of an image file."""
     image_file = io.BytesIO()
@@ -36,7 +43,7 @@ def encode_base64(image_location: str, format="JPEG") -> str:
     return base64.b64encode(image_file.getvalue()).decode("ascii")
 
 
-def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optional[int] = None):
+def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optional[int] = None) -> None:
     """
     Copies the image file from `src` path to `dest` path. If dimensions `width` and `height`
     are specified, resizes the image before copying. `src` can be a URL.
@@ -44,7 +51,7 @@ def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optiona
     if (width is not None and height is not None) or is_url(src):
         image = open_image(src)
         if width is not None and height is not None:
-            image = image.resize((width, height), Image.ANTIALIAS)
+            image = image.resize((width, height), Image.Resampling.LANCZOS)
         image.save(dest)
     else:
         shutil.copy(src, dest)
